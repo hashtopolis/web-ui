@@ -1,2 +1,3 @@
-# web-ui
-A new web frontend for Hashtopolis
+# Hashtopolis Web UI
+
+This is under development!
