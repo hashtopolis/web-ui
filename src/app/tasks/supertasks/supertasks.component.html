@@ -1,0 +1,46 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Supertasks</h2>
+      <p class="mb-0">Section to manage supertasks.</p>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a routerLink="/tasks/new-supertasks" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New SuperTask
+      </a>
+  </div>
+</div>
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table id="supertask" class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                  <th class="border-0 rounded-start">ID</th>
+                  <th class="border-0">Name</th>
+                  <th class="border-0 rounded-end" style="text-align:right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let stask of allsupertasks">
+                  <td>{{ stask.supertaskId }}</td>
+                  <td>{{ stask.supertaskName }}</td>
+                  <td>
+                    <a class='btn-outline-gray-600 actions-td-right' (click)="onDelete(stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                      <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                    </a>
+                    <a class='btn btn-outline-gray-600 actions-td-right' data-toggle="tooltip" data-placement="top" title="Apply to Hashlist">
+                      <fa-icon [icon]="faAdd" aria-hidden="true"></fa-icon>Apply Hashlist
+                    </a>
+                    <a class='btn-outline-gray-600 actions-td-right' [routerLink]="['../',stask.supertaskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                      <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                    </a>
+                  </td>
+              </tr>
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

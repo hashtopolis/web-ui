@@ -1,0 +1,123 @@
+/* ==================================
+          SECTION ANIMATIONS
+   ================================== */
+
+/*
+  1- Agent Status Main Server
+*/
+
+$AgentMAIN-mainCol: #cecaca ;
+$AgentMAIN-mainBoxShadow: rgba(0,0,0,.2);
+$AgentMAIN-width: 13.5vmin ;
+$AgentMAIN-height: 2.5vw;
+$AgentMAINblackbottom: 1.8vmin;
+$AgentMAINblackbottom-bottom: 2vmin;
+$AgentMAINblackbottom-left: 10vmin;
+$AgentMAINblackbottom-hoverrad: 0.1;
+$AgentMAINredbotton: 1.2vmin;
+$AgentMAINinfobox-height: 4vmin;
+
+// CONTAINER ―――――――――――――――――――――――――
+
+.box-agent {
+  display: block;
+  // float: right;
+  margin-right: 2%;
+  padding-top: 0.5%;
+}
+
+// AGENT ―――――――――――――――――――――――――
+
+.agent {
+  content: "";
+  padding-left:5px;
+  align-items: center;
+  text-align: left;
+  display: flex;
+  position: relative;
+  width: $AgentMAIN-width;
+  height: $AgentMAIN-height;
+  background: $AgentMAIN-mainCol;
+  border-radius: 2vmin;
+  border: 0.2vmin solid;
+  box-shadow: inset -2px 2px 0 3px $AgentMAIN-mainBoxShadow;
+}
+
+.agentbigbutton {
+  position: absolute;
+  width: $AgentMAINblackbottom;
+  height: $AgentMAINblackbottom;
+  background: #000;
+  border-radius: 50%;
+  bottom: $AgentMAINblackbottom-bottom;
+  left: $AgentMAINblackbottom-left;
+}
+
+.agentbigbutton:hover {
+  position: absolute;
+  width: $AgentMAINblackbottom+$AgentMAINblackbottom-hoverrad;
+  height: $AgentMAINblackbottom+$AgentMAINblackbottom-hoverrad;
+  background: rgb(29, 110, 202);
+  border-radius: 55%;
+  bottom: $AgentMAINblackbottom-bottom;
+  left: $AgentMAINblackbottom-left;
+
+}
+
+.agentsmallbutton {
+  position: absolute;
+  width: $AgentMAINredbotton;
+  height: $AgentMAINredbotton;
+  // background: rgb(153, 11, 11);
+  border-radius: 50%;
+  bottom: $AgentMAINblackbottom-bottom+0.2;
+  left: 8.2vmin;
+  animation: redbuttonflashing 1.4s linear infinite;
+}
+
+@keyframes redbuttonflashing {
+  0% { transform: scale(1);}
+  25% { transform: scale(1);}
+  30% { transform: scale(1.05);}
+  50% { transform: scale(1.1);}
+  70% { transform: scale(1.05);}
+  100% { transform: scale(1);}
+}
+
+.agent-infobox {
+  content: "";
+  padding-top:4px;
+  padding-left:7px;
+  text-size-adjust: auto;
+  text-size-adjust: 80%;
+  font-family: 'Alegreya';
+  align-items: center;
+  text-align: left;
+  width: $AgentMAIN-width;
+  height: $AgentMAINinfobox-height;
+  background: $AgentMAIN-mainCol;
+  border-radius: 1vmin;
+  border: 0.2vmin solid;
+  box-shadow: inset -1px 3px 0 1px $AgentMAIN-mainBoxShadow
+}
+
+// AGENT STATUS MODAL FLASHING BUTTON ―――――――――――――――――――――――――
+
+.astatusflash {
+  animation: redbuttonflashing 1.4s linear infinite;
+}
+
+@keyframes astatusflash {
+  0% { transform: scale(1);}
+  25% { transform: scale(1);}
+  30% { transform: scale(1.05);}
+  50% { transform: scale(1.1);}
+  70% { transform: scale(1.05);}
+  100% { transform: scale(1);}
+}
+
+
+/*
+  1- End
+*/
+

@@ -1,0 +1,14 @@
+<form>
+  <div class="input-group">
+    <fa-icon class="filterboxglass" [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+        <input
+              type="text"
+              id="filterbox"
+              name="filter"
+              placeholder="Type to search"
+              [(ngModel)]="model.filter"
+              (keyup)="filterChanged($event)"
+        />
+  </div>
+</form>
+

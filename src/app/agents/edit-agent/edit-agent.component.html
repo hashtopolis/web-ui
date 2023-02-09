@@ -1,0 +1,351 @@
+<!-- Spinner Loading -->
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Header -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Agent Details</h2>
+  </div>
+</div>
+<!-- Body -->
+<section>
+  <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-12 d-flex align-items-center justify-content-center">
+              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+                <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+                  <div class="row">
+                      <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="getagentid">Agent ID</label>
+                              <div class="input-group">
+                                <span class="input-group-text">
+                                  <fa-icon [icon]="faAlignJustify" aria-hidden="true"></fa-icon>
+                                </span>
+                                <span class="pre input-group-text input-group-lg">
+                                  <td>
+                                    {{ showagent['agentId'] }}
+                                  </td>
+                                </span>
+                              </div>
+                          </div>
+                      </div>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label" for="getlastTime">Last activity</label>
+                            <span class="input-group-text input-group-lg w-50 mx-auto">
+                              <td>
+                                Time: {{ showagent['lastTime']*1000 | date: uidateformat }}<br>
+                                Action: {{ showagent['lastAct'] }}<br>
+                                IP: <code>{{ showagent['lastIp'] }}</code>
+                              </td>
+                            </span>
+                        </div>
+                      </div>
+                      &nbsp;
+                      <ngb-accordion #acc="ngbAccordion" >
+                        <ngb-panel>
+                          <ng-template ngbPanelTitle>
+                            <span><b>Show/Hide details</b></span>
+                          </ng-template>
+                          <ng-template ngbPanelContent>
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getuserId">Owner</label>
+                                  <div class="input-group">
+                                    <span class="input-group-text">
+                                      <fa-icon [icon]="faIdBadge" aria-hidden="true"></fa-icon>
+                                    </span>
+                                    <select
+                                           type='number'
+                                           id="userId"
+                                           class='form-select'
+                                           formControlName="userId"
+                                    >
+                                    <option *ngFor="let u of users" [ngValue]="u.userId">{{ u.username }}</option>
+                                    </select>
+                                  </div>
+                              </div>
+                            </div>
+                            &nbsp;
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getagentName">Machine Name</label>
+                                  <div class="input-group">
+                                    <span class="input-group-text">
+                                      <fa-icon [icon]="faComputer" aria-hidden="true"></fa-icon>
+                                    </span>
+                                    <input
+                                          type='text'
+                                          id="agentName"
+                                          class='form-control'
+                                          formControlName="agentName"
+                                    >
+                                  </div>
+                              </div>
+                            </div>
+                            <hr>
+                            <div class="row g-3">
+                              <div class="col-md-2">
+                                &nbsp;
+                                <div class="form-group">
+                                  <div class="form-outline">
+                                      <label class="form-label" for="getcpuOnly">CPU only</label>
+                                      <td>
+                                      <select
+                                            id="cpuOnly"
+                                            class='form-select'
+                                            formControlName="cpuOnly"
+                                        >
+                                        <option [ngValue]="false">No</option>
+                                        <option [ngValue]="true">Yes</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                &nbsp;
+                              </div>
+                              <div class="col-md-2">
+                                &nbsp;
+                                <div class="form-group">
+                                  <div class="form-outline">
+                                      <label class="form-label" for="getisTrusted">Trust</label>
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip="Trust agent with secret data"
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                              class="gray-light-ico"
+                                      ></fa-icon>
+                                      <select
+                                            id="isTrusted"
+                                            class='form-select'
+                                            formControlName="isTrusted"
+                                          >
+                                          <option [ngValue]="false">No</option>
+                                          <option [ngValue]="true">Yes</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                &nbsp;
+                              </div>
+                              <div class="col-md-8">
+                                &nbsp;
+                                <div class="form-group">
+                                  <div class="form-outline">
+                                      <label class="form-label" for="getchunkTime">Assignment</label>
+                                      <select
+                                            type='text'
+                                            id="assignment"
+                                            class='form-select'
+                                          >
+                                          <option>Missing</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                &nbsp;
+                              </div>
+                            </div>
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getaccessgroups">Member of access groups</label>
+                                  <input
+                                        type='number'
+                                        id="accessgroups"
+                                        class='form-control'
+                                  >
+                              </div>
+                            </div>
+                            &nbsp;
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getcmdPars">Extra parameters</label>
+                                  <input
+                                        type='text'
+                                        id="cmdPars"
+                                        class='form-control'
+                                        formControlName="cmdPars"
+                                  >
+                              </div>
+                            </div>
+                            &nbsp;
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getignoreErrors">Cracker errors</label>
+                                  <select
+                                         type='text'
+                                         id="ignoreErrors"
+                                         class='form-select'
+                                         formControlName="ignoreErrors"
+                                      >
+                                      <option value="NO">Deactivate agent on error</option>
+                                      <option value="IGNORE_SAVE">Keep agent running, but save errors</option>
+                                      <option value="IGNORE_NOSAVE">Keep agent running and discard errors</option>
+                                  </select>
+                              </div>
+                            </div>
+                            &nbsp;
+                            <hr>
+                            <h4>Agent Detailed Information</h4>
+                            <div class="row">
+                              <div class="col">
+                                &nbsp;
+                                <div class="form-group">
+                                    <div class="form-outline">
+                                        <label class="form-label" for="getagentId">Machine ID</label>
+                                        <span class="pre input-group-text input-group-lg w-70 mx-auto">
+                                          <td>
+                                            {{ showagent['uid'] }}
+                                          </td>
+                                        </span>
+                                    </div>
+                                 </div>
+                                 &nbsp;
+                                </div>
+                                <div class="col">
+                                  &nbsp;
+                                  <div class="form-group">
+                                    <div class="form-outline">
+                                        <label class="form-label" for="gettoken">Access token</label>
+                                        <div class="input-group">
+                                          <span class="input-group-text">
+                                            <fa-icon [icon]="faKey" aria-hidden="true"></fa-icon>
+                                          </span>
+                                          <input
+                                                type='text'
+                                                id="token"
+                                                class='form-control'
+                                                formControlName="token"
+                                          >
+                                        </div>
+                                    </div>
+                                    &nbsp;
+                                 </div>
+                              </div>
+                            </div>
+                            <div class="row g-3">
+                              <div class="col-md-2">
+                                &nbsp;
+                                <div class="form-group">
+                                  <div class="form-outline">
+                                      <label class="form-label" for="getOS">O.S.</label>
+                                      <div class="input-group">
+                                        <span *ngIf="showagent['os'] == 0" class="input-group-text input-group-lg w-15 mx-auto">
+                                          <fa-icon [icon]="faLinux" aria-hidden="true"></fa-icon>Linux
+                                        </span>
+                                        <span *ngIf="showagent['os'] == 1" class="input-group-text input-group-lg w-15 mx-auto">
+                                          <fa-icon [icon]="faWindows" aria-hidden="true"></fa-icon>Windows
+                                        </span>
+                                        <span *ngIf="showagent['os'] == 2" class="input-group-text input-group-lg w-15 mx-auto">
+                                          <fa-icon [icon]="faApple" aria-hidden="true"></fa-icon>IOS
+                                        </span>
+                                      </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-md-10">
+                                &nbsp;
+                                <div class="form-group">
+                                  <div class="form-outline">
+                                      <label class="form-label" for="getdevices">Graphic cards</label>
+                                      <span class="pre input-group-text input-group-lg w-70 mx-auto">
+                                        <td>
+                                          {{ showagent['devices'] }}
+                                        </td>
+                                      </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            &nbsp;
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getchunkTime">Time spent cracking</label>
+                                  <span class="pre input-group-text input-group-lg">
+                                    <td>
+                                      <div  *ngIf="timespent">
+                                        {{ timespent | sectotime }}
+                                      </div>
+                                    </td>
+                                  </span>
+                              </div>
+                            </div>
+                            &nbsp;
+                          </ng-template>
+                        </ngb-panel>
+                      </ngb-accordion>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                          <label class="form-label" for="getisActive">Active</label>
+                          <div class="form-check">
+                            <input
+                                  type="checkbox"
+                                  id="isActive"
+                                  class="form-check-input"
+                                  value=""
+                                  formControlName="isActive"
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      &nbsp;
+                    </div>
+                  <button class="btn btn-gray-800" type="submit">Update</button>
+            </form>
+        </div>
+      </div>
+   </div>
+</div>
+<!-- Errors -->
+<p>Missing API for Agent Error Factory?</p>
+
+<!-- Dispatched Chunks -->
+&nbsp;&nbsp;
+<h2 class="h4">Dispatched chunks</h2>
+<h5>Latest 50 chunks</h5>
+<div class="table-responsive">
+  &nbsp;
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
+      <thead class="thead-light">
+        <tr>
+          <th class="border-0 rounded-start">ID</th>
+          <th class="border-0">Start</th>
+          <th class="border-0">Length</th>
+          <th class="border-0">Checkpoint</th>
+          <th class="border-0">Progress</th>
+          <th class="border-0">Task</th>
+          <th class="border-0">Dispatch time</th>
+          <th class="border-0">Last activity</th>
+          <th class="border-0">Time spent</th>
+          <th class="border-0">State</th>
+          <th class="border-0 rounded-end">Cracked</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let gc of getchunks">
+          <td>{{ gc.chunkId }}</td>
+          <td>{{ gc.skip }}</td>
+          <td>{{ gc.length }}</td>
+          <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
+          <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
+          <td *ngIf="!gc.progress">N/A</td>
+          <td>
+            {{ gc.taskName | shortenString:15 | lowercase | titlecase}}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',gc.taskId,'edit']" title="View Task">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+          <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
+          <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
+          <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
+          <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
+          <td>{{ gc.state | staticArray:'states' }}</td>
+          <td>{{ gc.cracked }}</td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+</section>

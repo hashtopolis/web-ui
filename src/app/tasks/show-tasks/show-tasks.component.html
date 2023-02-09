@@ -1,0 +1,119 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+    <div [ngSwitch]="whichView">
+      <div *ngSwitchCase="'live'">
+        <h2 class="h4">Tasks</h2>
+        <p class="mb-0">Section to manage live tasks.</p>
+      </div>
+      <div *ngSwitchCase="'archived'">
+        <h2 class="h4">Archived Tasks</h2>
+        <p class="mb-0">Section to manage archived tasks.</p>
+      </div>
+    </div>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a routerLink="/tasks/new-tasks" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New Task
+      </a>
+  </div>
+</div>
+<!-- Body -->
+<div [ngSwitch]="whichView">
+  <div *ngSwitchCase="'live'">
+    <button [routerLink]="['../','show-tasks-archived']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Archived</button>
+  </div>
+  <div *ngSwitchCase="'archived'">
+    <button [routerLink]="['../','show-tasks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
+  </div>
+</div>
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                  <th class="border-0 rounded-start">ID</th>
+                  <th class="border-0">Name</th>
+                  <th class="border-0">Hashlist</th>
+                  <th class="border-0">Dispatched/Searched</th>
+                  <th class="border-0">Cracked</th>
+                  <th class="border-0">Agents</th>
+                  <th class="border-0">Priority</th>
+                  <th class="border-0">Max Agents</th>
+                  <th class="border-0 rounded-end"></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let task of alltasks">
+                  <td [ngClass]="!task.color ? '' : 'pill-ebidem-tk'"  [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
+                  <td>
+                      <a>{{ task.taskName | lowercase | titlecase }}</a>
+                      <span *ngIf="task.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+                  </td>
+                  <td>
+                    Missing Hashlist
+                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',task.objectId,'edit']" title="Edit Hashlist">
+                      <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+                    </a>
+                  </td>
+                  <td>{{ task.keyspace }}/ {{ task.keyspaceProgress }}</td>
+                  <td>{{ task.taskId }}</td>
+                  <td>{{ task.maxAgents }}</td>
+                  <td>{{ task.priority }}</td>
+                  <td>{{ task.maxAgents }}</td>
+                  <td>
+                  <div [ngSwitch]="whichView">
+                    <div *ngSwitchCase="'live'">
+                      <td class="overflow-hidden">
+                        <div ngbDropdown container="body">
+                          <button type="button" class="btn btn-sm btn-gray-800 btn-sm" ngbDropdownToggle>Actions</button>
+                          <div ngbDropdownMenu>
+                            <button ngbDropdownItem [routerLink]="[task.taskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+                            </button>
+                            <button ngbDropdownItem [routerLink]="['/tasks/new-tasks',task.taskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to Task">
+                              <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
+                            </button>
+                            <button ngbDropdownItem [routerLink]="['/tasks/preconfigured-tasks',task.taskId,'copytask']" data-toggle="tooltip" data-placement="top" title="Copy to Pretask">
+                              <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon>  Copy to Pretask
+                            </button>
+                            <button ngbDropdownItem (click)="onArchive(task.taskId)" data-toggle="tooltip" data-placement="top" title="Archive">
+                              <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button ngbDropdownItem (click)="onDelete(task.taskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </div>
+                    <div *ngSwitchCase="'archived'">
+                      <div ngbDropdown container="body">
+                        <button type="button" class="btn btn-sm btn-gray-800 btn-sm" ngbDropdownToggle>Actions</button>
+                        <div ngbDropdownMenu>
+                          <button ngbDropdownItem [routerLink]="[task.taskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                            <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+                          </button>
+                          <button ngbDropdownItem [routerLink]="['/tasks/new-tasks', task.taskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to task">
+                            <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
+                          </button>
+                          <button ngbDropdownItem [routerLink]="[task.taskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to pretask">
+                            <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon> Copy to task
+                          </button>
+                          <div class="dropdown-divider"></div>
+                          <button ngbDropdownItem (click)="onDelete(task.taskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  <!-- </td> -->
+                  </div>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>

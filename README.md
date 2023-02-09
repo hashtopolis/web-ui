@@ -1,3 +1,3 @@
-# Hashtopolis Web UI
+# UI-Hashtopolis (DONT USE YET)
 
-This is under development!
+This a first draft of the UI, please do not use it yet. We will have a beta soon.

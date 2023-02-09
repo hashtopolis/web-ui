@@ -1,0 +1,27 @@
+/* ==================================
+          SECTION TYPOGRAPHY
+   ================================== */
+
+.font-small {
+  font-size: 0.875rem;
+  font-weight: 300;
+}
+
+.fw-bold {
+  font-weight: 500 !important;
+}
+
+.text-gray-900 {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-gray-900-rgb), var(--bs-text-opacity)) !important;
+}
+
+.text-success {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-success-rgb), var(--bs-text-opacity)) !important;
+}
+
+.text-warning {
+  --bs-text-opacity: 1;
+  color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;
+}

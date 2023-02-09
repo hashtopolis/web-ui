@@ -1,0 +1,112 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <div [ngSwitch]="whichView">
+          <div *ngSwitchCase="'wordlist'">
+            <h2 class="h4">WordLists</h2>
+            <p class="mb-0">Create/Manage your wordlists.</p>
+          </div>
+          <div *ngSwitchCase="'rules'">
+            <h2 class="h4">Rules</h2>
+            <p class="mb-0">Create/Manage your rules..</p>
+          </div>
+          <div *ngSwitchCase="'other'">
+            <h2 class="h4">Other</h2>
+            <p class="mb-0">Create/Manage other files.</p>
+          </div>
+        </div>
+    </div>
+        <div [ngSwitch]="whichView">
+          <div *ngSwitchCase="'wordlist'">
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group ms-2 ms-3">
+                <button type="button" routerLink="../wordlist" class="btn btn-sm btn-outline-gray-600-select">Wordlist</button>
+                <button type="button" routerLink="../rules" class="btn btn-sm btn-outline-gray-600">Rules</button>
+                <button type="button" routerLink="../other" class="btn btn-sm btn-outline-gray-600">Other</button>
+              </div>
+            </div>
+          </div>
+          <div *ngSwitchCase="'rules'">
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group ms-2 ms-3">
+                <button type="button" routerLink="../wordlist" class="btn btn-sm btn-outline-gray-600">Wordlist</button>
+                <button type="button" routerLink="../rules" class="btn btn-sm btn-outline-gray-600-select">Rules</button>
+                <button type="button" routerLink="../other" class="btn btn-sm btn-outline-gray-600">Other</button>
+              </div>
+            </div>
+          </div>
+          <div *ngSwitchCase="'other'">
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group ms-2 ms-3">
+                <button type="button" routerLink="../wordlist" class="btn btn-sm btn-outline-gray-600">Wordlist</button>
+                <button type="button" routerLink="../rules" class="btn btn-sm btn-outline-gray-600">Rules</button>
+                <button type="button" routerLink="../other" class="btn btn-sm btn-outline-gray-600-select">Other</button>
+              </div>
+            </div>
+          </div>
+        </div>
+  </div>
+  <!-- Body -->
+  <!-- WordList Table -->
+  <div class="card border-0 shadow mb-4">
+    <div class="card-body">
+          <div class="table-responsive">
+            &nbsp;
+              <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+                <thead class="thead-light">
+                  <tr>
+                      <th class="border-0 rounded-start">ID</th>
+                      <th class="border-0">File</th>
+                      <th class="border-0">Size</th>
+                      <th class="border-0">Line Count</th>
+                      <th class="border-0">Access Group</th>
+                      <th class="border-0 rounded-end">Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let f of allfiles">
+                      <td>{{ f.fileId }}</td>
+                      <td *ngIf="f.isSecret == 1">{{ f.filename }} <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></td>
+                      <td *ngIf="f.isSecret == 0">{{ f.filename }}</td>
+                      <td>{{ f.size | fileSize:false }}</td>
+                      <td>{{ f.lineCount }}</td>
+                      <td>{{ f.accessGroup.groupName }}</td>
+                      <td>
+                        <div [ngSwitch]="whichView">
+                          <div *ngSwitchCase="'wordlist'">
+                            <a class='btn-outline-gray-600' [routerLink]="['/files',f.fileId,'wordlist-edit']" [queryParams]="{allowEdit: +f.fileId === 2 ? '1' : '0'}" data-toggle="tooltip" data-placement="top" title="Edit">
+                              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                            </a>
+                            <a class='btn-outline-gray-600 float-right'(click)="deleteFile(f.fileId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                            </a>
+                          </div>
+                          <div *ngSwitchCase="'rules'">
+                            <a class='btn-outline-gray-600' [routerLink]="['/files',f.fileId,'rules-edit']" [queryParams]="{allowEdit: +f.fileId === 2 ? '1' : '0'}" data-toggle="tooltip" data-placement="top" title="Edit">
+                              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                            </a>
+                            <a class='btn-outline-gray-600 float-right'(click)="deleteFile(f.fileId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                            </a>
+                          </div>
+                          <div *ngSwitchCase="'other'">
+                            <a class='btn-outline-gray-600' [routerLink]="['/files',f.fileId,'other-edit']" [queryParams]="{allowEdit: +f.fileId === 2 ? '1' : '0'}" data-toggle="tooltip" data-placement="top" title="Edit">
+                              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                            </a>
+                            <a class='btn-outline-gray-600 float-right'(click)="deleteFile(f.fileId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                            </a>
+                          </div>
+                        </div>
+                     </td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
+      </div>
+  </div>
+  <!-- End WordList || Rules || Other Table -->
+
+
+
+
+

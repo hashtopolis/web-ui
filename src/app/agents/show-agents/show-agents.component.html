@@ -1,0 +1,74 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Agents</h2>
+      <p class="mb-0">Section to view and manager agents.</p>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a routerLink="/agents/new-agent" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New Agent
+      </a>
+  </div>
+</div>
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" #agents datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agents">
+              <thead class="thead-light">
+                <tr>
+                    <th class="border-0 rounded-start"><input type="checkbox" (click)="setCheckAll()"> ID</th>
+                    <th class="border-0">Name / Owner / Client</th>
+                    <th class="border-0">GPUs/CPUs</th>
+                    <th class="border-0">CPU only</th>
+                    <th class="border-0">Last activity</th>
+                    <th class="border-0">Access Groups</th>
+                    <th class="border-0 rounded-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let agent of showagents">
+                    <!-- <td><input type="checkbox" [disabled]="agent.agentId === 1" class="checkboxCls" [value]="agent.agentId" [checked]="agent.checked" name="id" (change)="agent.checked = !agent.checked"></td> -->
+                    <td>{{ agent.agentId }}</td>
+                    <td>
+                        <a><b>{{ agent.agentName | lowercase | titlecase }}</b></a>
+                        <span *ngIf="agent.notes > 1" ><fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon></span>
+                        <span *ngIf="agent.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+                        <span *ngIf="agent.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
+                        <br>
+                        <a *ngIf="agent.agentId > 0">Username By Id</a>
+                        <a *ngIf="agent.agentId == 0">---</a>
+                        <br><a *ngIf="agent.clientSignature.length > 0">{{ agent.clientSignature}}</a>
+                        <br><a *ngIf="agent.clientSignature.length == 0">Running: unknown</a>
+                        <span *ngIf="agent.notes" ><fa-icon [icon]="faFileText" aria-hidden="true"></fa-icon>
+                            <a style="display: none;">notes</a>
+                        </span>
+                    </td>
+                    <td class="pre">{{ agent.devices }}</td>
+                    <td>{{ agent.cpuOnly == true ? "Yes" : "No" }}</td>
+                    <td>
+                        <code>{{ agent.lastAct }}</code> at <br>
+                        {{ agent.lastTime *1000 | date: uidateformat }}<br>
+                        IP:
+                        <code>{{ agent.lastIp }}</code>
+                    </td>
+                    <td>Need shared function access groups</td>
+                    <td>
+                      <a class='btn-outline-gray-600 float-right' [routerLink]="[agent.agentId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                        <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                      </a>
+                      <a>
+                        <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(agent.agentId)">
+                        <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon></a>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+          </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bulk Actions Modal -->
+

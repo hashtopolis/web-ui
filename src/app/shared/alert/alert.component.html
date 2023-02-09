@@ -1,0 +1,13 @@
+<div class="backdrop" abindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true" (click)="onClose()">
+<div class="alert-box">
+    <div class="modal-header">
+        <h2 class="h6 modal-title">Alert</h2>
+        <a (click)="onClose()" class="btn-close closemodale" aria-hidden="true">&times;</a>
+    </div>
+    <div class="modal-body">
+      <p>{{ message }}</p>
+    </div>
+  <div class="alert-box-actions">
+    <button class="btn-modal btn-primary" (click)="onClose()">Close</button>
+  </div>
+</div>

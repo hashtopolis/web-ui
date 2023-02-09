@@ -1,0 +1,77 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">Chunks</h2>
+        <p class="mb-0">Section to manage and view chunk activity.</p>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div [ngSwitch]="chunkview">
+        <div *ngSwitchCase="2">
+          <a  [routerLink]="['/tasks/chunks']" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+            <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+             View Less
+          </a>
+        </div>
+        <div *ngSwitchCase="0">
+          <a  [routerLink]="['/tasks/chunks', 'show-all-chunks']" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+            <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+              View all chunks
+          </a>
+        </div>
+      </div>
+
+    </div>
+</div>
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+    <div class="card-body">
+          <div class="table-responsive">
+              <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+                <thead class="thead-light">
+                  <tr>
+                      <th class="border-0 rounded-start">ID</th>
+                      <th class="border-0">Start</th>
+                      <th class="border-0">Length</th>
+                      <th class="border-0">Checkpoint</th>
+                      <th class="border-0">Progress</th>
+                      <th class="border-0">Task</th>
+                      <th class="border-0">Agent</th>
+                      <th class="border-0">Dispatch time</th>
+                      <th class="border-0">Last activity</th>
+                      <th class="border-0">Time spent</th>
+                      <th class="border-0">State</th>
+                      <th class="border-0 rounded-end">Cracked</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of chunks; let i = index">
+                        <td class="text-align:center">{{ c.chunkId }}</td>
+                        <td>{{ c.skip }}</td>
+                        <td>{{ c.length }}</td>
+                        <td>{{ c.checkpoint }} ({{ (c.checkpoint-c.skip)/c.length | percent }})</td>
+                        <td *ngIf="c.progress > 0">{{ c.progress/100 }} %</td>
+                        <td *ngIf="!c.progress">N/A</td>
+                        <td>
+                          {{ c.taskName | shortenString:15 | lowercase | titlecase}}
+                          <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',c.taskId,'edit']" title="View Task">
+                            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+                          </a>
+                        </td>
+                        <td>
+                          {{ c.agentName | shortenString:15 | lowercase | titlecase }}
+                          <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',c.agentId,'edit']" title="View Agent">
+                            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+                          </a>
+                        </td>
+                        <td>{{ c.dispatchTime*1000 | date: uidateformat }}</td>
+                        <td *ngIf="c.solveTime === 0">(No acitivity)</td>
+                        <td *ngIf="c.solveTime > 0">{{ c.solveTime*1000 | date: uidateformat }}</td>
+                        <td>{{ (c.solveTime - c.dispatchTime) | sectotime }}</td>
+                        <td>{{ c.state | staticArray:'states' }}</td>
+                        <td>{{ c.cracked }}</td>
+                    </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+  </div>
+

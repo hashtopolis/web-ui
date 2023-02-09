@@ -1,0 +1,52 @@
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Body -->
+<section>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+          <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+              <h2 class="h5 mb-4">Create SuperTask</h2><br>
+              <div class="row">
+                <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+                    <div class="form-outline">
+                      <label class="form-label requiredak" for="getsupertaskName">Name</label>
+                          <div class="input-group">
+                              <span class="input-group-text">
+                                <fa-icon [icon]="faFile" aria-hidden="true"></fa-icon>
+                              </span>
+                              <input
+                                    type='text'
+                                    id="supertaskName"
+                                    class='form-control'
+                                    formControlName="supertaskName"
+                              />
+                          </div>
+                          &nbsp;
+                          <div class="form-group">
+                            <div class="form-outline">
+                                <label class="form-label requiredak" for="getTasks">Select or search tasks assigned to this supertask:</label>
+                                <div class="input-group">
+                                  <span class="input-group-text" >
+                                    <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+                                  </span>
+                                  <select
+                                        type='number'
+                                        id="preTasks"
+                                        class='form-select'
+                                        formControlName="pretasks"
+                                      >
+                                      <option [ngValue]=""></option>
+                                  </select>
+                              </div>
+                            </div>
+                          </div>
+                          &nbsp;
+                     </div>
+                   <button class="btn btn-gray-800" type="submit">Create</button>
+              </form>
+         </div>
+     </div>
+  </div>
+</div>

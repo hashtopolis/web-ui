@@ -1,0 +1,1410 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <div [ngSwitch]="whichView">
+        <div *ngSwitchCase="'agent'">
+          <h2 class="h4">Agent Settings</h2>
+          <p class="mb-0">Manage and customize agent settings.</p>
+        </div>
+        <div *ngSwitchCase="'task-chunk'">
+          <h2 class="h4">Task/Chunk Settings</h2>
+          <p class="mb-0">Manage and customize task and chunk settings.</p>
+        </div>
+        <div *ngSwitchCase="'hch'">
+          <h2 class="h4">Hashes/Cracks/Hashlist Settings</h2>
+          <p class="mb-0">Manage and customize Hashes, Cracks and Haslist settings.</p>
+        </div>
+        <div *ngSwitchCase="'notif'">
+          <h2 class="h4">Notification Settings</h2>
+          <p class="mb-0">Manage and customize notification settings.</p>
+        </div>
+        <div *ngSwitchCase="'gs'">
+          <h2 class="h4">General Settings</h2>
+          <p class="mb-0">Manage and customize general settings.</p>
+        </div>
+      </div>
+  </div>
+  <div [ngSwitch]="whichView">
+    <div *ngSwitchCase="'agent'">
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2 ms-3">
+          <button type="button" routerLink="../agent" class="btn btn-sm btn-outline-gray-600-select">Agent</button>
+          <button type="button" routerLink="../task-chunk" class="btn btn-sm btn-outline-gray-600">Task/Chunk</button>
+          <button type="button" routerLink="../hch" class="btn btn-sm btn-outline-gray-600">Hashes/Cracks/Hashlist</button>
+          <button type="button" routerLink="../notifications" class="btn btn-sm btn-outline-gray-600">Notifications</button>
+          <button type="button" routerLink="../general-settings" class="btn btn-sm btn-outline-gray-600">General</button>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'task-chunk'">
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2 ms-3">
+          <button type="button" routerLink="../agent" class="btn btn-sm btn-outline-gray-600">Agent</button>
+          <button type="button" routerLink="../task-chunk" class="btn btn-sm btn-outline-gray-600-select">Task/Chunk</button>
+          <button type="button" routerLink="../hch" class="btn btn-sm btn-outline-gray-600">Hashes/Cracks/Hashlist</button>
+          <button type="button" routerLink="../notifications" class="btn btn-sm btn-outline-gray-600">Notifications</button>
+          <button type="button" routerLink="../general-settings" class="btn btn-sm btn-outline-gray-600">General</button>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'hch'">
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2 ms-3">
+          <button type="button" routerLink="../agent" class="btn btn-sm btn-outline-gray-600">Agent</button>
+          <button type="button" routerLink="../task-chunk" class="btn btn-sm btn-outline-gray-600">Task/Chunk</button>
+          <button type="button" routerLink="../hch" class="btn btn-sm btn-outline-gray-600-select">Hashes/Cracks/Hashlist</button>
+          <button type="button" routerLink="../notifications" class="btn btn-sm btn-outline-gray-600">Notifications</button>
+          <button type="button" routerLink="../general-settings" class="btn btn-sm btn-outline-gray-600">General</button>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'notif'">
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2 ms-3">
+          <button type="button" routerLink="../agent" class="btn btn-sm btn-outline-gray-600">Agent</button>
+          <button type="button" routerLink="../task-chunk" class="btn btn-sm btn-outline-gray-600">Task/Chunk</button>
+          <button type="button" routerLink="../hch" class="btn btn-sm btn-outline-gray-600">Hashes/Cracks/Hashlist</button>
+          <button type="button" routerLink="../notifications" class="btn btn-sm btn-outline-gray-600-select">Notifications</button>
+          <button type="button" routerLink="../general-settings" class="btn btn-sm btn-outline-gray-600">General</button>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'gs'">
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group ms-2 ms-3">
+          <button type="button" routerLink="../agent" class="btn btn-sm btn-outline-gray-600">Agent</button>
+          <button type="button" routerLink="../task-chunk" class="btn btn-sm btn-outline-gray-600">Task/Chunk</button>
+          <button type="button" routerLink="../hch" class="btn btn-sm btn-outline-gray-600">Hashes/Cracks/Hashlist</button>
+          <button type="button" routerLink="../notifications" class="btn btn-sm btn-outline-gray-600">Notifications</button>
+          <button type="button" routerLink="../general-settings" class="btn btn-sm btn-outline-gray-600-select">General</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Body -->
+<div [ngSwitch]="whichView">
+  <div *ngSwitchCase="'agent'">
+    <div class="col-12 d-flex align-items-center justify-content-center">
+      <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+        <form [formGroup]="agentForm">
+          <div class="row">
+            <h3>Agent Settings</h3>&nbsp;
+               <h5><u>Activity / Registration</u></h5>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="SetAgenttimeout">Delay before considering an agent as inactive(or timed out)</label>
+                      <span *ngIf="atip.agenttimeout">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agenttimeout}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agenttimeout"
+                            class='form-control'
+                            formControlName="agenttimeout"
+                            #agenttimeout
+                            (change)="autoSave('agenttimeout',agenttimeout.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="SetBenchtime">Delay before considering an issued chunk as inactive</label>
+                      <span *ngIf="atip.benchtime">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.benchtime}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="benchtime"
+                            class='form-control'
+                            formControlName="benchtime"
+                            #benchtime
+                            (change)="autoSave('benchtime',benchtime.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setStatustimer">Frequency of the agent reporting about a task to the server</label>
+                      <span *ngIf="atip.statustimer">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.statustimer}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="statustimer"
+                            class='form-control'
+                            formControlName="statustimer"
+                            #statustimer
+                            (change)="autoSave('statustimer',statustimer.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentDataLifetime">Time during which util and temperature data are retained on the server</label>
+                      <span *ngIf="atip.agentDataLifetime">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentDataLifetime}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agentDataLifetime"
+                            class='form-control'
+                            formControlName="agentDataLifetime"
+                            #agentDataLifetime
+                            (change)="autoSave('agentDataLifetime',agentDataLifetime.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <div class="form-outline">
+                          <label class="form-label" for="setHideIpInfo">Hide agent's IP information</label>
+                          <span *ngIf="atip.hideIpInfo">
+                            <fa-icon
+                                    placement="bottom"
+                                    ngbTooltip='{{atip.hideIpInfo}}'
+                                    container="body"
+                                    [icon]="faInfoCircle"
+                                    aria-hidden="true"
+                            >
+                            </fa-icon>
+                          </span>
+                          <td>
+                          <div class="form-check form-switch">
+                              <input
+                                    type="checkbox"
+                                    id="hideIpInfo"
+                                    class="form-check-input"
+                                    formControlName="hideIpInfo"
+                                    #hideIpInfo
+                                    (change)="autoSave('hideIpInfo',hideIpInfo.value, true)"
+                              >
+                          </div>
+                        </div>&nbsp;
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="form-group">
+                        <div class="form-outline">
+                          <label class="form-label" for="setVoucherDeletion">Voucher(s) can be used to register multiple agents</label>
+                          <span *ngIf="atip.voucherDeletion">
+                            <fa-icon
+                                    placement="bottom"
+                                    ngbTooltip='{{atip.voucherDeletion}}'
+                                    container="body"
+                                    [icon]="faInfoCircle"
+                                    aria-hidden="true"
+                            >
+                            </fa-icon>
+                          </span>
+                          <td>
+                          <div class="form-check form-switch">
+                              <input
+                                    type="checkbox"
+                                    id="voucherDeletion"
+                                    class="form-check-input"
+                                    formControlName="voucherDeletion"
+                                    #voucherDeletion
+                                    (change)="autoSave('voucherDeletion',voucherDeletion.value, true)"
+                              >
+                          </div>
+                        </div>&nbsp;
+                      </div>
+                    </div>
+                  </div>
+                  <hr>
+                  <h5><u>Graphical Feedback</u></h5>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentStatLimit">Maximum number of data points in agent (gpu) graphs</label>
+                      <span *ngIf="atip.agentStatLimit">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentStatLimit}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agentStatLimit"
+                            class='form-control'
+                            formControlName="agentStatLimit"
+                            #agentStatLimit
+                            (change)="autoSave('agentStatLimit',agentStatLimit.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentStatTension">Draw straigth lines in agent data graph instead of bezier curves</label>
+                      <span *ngIf="atip.agentStatTension">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentStatTension}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <select
+                            type='number'
+                            id='agentStatTension'
+                            class='form-select'
+                            formControlName="agentStatTension"
+                            #agentStatTension
+                            (change)="autoSave('agentStatTension',agentStatTension.value)"
+                        >
+                          <option value="0">Straight lines</option>
+                          <option value="1">Bezier curves</option>
+                      </select>
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentTempThreshold1">Temperature threshold above which an agent is displayed in <a style="color:orange;">orange</a> in the status page</label>
+                      <span *ngIf="atip.agentTempThreshold1">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentTempThreshold1}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agentTempThreshold1"
+                            class='form-control'
+                            formControlName="agentTempThreshold1"
+                            #agentTempThreshold1
+                            (change)="autoSave('agentTempThreshold1',agentTempThreshold1.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentTempThreshold2">Temperature threshold above which an agent is displayed in <a style="color:red;">red</a> in the status page</label>
+                      <span *ngIf="atip.agentTempThreshold2">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentTempThreshold2}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agentTempThreshold2"
+                            class='form-control'
+                            formControlName="agentTempThreshold2"
+                            #agentTempThreshold2
+                            (change)="autoSave('agentTempThreshold2',agentTempThreshold2.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentUtilThreshold1">Util threshold below which an agent is displayed in <a style="color:orange;">orange</a> in the status page</label>
+                      <span *ngIf="atip.agentUtilThreshold1">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentUtilThreshold1}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agentUtilThreshold1"
+                            class='form-control'
+                            formControlName="agentUtilThreshold1"
+                            #agentUtilThreshold1
+                            (change)="autoSave('agentUtilThreshold1',agentUtilThreshold1.value)"
+                      >
+                    </div>
+                  </div>&nbsp;
+                  <div class="form-group">
+                    <div class="form-outline">
+                      <label class="form-label" for="setAgentUtilThreshold2">Util threshold below which an agent is displayed in <a style="color:red;">red</a> in the status page</label>
+                      <span *ngIf="atip.agentUtilThreshold2">
+                        <fa-icon
+                                placement="bottom"
+                                ngbTooltip='{{atip.agentUtilThreshold2}}'
+                                container="body"
+                                [icon]="faInfoCircle"
+                                aria-hidden="true"
+                        >
+                        </fa-icon>
+                      </span>
+                      <td>
+                      <input
+                            type='number'
+                            id="agentUtilThreshold2"
+                            class='form-control'
+                            formControlName="agentUtilThreshold2"
+                            #agentUtilThreshold2
+                            (change)="autoSave('agentUtilThreshold2',agentUtilThreshold2.value)"
+                      >
+                    </div>
+                  </div>
+                  &nbsp;&nbsp;
+             </div>
+            <!-- <button  class="btn btn-gray-800" type="submit">Save</button> -->
+          </form>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'task-chunk'">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+        <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+          <form [formGroup]="tcForm">
+            <div class="row">
+              <h3>Task/Chunk Settings</h3>&nbsp;
+              <h5><u>Benchmark / Chunk</u></h5>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setAgentUtilThreshold2">Duration of a runtime benchmark process( Drop it?)</label>
+                  <fa-icon
+                          placement="bottom"
+                          ngbTooltip="....."
+                          container="body"
+                          [icon]="faInfoCircle"
+                          aria-hidden="true"
+                  >
+                  </fa-icon>
+                  <td>
+                  <input
+                        type='number'
+                        id="agentUtilThreshold2"
+                        class='form-control'
+
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setChunktime">Expected duration of a chunk</label>
+                  <span *ngIf="tctip.chunktime">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.chunktime}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="chunktime"
+                        class='form-control'
+                        formControlName="chunktime"
+                        #chunktime
+                        (change)="autoSave('chunktime',chunktime.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setDisptolerance">Authorised expansion in percentage of the final chunk of a task</label>
+                  <span *ngIf="tctip.disptolerance">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.disptolerance}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="disptolerance"
+                        class='form-control'
+                        formControlName="disptolerance"
+                        #disptolerance
+                        (change)="autoSave('disptolerance',disptolerance.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setDefaultBenchmark">Speed benchmark as default benchmark process (option1 dropped, drop this)</label>
+                  <span *ngIf="tctip.defaultBenchmark">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.defaultBenchmark}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="defaultBenchmark"
+                            class="form-check-input"
+                            formControlName="defaultBenchmark"
+                            #defaultBenchmark
+                            (change)="autoSave('defaultBenchmark',defaultBenchmark.value, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setDisableTrimming">Disable trimming of chunks and redo whole chunk</label>
+                  <span *ngIf="tctip.disableTrimming">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.disableTrimming}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="disableTrimming"
+                            class="form-check-input"
+                            formControlName="disableTrimming"
+                            #disableTrimming
+                            (change)="autoSave('disableTrimming',disableTrimming.value)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <hr>
+              <h5><u>Command Line & Misc.</u></h5>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setHashlistAlias">Placeholder string for the hashlist in the command line during task creation</label>
+                  <span *ngIf="tctip.hashlistAlias">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.hashlistAlias}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='text'
+                        id="hashlistAlias"
+                        class='form-control'
+                        formControlName="hashlistAlias"
+                        #hashlistAlias
+                        (change)="autoSave('hashlistAlias',hashlistAlias.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setBlacklistChars">Forbidden characters in the attack command input</label>
+                  <span *ngIf="tctip.blacklistChars">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.blacklistChars}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='text'
+                        id="blacklistChars"
+                        class='form-control'
+                        formControlName="blacklistChars"
+                        #blacklistChars
+                        (change)="autoSave('blacklistChars',blacklistChars.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setPriority0Start">Also automatically assign tasks with priority 0 (Needed, check file)</label>
+                  <span *ngIf="tctip.priority0Start">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.priority0Start}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="priority0Start"
+                            class="form-check-input"
+                            formControlName="priority0Start"
+                            #priority0Start
+                            (change)="autoSave('priority0Start',priority0Start.value, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setShowTaskPerformance">Show cracks/minute for active tasks</label>
+                  <span *ngIf="tctip.showTaskPerformance">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.showTaskPerformance}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="showTaskPerformance"
+                            class="form-check-input"
+                            formControlName="showTaskPerformance"
+                            #showTaskPerformance
+                            (change)="autoSave('showTaskPerformance',showTaskPerformance.value, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <hr>
+              <h5><u>Rule splitting</u></h5>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setRuleSplitSmallTasks">When rule splitting is applied for tasks, always make them a small task</label>
+                  <span *ngIf="tctip.ruleSplitSmallTasks">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.ruleSplitSmallTasks}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="ruleSplitSmallTasks"
+                            class="form-check-input"
+                            formControlName="ruleSplitSmallTasks"
+                            #ruleSplitSmallTasks
+                            (change)="autoSave('ruleSplitSmallTasks',ruleSplitSmallTasks.value, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setRuleSplitAlways">Even do rule splitting when there are not enough rules but just the benchmark is too high. Can result in subtasks with just one rule</label>
+                  <span *ngIf="tctip.ruleSplitAlways">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.ruleSplitAlways}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="ruleSplitAlways"
+                            class="form-check-input"
+                            formControlName="ruleSplitAlways"
+                            #ruleSplitAlways
+                            (change)="autoSave('ruleSplitAlways',ruleSplitAlways.value, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setRuleSplitDisable">Disable automatic task splitting with large rule files</label>
+                  <span *ngIf="tctip.ruleSplitDisable">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{tctip.ruleSplitDisable}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="ruleSplitDisable"
+                            class="form-check-input"
+                            formControlName="ruleSplitDisable"
+                            #ruleSplitDisable
+                            (change)="autoSave('ruleSplitDisable',ruleSplitDisable.value, true)"
+                      >
+                  </div>
+                </div>
+              </div>
+              &nbsp;&nbsp;
+            </div>
+          </form>
+          <!-- <button  class="btn btn-gray-800" type="submit">Save</button> -->
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'hch'">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+        <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+          <form [formGroup]="hchForm">
+            <div class="row">
+              <h3>Hashes/Cracks/Hashlist</h3>&nbsp;
+              <h5><u>Import/Display of Hashlist</u></h5>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setMaxHashlistSize">Maximum number of lines in a hashlist</label>
+                  <span *ngIf="hchtip.maxHashlistSize">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.maxHashlistSize}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="maxHashlistSize"
+                        class='form-control'
+                        formControlName="maxHashlistSize"
+                        #maxHashlistSize
+                        (change)="autoSave('maxHashlistSize',maxHashlistSize.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setPagingSize">Number of hashes shown per page in the Hash View</label>
+                  <span *ngIf="hchtip.pagingSize">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.pagingSize}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="pagingSize"
+                        class='form-control'
+                        formControlName="pagingSize"
+                        #pagingSize
+                        (change)="autoSave('pagingSize',pagingSize.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setHashesPerPage">Number of hashes per page on hashes view (Drop it or UI?)</label>
+                  <span *ngIf="hchtip.hashesPerPage">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.hashesPerPage}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="hashesPerPage"
+                        class='form-control'
+                        formControlName="hashesPerPage"
+                        #hashesPerPage
+                        (change)="autoSave('hashesPerPage',hashesPerPage.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setFieldseparator">The separator character used to separate hash and plain (or salt)</label>
+                  <span *ngIf="hchtip.fieldseparator">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.fieldseparator}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='text'
+                        id="fieldseparator"
+                        class='form-control'
+                        formControlName="fieldseparator"
+                        #fieldseparator
+                        (change)="autoSave('fieldseparator',fieldseparator.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setHashlistImportCheck">Check if hashes have been previously cracked (in other hashlists) at hashlist creation time)</label>
+                  <span *ngIf="hchtip.hashlistImportCheck">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.hashlistImportCheck}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                    <input
+                          type="checkbox"
+                          id="hashlistImportCheck"
+                          class="form-check-input"
+                          formControlName="hashlistImportCheck"
+                          #hashlistImportCheck
+                          (change)="autoSave('hashlistImportCheck',hashlistImportCheck.value, true)"
+                    >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <h5><u>Database Parameters</u></h5>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setBatchSize">Batch size of SQL query when hashlist is sent to the agent</label>
+                  <span *ngIf="hchtip.batchSize">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.batchSize}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="batchSize"
+                        class='form-control'
+                        formControlName="batchSize"
+                        #batchSize
+                        (change)="autoSave('batchSize',batchSize.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setPlainTextMaxLength">Maximum length of plain text</label>
+                  <span *ngIf="hchtip.batchSize">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.batchSize}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="plainTextMaxLength"
+                        class='form-control'
+                        formControlName="plainTextMaxLength"
+                        #plainTextMaxLength
+                        (change)="autoSave('plainTextMaxLength',plainTextMaxLength.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setHashMaxLength">Maximum length of a hash</label>
+                  <span *ngIf="hchtip.batchSize">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{hchtip.batchSize}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="hashMaxLength"
+                        class='form-control'
+                        formControlName="hashMaxLength"
+                        #hashMaxLength
+                        (change)="autoSave('hashMaxLength',hashMaxLength.value)"
+                  >
+                </div>
+                <span *ngIf="hchForm.controls['hashMaxLength']?.touched">
+                  <fa-icon  style="color:red" [icon]="faExclamationTriangle"></fa-icon> Such change may take a long time depending on the database size
+                </span>
+              </div>
+              &nbsp;&nbsp;
+            </div>
+           <!-- <button  class="btn btn-gray-800" type="submit">Save</button> -->
+          </form>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'notif'">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+        <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
+          <form [formGroup]="notifForm">
+            <div class="row">
+              <h3>Notifications</h3>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setEmailSender">Email address sending the notification emails (Discuss)</label>
+                  <span *ngIf="notiftip.emailSender">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{notiftip.emailSender}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <input
+                        type='text'
+                        id="emailSender"
+                        class='form-control'
+                        formControlName="emailSender"
+                        #emailSender
+                        (change)="autoSave('emailSender',emailSender.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setEmailSenderName">Sender's name on emails sent from Hashtopolis (Discuss)</label>
+                  <span *ngIf="notiftip.emailSenderName">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{notiftip.emailSenderName}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='text'
+                        id="emailSenderName"
+                        class='form-control'
+                        formControlName="emailSenderName"
+                        #emailSenderName
+                        (change)="autoSave('emailSenderName',emailSenderName.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setTelegramBotToken">Telegram bot token used to send telegram notifications</label>
+                  <span *ngIf="notiftip.telegramBotToken">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{notiftip.telegramBotToken}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <input
+                        type='text'
+                        id="telegramBotToken"
+                        class='form-control'
+                        formControlName="telegramBotToken"
+                        #telegramBotToken
+                        (change)="autoSave('telegramBotToken',telegramBotToken.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setNotificationsProxyEnable">Enable using a proxy for sending notifications</label>
+                  <span *ngIf="notiftip.notificationsProxyEnable">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{notiftip.notificationsProxyEnable}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="notificationsProxyEnable"
+                            class="form-check-input"
+                            formControlName="notificationsProxyEnable"
+                            #notificationsProxyEnable
+                            (change)="autoSave('notificationsProxyEnable',notificationsProxyEnable.value, true, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <div *ngIf="notifForm.get('notificationsProxyEnable').value == '1'">
+                <div class="form-group">
+                  <div class="form-outline">
+                    <label class="form-label" for="setNotificationsProxyServer">Server url of the proxy to use for notification</label>
+                    <span *ngIf="notiftip.notificationsProxyServer">
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='{{notiftip.notificationsProxyServer}}'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </span>
+                    <input
+                          type='text'
+                          id="notificationsProxyServer"
+                          class='form-control'
+                          placeholder="http..."
+                          formControlName="notificationsProxyServer"
+                          #notificationsProxyServer
+                          (change)="autoSave('notificationsProxyServer',notificationsProxyServer.value)"
+                    >
+                  </div>
+                </div>&nbsp;
+                <div class="form-group">
+                  <div class="form-outline">
+                    <label class="form-label" for="setNotificationsProxyPort">Set the port for the notifications proxy</label>
+                    <span *ngIf="notiftip.notificationsProxyPort">
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='{{notiftip.notificationsProxyPort}}'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </span>
+                    <td>
+                    <input
+                          type='number'
+                          id="notificationsProxyPort"
+                          class='form-control'
+                          formControlName="notificationsProxyPort"
+                          #notificationsProxyPort
+                          (change)="autoSave('notificationsProxyPort',notificationsProxyPort.value)"
+                    >
+                  </div>
+                </div>&nbsp;
+              </div>
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setNotificationsProxyType">Proxy type to use for notifications</label>
+                  <span *ngIf="notiftip.notificationsProxyType">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{notiftip.notificationsProxyType}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <select
+                        type='text'
+                        id='notificationsProxyType'
+                        class='form-select'
+                        formControlName="notificationsProxyType"
+                        #notificationsProxyType
+                        (change)="autoSave('notificationsProxyType',notificationsProxyType.value)"
+                    >
+                      <option *ngFor="let p of proxytype">{{ p.value }}</option>
+                  </select>
+                </div>
+              </div>&nbsp;
+            </div>
+            <!-- <button  class="btn btn-gray-800" type="submit">Save</button> -->
+          </form>
+        </div>
+      </div>
+    </div> <!-- End switch  -->
+    <div *ngSwitchCase="'gs'">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+        <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+          <form [formGroup]="gsForm">
+            <div class="row">
+              <h3>General Settings</h3>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setHashcatBrainEnable">Enable Hashcat Brain</label>
+                  <span *ngIf="gstip.hashcatBrainEnable">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{gstip.hashcatBrainEnable}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <div class="form-check form-switch">
+                      <input
+                            type="checkbox"
+                            id="hashcatBrainEnable"
+                            class="form-check-input"
+                            formControlName="hashcatBrainEnable"
+                            #hashcatBrainEnable
+                            (change)="autoSave('hashcatBrainEnable',hashcatBrainEnable.value, true, true)"
+                      >
+                  </div>
+                </div>
+              </div>&nbsp;
+              <div *ngIf="gsForm.get('hashcatBrainEnable').value == '1'">
+                <h5><u>Hashcat Brain Server Parameters</u></h5>&nbsp;
+                <div class="form-group">
+                  <div class="form-outline">
+                    <label class="form-label" for="setHashcatBrainHost">Host to be used for hashcat brain (must be reachable by agents)</label>
+                    <span *ngIf="gstip.hashcatBrainHost">
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='{{gstip.hashcatBrainHost}}'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </span>
+                    <input
+                            type='text'
+                            id="hashcatBrainHost"
+                            class='form-control'
+                            placeholder="URL"
+                            formControlName="hashcatBrainHost"
+                            #hashcatBrainHost
+                            (change)="autoSave('hashcatBrainHost',hashcatBrainHost.value)"
+                      >
+                  </div>
+                </div>&nbsp;
+                <div class="form-group">
+                  <div class="form-outline">
+                    <label class="form-label" for="setHashcatBrainPort">Port for hashcat brain</label>
+                    <span *ngIf="gstip.hashcatBrainPort">
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='{{gstip.hashcatBrainPort}}'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </span>
+                    <td>
+                    <input
+                            type='number'
+                            id="hashcatBrainPort"
+                            class='form-control'
+                            placeholder="I.e. 8080"
+                            formControlName="hashcatBrainPort"
+                            #hashcatBrainPort
+                            (change)="autoSave('hashcatBrainPort',hashcatBrainPort.value)"
+                      >
+                  </div>
+                </div>&nbsp;
+                <div class="form-group">
+                  <div class="form-outline">
+                    <label class="form-label" for="setHashcatBrainPass">Password to be used to access hashcat brain server</label>
+                    <span *ngIf="gstip.hashcatBrainPass">
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='{{gstip.hashcatBrainPass}}'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </span>
+                    <td>
+                    <input
+                            type='password'
+                            id="hashcatBrainPass"
+                            class='form-control'
+                            formControlName="hashcatBrainPass"
+                            #hashcatBrainPass
+                            (change)="autoSave('hashcatBrainPass',hashcatBrainPass.value)"
+                      >
+                  </div>
+                </div>&nbsp;
+                <hr>
+              </div>
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setHcErrorIgnore">Ignore error messages from crackers containing the string below.</label>
+                  <span *ngIf="gstip.hcErrorIgnore">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{gstip.hcErrorIgnore}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <textarea
+                        type='text'
+                        id="hcErrorIgnore"
+                        class='form-control'
+                        formControlName="hcErrorIgnore"
+                        #hcErrorIgnore
+                        (change)="autoSave('hcErrorIgnore',hcErrorIgnore.value)"
+                  ></textarea>
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setNumLogEntries">Number of log entries to be retained</label>
+                  <span *ngIf="gstip.numLogEntries">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{gstip.numLogEntries}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <input
+                        type='number'
+                        id="numLogEntries"
+                        class='form-control'
+                        formControlName="numLogEntries"
+                        #numLogEntries
+                        (change)="autoSave('numLogEntries',numLogEntries.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setTimefmt">Set the time format</label>
+                  <select
+                        type='text'
+                        id="timefmt"
+                        class='form-select'
+                        formControlName="timefmt"
+                        #timefmt
+                        (change)="autoSave('timefmt',timefmt.value)"
+                  >
+                  <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
+                  </select>
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setMaxSessionLength">Max session length users can configure (in hours) -(token expiry???)</label>
+                  <td>
+                  <input
+                        type='text'
+                        id="maxSessionLength"
+                        class='form-control'
+                        formControlName="maxSessionLength"
+                        #maxSessionLength
+                        (change)="autoSave('maxSessionLength',maxSessionLength.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setBaseHost">Base hostname/port/protocol to use. Only fill this in to override the auto-determined value -- ???</label>
+                  <span *ngIf="gstip.baseHost">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{gstip.baseHost}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <input
+                        type='text'
+                        id="baseHost"
+                        class='form-control'
+                        formControlName="baseHost"
+                        #baseHost
+                        (change)="autoSave('baseHost',baseHost.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setContactEmail">Admin email address displayed on the webpage footer (hidden if empty)</label>
+                  <span *ngIf="gstip.contactEmail">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{gstip.contactEmail}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <input
+                        type='text'
+                        id="contactEmail"
+                        class='form-control'
+                        formControlName="contactEmail"
+                        #contactEmail
+                        (change)="autoSave('contactEmail',contactEmail.value)"
+                  >
+                </div>
+              </div>&nbsp;
+              <div class="form-group">
+                <div class="form-outline">
+                  <label class="form-label" for="setServerLogLevel">Server level to be logged on the server to file - ???</label>
+                  <span *ngIf="gstip.serverLogLevel">
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='{{gstip.serverLogLevel}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </span>
+                  <td>
+                  <select
+                        type='text'
+                        id='serverLogLevel'
+                        class='form-select'
+                        formControlName="serverLogLevel"
+                        #serverLogLevel
+                        (change)="autoSave('serverLogLevel',serverLogLevel.value)"
+                    >
+                      <option *ngFor="let sl of serverlog" [ngValue]="sl.id">{{ sl.value }}</option>
+                  </select>
+                </div>
+              </div>&nbsp;
+            </div>
+                <p> Base url for the webpage (this does not include hostname and is normally determined automatically on the installation) --- ??? </p>
+            <!-- <button  class="btn btn-gray-800" type="submit">Save</button> -->
+          </form>
+          <form [formGroup]="cookieForm">
+            <div class="form-group">
+              <div class="form-outline">
+                <label class="form-label" for="setCookieTooltip">Tooltip Help Level</label>
+                <fa-icon
+                        placement="bottom"
+                        ngbTooltip="Manage Global level of tooltip details"
+                        container="body"
+                        [icon]="faInfoCircle"
+                        aria-hidden="true"
+                >
+                </fa-icon>
+                <td>
+                <select
+                      type='text'
+                      id="cookieTooltip"
+                      class='form-select'
+                      formControlName="cookieTooltip"
+                      #cookieTooltip
+                      (change)="setTooltipLevel(cookieTooltip.value)"
+                >
+                  <option [value]="0">Concise</option>
+                  <option [value]="1">Detailed</option>
+                  <option [value]="2">Very Detailed</option>
+                </select>
+              </div>
+            </div>&nbsp;
+          </form>
+        </div>
+      </div>
+  </div> <!-- End  settings  -->
+</div> <!-- End switch  -->
+
+
+

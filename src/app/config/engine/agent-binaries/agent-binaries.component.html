@@ -1,0 +1,58 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="btn-toolbar mb-2 mb-md-0">
+
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Agent Binaries</h2>
+      <p>Section to manage agent binaries.</p>
+      <div class="btn-group ms-2 ms-3">
+        <button type="button" routerLink="../agent-binaries" class="btn btn-sm btn-outline-gray-600-select">Agent Binaries</button>
+        <button type="button" routerLink="../crackers" class="btn btn-sm btn-outline-gray-600">Crackers</button>
+        <button type="button" routerLink="../preprocessors" class="btn btn-sm btn-outline-gray-600">Preprocessors</button>
+      </div>
+    </div>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a routerLink="./new-agent-binary" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New Binary
+      </a>
+  </div>
+</div>
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                    <th class="border-0 rounded-start">ID</th>
+                    <th class="border-0">Type</th>
+                    <th class="border-0">OS</th>
+                    <th class="border-0">Filename</th>
+                    <th class="border-0">Current Version</th>
+                    <th class="border-0">Update Track</th>
+                    <th class="border-0 rounded-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let b of binaries">
+                    <td class="text-align:center">{{ b.agentBinaryId }}</td>
+                    <td>{{ b.type }}</td>
+                    <td>{{ b.operatingSystems }}</td>
+                    <td>{{ b.filename }}</td>
+                    <td>{{ b.version }}</td>
+                    <td>{{ b.updateTrack }}</td>
+                    <td>
+                      <a class='btn-outline-gray-600 float-right' [routerLink]="[b.agentBinaryId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                        <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                      </a>
+                      <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(b.agentBinaryId)">
+                        <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                      </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

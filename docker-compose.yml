@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+  hastopolis-client:
+    build:
+      context: .
+      dockerfile: .docker/node.dockerfile
+    command: npm start
+    container_name: hashtopolis-client-start
+    image: hashtopolis-client
+    ports:
+      - "4200:4200"
+    volumes:
+      - "/app/node_modules"
+      - ".:/home/app/"
+
+networks:
+  default:
+    name: hashtopolis_bridge
+

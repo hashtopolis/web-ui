@@ -1,0 +1,17 @@
+<div class="modal-header">
+  <h2 class="h6 modal-title">Timeout</h2>
+</div>
+<div class="modal-body">
+      <p>
+        <ngb-progressbar
+                        type="danger"
+                        [showValue]="false"
+                        [value]="timeoutCountdown"
+                        [max]="timeoutMax"
+                        height="20px"
+                        >
+        </ngb-progressbar>
+      </p>
+      <p *ngIf="timedOut">Logging out...</p>
+</div>
+

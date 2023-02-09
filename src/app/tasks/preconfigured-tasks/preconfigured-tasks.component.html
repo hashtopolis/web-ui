@@ -1,0 +1,68 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">Preconfigured Tasks</h2>
+        <p class="mb-0">Section to manage preconfigured tasks.</p>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a [routerLink]="['/tasks/new-preconfigured-tasks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New
+      </a>
+  </div>
+</div>
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                  <th class="border-0 rounded-start">ID</th>
+                  <th class="border-0">Name</th>
+                  <th class="border-0">Attack command</th>
+                  <th class="border-0">Files</th>
+                  <th class="border-0">Priority</th>
+                  <th class="border-0">Max Agents</th>
+                  <th class="border-0 rounded-end">Action</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let ptask of allpretasks">
+                  <td>
+                    <span [ngClass]="!ptask.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': ptask.color }">{{ ptask.pretaskId }}</span>
+                  </td>
+                  <td>{{ ptask.taskName | shortenString:20 | lowercase | titlecase }}</td>
+                  <td>{{ ptask.attackCmd | shortenString:25 }}</td>
+                  <td>
+                    {{ ptask.pretaskFiles.length }}
+                   <!-- <span *ngIf="ptask.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span> -->
+                  </td>
+                  <td>{{ ptask.priority }}</td>
+                  <td>{{ ptask.maxAgents }}</td>
+                  <td>
+                    <div ngbDropdown container="body">
+                      <button type="button" class="btn btn-sm btn-gray-800 btn-sm" ngbDropdownToggle>Actions</button>
+                      <div ngbDropdownMenu>
+                        <button ngbDropdownItem [routerLink]="[ptask.pretaskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                          <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+                        </button>
+                        <button ngbDropdownItem [routerLink]="[ptask.pretaskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to pretask">
+                          <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon> Copy to Pretask
+                        </button>
+                        <button ngbDropdownItem [routerLink]="['/tasks/new-tasks',ptask.pretaskId,'copypretask']" data-toggle="tooltip" data-placement="top" title="Copy to task">
+                          <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button ngbDropdownItem (click)="onDelete(ptask.pretaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                          <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
