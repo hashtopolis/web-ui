@@ -1,0 +1,163 @@
+<!-- Spinner Loading -->
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Header -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Supertask Details</h2>
+  </div>
+</div>
+<!-- Body -->
+<div class="container px-lg-5">
+  <div class="row no-gutters">
+      <div class="col-12 col-sm-6 col-md-8 align-items-center justify-content-left">
+            <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+                <form [formGroup]="viewForm">
+                  <div class="row">
+                    <div class="row g-3">
+                      <div class="col-md-2">
+                          <div class="form-group">
+                            <div class="form-outline">
+                              <label class="form-label" for="getSupertaskId">SuperTask ID</label>
+                                <input
+                                      type='number'
+                                      id="supertaskId"
+                                      class='form-control'
+                                      formControlName="supertaskId"
+                                >
+                            </div>
+                            &nbsp;
+                          </div>
+                      </div>
+                      <div class="col-md-10">
+                          <div class="form-group">
+                            <div class="form-outline">
+                              <label class="form-label" for="getSupertaskName">Name</label>
+                              <input
+                                    type='text'
+                                    id="supertaskName"
+                                    class='form-control'
+                                    formControlName="supertaskName"
+                              >
+                            </div>
+                          </div>
+                          &nbsp;
+                      </div>
+                    </div>
+                    <hr>
+                    <h5> Estimate Time
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip="The benchmark number to enter below is the total amount of hashes per second per attack type of all of the agents combined that will run the supertask."
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    ></fa-icon>
+                    </h5>
+                    <div class="row">
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label" for="getSupertaskName">Benchmark for -a0 attacks</label>
+                            <input
+                                  type='text'
+                                  id="supertaskName"
+                                  class='form-control'
+                            >
+                          </div>
+                        </div>
+                        &nbsp;
+                      </div>
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label" for="getSupertaskName">Benchmark for -a3 attacks</label>
+                            <input
+                                  type='text'
+                                  id="supertaskName"
+                                  class='form-control'
+                            >
+                            <pre></pre>
+                            <a class="btn btn-gray-800 actions-td-right">Calculate Runtime</a>
+                          </div>
+                        </div>
+                        &nbsp;
+                      </div>
+                    </div>
+                    <hr>
+                  </div>
+                  <a class="btn btn-gray-800" >Apply to Hashlist</a>
+                  &nbsp;
+                  <button  class="btn btn-danger" (ngSubmit)="onDelete()">Delete</button>
+            </form>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="bg-white shadow border-0 rounded p-4 w-100 fmxw-700">
+          <h5>Add Pretask (Missing Patch API call)</h5>
+          <form (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="form-group">
+                <div class="form-outline">
+                    <label class="form-label requiredak" for="getTasks">Select or search to assign pretasks</label>
+                    <div class="input-group">
+                      <span class="input-group-text" >
+                        <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+                      </span>
+                      <select
+                            type='number'
+                            id="pretasks"
+                            class='form-select'
+                            formControlName="pretasks"
+                          >
+                          <option [ngValue]=""></option>
+                      </select>
+                  </div>
+                </div>
+              </div>
+              &nbsp;
+            </div>
+            <button class="btn btn-gray-800" >Add</button>
+          </form>
+        </div>
+      </div>
+   </div>
+</div>
+
+
+<!--Table Pretasks part of the supertask -->
+&nbsp;&nbsp;
+<section>
+<h4>Pretasks</h4>
+<div class="table-responsive">
+  &nbsp;
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+      <thead class="thead-light">
+        <tr>
+            <th class="border-0 rounded-start">ID</th>
+            <th class="border-0">Name</th>
+            <th class="border-0">Attack Command</th>
+            <th class="border-0">Estimated Keyspace</th>
+            <th class="border-0">Attack runtime</th>
+            <th class="border-0 rounded-end">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let p of pretasks[0].pretasks">
+          <td>
+            <span [ngClass]="!p.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': p.color }">{{  p.pretaskId }}</span>
+          </td>
+          <td>{{ p.taskName }}</td>
+          <td>{{ p.attackCmd }}</td>
+          <td>Missing</td>
+          <td>Missing</td>
+          <td>
+            Missing Action
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>

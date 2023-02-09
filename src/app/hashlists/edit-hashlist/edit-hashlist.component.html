@@ -1,0 +1,222 @@
+<!-- <div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div> -->
+<!-- header -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Edit HashList</h2>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+  </div>
+</div>
+<!-- Edit PreTask -->
+<section>
+  <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-12 d-flex align-items-center justify-content-center">
+              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
+                <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+                  <div class="row">
+                    <div class="form-group">
+                      <div class="form-outline">
+                          <label class="form-label" for="gethashlistId">ID</label>
+                          <input
+                                type='text'
+                                id='hashlistId'
+                                class='form-control'
+                                formControlName="hashlistId"
+                          >
+                      </div>
+                    </div>
+                    &nbsp;
+                    <div formGroupName="updateData">
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label requiredak" for="getname">Name</label>
+                            <input
+                                  type='text'
+                                  id='name'
+                                  class='form-control'
+                                  formControlName="name"
+                            >
+                        </div>
+                      </div>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label" for="getNotes">Notes</label>
+                            <textarea
+                                  id='notes'
+                                  class='form-control'
+                                  formControlName="notes"
+                            >
+                            </textarea>
+                        </div>
+                      </div>
+                      <div class="row g-3">
+                        <div class="col-md-2">
+                          &nbsp;
+                          <div class="form-group">
+                            <div class="form-outline">
+                                <label class="form-label" for="getisSecret">Secret</label>
+                                <fa-icon
+                                        placement="bottom"
+                                        ngbTooltip="Contains secret data"
+                                        container="body"
+                                        [icon]="faInfoCircle"
+                                        aria-hidden="true"
+                                        class="gray-light-ico"
+                                ></fa-icon>
+                                <select
+                                      id='isSecret'
+                                      class='form-select'
+                                      formControlName="isSecret"
+                                  >
+                                  <option [ngValue]="false">No</option>
+                                  <option [ngValue]="true">Yes</option>
+                                </select>
+                            </div>
+                          </div>
+                          &nbsp;
+                        </div>
+                        <div class="col-md-10">
+                          &nbsp;
+                          <div class="form-group">
+                            <div class="form-outline">
+                                <label class="form-label" for="getaccessGroupId">Access Group</label>
+                                <td>
+                                <select
+                                      id='accessGroupId'
+                                      class='form-select'
+                                      formControlName="accessGroupId"
+                                  >
+                                  <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                                </select>
+                            </div>
+                          </div>
+                          &nbsp;
+                        </div>
+                      </div>
+                    </div>
+                    <hr>
+                    &nbsp;
+                    <div class="form-group">
+                      <div class="form-outline">
+                           <label class="form-label" for="getHashTypeId">Hash Type</label>
+                           <input
+                                type='number'
+                                id='hashTypeId'
+                                class='form-control'
+                                formControlName="hashTypeId"
+                           >
+                      </div>
+                    </div>
+                    &nbsp;
+                    <div class="row">
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="getUseBrain">Using hashcat brain</label>
+                              <input
+                                    type='text'
+                                    id='useBrain'
+                                    class='form-control'
+                                    formControlName="useBrain"
+                                >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="getFormat">Format</label>
+                              <input
+                                    type='text'
+                                    id='format'
+                                    class='form-control'
+                                    formControlName="format"
+                                >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="getFormat">Hashes</label>
+                              <input
+                                    type='number'
+                                    id='hashCount'
+                                    class='form-control'
+                                    formControlName="hashCount"
+                                >
+                          </div>
+                        </div>
+                        &nbsp;
+                      </div>
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="getFormat">Cracked</label>
+                              <input
+                                    type='number'
+                                    id='cracked'
+                                    class='form-control'
+                                    formControlName="cracked"
+                                >
+                          </div>
+                        </div>
+                        &nbsp;
+                      </div>
+                      <div class="col">
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="getFormat">Remaining(Missing?)</label>
+                              <input
+                                    type='number'
+                                    id='cracked'
+                                    class='form-control'
+                                    formControlName="cracked"
+                                >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    &nbsp;
+                    </div>
+                  <button class="btn btn-gray-800" type="submit">Update</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+<!-- Table Cracking Hashlist -->
+&nbsp;&nbsp;
+<section>
+<h2>Tasks Cracking this hashlist</h2>
+<div class="table-responsive">
+  &nbsp;
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+      <thead class="thead-light">
+        <tr>
+            <th class="border-0 rounded-start">ID</th>
+            <th class="border-0">Color</th>
+            <th class="border-0">Name</th>
+            <th class="border-0">Dispatched</th>
+            <th class="border-0">Searched</th>
+            <th class="border-0 rounded-end">Cracked</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr >
+
+        </tr>
+      </tbody>
+    </table>
+</div>

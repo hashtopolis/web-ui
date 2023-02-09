@@ -1,0 +1,50 @@
+<section>
+  <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-12 d-flex align-items-center justify-content-center">
+              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+              <h2 class="h5 mb-4">Create User</h2><br>
+              <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+                  <div class="form-group">
+                    <label for="setusername">User Name</label>
+                    <input
+                          type='text'
+                          id="username"
+                          class='form-control'
+                          formControlName="username"
+                     >
+                  </div>
+                  &nbsp;
+                  <div class="form-group">
+                    <label for="setemail">Email</label>
+                    <input
+                           type='email'
+                           id="email"
+                           class='form-control'
+                           formControlName="email"
+                     >
+                  </div>
+                  &nbsp;
+                  <div class="form-group">
+                    <label for="setrightGroupId">User Group</label>
+                    <select
+                          type='number'
+                          id="rightGroupId"
+                          class='form-select'
+                          formControlName="rightGroupId"
+                          >
+                    <span *ngIf="!createForm.errors?.['group'].valid && createForm.errors?.['group'].touched" class="help-block" >Please select a group!</span>
+                         <option [ngValue]="">-</option>
+                         <option [ngValue]="1">Administrator</option>
+                    </select>
+                  </div>
+                  <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
+                  <button class="btn btn-gray-800" type="submit">Create</button>
+              </form>
+              {{ createForm.value | json }}
+         </div>
+      </div>
+   </div>
+</div>
+
+

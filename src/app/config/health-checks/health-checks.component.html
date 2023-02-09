@@ -1,0 +1,117 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Health check</h2>
+      <p class="mb-0">Health checks can be used to check if all agents are working properly. Note that a health check won't be finished until all registered agents report back their results.</p>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New Check
+      </a>
+  </div>
+</div>
+<!-- New Health check -->
+<div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+  <section>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex align-items-center justify-content-center">
+                <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+                <h2 class="h5 mb-4">Create Health Check</h2><br>
+                <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                    <div class="row">
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label requiredak" for="setcheckType">Attack</label>
+                            <select name="checkType" class='form-control' title="checkType" formControlName="checkType">
+                              <option value="0" [defaultSelected]=true>Brute-Force</option>
+                            </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label requiredak" for="sethashtypeId">Hashtype</label>
+                            <select name="hashtypeId" class='form-select' title="hashtypeId" formControlName="hashtypeId">
+                              <option value="0" [defaultSelected]=true>MD5</option>
+                              <option value="3200">BCRYPT</option>
+                            </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label requiredak" for="setcrackerBinaryType">Binary</label>
+                            <select type='number'
+                                    name="crackerBinaryType"
+                                    class='form-select'
+                                    title="crackerBinaryType"
+                                    #myBinary
+                                    (change)="onChangeBinary(myBinary.value)">
+                              <option hiddenvalue="" disabled="true" [defaultSelected]=true>Please select</option>
+                              <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId" type="number">{{ cb.typeName }}</option>
+                            </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label requiredak" for="setcrackerBinaryVersion">Binary Version</label>
+                            <select type='number'
+                                    name="crackerBinaryId"
+                                    class='form-select'
+                                    title="crackerBinaryId"
+                                    formControlName="crackerBinaryId"
+                                    #myVersion>
+                              <!-- <option hiddenvalue="" disabled="true" [defaultSelected]=true>Please select</option> -->
+                              <option value="" disabled="true">--<option>
+                              <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId" type="number">{{ cv.version }}</option>
+                            </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                      <button class="btn btn-gray-800" type="submit">Create</button>
+                      </div>
+              </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+  &nbsp;&nbsp;
+</div>
+<!-- New HHealth check -->
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                    <th class="border-0 rounded-start">ID</th>
+                    <th class="border-0">Created</th>
+                    <th class="border-0">Type</th>
+                    <th class="border-0">Status</th>
+                    <th class="border-0 rounded-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let h of mergedObjects">
+                    <td class="text-align:center">{{ h.healthCheckId }}</td>
+                    <td>{{ h.time*1000 | date: 'dd/MM/yyyy hh:mm:ss ' }}</td>
+                    <td>Brute-Force ({{ h.description }})</td>
+                    <td>{{ h.status | HCstatus | lowercase | titlecase }}</td>
+                    <td>
+                      <a class='btn-outline-gray-600 float-right' [routerLink]="[h.healthCheckId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                        <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                     </a>
+                     <a class='btn-outline-gray-600 float-right' (click)="onDelete(h.healthCheckId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                      <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                     </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

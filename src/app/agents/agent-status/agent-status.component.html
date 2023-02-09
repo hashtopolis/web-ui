@@ -1,0 +1,209 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">
+        Agents Status
+          <fa-icon
+                  placement="bottom"
+                  ngbTooltip="Click on the icons to display more information"
+                  container="body"
+                  [icon]="faInfoCircle"
+                  aria-hidden="true"
+          >
+          </fa-icon>
+      </h2>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group ms-2 ms-3">
+      <cm-filter-textbox
+                        class="navbar-right"
+                        (changed)="filterChanged($event)"
+      >
+      </cm-filter-textbox>
+    </div>
+  </div>
+</div>
+<!-- Body -->
+<br>
+<div class="container">
+  <div class="row card-container-ag">
+      <div class="col-sm-6 col-md-4 col-lg-3" *ngFor="let a of _filteredCustomers | sort:statusOrderBy:statusOrderByName">
+          <div class="card card-ag">
+              <div class="card-header-ag">
+                <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">
+                  <fa-icon [icon]="faEdit" aria-hidden="true" class="white-ico"></fa-icon>
+                </a>
+                  {{ a.agentName | shortenString:10 | lowercase | titlecase}}
+              </div>
+              <div class="card-body">
+                  <div class="clearfix">
+                      <div class="pull-left card-body-left-ag">
+                      </div>
+                      <div class="pull-left card-body-right-ag">
+                          <div class="card-body-content-ag">
+                            <fa-icon
+                                    placement="bottom"
+                                    (click)="open(device)"
+                                    container="body"
+                                    [icon]="faDigitalTachograph"
+                                    aria-hidden="true"
+                                    class="gray-light-ico"
+                            ></fa-icon>
+                            Data...
+                          </div>
+                          <div class="card-body-content-ag">
+                            <fa-icon
+                                    placement="bottom"
+                                    (click)="open(temperature)"
+                                    container="body"
+                                    [icon]="faTemperature0"
+                                    aria-hidden="true"
+                                    class="gray-light-ico"
+                            ></fa-icon>
+                            Data...
+                          </div>
+                          <div class="card-body-content-ag">
+                            <fa-icon
+                                    placement="bottom"
+                                    (click)="open(cpu)"
+                                    container="body"
+                                    [icon]="faMicrochip"
+                                    aria-hidden="true"
+                                    class="gray-light-ico"
+                            ></fa-icon>
+                            Data...
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div *ngIf="!showagents.length">
+          No Records Found
+      </div>
+  </div>
+</div>
+<!-- Pagination -->
+<div class="align-items-right py-4">
+  <cm-pagination
+                [totalItems]="totalRecords"
+                [pageSize]="pageSize"
+                (pageChanged)="pageChanged($event)"
+  >
+  </cm-pagination>
+</div>
+<!-- Modal Device Utilisation -->
+<ng-template #device let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faDigitalTachograph" aria-hidden="true"></fa-icon> Device Utilisation</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="mb-3">
+        <div class="row">
+          <p>
+            <span style="color: #009933;">■</span> Device utilisation is good (> AddConfigThreshold %)
+          </p>
+          <p>
+            <span style="color: #ff9900;">■</span> Device utilisation not ideal (<= AddConfigThreshold %)
+          </p>
+          <p>
+            <span style="color: #800000;">■</span> Device utilisation low (<= AddConfigThreshold %)
+          </p>
+          <p>
+            <span style="color: #CCCCCC;">■</span> Agent is not active
+          </p>
+          <p>
+            <span style="color: #42d4f4;">■</span> Agent is active but not working or not providing device data
+          </p>
+          <p>
+            <span style="color: #FF0000;">■</span> Invalid device data from agent or values being 0
+          </p>
+          <p>
+            Note: Threshold can be configured in the config section.
+          </p>
+        </div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+	</div>
+</ng-template>
+<!-- Modal Temperature -->
+<ng-template #temperature let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faTemperature0" aria-hidden="true"></fa-icon> Temperature</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="mb-3">
+        <div class="row">
+          <p>
+            <span style="color: #009933;">■</span> Device temperatures good (<= AddConfigThreshold°C)
+          </p>
+          <p>
+            <span style="color: #ff9900;">■</span> Device temperatures acceptable (<= AddConfigThreshold°C)
+          </p>
+          <p>
+            <span style="color: #800000;">■</span> Device temperatures too high (> AddConfigThreshold°C)
+          </p>
+          <p>
+            <span style="color: #CCCCCC;">■</span> Agent is not active
+          </p>
+          <p>
+            <span style="color: #42d4f4;">■</span> Agent is active but not working or not providing device data
+          </p>
+          <p>
+            <span style="color: #FF0000;">■</span> Invalid device data from agent or values being 0
+          </p>
+          <p>
+            Note: Threshold can be configured in the config section.
+          </p>
+        </div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+	</div>
+</ng-template>
+<!-- CPU Utilisation -->
+<ng-template #cpu let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faMicrochip" aria-hidden="true"></fa-icon> CPU Utilisation</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="mb-3">
+        <div class="row">
+          <p>
+            <span style="color: #009933;">■</span> CPU utilisation is good (> AddConfigThreshold %)
+          </p>
+          <p>
+            <span style="color: #ff9900;">■</span> CPU utilisation not ideal (<= AddConfigThreshold %)
+          </p>
+          <p>
+            <span style="color: #800000;">■</span> CPU utilisation low (<= AddConfigThreshold %)
+          </p>
+          <p>
+            <span style="color: #CCCCCC;">■</span> Agent is not active
+          </p>
+          <p>
+            <span style="color: #42d4f4;">■</span> Agent is active but not working or not providing CPU data
+          </p>
+          <p>
+            <span style="color: #FF0000;">■</span> Invalid CPU data from agent or values being 0
+          </p>
+          <p>
+            Note: Threshold can be configured in the config section.
+          </p>
+        </div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+	</div>
+</ng-template>
+
+

@@ -1,0 +1,137 @@
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<section>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+          <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+              <h2 class="h5 mb-4">User Profile</h2><br>
+              <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+                  <div class="row">
+                        <div class="form-group">
+                            <div class="form-outline">
+                              <label class="form-label" for="getuserid" >User ID</label>
+                              <input
+                                    type='number'
+                                    id="userid"
+                                    class='form-control'
+                                    formControlName="userid"
+                              >
+                            </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-outline">
+                          <label class="form-label" for="getusername">User Name</label>
+                              <div class="input-group">
+                                  <span class="input-group-text">
+                                    <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
+                                  </span>
+                                  <input
+                                        type='text'
+                                        id="username"
+                                        class='form-control'
+                                        formControlName="username"
+                                  />
+                              </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-outline">
+                          <label class="form-label" for="getemail">Email</label>
+                              <div class="input-group">
+                                  <span class="input-group-text">
+                                    <fa-icon [icon]="faEnvelope" aria-hidden="true"></fa-icon>
+                                  </span>
+                                  <input
+                                        type='text'
+                                        id="email"
+                                        class='form-control'
+                                        formControlName="email"
+                                  />
+                              </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-outline">
+                          <label class="form-label" for="getcreationdate">Creation date</label>
+                              <div class="input-group">
+                                <span class="input-group-text">
+                                  <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
+                                </span>
+                                <input
+                                      type="text"
+                                      id="registered"
+                                      class='form-control'
+                                      formControlName="registered"
+                                />
+                              </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-outline">
+                          <label class="form-label" for="getlastlogin">Last login</label>
+                              <div class="input-group">
+                                <span class="input-group-text">
+                                  <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
+                                </span>
+                                <input
+                                      type="text"
+                                      id="lastLogin"
+                                      class='form-control'
+                                      formControlName="lastLogin"
+                                />
+                              </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-outline">
+                          <label class="form-label" for="updatemembergroup">Member of groups</label>
+                              <input
+                                    type='text'
+                                    id="groups"
+                                    class='form-control'
+                                    formControlName="groups"
+                              />
+                        </div>
+                        <h2 class="h5 my-4">Update Settings</h2>
+                        <div formGroupName="updateData">
+                        <div class="form-outline">
+                          <label class="form-label" for="updaterightGroupId">Set users right group</label>
+                              <select
+                                    type='number'
+                                    id="group"
+                                    class='form-select'
+                                    formControlName="rightGroupId"
+                                  >
+                              </select>
+                        </div>
+                        &nbsp;
+                        <div class="form-outline mb-4">
+                          <label class="form-label" for="setpassword">Set password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                                </span>
+                                <input
+                                      type='new-password'
+                                      id="setpassword"
+                                      class="form-control"
+                                      formControlName="setPassword"
+                                />
+                            </div>
+                      </div>
+                    </div>
+                   </div>
+                   <button  class="btn btn-gray-800" type="submit" (ngSubmit)="onUpdateUser(user['userId'])">Update</button>
+                   &nbsp;
+                  <button  class="btn btn-danger" type="submit" (ngSubmit)="onDelete(user['userId'])">Delete User</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+
+
+
+
+
+

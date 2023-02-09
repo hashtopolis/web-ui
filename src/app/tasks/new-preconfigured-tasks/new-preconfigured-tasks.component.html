@@ -1,0 +1,501 @@
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Header -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+    <div [ngSwitch]="whichView">
+      <div *ngSwitchCase="'create'">
+        <h2 class="h5 mb-4">New Preconfigured Tasks</h2><br>
+      </div>
+      <div *ngSwitchCase="'edit'">
+        <h2 class="h5 mb-4">New Preconfigured Tasks <small>(Copied From Pretask ID {{editedIndex}})</small></h2>
+        <br>
+      </div>
+      <div *ngSwitchCase="'task'">
+        <h2 class="h5 mb-4">New Preconfigured Tasks <small>(Copied From Task ID {{editedIndex}})</small></h2>
+        <br>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- New PreTask End-->
+  <div class="container px-lg-5">
+      <div class="row no-gutters">
+          <div class="col-12 col-sm-6 col-md-8 align-items-center justify-content-left">
+              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+                  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+                      <div class="row">
+                            <div class="form-group">
+                                <div class="form-outline">
+                                    <label class="form-label requiredak" for="setname">Name</label>
+                                    <input
+                                          type='text'
+                                          id="taskname"
+                                          class='form-control'
+                                          formControlName="taskName"
+                                    >
+                                </div>
+                            </div>
+                            &nbsp;
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label requiredak" for="setattackCmd">Command line</label>
+                                  <fa-icon
+                                          placement="bottom"
+                                          (click)="open(cheatsheet)"
+                                          container="body"
+                                          [icon]="faInfoCircle"
+                                          aria-hidden="true"
+                                          class="gray-light-ico"
+                                  ></fa-icon>
+                                  <textarea
+                                         type='text'
+                                         class='form-control'
+                                         formControlName="attackCmd"
+                                         #cmdAttack
+                                      >
+                                  </textarea>
+                                  <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
+                                    Please remove manually the blacklisted Characters or use the button below!
+                                    <br>
+                                    <b>BlackListed Chars: &#36; &#124; &#123; &#125; &#768; &#40; &#41; &lt; &gt; &quot; &apos; &amp; </b>
+                                    <br>
+                                    <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
+                                  </span>
+                              </div>
+                            </div>
+                            &nbsp;
+                            <div class="form-group">
+                              <div class="form-outline">
+                                  <label class="form-label" for="getcolor">Task Color Identifier</label>
+                                  <div class="input-group-text w-50 mx-auto">
+                                    <input type='text' class="form-control"
+                                        [(colorPicker)]="color" cpWidth='230px' cpHeight="100px"
+                                        [cpOKButton]="true"
+                                        [cpSaveClickOutside]="false"
+                                        [cpOKButtonClass]= "'btn btn-primary btn-xs'"
+                                        (colorPickerChange)="OnChangeValue($event)"
+                                        [style.background]="color" [value]="color" formControlName="color"/>
+                                </div>
+                              </div>
+                            </div>
+                            &nbsp;
+                            <ngb-accordion #acc="ngbAccordion" >
+                              <ngb-panel>
+                                <ng-template ngbPanelTitle>
+                                  <span><b>Advanced Settings</b></span>
+                                </ng-template>
+                                <ng-template ngbPanelContent>
+                                  <div class="row">
+                                    <div class="col">
+                                      &nbsp;
+                                      <div class="form-group">
+                                        <div class="form-outline">
+                                            <label class="form-label" for="setchunkTime">Chunk size</label>
+                                              <fa-icon
+                                                      placement="bottom"
+                                                      ngbTooltip="Measure is in seconds time."
+                                                      container="body"
+                                                      [icon]="faInfoCircle"
+                                                      aria-hidden="true"
+                                                      class="gray-light-ico"
+                                              ></fa-icon>
+                                            <input
+                                                  type='number'
+                                                  id="chunkTime"
+                                                  class='form-control'
+                                                  formControlName="chunkTime"
+                                                  validateInputNumber
+                                            >
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col">
+                                      &nbsp;
+                                      <div class="form-group">
+                                        <div class="form-outline">
+                                            <label class="form-label" for="setStatusTimer">Status timer</label>
+                                            <fa-icon
+                                                    placement="bottom"
+                                                    ngbTooltip="Measure is in seconds time."
+                                                    container="body"
+                                                    [icon]="faInfoCircle"
+                                                    aria-hidden="true"
+                                                    class="gray-light-ico"
+                                            ></fa-icon>
+                                            <input
+                                                  type='number'
+                                                  id="statusTimer"
+                                                  class='form-control'
+                                                  formControlName="statusTimer"
+                                                  validateInputNumber
+                                            >
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  &nbsp;
+                                  <div class="row">
+                                    <div class="col">
+                                      &nbsp;
+                                      <div class="form-group">
+                                        <div class="form-outline">
+                                            <label class="form-label" for="setuseNewBench">Benchmark Type</label>
+                                            <fa-icon
+                                                    placement="bottom"
+                                                    ngbTooltip="Only applies to Hashcat. If binary type generic is selected this benchmark option will be ignored."
+                                                    container="body"
+                                                    [icon]="faInfoCircle"
+                                                    aria-hidden="true"
+                                                    class="gray-light-ico"
+                                            ></fa-icon>
+                                            <select
+                                                  type='number'
+                                                  id="useNewBench"
+                                                  class='form-select'
+                                                  formControlName="useNewBench"
+                                            >
+                                              <option [ngValue]="false">Runtime Benchmark</option>
+                                              <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
+                                            </select>
+                                        </div>
+                                      </div>
+                                      &nbsp;
+                                    </div>
+                                    <div class="col">
+                                      &nbsp;
+                                      <div class="form-group">
+                                        <div class="form-outline">
+                                          <label class="form-label" for="setcrackerBinaryTypeId">Binary type</label>
+                                          <fa-icon
+                                                  placement="bottom"
+                                                  ngbTooltip="The task will run using the binary type selected."
+                                                  container="body"
+                                                  [icon]="faInfoCircle"
+                                                  aria-hidden="true"
+                                                  class="gray-light-ico"
+                                          ></fa-icon>
+                                          <select
+                                                  type='number'
+                                                  id='crackerBinaryTypeId'
+                                                  class='form-select'
+                                                  #myBinary
+                                                  formControlName="crackerBinaryTypeId"
+                                          >
+                                            <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      &nbsp;
+                                    </div>
+                                  </div>
+                                  <div class="row">
+                                    <div class="col">
+                                      &nbsp;
+                                      <div class="form-group">
+                                        <div class="form-outline">
+                                          <label class="form-label" for="setisCpuTask">CPU only</label>
+                                          <fa-icon
+                                                  placement="bottom"
+                                                  ngbTooltip="The task will work only with CPU agents assigned"
+                                                  container="body"
+                                                  [icon]="faInfoCircle"
+                                                  aria-hidden="true"
+                                                  class="gray-light-ico"
+                                          ></fa-icon>
+                                          <select
+                                                id='isCpuTask'
+                                                class='form-select'
+                                                formControlName="isCpuTask"
+                                              >
+                                              <option [ngValue]="false" [defaultSelected]=true>No</option>
+                                              <option [ngValue]="true">Yes</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      &nbsp;
+                                    </div>
+                                    <div class="col">
+                                      &nbsp;
+                                      <div class="form-group">
+                                        <div class="form-outline">
+                                          <label class="form-label" for="setisSmall">Small task</label>
+                                          <fa-icon
+                                                  placement="bottom"
+                                                  ngbTooltip="Only one agent gets assigned to it."
+                                                  container="body"
+                                                  [icon]="faInfoCircle"
+                                                  aria-hidden="true"
+                                                  class="gray-light-ico"
+                                          ></fa-icon>
+                                          <select
+                                                id='isSmall'
+                                                class='form-select'
+                                                formControlName="isSmall"
+                                              >
+                                              <option [ngValue]="false" [defaultSelected]=true>No</option>
+                                              <option [ngValue]="true">Yes</option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                      &nbsp;
+                                    </div>
+                                  </div>
+                              </ng-template>
+                            </ngb-panel>
+                          </ngb-accordion>
+                          &nbsp;
+                       </div>
+                  <button class="btn btn-gray-800" type="submit">Create</button>
+              </form>
+           </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="bg-white shadow border-0 rounded p-4 w-100 fmxw-700">
+            <div class="card">
+                  <ul ngbNav #nav="ngbNav" [(activeId)]="active"  class="nav-tabs">
+                    <li [ngbNavItem]="1">
+                      <a ngbNavLink>WordList</a>
+                      <ng-template ngbNavContent>
+                        <div class="table-responsive">
+                          &nbsp;
+                            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+                              <thead class="thead-light">
+                                <tr>
+                                    <th class="border-0 rounded-start">File Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let f of allfiles | search:'0':'fileType'">
+                                    <td *ngIf="f.isSecret == 1" class="width: 100px">
+                                      <form [formGroup]="createForm" novalidate>
+                                        <div class="form-check" >
+                                          <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
+                                          <label class="form-check-label" for="{{f.filename}}">
+                                              {{f.filename | shortenString:35 }}
+                                          </label>
+                                        </div>
+                                      </form>
+                                      <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </td>
+                                    <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                        </div>
+                      </ng-template>
+                    </li>
+                    <li [ngbNavItem]="2">
+                      <a ngbNavLink>Rules</a>
+                      <ng-template ngbNavContent>
+                        <div class="table-responsive">
+                          &nbsp;
+                            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" >
+                              <thead class="thead-light">
+                                <tr>
+                                    <th class="border-0 rounded-start rounded-end">File Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let f of allfiles | search:'1':'fileType'">
+                                    <td *ngIf="f.isSecret == 1">
+                                      <form [formGroup]="createForm" novalidate>
+                                        <div class="form-check" >
+                                          <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
+                                          <label class="form-check-label" for="{{f.filename}}">
+                                              {{f.filename | shortenString:35 }}
+                                          </label>
+                                        </div>
+                                      </form>
+                                      <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </td>
+                                    <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                        </div>
+                      </ng-template>
+                    </li>
+                    <li [ngbNavItem]="3">
+                      <a ngbNavLink>Other</a>
+                      <ng-template ngbNavContent>
+                        <div class="table-responsive">
+                          &nbsp;
+                            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" >
+                              <thead class="thead-light">
+                                <tr>
+                                    <th class="border-0 rounded-start rounded-end">File Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let f of allfiles | search:'2':'fileType'">
+                                    <td *ngIf="f.isSecret == 1">
+                                      <form [formGroup]="createForm" novalidate>
+                                        <div class="form-check" >
+                                          <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
+                                          <label class="form-check-label" for="{{f.filename}}">
+                                              {{f.filename | shortenString:35 }}
+                                          </label>
+                                        </div>
+                                      </form>
+                                      <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </td>
+                                    <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                        </div>
+                      </ng-template>
+                    </li>
+                  </ul>
+                  <div [ngbNavOutlet]="nav" class="mt-2"></div>
+            </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Cheat Sheet Utilisation -->
+<ng-template #cheatsheet let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-basic-title">Cheat Sheet</h4>
+	</div>
+	<div class="modal-body">
+		<form>
+			<div class="mb-3">
+        <div class="row">
+          <ngb-accordion #acc="ngbAccordion" activeIds="config-panel-one">
+            <ngb-panel title="Required" id="config-panel-one">
+              <ng-template ngbPanelContent>
+                Use <code>#HL#</code> for hash list and assume all files in current directory.
+                If you have Linux agents, please mind the filename case sensitivity!
+                <br>
+                <p>Rules: Format is <code>-r Filename</code></p>
+              </ng-template>
+            </ngb-panel>
+            <ngb-panel title="Attack Modes">
+              <ng-template ngbPanelContent>
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">Value</th>
+                      <th scope="col">Attack</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of attackmode">
+                      <th scope="row">{{c.value}}</th>
+                      <td>{{c.name}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </ng-template>
+            </ngb-panel>
+            <ngb-panel title="Attack Examples">
+              <ng-template ngbPanelContent>
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">Type</th>
+                      <th scope="col">Example</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let ax of attackex">
+                      <th scope="row">{{ax.value}}</th>
+                      <td>{{ax.example}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </ng-template>
+            </ngb-panel>
+            <ngb-panel title="Built-in charsets in Hashcat">
+              <ng-template ngbPanelContent>
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col">Value</th>
+                      <th scope="col">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let ch of charsets">
+                      <th scope="row">{{ch.value}}</th>
+                      <td>{{ch.descrip}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </ng-template>
+            </ngb-panel>
+            <ngb-panel title="Foreign Characters Hashcat">
+              <ng-template ngbPanelContent>
+                <p>Hashcat uses UTF-8, if you are doing an attack using wordlist as soon as the format is supported it should be fine.
+                  If you are trying a brute attack, it'll require use the command <code>--hex-charset</code>. Example:
+                </p>
+                <p>German: --hex-charset -1 c3 -2 8489969c9fa4a9b6bc german.hash ?a?a?a?1?2?a?a</p>
+                <p>Encoding: It is better practice encode the custom charsets in the mask, please note From and To in the example. ie. <code>--encoding-from=utf-8</code> or <code>--encoding-to=utf-8</code> </p>
+              </ng-template>
+            </ngb-panel>
+          </ngb-accordion>
+        </div>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
+	</div>
+</ng-template>
+
+

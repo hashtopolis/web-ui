@@ -1,0 +1,129 @@
+&nbsp;
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-12 d-flex align-items-center justify-content-center">
+          <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+            <h2 class="h5 mb-4">How to add a new Agent?</h2><br>
+            <ol class="list-group list-group-numbered">
+              <li class="list-group-item">In clients, download the file and run it</li>
+              <li class="list-group-item">Generate voucher to link with agent (Used vouchers are automatically deleted)</li>
+              <li class="list-group-item">
+                Using the URL below link the agent with the server<br>
+                <code>{{ agentURL }}</code>
+                <fa-icon
+                        class='btn-outline-gray-600 float-right'
+                        placement="bottom"
+                        ngbTooltip="Copy Path: {{ agentURL }}"
+                        [copyButton]="agentURL"
+                        container="body"
+                        [icon]="faCopy"
+                        aria-hidden="true"
+                >
+                </fa-icon>
+              </li>
+            </ol>
+      </div>
+    </div>
+  </div>
+</div>
+&nbsp;
+<!-- Clients section -->
+<h2 class="h5 mb-4">Clients</h2>
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <table class="table table-centered table-nowrap mb-0 rounded" datatable>
+        <thead class="thead-light">
+            <tr>
+              <th class="border-0 rounded-start">ID</th>
+              <th class="border-0">Version</th>
+              <th class="border-0">Type</th>
+              <th class="border-0">Operating Systems</th>
+              <th class="border-0">Filename</th>
+              <th class="border-0 rounded-end">Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr  *ngFor="let b of binaries">
+              <td class="text-align:right">{{ b.agentBinaryId }}</td>
+              <td>{{ b.version }}</td>
+              <td>{{ b.type }}</td>
+              <td>{{ b.operatingSystems }}</td>
+              <td>{{ b.filename }}</td>
+              <td>
+                  <a href={{agentdownloadURL+b.agentBinaryId}} class='btn-outline-gray-600 float-right'>
+                    <fa-icon
+                            placement="bottom"
+                            title="Download"
+                            [icon]="faDownload"
+                    >
+                    </fa-icon>
+                  </a>
+                  <fa-icon
+                          class='btn-outline-gray-600 float-right'
+                          placement="bottom"
+                          ngbTooltip="Copy Path: {{ agentdownloadURL+b.agentBinaryId }}"
+                          [copyButton]="agentdownloadURL+b.agentBinaryId"
+                          container="body"
+                          [icon]="faCopy"
+                          aria-hidden="true"
+                  >
+                  </fa-icon>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+&nbsp;
+<!-- Voucher Section -->
+<h2 class="h5 mb-4">Vouchers</h2>
+<!-- Create Voucher -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 d-flex align-items-center justify-content-center">
+            <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+              <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+                  <div class="row">
+                      <div class="form-group">
+                        <div class="form-outline">
+                          <label class="form-label" for="setcheckType">New Voucher</label>
+                          <input type='text' [(ngModel)]="randomstring" name='voucher' title="Voucher" class='form-control' id="voucher" formControlName="voucher"/>
+                        </div>
+                      </div>
+                      &nbsp;
+                      <button class="btn btn-gray-800" type="submit">Create</button>
+                  </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</div>
+&nbsp;
+<!-- Voucher Table -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-centered table-nowrap mb-0 rounded" datatable>
+          <thead class="thead-light">
+            <tr>
+              <th class="border-0 rounded-start">Key</th>
+              <th class="border-0">Created</th>
+              <th class="border-0 rounded-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of vouchers">
+              <td><code>{{ v.voucher }}</code></td>
+              <td>{{ v.time*1000 | date: 'dd/MM/yyyy h:mm:ss ' }}</td>
+              <td>
+                <a class='btn-outline-gray-600 float-right' (click)="onDelete(v.regVoucherId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                  <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+               </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  </div>
+</div>

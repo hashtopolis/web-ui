@@ -1,0 +1,134 @@
+/* ==================================
+          SECTION BUTTON
+   ================================== */
+
+.btn-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.btn-sm, .btn-group-sm > .btn {
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+}
+
+.btn-sm-dt, .btn-group-sm-dt > .btn {
+  padding: 0.375rem 0.625rem !important;
+  font-size: 0.875rem !important;
+  border-radius: 0.5rem !important;
+}
+
+.btn-outline-gray-600-dt {
+  color: #4B5563 !important;
+  border-color: #4B5563 !important;;
+}
+
+.btn-outline-gray-600-dt:hover {
+  color: #ffffff !important;
+  background-color: #4B5563 !important;
+  border-color: #4B5563 !important;
+}
+
+.btn-outline-gray-600 {
+  color: #4B5563;
+  border-color: #4B5563;
+}
+
+.btn-outline-gray-600-select {
+  color: #ffffff;
+  background-color: #4B5563;
+  border-color: #4B5563;
+}
+
+.btn-outline-gray-600-select:hover {
+  color: #4B5563;
+  border-color: #4B5563;
+}
+
+.btn-outline-gray-600:hover {
+  color: #ffffff;
+  background-color: #4B5563;
+  border-color: #4B5563;
+}
+
+.btn-check:focus + .btn-outline-gray-600, .btn-outline-gray-600:focus {
+  box-shadow: 0 0 0 0.18rem rgba(75, 85, 99, 0.5);
+}
+
+.btn-gray-800 {
+  color: #ffffff;
+  background-color: #343d49;
+  border-color: #1F2937;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+}
+
+.btn-gray-800:hover {
+  color: #ffffff;
+  background-color: #1a232f;
+  border-color: #19212c;
+}
+
+.btn-check:focus + .btn-gray-800, .btn-gray-800:focus {
+  color: #ffffff;
+  background-color: #1a232f;
+  border-color: #19212c;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075), 0 0 0 0.18rem rgba(65, 73, 85, 0.5);
+}
+
+.d-inline-flex {
+  display: inline-flex !important;
+}
+
+.btn-right {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  height: 33px;
+  border: none;
+}
+
+.btn-secondary {
+  color: #1F2937;
+  background-color: #f0bc74;
+  border-color: #f0bc74;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075);
+}
+
+.btn-secondary:hover {
+  color: #1F2937;
+  background-color: #f2c689;
+  border-color: #f2c382;
+}
+
+.btn-check:focus + .btn-secondary, .btn-secondary:focus {
+  color: #1F2937;
+  background-color: #f2c689;
+  border-color: #f2c382;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(17, 24, 39, 0.075), 0 0 0 0.18rem rgba(209, 166, 107, 0.5);
+}
+
+.btn.btn-big { // used for custom alert modal
+  font-size: 18px;
+  padding: 15px 20px;
+  min-width: 100px;
+}
+
+.btn-close {  // used for custom alert modal
+  color: #aaaaaa;
+  font-size: 20px;
+  text-decoration: none;
+  padding:10px;
+  position: absolute;
+  right: 7px;
+  top: 0;
+}
+
+.btn-center {
+  white-space: pre;
+  display: table-cell;
+  vertical-align: bottom;
+  bottom:0px;
+  margin-left:-50px;
+}
