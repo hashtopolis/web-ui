@@ -10,6 +10,11 @@ This document describes the process for running this application in your local e
 
 We will have a beta soon.
 
+# ToDO
+
+1. Some sections need to be move to dynamic components
+2. Interfaces needs to integrated, currently it is easier for the the first draft dont use them
+
 # Screenshots
 
 <!-- ![Hashtopolis - Animated gif demo](demo/intro1.gif) -->
