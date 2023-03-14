@@ -1,16 +1,15 @@
 import { AuthGuard } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
 
-import { HashlistComponent } from "./hashlist/hashlist.component";
-import { NewHashlistComponent } from "./new-hashlist/new-hashlist.component";
-import { EditHashlistComponent } from "./edit-hashlist/edit-hashlist.component";
-import { SuperhashlistComponent } from "./superhashlist/superhashlist.component";
 import { NewSuperhashlistComponent } from "./new-superhashlist/new-superhashlist.component";
+import { SuperhashlistComponent } from "./superhashlist/superhashlist.component";
+import { EditHashlistComponent } from "./edit-hashlist/edit-hashlist.component";
+import { NewHashlistComponent } from "./new-hashlist/new-hashlist.component";
+import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
 import { SearchHashComponent } from "./search-hash/search-hash.component";
 import { ShowCracksComponent } from "./show-cracks/show-cracks.component";
-import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
-
+import { HashlistComponent } from "./hashlist/hashlist.component";
 
 const routes: Routes = [
   {

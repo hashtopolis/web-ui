@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { LogentryService } from '../../core/_services/config/logentry.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { faHomeAlt } from '@fortawesome/free-solid-svg-icons';
+import { environment } from 'src/environments/environment';
+
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { LogentryService } from '../../core/_services/config/logentry.service';
 
 @Component({
   selector: 'app-log',
@@ -14,17 +17,28 @@ export class LogComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  uidateformat:any;
 
   public logs: {logEntryId: number, issuer: string, issuerId: number, level: string, message: string, time: number}[] = [];
 
-  constructor(private logentryService: LogentryService,
-    private route:ActivatedRoute, private router:Router) { }
+  private maxResults = environment.config.prodApiMaxResults
+
+  constructor(
+    private logentryService: LogentryService,
+    private uiService: UIConfigService,
+    private route:ActivatedRoute,
+    private router:Router
+  ) { }
 
     ngOnInit(): void {
-      this.logentryService.getLogs().subscribe((log: any) => {
+      let params = {'maxResults': this.maxResults};
+      this.logentryService.getLogs(params).subscribe((log: any) => {
         this.logs = log.values;
         this.dtTrigger.next(void 0);
       });
+
+      this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+
       this.dtOptions = {
         dom: 'Bfrtip',
         scrollY: true,

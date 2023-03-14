@@ -1,19 +1,21 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener, ViewChild  } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { faHomeAlt, faPlus, faTrash, faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
-import { Router } from '@angular/router';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
-import { Observable, Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { AbstractControl, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { PreprocessorService } from '../../core/_services/config/preprocessors.service';
-import { CrackerService } from '../../core/_services/config/cracker.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { FilesService } from '../../core/_services/files/files.service';
+import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Observable, Subject } from 'rxjs';
+import { Router } from '@angular/router';
+
+import { FilesService } from '../../core/_services/files/files.service';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { CrackerService } from '../../core/_services/config/cracker.service';
+import { TooltipService } from '../../core/_services/shared/tooltip.service';
+import { ListsService } from '../../core/_services/hashlist/hashlist.service';
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { PreprocessorService } from '../../core/_services/config/preprocessors.service';
 
 @Component({
   selector: 'app-new-tasks',
@@ -26,8 +28,6 @@ export class NewTasksComponent implements OnInit {
   // Config
   private priority = environment.config.tasks.priority;
   private maxAgents = environment.config.tasks.maxAgents;
-  private chunkTime = environment.config.tasks.chunkTime;
-  private statusTimer = environment.config.tasks.statusTimer;
   private chunkSize = environment.config.tasks.chunkSize;
 
   faHome=faHomeAlt;
@@ -68,15 +68,17 @@ export class NewTasksComponent implements OnInit {
     }[] = [];
 
   constructor(
+    private preprocessorService:PreprocessorService,
+    private _changeDetectorRef: ChangeDetectorRef,
     private preTasksService: PreTasksService,
+    private crackerService: CrackerService,
+    private tooltipService: TooltipService,
+    private uiService: UIConfigService,
     private taskService: TasksService,
     private listsService:ListsService,
+    private filesService: FilesService,
     private route:ActivatedRoute,
     private router: Router,
-    private preprocessorService:PreprocessorService,
-    private filesService: FilesService,
-    private crackerService: CrackerService,
-    private _changeDetectorRef: ChangeDetectorRef,
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -87,23 +89,26 @@ export class NewTasksComponent implements OnInit {
 
   // New checkbox
   filesFormArray: Array<any> = [];
-  onChange(fileId:number, fileType:number, fileName: string, $target: EventTarget) {
+  onChange(fileId:number, fileType:number, fileName: string, cmdAttk: number, $target: EventTarget) {
     const isChecked = (<HTMLInputElement>$target).checked;
-    if(isChecked) {
+    if(isChecked && cmdAttk === 0) {
         this.filesFormArray.push(fileId);
         this.OnChangeAttack(fileName, fileType);
         this.createForm.patchValue({files: this.filesFormArray });
-        console.log(this.filesFormArray)
-    } else {
-        let index = this.filesFormArray.indexOf(fileId);
-        this.filesFormArray.splice(index,1);
-        this.createForm.patchValue({files: this.filesFormArray});
-        this.OnChangeAttack(fileName, fileType, true);
+    } if (isChecked && cmdAttk === 1) {
+        this.OnChangeAttackPrep(fileName, fileType);
+    } if (!isChecked && cmdAttk === 0) {
+      let index = this.filesFormArray.indexOf(fileId);
+      this.filesFormArray.splice(index,1);
+      this.createForm.patchValue({files: this.filesFormArray});
+      this.OnChangeAttack(fileName, fileType, true);
+    } if (!isChecked && cmdAttk === 1) {
+      this.OnChangeAttackPrep(fileName, fileType, true);
     }
   }
 
   OnChangeAttack(item: string, fileType: number, onRemove?: boolean){
-    if(onRemove == true){
+    if(onRemove === true){
         let currentCmd = this.createForm.get('attackCmd').value;
         let newCmd = item
         if (fileType === 1 ){newCmd = '-r '+ newCmd;}
@@ -125,6 +130,29 @@ export class NewTasksComponent implements OnInit {
     }
   }
 
+  OnChangeAttackPrep(item: string, fileType: number, onRemove?: boolean){
+    if(onRemove === true){
+        let currentCmd = this.createForm.get('preprocessorCommand').value;
+        let newCmd = item
+        if (fileType === 1 ){newCmd = '-r '+ newCmd;}
+        newCmd = currentCmd.replace(newCmd,'');
+        newCmd = newCmd.replace(/^\s+|\s+$/g, "");
+        this.createForm.patchValue({
+          preprocessorCommand: newCmd
+        });
+    } else {
+        let currentCmd = this.createForm.get('preprocessorCommand').value;
+        let newCmd = item;
+        this.validateFile(newCmd);
+        if (fileType === 1 ){
+          newCmd = '-r '+ newCmd;
+        }
+        this.createForm.patchValue({
+          preprocessorCommand: currentCmd+' '+ newCmd
+        });
+    }
+  }
+
   validateFile(value){
     if(value.split('.').pop() == '7zip'){
       Swal.fire({
@@ -136,13 +164,24 @@ export class NewTasksComponent implements OnInit {
   }
 
   onRemoveFChars(){
-    const forbidden = /[&*;$()\[\]{}'"\\|<>\/]/g;
     let currentCmd = this.createForm.get('attackCmd').value;
-    currentCmd = currentCmd.replace(forbidden,'');
+    currentCmd = currentCmd.replace(this.getBanChars(),'');
     this.createForm.patchValue({
       attackCmd: currentCmd
     });
   }
+
+  getBanChars(){
+    var chars = this.uiService.getUIsettings('blacklistChars').value.replace(']', '\\]').replace('[', '\\[');
+    return new RegExp('['+chars+'\/]', "g")
+  }
+
+  getBanChar(){
+    return this.uiService.getUIsettings('blacklistChars').value;
+  }
+
+  // Tooltips
+  tasktip: any =[]
 
   ngOnInit(): void {
 
@@ -153,6 +192,8 @@ export class NewTasksComponent implements OnInit {
         this.copyMode = params['id'] != null;
       }
     );
+
+    this.tasktip = this.tooltipService.getTaskTooltips();
 
     this.route.data.subscribe(data => {
       switch (data['kind']) {
@@ -231,11 +272,11 @@ export class NewTasksComponent implements OnInit {
       'taskName': new FormControl('', [Validators.required]),
       'notes': new FormControl(''),
       'hashlistId': new FormControl('', [Validators.required]),
-      'attackCmd': new FormControl(null || '#HL#', [Validators.required, this.forbiddenChars(/[&*;$()\[\]{}'"\\|<>\/]/)]),
+      'attackCmd': new FormControl(this.uiService.getUIsettings('hashlistAlias').value, [Validators.required, this.forbiddenChars(this.getBanChars())]),
       'priority': new FormControl(null || this.priority,[Validators.required, Validators.pattern("^[0-9]*$")]),
       'maxAgents': new FormControl(null || this.maxAgents),
-      'chunkTime': new FormControl(null || this.chunkTime),
-      'statusTimer': new FormControl(null || this.statusTimer),
+      'chunkTime': new FormControl(null || this.uiService.getUIsettings('chunktime').value),
+      'statusTimer': new FormControl(null || this.uiService.getUIsettings('statustimer').value),
       'color': new FormControl(''),
       'isCpuTask': new FormControl(null || false),
       'skipKeyspace': new FormControl(null || 0),
@@ -252,6 +293,8 @@ export class NewTasksComponent implements OnInit {
       'files': new FormControl('')
     });
 
+    this.patchHashalias();
+
   }
 
   get attckcmd(){
@@ -265,8 +308,12 @@ export class NewTasksComponent implements OnInit {
     };
   }
 
+  getValueBchars(): void {
+    this.uiService.getUIsettings('blacklistChars').value
+  }
+
   async fetchData() {
-    let params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
+    let params = {'maxResults': this.maxResults, 'filter': 'isArchived='+false+''}
     let params_prep = {'maxResults': this.maxResults }
     let params_crack = {'filter': 'crackerBinaryTypeId=1'};
     let params_f = {'maxResults': this.maxResults, 'expand': 'accessGroup'}
@@ -296,6 +343,12 @@ export class NewTasksComponent implements OnInit {
           dtInstance.columns.adjust();
         });
      });
+    });
+  }
+
+  patchHashalias(){
+    this.createForm.patchValue({
+      attackCmd:this.uiService.getUIsettings('hashlistAlias').value
     });
   }
 
@@ -425,7 +478,6 @@ export class NewTasksComponent implements OnInit {
    }
   }
 
-
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
@@ -436,7 +488,6 @@ export class NewTasksComponent implements OnInit {
       });
     });
   }
-
 
   // @HostListener allows us to also guard against browser refresh, close, etc.
   @HostListener('window:beforeunload', ['$event'])

@@ -1,12 +1,19 @@
-import { Pipe, PipeTransform } from '@angular/core';
-/*
+import {
+  PipeTransform,
+  Pipe
+} from '@angular/core';
+
+/**
  * Transform bytes to a readable unit adding abbreviation units or long form
+ * @param sizeB - The input number
+ * @param longForm -The output unit abbreviation or long text
  * Usage:
  *   value | fileSize:Units
  * Example:
  *   {{ 1024 | fileSize:FILE_SIZE_UNITS }}
- *   formats to: 1KB
-*/
+ * @returns 1KB
+**/
+
 const FILE_SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 const FILE_SIZE_UNITS_LONG = ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Pettabytes', 'Exabytes', 'Zettabytes', 'Yottabytes'];
 

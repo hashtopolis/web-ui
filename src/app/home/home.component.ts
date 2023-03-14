@@ -7,6 +7,11 @@ import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 export class HomeComponent implements OnInit {
 
   title = 'Hastopolis';
+  username: string = 'Admin';
+
+  getUsername(){
+      return this.username;
+  }
 
   ngOnInit(): void {
 

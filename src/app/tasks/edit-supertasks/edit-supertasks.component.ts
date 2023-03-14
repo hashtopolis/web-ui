@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { faAlignJustify, faInfoCircle, faMagnifyingGlass, faEye } from '@fortawesome/free-solid-svg-icons';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { environment } from './../../../environments/environment';
-import { faAlignJustify, faInfoCircle, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
@@ -21,8 +21,9 @@ export class EditSupertasksComponent implements OnInit {
   editedST: any // Change to Model
 
   isLoading = false;
-  faAlignJustify=faAlignJustify;
+  faEye=faEye;
   faInfoCircle=faInfoCircle;
+  faAlignJustify=faAlignJustify;
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
@@ -61,8 +62,7 @@ export class EditSupertasksComponent implements OnInit {
     });
 
     this.updateForm = new FormGroup({
-      supertaskName: new FormControl(''),
-      pretasks: new FormControl(''),
+      pretasks: new FormControl('')
     });
 
     setTimeout(() => {
@@ -76,8 +76,8 @@ export class EditSupertasksComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.supertaskService.updateSupertask(this.editedSTIndex,this.updateForm.value).subscribe((agent: any) => {
-        const response = agent;
+      this.supertaskService.updateSupertask(this.editedSTIndex,this.updateForm.value).subscribe((st: any) => {
+        const response = st;
         console.log(response);
         this.isLoading = false;
           Swal.fire({
@@ -117,7 +117,7 @@ export class EditSupertasksComponent implements OnInit {
         loadingClass: 'Loading..',
         highlight: true,
         onChange: function (value) {
-            // self.OnChangeValue(value); // We need to overide DOM event, Angular vs Jquery
+            self.OnChangeValue(value); // We need to overide DOM event, Angular vs Jquery
         },
         render: {
           option: function (item, escape) {
@@ -136,14 +136,18 @@ export class EditSupertasksComponent implements OnInit {
           });
         });
 
-
-
     }
 
   OnChangeValue(value){
-    // this.signupForm.patchValue({
-    //     hashTypeId: value
-    // });
+    let formArr = new FormArray([]);
+    for (let val of value) {
+      formArr.push(
+        new FormControl(+val)
+      );
+    }
+    this.updateForm = new FormGroup({
+      pretasks: formArr
+    });
   }
 
   onDelete(){
@@ -205,6 +209,13 @@ export class EditSupertasksComponent implements OnInit {
 
     this.supertaskService.getAllsupertasks(params).subscribe((result)=>{
          this.pretasks = result.values;
+         console.log(this.pretasks)
+
+        //  let paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
+
+        //  this.pretasksService.getAllPretasks(paramspt).subscribe((pretasks: any) => {
+
+        // });
     });
 
     this.dtOptions[0] = {

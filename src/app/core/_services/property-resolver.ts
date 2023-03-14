@@ -5,3 +5,5 @@ export class PropertyResolver {
       }, obj || self);
     }
 }
+
+

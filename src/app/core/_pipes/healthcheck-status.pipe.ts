@@ -1,14 +1,18 @@
 import {
-    Pipe,
-    PipeTransform } from '@angular/core';
-/*
+  PipeTransform,
+  Pipe
+} from '@angular/core';
+
+/**
  * Reusable pipe to get the health check status
+ * @param value - The input number linked with the health check status
  * Usage:
  *   value | hc-status
  * Example:
  *   {{ 0 | hc-status }}
- *   returns: PENDING
-*/
+ * @returns PENDING
+**/
+
 @Pipe({
     name: 'HCstatus'
   })

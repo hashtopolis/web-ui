@@ -1,15 +1,19 @@
 import {
+    PipeTransform,
     Injectable,
     Pipe,
-    PipeTransform } from '@angular/core';
-/*
+} from '@angular/core';
+
+/**
  * Reusable pipe to get the file type
+ * @param value - The input id number linked with the file type
  * Usage:
  *   value | fileType
  * Example:
  *   {{ 0 | fileType }}
- *   returns: WordList
-*/
+ * @returns WordList
+**/
+
 @Pipe({
     name: 'fileType'
   })

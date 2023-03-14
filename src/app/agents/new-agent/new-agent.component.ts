@@ -9,6 +9,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { CrackerService } from '../../core/_services/config/cracker.service';
 import { VoucherService } from '../../core/_services/agents/voucher.service';
 import { AgentBinService } from 'src/app/core/_services/config/agentbinary.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
   selector: 'app-new-agent',
@@ -28,6 +29,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  uidateformat:any;
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
@@ -42,7 +44,8 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   constructor(
     private agentBinService: AgentBinService,
-    private voucherService: VoucherService
+    private voucherService: VoucherService,
+    private uiService: UIConfigService,
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -68,16 +71,20 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       this.vouchers = vouchers.values;
     });
 
-    this.agentBinService.getAgentBin().subscribe((bin: any) => {
+    this.agentBinService.getAgentBins().subscribe((bin: any) => {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
     });
+
+    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
       stateSave: true,
       select: true,
     };
+
   }
 
   rerender(): void {

@@ -1,13 +1,18 @@
-import { Component, HostListener, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { faAlignJustify, faIdBadge, faComputer, faKey, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faAlignJustify, faIdBadge, faComputer, faKey, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import { faLinux, faWindows, faApple } from '@fortawesome/free-brands-svg-icons';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { environment } from './../../../environments/environment';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
-import { AgentsService } from '../../core/_services/agents/agents.service';
+import { ChunkService } from 'src/app/core/_services/chunks.service';
 import { UsersService } from '../../core/_services/users/users.service';
-import { Observable } from 'rxjs';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { AgentsService } from '../../core/_services/agents/agents.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
   selector: 'app-edit-agent',
@@ -20,26 +25,40 @@ export class EditAgentComponent implements OnInit {
 
   isLoading = false;
   faAlignJustify=faAlignJustify;
-  faIdBadge=faIdBadge;
-  faComputer=faComputer;
-  faKey=faKey;
-  faLinux=faLinux;
-  faWindows=faWindows;
-  faApple=faApple;
   faInfoCircle=faInfoCircle;
+  faComputer=faComputer;
+  faIdBadge=faIdBadge;
+  faWindows=faWindows;
+  faLinux=faLinux;
+  faApple=faApple;
+  faKey=faKey;
+  faEye=faEye;
 
   constructor(
+    private agentsService: AgentsService,
+    private usersService: UsersService,
+    private uiService: UIConfigService,
+    private chunkService: ChunkService,
+    private tasksService:TasksService,
     private route:ActivatedRoute,
     private router: Router,
-    private agentsService: AgentsService,
-    private usersService: UsersService
   ) { }
 
   updateForm: FormGroup
   showagent: any = [];
   users: any = [];
+  private maxResults = environment.config.prodApiMaxResults;
+
+  @ViewChild(DataTableDirective)
+  dtElement: DataTableDirective;
+
+  dtTrigger: Subject<any> = new Subject<any>();
+  dtOptions: any = {};
+  uidateformat:any;
 
   ngOnInit(): void {
+
+    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     this.route.params
     .subscribe(
@@ -47,6 +66,7 @@ export class EditAgentComponent implements OnInit {
         this.editedAgentIndex = +params['id'];
         this.editMode = params['id'] != null;
         this.initForm();
+        this.assignChunksInit(this.editedAgentIndex);
       }
     );
 
@@ -74,6 +94,48 @@ export class EditAgentComponent implements OnInit {
       this.users = user.values;
     });
 
+  }
+
+  timespent: number;
+  getchunks: any;
+
+  timeCalc(chunks){
+    var tspent = [];
+    for(let i=0; i < chunks.length; i++){
+      tspent.push(Math.max(chunks[i].solveTime, chunks[i].dispatchTime)-chunks[i].dispatchTime);
+    }
+    this.timespent = tspent.reduce((a, i) => a + i);
+  }
+
+  assignChunksInit(id: number){
+    let params = {'maxResults': 50};
+    this.chunkService.getChunks(params).subscribe((c: any)=>{
+      var getchunks = c.values.filter(u=> u.agentId == id);
+      this.tasksService.getAlltasks(params).subscribe((t: any)=>{
+        this.getchunks = getchunks.map(mainObject => {
+          let matchObjectAgents = t.values.find(e => e.taskId === mainObject.taskId)
+          return { ...mainObject, ...matchObjectAgents}
+        })
+      this.timeCalc(this.getchunks);
+      this.dtTrigger.next(void 0);
+      })
+    });
+
+    this.dtOptions[1] = {
+      dom: 'Bfrtip',
+      scrollY: "700px",
+      scrollCollapse: true,
+      paging: false,
+      destroy: true,
+      buttons: {
+          dom: {
+            button: {
+              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+            }
+          },
+      buttons:[]
+      }
+    }
   }
 
   onSubmit(){

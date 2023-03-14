@@ -115,7 +115,7 @@
           <tbody>
             <tr *ngFor="let v of vouchers">
               <td><code>{{ v.voucher }}</code></td>
-              <td>{{ v.time*1000 | date: 'dd/MM/yyyy h:mm:ss ' }}</td>
+              <td>{{ v.time*1000 |  date: uidateformat }}</td>
               <td>
                 <a class='btn-outline-gray-600 float-right' (click)="onDelete(v.regVoucherId)" data-toggle="tooltip" data-placement="top" title="Delete">
                   <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>

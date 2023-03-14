@@ -1,13 +1,12 @@
 import { AuthGuard } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
 
-import { UsersComponent } from "./users.component";
 import { EditUsersComponent } from "./edit-users/edit-users.component";
 import { AllUsersComponent } from "./all-users/all-users.component";
 import { YubikeyComponent } from "./yubikey/yubikey.component";
 import { GroupsComponent } from "./groups/groups.component";
-
+import { UsersComponent } from "./users.component";
 
 const routes: Routes = [
   {

@@ -3,8 +3,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
+import { environment } from 'src/environments/environment';
 import { UsersService } from '../core/_services/users/users.service';
 import { ValidationService } from '../core/_services/validation.service';
+import { AccessPermissionGroupsService } from '../core/_services/accesspermissiongroups.service';
 
 @Component({
   selector: 'app-users',
@@ -12,19 +14,28 @@ import { ValidationService } from '../core/_services/validation.service';
 })
 export class UsersComponent implements OnInit {
   isLoading = false;
-  // We need to access groups using the API
-  groups = ['Admin', 'Standard User'];
+
   createForm: FormGroup;
   // We need an array uf user names, so we do not create a duplicate name.
+  agp:any;
   usedUserNames = ['Admin', 'Guest'];
 
   constructor(
      private route:ActivatedRoute,
      private router: Router,
-     private usersService: UsersService
+     private usersService: UsersService,
+     private apgService:AccessPermissionGroupsService
      ){}
 
+  private maxResults = environment.config.prodApiMaxResults;
+
   ngOnInit(): void {
+
+    let params = {'maxResults': this.maxResults};
+    this.apgService.getAccPGroups(params).subscribe((agp: any) => {
+      this.agp = agp.values;
+    });
+
     this.createForm = new FormGroup({
       // 'username': new FormControl(null, [Validators.required, this.checkUserNameExist.bind(this)]),
       'username': new FormControl('', Validators.required),

@@ -1,12 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { faHomeAlt, faPlus, faTrash, faEdit, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js'; //ToDo Change to a Common Module
 
-import { DataTableDirective } from 'angular-datatables';
-
+import { environment } from 'src/environments/environment';
 import { AccessGroupsService } from '../../core/_services/accessgroups.service';
 
 @Component({
@@ -26,6 +26,8 @@ export class GroupsComponent implements OnInit {
     faSave=faSave;
     faCancel=faCancel;
 
+    private maxResults = environment.config.prodApiMaxResults;
+
     // Datatable
     @ViewChild(DataTableDirective, {static: false})
     dtElement: DataTableDirective;
@@ -42,8 +44,8 @@ export class GroupsComponent implements OnInit {
       this.signupForm = new FormGroup({
         'groupName': new FormControl('', [Validators.required, Validators.minLength(1)]),
       });
-
-      this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
+      let params = {'maxResults': this.maxResults}
+      this.accessgroupService.getAccessGroups(params).subscribe((agroups: any) => {
         this.agroups = agroups.values;
         this.dtTrigger.next(void 0);
       });

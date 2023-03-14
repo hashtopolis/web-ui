@@ -1,0 +1,148 @@
+  <section>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex align-items-center justify-content-center">
+                <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
+                  <h2 class="h5 mb-4">Create Hashlist</h2><br>
+                  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="form-outline">
+                                <label class="form-label requiredak" for="getname" >Name</label>
+                                <input
+                                      type='text'
+                                      id="name"
+                                      class='form-control'
+                                      formControlName="name"
+                                >
+                            </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label" for="notes">Notes</label>
+                              <input
+                                    type='text'
+                                    id="notes"
+                                    class='form-control'
+                                    formControlName="notes"
+                              >
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label requiredak" for="getaccessgroup">Access group</label>
+                              <select
+                                     type='number'
+                                     id='accessgroup'
+                                     class='form-select'
+                                     formControlName="accessGroupId"
+                                  >
+                                  <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                              </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label requiredak" for="gethashtype">Hashtype</label>
+                              <div class="input-group">
+                                <span class="input-group-text" >
+                                  <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+                                </span>
+                                <select
+                                       type='number'
+                                       id="hashtype"
+                                       class='form-select'
+                                       formControlName="hashTypeId"
+                                    >
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="form-group">
+                          <div class="form-outline">
+                              <label class="form-label requiredak" for="gethashlistformat">Hashlist format</label>
+                              <td>
+                                <select
+                                       type='number'
+                                       id='hashlistformat'
+                                       class='form-select'
+                                       formControlName="format"
+                                       string-number
+                                    >
+                                    <option [ngValue]="0" [defaultSelected]=true>Text file</option>
+                                    <option [ngValue]="1">HCCAPX file / PMKID hash</option>
+                                    <option [ngValue]="2">Binary file (single hash)</option>
+                                </select>
+                                <span class="position-relative top-50 start-50">
+                                  <br>
+                                  <input
+                                        type="checkbox"
+                                        id="separator"
+                                        formControlName="isSalted"
+                                  > Salted hashes, separator:
+                                  <input
+                                        type="text"
+                                        class='form-control form-control-mini'
+                                        formControlName="separator"
+                                        value=";"
+                                  >
+                                </span>
+                                <span class="position-relative top-50 start-50">
+                                  <br>
+                                  <input
+                                        type="checkbox"
+                                        id="isHexSalt"
+                                        formControlName="isHexSalt"
+                                  > Salt is in hex (only when salted hashes)
+                                </span>
+                              </td>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div *ngIf="+brainenabled === 1">
+                          <hr>
+                          <h5>Hashcat Brain Enabled</h5>&nbsp;
+                          <div class="form-group">
+                            <div class="form-outline">
+                              <label class="form-label requiredak" for="getbrainfeatures">Hashlist format</label>
+                                <fa-icon
+                                        placement="bottom"
+                                        ngbTooltip='You can disable this setting in Config > Server > General Settings'
+                                        container="body"
+                                        [icon]="faInfoCircle"
+                                        aria-hidden="true"
+                                >
+                                </fa-icon>
+                              <td>
+                                <select
+                                      type='number'
+                                      id='brainfeatures'
+                                      class='form-select'
+                                      formControlName="brainFeatures"
+                                    >
+                                    <option [ngValue]="1">Send hashed passwords</option>
+                                    <option [ngValue]="2">Send attack positions</option>
+                                    <option [ngValue]="3" [defaultSelected]=true>Send hashed passwords and attack positions</option>
+                                </select>
+                                <div class='alert alert-info row justify-content-center closesys'>
+                                  Note: When brain is enabled it'll create a network server. If it is used wrongly it could cause bottlenecks or collapse the network server.
+                              </div>
+                            </div>
+                          </div>
+                          <hr>
+                          &nbsp;
+                        </div>
+                    </div>
+                    <button class="btn btn-gray-800" type="submit">Create</button>
+                  <!-- </tr> -->
+              </form>
+              {{ signupForm.value | json }}
+      </div>
+    </div>
+  </div>
+</div>

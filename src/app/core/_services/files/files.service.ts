@@ -1,53 +1,55 @@
-import { Injectable } from "@angular/core";
-import { HttpClient, HttpErrorResponse, HttpParams } from "@angular/common/http";
-import { ActivatedRoute, Params } from '@angular/router';
 import { environment } from './../../../../environments/environment';
-import { Observable, tap, catchError, throwError, retryWhen, delay, take } from 'rxjs';
+import { Observable, tap, retryWhen, delay, take } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { setParameter } from '../buildparams';
+import { Injectable } from "@angular/core";
+import { Params } from '@angular/router';
 
 import { Filetype, UpdateFileType } from '../../_models/files';
-
-// import { environment } from '@env'; // Add environtment
 
 @Injectable({providedIn: 'root'})
 export class FilesService {
 
-  private endpoint = environment.config.prodApiEndpoint + '/ui/files';  // V1 API
+  private endpoint = environment.config.prodApiEndpoint + '/ui/files';
 
   constructor(private http: HttpClient) { }
 
-  private handleError ( err : HttpErrorResponse ) {
-    if (err.error instanceof ErrorEvent){
-      console.log('Client Side Error: ', err.error.message);
-    }else{
-      console.log('Server Side Error: ', err);
-    }
-    return throwError(() => err);
-  }
-
+/**
+ * Get all Files
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns Object
+**/
   getFiles(routerParams?: Params):Observable<any> {
     let queryParams: Params = {};
       if (routerParams) {
-          queryParams = this.setParameter(routerParams);
+          queryParams = setParameter(routerParams);
       }
     return this.http.get(this.endpoint, {params: queryParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Get individial File by id
+ * @param id - File id
+ * @returns Object
+**/
   getFile(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Delete individialFile by id
+ * @param id -File id
+ * @returns Object
+**/
   deleteFile(id: number):Observable<any> {
     return this.http.delete(this.endpoint +'/'+ id)
     .pipe(
-      catchError(this.handleError),
       retryWhen(errors => {
         return errors
                 .pipe(
@@ -59,44 +61,30 @@ export class FilesService {
     );
   }
 
-  createFile(id: number):Observable<any> {
-    return this.http.delete(this.endpoint +'/'+ id)
-    .pipe(
-      catchError(this.handleError)
-    );
-  }
-
+/**
+ * Update File
+ * @param arr - Fields
+ * @returns Object
+**/
   updateFile(arr: any): Observable<UpdateFileType> {
     return this.http.patch<any>(this.endpoint + '/' + arr.fileId, arr.updateData)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Update Files in Bulk
+ * @param id - File id
+ * @param arr - Fields
+ * @returns Object
+ * TODO - Combine with the one above
+**/
   updateBulkFile(id: number, arr: any): Observable<UpdateFileType> {
     return this.http.patch<any>(this.endpoint + '/' + id, arr)
     .pipe(
-      tap(data => console.log('Work: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('Work: ', JSON.stringify(data)))
     );
   }
-
-  private setParameter(routerParams: Params): HttpParams {
-    let queryParams = new HttpParams();
-    for (const key in routerParams) {
-        if (routerParams.hasOwnProperty(key)) {
-            queryParams = queryParams.set(key, routerParams[key]);
-        }
-    }
-    return queryParams;
-  }
-
-// ToDo: For mock up and test
-//   private path(path: string): string {
-//     return `${environment.api_url}${path}`;
-// }
-
-
 
 }

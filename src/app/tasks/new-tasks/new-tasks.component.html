@@ -84,7 +84,7 @@
                             <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
                               Please remove manually the blacklisted Characters or use the button below!
                               <br>
-                              <b>BlackListed Chars: &#36; &#124; &#123; &#125; &#768; &#40; &#41; &lt; &gt; &quot; &apos; &amp; </b>
+                              <b>BlackListed Chars: {{this.getBanChar()}} </b>
                               <br>
                               <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
                             </span>
@@ -151,14 +151,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                       <label class="form-label" for="getchunkTime">Chunk size</label>
-                                      <fa-icon
-                                              placement="bottom"
-                                              ngbTooltip="Measure is in seconds time."
-                                              container="body"
-                                              [icon]="faInfoCircle"
-                                              aria-hidden="true"
-                                              class="gray-light-ico"
-                                      ></fa-icon>
+                                      <span *ngIf="tasktip.chunkTime">
+                                        <fa-icon
+                                                placement="bottom"
+                                                ngbTooltip='{{tasktip.chunkTime}}'
+                                                container="body"
+                                                [icon]="faInfoCircle"
+                                                aria-hidden="true"
+                                                class="gray-light-ico"
+                                        ></fa-icon>
+                                      </span>
                                       <input
                                             type='number'
                                             id="chunkTime"
@@ -175,14 +177,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                       <label class="form-label" for="getStatusTimer">Status timer</label>
-                                      <fa-icon
-                                              placement="bottom"
-                                              ngbTooltip="Measure is in seconds time."
-                                              container="body"
-                                              [icon]="faInfoCircle"
-                                              aria-hidden="true"
-                                              class="gray-light-ico"
-                                      ></fa-icon>
+                                      <span *ngIf="tasktip.statusTimer">
+                                        <fa-icon
+                                                placement="bottom"
+                                                ngbTooltip='{{tasktip.statusTimer}}'
+                                                container="body"
+                                                [icon]="faInfoCircle"
+                                                aria-hidden="true"
+                                                class="gray-light-ico"
+                                        ></fa-icon>
+                                      </span>
                                       <input
                                             type='number'
                                             id="statusTimer"
@@ -199,14 +203,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                       <label class="form-label" for="getskipKeyspace">Skip keyspace</label>
-                                      <fa-icon
-                                              placement="bottom"
-                                              ngbTooltip="Skip a given keyspace at the beginning of the task"
-                                              container="body"
-                                              [icon]="faInfoCircle"
-                                              aria-hidden="true"
-                                              class="gray-light-ico"
-                                      ></fa-icon>
+                                      <span *ngIf="tasktip.skipKeyspace">
+                                        <fa-icon
+                                                placement="bottom"
+                                                ngbTooltip='{{tasktip.skipKeyspace}}'
+                                                container="body"
+                                                [icon]="faInfoCircle"
+                                                aria-hidden="true"
+                                                class="gray-light-ico"
+                                        ></fa-icon>
+                                      </span>
                                       <input
                                             type='number'
                                             id="skipKeyspace"
@@ -224,14 +230,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                     <label class="form-label" for="getisCpuTask">CPU only</label>
-                                    <fa-icon
-                                            placement="bottom"
-                                            ngbTooltip="Task is assigned only to CPU agents"
-                                            container="body"
-                                            [icon]="faInfoCircle"
-                                            aria-hidden="true"
-                                    >
-                                    </fa-icon>
+                                    <span *ngIf="tasktip.isCpuTask">
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='{{tasktip.isCpuTask}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </span>
                                     <select
                                           id='isCpuTask'
                                           class='form-select'
@@ -247,14 +255,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                     <label class="form-label" for="getisSmall">Small task</label>
-                                    <fa-icon
-                                            placement="bottom"
-                                            ngbTooltip="Only one agent is assigned to the task"
-                                            container="body"
-                                            [icon]="faInfoCircle"
-                                            aria-hidden="true"
-                                    >
-                                    </fa-icon>
+                                    <span *ngIf="tasktip.isSmall">
+                                      <fa-icon
+                                              placement="bottom"
+                                              ngbTooltip='{{tasktip.isSmall}}'
+                                              container="body"
+                                              [icon]="faInfoCircle"
+                                              aria-hidden="true"
+                                      >
+                                      </fa-icon>
+                                    </span>
                                     <select
                                           id='isSmall'
                                           class='form-select'
@@ -270,14 +280,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                       <label class="form-label" for="getforcePipe">Enforce piping</label>
-                                      <fa-icon
-                                              placement="bottom"
-                                              ngbTooltip="To apply rules before reject"
-                                              container="body"
-                                              [icon]="faInfoCircle"
-                                              aria-hidden="true"
-                                      >
-                                      </fa-icon>
+                                      <span *ngIf="tasktip.forcePipe">
+                                        <fa-icon
+                                                placement="bottom"
+                                                ngbTooltip='{{tasktip.forcePipe}}'
+                                                container="body"
+                                                [icon]="faInfoCircle"
+                                                aria-hidden="true"
+                                        >
+                                        </fa-icon>
+                                      </span>
                                       <select
                                             class='form-select'
                                             id='forcePipe'
@@ -296,7 +308,16 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                       <label class="form-label" for="getStaticChunks">Use static chunking</label>
-                                      <td>
+                                      <span *ngIf="tasktip.staticChunks">
+                                        <fa-icon
+                                                placement="bottom"
+                                                ngbTooltip='{{tasktip.staticChunks}}'
+                                                container="body"
+                                                [icon]="faInfoCircle"
+                                                aria-hidden="true"
+                                        >
+                                        </fa-icon>
+                                      </span>
                                       <select
                                             type='number'
                                             id='staticChunks'
@@ -331,14 +352,16 @@
                             <div class="form-group">
                               <div class="form-outline">
                                   <label class="form-label" for="getuseNewBench">Benchmark Type</label>
-                                  <fa-icon
-                                          placement="bottom"
-                                          ngbTooltip="Only works for Hashcat"
-                                          container="body"
-                                          [icon]="faInfoCircle"
-                                          aria-hidden="true"
-                                  >
-                                  </fa-icon>
+                                  <span *ngIf="tasktip.useNewBench">
+                                    <fa-icon
+                                            placement="bottom"
+                                            ngbTooltip='{{tasktip.useNewBench}}'
+                                            container="body"
+                                            [icon]="faInfoCircle"
+                                            aria-hidden="true"
+                                    >
+                                    </fa-icon>
+                                  </span>
                                   <select
                                         type='number'
                                         id="useNewBench"
@@ -399,13 +422,23 @@
                                 <div class="form-group">
                                   <div class="form-outline">
                                       <label class="form-label" for="getusePreprocessor">Set Preprocessor</label>
+                                      <span *ngIf="tasktip.usePreprocessor">
+                                        <fa-icon
+                                                placement="bottom"
+                                                ngbTooltip='{{tasktip.usePreprocessor}}'
+                                                container="body"
+                                                [icon]="faInfoCircle"
+                                                aria-hidden="true"
+                                        >
+                                        </fa-icon>
+                                      </span>
                                       <select
                                             type='number'
                                             id='usePreprocessor'
                                             class='form-select'
                                             formControlName="usePreprocessor"
                                           >
-                                          <option [ngValue]="0" [defaultSelected]=true>No</option>
+                                          <option [ngValue]="false" [defaultSelected]=true>No</option>
                                           <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
                                       </select>
                                   </div>
@@ -416,7 +449,10 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getPreprocessorCommand">Preprocessor command</label>
+                                      <label class="form-label" for="getPreprocessorCommand">
+                                        Preprocessor command
+                                        <span *ngIf="createForm.controls['usePreprocessor'].value !== false" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
+                                      </label>
                                       <textarea
                                             type='text'
                                             id="preprocessorCommand"
@@ -441,7 +477,7 @@
          </div>
       </div>
     <div class="col-6 col-md-4">
-      <div class="bg-white shadow border-0 rounded p-4 w-100 fmxw-700">
+      <div class="bg-white shadow border-0 rounded p-6 w-100 fmxw-900">
         <div class="card">
             <ul ngbNav #nav="ngbNav" [(activeId)]="active"  class="nav-tabs">
               <li [ngbNavItem]="1">
@@ -452,20 +488,39 @@
                       <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
                         <thead class="thead-light">
                           <tr>
-                              <th class="border-0 rounded-start">File Name</th>
+                              <th class="border-0 rounded-start">
+                                T<a *ngIf="createForm.controls['usePreprocessor'].value !== false">|P
+                                  <fa-icon
+                                          placement="bottom"
+                                          ngbTooltip='T: Task, P: Preprocessor'
+                                          container="body"
+                                          [icon]="faInfoCircle"
+                                          aria-hidden="true"
+                                  >
+                                  </fa-icon>
+                                </a>
+                              </th>
+                              <th class="border-0 rounded-end">File Name</th>
                           </tr>
                           </thead>
                           <tbody>
                           <tr *ngFor="let f of allfiles | search:'0':'fileType'">
-                              <td *ngIf="f.isSecret == 1" class="width: 100px">
+                              <td>
                                 <form [formGroup]="createForm" novalidate>
+                                  <!-- Main attack checkbox -->
                                   <div class="form-check" >
-                                    <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
-                                    <label class="form-check-label" for="{{f.filename}}">
-                                        {{f.filename | shortenString:25 }}
-                                    </label>
+                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['usePreprocessor'].value !== false">T</a>
+                                  </div>
+                                  <!-- Preprocessor checkbox -->
+                                  <div  class="form-check" *ngIf="createForm.controls['usePreprocessor'].value !== false" >
+                                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
                                   </div>
                                 </form>
+                              </td>
+                              <td *ngIf="f.isSecret == 1" class="width: 100px">
+                                <label class="form-check-label" for="{{f.filename}}">
+                                  {{f.filename | shortenString:25 }}
+                                </label>
                                 <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
                                 <fa-icon
                                         placement="bottom"
@@ -475,17 +530,17 @@
                                         aria-hidden="true"
                                 >
                                 </fa-icon>
-                              </td>
-                              <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                >
-                                </fa-icon>
-                              </td>
+                            </td>
+                            <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
+                              <fa-icon
+                                      placement="bottom"
+                                      ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
+                                      container="body"
+                                      [icon]="faInfoCircle"
+                                      aria-hidden="true"
+                              >
+                              </fa-icon>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -500,20 +555,39 @@
                       <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" >
                         <thead class="thead-light">
                           <tr>
-                              <th class="border-0 rounded-start rounded-end">File Name</th>
+                              <th class="border-0 rounded-start">
+                                T<a *ngIf="createForm.controls['usePreprocessor'].value !== false">|P
+                                  <fa-icon
+                                          placement="bottom"
+                                          ngbTooltip='T: Task, P: Preprocessor'
+                                          container="body"
+                                          [icon]="faInfoCircle"
+                                          aria-hidden="true"
+                                  >
+                                  </fa-icon>
+                                </a>
+                              </th>
+                              <th class="border-0 rounded-end">File Name</th>
                           </tr>
                           </thead>
                           <tbody>
                           <tr *ngFor="let f of allfiles | search:'1':'fileType'">
-                              <td *ngIf="f.isSecret == 1">
+                              <td>
                                 <form [formGroup]="createForm" novalidate>
+                                  <!-- Main attack checkbox -->
                                   <div class="form-check" >
-                                    <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
-                                    <label class="form-check-label" for="{{f.filename}}">
-                                        {{f.filename | shortenString:25 }}
-                                    </label>
+                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['usePreprocessor'].value !== false">T</a>
+                                  </div>
+                                  <!-- Preprocessor checkbox -->
+                                  <div  class="form-check" *ngIf="createForm.controls['usePreprocessor'].value !== false" >
+                                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
                                   </div>
                                 </form>
+                              </td>
+                              <td *ngIf="f.isSecret == 1">
+                                <label class="form-check-label" for="{{f.filename}}">
+                                  {{f.filename | shortenString:25 }}
+                                </label>
                                 <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
                                 <fa-icon
                                         placement="bottom"
@@ -548,20 +622,39 @@
                       <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" >
                         <thead class="thead-light">
                           <tr>
-                              <th class="border-0 rounded-start rounded-end">File Name</th>
+                              <th class="border-0 rounded-start">
+                                T<a *ngIf="createForm.controls['usePreprocessor'].value !== false">|P
+                                  <fa-icon
+                                          placement="bottom"
+                                          ngbTooltip='T: Task, P: Preprocessor'
+                                          container="body"
+                                          [icon]="faInfoCircle"
+                                          aria-hidden="true"
+                                  >
+                                  </fa-icon>
+                                </a>
+                              </th>
+                              <th class="border-0 rounded-end">File Name</th>
                           </tr>
                           </thead>
                           <tbody>
                           <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-                              <td *ngIf="f.isSecret == 1">
+                              <td>
                                 <form [formGroup]="createForm" novalidate>
+                                  <!-- Main attack checkbox -->
                                   <div class="form-check" >
-                                    <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
-                                    <label class="form-check-label" for="{{f.filename}}">
-                                        {{f.filename | shortenString:35 }}
-                                    </label>
+                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['usePreprocessor'].value !== false">T</a>
+                                  </div>
+                                  <!-- Preprocessor checkbox -->
+                                  <div  class="form-check" *ngIf="createForm.controls['usePreprocessor'].value !== false" >
+                                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
                                   </div>
                                 </form>
+                              </td>
+                              <td *ngIf="f.isSecret == 1" class="width: 100px">
+                                <label class="form-check-label" for="{{f.filename}}">
+                                  {{f.filename | shortenString:25 }}
+                                </label>
                                 <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
                                 <fa-icon
                                         placement="bottom"

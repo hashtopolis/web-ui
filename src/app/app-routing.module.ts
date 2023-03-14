@@ -1,11 +1,10 @@
-
-import { NgModule } from '@angular/core';
 import { AppPreloadingStrategy } from './core/app_preloading_strategy';
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from '@angular/core';
 
-import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
 import { ErrorPageComponent } from './layout/error-page/error-page.component';
+import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './core/_guards/auth.guard';
 
 const appRoutes: Routes = [
@@ -55,7 +54,7 @@ const appRoutes: Routes = [
         RouterModule.forRoot(appRoutes, {
           preloadingStrategy: AppPreloadingStrategy,
           relativeLinkResolution: 'corrected',
-          useHash: true  // Old browsers could have issues but can be fix with hash
+          useHash: true  // Old browsers could have issues but can be fix setting useHash: true
       })
     ],
     exports:[

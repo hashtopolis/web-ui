@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { catchError, tap} from 'rxjs/operators';
 import { environment } from './../../../../environments/environment';
-import { map, Observable, throwError } from 'rxjs';
-
+import { HttpClient } from '@angular/common/http';
+import { setParameter } from '../buildparams';
+import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
+import { tap} from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,24 +15,20 @@ export class LogentryService {
 
   constructor(private http: HttpClient) { }
 
-  getLogs():Observable<any> {
-    return this.http.get(this.endpoint,{params: new HttpParams().set('maxResults', 3000)})
+/**
+ * Get all Log entries
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns Object
+**/
+  getLogs(routerParams?: Params):Observable<any> {
+    let queryParams: Params = {};
+    if (routerParams) {
+        queryParams = setParameter(routerParams);
+    }
+    return this.http.get(this.endpoint,{params: queryParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
-
-  private handleError ( err : HttpErrorResponse ) {
-    if (err.error instanceof ErrorEvent){
-      console.log('Client Side Error: ', err.error.message);
-    }else{
-      console.log('Server Side Error: ', err);
-    }
-    return throwError(() => err);
-  }
-
-
-
 
 }

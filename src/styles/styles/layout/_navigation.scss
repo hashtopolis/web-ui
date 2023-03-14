@@ -1,0 +1,48 @@
+
+/* ==================================
+          SECTION NAVIGATION
+   ================================== */
+
+// Remove caret from boostrap, gives a more stylish look
+.dropdown-toggle {
+  &:after, .dropend &:after, .dropstart &:before, .dropup &:after {
+      display: none;
+  }
+}
+
+// Effect modern transition
+.dropdown-menu-center {left: 50%;
+  transform: translateX(-50%);
+ }
+ .navbar-nav .dropdown-menu.show,.navbar-nav .dropdown-megamenu.show,.navbar-nav .dropdown-megamenu-md.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.navbar-nav .dropdown-menu.close,.navbar-nav .dropdown-megamenu.close,.navbar-nav .dropdown-megamenu-md.close {
+   display: block;
+}
+
+.navbar-nav .dropdown-submenu .dropdown-menu {    transform: none;  }
+
+.navbar-nav .dropdown-menu {
+    position: relative;
+    //  display: block;
+     opacity: 50;
+     pointer-events: none;
+     transition: all 0.2s ease;
+    }
+
+
+// Dropdown medium - used for notifications
+
+.dropdown-menu-medium {
+  min-width: 350px;
+  border-radius: 1rem;
+}
+
+@media (max-width: 575.98px) {
+  .dropdown-menu-medium {
+      min-width: 300px;
+  }
+}

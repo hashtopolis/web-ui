@@ -7,6 +7,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { AgentsService } from '../../core/_services/agents/agents.service';
 import { environment } from 'src/environments/environment';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 declare let $:any;
 
@@ -28,6 +29,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  uidateformat:any;
   isChecked:boolean =false;
 
   ngOnDestroy(): void {
@@ -37,18 +39,25 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   // ToDo add model
   showagents: any = [];
 
+  private maxResults = environment.config.prodApiMaxResults
+
   constructor(
     private agentsService: AgentsService,
+    private uiService: UIConfigService,
     private modalService: NgbModal
   ) { }
 
   ngOnInit(): void {
 
-    this.agentsService.getAgents().subscribe((agents: any) => {
+    let params = {'maxResults': this.maxResults}
+
+    this.agentsService.getAgents(params).subscribe((agents: any) => {
       this.showagents = agents.values;
       // this.showagents.forEach(f => (f.checked = false));
       this.dtTrigger.next(void 0);
     });
+
+    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     const self = this;
     this.dtOptions = {

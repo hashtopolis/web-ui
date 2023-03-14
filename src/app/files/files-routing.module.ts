@@ -1,9 +1,9 @@
 import { AuthGuard } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
 
-import { FilesComponent } from "./files.component";
 import { FilesEditComponent } from "./files-edit/files-edit.component";
+import { FilesComponent } from "./files.component";
 
 const routes: Routes = [
   {

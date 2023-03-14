@@ -1,9 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
-import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
-import { Router } from '@angular/router';
+import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Router } from '@angular/router';
 
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
@@ -19,10 +19,10 @@ export class NewSupertasksComponent implements OnInit {
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
-    private pretasksService: PreTasksService,
-    private supertaskService: SuperTasksService,
-    private router: Router,
     private _changeDetectorRef: ChangeDetectorRef,
+    private supertaskService: SuperTasksService,
+    private pretasksService: PreTasksService,
+    private router: Router
   ) { }
 
   createForm: FormGroup;
@@ -30,7 +30,6 @@ export class NewSupertasksComponent implements OnInit {
   formArr: FormArray;
 
   ngOnInit(): void {
-
 
     this.createForm = new FormGroup({
       supertaskName: new FormControl(''),
@@ -79,8 +78,9 @@ export class NewSupertasksComponent implements OnInit {
         new FormControl(+val)
       );
     }
+    let cname = this.createForm.get('supertaskName').value;
     this.createForm = new FormGroup({
-      supertaskName: new FormControl('', [Validators.required]),
+      supertaskName: new FormControl(cname),
       pretasks: formArr
     });
     this._changeDetectorRef.detectChanges();
@@ -116,5 +116,4 @@ export class NewSupertasksComponent implements OnInit {
       );
     }
   }
-
 }

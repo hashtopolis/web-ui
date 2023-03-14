@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Params } from '@angular/router';
-
-import { Observable, tap, catchError, throwError } from 'rxjs';
-
 import { environment } from './../../../environments/environment';
-import { BaseChunk } from '../_models/chunk';
+import { HttpClient } from '@angular/common/http';
+import { setParameter } from './buildparams';
+import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 
+import { BaseChunk } from '../_models/chunk';
 
 @Injectable({
   providedIn: 'root'
@@ -17,37 +16,45 @@ export class ChunkService {
 
   constructor(private http: HttpClient) { }
 
-  private handleError ( err : HttpErrorResponse ) {
-    if (err.error instanceof ErrorEvent){
-      console.log('Client Side Error: ', err.error.message);
-    }else{
-      console.log('Server Side Error: ', err);
-    }
-    return throwError(() => err);
-  }
-
+/**
+ * Returns all the Chunks
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns  Object
+**/
   getChunks(routerParams?: Params): Observable<BaseChunk[]> {
+    let queryParams: Params = {};
+    if (routerParams) {
+        queryParams = setParameter(routerParams);
+    }
     return this.http.get<BaseChunk[]>(this.endpoint,{params: routerParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Returns chunk by id
+ * @param id - id
+ * @returns  Object
+**/
   getChunk(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
-  updateChunk(arr: any): Observable<any> {
+/**
+ * Update chunk
+ * @param id - to include multiple options such as Max number of results or filtering
+ * @param arr - fields to update
+ * @returns  Object
+**/
+  updateChunk(id:number, arr: any): Observable<any> {
     console.log(arr);
-    return this.http.patch<number>(this.endpoint + '/' + arr.hashTypeId, arr)
+    return this.http.patch<number>(this.endpoint + '/' + id, arr)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 

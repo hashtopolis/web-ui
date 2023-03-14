@@ -59,7 +59,7 @@
                                   <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
                                     Please remove manually the blacklisted Characters or use the button below!
                                     <br>
-                                    <b>BlackListed Chars: &#36; &#124; &#123; &#125; &#768; &#40; &#41; &lt; &gt; &quot; &apos; &amp; </b>
+                                    <b>BlackListed Chars: {{this.getBanChar()}} </b>
                                     <br>
                                     <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
                                   </span>

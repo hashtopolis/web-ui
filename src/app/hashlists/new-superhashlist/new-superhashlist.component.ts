@@ -32,7 +32,7 @@ export class NewSuperhashlistComponent implements OnInit {
   ngOnInit(): void {
     this.createForm = new FormGroup({
       superhashlistName: new FormControl(''),
-      pretasks: new FormControl(''),
+      hashlists: new FormControl(''),
     });
 
     let params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
@@ -77,9 +77,10 @@ export class NewSuperhashlistComponent implements OnInit {
         new FormControl(+val)
       );
     }
+    let cname = this.createForm.get('superhashlistName').value;
     this.createForm = new FormGroup({
-      superhashlistName: new FormControl('', [Validators.required]),
-      pretasks: formArr
+      superhashlistName: new FormControl(cname),
+      hashlists: formArr
     });
     this._changeDetectorRef.detectChanges();
   }

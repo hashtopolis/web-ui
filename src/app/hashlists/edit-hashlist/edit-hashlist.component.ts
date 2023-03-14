@@ -1,13 +1,14 @@
-import { Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import { faHomeAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { environment } from './../../../environments/environment';
-import { DataTableDirective } from 'angular-datatables';
 import { StaticArrayPipe } from 'src/app/core/_pipes/static-array.pipe';
+import { Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { FormControl, FormGroup } from '@angular/forms';
+import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Observable, Subject } from 'rxjs';
 
+import { environment } from './../../../environments/environment';
+import { HashtypeService } from '../../core/_services/hashtype.service';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
 import { AccessGroupsService } from '../../core/_services/accessgroups.service';
 
@@ -32,11 +33,12 @@ export class EditHashlistComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private listsService: ListsService,
     private accessgroupService:AccessGroupsService,
+    private hashtypeService: HashtypeService,
+    private listsService: ListsService,
+    private format: StaticArrayPipe,
     private route: ActivatedRoute,
-    private router: Router,
-    private format: StaticArrayPipe
+    private router: Router
   ) { }
 
   updateForm: FormGroup
@@ -73,7 +75,7 @@ export class EditHashlistComponent implements OnInit {
 
     this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
       this.editedHashlist = result;
-      });
+    });
 
     this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
@@ -144,25 +146,29 @@ export class EditHashlistComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
+    let params = {'maxResults': this.maxResults};
     this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
-      this.editedHashlist = result;
-      this.updateForm = new FormGroup({
-        'hashlistId': new FormControl(result['hashlistId']),
-        'accessGroupId': new FormControl(result['accessGroupId']),
-        'hashTypeId': new FormControl(result['hashTypeId']),
-        'useBrain': new FormControl(result['useBrain'] == 0 ? 'Yes' : 'No'),
-        'format': new FormControl(this.format.transform(result['format'],'formats')),
-        'hashCount': new FormControl(result['hashCount']),
-        'cracked': new FormControl(result['cracked']),
-        'updateData': new FormGroup({
-          'name': new FormControl(result['name']),
-          'notes': new FormControl(result['notes']),
-          'isSecret': new FormControl(result['isSecret']),
-          'isSmall': new FormControl(result['isSmall']),
+      this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
+        let hashtypeDesc = htypes.values.find(element => element.hashTypeId === 11)
+        this.editedHashlist = result;
+        this.updateForm = new FormGroup({
+          'hashlistId': new FormControl(result['hashlistId']),
           'accessGroupId': new FormControl(result['accessGroupId']),
-        }),
+          'hashTypeId': new FormControl(hashtypeDesc.description),
+          'useBrain': new FormControl(result['useBrain'] == 0 ? 'Yes' : 'No'),
+          'format': new FormControl(this.format.transform(result['format'],'formats')),
+          'hashCount': new FormControl(result['hashCount']),
+          'cracked': new FormControl(result['cracked']),
+          'updateData': new FormGroup({
+            'name': new FormControl(result['name']),
+            'notes': new FormControl(result['notes']),
+            'isSecret': new FormControl(result['isSecret']),
+            'isSmall': new FormControl(result['isSmall']),
+            'accessGroupId': new FormControl(result['accessGroupId']),
+          }),
+       });
+       this.isLoading = false;
       });
-      this.isLoading = false;
     });
    }
   }

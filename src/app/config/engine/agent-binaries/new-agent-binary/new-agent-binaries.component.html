@@ -1,0 +1,72 @@
+<!-- New Agent Binary -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 d-flex align-items-center justify-content-center">
+            <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+              <div [ngSwitch]="whichView">
+                <div *ngSwitchCase="'create'">
+                  <h2 class="h5 mb-4">Create Binary</h2><br>
+                </div>
+                <div *ngSwitchCase="'edit'">
+                  <h2 class="h5 mb-4">Edit Binary</h2><br>
+                </div>
+              </div>
+              <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                    <div class="form-group">
+                      <div class="form-outline">
+                        <label class="form-label" for="settype">Type</label>
+                        <input
+                              type='text'
+                              id="type"
+                              class='form-control'
+                              formControlName="type"
+                        >
+                      </div>
+                    </div>
+                    &nbsp;
+                    <div class="form-group">
+                      <div class="form-outline">
+                        <label class="form-label" for="setOperatingSystems">Operating Systems</label>
+                        <input
+                              type='text'
+                              id="operatingSystems"
+                              class='form-control'
+                              formControlName="operatingSystems"
+                         >
+                      </div>
+                    </div>
+                    &nbsp;
+                    <div class="form-group">
+                      <div class="form-outline">
+                        <label class="form-label" for="setVersion">Version</label>
+                        <input
+                              type='text'
+                              id="version"
+                              class='form-control'
+                              formControlName="version"
+                        >
+                      </div>
+                    </div>
+                    &nbsp;
+                    <div class="form-group">
+                      <div class="form-outline">
+                        <label class="form-label" for="setUpdateTrack">Update Track</label>
+                        <select
+                              id="updateTrack"
+                              class="form-select"
+                              formControlName="updateTrack"
+                          >
+                          <option value="release">Release</option>
+                          <option value="stable" selected>Stable</option>
+                        </select>
+                      </div>
+                    </div>
+                    &nbsp;
+                  </div>
+                <button  class="btn btn-gray-800" type="submit">Update</button>
+           </form>
+    </div>
+  </div>
+</div>
+

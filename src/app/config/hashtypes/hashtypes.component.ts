@@ -1,14 +1,14 @@
 import { faHomeAlt, faPlus, faTrash, faEdit, faSave, faCancel, faInfoCircle} from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { environment } from './../../../environments/environment';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
+import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
-import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js'; //ToDo Change to a Common Module
 
 import { HashtypeService } from '../../core/_services/hashtype.service';
-
 
 @Component({
   selector: 'app-hashtypes',
@@ -28,7 +28,8 @@ export class HashtypesComponent implements OnInit {
   faInfoCircle=faInfoCircle;
 
   // Create Hashtype
-  signupForm: FormGroup;
+  createForm: FormGroup;
+  private maxResults = environment.config.prodApiMaxResults;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
@@ -37,9 +38,7 @@ export class HashtypesComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private hashtypeService: HashtypeService,
-    private route:ActivatedRoute,
-    private router:Router
+    private hashtypeService: HashtypeService
   ) { }
 
   public htypes: {hashTypeId: number, description: string, isSalted: number, isSlowHash: number, isEdit: false}[] = [];
@@ -50,15 +49,17 @@ export class HashtypesComponent implements OnInit {
 
     this.booleanopt = [{'value': 'true'},{'value': 'false'}];
 
-    this.signupForm = new FormGroup({
+    this.createForm = new FormGroup({
       'hashTypeId': new FormControl('', [Validators.required,Validators.pattern("^[0-9]*$"), this.checkHashtypeExist.bind(this), Validators.minLength(1)]),
       'description': new FormControl('', [Validators.required, Validators.minLength(1)]),
       'isSalted': new FormControl(false),
       'isSlowHash': new FormControl(false)
     });
 
-    this.hashtypeService.getHashTypes().subscribe((hasht: any) => {
-      this.htypes = hasht.values;
+    let params = {'maxResults': this.maxResults};
+
+    this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
+      this.htypes = htypes.values;
       this.dtTrigger.next(void 0);
     });
     this.dtOptions = {
@@ -139,12 +140,12 @@ export class HashtypesComponent implements OnInit {
   }
 
   onSubmit(): void{
-    if (this.signupForm.valid) {
-    console.log(this.signupForm);
+    if (this.createForm.valid) {
+    console.log(this.createForm);
 
     this.isLoading = true;
 
-    this.hashtypeService.createHashType(this.signupForm.value).subscribe((hasht: any) => {
+    this.hashtypeService.createHashType(this.createForm.value).subscribe((hasht: any) => {
       const response = hasht;
       console.log(response);
       this.isLoading = false;
@@ -171,11 +172,12 @@ export class HashtypesComponent implements OnInit {
         this.rerender();  // rerender datatables
       }
     );
-    this.signupForm.reset(); // success, we reset form
+    this.createForm.reset(); // success, we reset form
     }
   }
 
   onEdit(item: any){
+    // this.isCollapsed = false;
     this.htypes.forEach(element => {
       element.isEdit = false;
     });
@@ -199,7 +201,7 @@ export class HashtypesComponent implements OnInit {
   }
 
   onCancel(item: any){
-    this.rerender();  // Destroy and rerender table
+    // this.rerender();  // Destroy and rerender table
     item.isEdit = false;
   }
 

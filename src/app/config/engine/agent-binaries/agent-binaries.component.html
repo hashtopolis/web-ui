@@ -12,99 +12,47 @@
     </div>
   </div>
   <div class="btn-toolbar mb-2 mb-md-0">
-      <a  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+      <a routerLink="./new-agent-binary" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
         <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
           New Binary
       </a>
   </div>
 </div>
-<!-- New Agent Binary -->
-  <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
-    <section>
-      <div class="container">
-          <div class="row justify-content-center">
-              <div class="col-12 d-flex align-items-center justify-content-center">
-                  <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                  <h2 class="h5 mb-4">Create Binary</h2><br>
-                    <form (ngSubmit)="onSubmit()">
-                      <div class="row">
-                          <div class="form-group">
-                            <div class="form-outline">
-                              <label class="form-label" for="settype">Type</label>
-                              <input  type='text' name='type' title="type" class='form-control' id="type" >
-                            </div>
-                          </div>
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                              <label class="form-label" for="setos">Operating Systems</label>
-                              <input  type='text' name='os' title="os" class='form-control' id="os" >
-                            </div>
-                          </div>
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                              <label class="form-label" for="setversion">Version</label>
-                              <input  type='text' name='version' title="version" class='form-control' id="version" >
-                            </div>
-                          </div>
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                              <label class="form-label" for="setuptrack">Update Track</label>
-                              <select name="updatetrack" class="form-select" title="Updatetrack">
-                                <option value="release">Release</option>
-                                <option value="stable" selected>Stable</option>
-                              </select>
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                      <button  class="btn btn-gray-800" type="submit">Update</button>
-                </form>
-          </div>
+<!-- Body -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                    <th class="border-0 rounded-start">ID</th>
+                    <th class="border-0">Type</th>
+                    <th class="border-0">OS</th>
+                    <th class="border-0">Filename</th>
+                    <th class="border-0">Current Version</th>
+                    <th class="border-0">Update Track</th>
+                    <th class="border-0 rounded-end">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let b of binaries">
+                    <td class="text-align:center">{{ b.agentBinaryId }}</td>
+                    <td>{{ b.type }}</td>
+                    <td>{{ b.operatingSystems }}</td>
+                    <td>{{ b.filename }}</td>
+                    <td>{{ b.version }}</td>
+                    <td>{{ b.updateTrack }}</td>
+                    <td>
+                      <a class='btn-outline-gray-600 float-right' [routerLink]="[b.agentBinaryId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+                        <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                      </a>
+                      <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(b.agentBinaryId)">
+                        <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                      </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-      </div>
     </div>
-    </section>
-    &nbsp;&nbsp;
-  </div>
-  <!-- New Agent Binary End-->
-  <!-- Body -->
-  <div class="card border-0 shadow mb-4">
-    <div class="card-body">
-          <div class="table-responsive">
-              <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-                <thead class="thead-light">
-                  <tr>
-                      <th class="border-0 rounded-start">ID</th>
-                      <th class="border-0">Type</th>
-                      <th class="border-0">OS</th>
-                      <th class="border-0">Filename</th>
-                      <th class="border-0">Current Version</th>
-                      <th class="border-0">Update Track</th>
-                      <th class="border-0 rounded-end">Action</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr *ngFor="let b of binaries">
-                      <td class="text-align:center">{{ b.agentBinaryId }}</td>
-                      <td>{{ b.type }}</td>
-                      <td>{{ b.operatingSystems }}</td>
-                      <td>{{ b.filename }}</td>
-                      <td>{{ b.version }}</td>
-                      <td>{{ b.updateTrack }}</td>
-                      <td>
-                        <a class='btn-outline-gray-600 float-right' [routerLink]="[b.agentBinaryId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
-                          <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
-                        </a>
-                        <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(b.agentBinaryId)">
-                          <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-                        </a>
-                      </td>
-                  </tr>
-                  </tbody>
-              </table>
-          </div>
-      </div>
-  </div>
+</div>

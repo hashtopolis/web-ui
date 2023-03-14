@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { environment } from './../../../environments/environment';
 
 import { UsersService } from '../../core/_services/users/users.service';
+import { UIConfigService } from '../../core/_services/shared/storage.service';
 
 @Component({
   selector: 'app-all-users',
@@ -18,6 +19,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  uidateformat:any;
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
@@ -40,6 +42,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   constructor(
     private usersService: UsersService,
+    private uiService: UIConfigService,
     private route:ActivatedRoute,
     private router:Router
   ) { }
@@ -52,6 +55,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
       this.allusers = users.values;
       this.dtTrigger.next(void 0);
     });
+
+    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     this.dtOptions = {
       dom: 'Bfrtip',
@@ -111,6 +116,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   editButtonClick(){
     this.router.navigate(['edit'], {relativeTo: this.route});
   }
+
+
 
 
 }

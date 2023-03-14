@@ -1,32 +1,38 @@
 import { NgModule } from "@angular/core";
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
-import { AlertComponent } from "./alert/alert.component";
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
-import { FormsModule } from "@angular/forms";
-import { ColorPickerModule } from 'ngx-color-picker';
 import { FilterTextboxModule } from "./filter-textbox/filter-textbox.module";
+import { TimeoutComponent } from "./alert/timeout/timeout.component";
 import { PaginationModule } from "./pagination/pagination.module";
+import { AlertComponent } from "./alert/alert.component";
+import { ColorPickerModule } from 'ngx-color-picker';
+import { FormsModule } from "@angular/forms";
+
 
 @NgModule({
   declarations: [
-    AlertComponent,
     LoadingSpinnerComponent,
+    TimeoutComponent,
+    AlertComponent
   ],
   imports: [
+    FilterTextboxModule,
+    ColorPickerModule,
+    PaginationModule,
     CommonModule,
     FormsModule,
-    ColorPickerModule,
-    FilterTextboxModule,
-    PaginationModule,
+    NgbModule
   ],
   exports: [
-    CommonModule,
-    AlertComponent,
     LoadingSpinnerComponent,
-    ColorPickerModule,
     FilterTextboxModule,
+    ColorPickerModule,
     PaginationModule,
+    TimeoutComponent,
+    AlertComponent,
+    CommonModule
   ]
 })
 export class ComponentsModule {}

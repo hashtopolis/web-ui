@@ -1,12 +1,17 @@
-import { Pipe, PipeTransform } from '@angular/core';
-/*
+import {
+  PipeTransform,
+  Pipe
+} from '@angular/core';
+
+/**
  * Transform seconds to a readable format
+ * @param seconds - The input number in seconds to be formatted
  * Usage:
  *   value | sectotime
  * Example:
  *   {{ 55 | sectotime }}
- *   formats to: 00:00:55  (55 seconds)
-*/
+ * @returns 00:00:55
+**/
 
 @Pipe({
   name: 'sectotime'

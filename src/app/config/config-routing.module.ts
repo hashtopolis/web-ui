@@ -1,18 +1,19 @@
 import { AuthGuard } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
 
+import { NewPreprocessorComponent } from "./engine/preprocessors/new-preprocessor/new-preprocessor.component";
+import { NewAgentBinariesComponent } from "./engine/agent-binaries/new-agent-binary/new-agent-binaries.component";
+import { EditHealthChecksComponent } from "./health-checks/edit-health-checks/edit-health-checks.component";
+import { EditCrackersComponent } from "./engine/crackers/edit-crackers/edit-crackers.component";
+import { NewCrackersComponent } from "./engine/crackers/new-crackers/new-crackers.component";
+import { AgentBinariesComponent } from "./engine/agent-binaries/agent-binaries.component";
+import { PreprocessorsComponent } from "./engine/preprocessors/preprocessors.component";
+import { HealthChecksComponent } from "./health-checks/health-checks.component";
+import { CrackersComponent } from "./engine/crackers/crackers.component";
+import { HashtypesComponent } from "./hashtypes/hashtypes.component";
 import { ServerComponent } from "./server/server.component";
 import { LogComponent } from "./log/log.component";
-import { HealthChecksComponent } from "./health-checks/health-checks.component";
-import { EditHealthChecksComponent } from "./health-checks/edit-health-checks/edit-health-checks.component";
-import { AgentBinariesComponent } from "./engine/agent-binaries/agent-binaries.component";
-import { CrackersComponent } from "./engine/crackers/crackers.component";
-import { NewCrackersComponent } from "./engine/crackers/new-crackers/new-crackers.component";
-import { EditCrackersComponent } from "./engine/crackers/edit-crackers/edit-crackers.component";
-import { PreprocessorsComponent } from "./engine/preprocessors/preprocessors.component";
-import { HashtypesComponent } from "./hashtypes/hashtypes.component";
-import { NewPreprocessorComponent } from "./engine/preprocessors/new-preprocessor/new-preprocessor.component";
 
 
 const routes: Routes = [
@@ -20,45 +21,38 @@ const routes: Routes = [
     path: '',
     children: [
         {
-          path: 'cracking',  component: ServerComponent,
+          path: 'agent',  component: ServerComponent,
           data: {
-              kind: 'cracking',
-              breadcrumb: 'Cracking'
+              kind: 'agent',
+              breadcrumb: 'Agent Settings'
           },
           canActivate: [AuthGuard]},
         {
-          path: 'finetunning',  component: ServerComponent,
+          path: 'task-chunk',  component: ServerComponent,
           data: {
-              kind: 'finetunning',
-              breadcrumb: 'Finetunning'
+              kind: 'task-chunk',
+              breadcrumb: 'Task Chunk Settings'
           },
           canActivate: [AuthGuard]},
         {
-          path: 'ui',  component: ServerComponent,
+          path: 'hch',  component: ServerComponent,
           data: {
-              kind: 'ui',
-              breadcrumb: 'UI'
-          },
-          canActivate: [AuthGuard]},
-        {
-          path: 'yubikey',  component: ServerComponent,
-          data: {
-              kind: 'yubikey',
-              breadcrumb: 'Yubikey'
+              kind: 'hch',
+              breadcrumb: 'Hashes/Cracks/Hashlist Settings'
           },
           canActivate: [AuthGuard]},
         {
           path: 'notifications',  component: ServerComponent,
           data: {
-              kind: 'notifications',
+              kind: 'notif',
               breadcrumb: 'Notifications'
           },
           canActivate: [AuthGuard]},
         {
-          path: 'server',  component: ServerComponent,
+          path: 'general-settings',  component: ServerComponent,
           data: {
-              kind: 'server',
-              breadcrumb: 'Server'
+              kind: 'gs',
+              breadcrumb: 'General Settings'
           },
           canActivate: [AuthGuard]},
         {
@@ -94,6 +88,20 @@ const routes: Routes = [
           data: {
               kind: 'agent-binaries',
               breadcrumb: 'Engine > Agent-binaries'
+          },
+          canActivate: [AuthGuard]},
+        {
+          path: 'engine/agent-binaries/new-agent-binary',  component: NewAgentBinariesComponent,
+          data: {
+              kind: 'new-agent-binary',
+              breadcrumb: 'Engine > New Agent binary'
+          },
+          canActivate: [AuthGuard]},
+        {
+          path: 'engine/agent-binaries/:id/edit',  component: NewAgentBinariesComponent,
+          data: {
+              kind: 'edit-agent-binary',
+              breadcrumb: 'Engine > Edit Agent binary'
           },
           canActivate: [AuthGuard]},
         {

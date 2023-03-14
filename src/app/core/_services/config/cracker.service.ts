@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Params } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { Observable, tap, catchError, throwError } from 'rxjs';
-
+import { HttpClient } from '@angular/common/http';
+import { setParameter } from '../buildparams';
+import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,85 +15,92 @@ export class CrackerService {
 
   constructor(private http: HttpClient) { }
 
-  private handleError ( err : HttpErrorResponse ) {
-    if (err.error instanceof ErrorEvent){
-      console.log('Client Side Error: ', err.error.message);
-    }else{
-      console.log('Server Side Error: ', err);
-    }
-    return throwError(() => err);
-  }
-
+/**
+ * Get all Cracker Binaries
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns Object
+**/
   getCrackerBinaries(routerParams?: Params):Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
-        queryParams = this.setParameter(routerParams);
+        queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Get individual cracker binary
+ * @param id - id number
+ * @returns Object
+**/
   getCrackerBinary(id:number):Observable<any> {
     return this.http.get(this.endpoint +'/'+ id)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Create cracker binary
+ * @param id - id number
+ * @param arr - fields
+ * @returns Object
+**/
   createCrackerBinary(id:number, arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Delete
+ * @param id - id number
+ * @returns Object
+**/
   deleteCrackerBinary(id:number):Observable<any> {
-    return this.http.delete(this.endpoint +'/'+ id)
-    .pipe(
-      catchError(this.handleError)
-    );
+    return this.http.delete(this.endpoint +'/'+ id);
   }
 
+/**
+ * Update cracker
+ * @param id - id number
+ * @param arr - fields to update
+ * @returns Object
+**/
   updateCrackerBinary(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Get cracker type
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns Object
+**/
   getCrackerType(routerParams?: Params):Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
-        queryParams = this.setParameter(routerParams);
+        queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint_types, {params: queryParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Delete cracker type
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns Object
+**/
   deleteCrackerType(id:number):Observable<any> {
-    return this.http.delete(this.endpoint_types +'/'+ id)
-    .pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  private setParameter(routerParams: Params): HttpParams {
-    let queryParams = new HttpParams();
-    for (const key in routerParams) {
-        if (routerParams.hasOwnProperty(key)) {
-            queryParams = queryParams.set(key, routerParams[key]);
-        }
-    }
-    return queryParams;
+    return this.http.delete(this.endpoint_types +'/'+ id);
   }
 
 }

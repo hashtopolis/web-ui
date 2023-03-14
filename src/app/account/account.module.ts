@@ -1,36 +1,36 @@
-import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AccountRoutingModule } from "./account-routing.module";
+import { ComponentsModule } from "../shared/components.module";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { DataTablesModule } from "angular-datatables";
-import { ComponentsModule } from "../shared/components.module";
 import { PipesModule } from "../shared/pipes.module";
-import { AccountRoutingModule } from "./account-routing.module";
+import { CommonModule } from "@angular/common";
+import { RouterModule } from "@angular/router";
+import { NgModule } from "@angular/core";
 
-import { AccountComponent } from "./account.component";
 import { NotificationsComponent } from "./notifications/notifications.component";
 import { SettingsComponent } from "./settings/settings.component";
+import { AccountComponent } from "./account.component";
 
 
 @NgModule({
   declarations:[
-    AccountComponent,
-    SettingsComponent,
     NotificationsComponent,
+    SettingsComponent,
+    AccountComponent,
   ],
   imports:[
-    CommonModule,
-    FontAwesomeModule,
-    FormsModule,
-    RouterModule,
+    AccountRoutingModule,
     ReactiveFormsModule,
-    DataTablesModule,
-    NgbModule,
+    FontAwesomeModule,
     ComponentsModule,
+    DataTablesModule,
+    RouterModule,
+    CommonModule,
     PipesModule,
-    AccountRoutingModule
+    FormsModule,
+    NgbModule,
   ]
 })
 export class AccountModule {}

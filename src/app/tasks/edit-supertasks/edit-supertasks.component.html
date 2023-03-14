@@ -97,8 +97,8 @@
       </div>
       <div class="col-6 col-md-4">
         <div class="bg-white shadow border-0 rounded p-4 w-100 fmxw-700">
-          <h5>Add Pretask (Missing Patch API call)</h5>
-          <form (ngSubmit)="onSubmit()">
+          <h5>Add Pretask</h5>
+          <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
             <div class="row">
               <div class="form-group">
                 <div class="form-outline">
@@ -120,14 +120,12 @@
               </div>
               &nbsp;
             </div>
-            <button class="btn btn-gray-800" >Add</button>
+            <button class="btn btn-gray-800">Add</button>
           </form>
         </div>
       </div>
    </div>
 </div>
-
-
 <!--Table Pretasks part of the supertask -->
 &nbsp;&nbsp;
 <section>
@@ -150,10 +148,15 @@
           <td>
             <span [ngClass]="!p.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': p.color }">{{  p.pretaskId }}</span>
           </td>
-          <td>{{ p.taskName }}</td>
+          <td>
+            {{ p.taskName | shortenString:35 | lowercase | titlecase }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/preconfigured-tasks/', p.pretaskId, 'edit' ]">
+              <fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon>
+            </a>
+          </td>
           <td>{{ p.attackCmd }}</td>
-          <td>Missing</td>
-          <td>Missing</td>
+          <td>In construction</td>
+          <td>Disscuss</td>
           <td>
             Missing Action
           </td>

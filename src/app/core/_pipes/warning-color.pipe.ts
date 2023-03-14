@@ -1,12 +1,18 @@
-import { Pipe, PipeTransform } from '@angular/core';
-/*
- * Reusable pipe to transform label information in hex colors
+import {
+  PipeTransform,
+  Pipe,
+} from '@angular/core';
+
+/**
+ * Returns label information in hex colors
+ * @param value - The input text value
  * Usage:
  *   value | warningColor
  * Example:
  *   {{ warning | warningColor }}
- *   formats to: #b16a06
-*/
+ * @returns #b16a06
+**/
+
 @Pipe({
   name: 'warningColor'
 })

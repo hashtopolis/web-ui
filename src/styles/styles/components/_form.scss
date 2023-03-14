@@ -1,0 +1,326 @@
+/* ==================================
+            SECTION FORM
+   ================================== */
+
+/*
+  01- Highlight validation in red
+*/
+
+input.ng-invalid.ng-touched {
+	border: 1.5px solid red;
+}
+
+.requiredak:before {
+  content:" *";
+  color: red;
+}
+
+/*
+  01- End
+*/
+
+/*
+  02- Smart Form Style template
+*/
+
+// move this element to layout
+.container-project {
+  width: 100%;
+  padding-right: var(--bs-gutter-x, 0.75rem);
+  padding-left: var(--bs-gutter-x, 0.75rem);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+// move this element to card
+.card-body {
+  flex: 1 1 auto;
+  padding: 1rem 1rem;
+}
+
+// move this element to layout
+.stepsContainer {
+  display:flex;
+  width:600px;
+  margin-left:auto;
+  margin-right:auto;
+  margin-bottom:20px;
+}
+
+.stepConectorPiece {
+  height:3px;
+  background:lightgrey;
+  flex:1;
+  margin-top:19px;
+}
+
+.stepCircle {
+  width:40px;
+  height:40px;
+  border-radius:100%;
+  background:lightgrey;
+  text-align:center;
+  line-height:40px;
+  color:#ffffff;
+  font-family:helvetica;
+}
+
+// move this element to layout
+.container-smart {
+  display:flex;
+  flex-direction:column;
+  // background:#f6f6f6;
+  width:300px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.one,
+.two,
+.three {
+  flex:1;
+  padding:5px;
+}
+
+.one {
+  padding-top:10px;
+}
+
+.three {
+  padding-bottom:10px;
+}
+
+.four {
+  flex:1;
+  position:relative;
+  height:40px;
+}
+
+.input {
+  width:90%;
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  position:relative;
+  height:32px;
+  line-height:32px;
+  padding-left:10px;
+}
+
+.submit {
+  position:absolute;
+  right:14px;
+  background:darkblue;
+  color:#ffffff;
+  height:26px;
+  padding-left:10px;
+  padding-right:10px;
+  border:none;
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
+.thankYou {
+  text-align:center;
+  font-family:helvetica;
+  font-weight:800;
+}
+
+.customerContactContainer {
+  display:flex;
+  height:32px;
+  line-height:32px;
+  font-family:helvetica;
+  font-weight:600;
+  margin-top:20px;
+  width:300px;
+  margin-left:auto;
+  margin-right:auto;
+
+}
+
+.nameTitle {
+  width:100px;
+  background:#f6f6f6;
+  padding-left:10px;
+  font-size:12px;
+}
+
+.emailTitle {
+  flex:1;
+  background:#f6f6f6;
+  padding-left:10px;
+  font-size:12px;
+}
+
+.customerListItemsContainer {
+  display:flex;
+  height:32px;
+  border-bottom:1px solid #dddddd;
+  width:300px;
+  margin-left:auto;
+  margin-right:auto;
+  line-height:32px;
+  font-family:helvetica;
+  font-size:12px;
+}
+
+.name {
+  width:100px;
+  padding-left:10px;
+}
+
+.email {
+  flex:1;
+  padding-left:10px;
+}
+
+/*
+  02- End
+*/
+
+/*
+  03- Selectize custom attributes
+*/
+
+input.ng-invalid.ng-touched {
+	border: 1.5px solid red;
+}
+
+.form-control-mini {
+  display: inline-block;
+  width: 35px !important;
+}
+
+.hashtype_selectize {
+  padding: 10px 3px;
+  border-bottom: 1px solid #CCC;
+  visibility: visible !important;
+  background: #f2f2f2 !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+  border: 0 none !important;
+  -webkit-box-shadow: inset 0 0 12px 4px #fff !important;
+  box-shadow: inset 0 0 12px 4px #fff !important;
+}
+
+.hashtype_selectize span{
+  color: #000;
+}
+
+.active i {
+  color: #1411e6;
+  border: 2px solid rgb(0, 23, 128);
+}
+.active span {
+  color: #1411e6;
+  border: 2px solid rgb(0, 23, 128);
+}
+
+.selectize-input::after {
+  visibility:hidden;
+}
+
+/*
+  03- End
+*/
+
+/*
+  04- File Zone Area
+*/
+.filedrop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-weight: 200;
+  height: 300px;
+  width: 420px;
+  border: 2px dashed #8c9199;
+  border-radius: 5px;
+  background: white;
+  margin: 0px 0;
+}
+.filedrop.active{
+  border: 2px solid #fff;
+}
+.filedrop.hovering {
+  border: 2px solid rgb(62, 63, 66);
+  color: #dadada !important;
+}
+.filedrop .file-label {
+  font-size: 1.2em;
+}
+.filedrop header {
+  font-size: 25px;
+  font-weight: 500;
+}
+.filedrop span {
+  font-size: 20px;
+  font-weight: 500;
+}
+.filedrop p {
+  font-size: 12px;
+  font-weight: 500;
+  color:rgb(143, 138, 138);
+  margin: 10px 0;
+}
+.filedrop button {
+  padding: 10px 25px;
+  font-size: 15px;
+  font-weight: 350;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  background: #4681f4;
+  color:#fff;
+  cursor: pointer;
+}
+.filedrop.hovering button {
+  padding: 10px 25px;
+  font-size: 15px;
+  font-weight: 350;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  background: #969595;
+  color:#fff;
+}
+.filedrop .icon {
+  font-size: 45px;
+  font-weight: 500;
+  margin: 50px 0;
+}
+progress::-webkit-progress-value {
+  transition: width 0.1s ease;
+}
+
+/*
+  04- End
+*/
+
+/*
+  05- Custom filter box
+*/
+.filterboxglass{
+  border:none;
+  background:#e7eaed;
+  padding:7px;
+  // width:80%;
+  border-radius:9px;
+  color:black;
+}
+
+#filterbox{
+  border:none;
+  background:#f3f5f7;
+  padding:7px;
+  width:80%;
+  border-radius: 0px 9px 9px 0px;
+  color:black;
+}
+
+/*
+  05- End
+*/

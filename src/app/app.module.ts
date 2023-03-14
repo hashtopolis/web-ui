@@ -2,74 +2,88 @@
  * Main Modules
  *
 */
-import { NgModule } from '@angular/core';
-import { AppPreloadingStrategy } from './core/app_preloading_strategy';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome'
-import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DataTablesModule } from 'angular-datatables';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { AppPreloadingStrategy } from './core/app_preloading_strategy';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
+import { BrowserModule } from '@angular/platform-browser';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-// Todo PrimeNG
-
+import { DataTablesModule } from 'angular-datatables';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { StoreModule } from '@ngrx/store';
+import { NgModule } from '@angular/core';
 /**
  * App Pages Components
  *
 */
-import { AppComponent } from './app.component';
-import { HeaderComponent } from './layout/header/header.component';
+import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
+import { AuthInterceptorService } from './core/_interceptors/auth-interceptor.service';
+import { HttpErrorInterceptor } from './core/_interceptors/http-error.interceptor';
 import { BreadcrumbComponent } from './shared/breadcrumb/breadcrumb.component';
+import { ErrorPageComponent } from './layout/error-page/error-page.component';
+import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
+import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './home/home.component';
-import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
-import { ErrorPageComponent } from './layout/error-page/error-page.component';
-import { AuthInterceptorService } from './core/_interceptors/auth-interceptor.service';
+import { AppComponent } from './app.component';
 /**
- * App Modules
+ * App Modules, Reducers
  *
 */
 import { ComponentsModule } from './shared/components.module';
-import { AuthModule } from './auth/auth.module';
 import { DirectivesModule } from './shared/directives.module';
+import { configReducer } from './core/_store/config.reducer';
 import { PipesModule } from './shared/pipes.module';
-
+import { AuthModule } from './auth/auth.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    PageNotFoundComponent,
+    BreadcrumbComponent,
+    ErrorPageComponent,
     HeaderComponent,
-    BreadcrumbComponent,
-    BreadcrumbComponent,
     FooterComponent,
     HomeComponent,
-    PageNotFoundComponent,
-    ErrorPageComponent
+    AppComponent,
+
   ],
   imports: [
-    BrowserModule,
     BrowserAnimationsModule,
-    HttpClientModule,
     ReactiveFormsModule,
-    FormsModule,
-    NgbModule,
     FontAwesomeModule,
-    DataTablesModule,
-    CommonModule,
-    AuthModule,
     DirectivesModule,
-    PipesModule,
+    HttpClientModule,
+    DataTablesModule,
     ComponentsModule,
-    AppRoutingModule  // Main routes for the App
-
+    BrowserModule,
+    CommonModule,
+    PipesModule,
+    FormsModule,
+    AuthModule,
+    NgbModule,
+    AppRoutingModule,  // Main routes for the App
+    NgIdleKeepaliveModule.forRoot(),
+    StoreModule.forRoot({configList: configReducer})
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}, AppPreloadingStrategy],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true
+    },
+    AppPreloadingStrategy
+  ],
+  entryComponents:[TimeoutComponent],
   bootstrap: [AppComponent]
 })
-export class AppModule {
-
-}
+export class AppModule { }
 

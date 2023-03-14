@@ -1,33 +1,33 @@
-import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { RouterModule } from "@angular/router";
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
 import { DataTablesModule } from "angular-datatables";
+import { RouterModule } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
 
-import { ComponentsModule } from "../shared/components.module";
-import { PipesModule } from "../shared/pipes.module";
 import { FilesEditComponent } from "./files-edit/files-edit.component";
+import { ComponentsModule } from "../shared/components.module";
 import { FilesRoutingModule } from "./files-routing.module";
+import { PipesModule } from "../shared/pipes.module";
 import { FilesComponent } from "./files.component";
 
 @NgModule({
   declarations:[
-    FilesComponent,
-    FilesEditComponent
+    FilesEditComponent,
+    FilesComponent
   ],
   imports:[
-    CommonModule,
-    FontAwesomeModule,
-    FormsModule,
     ReactiveFormsModule,
-    RouterModule,
+    FilesRoutingModule,
+    FontAwesomeModule,
     DataTablesModule,
-    NgbModule,
     ComponentsModule,
+    CommonModule,
+    RouterModule,
+    FormsModule,
     PipesModule,
-    FilesRoutingModule
+    NgbModule
   ]
 })
 export class FilesModule {}

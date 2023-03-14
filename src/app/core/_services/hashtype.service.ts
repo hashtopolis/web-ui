@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { environment } from './../../../environments/environment';
-import { Observable, tap, catchError, throwError } from 'rxjs';
-
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Hashtype } from '../_models/hashtype';
+import { setParameter } from './buildparams';
+import { Injectable } from '@angular/core';
+import { Params } from '@angular/router';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,44 +15,53 @@ export class HashtypeService {
 
   constructor(private http: HttpClient) { }
 
-  private handleError ( err : HttpErrorResponse ) {
-    if (err.error instanceof ErrorEvent){
-      console.log('Client Side Error: ', err.error.message);
-    }else{
-      console.log('Server Side Error: ', err);
+/**
+ * Get all HashTypes
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns Object
+**/
+  getHashTypes(routerParams?: Params): Observable<Hashtype[]> {
+    let queryParams: Params = {};
+    if (routerParams) {
+        queryParams = setParameter(routerParams);
     }
-    return throwError(() => err);
-  }
-
-  getHashTypes(): Observable<Hashtype[]> {
-    return this.http.get<Hashtype[]>(this.endpoint,{params: new HttpParams().set('maxResults', 3000)})
+    return this.http.get<Hashtype[]>(this.endpoint,{params: queryParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Deletes hashtype by id
+ * @param id - id
+ * @returns Object
+**/
   deleteHashType(id: number):Observable<any> {
-    return this.http.delete(this.endpoint +'/'+ id)
+    return this.http.delete(this.endpoint +'/'+ id);
+  }
+
+/**
+ * Create new hashtype
+ * @param id - id
+ * @returns Object
+**/
+  createHashType(arr: any): Observable<Hashtype[]> {
+    return this.http.post<any>(this.endpoint, arr)
     .pipe(
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
-  createHashType(hash: any): Observable<Hashtype[]> {
-    return this.http.post<any>(this.endpoint, hash) //HashtypeId only supports integer
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
-    );
-  }
-
+/**
+ * Update
+ * @param arr - fields to be updated
+ * @returns Object
+**/
   updateHashType(hash: any): Observable<any> {
     console.log(hash);
     return this.http.patch<number>(this.endpoint + '/' + hash.hashTypeId, {description: hash.description, isSalted:hash.isSalted, isSlowHash: hash.isSlowHash})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 

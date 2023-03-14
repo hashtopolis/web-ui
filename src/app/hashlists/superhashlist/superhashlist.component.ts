@@ -82,7 +82,7 @@ export class SuperhashlistComponent implements OnInit {
               customize: function (dt, csv) {
                 var data = "";
                 for (var i = 0; i < dt.length; i++) {
-                  data = "Agents\n\n"+  dt;
+                  data = "SuperHashlist\n\n"+  dt;
                 }
                 return data;
              }

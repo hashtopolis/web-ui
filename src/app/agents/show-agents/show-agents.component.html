@@ -48,7 +48,7 @@
                     <td>{{ agent.cpuOnly == true ? "Yes" : "No" }}</td>
                     <td>
                         <code>{{ agent.lastAct }}</code> at <br>
-                        {{ agent.lastTime *1000 | date: 'dd/MM/yyyy h:mm:ss' }}<br>
+                        {{ agent.lastTime *1000 | date: uidateformat }}<br>
                         IP:
                         <code>{{ agent.lastIp }}</code>
                     </td>
@@ -69,4 +69,6 @@
     </div>
 </div>
 
+
+<!-- Bulk Actions Modal -->
 

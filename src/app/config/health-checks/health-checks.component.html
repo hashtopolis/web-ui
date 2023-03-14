@@ -18,13 +18,13 @@
             <div class="col-12 d-flex align-items-center justify-content-center">
                 <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
                 <h2 class="h5 mb-4">Create Health Check</h2><br>
-                <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
                     <div class="row">
                         <div class="form-group">
                           <div class="form-outline">
                             <label class="form-label requiredak" for="setcheckType">Attack</label>
                             <select name="checkType" class='form-control' title="checkType" formControlName="checkType">
-                              <option value="0" [defaultSelected]=true>Brute-Force</option>
+                              <option [ngValue]="0" [defaultSelected]=true>Brute-Force</option>
                             </select>
                           </div>
                         </div>
@@ -33,8 +33,8 @@
                           <div class="form-outline">
                             <label class="form-label requiredak" for="sethashtypeId">Hashtype</label>
                             <select name="hashtypeId" class='form-select' title="hashtypeId" formControlName="hashtypeId">
-                              <option value="0" [defaultSelected]=true>MD5</option>
-                              <option value="3200">BCRYPT</option>
+                              <option [ngValue]="0" [defaultSelected]=true>MD5</option>
+                              <option [ngValue]="3200">BCRYPT</option>
                             </select>
                           </div>
                         </div>
@@ -65,7 +65,7 @@
                                     #myVersion>
                               <!-- <option hiddenvalue="" disabled="true" [defaultSelected]=true>Please select</option> -->
                               <option value="" disabled="true">--<option>
-                              <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId" type="number">{{ cv.version }}</option>
+                              <option *ngFor="let cv of crackerversions" [ngValue]="cv.crackerBinaryId" type="number">{{ cv.version }}</option>
                             </select>
                           </div>
                         </div>
@@ -98,7 +98,7 @@
                 <tbody>
                 <tr *ngFor="let h of mergedObjects">
                     <td class="text-align:center">{{ h.healthCheckId }}</td>
-                    <td>{{ h.time*1000 | date: 'dd/MM/yyyy hh:mm:ss ' }}</td>
+                    <td>{{ h.time*1000 | date: uidateformat }}</td>
                     <td>Brute-Force ({{ h.description }})</td>
                     <td>{{ h.status | HCstatus | lowercase | titlecase }}</td>
                     <td>

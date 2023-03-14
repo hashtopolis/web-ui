@@ -1,20 +1,19 @@
 import {
   Directive,
   HostListener,
-  HostBinding,
   Output,
   Input,
   EventEmitter
 } from '@angular/core';
 
-/*
- * Copy string to clipboard
+/**
+ * Returns copied clipboard string
  * Usage:
  *   value | copyButton
  * Example:
  *     copyButton
- *
-*/
+ * @returns Copied String
+**/
 
 @Directive({
   selector: '[copyButton]'

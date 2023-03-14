@@ -1,8 +1,8 @@
 
 export const DEFAULT_CONFIG = {
-  prodApiEndpoint: 'http://localhost:8080/api/v2',
+  prodApiEndpoint: 'https://crackz.one/api/v2',
   prodApiPort: '8080',
-  frontEndUrl: 'http://localhost:8080/',
+  frontEndUrl: 'https://crackz.one/',
   prodApiMaxResults: '3000',
   devApiEndpoint: 'http://localhost:3000',
   agentURL: '/api/server.php',
@@ -39,9 +39,7 @@ export const DEFAULT_CONFIG = {
   tasks:{
     priority: 0,
     maxAgents: 0,
-    chunkTime: 600,
     chunkSize: 0,
-    statusTimer: 5,
   },
   // File settings
   chunkSizeTUS: 5000,

@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { environment } from './../../../../environments/environment';
+import { Observable, tap, retryWhen, delay, take } from 'rxjs';
+import { HttpClient} from '@angular/common/http';
+import { setParameter } from '../buildparams';
+import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
-import { Observable, tap, catchError, throwError, retryWhen, shareReplay, timer, delayWhen, retry, debounce, delay, take } from 'rxjs';
 
 import { IPagedResults } from '../../_models/paged-results';
 import { IAgents } from '../../_models/agents';
@@ -16,31 +17,43 @@ export class AgentsService {
 
   constructor(private http: HttpClient) { }
 
+/**
+ * Returns all the agents
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns  Object
+**/
   getAgents(routerParams?: Params):Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
-        queryParams = this.setParameter(routerParams);
+        queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Returns an specific agent
+ * @param id - agent id
+ * @returns  Object
+**/
   getAgent(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
 
+/**
+ * Deletes an agent
+ * @param id - agent id
+ * @returns Object
+**/
   deleteAgent(id: number): Observable<any> {
     return this.http.delete(this.endpoint +'/'+ id)
     .pipe(
       tap(data => console.log(JSON.stringify(data))),
-      catchError(this.handleError),
       retryWhen(errors => {
           return errors
                   .pipe(
@@ -52,32 +65,17 @@ export class AgentsService {
     );
   }
 
+/**
+ * Update agent information
+ * @param id - agent id
+ * @param arr - fields to be updated
+ * @returns Object
+**/
   updateAgent(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
     .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data))),
-      catchError(this.handleError)
+      tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
-
-  private handleError ( err : HttpErrorResponse ) {
-    if (err.error instanceof ErrorEvent){
-      console.log('Client Side Error: ', err.error.message);
-    }else{
-      console.log('Server Side Error: ', err);
-    }
-    return throwError(() => err);
-  }
-
-  private setParameter(routerParams: Params): HttpParams {
-    let queryParams = new HttpParams();
-    for (const key in routerParams) {
-        if (routerParams.hasOwnProperty(key)) {
-            queryParams = queryParams.set(key, routerParams[key]);
-        }
-    }
-    return queryParams;
-  }
-
 
 }

@@ -208,6 +208,7 @@ export class FilesComponent implements OnInit {
         sourceData: new FormControl(''),
       });
 
+      this.uploadProgress = this.uploadService.uploadProgress; //Uploading File using tus protocol
 
     });
 
@@ -224,6 +225,81 @@ export class FilesComponent implements OnInit {
     });
   }
 
+  // Uploading file
+  uploadProgress: Observable<UploadFileTUS[]>;
+  filenames: string[] = [];
+
+  isHovering: boolean;
+
+  toggleHover(event) {
+    this.isHovering = event;
+    console.log(event)
+  }
+
+  fileSizeValue = fileSizeValue;
+
+  validateFileExt = validateFileExt;
+
+  fileGroup: number;
+  fileToUpload: File | null = null;
+  fileSize: any;
+  fileName: any;
+
+  handleFileInput(event: any) {
+    this.fileToUpload = event.target.files[0];
+    this.fileSize = this.fileToUpload.size;
+    this.fileName = this.fileToUpload.name;
+    $('.fileuploadspan').text(fileSizeValue(this.fileToUpload.size));
+  }
+
+  onuploadFile(files: FileList) {
+    // tslint:disable-next-line:prefer-for-of
+    for (let i = 0; i < files.length; i++) {
+      this.filenames.push(files[i].name);
+      console.log(`Uploading ${files[i].name} with size ${files[i].size} and type ${files[i].type}`);
+      this.uploadService.uploadFile(files[i], files[i].name);
+    }
+  }
+
+  deleteFile(id: number){
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn btn-success',
+        cancelButton: 'btn btn-danger'
+      },
+      buttonsStyling: false
+    })
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#4B5563',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        this.filesService.deleteFile(id).subscribe(() => {
+          Swal.fire(
+            "File has been deleted!",
+            {
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.ngOnInit();
+          this.rerender();  // rerender datatables
+        });
+      } else {
+        swalWithBootstrapButtons.fire(
+          'Cancelled',
+          'No worries, your File is safe!',
+          'error'
+        )
+      }
+    });
+  }
 
   // Bulk Actions
 

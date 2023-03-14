@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy ,ChangeDetectorRef, ViewChild, HostListener   } from '@angular/core';
-import { faHomeAlt, faPlus, faTrash, faInfoCircle} from '@fortawesome/free-solid-svg-icons';
+import { faHomeAlt, faPlus, faTrash, faInfoCircle, faEye, faLock} from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, FormBuilder, NgForm, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Observable, Subject, Subscription } from 'rxjs';
@@ -23,6 +23,8 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
   faHome=faHomeAlt;
   faPlus=faPlus;
+  faEye=faEye;
+  faLock=faLock;
   faTrash=faTrash;
   isLoading = false;
   faInfoCircle=faInfoCircle;
@@ -77,7 +79,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
     let params = {
       'maxResults': this.maxResults,
-      // 'filter': 'pretaskId='+this.editedPretaskIndex+'',
+      'filter': 'pretaskId='+this.editedPretaskIndex+'',
       'expand': 'pretaskFiles'
     }
 
@@ -91,7 +93,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
       pageLength: 10,
       stateSave: true,
       select: true,
-      buttons: [ 'copy', 'excel', 'csv']
+      buttons: [ ]
     };
 
   }
@@ -158,6 +160,18 @@ export class EditPreconfiguredTasksComponent implements OnInit{
       this.isLoading = false;
     });
    }
+  }
+
+  getFileEdit(value:any){
+    if(value == 0){
+      return 'wordlist-edit';
+    } if(value == 1){
+      return 'rules-edit';
+    } if(value == 2){
+      return 'other-edit';
+    } else{
+      return 'error';
+    }
   }
 
     // @HostListener allows us to also guard against browser refresh, close, etc.

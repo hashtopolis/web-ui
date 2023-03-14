@@ -149,7 +149,7 @@ $AgentTM-mercuryColor : linear-gradient(#f17a65, $AgentTM-bulbColor) no-repeat b
 
 	&:before {
 		width: 100%;
-		height: $AgentTM-bulbSize / 2 + $AgentTM-borderSize;
+		height: calc($AgentTM-bulbSize / 2)+ $AgentTM-borderSize;
 		bottom: $AgentTM-borderSize;
 		background: $AgentTM-backgroundColor;
 		z-index: -1;

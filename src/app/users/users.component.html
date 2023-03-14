@@ -34,14 +34,12 @@
                           formControlName="rightGroupId"
                           >
                     <span *ngIf="!createForm.errors?.['group'].valid && createForm.errors?.['group'].touched" class="help-block" >Please select a group!</span>
-                         <option [ngValue]="">-</option>
-                         <option [ngValue]="1">Administrator</option>
+                         <option *ngFor="let a of agp" [value]="a.rightGroupId">{{ a.groupName }}</option>
                     </select>
                   </div>
                   <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
                   <button class="btn btn-gray-800" type="submit">Create</button>
               </form>
-              {{ createForm.value | json }}
          </div>
       </div>
    </div>

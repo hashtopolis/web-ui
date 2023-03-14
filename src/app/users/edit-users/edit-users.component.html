@@ -1,6 +1,8 @@
 <div *ngIf="isLoading" style="text-align: center;">
   <app-loading-spinner></app-loading-spinner>
 </div>
+<!-- <h2 *ngIf="!allowEdit">You are not allowed to edit! Talk with your administrator.</h2>
+<div *ngIf="allowEdit"> -->
 <section>
   <div class="container">
     <div class="row justify-content-center">
@@ -100,6 +102,8 @@
                                     class='form-select'
                                     formControlName="rightGroupId"
                                   >
+                                  <span *ngIf="!updateForm.errors?.['group'].valid && updateForm.errors?.['group'].touched" class="help-block" >Please select a group!</span>
+                                  <option *ngFor="let a of agp" [value]="a.rightGroupId">{{ a.groupName }}</option>
                               </select>
                         </div>
                         &nbsp;
@@ -116,6 +120,18 @@
                                       formControlName="setPassword"
                                 />
                             </div>
+                      </div>
+                      <div class="form-check form-switch">
+                        <label class="form-label" for="setpassword"></label>
+                            <input
+                                  type="checkbox"
+                                  id="user-notification-1"
+                                  class="form-check-input"
+                                  formControlName="isValid"
+                            >
+                            <label *ngIf="user['isValid'] === false" class="form-label" for="isvalid">User Disabled</label>
+                            <label *ngIf="user['isValid'] === true" class="form-label" for="isvalid">User Enabled</label>
+                            &nbsp;&nbsp;
                       </div>
                     </div>
                    </div>

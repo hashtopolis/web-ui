@@ -1,16 +1,20 @@
-import { Injectable, Pipe, PipeTransform } from '@angular/core';
+import {
+  PipeTransform,
+  Injectable,
+  Pipe,
+} from '@angular/core';
 
-/*
+/**
  * Order by asc or desc using item
+ * @param value - The array to be sorted
+ * @param sortOrder - The input text sort option, Ascendent or Descendent
+ * @param sortKey - The column name to be sorted
  * Usage:
  *   value | sort
  * Example:
  *     {{ id | sort:'desc':'id'}}
- *   returns:
- *     {{ 2 }}
- *     {{ 1 }}
- *     {{ 0 }}
-*/
+ * @returns 2,1,0
+**/
 
 export type SortOrder = 'asc' | 'desc';
 @Injectable()

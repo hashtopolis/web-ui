@@ -1,20 +1,19 @@
 import { AuthGuard } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
 
+import { EditPreconfiguredTasksComponent } from "./edit-preconfigured-tasks/edit-preconfigured-tasks.component";
+import { NewPreconfiguredTasksComponent } from "./new-preconfigured-tasks/new-preconfigured-tasks.component";
+import { PreconfiguredTasksComponent } from "./preconfigured-tasks/preconfigured-tasks.component";
+import { ImportSupertasksComponent } from "./import-supertasks/import-supertasks.component";
+import { EditSupertasksComponent } from "./edit-supertasks/edit-supertasks.component";
+import { NewSupertasksComponent } from "./new-supertasks/new-supertasks.component";
+import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
+import { SupertasksComponent } from "./supertasks/supertasks.component";
 import { ShowTasksComponent } from "./show-tasks/show-tasks.component";
 import { EditTasksComponent } from "./edit-tasks/edit-tasks.component";
 import { NewTasksComponent } from "./new-tasks/new-tasks.component";
-import { PreconfiguredTasksComponent } from "./preconfigured-tasks/preconfigured-tasks.component";
-import { NewPreconfiguredTasksComponent } from "./new-preconfigured-tasks/new-preconfigured-tasks.component";
-import { EditPreconfiguredTasksComponent } from "./edit-preconfigured-tasks/edit-preconfigured-tasks.component";
-import { SupertasksComponent } from "./supertasks/supertasks.component";
-import { NewSupertasksComponent } from "./new-supertasks/new-supertasks.component";
-import { EditSupertasksComponent } from "./edit-supertasks/edit-supertasks.component";
-import { ImportSupertasksComponent } from "./import-supertasks/import-supertasks.component";
 import { ChunksComponent } from "./chunks/chunks.component";
-import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
-
 
 const routes: Routes = [
   {
@@ -40,8 +39,21 @@ const routes: Routes = [
               kind: 'edit-task',
               breadcrumb: 'Edit Task'
           },
-          canActivate: [AuthGuard],
-          canDeactivate: [PendingChangesGuard]},
+          canActivate: [AuthGuard]},
+        {
+          path: 'show-tasks/:id/edit/show-100-chunks', component: EditTasksComponent,
+          data: {
+              kind: 'edit-task-c100',
+              breadcrumb: 'Edit Task > Show latest 100 chunks'
+          },
+          canActivate: [AuthGuard]},
+        {
+          path: 'show-tasks/:id/edit/show-all-chunks', component: EditTasksComponent,
+          data: {
+              kind: 'edit-task-cAll',
+              breadcrumb: 'Edit Task > Show All chunks'
+          },
+          canActivate: [AuthGuard]},
         {
           path: 'new-tasks', component: NewTasksComponent,
           data: {
@@ -133,6 +145,20 @@ const routes: Routes = [
           data: {
             kind: 'chunks',
             breadcrumb: 'Chunks'
+          },
+          canActivate: [AuthGuard]},
+        {
+          path: 'chunks/:id/view', component: ChunksComponent,
+          data: {
+              kind: 'chunks-view',
+              breadcrumb: 'Chunks > View Chunk'
+          },
+          canActivate: [AuthGuard]},
+        {
+          path: 'chunks/show-all-chunks', component: ChunksComponent,
+          data: {
+              kind: 'chunks-cAll',
+              breadcrumb: 'Chunks > Show All chunks'
           },
           canActivate: [AuthGuard]},
         ]

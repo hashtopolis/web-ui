@@ -1,16 +1,18 @@
 import {
-  Pipe,
-  PipeTransform } from "@angular/core";
+  PipeTransform,
+  Pipe
+} from "@angular/core";
 import { __values } from "tslib";
 
-/*
+/**
  * Pipe used for searching
+ * @param value - The input text
  * Usage:
  *   value | SearchPipe
  * Example:
  *     {{ item | SearchPipe}}
- *   return is: item
-*/
+ * @returns item
+**/
 
 @Pipe({
   name: "search"

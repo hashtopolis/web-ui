@@ -1,10 +1,10 @@
 import { AuthGuard } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
 
-import { AccountComponent } from "./account.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { NotificationsComponent } from "./notifications/notifications.component";
+import { SettingsComponent } from "./settings/settings.component";
+import { AccountComponent } from "./account.component";
 
 const routes: Routes = [
   {

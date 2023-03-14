@@ -67,13 +67,18 @@
                         <div class="form-outline">
                             <label class="form-label" for="getcolor">Pick or enter color (identify tasks)</label>
                             <div class="input-group-text w-50 mx-auto">
-                              <input type='text' class="form-control"
-                                  [(colorPicker)]="color" cpWidth='230px' cpHeight="100px"
-                                  [cpOKButton]="true"
-                                  [cpSaveClickOutside]="false"
-                                  [cpOKButtonClass]= "'btn btn-primary btn-xs'"
-                                  (colorPickerChange)="OnChangeValue($event)"
-                                  [style.background]="color" [value]="color" formControlName="color"/>
+                              <input
+                                    type='text'
+                                    class="form-control"
+                                    [(colorPicker)]="color" cpWidth='230px' cpHeight="100px"
+                                    [cpOKButton]="true"
+                                    [cpSaveClickOutside]="false"
+                                    [cpOKButtonClass]= "'btn btn-primary btn-xs'"
+                                    (colorPickerChange)="OnChangeValue($event)"
+                                    [style.background]="color"
+                                    [value]="color"
+                                    formControlName="color"
+                                  />
                           </div>
                         </div>
                       </div>
@@ -195,7 +200,7 @@
             <div class="col">
               <div class="form-group">
                 <div class="form-outline">
-                    <label class="form-label" for="getchunkSize">Number of Chunks</label>
+                    <label class="form-label" for="getchunkSize">No. of Chunks</label>
                     <input
                           type='text'
                           id='chunkSize'
@@ -226,7 +231,7 @@
                 <div class="form-outline">
                     <label class="form-label" for="getSkipKeyspace">Skipping keyspace</label>
                     <input
-                          type='number'
+                          type='text'
                           id='skipKeyspace'
                           class='form-control'
                           formControlName="skipKeyspace"
@@ -270,12 +275,20 @@
               <div class="form-group">
                 <div class="form-outline">
                     <label class="form-label" for="getKeyspace">Keyspace Searched</label>
-                    <input
-                          type='text'
-                          id='keyspaceProgress'
-                          class='form-control'
-                          formControlName="keyspaceProgress"
-                      >
+                    <div *ngIf="tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templateNA">
+                      <span class="pre input-group-text input-group-lg">
+                        <td>
+                         {{ cprogress / tkeyspace | percent }}
+                        </td>
+                      </span>
+                    </div>
+                    <ng-template #templateNA>
+                      <span class="pre input-group-text input-group-lg">
+                        <td>
+                          N/A
+                        </td>
+                      </span>
+                    </ng-template>
                 </div>
               </div>
               &nbsp;
@@ -283,12 +296,19 @@
           </div>
           <hr>
           <div class="row">
+            <h5>
+              Calculations
+            </h5>
             <div class="col">
               <div class="form-group">
                 <div class="form-outline">
                     <label class="form-label" for="getKeyspace">Time spent</label>
                     <td>
-                    Missing API
+                    <span class="pre input-group-text input-group-lg" *ngIf="ctimespent">
+                      <td>
+                          {{ ctimespent | sectotime }}
+                      </td>
+                    </span>
                 </div>
               </div>
               &nbsp;
@@ -296,9 +316,21 @@
             <div class="col">
               <div class="form-group">
                 <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">Estimated time</label>
-                    <td>
-                    Missing API
+                    <label class="form-label" for="getKeyspace">E.T.</label>
+                    <div *ngIf="tkeyspace != 0 && (cprogress/tkeyspace) != 0; else templatedash">
+                      <span class="pre input-group-text input-group-lg">
+                        <td>
+                         {{ (ctimespent/(cprogress/tkeyspace)-ctimespent) | percent }}
+                        </td>
+                      </span>
+                    </div>
+                    <ng-template #templatedash>
+                      <span class="pre input-group-text input-group-lg">
+                        <td>
+                          ---
+                        </td>
+                      </span>
+                    </ng-template>
                 </div>
               </div>
               &nbsp;
@@ -307,8 +339,11 @@
               <div class="form-group">
                 <div class="form-outline">
                     <label class="form-label" for="getKeyspace">Speed</label>
-                    <td>
-                    Missing API
+                    <span class="pre input-group-text input-group-lg" *ngIf="currenspeed">
+                      <td>
+                          {{ currenspeed | fileSize:false }}H/s
+                      </td>
+                    </span>
                 </div>
               </div>
               &nbsp;
@@ -320,24 +355,30 @@
                 <label class="form-label" for="getTaskId">Hashlist</label>
                 <td>
                   Missing API
+                  <!-- GetFormat === 3 then Superhaslist else Hashlist -->
             </div>
           </div>
           &nbsp;
           <div class="form-group">
             <div class="form-outline">
-                <label class="form-label" for="getCrackerBinaryId">Cracker binary</label>
-                <input
-                  type='text'
-                  id='crackerBinaryId'
-                  class='form-control'
-                  formControlName="crackerBinaryId"
-                >
+              <div *ngIf="crackerinfo">
+                <h5>
+                   Cracker Information
+                  <fa-icon [icon]="faEye" [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
+                </h5>
+                  <small>Name</small>: {{ crackerinfo['binaryName'] | lowercase | titlecase }}<br>
+                  <small>Version</small>: {{ crackerinfo['version'] }}
+                </div>
+                <!-- {{ crackerinfo['binaryName'] }} -->
             </div>
             &nbsp;
           </div>
          </form>
          <hr>
-         <h4>Visual Representation</h4>
+         <div *ngIf="tkeyspace > 0">
+         <h5>Visual Representation</h5>
+
+         </div>
         </div>
       </div>
    </div>
@@ -357,7 +398,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr >
+        <tr>
 
         </tr>
       </tbody>
@@ -368,7 +409,7 @@
 <h2>Assigned agents</h2>
 <div class="table-responsive">
   &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]">
       <thead class="thead-light">
         <tr>
             <th class="border-0 rounded-start">ID</th>
@@ -388,31 +429,71 @@
       </tbody>
     </table>
 </div>
-<!-- Assigned Agents -->
+<!-- Dispatched Chunks -->
 &nbsp;&nbsp;
-<h2>Assigned chunks</h2>
+<h2>Dispatched chunks</h2>
+<div [ngSwitch]="chunkview">
+  <div *ngSwitchCase="0">
+    <h5>Show Live Chunks</h5>
+    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
+    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+  </div>
+  <div *ngSwitchCase="1">
+    <h5>Show Latest 100 Chunks</h5>
+    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
+    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+  </div>
+  <div *ngSwitchCase="2">
+    <h5>Show All Chunks</h5>
+    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
+    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
+  </div>
+</div>
 <div class="table-responsive">
   &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[2]" [dtTrigger]="dtTrigger">
       <thead class="thead-light">
         <tr>
-            <th class="border-0 rounded-start">ID</th>
-            <th class="border-0">Start</th>
-            <th class="border-0">Length</th>
-            <th class="border-0">Checkpoint</th>
-            <th class="border-0">Progress</th>
-            <th class="border-0">Agent</th>
-            <th class="border-0">Dispatch time</th>
-            <th class="border-0">Last activity</th>
-            <th class="border-0">Time spent</th>
-            <th class="border-0">State</th>
-            <th class="border-0">Cracked</th>
-            <th class="border-0 rounded-end">Action</th>
+          <th class="border-0 rounded-start">ID</th>
+          <th class="border-0">Start</th>
+          <th class="border-0">Length</th>
+          <th class="border-0">Checkpoint</th>
+          <th class="border-0">Progress</th>
+          <th class="border-0">Agent</th>
+          <th class="border-0">Dispatch time</th>
+          <th class="border-0">Last activity</th>
+          <th class="border-0">Time spent</th>
+          <th class="border-0">State</th>
+          <th class="border-0">Cracked</th>
+          <th class="border-0 rounded-end">Action</th>
         </tr>
         </thead>
         <tbody>
-        <tr>
-
+        <tr *ngFor="let gc of getchunks">
+          <td>{{ gc.chunkId }}</td>
+          <td>{{ gc.skip }}</td>
+          <td>{{ gc.length }}</td>
+          <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
+          <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
+          <td *ngIf="!gc.progress">N/A</td>
+          <td>
+            {{ gc.agentName | shortenString:15 | lowercase | titlecase }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',gc.agentId,'edit']" title="Edit Hashlist">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+          <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
+          <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
+          <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
+          <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
+          <td>{{ gc.state | staticArray:'states' }}</td>
+          <td>{{ gc.cracked }}</td>
+          <td>
+            <a>
+              <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
+              <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon></a>
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>

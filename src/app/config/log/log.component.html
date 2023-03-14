@@ -4,7 +4,7 @@
       <p class="mb-0"></p>
   </div>
 </div>
-<!-- Body -->
+<!-- Body Log Entries -->
 <div class="card border-0 shadow mb-4">
   <div class="card-body">
         <div class="table-responsive">
@@ -22,7 +22,7 @@
                   <ng-container>
                     <tr *ngFor="let l of logs" [ngStyle]="{'background-color':l.level | warningColor }">
                         <td class="text-align:center">{{ l.logEntryId }}</td>
-                        <td>{{ l.time*1000 | date: 'dd/MM/yyyy hh:mm:ss ' }}</td>
+                        <td>{{ l.time*1000 | date: uidateformat }}</td>
                         <td>{{ l.level | lowercase | titlecase }}</td>
                         <td>{{ l.issuer }}-ID-{{ l.issuerId }}</td>
                         <td>{{ l.message }}</td>

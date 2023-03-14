@@ -1,14 +1,18 @@
 import { Injectable, Pipe, PipeTransform } from '@angular/core';
-/*
+
+/**
  * Static Array, with some static configurations
+ * @param id - The input number, id
+ * @param search - The input option to search for
  * Usage:
  *   value | staticArray:search
  * Example:
  *   {{ 0 | staticArray:formats }}
- *   returns to: Text
+ * @returns The string text value
  *
- * FIXME: This should be part should be in the database, static arrays are difficult to mantain
-*/
+ * @beta FIXME: This should be part of the config table in the database
+**/
+
 @Pipe({
   name: 'staticArray'
 })

@@ -1,7 +1,7 @@
 import { Injectable, ViewChild, ChangeDetectorRef} from '@angular/core';
 import { environment } from './../../../../environments/environment';
-import { Subject } from 'rxjs';
 import * as tus from 'tus-js-client';
+import { Subject } from 'rxjs';
 
 import { UploadFileTUS } from '../../_models/files';
 
@@ -11,8 +11,8 @@ import { UploadFileTUS } from '../../_models/files';
 
 export class UploadTUSService {
 
-    private endpoint = environment.config.prodApiEndpoint + '/ui/files/import';  // V1 API
-    private chunked = environment.config.chunkSizeTUS;  // V1 API
+    private endpoint = environment.config.prodApiEndpoint + '/ui/files/import';
+    private chunked = environment.config.chunkSizeTUS;
     private userData: {_token: string} = JSON.parse(localStorage.getItem('userData'));
 
     private uploadStatus = new Subject<UploadFileTUS[]>();
@@ -20,6 +20,13 @@ export class UploadTUSService {
 
     fileStatusArr: UploadFileTUS[] = [];
 
+/**
+ * Upload file using TUS protocol
+ * @param file - File
+ * @param filename - Name to upload
+ * @returns Object
+ * TODO -  Test that check-sum extension works as expected
+**/
     uploadFile(file: File, filename: string, fileURL = null) {
       // Only continue if a file has been selected
       if (!file) {
@@ -88,4 +95,3 @@ export class UploadTUSService {
     }
   }
 
-  // Look for check-sum, section extension

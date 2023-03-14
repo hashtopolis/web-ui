@@ -1,12 +1,20 @@
-import { Pipe, PipeTransform } from '@angular/core';
-/*
+import {
+  PipeTransform,
+  Pipe
+} from '@angular/core';
+
+/**
  * Replace a string
+ * @param value - The array
+ * @param strToReplace - The input text to be replaced
+ * @param replacementStr - The input text replacement
  * Usage:
  *   value | replaceString:strToReplace:replacementStr
  * Example:
  *   {{ Hashtopussy | fileSize:topussy:topolis }}
- *   formats to: Hashtopolis
-*/
+ * @returns Hashtopolis
+**/
+
 @Pipe({
   name: 'replaceString'
 })

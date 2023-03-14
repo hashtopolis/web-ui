@@ -11,6 +11,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { HealthcheckService } from '../../core/_services/config/healthcheck.service';
 import { HashtypeService } from '../../core/_services/hashtype.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
   selector: 'app-health-checks',
@@ -29,18 +30,20 @@ export class HealthChecksComponent implements OnInit {
   faEyeDropper=faEyeDropper;
 
   // Form create Health Check
-  signupForm: FormGroup;
+  createForm: FormGroup;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  uidateformat:any;
 
   constructor(
     private healthcheckService: HealthcheckService,
     private hashtypeService: HashtypeService,
     private crackerService: CrackerService,
+    private uiService: UIConfigService,
     // private _changeDetectorRef: ChangeDetectorRef,
     private route:ActivatedRoute,
     private router:Router) { }
@@ -73,7 +76,7 @@ export class HealthChecksComponent implements OnInit {
 
   ngOnInit(): void {
 
-  this.signupForm = new FormGroup({
+  this.createForm = new FormGroup({
     'checkType': new FormControl(0),
     'hashtypeId': new FormControl(null || 0, [Validators.required]),
     'crackerBinaryId': new FormControl('', [Validators.required])
@@ -86,7 +89,7 @@ export class HealthChecksComponent implements OnInit {
   let params = {'maxResults': this.maxResults};
 
   this.healthcheckService.getHealthChecks(params).subscribe((check: any) => {
-    this.hashtypeService.getHashTypes().subscribe((hasht: any) => {
+    this.hashtypeService.getHashTypes(params).subscribe((hasht: any) => {
     this.mergedObjects = check.values.map(mainObject => {
       let matchObject = hasht.values.find(element => element.hashTypeId === mainObject.hashtypeId)
       return { ...mainObject, ...matchObject }
@@ -94,6 +97,8 @@ export class HealthChecksComponent implements OnInit {
     this.dtTrigger.next(void 0);
     });
   });
+
+  this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
   this.dtOptions = {
     dom: 'Bfrtip',
@@ -137,7 +142,7 @@ export class HealthChecksComponent implements OnInit {
             customize: function (dt, csv) {
               var data = "";
               for (var i = 0; i < dt.length; i++) {
-                data = "Health checks\n\n"+  dt;
+                data = "Health Checks\n\n"+  dt;
               }
               return data;
            }
@@ -170,12 +175,12 @@ export class HealthChecksComponent implements OnInit {
   }
 
   onSubmit(){
-    if (this.signupForm.valid) {
-      console.log(this.signupForm);
+    if (this.createForm.valid) {
+      console.log(this.createForm);
 
       this.isLoading = true;
 
-      this.healthcheckService.createHealthCheck(this.signupForm.value).subscribe((hasht: any) => {
+      this.healthcheckService.createHealthCheck(this.createForm.value).subscribe((hasht: any) => {
         const response = hasht;
         console.log(response);
         this.isLoading = false;
@@ -187,7 +192,7 @@ export class HealthChecksComponent implements OnInit {
             timer: 1500
           });
           this.isCollapsed = true; //Close button new hashtype
-          this.signupForm.reset(); // success, we reset form
+          this.createForm.reset(); // success, we reset form
           this.ngOnInit();
           this.rerender();  // rerender datatables
         },
