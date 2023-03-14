@@ -1,5 +1,5 @@
 ### Stage 1 - Based in Nodejs image, build and compile ###
-FROM node:16.17-alpine AS build-stage
+FROM node:18.15-bullseye AS build-stage
 
 # User to run locally
 RUN addgroup -S appgroup && adduser -S appuser -u 1001 -G appgroup
