@@ -76,14 +76,9 @@ export class AppComponent implements OnInit{
         this.timedOut = true;
         this.timeoutCountdown = null;
         this.modalRef.componentInstance.timedOut = true;
-<<<<<<< HEAD
         this.onLogOut();
       });
       idle.onIdleStart.subscribe(() => this.idleState = 'You\'ll be logged out in 15 seconds!');
-=======
-      });
-      idle.onIdleStart.subscribe(() => this.idleState = 'You\'ll be logged oout in 15 seconds!');
->>>>>>> a31654ce1b3b756b0d9becaf7890215c15575f6c
       idle.onTimeoutWarning.subscribe((countdown) => {
           if(!this.showingModal && this.idleTime > 1){
             this.openModal("timeoutProgress");
@@ -93,10 +88,7 @@ export class AppComponent implements OnInit{
       });
 
       this.reset();
-<<<<<<< HEAD
 
-=======
->>>>>>> a31654ce1b3b756b0d9becaf7890215c15575f6c
     }
 
   ngOnInit(): void {
@@ -111,10 +103,7 @@ export class AppComponent implements OnInit{
     this.currentStep = currentRoute.split('/')[length - 1];
   }
 
-<<<<<<< HEAD
   // ToDo request refresh token
-=======
->>>>>>> a31654ce1b3b756b0d9becaf7890215c15575f6c
   reset(){
     this.idle.watch();
     this.idleState = 'Started';
@@ -123,7 +112,6 @@ export class AppComponent implements OnInit{
     this.closeModal();
   }
 
-<<<<<<< HEAD
   onLogOut(){
     this.authService.logOut();
     this.closeModal();
@@ -134,12 +122,6 @@ export class AppComponent implements OnInit{
     let timeoutidle = 0;
     timeoutidle = +uisData.find(o => o.name === 'maxSessionLength').value*60*60; //Convert max session hours to seconds
     return timeoutidle;
-=======
-  onTimeout(){
-    const userData: { _expires: string} = JSON.parse(localStorage.getItem('userData'));
-    let expiresin = Math.max(0,Math.floor(((Date.parse(userData?._expires)-Date.now()+15))/1000)) || 1;
-    return expiresin;
->>>>>>> a31654ce1b3b756b0d9becaf7890215c15575f6c
   }
 
   openModal(content){
