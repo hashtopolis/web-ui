@@ -1,5 +1,4 @@
 import { environment } from '../../../../environments/environment';
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 
 import { ConfigService } from '../config/config.service';
@@ -13,7 +12,6 @@ export class UIConfigService {
   defaultSettings = false;
 
   constructor(
-    private http: HttpClient,
     private configService:ConfigService
   ) {}
 
@@ -32,8 +30,10 @@ export class UIConfigService {
     {name:'agentUtilThreshold1'},
     {name:'agentUtilThreshold2'},
     {name:'statustimer'},
-    {name:'agenttimeout'}
+    {name:'agenttimeout'},
+    {name:'maxSessionLength'}
   ];
+
   cexprity: number = 24*60*60; // Hours*minutes*Seconds
 
   public checkStorage() {
