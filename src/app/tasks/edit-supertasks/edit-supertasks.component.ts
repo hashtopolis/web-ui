@@ -44,6 +44,7 @@ export class EditSupertasksComponent implements OnInit {
   viewForm: FormGroup;
   updateForm: FormGroup;
   pretasks: any = [];
+  pretasksFiles: any = [];
 
   ngOnInit(): void {
 
@@ -206,17 +207,21 @@ export class EditSupertasksComponent implements OnInit {
   async fetchPreTaskData() {
 
     let params = {'maxResults': this.maxResults, 'expand': 'pretasks', 'filter': 'supertaskId='+this.editedSTIndex+''};
+    let paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
 
     this.supertaskService.getAllsupertasks(params).subscribe((result)=>{
-         this.pretasks = result.values;
-         console.log(this.pretasks)
-
-        //  let paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
-
-        //  this.pretasksService.getAllPretasks(paramspt).subscribe((pretasks: any) => {
-
-        // });
+    this.pretasksService.getAllPretasks(paramspt).subscribe((pretasks: any) => {
+      this.pretasks = result.values.map(mainObject => {
+          let matchAObject = pretasks.values.find(element => element.pretaskId === mainObject.pretasks[0].pretaskId)
+          return { ...mainObject, ...matchAObject }
+        })
+        console.log(this.pretasks)
+      });
     });
+
+          // for(let i=0; i < value.length; i++){
+      //   arr.push(value[i][name]);
+      // }
 
     this.dtOptions[0] = {
       dom: 'Bfrtip',
@@ -236,5 +241,8 @@ export class EditSupertasksComponent implements OnInit {
     }
 
   }
+
+
+
 
 }

@@ -93,8 +93,7 @@ export class AppComponent implements OnInit{
 
   ngOnInit(): void {
     this.authService.autoLogin();
-    this.cookieService.checkDefaultCookies();
-    this.uicService.checkStorage();
+    this.storageInit();
   }
 
   private findCurrentStep(currentRoute) {
@@ -117,10 +116,17 @@ export class AppComponent implements OnInit{
     this.closeModal();
   }
 
+  storageInit(){
+      this.cookieService.checkDefaultCookies();
+      this.uicService.checkStorage();
+  }
+
   onTimeout(){
-    const uisData = JSON.parse(localStorage.getItem('uis'));
-    let timeoutidle = 0;
-    timeoutidle = +uisData.find(o => o.name === 'maxSessionLength').value*60*60; //Convert max session hours to seconds
+    const uisData = JSON.parse(localStorage?.getItem('uis'));
+    let timeoutidle = 1;
+    if(uisData){
+      timeoutidle = +uisData.find(o => o.name === 'maxSessionLength').value*60*60; //Convert max session hours to seconds
+    }
     return timeoutidle;
   }
 
