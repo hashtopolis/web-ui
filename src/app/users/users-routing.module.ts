@@ -4,7 +4,6 @@ import { NgModule } from "@angular/core";
 
 import { EditUsersComponent } from "./edit-users/edit-users.component";
 import { AllUsersComponent } from "./all-users/all-users.component";
-import { YubikeyComponent } from "./yubikey/yubikey.component";
 import { GroupsComponent } from "./groups/groups.component";
 import { UsersComponent } from "./users.component";
 
@@ -31,13 +30,6 @@ const routes: Routes = [
           data: {
               kind: 'all-users',
               breadcrumb: 'All Users'
-          },
-          canActivate: [AuthGuard]},
-        {
-          path: 'yubikey', component: YubikeyComponent,
-          data: {
-              kind: 'yubikey',
-              breadcrumb: 'Yubikey'
           },
           canActivate: [AuthGuard]},
         {

@@ -6,6 +6,7 @@ import { FileTypeEditPipe } from "../core/_pipes/file-type-edit.pipe";
 import { ReplaceStringPipe } from "../core/_pipes/replace-string.pipe";
 import { ShortenStringPipe } from "../core/_pipes/shorten-string.pipe";
 import { SecondsToTimePipe } from "../core/_pipes/secondsto-time.pipe";
+import { KeyspaceCalcPipe } from "../core/_pipes/keyspace-calc.pipe";
 import { AgentSColorPipe } from "../core/_pipes/agentstat-color.pipe";
 import { WarningColorPipe } from "../core/_pipes/warning-color.pipe";
 import { StaticArrayPipe } from "../core/_pipes/static-array.pipe";
@@ -18,7 +19,6 @@ import { FileSizePipe } from "../core/_pipes/file-size.pipe";
 import { FileTypePipe } from "../core/_pipes/file-type.pipe";
 import { GroupByPipe } from "../core/_pipes/groupby.pipe";
 
-
 @NgModule({
   declarations: [
     HealthCheckStatusPipe,
@@ -26,6 +26,7 @@ import { GroupByPipe } from "../core/_pipes/groupby.pipe";
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
+    KeyspaceCalcPipe,
     FileTypeEditPipe,
     StaticArrayPipe,
     AgentSColorPipe,
@@ -45,6 +46,7 @@ import { GroupByPipe } from "../core/_pipes/groupby.pipe";
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
+    KeyspaceCalcPipe,
     FileTypeEditPipe,
     StaticArrayPipe,
     AgentSColorPipe,

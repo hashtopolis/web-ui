@@ -10,7 +10,6 @@ import { NgModule } from "@angular/core";
 
 import { EditUsersComponent } from "./edit-users/edit-users.component";
 import { AllUsersComponent } from "./all-users/all-users.component";
-import { YubikeyComponent } from "./yubikey/yubikey.component";
 import { GroupsComponent } from "./groups/groups.component";
 import { UsersRoutingModule } from "./users-routing.module";
 import { UsersComponent } from "./users.component";
@@ -19,7 +18,6 @@ import { UsersComponent } from "./users.component";
   declarations:[
     EditUsersComponent,
     AllUsersComponent,
-    YubikeyComponent,
     GroupsComponent,
     UsersComponent
   ],
