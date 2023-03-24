@@ -246,7 +246,7 @@
                   <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">
                     <fa-icon [icon]="faEye" aria-hidden="true" class="gray-light-ico"></fa-icon>
                   </a>
-                  {{ a.agentName | shortenString:15 | lowercase | titlecase }}
+                  {{ a.agentName | split:'-':1 | shortenString:15 | lowercase | titlecase }}
                 </b></small>
                 <div class="col" *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result">
                   <fa-icon

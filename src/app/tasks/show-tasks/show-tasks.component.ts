@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye } from '@fortawesome/free-solid-svg-icons';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { interval, Subject, Subscription } from 'rxjs';
 
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
 
@@ -15,16 +15,16 @@ declare let $:any;
   templateUrl: './show-tasks.component.html'
 })
 export class ShowTasksComponent implements OnInit {
-  faEdit=faEdit;
-  faTrash=faTrash;
-  faLock=faLock;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
-  faPlus=faPlus;
-  faHome=faHomeAlt;
-  faArchive=faArchive;
-  faCopy=faCopy;
   faBookmark=faBookmark;
+  faArchive=faArchive;
+  faHome=faHomeAlt;
+  faTrash=faTrash;
+  faEdit=faEdit;
+  faLock=faLock;
+  faPlus=faPlus;
+  faCopy=faCopy;
   faEye=faEye;
 
   @ViewChild(DataTableDirective)
@@ -32,6 +32,8 @@ export class ShowTasksComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+
+  private updateSubscription: Subscription;
 
   ngOnDestroy(){
     this.dtTrigger.unsubscribe();
@@ -45,7 +47,8 @@ export class ShowTasksComponent implements OnInit {
 
   constructor(
     private tasksService: TasksService,
-    private route:ActivatedRoute
+    private route:ActivatedRoute,
+    private router: Router
     ) { }
 
   ngOnInit(): void {
@@ -64,21 +67,15 @@ export class ShowTasksComponent implements OnInit {
 
       }
 
-    // let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType', 'filter': 'isArchived='+this.isArchived+''}
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType'}
-
-    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
-      this.alltasks = tasks.values;
-      this.dtTrigger.next(void 0);
-    });
+    this.getTasks()
+    this.updateSubscription = interval(300000).subscribe(
+        (val) => { this.getTasks()});
 
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
-      stateSave: true,
+      bStateSave:true,
       destroy: true,
-      scrollY: "50vh",
       select: {
         style: 'multi',
         },
@@ -119,7 +116,7 @@ export class ShowTasksComponent implements OnInit {
               customize: function (dt, csv) {
                 var data = "";
                 for (var i = 0; i < dt.length; i++) {
-                  data = "Agents\n\n"+  dt;
+                  data = "Show Tasks\n\n"+  dt;
                 }
                 return data;
              }
@@ -163,6 +160,15 @@ export class ShowTasksComponent implements OnInit {
                   }
                 },
              ]
+        },
+        {
+          extend: 'colvis',
+          text: 'Column View',
+          columns: [ 1, 2, 3, 4, 5, 6, 7 ],
+        },
+        {
+          extend: "pageLength",
+          className: "btn-sm"
         }
         ],
       }
@@ -171,6 +177,15 @@ export class ShowTasksComponent implements OnInit {
  });
 
 }
+
+  getTasks():void {
+    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType', 'filter': 'isArchived='+this.isArchived+''}
+
+    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+      this.alltasks = tasks.values;
+      this.dtTrigger.next(null);
+    });
+  }
 
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
@@ -256,27 +271,27 @@ export class ShowTasksComponent implements OnInit {
     return selectionnum;
   }
 
-    onDeleteBulk(){
-      const self = this;
-      let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-      let sellen = selectionnum.length;
-      let errors = [];
-      selectionnum.forEach(function (value) {
-        Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
-        Swal.showLoading()
-      self.tasksService.deleteTask(value)
-      .subscribe(
-        err => {
-          console.log('HTTP Error', err)
-          err = 1;
-          errors.push(err);
-        },
-        );
-      });
-    self.onDone(sellen);
+  onDeleteBulk(){
+    const self = this;
+    let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    let sellen = selectionnum.length;
+    let errors = [];
+    selectionnum.forEach(function (value) {
+      Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
+      Swal.showLoading()
+    self.tasksService.deleteTask(value)
+    .subscribe(
+      err => {
+        console.log('HTTP Error', err)
+        err = 1;
+        errors.push(err);
+      },
+      );
+    });
+   self.onDone(sellen);
   }
 
-    onUpdateBulk(value: any){
+  onUpdateBulk(value: any){
       const self = this;
       let selectionnum = this.onSelectedTasks();
       let sellen = selectionnum.length;
@@ -289,54 +304,54 @@ export class ShowTasksComponent implements OnInit {
     self.onDone(sellen);
   }
 
-    onDone(value?: any){
-      setTimeout(() => {
-        this.ngOnInit();
-        this.rerender();  // rerender datatables
-        Swal.close();
+  onDone(value?: any){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+      Swal.close();
+      Swal.fire({
+        title: 'Done!',
+        type: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      })
+    },3000);
+   }
+
+  onModalProject(title: string){
+    (async () => {
+
+      $(".dt-button-background").trigger("click");
+      let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+      if(selection.length == 0) {
         Swal.fire({
-          title: 'Done!',
+          title: "You haven't selected any Task",
           type: 'success',
           timer: 1500,
           showConfirmButton: false
         })
-      },3000);
-   }
+        return;
+      }
 
-    onModalProject(title: string){
-      (async () => {
-
-        $(".dt-button-background").trigger("click");
-        let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-        if(selection.length == 0) {
-          Swal.fire({
-            title: "You haven't selected any Task",
-            type: 'success',
-            timer: 1500,
-            showConfirmButton: false
-          })
-          return;
+      const { value: formValues } = await Swal.fire({
+        title: title,
+        html:
+          '<input id="project-input" class="swal2-input">',
+        focusConfirm: false,
+        confirmButtonColor: '#4B5563',
+        preConfirm: () => {
+          return [
+            (<HTMLInputElement>document.getElementById('project-input')).value,
+          ]
         }
+      })
 
-        const { value: formValues } = await Swal.fire({
-          title: title,
-          html:
-            '<input id="project-input" class="swal2-input">',
-          focusConfirm: false,
-          confirmButtonColor: '#4B5563',
-          preConfirm: () => {
-            return [
-              (<HTMLInputElement>document.getElementById('project-input')).value,
-            ]
-          }
-        })
+      if (formValues) {
+        let edit = {projectName: +formValues};
+        this.onUpdateBulk(edit);
+      }
 
-        if (formValues) {
-          let edit = {projectName: +formValues};
-          this.onUpdateBulk(edit);
-        }
-
-        })()
-    }
+      })()
+  }
 
 }

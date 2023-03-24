@@ -91,9 +91,17 @@ export class AppComponent implements OnInit{
 
     }
 
+  isLogged: boolean;
+
   ngOnInit(): void {
     this.authService.autoLogin();
-    this.storageInit();
+    this.authService.isLogged.subscribe(logged => {
+      this.isLogged = logged;
+      if (logged) {
+        this.storageInit();
+      }
+    });
+    this.authService.checkStatus();
   }
 
   private findCurrentStep(currentRoute) {
@@ -117,24 +125,26 @@ export class AppComponent implements OnInit{
   }
 
   storageInit(){
-      this.cookieService.checkDefaultCookies();
-      this.uicService.checkStorage();
+    this.cookieService.checkDefaultCookies();
+    this.uicService.checkStorage();
   }
 
   onTimeout(){
     const uisData = JSON.parse(localStorage?.getItem('uis'));
     let timeoutidle = 1;
-    if(uisData){
+    if(uisData !== null){
       timeoutidle = +uisData.find(o => o.name === 'maxSessionLength').value*60*60; //Convert max session hours to seconds
     }
     return timeoutidle;
   }
 
   openModal(content){
-    this.showingModal = true;
+    if (this.isLogged) {
+      this.showingModal = true;
 
-    this.modalRef = this.modalService.open(TimeoutComponent);
-    this.modalRef.componentInstance.timeoutMax = this.timeoutMax;
+      this.modalRef = this.modalService.open(TimeoutComponent);
+      this.modalRef.componentInstance.timeoutMax = this.timeoutMax;
+    }
   }
 
   closeModal(){

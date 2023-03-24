@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
 import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
 
@@ -13,16 +12,16 @@ import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
   templateUrl: './preconfigured-tasks.component.html'
 })
 export class PreconfiguredTasksComponent implements OnInit {
-  faEdit=faEdit;
-  faTrash=faTrash;
-  faLock=faLock;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
-  faPlus=faPlus;
-  faHome=faHomeAlt;
-  faArchive=faArchive;
-  faCopy=faCopy;
   faBookmark=faBookmark;
+  faArchive=faArchive;
+  faHome=faHomeAlt;
+  faTrash=faTrash;
+  faEdit=faEdit;
+  faLock=faLock;
+  faPlus=faPlus;
+  faCopy=faCopy;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
@@ -98,7 +97,16 @@ export class PreconfiguredTasksComponent implements OnInit {
               extend: 'copy',
             }
             ]
-          }
+          },
+          {
+            extend: 'colvis',
+            text: 'Column View',
+            columns: [ 1,2,3,4,5 ],
+          },
+          {
+            extend: "pageLength",
+            className: "btn-sm"
+          },
         ],
       }
     };

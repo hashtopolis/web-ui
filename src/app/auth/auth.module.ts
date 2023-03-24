@@ -1,5 +1,6 @@
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
+import { AuthGuard } from "../core/_guards/auth.guard";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
@@ -15,13 +16,13 @@ import { AuthComponent } from "./auth.component";
     AuthComponent
   ],
   imports:[
-    CommonModule,
     RouterModule.forChild([
       {path: 'auth', component: AuthComponent},
       {path: 'auth/forgot', component: ForgotComponent}
     ]),
     FontAwesomeModule,
     ComponentsModule,
+    CommonModule,
     FormsModule,
     NgbModule
   ]

@@ -229,6 +229,7 @@
                 <tr>
                   <th class="border-0 rounded-start">ID</th>
                   <th class="border-0">Filename</th>
+                  <th class="border-0">Filetype</th>
                   <th class="border-0 rounded-end">Size</th>
               </tr>
               </thead>
@@ -238,10 +239,11 @@
                   <td>
                     {{ f.filename | shortenString:35 | lowercase | titlecase }}
                     <span *ngIf="f.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/files',f.fileId, getFileEdit(f.fileType) ]">
+                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
                       <fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon>
                     </a>
                   </td>
+                  <td>{{ f.fileType | fileType  }}</td>
                   <td>{{ f.size | fileSize:false }}</td>
                 </tr>
               </tbody>

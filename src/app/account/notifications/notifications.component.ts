@@ -133,6 +133,10 @@ export class NotificationsComponent implements OnInit {
             }
             ]
           },
+          {
+            extend: "pageLength",
+            className: "btn-sm"
+          }
         ],
       }
     }

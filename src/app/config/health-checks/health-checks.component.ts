@@ -102,7 +102,6 @@ export class HealthChecksComponent implements OnInit {
 
   this.dtOptions = {
     dom: 'Bfrtip',
-    pageLength: 10,
     stateSave: true,
     select: true,
     buttons: {
@@ -149,6 +148,10 @@ export class HealthChecksComponent implements OnInit {
           },
             'copy'
           ]
+        },
+        {
+          extend: "pageLength",
+          className: "btn-sm"
         }
       ],
     }

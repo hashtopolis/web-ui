@@ -54,7 +54,7 @@ const appRoutes: Routes = [
         RouterModule.forRoot(appRoutes, {
           preloadingStrategy: AppPreloadingStrategy,
           relativeLinkResolution: 'corrected',
-          useHash: true  // Old browsers could have issues but can be fix setting useHash: true
+          // useHash: true  // Old browsers could have issues but can be fix setting useHash: true
       })
     ],
     exports:[

@@ -62,10 +62,8 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
       stateSave: true,
       destroy: true,
-      scrollY: "50vh",
       select: {
         style: 'multi',
         },
@@ -160,6 +158,15 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
                   }
                 },
              ]
+          },
+          {
+            extend: 'colvis',
+            text: 'Column View',
+            columns: [ 1,2,3,4,5 ],
+          },
+          {
+            extend: "pageLength",
+            className: "btn-sm"
           }
         ],
       }

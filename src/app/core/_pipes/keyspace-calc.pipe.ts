@@ -8,6 +8,7 @@ import {
  * @param value - Object
  * @param object - files object to extract line count
  * @param cmd - Attack
+ * @param attcktype - If true, returns attack type
  * Usage:
  *   object | keyspace:'objectname':'cmd'
  * Example:
@@ -24,16 +25,19 @@ declare var parser: any;
 
 export class KeyspaceCalcPipe implements PipeTransform {
 
-  transform(value: any[], name: string , cmd: any) {
-      if (value.length === 0 || !name) {
-        return 'No data';
+  transform(value: any[], name: string , cmd: any, attcktype?: boolean) {
+      if (!cmd || !name) {
+        return 'Wrong Command';
       }
       // Iterate over files and get file count
       var arr = [];
-      for(let i=0; i < value.length; i++){
-        arr.push(+value[i][name]);
+      var mpow = 0;
+      if(value.length !== 0){
+        for(let i=0; i < value.length; i++){
+          arr.push(+value[i][name]);
+        }
+        mpow = arr.reduce((a, i) => a * i);
       }
-      var mpow = arr.reduce((a, i) => a * i);
       // resetting the options
       options = defaultOptions;
       options.ruleFiles = [];
@@ -65,7 +69,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
           charsetOptions = charsetOptions + 16 * Math.min(1, numLH);
           charsetOptions = charsetOptions + 16 * Math.min(1, numUH);
           charsetOptions = charsetOptions + 256 * Math.min(1, numB);
-          // add single characters that are part of the custom charset
+          // Add single characters that are part of the custom charset
           // we assume no duplicate single characters are present in the custom charset!
           //       i.e. -1 abbc is considered to be a charset of 4 different characters in the calculation
           charsetOptions = charsetOptions + mask.length - 2 * (numA + numD + numL + numU + numS + numLH + numUH + numB);
@@ -107,7 +111,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
       }
 
       var keyspace: number;
-      if (options.attackType === 3 && mpow > 1) {
+      if (options.attackType === 3 && mpow >= 0) {
           // compute keyspace for bruteforce attacks
           for (var i = 0; i < options.posArgs.length; i++) {
               let posArg = options.posArgs[i];
@@ -115,14 +119,18 @@ export class KeyspaceCalcPipe implements PipeTransform {
                   let mask = posArg;
                   keyspace = maskToKeyspace(mask);
                   // return [keyspace, options.attackType]; // return also attack type
+                  if(attcktype == true){keyspace = options.attackType}
                   return [keyspace];
               }
           }
       }
       if(mpow > 0 && options.attackType !== 3){
+        if(attcktype == true){mpow = options.attackType}
         return mpow;
       }else{
-        return [null]
+        var result = null;
+        if(attcktype == true){result = options.attackType}
+        return result
       }
   }
 }

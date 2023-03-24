@@ -145,7 +145,16 @@ export class ChunksComponent implements OnInit {
               extend: 'copy',
             }
             ]
-          }
+          },
+          {
+            extend: 'colvis',
+            text: 'Column View',
+            columns: [ 1,2,3,4,5,6,7,8,9,10,11 ],
+          },
+          {
+            extend: "pageLength",
+            className: "btn-sm"
+          },
         ],
       }
     };

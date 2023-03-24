@@ -213,9 +213,10 @@ input.ng-invalid.ng-touched {
   color: #1411e6;
   border: 2px solid rgb(0, 23, 128);
 }
+
 .active span {
   color: #1411e6;
-  border: 2px solid rgb(0, 23, 128);
+  // border: 2px solid rgb(0, 23, 128);
 }
 
 .selectize-input::after {

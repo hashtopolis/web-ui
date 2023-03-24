@@ -1,4 +1,4 @@
-import { faAlignJustify, faInfoCircle, faMagnifyingGlass, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faAlignJustify, faInfoCircle, faMagnifyingGlass, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -9,6 +9,10 @@ import { Subject } from 'rxjs';
 
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
+
+declare var options: any;
+declare var defaultOptions: any;
+declare var parser: any;
 
 @Component({
   selector: 'app-edit-supertasks',
@@ -22,6 +26,7 @@ export class EditSupertasksComponent implements OnInit {
 
   isLoading = false;
   faEye=faEye;
+  faTrash=faTrash;
   faInfoCircle=faInfoCircle;
   faAlignJustify=faAlignJustify;
   faMagnifyingGlass=faMagnifyingGlass;
@@ -43,6 +48,7 @@ export class EditSupertasksComponent implements OnInit {
 
   viewForm: FormGroup;
   updateForm: FormGroup;
+  etForm:FormGroup; //estimation time form
   pretasks: any = [];
   pretasksFiles: any = [];
 
@@ -64,6 +70,11 @@ export class EditSupertasksComponent implements OnInit {
 
     this.updateForm = new FormGroup({
       pretasks: new FormControl('')
+    });
+
+    this.etForm = new FormGroup({
+      benchmarka0: new FormControl(null || 0),
+      benchmarka3: new FormControl(null || 0),
     });
 
     setTimeout(() => {
@@ -204,24 +215,23 @@ export class EditSupertasksComponent implements OnInit {
    }
   }
 
+
   async fetchPreTaskData() {
 
     let params = {'maxResults': this.maxResults, 'expand': 'pretasks', 'filter': 'supertaskId='+this.editedSTIndex+''};
     let paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
-
+    var matchObjectFiles =[]
     this.supertaskService.getAllsupertasks(params).subscribe((result)=>{
     this.pretasksService.getAllPretasks(paramspt).subscribe((pretasks: any) => {
       this.pretasks = result.values.map(mainObject => {
-          let matchAObject = pretasks.values.find(element => element.pretaskId === mainObject.pretasks[0].pretaskId)
-          return { ...mainObject, ...matchAObject }
+          for(let i=0; i < Object.keys(result.values[0].pretasks).length; i++){
+            matchObjectFiles.push(pretasks.values.find((element:any) => element?.pretaskId === mainObject.pretasks[i]?.pretaskId))
+          }
+          return { ...mainObject, matchObjectFiles }
         })
-        console.log(this.pretasks)
+        this.dtTrigger.next(void 0);
       });
     });
-
-          // for(let i=0; i < value.length; i++){
-      //   arr.push(value[i][name]);
-      // }
 
     this.dtOptions[0] = {
       dom: 'Bfrtip',
@@ -242,7 +252,71 @@ export class EditSupertasksComponent implements OnInit {
 
   }
 
+  // Calculate Estimated duration
 
+  keyspaceTimeCalc(){
+    if(this.etForm.value.benchmarka0 !==0 && this.etForm.value.benchmarka3 !== 0){
+
+      var totalSecondsSupertask = 0;
+      var unknown_runtime_included = 0;
+      var benchmarka0 = this.etForm.value.benchmarka0;
+      var benchmarka3 = this.etForm.value.benchmarka3;
+
+      $(".taskInSuper").each(function (index) {
+          var keyspace_size = $(this).find("td:nth-child(4)").text();
+          var seconds = null;
+          var runtime = null;
+
+          options = defaultOptions;
+          options.ruleFiles = [];
+          options.posArgs = [];
+          options.unrecognizedFlag = [];
+
+          if (keyspace_size === null || !keyspace_size) {
+              unknown_runtime_included = 1;
+              runtime = "Unknown";
+          } else if (options.attackType === 3) {
+              seconds = Math.floor(+keyspace_size / +benchmarka3);
+          } else if (options.attackType === 0) {
+              seconds = Math.floor(+keyspace_size / +benchmarka0);
+          }
+
+          if (Number.isInteger(seconds)) {
+              totalSecondsSupertask = totalSecondsSupertask + seconds;
+              var days = Math.floor(seconds / (3600 * 24));
+              seconds -= days * 3600 * 24;
+              var hrs = Math.floor(seconds / 3600);
+              seconds -= hrs * 3600;
+              var mins = Math.floor(seconds / 60);
+              seconds -= mins * 60;
+
+              runtime = days + "d, " + hrs + "h, " + mins + "m, " + seconds + "s";
+          } else {
+              unknown_runtime_included = 1;
+              runtime = "Unknown";
+          }
+
+          $(this).find("td:nth-child(5)").html(runtime);
+      });
+
+      // reduce total runtime to a human format
+      var seconds = totalSecondsSupertask;
+      var days = Math.floor(seconds / (3600 * 24));
+      seconds -= days * 3600 * 24;
+      var hrs = Math.floor(seconds / 3600);
+      seconds -= hrs * 3600;
+      var mins = Math.floor(seconds / 60);
+      seconds -= mins * 60;
+
+      let totalRuntimeSupertask = days + "d, " + hrs + "h, " + mins + "m, " + seconds + "s";
+      if (unknown_runtime_included === 1) {
+          totalRuntimeSupertask = totalRuntimeSupertask + ", plus additional unknown runtime"
+      }
+
+      $(".runtimeOfSupertask").html(totalRuntimeSupertask)
+
+    }
+  }
 
 
 }

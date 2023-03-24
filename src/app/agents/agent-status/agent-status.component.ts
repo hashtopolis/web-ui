@@ -98,13 +98,75 @@ export class AgentStatusComponent implements OnInit {
 
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
-      destroy: true,
-      scrollY: "20vh",
+      scrollY: true,
+      bDestroy: true,
+      columnDefs: [
+        {
+            targets: 0,
+            className: 'noVis'
+        }
+      ],
+      order: [[0, 'desc']],
+      bStateSave:true,
       select: {
         style: 'multi',
         },
-      buttons: []
+        buttons: {
+          dom: {
+            button: {
+              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+            }
+          },
+        buttons: [
+          {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+              {
+                extend: 'excelHtml5',
+                exportOptions: {
+                  columns: [0, 1, 2, 3, 4]
+                },
+              },
+              {
+                extend: 'print',
+                exportOptions: {
+                  columns: [0, 1, 2, 3, 4]
+                },
+                customize: function ( win ) {
+                  $(win.document.body)
+                      .css( 'font-size', '10pt' )
+                  $(win.document.body).find( 'table' )
+                      .addClass( 'compact' )
+                      .css( 'font-size', 'inherit' );
+               }
+              },
+              {
+                extend: 'csvHtml5',
+                exportOptions: {modifier: {selected: true}},
+                select: true,
+                customize: function (dt, csv) {
+                  var data = "";
+                  for (var i = 0; i < dt.length; i++) {
+                    data = "Agent Status\n\n"+  dt;
+                  }
+                  return data;
+               }
+              },
+                'copy'
+              ]
+            },
+            {
+              extend: 'colvis',
+              text: 'Column View',
+              columns: [ 1,2,3,4 ],
+            },
+            {
+              extend: "pageLength",
+              className: "btn-sm"
+            },
+          ],
+        }
       }
   }
 

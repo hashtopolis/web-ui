@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 import { Injectable, Output, EventEmitter } from "@angular/core";
 import { environment } from '../../../environments/environment';
-import { BehaviorSubject, throwError, Observable } from 'rxjs';
+import { BehaviorSubject, throwError, Observable, ReplaySubject } from 'rxjs';
 import { User } from '../_models/auth-user.model';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from "@angular/router";
@@ -17,6 +17,8 @@ export class AuthService {
     user = new BehaviorSubject<User>(null);
     @Output() authChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     isAuthenticated = false;
+    private logged = new ReplaySubject<boolean>(1);
+    isLogged = this.logged.asObservable();
     redirectUrl: string = '';
     private tokenExpiration: any;
     private endpoint = environment.config.prodApiEndpoint + '/auth';
@@ -80,6 +82,15 @@ export class AuthService {
         this.tokenExpiration = null;
     }
 
+    checkStatus() {
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (userData) {
+        this.logged.next(true);
+      } else {
+        this.logged.next(false);
+      }
+    }
+
     private userAuthChanged(status: boolean) {
       this.authChanged.emit(status); // Raise changed event
     }
@@ -88,6 +99,7 @@ export class AuthService {
         const expirationDate = new Date(expires * 1000); // expires, its epoch time in seconds and returns milliseconds sin Jan 1, 1970. We need to multiple by 1000
         const user = new User(token, expirationDate, username);
         this.user.next(user);
+        this.logged.next(true);
         this.autologOut(expires) // Epoch time
         localStorage.setItem('userData', JSON.stringify(user));
       }

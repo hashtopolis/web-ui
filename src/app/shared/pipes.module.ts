@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
 import { HealthCheckStatusPipe } from "../core/_pipes/healthcheck-status.pipe";
-import { FileTypeEditPipe } from "../core/_pipes/file-type-edit.pipe";
 import { ReplaceStringPipe } from "../core/_pipes/replace-string.pipe";
 import { ShortenStringPipe } from "../core/_pipes/shorten-string.pipe";
 import { SecondsToTimePipe } from "../core/_pipes/secondsto-time.pipe";
@@ -18,6 +17,7 @@ import { SearchPipe } from "../core/_pipes/filter-search.pipe";
 import { FileSizePipe } from "../core/_pipes/file-size.pipe";
 import { FileTypePipe } from "../core/_pipes/file-type.pipe";
 import { GroupByPipe } from "../core/_pipes/groupby.pipe";
+import { SplitPipe } from "../core/_pipes/split.pipe";
 
 @NgModule({
   declarations: [
@@ -27,7 +27,6 @@ import { GroupByPipe } from "../core/_pipes/groupby.pipe";
     SecondsToTimePipe,
     WarningColorPipe,
     KeyspaceCalcPipe,
-    FileTypeEditPipe,
     StaticArrayPipe,
     AgentSColorPipe,
     FilterItemPipe,
@@ -38,6 +37,7 @@ import { GroupByPipe } from "../core/_pipes/groupby.pipe";
     AveragePipe,
     GroupByPipe,
     SearchPipe,
+    SplitPipe
   ],
   imports: [CommonModule],
   exports: [
@@ -47,7 +47,6 @@ import { GroupByPipe } from "../core/_pipes/groupby.pipe";
     SecondsToTimePipe,
     WarningColorPipe,
     KeyspaceCalcPipe,
-    FileTypeEditPipe,
     StaticArrayPipe,
     AgentSColorPipe,
     FilterItemPipe,
@@ -58,6 +57,7 @@ import { GroupByPipe } from "../core/_pipes/groupby.pipe";
     AveragePipe,
     GroupByPipe,
     SearchPipe,
+    SplitPipe
   ]
 })
 export class PipesModule {}

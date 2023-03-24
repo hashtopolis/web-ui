@@ -31,7 +31,13 @@
                                     aria-hidden="true"
                             >
                             </fa-icon>
-                            <input type='number' name='hashtype' title="Hashtype" class='form-control' id="hashtype" formControlName="hashTypeId" validateInputNumber>
+                            <input
+                                  type='number'
+                                  id="hashtype"
+                                  class='form-control'
+                                  formControlName="hashTypeId"
+                                  validateInputNumber
+                            >
                             <span *ngIf="!createForm.errors?.['hashTypeId'].valid && createForm.errors?.['hashTypeId'].touched" class="help-block" >
                               <span *ngIf="createForm.errors?.['hashtypeIsUsed']" >This name is already in use!</span>
                               <span *ngIf="createForm.errors?.['required']" >This field is required!</span>
@@ -58,9 +64,13 @@
                             >
                             </fa-icon>
                             <td>
-                            <select  class='form-select' name="isSalted"  title="Is Salted" formControlName="isSalted">
-                              <option value="true" [defaultSelected]=true>No</option>
-                              <option value="false">Yes</option>
+                            <select
+                                  class='form-select'
+                                  id="isSalted"
+                                  formControlName="isSalted"
+                              >
+                              <option [ngValue]="true" [defaultSelected]=true>No</option>
+                              <option [ngValue]="false">Yes</option>
                             </select>
                           </div>
                         </div>
@@ -69,9 +79,13 @@
                           <div class="form-outline">
                             <label class="form-label" for="setsalted">Slow Hash</label>
                             <td>
-                            <select class='form-select' name="isSlowHash" title="Is Slow Hash" formControlName="isSlowHash">
-                              <option value="true" [defaultSelected]=true>No</option>
-                              <option value="false">Yes</option>
+                            <select
+                                  class='form-select'
+                                  id="isSlowHash"
+                                  formControlName="isSlowHash"
+                              >
+                              <option [ngValue]="true" [defaultSelected]=true>No</option>
+                              <option [ngValue]="false">Yes</option>
                             </select>
                           </div>
                         </div>
@@ -104,52 +118,52 @@
                 <tbody>
                   <tr *ngFor="let h of htypes; let i = index">
                       <td class="text-align:center">{{ h.hashTypeId }}</td>
-                      <td>
-                        <div *ngIf="h.isEdit">
-                          <input  type="text" [(ngModel)]="h.description" class="form-control">
-                        </div>
-                        <div *ngIf="!h.isEdit">
-                          {{ h.description }}
-                        </div>
-                      </td>
-                      <td>
-                        <div *ngIf="h.isEdit">
-                          <select  class='form-select' [(ngModel)]="h.isSalted">
-                            <option *ngFor="let b of booleanopt" [value]="h.isSalted">{{ b.value !== 'false' ? "Yes" : "No" }}</option>
-                          </select>
-                        </div>
-                        <div *ngIf="!h.isEdit">
-                          {{ h.isSalted == 1 ? "Yes" : "No" }}
-                        </div>
-                      </td>
-                      <td>
-                        <div *ngIf="h.isEdit">
-                          <select class='form-select' [(ngModel)]="h.isSlowHash">
-                            <option *ngFor="let b of booleanopt" [value]="h.isSlowHash">{{ b.value !== 'false' ? "Yes" : "No" }}</option>
-                          </select>
-                        </div>
-                        <div *ngIf="!h.isEdit">
-                          {{ h.isSlowHash == 1 ? "Yes" : "No" }}
-                        </div>
-                      </td>
-                      <td>
-                        <div *ngIf="h.isEdit">
-                          <a class='btn-outline-gray-600 float-right' (click)="onSave(h)" data-toggle="tooltip" data-placement="top" title="Update">
-                              <fa-icon [icon]="faSave" aria-hidden="true"></fa-icon>
-                          </a>
-                          <a class='btn-outline-gray-600 float-right' (click)="onCancel(h)" data-toggle="tooltip" data-placement="top" title="Cancel">
-                              <fa-icon [icon]="faCancel" aria-hidden="true"></fa-icon>
-                          </a>
-                        </div>
-                        <div *ngIf="!h.isEdit">
+                        <!-- Normal View -->
+                        <td *ngIf="!h.isEdit">{{ h.description }}</td>
+                        <td *ngIf="!h.isEdit">{{ h.isSalted == 1 ? "Yes" : "No" }}</td>
+                        <td *ngIf="!h.isEdit">{{ h.isSlowHash == 1 ? "Yes" : "No" }}</td>
+                        <td *ngIf="!h.isEdit">
                           <a class='btn-outline-gray-600 float-right' (click)="onEdit(h)" data-toggle="tooltip" data-placement="top" title="Edit">
-                              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                            <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
                           </a>
                           <a class='btn-outline-gray-600 float-right' (click)="onDelete(h.hashTypeId)" data-toggle="tooltip" data-placement="top" title="Delete">
-                              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
                           </a>
-                        </div>
-                      </td>
+                        </td>
+                        <!-- Normal View end  -->
+                        <!-- Edit view -->
+                        <td *ngIf="h.isEdit">
+                          <input
+                                type="text"
+                                class="form-control"
+                                [(ngModel)]="h.description"
+                                >
+                        </td>
+                        <td *ngIf="h.isEdit">
+                          <select
+                                 class='form-select'
+                                 [(ngModel)]="h.isSalted"
+                              >
+                              <option *ngFor="let b of booleanopt" [value]="b.value">{{ b.value == 'false'? 'No':'Yes' }}</option>
+                          </select>
+                        </td>
+                        <td *ngIf="h.isEdit">
+                          <select
+                                class='form-select'
+                                [(ngModel)]="h.isSlowHash"
+                              >
+                              <option *ngFor="let b of booleanopt" [value]="b.value">{{ b.value == 'false'? 'No':'Yes' }}</option>
+                          </select>
+                        </td>
+                        <td *ngIf="h.isEdit">
+                          <a class='btn-outline-gray-600 float-right' (click)="onSave(h)" data-toggle="tooltip" data-placement="top" title="Update">
+                            <fa-icon [icon]="faSave" aria-hidden="true"></fa-icon>
+                          </a>
+                          <a class='btn-outline-gray-600 float-right' (click)="onCancel(h)" data-toggle="tooltip" data-placement="top" title="Cancel">
+                            <fa-icon [icon]="faCancel" aria-hidden="true"></fa-icon>
+                          </a>
+                        </td>
+                      <!-- Edit view end -->
                   </tr>
                 </tbody>
             </table>

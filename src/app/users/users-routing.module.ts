@@ -33,10 +33,10 @@ const routes: Routes = [
           },
           canActivate: [AuthGuard]},
         {
-          path: 'groups', component: GroupsComponent,
+          path: 'access-groups', component: GroupsComponent,
           data: {
-              kind: 'groups',
-              breadcrumb: 'Access Group'
+              kind: 'access-groups',
+              breadcrumb: 'Access Groups'
           },
           canActivate: [AuthGuard]},
 

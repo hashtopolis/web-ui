@@ -15,7 +15,10 @@ export class AuthComponent implements OnInit {
   isLoading = false;
   errorRes: string | null;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
   }
@@ -35,11 +38,15 @@ export class AuthComponent implements OnInit {
 
     authObs.subscribe(
       resData =>{
-      console.log(resData); // Delete for production
       this.isLoading = false;
-      this.router.navigate(['/']);
+      if (this.authService.redirectUrl) {
+        const redirectUrl = this.authService.redirectUrl;
+        this.authService.redirectUrl = '';
+        this.router.navigate([redirectUrl]);
+      } else {
+          this.router.navigate(['/']);
+      }
     }, errorMessage => {
-      console.log(errorMessage);
       this.errorRes = errorMessage;
       this.isLoading = false;
     });

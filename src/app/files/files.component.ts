@@ -114,13 +114,13 @@ export class FilesComponent implements OnInit {
       const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
-        pageLength: 10,
+        scrollY: true,
         stateSave: true,
         destroy: true,
-        scrollY: "50vh",
         select: {
           style: 'multi',
           },
+        order: [[0, 'desc']],
         buttons: {
             dom: {
               button: {
@@ -194,6 +194,10 @@ export class FilesComponent implements OnInit {
                       }
                     }
                 ]
+             },
+             {
+              extend: "pageLength",
+              className: "btn-sm"
              }
           ],
         }

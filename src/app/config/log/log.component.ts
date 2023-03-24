@@ -41,7 +41,20 @@ export class LogComponent implements OnInit {
 
       this.dtOptions = {
         dom: 'Bfrtip',
+        // stateSave: true,//keeps state in session
+        bStateSave:true,
         scrollY: true,
+        columnDefs: [
+          {
+              targets: 0,
+              className: 'noVis'
+          }
+        ],
+        stateSaveParams: function (settings, data) {
+          for ( var i=0, ien=data.columns.length ; i<ien ; i++ ) {
+            // delete data.columns[i].visible;
+          }
+        },
         buttons: {
           dom: {
             button: {
@@ -86,12 +99,19 @@ export class LogComponent implements OnInit {
               },
                 'copy'
               ]
-            }
+            },
+            {
+              extend: 'colvis',
+              text: 'Column View',
+              columns: [ 1,2,3,4 ],
+            },
+            {
+              extend: "pageLength",
+              className: "btn-sm"
+            },
           ],
         }
       };
     }
 
 }
-
-

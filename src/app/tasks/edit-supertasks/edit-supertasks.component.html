@@ -45,54 +45,67 @@
                           &nbsp;
                       </div>
                     </div>
-                    <hr>
-                    <h5> Estimate Time
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip="The benchmark number to enter below is the total amount of hashes per second per attack type of all of the agents combined that will run the supertask."
-                            container="body"
-                            [icon]="faInfoCircle"
-                            aria-hidden="true"
-                    ></fa-icon>
-                    </h5>
-                    <div class="row">
-                      <div class="col">
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label" for="getSupertaskName">Benchmark for -a0 attacks</label>
-                            <input
-                                  type='text'
-                                  id="supertaskName"
-                                  class='form-control'
-                            >
-                          </div>
-                        </div>
-                        &nbsp;
-                      </div>
-                      <div class="col">
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label" for="getSupertaskName">Benchmark for -a3 attacks</label>
-                            <input
-                                  type='text'
-                                  id="supertaskName"
-                                  class='form-control'
-                            >
-                            <pre></pre>
-                            <a class="btn btn-gray-800 actions-td-right">Calculate Runtime</a>
-                          </div>
-                        </div>
-                        &nbsp;
-                      </div>
-                    </div>
-                    <hr>
                   </div>
                   <a class="btn btn-gray-800" >Apply to Hashlist</a>
                   &nbsp;
                   <button  class="btn btn-danger" (ngSubmit)="onDelete()">Delete</button>
-            </form>
+                  </form>
+                  <hr>
+                  <h5> Estimate Time
+                  <fa-icon
+                          placement="bottom"
+                          ngbTooltip="The benchmark number to enter below is the total amount of hashes per second per attack type of all of the agents combined that will run the supertask."
+                          container="body"
+                          [icon]="faInfoCircle"
+                          aria-hidden="true"
+                  ></fa-icon>
+                  </h5>
+                  <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
+                  <div class="row">
+                    <div class="col">
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                          <label class="form-label" for="setBenchmarka0">Benchmark for -a0 attacks</label>
+                          <input
+                                type='number'
+                                id="benchmarka0"
+                                class='form-control'
+                                formControlName="benchmarka0"
+                          >
+                        </div>
+                      </div>
+                      &nbsp;
+                    </div>
+                    <div class="col">
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                          <label class="form-label" for="setBenchmarka3">Benchmark for -a3 attacks</label>
+                          <input
+                                type='number'
+                                id="benchmarka3"
+                                class='form-control'
+                                formControlName="benchmarka3"
+                          >
+                          <pre></pre>
+                          <button class="btn btn-gray-800 actions-td-right">Calculate Runtime</button>
+                        </div>
+                      </div>
+                      &nbsp;
+                    </div>
+                  </div>
+                  <div *ngIf="etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0">
+                    &nbsp;
+                    <tr>
+                      <th>
+                        Estimated total runtime of supertask:
+                      </th>
+                      <td class="runtimeOfSupertask">
+                      </td>
+                    </tr>
+                  </div>
+              </form>
         </div>
       </div>
       <div class="col-6 col-md-4">
@@ -132,7 +145,7 @@
 <h4>Pretasks</h4>
 <div class="table-responsive">
   &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]" [dtTrigger]="dtTrigger">
       <thead class="thead-light">
         <tr>
             <th class="border-0 rounded-start">ID</th>
@@ -144,7 +157,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let p of pretasks[0].pretasks">
+        <tr class="taskInSuper" *ngFor="let p of pretasks[0].matchObjectFiles">
           <td>
             <span [ngClass]="!p.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': p.color }">{{  p.pretaskId }}</span>
           </td>
@@ -155,10 +168,13 @@
             </a>
           </td>
           <td>{{ p.attackCmd }}</td>
-          <td>{{ pretasks[0].pretaskFiles | keyspace:'lineCount':p.attackCmd }}</td>
-          <td>Disscuss</td>
+          <td>{{ p.pretaskFiles | keyspace:'lineCount':p.attackCmd:false }}</td>
+          <td class="attackRuntime"></td>
           <td>
-            Missing Action
+            <a>
+              <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete">
+              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon></a>
+            </a>
           </td>
         </tr>
       </tbody>

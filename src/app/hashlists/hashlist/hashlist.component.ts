@@ -87,7 +87,6 @@ export class HashlistComponent implements OnInit, OnDestroy {
       dom: 'Bfrtip',
       stateSave: true,
       select: true,
-      pageLength: 50,
       buttons: {
         dom: {
           button: {
@@ -132,7 +131,16 @@ export class HashlistComponent implements OnInit, OnDestroy {
             },
               'copy'
             ]
-          }
+          },
+          {
+            extend: 'colvis',
+            text: 'Column View',
+            columns: [ 1,2,3,4 ],
+          },
+          {
+            extend: "pageLength",
+            className: "btn-sm"
+          },
         ],
       }
     };
