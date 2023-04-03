@@ -52,8 +52,8 @@
                       <span *ngIf="task.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
                   </td>
                   <td>
-                    Missing Hashlist
-                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',task.objectId,'edit']" title="Edit Hashlist">
+                    {{ task.hashlist.name }}
+                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashlist',task.hashlist.hashlistId,'edit']" title="Edit Hashlist">
                       <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
                     </a>
                   </td>

@@ -4,11 +4,13 @@ import { NgModule } from '@angular/core';
 
 import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
 import { ErrorPageComponent } from './layout/error-page/error-page.component';
-import { HomeComponent } from './home/home.component';
 import { AuthGuard } from './core/_guards/auth.guard';
 
 const appRoutes: Routes = [
-    {path: '', component: HomeComponent, data: { breadcrumb: 'Home'}, canActivate: [AuthGuard] },
+    {path: '',
+    loadChildren: () => import('./home/home.module').then(m => m.HomeModule),
+      data: { preload: true, delay: false }
+    },
     {
       path: 'agents',
       loadChildren: () => import('./agents/agent.module').then(m => m.AgentsModule),
@@ -51,10 +53,13 @@ const appRoutes: Routes = [
 
 @NgModule({
     imports: [
-        RouterModule.forRoot(appRoutes, {
+        RouterModule.forRoot(
+          appRoutes,
+          {
+          // enableTracing: false, // <-- debugging purposes only
           preloadingStrategy: AppPreloadingStrategy,
           relativeLinkResolution: 'corrected',
-          // useHash: true  // Old browsers could have issues but can be fix setting useHash: true
+          // useHash: true  // Old browsers could have issues but can be fix setting useHash: true. Note if its enable will affect redirectURL after login
       })
     ],
     exports:[

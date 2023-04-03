@@ -30,7 +30,11 @@
                   </ng-container>
                 </tbody>
             </table>
+            <cm-pagination
+                          [totalItems]="totalRecords"
+                          [pageSize]="pageSize"
+                          (pageChanged)="pageChanged($event)"
+              ></cm-pagination>
         </div>
     </div>
 </div>
-

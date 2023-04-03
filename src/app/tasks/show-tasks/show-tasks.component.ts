@@ -179,7 +179,7 @@ export class ShowTasksComponent implements OnInit {
 }
 
   getTasks():void {
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType', 'filter': 'isArchived='+this.isArchived+''}
+    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
 
     this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
       this.alltasks = tasks.values;

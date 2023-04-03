@@ -1,16 +1,197 @@
-<main>
-  <!-- Section -->
-  <section>
-      <div class="container">
-          <div class="row justify-content-center">
-              <div class="col-12 d-flex align-items-center justify-content-center">
-                  <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                    {{ title }} Sourcecode is available in these Github repositories:&nbsp;&nbsp;<a href="https://github.com/hashtopolis/server" target="_blank" rel="noopener"><button class="btn btn-secondary">Server</button></a>&nbsp;&nbsp;
-                    <a href="https://github.com/hashtopolis/agent" target="_blank" rel="noopener"><button class="btn btn-secondary">Client(s)</button></a><br><br>
-                    To get more information about how to use {{ title }}, please visit the <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">wiki</a> or the <a href="https://hashtopolis.org" target="_blank" rel="noopener">Forum</a>.
-                  </div>
+<main>&nbsp;
+
+  <div class="row">
+    <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="card card-dash">
+        <div class="card-body ">
+          <div class="row">
+            <div class="col-5 col-md-4">
+              <div class="text-center">
+                <fa-icon
+                        placement="bottom"
+                        container="body"
+                        [icon]="faUserSecret"
+                        aria-hidden="true"
+                        class="gray-light-ico fa-2x"
+                ></fa-icon>
               </div>
+            </div>
+            <div class="col-7 col-md-8">
+              <div class="numbers">
+                <div class="card-category">Agents</div>
+                <p class="card-title">{{ activeAgents }}/{{totalAgents}}</p>
+              </div>
+            </div>
           </div>
+        </div>
+        <div class="card-footer ">
+          <hr>
+          <div class="stats">
+            <fa-icon
+                    placement="bottom"
+                    container="body"
+                    [icon]="faInfoCircle"
+                    aria-hidden="true"
+             ></fa-icon>
+             <i>Active Agents/Total Agents</i>
+          </div>
+        </div>
       </div>
-  </section>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="card card-dash">
+        <div class="card-body ">
+          <div class="row">
+            <div class="col-5 col-md-4">
+              <div class="text-center">
+                <fa-icon
+                        placement="bottom"
+                        container="body"
+                        [icon]="faTasks"
+                        aria-hidden="true"
+                        class="gray-light-ico fa-2x"
+                ></fa-icon>
+              </div>
+            </div>
+            <div class="col-7 col-md-8">
+              <div class="numbers">
+                <p class="card-category">Tasks</p>
+                <p class="card-title">{{ totalTasks }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <hr>
+          <div class="stats">
+            <fa-icon
+                    placement="bottom"
+                    container="body"
+                    [icon]="faCheckCircle"
+                    aria-hidden="true"
+             ></fa-icon>
+             <i>Total Live Tasks</i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="card card-dash">
+        <div class="card-body ">
+          <div class="row">
+            <div class="col-5 col-md-4">
+              <div class="text-center">
+                <fa-icon
+                        placement="bottom"
+                        container="body"
+                        [icon]="faTasksAlt"
+                        aria-hidden="true"
+                        class="gray-light-ico fa-2x"
+                ></fa-icon>
+              </div>
+            </div>
+            <div class="col-7 col-md-8">
+              <div class="numbers">
+                <p class="card-category">SuperTasks</p>
+                <p class="card-title">{{ allsupertasks }}</p>
+                  <p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer ">
+          <hr>
+          <div class="stats">
+            <fa-icon
+                    placement="bottom"
+                    container="body"
+                    [icon]="faCheckCircle"
+                    aria-hidden="true"
+             ></fa-icon>
+             <i>Total SuperTasks</i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="card card-dash">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-5 col-md-4">
+              <div class="text-center">
+                <fa-icon
+                        placement="bottom"
+                        container="body"
+                        [icon]="faChainBroken"
+                        aria-hidden="true"
+                        class="gray-light-ico fa-2x"
+                ></fa-icon>
+              </div>
+            </div>
+            <div class="col-7 col-md-8">
+              <div class="numbers">
+                <p class="card-category">Total Cracks</p>
+                <p class="card-title">{{ totalCracks }}</p>
+                  <p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer ">
+          <hr>
+          <div class="stats">
+            <fa-icon
+                    placement="bottom"
+                    container="body"
+                    [icon]="faCalendarWeek"
+                    aria-hidden="true"
+             ></fa-icon>
+             <i>Last 7 days</i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card ">
+        <div class="card-header">
+          <h5 class="card-title">Project Information</h5>
+        </div>
+        <div class="card-body ">
+            Hashtopolis is available in:&nbsp;&nbsp;
+            <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">
+              <fa-icon
+                      placement="bottom"
+                      ngbTooltip="Github Repository"
+                      container="body"
+                      [icon]="faGithub"
+                      aria-hidden="true"
+                      class="gray-light-ico fa-2x"
+              ></fa-icon>
+            </a>&nbsp;&nbsp;
+            <hr>
+            To get more information about how to use it, please visit the
+            <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">
+              Wiki
+            </a> or the
+            <a href="https://hashtopolis.org" target="_blank" rel="noopener">
+              Forum
+            </a>
+        </div>
+      </div>
+    </div>
+      <div class="col-md-8">
+        <div class="card ">
+          <div class="card-header ">
+            <h5 class="card-title">Cracked</h5>
+          </div>
+          <div class="card-body">
+            <div id="pcard" class="app-echarts" style="height: 310px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 </main>

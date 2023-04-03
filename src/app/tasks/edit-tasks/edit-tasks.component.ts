@@ -1,12 +1,16 @@
+import { TitleComponent, TitleComponentOption, ToolboxComponent, ToolboxComponentOption, TooltipComponent, TooltipComponentOption, GridComponent, GridComponentOption, VisualMapComponent, VisualMapComponentOption, DataZoomComponent, DataZoomComponentOption, MarkLineComponent, MarkLineComponentOption } from 'echarts/components';
 import { faHomeAlt, faEye, faEraser } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { rerender } from '../../shared/utils/rendertable';
+import { LineChart, LineSeriesOption } from 'echarts/charts';
 import { DataTableDirective } from 'angular-datatables';
+import { UniversalTransition } from 'echarts/features';
+import { CanvasRenderer } from 'echarts/renderers';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
+import * as echarts from 'echarts/core';
 
 import { ChunkService } from '../../core/_services/chunks.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
@@ -14,6 +18,7 @@ import { AgentsService } from '../../core/_services/agents/agents.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
 import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
 
 
 @Component({
@@ -35,6 +40,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   constructor(
     private crackerService: CrackerService,
     private agentsService: AgentsService,
+    private hashesService: HashesService,
     private tasksService: TasksService,
     private chunkService: ChunkService,
     private uiService:UIConfigService,
@@ -89,6 +95,8 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
         'isSmall': new FormControl(''),
       }),
     });
+
+    this.getTaskSpeed();
 
   }
 
@@ -327,6 +335,180 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.ngOnInit();
       this.rerender();
     });
+  }
+
+// Task Speed Graph
+getTaskSpeed(){
+  this.editedTaskIndex;
+  let params = {'maxResults': 500 };
+
+  this.hashesService.getAllhashes(params).subscribe((hashes: any) => {
+    this.initTaskSpeed(hashes.values);
+  });
+}
+
+initTaskSpeed(obj: Object){
+
+  echarts.use([
+    TitleComponent,
+    ToolboxComponent,
+    TooltipComponent,
+    GridComponent,
+    VisualMapComponent,
+    DataZoomComponent,
+    MarkLineComponent,
+    LineChart,
+    CanvasRenderer,
+    UniversalTransition
+  ]);
+
+  type EChartsOption = echarts.ComposeOption<
+    | TitleComponentOption
+    | ToolboxComponentOption
+    | TooltipComponentOption
+    | GridComponentOption
+    | VisualMapComponentOption
+    | DataZoomComponentOption
+    | MarkLineComponentOption
+    | LineSeriesOption
+  >;
+
+  var data:any = obj;
+  var arr = [];
+  var max = []
+  for(let i=0; i < data.length; i++){
+
+    var iso = this.transDate(data[i]['timeCracked']);
+    arr.push([iso, data[i]['chunkId']]);
+    max.push(data[i]['timeCracked']);
+  }
+
+  var startdate =  Math.max(...max);
+  var datelabel = this.transDate(startdate);
+  var xAxis = this.generateIntervalsOf(5,+startdate-50,+startdate);
+  console.log(xAxis)
+
+  var chartDom = document.getElementById('tspeed')!;
+  var myChart = echarts.init(chartDom);
+  var option: EChartsOption;
+
+  const self = this;
+
+   option = {
+        title: {
+          subtext: 'Last record: '+datelabel,
+        },
+        tooltip: {
+          position: 'top',
+          formatter: function (p) {
+            return p.data[0] + ': ' + p.data[1] + ' H/s';
+          }
+        },
+        grid: {
+          left: '5%',
+          right: '15%',
+          bottom: '10%'
+        },
+        xAxis: {
+          data: xAxis.map(function (item: any[] | any) {
+            return self.transDate(item);
+          })
+        },
+        yAxis: {},
+        toolbox: {
+          right: 10,
+          feature: {
+            dataZoom: {
+              yAxisIndex: 'none'
+            },
+            restore: {},
+            saveAsImage: {}
+          }
+        },
+        dataZoom: [
+          {
+            startValue: datelabel
+          },
+          {
+            type: 'inside'
+          }
+        ],
+        visualMap: {
+          top: 50,
+          right: 10,
+          pieces: [
+            {
+              gt: 0,
+              lte: 30000,
+              color: '#FC7D02'
+            },
+            {
+              gt: 30000,
+              lte: 60000,
+              color: '#FBDB0F'
+            },
+            {
+              gt: 60000,
+              lte: 10000000,
+              color: '#93CE07'
+            }
+          ],
+          outOfRange: {
+            color: '#999'
+          }
+        },
+        series: {
+          name: '',
+          type: 'line',
+          data: arr,
+          markLine: {
+            silent: true,
+            lineStyle: {
+              color: '#333'
+            },
+            data: [
+              {
+                yAxis: 50
+              },
+              {
+                yAxis: 100
+              },
+              {
+                yAxis: 150
+              },
+              {
+                yAxis: 200
+              },
+              {
+                yAxis: 300
+              }
+            ]
+          }
+          }
+        };
+    option && myChart.setOption(option);
+ }
+
+ leading_zeros(dt){
+  return (dt < 10 ? '0' : '') + dt;
+ }
+
+ transDate(dt){
+  let date:any = new Date(dt* 1000);
+  return date.getUTCFullYear()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCDate()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
+ }
+
+ generateIntervalsOf(interval, start, end) {
+    const result = [];
+    let current = start;
+    console.log(start)
+
+    while (current < end) {
+      result.push(current);
+      current += interval;
+    }
+
+    return result;
   }
 
   // @HostListener allows us to also guard against browser refresh, close, etc.

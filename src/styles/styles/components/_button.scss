@@ -195,3 +195,35 @@
 /*
   03- End
 */
+
+/*
+  04- Scoll Y to top menu button
+*/
+.scroll-to-top {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  opacity: 0;
+  color: rgba(134, 140, 144, 0.75);
+  border: 2px solid rgba(134, 140, 144, 0.75);
+  border-radius: 40px;
+  background: transparent;
+  transition: all .2s ease-in-out;
+ }
+
+ .scroll-to-top:hover {
+  color: #FFF;
+  background: rgba(134, 140, 144, 0.75);
+  border: 2px solid rgba(134, 140, 144, 0.75);
+ }
+
+ .show-scrollTop {
+  opacity: 1;
+  color: rgba(134, 140, 144, 0.75);
+  border: 2px solid rgba(134, 140, 144, 0.75);
+  transition: all .2s ease-in-out;
+ }
+
+/*
+  04- End
+*/

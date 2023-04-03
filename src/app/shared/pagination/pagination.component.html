@@ -1,17 +1,36 @@
 <nav [hidden]="!isVisible">
-  <ul class="pagination">
-    <li class="page-item" [class.disabled]="!previousEnabled" (click)="previousNext(-1, $event)">
-      <a class="page-link"  aria-label="Previous">
-        <span aria-hidden="true">&laquo;</span>
-      </a>
-    </li>
-    <li *ngFor="let page of pages" (click)="changePage(page, $event)" [class.active]="currentPage === page">
-      <a class="page-link">{{ page }}</a>
-    </li>
-    <li class="page-item" [class.disabled]="!nextEnabled" (click)="previousNext(1, $event)">
-      <a class="page-link" aria-label="Next">
-        <span aria-hidden="true">&raquo;</span>
-      </a>
-    </li>
-  </ul>
+  <div class="py-2">
+    {{showLabel}}
+  </div>
+  <div class="container-pag">
+    <ul class="pagination">
+      <li  class="page-item" (click)="previousNext(3, $event)"  *ngIf="(currentPage - range) > 1">
+        <a class="page-link" href="" title="Go to first page">&laquo;</a>
+      </li>
+      <li class="page-item" [class.disabled]="!previousEnabled" (click)="previousNext(-1, $event)">
+        <a class="page-link"  aria-label="Previous">
+          <span aria-hidden="true">Previous</span>
+          <!-- <span aria-hidden="true">&laquo;</span> -->
+        </a>
+      </li>
+      <li class="page-item" class="disabled" (click)="cancelEvent($event)" *ngIf="(currentPage - range) > 1">
+        <a class="page-link" href="">...</a>
+      </li>
+      <li *ngFor="let page of pages" (click)="changePage(page, $event)" [class.active]="currentPage === page">
+        <a class="page-link">{{ page }}</a>
+      </li>
+      <li class="page-item" class="disabled" (click)="cancelEvent($event)" *ngIf="(currentPage + range) < totalPages">
+        <a class="page-link" href="" >...</a>
+      </li>
+      <li class="page-item" [class.disabled]="!nextEnabled" (click)="previousNext(1, $event)">
+        <a class="page-link" aria-label="Next">
+          <span aria-hidden="true">Next</span>
+          <!-- <span aria-hidden="true">&raquo;</span> -->
+        </a>
+      </li>
+      <li class="page-item" (click)="previousNext(4, $event)"  [class.disabled]="currentPage == totalPages">
+        <a class="page-link" href="" title="Go to last page">&raquo;</a>
+      </li>
+    </ul>
+  </div>
 </nav>

@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { setParameter } from '../buildparams';
 import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
+import { map, Observable } from 'rxjs';
 import { tap} from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -30,5 +30,6 @@ export class LogentryService {
       tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
+
 
 }
