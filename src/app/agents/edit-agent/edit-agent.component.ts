@@ -108,7 +108,7 @@ export class EditAgentComponent implements OnInit {
   }
 
   assignChunksInit(id: number){
-    let params = {'maxResults': 50};
+    let params = {'maxResults': 999999};
     this.chunkService.getChunks(params).subscribe((c: any)=>{
       var getchunks = c.values.filter(u=> u.agentId == id);
       this.tasksService.getAlltasks(params).subscribe((t: any)=>{

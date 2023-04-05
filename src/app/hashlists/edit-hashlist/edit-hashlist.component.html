@@ -176,12 +176,12 @@
                         &nbsp;
                         <div class="form-group">
                           <div class="form-outline">
-                              <label class="form-label" for="getFormat">Remaining(Missing?)</label>
+                              <label class="form-label" for="getFormat">Remaining</label>
                               <input
                                     type='number'
                                     id='cracked'
                                     class='form-control'
-                                    formControlName="cracked"
+                                    formControlName="remaining"
                                 >
                           </div>
                         </div>
@@ -201,11 +201,10 @@
 <h2>Tasks Cracking this hashlist</h2>
 <div class="table-responsive">
   &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
+    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
       <thead class="thead-light">
         <tr>
             <th class="border-0 rounded-start">ID</th>
-            <th class="border-0">Color</th>
             <th class="border-0">Name</th>
             <th class="border-0">Dispatched</th>
             <th class="border-0">Searched</th>
@@ -213,8 +212,19 @@
         </tr>
         </thead>
         <tbody>
-        <tr >
-
+        <tr *ngFor="let t of alltasks">
+          <td>
+            <span [ngClass]="!t.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': t.color }">{{ t.taskId }}</span>
+          </td>
+          <td>
+            {{ t.taskName }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',t.taskId,'edit']" title="Show Task">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+          <td>{{ loadchunks | tdispatched:t.taskId:t.keyspace | percent}}</td>
+          <td>{{ loadchunks | tdsearched:t.taskId:t.keyspace | percent}}</td>
+          <td>{{ loadchunks | tdcracked:t.taskId }}</td>
         </tr>
       </tbody>
     </table>

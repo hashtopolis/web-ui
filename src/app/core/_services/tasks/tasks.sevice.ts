@@ -14,6 +14,11 @@ export class TasksService {
 
   constructor(private http: HttpClient) { }
 
+/**
+ * Returns all the tasks
+ * @param routerParams - to include multiple options such as Max number of results or filtering
+ * @returns  Object
+**/
   getAlltasks(routerParams?: Params):Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
@@ -25,6 +30,11 @@ export class TasksService {
     );
   }
 
+/**
+ * Returns an specific task
+ * @param id - taskId
+ * @returns  Object
+**/
   getTask(id:number):Observable<any> {
     return this.http.get(this.endpoint +'/'+ id)
     .pipe(
@@ -32,10 +42,20 @@ export class TasksService {
     );
   }
 
+/**
+ * Deletes a task
+ * @param id - task id
+ * @returns Object
+**/
   deleteTask(id:number):Observable<any> {
     return this.http.delete(this.endpoint +'/'+ id);
   }
 
+/**
+ * create task information
+ * @param arr - fields
+ * @returns Object
+**/
   createTask(arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
     .pipe(
@@ -43,6 +63,12 @@ export class TasksService {
     );
   }
 
+/**
+ * Update task information
+ * @param id - agent id
+ * @param arr - fields to be updated
+ * @returns Object
+**/
   updateTask(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
     .pipe(
@@ -50,11 +76,18 @@ export class TasksService {
     );
   }
 
+/**
+ * Update agent information
+ * @param id - agent id
+ * @param arr - fields to be updated
+ * @returns Object
+**/
   archiveTask(id: number): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, {isArchived: true})
     .pipe(
       tap(data => console.log('All: ', JSON.stringify(data)))
     );
   }
+
 
 }

@@ -7,6 +7,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { interval, Subject, Subscription } from 'rxjs';
 
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
+import { ChunkService } from 'src/app/core/_services/chunks.service';
 
 declare let $:any;
 
@@ -39,7 +40,8 @@ export class ShowTasksComponent implements OnInit {
     this.dtTrigger.unsubscribe();
   }
 
-  alltasks: any = [];
+  alltasks: any = []; //Change to Interface
+  loadchunks: any; //Change to Interface
   isArchived: boolean;
   whichView: string;
 
@@ -47,6 +49,7 @@ export class ShowTasksComponent implements OnInit {
 
   constructor(
     private tasksService: TasksService,
+    private chunkService: ChunkService,
     private route:ActivatedRoute,
     private router: Router
     ) { }
@@ -68,7 +71,7 @@ export class ShowTasksComponent implements OnInit {
       }
 
     this.getTasks()
-    this.updateSubscription = interval(300000).subscribe(
+    this.updateSubscription = interval(600000).subscribe(
         (val) => { this.getTasks()});
 
     const self = this;
@@ -183,7 +186,15 @@ export class ShowTasksComponent implements OnInit {
 
     this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
       this.alltasks = tasks.values;
+      this.loadChunks();
       this.dtTrigger.next(null);
+    });
+  }
+
+  loadChunks(){
+    let params = {'maxResults': 999999999};
+    this.chunkService.getChunks(params).subscribe((c: any)=>{
+      this.loadchunks = c;
     });
   }
 

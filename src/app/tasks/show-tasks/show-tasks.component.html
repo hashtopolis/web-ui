@@ -57,8 +57,9 @@
                       <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
                     </a>
                   </td>
-                  <td>{{ task.keyspace }}/ {{ task.keyspaceProgress }}</td>
-                  <td>{{ task.taskId }}</td>
+                  <td *ngIf="task.keyspace>0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}}/ {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
+                  <td *ngIf="task.keyspace==0"></td>
+                  <td>{{ loadchunks | tdcracked:task.taskId }}</td>
                   <td>{{ task.maxAgents }}</td>
                   <td>{{ task.priority }}</td>
                   <td>{{ task.maxAgents }}</td>

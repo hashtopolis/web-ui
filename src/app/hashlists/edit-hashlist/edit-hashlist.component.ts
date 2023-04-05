@@ -1,4 +1,4 @@
-import { faHomeAlt, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faHomeAlt, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import { StaticArrayPipe } from 'src/app/core/_pipes/static-array.pipe';
 import { Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -9,8 +9,10 @@ import { Observable, Subject } from 'rxjs';
 
 import { environment } from './../../../environments/environment';
 import { HashtypeService } from '../../core/_services/hashtype.service';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
 import { AccessGroupsService } from '../../core/_services/accessgroups.service';
+import { ChunkService } from 'src/app/core/_services/chunks.service';
 
 @Component({
   selector: 'app-edit-hashlist',
@@ -22,6 +24,7 @@ export class EditHashlistComponent implements OnInit {
   editedHashlistIndex: number;
   editedHashlist: any // Change to Model
 
+  faEye=faEye;
   faHome=faHomeAlt;
   faInfoCircle=faInfoCircle;
   isLoading = false;
@@ -35,7 +38,9 @@ export class EditHashlistComponent implements OnInit {
   constructor(
     private accessgroupService:AccessGroupsService,
     private hashtypeService: HashtypeService,
+    private chunkService: ChunkService,
     private listsService: ListsService,
+    private tasksService: TasksService,
     private format: StaticArrayPipe,
     private route: ActivatedRoute,
     private router: Router
@@ -43,6 +48,8 @@ export class EditHashlistComponent implements OnInit {
 
   updateForm: FormGroup
   accessgroup: any //Change to Interface
+  alltasks: any; //Change to Interface
+  loadchunks: any; //Change to Interface
   private maxResults = environment.config.prodApiMaxResults;
 
 
@@ -64,6 +71,7 @@ export class EditHashlistComponent implements OnInit {
       'format': new FormControl({value: '', disabled: true}),
       'hashCount': new FormControl({value: '', disabled: true}),
       'cracked': new FormControl({value: '', disabled: true}),
+      'remaining': new FormControl({value: '', disabled: true}),
       'updateData': new FormGroup({
         'name': new FormControl(''),
         'notes': new FormControl(''),
@@ -80,23 +88,6 @@ export class EditHashlistComponent implements OnInit {
     this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
     });
-
-    this.dtOptions[0] = {
-      dom: 'Bfrtip',
-      scrollY: "700px",
-      scrollCollapse: true,
-      paging: false,
-      autoWidth: false,
-      // destroy: true,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-       buttons:[]
-      }
-    }
 
   }
 
@@ -149,6 +140,7 @@ export class EditHashlistComponent implements OnInit {
     let params = {'maxResults': this.maxResults};
     this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
       this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
+        this.getTasks();
         let hashtypeDesc = htypes.values.find(element => element.hashTypeId === 11)
         this.editedHashlist = result;
         this.updateForm = new FormGroup({
@@ -159,6 +151,7 @@ export class EditHashlistComponent implements OnInit {
           'format': new FormControl(this.format.transform(result['format'],'formats')),
           'hashCount': new FormControl(result['hashCount']),
           'cracked': new FormControl(result['cracked']),
+          'remaining': new FormControl(result['hashCount'] - result['cracked']),
           'updateData': new FormGroup({
             'name': new FormControl(result['name']),
             'notes': new FormControl(result['notes']),
@@ -171,6 +164,48 @@ export class EditHashlistComponent implements OnInit {
       });
     });
    }
+  }
+
+  getTasks():void {
+    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
+    var taskh = []
+    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+      for(let i=0; i < tasks.values.length; i++){
+        let match = tasks.values[i].hashlist.hashlistId == this.editedHashlistIndex;
+        if(match === true){
+          taskh.push(tasks.values[i])
+        }
+      }
+      this.alltasks = taskh;
+      this.loadChunks();
+
+      this.dtOptions[0] = {
+        dom: 'Bfrtip',
+        scrollY: "700px",
+        scrollCollapse: true,
+        paging: false,
+        autoWidth: false,
+        // destroy: true,
+        buttons: {
+            dom: {
+              button: {
+                className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+              }
+            },
+         buttons:[]
+        }
+      }
+
+      this.dtTrigger.next(null);
+
+    });
+  }
+
+  loadChunks(){
+    let params = {'maxResults': 999999999};
+    this.chunkService.getChunks(params).subscribe((c: any)=>{
+      this.loadchunks = c;
+    });
   }
 
   // @HostListener allows us to also guard against browser refresh, close, etc.
@@ -189,6 +224,5 @@ export class EditHashlistComponent implements OnInit {
   }
 
 }
-
 
 
