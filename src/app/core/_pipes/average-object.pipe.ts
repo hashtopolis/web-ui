@@ -26,7 +26,7 @@ export class AveragePipe implements PipeTransform {
 
       var arr = [];
       for(let i=0; i < value.length; i++){
-        arr.push(+value[i][name]);
+        arr.push(Number(value[i][name]));
       }
       var sum = arr.reduce((a, i) => a + i, 0);
       var avg = (Math.round(sum / value.length).toFixed(1)) || 0;

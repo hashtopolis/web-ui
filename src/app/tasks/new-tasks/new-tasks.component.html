@@ -51,11 +51,11 @@
                             <label class="form-label requiredak" for="gethashlistId">Hashlist</label>
                             <select
                                    type='number'
-                                   id='hashlistId'
+                                   id='hashlist'
                                    class='form-select'
                                    formControlName="hashlistId"
                                 >
-                                <option *ngFor="let ah of allhashlists" [ngValue]="ah.hashlistId">{{ ah.name }}</option>
+                                <option [ngValue]=""></option>
                             </select>
                         </div>
                       </div>
@@ -166,7 +166,6 @@
                                             id="chunkTime"
                                             class='form-control'
                                             formControlName="chunkTime"
-                                            validateInputNumber
                                       >
                                   </div>
                                 </div>
@@ -421,11 +420,11 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getusePreprocessor">Set Preprocessor</label>
-                                      <span *ngIf="tasktip.usePreprocessor">
+                                      <label class="form-label" for="getpreprocessorId">Set Preprocessor</label>
+                                      <span *ngIf="tasktip.preprocessorId">
                                         <fa-icon
                                                 placement="bottom"
-                                                ngbTooltip='{{tasktip.usePreprocessor}}'
+                                                ngbTooltip='{{tasktip.preprocessorId}}'
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
@@ -434,11 +433,11 @@
                                       </span>
                                       <select
                                             type='number'
-                                            id='usePreprocessor'
+                                            id='preprocessorId'
                                             class='form-select'
-                                            formControlName="usePreprocessor"
+                                            formControlName="preprocessorId"
                                           >
-                                          <option [ngValue]="false" [defaultSelected]=true>No</option>
+                                          <option [ngValue]="0" [defaultSelected]=true>No</option>
                                           <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
                                       </select>
                                   </div>
@@ -451,7 +450,7 @@
                                   <div class="form-outline">
                                       <label class="form-label" for="getPreprocessorCommand">
                                         Preprocessor command
-                                        <span *ngIf="createForm.controls['usePreprocessor'].value !== false" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
+                                        <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
                                       </label>
                                       <textarea
                                             type='text'
@@ -489,7 +488,7 @@
                         <thead class="thead-light">
                           <tr>
                               <th class="border-0 rounded-start">
-                                T<a *ngIf="createForm.controls['usePreprocessor'].value !== false">|P
+                                T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
                                   <fa-icon
                                           placement="bottom"
                                           ngbTooltip='T: Task, P: Preprocessor'
@@ -509,10 +508,10 @@
                                 <form [formGroup]="createForm" novalidate>
                                   <!-- Main attack checkbox -->
                                   <div class="form-check" >
-                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['usePreprocessor'].value !== false">T</a>
+                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
                                   </div>
                                   <!-- Preprocessor checkbox -->
-                                  <div  class="form-check" *ngIf="createForm.controls['usePreprocessor'].value !== false" >
+                                  <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
                                     <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
                                   </div>
                                 </form>
@@ -552,11 +551,11 @@
                 <ng-template ngbNavContent>
                   <div class="table-responsive">
                     &nbsp;
-                      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" >
+                      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]">
                         <thead class="thead-light">
                           <tr>
                               <th class="border-0 rounded-start">
-                                T<a *ngIf="createForm.controls['usePreprocessor'].value !== false">|P
+                                T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
                                   <fa-icon
                                           placement="bottom"
                                           ngbTooltip='T: Task, P: Preprocessor'
@@ -576,10 +575,10 @@
                                 <form [formGroup]="createForm" novalidate>
                                   <!-- Main attack checkbox -->
                                   <div class="form-check" >
-                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['usePreprocessor'].value !== false">T</a>
+                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
                                   </div>
                                   <!-- Preprocessor checkbox -->
-                                  <div  class="form-check" *ngIf="createForm.controls['usePreprocessor'].value !== false" >
+                                  <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
                                     <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
                                   </div>
                                 </form>
@@ -623,7 +622,7 @@
                         <thead class="thead-light">
                           <tr>
                               <th class="border-0 rounded-start">
-                                T<a *ngIf="createForm.controls['usePreprocessor'].value !== false">|P
+                                T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
                                   <fa-icon
                                           placement="bottom"
                                           ngbTooltip='T: Task, P: Preprocessor'
@@ -643,10 +642,10 @@
                                 <form [formGroup]="createForm" novalidate>
                                   <!-- Main attack checkbox -->
                                   <div class="form-check" >
-                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['usePreprocessor'].value !== false">T</a>
+                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
                                   </div>
                                   <!-- Preprocessor checkbox -->
-                                  <div  class="form-check" *ngIf="createForm.controls['usePreprocessor'].value !== false" >
+                                  <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
                                     <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
                                   </div>
                                 </form>

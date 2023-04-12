@@ -16,6 +16,7 @@ import { SearchHashComponent } from "./search-hash/search-hash.component";
 import { ShowCracksComponent } from "./show-cracks/show-cracks.component";
 import { HashlistRoutingModule } from "./hashlists-routing.module";
 import { HashlistComponent } from "./hashlist/hashlist.component";
+import { HashesComponent } from './hashes/hashes.component';
 
 @NgModule({
   declarations:[
@@ -25,7 +26,8 @@ import { HashlistComponent } from "./hashlist/hashlist.component";
     NewHashlistComponent,
     SearchHashComponent,
     ShowCracksComponent,
-    HashlistComponent
+    HashlistComponent,
+    HashesComponent
   ],
   imports:[
     HashlistRoutingModule,

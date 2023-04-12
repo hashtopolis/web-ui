@@ -133,7 +133,7 @@ export class AppComponent implements OnInit{
     const uisData = JSON.parse(localStorage?.getItem('uis'));
     let timeoutidle = 1;
     if(uisData !== null){
-      timeoutidle = +uisData.find(o => o.name === 'maxSessionLength').value*60*60; //Convert max session hours to seconds
+      timeoutidle = Number(uisData.find(o => o.name === 'maxSessionLength').value*60*60); //Convert max session hours to seconds
     }
     return timeoutidle;
   }

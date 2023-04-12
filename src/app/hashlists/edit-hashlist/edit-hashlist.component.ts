@@ -139,14 +139,12 @@ export class EditHashlistComponent implements OnInit {
     if (this.editMode) {
     let params = {'maxResults': this.maxResults};
     this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
-      this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
         this.getTasks();
-        let hashtypeDesc = htypes.values.find(element => element.hashTypeId === 11)
+        this.getHashtype();
         this.editedHashlist = result;
         this.updateForm = new FormGroup({
           'hashlistId': new FormControl(result['hashlistId']),
           'accessGroupId': new FormControl(result['accessGroupId']),
-          'hashTypeId': new FormControl(hashtypeDesc.description),
           'useBrain': new FormControl(result['useBrain'] == 0 ? 'Yes' : 'No'),
           'format': new FormControl(this.format.transform(result['format'],'formats')),
           'hashCount': new FormControl(result['hashCount']),
@@ -161,9 +159,23 @@ export class EditHashlistComponent implements OnInit {
           }),
        });
        this.isLoading = false;
-      });
     });
    }
+  }
+
+  hashT: any;
+  getHashtype(){
+    let params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedHashlistIndex+''}
+    let paramsh = {'maxResults': this.maxResults};
+    var matchObject =[]
+    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+      this.hashtypeService.getHashTypes(paramsh).subscribe((htypes: any) => {
+        this.hashT = tasks.values.map(mainObject => {
+          matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
+        return { ...mainObject, ...matchObject }
+        })
+      })
+    })
   }
 
   getTasks():void {

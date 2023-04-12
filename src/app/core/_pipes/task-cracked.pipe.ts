@@ -22,11 +22,7 @@ export class TaskCrackedPipe implements PipeTransform {
 
     let ch = obj.values?.filter(u=> u.taskId == id);
 
-    console.log(ch)
-
     var searched = []
-
-    console.log(obj)
 
     for(let i=0; i < ch.length; i++){
         searched.push(ch[i].cracked);

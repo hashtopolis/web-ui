@@ -10,6 +10,7 @@ import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
 import { SearchHashComponent } from "./search-hash/search-hash.component";
 import { ShowCracksComponent } from "./show-cracks/show-cracks.component";
 import { HashlistComponent } from "./hashlist/hashlist.component";
+import { HashesComponent } from "./hashes/hashes.component";
 
 const routes: Routes = [
   {
@@ -57,6 +58,27 @@ const routes: Routes = [
         data: {
             kind: 'new-superhashlist',
             breadcrumb: 'New Super Hashlist'
+        },
+        canActivate: [AuthGuard]},
+      {
+        path: 'hashes/tasks/:id', component: HashesComponent,
+        data: {
+            kind: 'task-hashes',
+            breadcrumb: 'Task Hashes'
+        },
+        canActivate: [AuthGuard]},
+      {
+        path: 'hashes/hashlist/:id', component: HashesComponent,
+        data: {
+            kind: 'hashlist-hashes',
+            breadcrumb: 'Hashlist Hashes'
+        },
+        canActivate: [AuthGuard]},
+      {
+        path: 'hashes/chunks/:id', component: HashesComponent,
+        data: {
+            kind: 'chunks-hashes',
+            breadcrumb: 'Chunks Hashes'
         },
         canActivate: [AuthGuard]},
       {

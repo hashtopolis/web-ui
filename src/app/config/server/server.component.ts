@@ -187,7 +187,7 @@ export class ServerComponent implements OnInit {
         'hideIpInfo': new FormControl(result.values.find(obj => obj.item === 'hideIpInfo').value === '0' ? false: true),
         'voucherDeletion': new FormControl((result.values.find(obj => obj.item === 'voucherDeletion').value) === '0' ? false: true),
         'agentStatLimit': new FormControl(result.values.find(obj => obj.item === 'agentStatLimit').value),
-        'agentStatTension': new FormControl(+result.values.find(obj => obj.item === 'agentStatTension').value),
+        'agentStatTension': new FormControl(Number(result.values.find(obj => obj.item === 'agentStatTension').value)),
         'agentTempThreshold1': new FormControl(result.values.find(obj => obj.item === 'agentTempThreshold1').value),
         'agentTempThreshold2': new FormControl(result.values.find(obj => obj.item === 'agentTempThreshold2').value),
         'agentUtilThreshold1': new FormControl(result.values.find(obj => obj.item === 'agentUtilThreshold1').value),

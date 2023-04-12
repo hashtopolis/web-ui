@@ -276,9 +276,9 @@ export class EditSupertasksComponent implements OnInit {
               unknown_runtime_included = 1;
               runtime = "Unknown";
           } else if (options.attackType === 3) {
-              seconds = Math.floor(+keyspace_size / +benchmarka3);
+              seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
           } else if (options.attackType === 0) {
-              seconds = Math.floor(+keyspace_size / +benchmarka0);
+              seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
           }
 
           if (Number.isInteger(seconds)) {

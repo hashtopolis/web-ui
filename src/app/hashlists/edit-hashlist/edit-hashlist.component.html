@@ -101,13 +101,11 @@
                     <hr>
                     &nbsp;
                     <div class="form-group">
-                      <div class="form-outline">
+                      <div *ngFor="let h of hashT" class="form-outline">
                            <label class="form-label" for="getHashTypeId">Hash Type</label>
-                           <input
-                                id='hashTypeId'
-                                class='form-control'
-                                formControlName="hashTypeId"
-                           >
+                            <span class="pre input-group-text input-group-lg">
+                              {{ h[0].description }}
+                            </span>
                       </div>
                     </div>
                     &nbsp;

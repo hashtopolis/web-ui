@@ -46,13 +46,13 @@ export class NewHashlistComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-     private hlService: ListsService,
+     private accessgroupService: AccessGroupsService,
      private _changeDetectorRef: ChangeDetectorRef,
      private hashtypeService: HashtypeService,
-     private accessgroupService: AccessGroupsService,
-     private uiService: UIConfigService,
-     private router: Router,
      private uploadService:UploadTUSService,
+     private uiService: UIConfigService,
+     private hlService: ListsService,
+     private router: Router
      ) { }
 
   ngOnInit(): void {
@@ -93,34 +93,40 @@ export class NewHashlistComponent implements OnInit {
 
     this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
       var self = this;
-      var response = htypes.values;
+      var prep = htypes.values;
+      var response = [];
+      for(let i=0; i < prep.length; i++){
+        const obj = { hashTypeId: prep[i].hashTypeId, descrId: prep[i].hashTypeId +' '+prep[i].description };
+        response.push(obj)
+      }
       ($("#hashtype") as any).selectize({
         plugins: ['remove_button'],
         valueField: "hashTypeId",
         placeholder: "Search hashtype...",
-        labelField: "description",
-        searchField: ["description"],
+        labelField: "descrId",
+        searchField: ["descrId"],
         loadingClass: 'Loading..',
         highlight: true,
         onChange: function (value) {
-            self.OnChangeValue(value); // We need to overide DOM event, Angular vs Jquery
+            self.OnChangeValue(value);
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.hashTypeId) + ' -  ' + escape(item.description) + '</div>';
+            console.log(item);
+            return '<div  class="hashtype_selectize">' + escape(item.descrId) + '</div>';
           },
         },
         onInitialize: function(){
           var selectize = this;
-            selectize.addOption(response); // This is will add to option
+            selectize.addOption(response);
             var selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
-            selectize.setValue(selected_items); //this will set option values as default
+            selectize.setValue(selected_items);
           }
           });
-        });
+      });
 
     }
 

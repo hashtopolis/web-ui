@@ -46,7 +46,6 @@ export class NewTasksComponent implements OnInit {
   copyMode = false;
   editedIndex: number;
   whichView: string;
-  allhashlists: any;  // ToDo change to interface
   prep: any;  // ToDo change to interface
   crackertype: any;  // ToDo change to interface
   crackerversions: any = [];
@@ -73,10 +72,10 @@ export class NewTasksComponent implements OnInit {
     private preTasksService: PreTasksService,
     private crackerService: CrackerService,
     private tooltipService: TooltipService,
+    private filesService: FilesService,
     private uiService: UIConfigService,
     private taskService: TasksService,
     private listsService:ListsService,
-    private filesService: FilesService,
     private route:ActivatedRoute,
     private router: Router,
   ) { }
@@ -225,7 +224,6 @@ export class NewTasksComponent implements OnInit {
       scrollCollapse: true,
       paging: false,
       autoWidth: false,
-      // destroy: true,
       buttons: {
           dom: {
             button: {
@@ -275,8 +273,8 @@ export class NewTasksComponent implements OnInit {
       'attackCmd': new FormControl(this.uiService.getUIsettings('hashlistAlias').value, [Validators.required, this.forbiddenChars(this.getBanChars())]),
       'priority': new FormControl(null || this.priority,[Validators.required, Validators.pattern("^[0-9]*$")]),
       'maxAgents': new FormControl(null || this.maxAgents),
-      'chunkTime': new FormControl(null || this.uiService.getUIsettings('chunktime').value),
-      'statusTimer': new FormControl(null || this.uiService.getUIsettings('statustimer').value),
+      'chunkTime': new FormControl(null || Number(this.uiService.getUIsettings('chunktime').value)),
+      'statusTimer': new FormControl(null || Number(this.uiService.getUIsettings('statustimer').value)),
       'color': new FormControl(''),
       'isCpuTask': new FormControl(null || false),
       'skipKeyspace': new FormControl(null || 0),
@@ -286,7 +284,7 @@ export class NewTasksComponent implements OnInit {
       'staticChunks': new FormControl(null || 0),
       'chunkSize': new FormControl(null || this.chunkSize),
       'forcePipe': new FormControl(null || false),
-      'usePreprocessor': new FormControl(null || false),
+      'preprocessorId': new FormControl(null || 0),
       'preprocessorCommand': new FormControl(''),
       'isSmall': new FormControl(null || false),
       'useNewBench': new FormControl(null || true),
@@ -317,10 +315,6 @@ export class NewTasksComponent implements OnInit {
     let params_prep = {'maxResults': this.maxResults }
     let params_crack = {'filter': 'crackerBinaryTypeId=1'};
     let params_f = {'maxResults': this.maxResults, 'expand': 'accessGroup'}
-
-    await this.listsService.getAllhashlists(params).subscribe((list: any) => {
-      this.allhashlists = list.values;
-    });
 
     await this.crackerService.getCrackerType().subscribe((crackers: any) => {
       this.crackertype = crackers.values;
@@ -361,11 +355,51 @@ export class NewTasksComponent implements OnInit {
     },2000);
     this.dtTrigger.next(null);
 
+    let params = {'maxResults': this.maxResults};
+
+    this.listsService.getAllhashlists(params).subscribe((hlist: any) => {
+      var self = this;
+      var response = hlist.values;
+      ($("#hashlist") as any).selectize({
+        plugins: ['remove_button'],
+        valueField: "hashlistId",
+        placeholder: "Search hashlist...",
+        labelField: "name",
+        searchField: ["name"],
+        loadingClass: 'Loading...',
+        highlight: true,
+        onChange: function (value) {
+          self.OnChangeHashlist(value);
+        },
+        render: {
+          option: function (item, escape) {
+            return '<div  class="hashtype_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
+          },
+        },
+        onInitialize: function(){
+          var selectize = this;
+            selectize.addOption(response);
+            var selected_items = [];
+            $.each(response, function( i, obj) {
+                selected_items.push(obj.id);
+            });
+            selectize.setValue(selected_items);
+          }
+          });
+      });
+
   }
 
   OnChangeValue(value){
     this.createForm.patchValue({
       color: value
+    });
+    this._changeDetectorRef.detectChanges();
+  }
+
+  OnChangeHashlist(value){
+    this.createForm.patchValue({
+      hashlistId: Number(value)
     });
     this._changeDetectorRef.detectChanges();
   }
@@ -435,7 +469,7 @@ export class NewTasksComponent implements OnInit {
         'staticChunks': new FormControl(null || 0),
         'chunkSize': new FormControl(null || this.chunkSize),
         'forcePipe': new FormControl(null || false),
-        'usePreprocessor': new FormControl(null || false),
+        'preprocessorId': new FormControl(null || false),
         'preprocessorCommand': new FormControl(''),
         'files': new FormControl(result['files'], Validators.required),
       });
@@ -469,7 +503,7 @@ export class NewTasksComponent implements OnInit {
         'staticChunks': new FormControl(null || 0),
         'chunkSize': new FormControl(null || this.chunkSize),
         'forcePipe': new FormControl(null || false),
-        'usePreprocessor': new FormControl(null || false),
+        'preprocessorId': new FormControl(null || false),
         'preprocessorCommand': new FormControl(''),
         'files': new FormControl(result['files'], Validators.required),
       });

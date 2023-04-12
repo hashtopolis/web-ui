@@ -15,7 +15,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
       skipKeyspace: 'skipKeyspace level 0',
       isCpuTask: 'Task is assigned only to CPU agents',
       isSmall: 'Only one agent is assigned to the task',
-      usePreprocessor: 'Preprocessor Level 0',
+      preprocessorId: 'Preprocessor Level 0',
       staticChunks: 'Static chunk level 0',
       forcePipe: 'To apply rules before reject',
     },
@@ -26,7 +26,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
       skipKeyspace: 'skipKeyspace level 1',
       isCpuTask: 'Task is assigned only to CPU agents',
       isSmall: 'Only one agent is assigned to the task',
-      usePreprocessor: 'Preprocessor Level 1',
+      preprocessorId: 'Preprocessor Level 1',
       staticChunks: 'Static chunk level 1',
       forcePipe: 'To apply rules before reject'
     },
@@ -37,7 +37,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
       useNewBench: 'Exhaustive infomation',
       isCpuTask: 'Task is assigned only to CPU agents',
       isSmall: 'Only one agent is assigned to the task',
-      usePreprocessor: 'Preprocessor Level 2',
+      preprocessorId: 'Preprocessor Level 2',
       staticChunks: 'Static chunk level 2',
       forcePipe: 'To apply rules before reject'
     }

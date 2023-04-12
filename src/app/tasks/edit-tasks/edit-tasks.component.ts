@@ -14,12 +14,12 @@ import * as echarts from 'echarts/core';
 
 import { ChunkService } from '../../core/_services/chunks.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
+import { HashtypeService } from 'src/app/core/_services/hashtype.service';
 import { AgentsService } from '../../core/_services/agents/agents.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
 import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
-
 
 @Component({
   selector: 'app-edit-tasks',
@@ -38,6 +38,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   isLoading = false;
 
   constructor(
+    private hashtypeService: HashtypeService,
     private crackerService: CrackerService,
     private agentsService: AgentsService,
     private hashesService: HashesService,
@@ -146,8 +147,9 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.crackerService.getCrackerBinary(result['crackerBinaryId']).subscribe((val) => {
         this.crackerinfo = val;
       });
+      this.getHashlist();
       this.tkeyspace = result['keyspace'];
-      this.tusepreprocessor = result['usePreprocessor'];
+      this.tusepreprocessor = result['preprocessorId'];
       this.updateForm = new FormGroup({
         'taskId': new FormControl(result['taskId']),
         'forcePipe': new FormControl(result['forcePipe']== true? 'Yes':'No'),
@@ -161,7 +163,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
           'attackCmd': new FormControl(result['attackCmd']),
           'notes': new FormControl(result['notes']),
           'color': new FormControl(result['color']),
-          'chunkTime': new FormControl(result['chunkTime']),
+          'chunkTime': new FormControl(Number(result['chunkTime'])),
           'statusTimer': new FormControl(result['statusTimer']),
           'priority': new FormControl(result['priority']),
           'maxAgents': new FormControl(result['maxAgents']),
@@ -336,6 +338,22 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.rerender();
     });
   }
+// Get HashList Information
+hashL: any;
+
+getHashlist(){
+  let params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedTaskIndex+''}
+  let paramsh = {'maxResults': this.maxResults};
+  var matchObject =[]
+  this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+    this.hashtypeService.getHashTypes(paramsh).subscribe((htypes: any) => {
+      this.hashL = tasks.values.map(mainObject => {
+        matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
+      return { ...mainObject, ...matchObject }
+      })
+    })
+  })
+}
 
 // Task Speed Graph
 getTaskSpeed(){
@@ -386,7 +404,6 @@ initTaskSpeed(obj: Object){
   var startdate =  Math.max(...max);
   var datelabel = this.transDate(startdate);
   var xAxis = this.generateIntervalsOf(5,+startdate-50,+startdate);
-  console.log(xAxis)
 
   var chartDom = document.getElementById('tspeed')!;
   var myChart = echarts.init(chartDom);
@@ -501,7 +518,6 @@ initTaskSpeed(obj: Object){
  generateIntervalsOf(interval, start, end) {
     const result = [];
     let current = start;
-    console.log(start)
 
     while (current < end) {
       result.push(current);

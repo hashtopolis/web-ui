@@ -351,11 +351,12 @@
           </div>
           <hr>
           <div class="form-group">
-            <div class="form-outline">
-                <label class="form-label" for="getTaskId">Hashlist</label>
+            <div *ngFor="let h of hashL" class="form-outline">
+                <label *ngIf="h.hashlist.format ===0" class="form-label" for="getTaskId">Hashlist</label>
+                <label *ngIf="h.hashlist.format ===3" class="form-label" for="getTaskId">Superhaslist</label>
                 <td>
-                  Missing API
-                  <!-- GetFormat === 3 then Superhaslist else Hashlist -->
+                  <fa-icon [icon]="faEye" [routerLink]="['/hashlists/hashlist', h.hashlist.hashlistId,'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
+                  {{ h.hashlist.name }} {{ h[0].description }}
             </div>
           </div>
           &nbsp;
@@ -369,7 +370,6 @@
                   <small>Name</small>: {{ crackerinfo['binaryName'] | lowercase | titlecase }}<br>
                   <small>Version</small>: {{ crackerinfo['version'] }}
                 </div>
-                <!-- {{ crackerinfo['binaryName'] }} -->
             </div>
             &nbsp;
           </div>

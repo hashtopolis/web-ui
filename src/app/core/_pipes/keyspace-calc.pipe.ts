@@ -34,7 +34,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
       var mpow = 0;
       if(value.length !== 0){
         for(let i=0; i < value.length; i++){
-          arr.push(+value[i][name]);
+          arr.push(Number(value[i][name]));
         }
         mpow = arr.reduce((a, i) => a * i);
       }
