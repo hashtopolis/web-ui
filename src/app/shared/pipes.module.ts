@@ -21,6 +21,7 @@ import { FileSizePipe } from "../core/_pipes/file-size.pipe";
 import { FileTypePipe } from "../core/_pipes/file-type.pipe";
 import { GroupByPipe } from "../core/_pipes/groupby.pipe";
 import { SplitPipe } from "../core/_pipes/split.pipe";
+import { HashesFilterPipe } from "../core/_pipes/hashes-filter.pipe";
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { SplitPipe } from "../core/_pipes/split.pipe";
     WarningColorPipe,
     KeyspaceCalcPipe,
     TaskSearchedPipe,
+    HashesFilterPipe,
     StaticArrayPipe,
     AgentSColorPipe,
     TaskCrackedPipe,
@@ -49,13 +51,13 @@ import { SplitPipe } from "../core/_pipes/split.pipe";
   exports: [
     HealthCheckStatusPipe,
     TaskDispatchedPipe,
-
     ReplaceStringPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
     KeyspaceCalcPipe,
     TaskSearchedPipe,
+    HashesFilterPipe,
     StaticArrayPipe,
     AgentSColorPipe,
     TaskCrackedPipe,

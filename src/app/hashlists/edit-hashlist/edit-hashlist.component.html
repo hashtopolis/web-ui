@@ -222,7 +222,12 @@
           </td>
           <td>{{ loadchunks | tdispatched:t.taskId:t.keyspace | percent}}</td>
           <td>{{ loadchunks | tdsearched:t.taskId:t.keyspace | percent}}</td>
-          <td>{{ loadchunks | tdcracked:t.taskId }}</td>
+          <td>
+            {{ loadchunks | tdcracked:t.taskId }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','tasks',t.taskId]" title="Show Hashes">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>

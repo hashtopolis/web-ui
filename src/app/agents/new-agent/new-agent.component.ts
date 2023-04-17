@@ -1,6 +1,6 @@
+import { faTrash, faDownload, faInfoCircle, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject } from 'rxjs';
-import { faTrash, faDownload, faInfoCircle, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
 import { environment } from './../../../environments/environment';

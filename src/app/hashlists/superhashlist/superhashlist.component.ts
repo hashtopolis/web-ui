@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { faEdit, faTrash,faFileImport, faFileExport, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash,faFileImport, faFileExport, faPlus, faLock } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
 import { Subject } from 'rxjs';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -13,6 +13,7 @@ import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashl
 })
 export class SuperhashlistComponent implements OnInit {
   faEdit=faEdit;
+  faLock=faLock;
   faTrash=faTrash;
   faFileImport=faFileImport;
   faFileExport=faFileExport;

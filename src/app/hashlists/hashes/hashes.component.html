@@ -2,88 +2,93 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
   <div class="d-block mb-4 mb-md-0">
       <div [ngSwitch]="whichView">
-        <div *ngSwitchCase="'chunks-hashes'">
+        <div *ngSwitchCase="'chunks'">
           <h2 class="h4">Hashes of chunk <b>Name</b></h2>
-          <p class="mb-0">Manage and customize agent settings.</p>
         </div>
-        <div *ngSwitchCase="'task-hashes'">
+        <div *ngSwitchCase="'tasks'">
           <h2 class="h4">Hashes of task <b>Name</b></h2>
-          <p class="mb-0">Manage and customize task and chunk settings.</p>
         </div>
-        <div *ngSwitchCase="'hashlist-hashes'">
+        <div *ngSwitchCase="'hashlist'">
           <h2 class="h4">Hashes of hashlist <b>Name</b></h2>
-          <p class="mb-0">Manage and customize Hashes, Cracks and Haslist settings.</p>
         </div>
       </div>
   </div>
 </div>
 
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <th>Filter:</th>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <th>Displaying:</th>
-        <td>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <div class="btn-toolbar my-1" style="justify-content: center; display: flex;">
-            <div class='btn-group'>
-              <button class='btn' onclick="window.location='hashes.php?[[src]]=[[srcId]]&filter=[[filtering]]&display=[[displaying]]&page=[[previousPage]]'">[[Util::calculate([[previousPage]]+1)]] &lt;</button>
-              <button class='btn active'>Page [[Util::calculate([[currentPage]]+1)]]</button>
-              <button class='btn' onclick="window.location='hashes.php?[[src]]=[[srcId]]&filter=[[filtering]]&display=[[displaying]]&page=[[nextPage]]'">&gt; [[Util::calculate([[currentPage]]+1)]]</button>
-            </div>
-          </div>
-          <form class='form-inline my-1' style="justify-content: center; display: flex;" action='hashes.php' method='get'>
-            <input type='hidden' name='[[src]]' value='[[srcId]]'>
-            <select name='display' class='form-control' style='float: left;' title="Display Selection">
-            </select>
-
-            <input type="submit" class='form-control mx-1' value="OK">
-          </form>
-          <div class="my-1 text-center">
-
-          </div>
-        </td>
-      </tr>
-    </table>
+<div class="row justify-content-center">
+  <div class="col-12 d-flex align-items-center justify-content-center">
+    <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+      <form [formGroup]="viewForm">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <th>Displaying: </th>
+          <td>
+            <a *ngIf="!displaying">Hash + Plain</a>
+            <a *ngIf="displaying">{{ displayingDescr }}</a>
+          </td>
+        </div>
+        <div class="col-md-6">
+          <th>Filter: </th>
+          <td>
+            <a *ngIf="!filtering">Cracked + Uncracked</a>
+            <a *ngIf="filtering">{{ filteringDescr }}</a>
+          </td>
+        </div>
+      </div>
+      <hr>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <select
+                type='string'
+                class="form-select"
+                (change)="onQueryp(display.value, 0)"
+                formControlName="display"
+                #display
+                >
+                <option *ngFor="let d of displays" [value]="d.name">{{ d.description }}</option>
+          </select>
+        </div>
+        <div *ngIf="whichView != 'tasks'"  class="col-md-4">
+          <select
+                type='string'
+                class="form-select"
+                (change)="onQueryp(filter.value, 1)"
+                formControlName="filter"
+                #filter
+                >
+                <option *ngFor="let f of filters" [value]="f.name">{{ f.description }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-gray-800" (click)="onOK()">Ok</button>
+        </div>
+      </div>
+    </form>
+    </div>
   </div>
-</div>
+</div>&nbsp;
 <!-- Matching Table Section -->
-<h3>Matching hashes: [[count]]</h3>
-<div class="card">
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <tr>
-        <td>
-          <pre style='max-height: 400px;' readonly>[[output]]</pre>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <script type='text/javascript'>
-            function hex2a(hex) {
-              var str = '';
-              for (var i = 0; i < hex.length; i += 2) {
-                str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-              }
-              return str;
-            }
-          </script>
-          HEX convertor:
-          <form class='form-inline' method='get'>
-            $HEX[ <input type="text" class='form-control' id="conv" title="HEX Input"> ] ->
-            <input type="text" class='form-control' id="convr" readonly title="Converted">&nbsp;
-            <button class='btn' onclick="document.getElementById('convr').value=hex2a(document.getElementById('conv').value); return false;">Convert</button>
-          </form>
-        </td>
-      </tr>
-    </table>
-  </div>
-</div>
+<div class="table-responsive">
+  <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+      <thead class="thead-light">
+        <tr>
+          <th class="border-0 rounded-start rounded-end">Matching hashes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let mh of matchHashes">
+          <td>
+              {{ mh | hashesf:displaying:filtering:crackPos }}
+              <fa-icon
+                      class='btn-outline-gray-600'
+                      [icon]="faCopy"
+                      [copyButton]="mh | hashesf:displaying:filtering:crackPos"
+              >
+              </fa-icon>
+          </td>
+        </tr>
+      </tbody>
+  </table>
+</div>&nbsp;
+<app-hexconvertor></app-hexconvertor>
+

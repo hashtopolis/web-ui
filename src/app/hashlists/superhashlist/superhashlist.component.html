@@ -30,24 +30,32 @@
               <tr *ngFor="let sh of allsuperhashlisth">
                   <td>{{ sh.hashlistId }}</td>
                   <td>
-                      <div ngbDropdown container="body">
-                        <button type="button" class="btn btn-sm btn-gray-800 btn-sm" ngbDropdownToggle>Actions</button>
-                        <div ngbDropdownMenu>
-                          <button ngbDropdownItem [routerLink]="[sh.taskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
-                            <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-                          </button>
-                          <button ngbDropdownItem [routerLink]="[sh.taskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
-                            <fa-icon [icon]="faFileExport" aria-hidden="true"></fa-icon> Export
-                          </button>
-                          <button ngbDropdownItem [routerLink]="[sh.taskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to task">
-                            <fa-icon [icon]="faFileImport" aria-hidden="true"></fa-icon> Import
-                          </button>
-                          <div class="dropdown-divider"></div>
-                          <button ngbDropdownItem (click)="onDelete(sh.hashlistId)" data-toggle="tooltip" data-placement="top" title="Delete">
-                            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-                          </button>
-                        </div>
-                      </div>
+                    <a>{{ sh.name }}</a>
+                    <span *ngIf="sh.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+                  </td>
+                  <td>{{ sh.hashType.description }}</td>
+                  <td>
+                    {{ sh.cracked / sh.hashCount | percent }}
+                    (
+                      <a
+                        [routerLink]="['/hashlists/hashes/','hashlist',sh.hashlistId]"
+                        [queryParams]="{cracked: true}"
+                        >{{ sh.cracked }}</a>
+                    /
+                    <a [routerLink]="['/hashlists/hashes/','hashlist',sh.hashlistId]">{{ sh.hashCount }}</a>)
+                  </td>
+                  <td>
+                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists',sh.hashlistId,'copy']" data-toggle="tooltip" data-placement="top" title="Import">
+                      <fa-icon [icon]="faFileExport" aria-hidden="true"></fa-icon>
+                   </a>
+                   <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Export">
+                      <fa-icon [icon]="faFileImport" aria-hidden="true"></fa-icon>
+                   </a>
+                  </td>
+                  <td>
+                   <a class='btn-outline-gray-600 float-right' (click)="onDelete(sh.hashlistId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                      <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                   </a>
                   </td>
               </tr>
               </tbody>

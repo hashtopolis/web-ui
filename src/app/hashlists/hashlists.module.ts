@@ -16,6 +16,7 @@ import { SearchHashComponent } from "./search-hash/search-hash.component";
 import { ShowCracksComponent } from "./show-cracks/show-cracks.component";
 import { HashlistRoutingModule } from "./hashlists-routing.module";
 import { HashlistComponent } from "./hashlist/hashlist.component";
+import { DirectivesModule } from "../shared/directives.module";
 import { HashesComponent } from './hashes/hashes.component';
 
 @NgModule({
@@ -34,6 +35,7 @@ import { HashesComponent } from './hashes/hashes.component';
     ReactiveFormsModule,
     FontAwesomeModule,
     DataTablesModule,
+    DirectivesModule,
     ComponentsModule,
     CommonModule,
     RouterModule,

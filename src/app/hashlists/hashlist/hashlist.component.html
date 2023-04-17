@@ -47,9 +47,13 @@
                   <td>{{ list.format | staticArray:'formats' }}</td>
                   <td>
                       {{ list.cracked / list.hashCount | percent }}
-                      (<a href="path_to_cracked_view">{{ list.cracked }}</a>
+                      (
+                        <a
+                          [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]"
+                          [queryParams]="{filter: 'cracked'}"
+                          >{{ list.cracked }}</a>
                       /
-                      <a>{{ list.hashCount }}</a>)
+                      <a [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]">{{ list.hashCount }}</a>)
                   </td>
                   <td>
                     <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists',list.hashlistId,'copy']" data-toggle="tooltip" data-placement="top" title="Import Hashlist">

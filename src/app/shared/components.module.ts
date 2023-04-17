@@ -3,6 +3,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
+import { HexconvertorComponent } from "./utils/hexconvertor/hexconvertor.component";
 import { FilterTextboxModule } from "./filter-textbox/filter-textbox.module";
 import { TimeoutComponent } from "./alert/timeout/timeout.component";
 import { PaginationModule } from "./pagination/pagination.module";
@@ -14,6 +15,7 @@ import { FormsModule } from "@angular/forms";
 @NgModule({
   declarations: [
     LoadingSpinnerComponent,
+    HexconvertorComponent,
     TimeoutComponent,
     AlertComponent
   ],
@@ -28,6 +30,7 @@ import { FormsModule } from "@angular/forms";
   ],
   exports: [
     LoadingSpinnerComponent,
+    HexconvertorComponent,
     FilterTextboxModule,
     ColorPickerModule,
     PaginationModule,

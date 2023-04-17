@@ -343,9 +343,15 @@
           <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
           <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
           <td>{{ gc.state | staticArray:'states' }}</td>
-          <td>{{ gc.cracked }}</td>
+          <td>
+            {{ gc.cracked }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','tasks',gc.taskId]" title="Show Hashes">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
         </tr>
       </tbody>
     </table>
 </div>
 </section>
+

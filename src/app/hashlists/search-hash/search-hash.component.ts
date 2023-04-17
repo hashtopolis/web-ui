@@ -42,8 +42,6 @@ export class SearchHashComponent implements OnInit {
 
         var index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists']);
 
-        console.log(this.createForm['hashlists'])
-
         this.isLoading = false;
           Swal.fire({
             title: "We've got a match!",

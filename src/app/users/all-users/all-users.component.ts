@@ -26,8 +26,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   }
 
   public allusers: {
-    userId: number,
-    username: string,
+    id: number,
+    name: string,
     registeredSince: number,
     lastLoginDate: number,
     email: string,
@@ -50,7 +50,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   private maxResults = environment.config.prodApiMaxResults
 
   ngOnInit(): void {
-    let params = {'maxResults': this.maxResults, 'expand': 'rightGroup' }
+
+    let params = {'maxResults': this.maxResults, 'expand': 'globalPermissionGroup' }
     this.usersService.getAllusers(params).subscribe((users: any) => {
       this.allusers = users.values;
       this.dtTrigger.next(void 0);
