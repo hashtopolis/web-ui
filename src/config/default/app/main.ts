@@ -1,13 +1,13 @@
 
 export const DEFAULT_CONFIG = {
-  prodApiEndpoint: 'https://crackz.one/api/v2',
+  prodApiEndpoint: 'https://localhost:8080/api/v2',
   prodApiPort: '8080',
-  frontEndUrl: 'https://crackz.one/',
+  frontEndUrl: 'https://localhost:8080',
   prodApiMaxResults: '3000',
   devApiEndpoint: 'http://localhost:3000',
   agentURL: '/api/server.php',
   agentdownloadURL: '/agents.php?download=',
-  appName: 'Hashtopolis V1',
+  appName: 'Hashtopolis',
   favicon: 'assets/img/favicon.ico',
   header: {
     brand: {
