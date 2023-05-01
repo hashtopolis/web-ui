@@ -25,7 +25,6 @@ export class UploadTUSService {
  * @param file - File
  * @param filename - Name to upload
  * @returns Object
- * TODO -  Test that check-sum extension works as expected
 **/
     uploadFile(file: File, filename: string, fileURL = null) {
       // Only continue if a file has been selected
@@ -34,8 +33,6 @@ export class UploadTUSService {
       }
 
       const fileStatus: UploadFileTUS = {filename, progress: 0, hash: '', uuid: ''};
-
-      console.log(fileStatus)
 
       this.fileStatusArr.push(fileStatus);
 

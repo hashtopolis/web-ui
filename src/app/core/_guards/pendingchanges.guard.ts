@@ -1,7 +1,8 @@
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { CanDeactivate } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 
 export interface ComponentCanDeactivate {
   canDeactivate: () => boolean | Observable<boolean>;

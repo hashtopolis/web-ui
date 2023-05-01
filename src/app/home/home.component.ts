@@ -177,7 +177,18 @@ export class HomeComponent implements OnInit {
       series: {
         type: 'heatmap',
         coordinateSystem: 'calendar',
-        data: countsExtended
+        data: countsExtended,
+        label: {
+          show: true,
+          formatter: function (p) {
+            if(date_today.getDate() == p.data[0]){
+              return 'X';
+            }
+            else{
+              return '';
+            }
+          }
+        },
       }
     };
     option && myChart.setOption(option);

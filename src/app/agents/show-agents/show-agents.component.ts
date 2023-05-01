@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+
 import { faEdit, faLock, faPauseCircle,faHomeAlt, faPlus, faFileText, faTrash} from '@fortawesome/free-solid-svg-icons';
-import {Subject} from 'rxjs';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import {Subject} from 'rxjs';
 
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { environment } from 'src/environments/environment';
-import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AgentsService } from '../../core/_services/agents/agents.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 declare let $:any;
 
@@ -16,13 +17,14 @@ declare let $:any;
   templateUrl: './show-agents.component.html'
 })
 export class ShowAgentsComponent implements OnInit, OnDestroy {
+
+  faPauseCircle=faPauseCircle;
+  faFileText=faFileText;
+  faHome=faHomeAlt;
+  faTrash=faTrash;
   faEdit=faEdit;
   faLock=faLock;
-  faPauseCircle=faPauseCircle;
-  faHome=faHomeAlt;
   faPlus=faPlus;
-  faFileText=faFileText;
-  faTrash=faTrash;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -44,10 +46,12 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   constructor(
     private agentsService: AgentsService,
     private uiService: UIConfigService,
-    private modalService: NgbModal
+    private users: UsersService
   ) { }
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
 
     let params = {'maxResults': this.maxResults}
 
@@ -173,6 +177,15 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     };
   }
 
+  // Set permissions
+  manageAgentAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
+    });
+  }
+
   setCheckAll(){
     let chkBoxlength = $(".checkboxCls:checked").length;
     if (this.isChecked == true) {
@@ -233,42 +246,62 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   }
 
   onDeleteBulk(){
-    const self = this;
-    let selectionnum = this.onSelectedAgents();
-    let sellen = selectionnum.length;
-    let errors = [];
-    selectionnum.forEach(function (value) {
-      Swal.fire('Deleting...'+sellen+' Agent(s)...Please wait')
-      Swal.showLoading()
-    self.agentsService.deleteAgent(value)
-    .subscribe(
-      err => {
-        console.log('HTTP Error', err)
-        err = 1;
-        errors.push(err);
-      },
-      );
-     });
-   self.onDone(sellen);
+    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
+      const self = this;
+      let selectionnum = this.onSelectedAgents();
+      let sellen = selectionnum.length;
+      let errors = [];
+      selectionnum.forEach(function (value) {
+        Swal.fire('Deleting...'+sellen+' Agent(s)...Please wait')
+        Swal.showLoading()
+      self.agentsService.deleteAgent(value)
+      .subscribe(
+        err => {
+          console.log('HTTP Error', err)
+          err = 1;
+          errors.push(err);
+        },
+        );
+      });
+    self.onDone(sellen);
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
   }
 
   onUpdateBulk(value: any){
-    const self = this;
-    let selectionnum = this.onSelectedAgents();
-    let sellen = selectionnum.length;
-    let errors = [];
-    selectionnum.forEach(function (id) {
-      Swal.fire('Updating...'+sellen+' Agents...Please wait')
-      Swal.showLoading()
-    self.agentsService.updateAgent(id, value).subscribe(
-      err => {
-        console.log('HTTP Error', err)
-        err = 1;
-        errors.push(err);
-      },
-    );
-   });
-  self.onDone(sellen);
+    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
+        const self = this;
+        let selectionnum = this.onSelectedAgents();
+        let sellen = selectionnum.length;
+        let errors = [];
+        selectionnum.forEach(function (id) {
+          Swal.fire('Updating...'+sellen+' Agents...Please wait')
+          Swal.showLoading()
+        self.agentsService.updateAgent(id, value).subscribe(
+          err => {
+            console.log('HTTP Error', err)
+            err = 1;
+            errors.push(err);
+          },
+        );
+      });
+      self.onDone(sellen);
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
   }
 
   onModal(title: string){
@@ -312,43 +345,53 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: number){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it cannot be recover.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.agentsService.deleteAgent(id).subscribe(() => {
-          Swal.fire(
-            "Agent has been deleted!",
-            {
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
+    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
+      const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: 'btn btn-success',
+          cancelButton: 'btn btn-danger'
+        },
+        buttonsStyling: false
+      })
+      Swal.fire({
+        title: "Are you sure?",
+        text: "Once deleted, it cannot be recover.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#4B5563',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.agentsService.deleteAgent(id).subscribe(() => {
+            Swal.fire(
+              "Agent has been deleted!",
+              {
+              icon: "success",
+              showConfirmButton: false,
+              timer: 1500
+            });
+            this.ngOnInit();
+            this.rerender();  // rerender datatables
           });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        });
-      } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Agent is safe!',
-          'error'
-        )
-      }
-    });
+        } else {
+          swalWithBootstrapButtons.fire(
+            'Cancelled',
+            'No worries, your Agent is safe!',
+            'error'
+          )
+        }
+      });
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
   }
 
 

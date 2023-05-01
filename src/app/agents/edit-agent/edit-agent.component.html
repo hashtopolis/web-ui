@@ -13,7 +13,7 @@
   <div class="container">
       <div class="row justify-content-center">
           <div class="col-12 d-flex align-items-center justify-content-center">
-              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
                 <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
                   <div class="row">
                       <div class="form-group">
@@ -53,7 +53,7 @@
                           <ng-template ngbPanelContent>
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getuserId">Owner</label>
+                                  <label class="form-label display-col" for="getuserId">Owner</label>
                                   <div class="input-group">
                                     <span class="input-group-text">
                                       <fa-icon [icon]="faIdBadge" aria-hidden="true"></fa-icon>
@@ -72,7 +72,7 @@
                             &nbsp;
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getagentName">Machine Name</label>
+                                  <label class="form-label display-col" for="getagentName">Machine Name</label>
                                   <div class="input-group">
                                     <span class="input-group-text">
                                       <fa-icon [icon]="faComputer" aria-hidden="true"></fa-icon>
@@ -92,7 +92,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getcpuOnly">CPU only</label>
+                                      <label class="form-label display-col" for="getcpuOnly">CPU only</label>
                                       <td>
                                       <select
                                             id="cpuOnly"
@@ -110,7 +110,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getisTrusted">Trust</label>
+                                      <label class="form-label display-col" for="getisTrusted">Trust</label>
                                       <fa-icon
                                               placement="bottom"
                                               ngbTooltip="Trust agent with secret data"
@@ -135,7 +135,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getchunkTime">Assignment</label>
+                                      <label class="form-label display-col" for="getchunkTime">Assignment</label>
                                       <select
                                             type='text'
                                             id="assignment"
@@ -150,7 +150,7 @@
                             </div>
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getaccessgroups">Member of access groups</label>
+                                  <label class="form-label display-col" for="getaccessgroups">Member of access groups</label>
                                   <input
                                         type='number'
                                         id="accessgroups"
@@ -161,7 +161,7 @@
                             &nbsp;
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getcmdPars">Extra parameters</label>
+                                  <label class="form-label display-col" for="getcmdPars">Extra parameters</label>
                                   <input
                                         type='text'
                                         id="cmdPars"
@@ -173,7 +173,7 @@
                             &nbsp;
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getignoreErrors">Cracker errors</label>
+                                  <label class="form-label display-col" for="getignoreErrors">Cracker errors</label>
                                   <select
                                          type='text'
                                          id="ignoreErrors"
@@ -188,13 +188,13 @@
                             </div>
                             &nbsp;
                             <hr>
-                            <h4>Agent Detailed Information</h4>
+                            <h4 class="display-col">Agent Detailed Information</h4>
                             <div class="row">
                               <div class="col">
                                 &nbsp;
                                 <div class="form-group">
                                     <div class="form-outline">
-                                        <label class="form-label" for="getagentId">Machine ID</label>
+                                        <label class="form-label display-col" for="getagentId">Machine ID</label>
                                         <span class="pre input-group-text input-group-lg w-70 mx-auto">
                                           <td>
                                             {{ showagent['uid'] }}
@@ -208,7 +208,7 @@
                                   &nbsp;
                                   <div class="form-group">
                                     <div class="form-outline">
-                                        <label class="form-label" for="gettoken">Access token</label>
+                                        <label class="form-label display-col" for="gettoken">Access token</label>
                                         <div class="input-group">
                                           <span class="input-group-text">
                                             <fa-icon [icon]="faKey" aria-hidden="true"></fa-icon>
@@ -230,7 +230,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getOS">O.S.</label>
+                                      <label class="form-label display-col" for="getOS">O.S.</label>
                                       <div class="input-group">
                                         <span *ngIf="showagent['os'] == 0" class="input-group-text input-group-lg w-15 mx-auto">
                                           <fa-icon [icon]="faLinux" aria-hidden="true"></fa-icon>Linux
@@ -249,7 +249,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getdevices">Graphic cards</label>
+                                      <label class="form-label display-col" for="getdevices">Graphic cards</label>
                                       <span class="pre input-group-text input-group-lg w-70 mx-auto">
                                         <td>
                                           {{ showagent['devices'] }}
@@ -262,7 +262,7 @@
                             &nbsp;
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getchunkTime">Time spent cracking</label>
+                                  <label class="form-label display-col" for="getchunkTime">Time spent cracking</label>
                                   <span class="pre input-group-text input-group-lg">
                                     <td>
                                       <div  *ngIf="timespent">
@@ -300,7 +300,7 @@
    </div>
 </div>
 <!-- Errors -->
-<p>Missing API for Agent Error Factory?</p>
+<!-- <p>Missing API for Agent Error Factory?</p> -->
 
 <!-- Dispatched Chunks -->
 &nbsp;&nbsp;

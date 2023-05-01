@@ -1,61 +1,60 @@
-       <main>
-       <!-- Section -->
-        <section class="bg-soft d-flex align-items-center">
-          <div class="container">
-              <div class="row justify-content-center">
-                  <div class="col-12 d-flex align-items-center justify-content-center">
-                      <div class="bg-white shadow border-0 rounded border-light p-0 p-lg-0 w-100 fmxw-500">
-                          <div class="text-center text-md-center mb-0 mt-md-0">
-                              <h1 class="mb-0 h3">Sign In</h1>
+&nbsp;
+<section class="bg-soft d-flex align-items-center">
+  <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-12 d-flex align-items-center justify-content-center">
+              <div class="layout-col shadow border-0 rounded border-light p-0 p-lg-0 w-100 fmxw-500">
+                  <div class="text-center text-md-center mb-0 mt-md-0">
+                      <h1 class="mb-0 h3">Sign In</h1>
+                  </div>
+                  <!-- Handle authentification Error -->
+                  <!-- <div class="alert alert-danger" *ngIf="errorRes">
+                      <p>{{ errorRes }}</p>
+                  </div> -->
+                  <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert>
+                  <!-- End of Handle authentification Error -->
+                  <div *ngIf="isLoading" style="text-align: center;">
+                      <app-loading-spinner></app-loading-spinner>
+                  </div>
+                  <form  #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" *ngIf="!isLoading" class="mt-5">
+                      <div class="form-group mb-0">
+                          <label for="inputUsername">User Name</label>
+                          <div class="input-group">
+                              <span class="input-group-text" >
+                                <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
+                              </span>
+                              <input type="text" class="form-control" id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
                           </div>
-                          <!-- Handle authentification Error -->
-                          <!-- <div class="alert alert-danger" *ngIf="errorRes">
-                              <p>{{ errorRes }}</p>
-                          </div> -->
-                          <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert>
-                          <!-- End of Handle authentification Error -->
-                          <div *ngIf="isLoading" style="text-align: center;">
-                              <app-loading-spinner></app-loading-spinner>
-                          </div>
-                          <form  #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" *ngIf="!isLoading" class="mt-5">
-                              <div class="form-group mb-0">
-                                  <label for="inputUsername">User Name</label>
-                                  <div class="input-group">
-                                      <span class="input-group-text" >
-                                        <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
-                                      </span>
-                                      <input type="text" class="form-control" id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
-                                  </div>
-                              </div>
-                              &nbsp;
-                              <div class="form-group">
-                                  <div class="form-group mb-0">
-                                      <label for="password">Password</label>
-                                      <div class="input-group">
-                                          <span class="input-group-text">
-                                            <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                                          </span>
-                                          <input type="password" class="form-control" id="inputPassword" placeholder="Password" ngModel name="password" autocomplete="on" required>
-                                      </div>
-                                  </div>
-                                  &nbsp;
-                              <div class="d-flex justify-content-between align-items-top mb-0">
-                                  <div></div>
-                                  <div><a routerLink="forgot" class="small text-right">Forgot your password?</a></div>
-                              </div>
-                              </div>
-                              <div class="d-grid">
-                                  <button type="submit" class="btn btn-gray-800">Sign in</button>
-                              </div>
-                          </form>
-                          <div class='alert alert-info row justify-content-center closesys'>
-                            This is a private closed system. If you need access you need to contact an admin of this page and
-                            ask for creating an account.
-                         </div>
                       </div>
+                      &nbsp;
+                      <div class="form-group">
+                          <div class="form-group mb-0">
+                              <label for="password">Password</label>
+                              <div class="input-group">
+                                  <span class="input-group-text">
+                                    <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                                  </span>
+                                  <input type="password" class="form-control" id="inputPassword" placeholder="Password" ngModel name="password" autocomplete="on" required>
+                              </div>
+                          </div>
+                          &nbsp;
+                      <div class="d-flex justify-content-between align-items-top mb-0">
+                          <div></div>
+                          <div><a routerLink="forgot" class="small text-right">Forgot your password?</a></div>
+                      </div>
+                      </div>
+                      <div class="d-grid">
+                          <button type="submit" class="btn btn-gray-800">Sign in</button>
+                      </div>
+                  </form>
+                  <div class='alert alert-info row justify-content-center closesys'>
+                    This is a private closed system. If you need access you need to contact an admin of this page and
+                    ask for creating an account.
                   </div>
               </div>
           </div>
-      </section>
-    </main>
+      </div>
+  </div>
+</section>
+
 

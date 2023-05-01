@@ -34,12 +34,13 @@ import { AppComponent } from './app.component';
  * App Modules, Reducers
  *
 */
+import { ScrollYTopComponent } from './shared/scrollytop/scrollytop.component';
+import { ThemeService } from './core/_services/shared/theme.service';
 import { ComponentsModule } from './shared/components.module';
 import { DirectivesModule } from './shared/directives.module';
 import { configReducer } from './core/_store/config.reducer';
 import { PipesModule } from './shared/pipes.module';
 import { AuthModule } from './auth/auth.module';
-import { ScrollYTopComponent } from './shared/scrollytop/scrollytop.component';
 
 @NgModule({
   declarations: [
@@ -81,6 +82,7 @@ import { ScrollYTopComponent } from './shared/scrollytop/scrollytop.component';
       useClass: HttpErrorInterceptor,
       multi: true
     },
+    ThemeService,
     AppPreloadingStrategy
   ],
   entryComponents:[TimeoutComponent],

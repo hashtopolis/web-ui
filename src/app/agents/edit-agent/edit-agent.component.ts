@@ -8,11 +8,11 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { ChunkService } from 'src/app/core/_services/chunks.service';
-import { UsersService } from '../../core/_services/users/users.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { AgentsService } from '../../core/_services/agents/agents.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
+import { AgentsService } from '../../core/_services/agents/agents.service';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { UsersService } from '../../core/_services/users/users.service';
 
 @Component({
   selector: 'app-edit-agent',
@@ -24,6 +24,7 @@ export class EditAgentComponent implements OnInit {
   editedAgent: any // Change to Model
 
   isLoading = false;
+
   faAlignJustify=faAlignJustify;
   faInfoCircle=faInfoCircle;
   faComputer=faComputer;
@@ -57,6 +58,8 @@ export class EditAgentComponent implements OnInit {
   uidateformat:any;
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
 
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
@@ -94,6 +97,15 @@ export class EditAgentComponent implements OnInit {
       this.users = user.values;
     });
 
+  }
+
+  // Set permissions
+  manageAgentAccess: any;
+
+  setAccessPermissions(){
+    this.usersService.getUser(this.usersService.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
+    });
   }
 
   timespent: number;
@@ -139,6 +151,7 @@ export class EditAgentComponent implements OnInit {
   }
 
   onSubmit(){
+    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.isLoading = true;
@@ -167,6 +180,15 @@ export class EditAgentComponent implements OnInit {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 

@@ -63,23 +63,23 @@ export class ListsService {
     const str = hash.sourceData;
     const filename = str.replace("C:\\fakepath\\", "");
     return this.http.post<any>(this.endpoint, {
-      name: hash.name,
-      hashTypeId: +hash.hashTypeId,
-      format: +hash.format,
-      separator: hash.separator,
-      isSalted: hash.isSalted,
-      isHexSalt: hash.isHexSalt,
-      accessGroupId: +hash.accessGroupId,
-      useBrain: hash.useBrain,
-      brainFeatures: hash.brainFeatures,
-      notes: hash.notes,
-      sourceType: 'import',
-      sourceData: filename,
-      hashCount: hash.hashCount,
-      cracked: hash.cracked,
-      isArchived: hash.isArchived,
-      isSecret: hash.isSecret
-     })
+            name: hash.name,
+            hashTypeId: hash.hashTypeId,
+            format: hash.format,
+            separator: hash.separator,
+            isSalted: hash.isSalted,
+            isHexSalt: hash.isHexSalt,
+            accessGroupId: hash.accessGroupId,
+            useBrain: hash.useBrain,
+            brainFeatures: hash.brainFeatures,
+            notes: hash.notes,
+            sourceType: hash.sourceType,
+            sourceData: filename,
+            hashCount: hash.hashCount,
+            cracked: hash.cracked,
+            isArchived: hash.isArchived,
+            isSecret: hash.isSecret
+          })
     .pipe(
       tap(data => console.log('All: ', JSON.stringify(data)))
     );

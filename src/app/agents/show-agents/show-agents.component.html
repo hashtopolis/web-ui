@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
   <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Agents</h2>
+      <h2 class="h4">Show Agents</h2>
       <p class="mb-0">Section to view and manager agents.</p>
   </div>
   <div class="btn-toolbar mb-2 mb-md-0">
@@ -36,9 +36,9 @@
                         <span *ngIf="agent.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
                         <span *ngIf="agent.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
                         <br>
-                        <a *ngIf="agent.agentId > 0">Username By Id</a>
+                        <a *ngIf="agent.userId > 0">Username By Id <a [routerLink]="['/users/',agent.userId,'edit']">{{ agent.userId}}</a></a>
                         <a *ngIf="agent.agentId == 0">---</a>
-                        <br><a *ngIf="agent.clientSignature.length > 0">{{ agent.clientSignature}}</a>
+                        <br><a *ngIf="agent.clientSignature.length > 0">{{ agent.clientSignature }}</a>
                         <br><a *ngIf="agent.clientSignature.length == 0">Running: unknown</a>
                         <span *ngIf="agent.notes" ><fa-icon [icon]="faFileText" aria-hidden="true"></fa-icon>
                             <a style="display: none;">notes</a>

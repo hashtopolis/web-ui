@@ -5,8 +5,9 @@ import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 
-import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
+import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 @Component({
   selector: 'app-new-supertasks',
@@ -22,6 +23,7 @@ export class NewSupertasksComponent implements OnInit {
     private _changeDetectorRef: ChangeDetectorRef,
     private supertaskService: SuperTasksService,
     private pretasksService: PreTasksService,
+    private users: UsersService,
     private router: Router
   ) { }
 
@@ -30,6 +32,8 @@ export class NewSupertasksComponent implements OnInit {
   formArr: FormArray;
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
 
     this.createForm = new FormGroup({
       supertaskName: new FormControl(''),
@@ -71,6 +75,17 @@ export class NewSupertasksComponent implements OnInit {
         });
   }
 
+  // Set permissions
+  manageSupertaskAccess: any;
+  createSupertaskAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageSupertaskAccess = perm.globalPermissionGroup.permissions.manageSupertaskAccess;
+        this.createSupertaskAccess = perm.globalPermissionGroup.permissions.createSupertaskAccess;
+    });
+  }
+
   OnChangeValue(value){
     let formArr = new FormArray([]);
     for (let val of value) {
@@ -87,6 +102,7 @@ export class NewSupertasksComponent implements OnInit {
   }
 
   onSubmit(){
+    if(this.createSupertaskAccess || typeof this.createSupertaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.isLoading = true;
@@ -114,6 +130,15 @@ export class NewSupertasksComponent implements OnInit {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 }

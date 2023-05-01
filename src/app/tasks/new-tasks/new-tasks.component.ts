@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener, ViewChild  } from '@angular/core';
 import { faHomeAlt, faPlus, faTrash, faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
@@ -10,6 +11,7 @@ import { Router } from '@angular/router';
 
 import { FilesService } from '../../core/_services/files/files.service';
 import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
@@ -76,8 +78,10 @@ export class NewTasksComponent implements OnInit {
     private uiService: UIConfigService,
     private taskService: TasksService,
     private listsService:ListsService,
+    private modalService: NgbModal,
     private route:ActivatedRoute,
-    private router: Router,
+    private users: UsersService,
+    private router: Router
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -183,6 +187,8 @@ export class NewTasksComponent implements OnInit {
   tasktip: any =[]
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
 
     this.route.params
     .subscribe(
@@ -295,6 +301,15 @@ export class NewTasksComponent implements OnInit {
 
   }
 
+  // Set permissions
+  createTaskAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.createTaskAccess = perm.globalPermissionGroup.permissions.createTaskAccess;
+    });
+  }
+
   get attckcmd(){
     return this.createForm.controls['attackCmd'];
   };
@@ -346,7 +361,7 @@ export class NewTasksComponent implements OnInit {
     });
   }
 
-  active= 0; //Active show first table wordlist
+  active= 1; //Active show first table wordlist
 
   ngAfterViewInit() {
 
@@ -413,6 +428,7 @@ export class NewTasksComponent implements OnInit {
   }
 
   onSubmit(){
+    if(this.createTaskAccess || typeof this.createTaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.isLoading = true;
@@ -441,6 +457,15 @@ export class NewTasksComponent implements OnInit {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 
@@ -536,6 +561,29 @@ export class NewTasksComponent implements OnInit {
     return false;
     }
     return true;
+  }
+
+  // Modal Information
+  closeResult = '';
+  open(content) {
+    this.modalService.open(content, { size: 'xl' }).result.then(
+      (result) => {
+        this.closeResult = `Closed with: ${result}`;
+      },
+      (reason) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      },
+    );
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
   }
 
 }

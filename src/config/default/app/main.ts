@@ -1,8 +1,8 @@
 
 export const DEFAULT_CONFIG = {
-  prodApiEndpoint: 'http://localhost:8080/api/v2',
+  prodApiEndpoint: 'https://crackz.one/api/v2',
   prodApiPort: '8080',
-  frontEndUrl: 'http://localhost:8080/',
+  frontEndUrl: 'https://crackz.one/',
   prodApiMaxResults: '3000',
   devApiEndpoint: 'http://localhost:3000',
   agentURL: '/api/server.php',
@@ -12,13 +12,16 @@ export const DEFAULT_CONFIG = {
   header: {
     brand: {
       logo: 'assets/img/logo_alter_1.png',
+      logored: 'assets/img/logo_red.png',
       name: '',
       height: '60',
-      width: '70'
+      width: '70',
+      heightred: '60',
+      widthred: '60',
     },
   },
   footer:{
-    copyright: 's3in!c Hashtopolis: 0.12.0 commit 0cabad9 branch h2p',
+    copyright: 's3in!c Hashtopolis: 0.14.0 0cabad9 branch h2p',
     footer_link_one: {
       link: 'https://github.com/hashtopolis/server',
       name: 'Github'

@@ -1,0 +1,8 @@
+<a *ngIf="currentTheme() === 'dark'" class="dropdown-item align-items-center credits" (click)="theme$.next($event ? 'light' : 'dark')">
+  <fa-icon class="dropdown-icon" [icon]="faSun" aria-hidden="true"></fa-icon>
+    Light Mode
+</a>
+<a *ngIf="currentTheme() === 'light'" class="dropdown-item align-items-center" (click)="theme$.next($event ? 'dark' : 'light')">
+  <fa-icon class="dropdown-icon" [icon]="faMoon" aria-hidden="true"></fa-icon>
+    Dark Mode
+</a>

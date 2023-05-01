@@ -1,17 +1,18 @@
 <main>&nbsp;
-
   <div class="row">
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-dash">
-        <div class="card-body ">
+        <div class="card-body card-body-d">
           <div class="row">
             <div class="col-5 col-md-4">
               <div class="text-center">
                 <fa-icon
                         placement="bottom"
                         container="body"
+                        type="button"
                         [icon]="faUserSecret"
                         aria-hidden="true"
+                        [routerLink]="['/agents/show-agents']"
                         class="gray-light-ico fa-2x"
                 ></fa-icon>
               </div>
@@ -24,7 +25,7 @@
             </div>
           </div>
         </div>
-        <div class="card-footer ">
+        <div class="card-footer">
           <hr>
           <div class="stats">
             <fa-icon
@@ -40,7 +41,7 @@
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-dash">
-        <div class="card-body ">
+        <div class="card-body card-body-d">
           <div class="row">
             <div class="col-5 col-md-4">
               <div class="text-center">
@@ -49,6 +50,7 @@
                         container="body"
                         [icon]="faTasks"
                         aria-hidden="true"
+                        [routerLink]="['/tasks/show-tasks']"
                         class="gray-light-ico fa-2x"
                 ></fa-icon>
               </div>
@@ -77,7 +79,7 @@
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-dash">
-        <div class="card-body ">
+        <div class="card-body card-body-d">
           <div class="row">
             <div class="col-5 col-md-4">
               <div class="text-center">
@@ -86,6 +88,7 @@
                         container="body"
                         [icon]="faTasksAlt"
                         aria-hidden="true"
+                        [routerLink]="['/tasks/supertasks']"
                         class="gray-light-ico fa-2x"
                 ></fa-icon>
               </div>
@@ -115,7 +118,7 @@
     </div>
     <div class="col-lg-3 col-md-6 col-sm-6">
       <div class="card card-dash">
-        <div class="card-body">
+        <div class="card-body card-body-d">
           <div class="row">
             <div class="col-5 col-md-4">
               <div class="text-center">
@@ -124,6 +127,7 @@
                         container="body"
                         [icon]="faChainBroken"
                         aria-hidden="true"
+                        [routerLink]="['/hashlists/show-cracks']"
                         class="gray-light-ico fa-2x"
                 ></fa-icon>
               </div>
@@ -155,11 +159,11 @@
 
   <div class="row">
     <div class="col-md-4">
-      <div class="card ">
+      <div class="card">
         <div class="card-header">
           <h5 class="card-title">Project Information</h5>
         </div>
-        <div class="card-body ">
+        <div class="card-body card-body-d">
             Hashtopolis is available in:&nbsp;&nbsp;
             <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">
               <fa-icon
@@ -187,7 +191,7 @@
           <div class="card-header ">
             <h5 class="card-title">Cracked</h5>
           </div>
-          <div class="card-body">
+          <div class="card-body card-body-d">
             <div id="pcard" class="app-echarts" style="height: 310px;"></div>
           </div>
         </div>

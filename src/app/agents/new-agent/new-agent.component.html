@@ -2,13 +2,13 @@
 <div class="container">
   <div class="row justify-content-center">
       <div class="col-12 d-flex align-items-center justify-content-center">
-          <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-            <h2 class="h5 mb-4">How to add a new Agent?</h2><br>
+          <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+            <h2 class="h5 mb-4">How to add a new Agent?</h2>
             <ol class="list-group list-group-numbered">
               <li class="list-group-item">In clients, download the file and run it</li>
               <li class="list-group-item">Generate voucher to link with agent (Used vouchers are automatically deleted)</li>
               <li class="list-group-item">
-                Using the URL below link the agent with the server<br>
+                Using the URL link the agent with the server:
                 <code>{{ agentURL }}</code>
                 <fa-icon
                         class='btn-outline-gray-600 float-right'
@@ -74,25 +74,23 @@
       </table>
     </div>
   </div>
-
-&nbsp;
 <!-- Voucher Section -->
 <h2 class="h5 mb-4">Vouchers</h2>
 <!-- Create Voucher -->
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12 d-flex align-items-center justify-content-center">
-            <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+            <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
               <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
                   <div class="row">
                       <div class="form-group">
                         <div class="form-outline">
-                          <label class="form-label" for="setcheckType">New Voucher</label>
+                          <!-- <label class="form-label" for="setcheckType">New Voucher</label> -->
                           <input type='text' [(ngModel)]="randomstring" name='voucher' title="Voucher" class='form-control' id="voucher" formControlName="voucher"/>
                         </div>
                       </div>
                       &nbsp;
-                      <button class="btn btn-gray-800" type="submit">Create</button>
+                      <button class="btn btn-gray-800" type="submit">Create New Voucher</button>
                   </div>
               </form>
             </div>

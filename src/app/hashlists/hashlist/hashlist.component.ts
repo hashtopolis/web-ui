@@ -7,6 +7,7 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 @Component({
   selector: 'app-hashlist',
@@ -51,7 +52,8 @@ export class HashlistComponent implements OnInit, OnDestroy {
 
   constructor(
     private listsService: ListsService,
-    private route:ActivatedRoute
+    private route:ActivatedRoute,
+    private users: UsersService
     ) { }
 
   isArchived: boolean;
@@ -79,7 +81,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
     let params = {'maxResults': this.maxResults, 'expand': 'hashType,accessGroup', 'filter': 'isArchived='+this.isArchived+''}
 
     this.listsService.getAllhashlists(params).subscribe((list: any) => {
-      this.allhashlists = list.values;
+      this.allhashlists = list.values.filter(u=> u.format != 3); // Exclude superhashlists
       this.dtTrigger.next(void 0);
     });
 
@@ -149,73 +151,103 @@ export class HashlistComponent implements OnInit, OnDestroy {
 
 }
 
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
-  }
+// Set permissions
+manageHashlistAccess: any;
 
-  onArchive(id: number){
-    this.listsService.archiveHashlist(id).subscribe((list: any) => {
-      Swal.fire({
-        title: "Good job!",
-        text: "Archive!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-    });
-  }
+setAccessPermissions(){
+  this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+      this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
+  });
+}
 
-  onDelete(id: number){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
-    })
+
+rerender(): void {
+  this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+    // Destroy the table first
+    dtInstance.destroy();
+    // Call the dtTrigger to rerender again
+    setTimeout(() => {
+      this.dtTrigger['new'].next();
+    });
+  });
+}
+
+onArchive(id: number){
+  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
+  this.listsService.archiveHashlist(id).subscribe((list: any) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.listsService.deleteHashlist(id).subscribe(() => {
-          Swal.fire(
-            "HashList has been deleted!",
-            {
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        });
-      } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your HashList is safe!',
-          'error'
-        )
-      }
+      title: "Good job!",
+      text: "Archive!",
+      icon: "success",
+      showConfirmButton: false,
+      timer: 1500
     });
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+  });
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
   }
-  // Add unsubscribe to detect changes
-  ngOnDestroy(){
-    this.dtTrigger.unsubscribe();
+}
+
+onDelete(id: number){
+  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-success',
+      cancelButton: 'btn btn-danger'
+    },
+    buttonsStyling: false
+  })
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Once deleted, it can not be recovered!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: '#4B5563',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  })
+  .then((result) => {
+    if (result.isConfirmed) {
+      this.listsService.deleteHashlist(id).subscribe(() => {
+        Swal.fire(
+          "HashList has been deleted!",
+          {
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        this.ngOnInit();
+        this.rerender();  // rerender datatables
+      });
+    } else {
+      swalWithBootstrapButtons.fire(
+        'Cancelled',
+        'No worries, your HashList is safe!',
+        'error'
+      )
+    }
+  });
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
   }
+}
+// Add unsubscribe to detect changes
+ngOnDestroy(){
+  this.dtTrigger.unsubscribe();
+}
 
 }

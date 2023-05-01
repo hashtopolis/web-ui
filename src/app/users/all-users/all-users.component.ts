@@ -34,8 +34,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     isValid: number,
     sessionLifetime:number,
     rightGroupId: string,
-    rightGroup: {
-      groupName: string,
+    globalPermissionGroup: {
+      name: string,
       permissions: string
     }
   }[] = [];

@@ -8,14 +8,19 @@ import { RouterModule } from "@angular/router";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
+import { EditGlobalpermissionsgroupsComponent } from './globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
+import { GlobalpermissionsgroupsComponent } from './globalpermissionsgroups/globalpermissionsgroups.component';
 import { EditUsersComponent } from "./edit-users/edit-users.component";
 import { AllUsersComponent } from "./all-users/all-users.component";
 import { GroupsComponent } from "./groups/groups.component";
 import { UsersRoutingModule } from "./users-routing.module";
 import { UsersComponent } from "./users.component";
 
+
 @NgModule({
   declarations:[
+    EditGlobalpermissionsgroupsComponent,
+    GlobalpermissionsgroupsComponent,
     EditUsersComponent,
     AllUsersComponent,
     GroupsComponent,

@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable, retry, throwError, catchError } from 'rxjs';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -19,17 +20,20 @@ export class HttpErrorInterceptor implements HttpInterceptor{
         .pipe(
           retry(1),
           catchError((error: HttpErrorResponse) => {
-            let errmsg = '';
+            var errmsg:string= '';
             if (error.error instanceof ErrorEvent) {
-              var err = error?.error.message || 'Unknown API error';
+              let err = error?.error.message || 'Unknown API error';
               errmsg = `Client Side Error: ${err}`;
             } else {
-              var err = error?.message || 'Unknown API error';
+              let err = error?.error?.exception[0]?.message || 'Unknown API error';
               errmsg = `Server Side Error: ${err}`;
             }
-            if( error.status !== 404  && error?.status >= 300){
-              this.router.navigate(['error'])
+            if(error.status === 403){
+              errmsg = `Access Denied: Please contact your administrator`;
             }
+            // if(error.status !== 404 && error.status !== 403  && error?.status >= 300){
+            //   this.router.navigate(['error'])
+            // }
             this.modalRef = this.modalService.open(ErrorModalComponent);
             this.modalRef.componentInstance.status = error?.status;
             this.modalRef.componentInstance.message = errmsg;

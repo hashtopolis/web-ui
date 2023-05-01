@@ -1,4 +1,4 @@
-import { Component,Inject,OnInit, PLATFORM_ID } from '@angular/core';
+import { Component,Inject,OnInit, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -9,7 +9,7 @@ import { filter } from 'rxjs';
 **/
 import { UIConfigService } from './core/_services/shared/storage.service';
 import { CookieService } from './core/_services/shared/cookies.service';
-import { AuthService } from './core/_services/auth.service';
+import { AuthService } from './core/_services/access/auth.service';
 
 /**
  * Idle watching
@@ -20,10 +20,16 @@ import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
+import { ThemeService } from './core/_services/shared/theme.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html'
+  templateUrl: './app.component.html',
+  host:{
+    "[class.light-theme]": "( theme === 'light' )",
+    "[class.dark-theme]": "( theme === 'dark' )",
+  },
+  // styleUrls: [ "../styles/styles.scss" ],
 })
 export class AppComponent implements OnInit{
   currentUrl: string;
@@ -31,12 +37,14 @@ export class AppComponent implements OnInit{
   appTitle = 'Hashtopolis';
   idleState = 'Not Started';
   timedOut = false;
-  lastPing? : Date  = null;
-  timeoutCountdown :number = null;
+  lastPing?: Date  = null;
+  timeoutCountdown:number = null;
   timeoutMax= this.onTimeout();
   idleTime= this.onTimeout();
   showingModal = false;
   modalRef = null;
+  screenmode:string = localStorage.getItem('screenmode') || 'true';
+  theme: string;
 
   constructor(
     private authService: AuthService,
@@ -48,8 +56,10 @@ export class AppComponent implements OnInit{
     private idle: Idle,
     private keepalive: Keepalive,
     private modalService: NgbModal,
+    private themes: ThemeService,
     @Inject(PLATFORM_ID) private platformId: Object
     ){
+      this.theme = this.themes.theme;
       this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: NavigationEnd) => {
@@ -102,6 +112,7 @@ export class AppComponent implements OnInit{
       }
     });
     this.authService.checkStatus();
+
   }
 
   private findCurrentStep(currentRoute) {

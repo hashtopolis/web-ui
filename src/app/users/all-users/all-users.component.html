@@ -37,7 +37,7 @@
                     <td>{{ user.email }}</td>
                     <td><span class="{{user.isValid == 1 ? 'fw-bold text-success' : 'fw-bold text-warning'}}">{{ user.isValid == 1 ? "Valid" : "Invalid/Not activated" }}</span></td>
                     <td>{{ user.sessionLifetime }}</td>
-                    <td>{{ user.rightGroup.groupName }}</td>
+                    <td>{{ user.globalPermissionGroup.name }}</td>
                     <td>
                         <a class='btn-outline-gray-600 float-right' [routerLink]="['/users',user.id,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
                           <!-- TEST= to add custom params for security[queryParams]="{allowEdit: +user.userId === 2 ? '1' : '0'}"   -->

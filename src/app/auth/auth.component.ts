@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { AuthService, AuthResponseData } from '../core/_services/auth.service';
+import { AuthService, AuthResponseData } from '../core/_services/access/auth.service';
 import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({

@@ -36,8 +36,6 @@ export class GroupByPipe implements PipeTransform {
      return r;
      },{});
 
-     console.log(list)
-
      return Object.keys(list).map(k => ({ k, value: list[k] }));
 
     }

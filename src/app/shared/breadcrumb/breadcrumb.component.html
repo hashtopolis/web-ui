@@ -4,7 +4,8 @@
       <a routerLink="/" class="btn-outline-gray-600"><fa-icon [icon]="faHomeAlt" aria-hidden="true"></fa-icon></a>
       <span *ngFor="let breadcrumb of breadcrumbs; let last = last">
           <small>
-              <a [routerLink]="breadcrumb.url" class="btn-outline-gray-600" style="text-decoration: none">{{ breadcrumb.label }}</a></small>
+              <a [routerLink]="breadcrumb.url" class="btn-outline-gray-600" style="text-decoration: none">{{ breadcrumb.label }}</a>
+          </small>
           <span *ngIf="!last"><small> {{ deliminator }} </small></span>
       </span>
   </div>

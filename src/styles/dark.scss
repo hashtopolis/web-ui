@@ -1,0 +1,91 @@
+.layout-col {
+  background-color: rgb(45, 47, 49);
+}
+
+.top-cat {
+  background-color: #bebaba;
+}
+
+.table .thead-light th {
+  background-color: #bebaba;
+  color: #1F2937;
+}
+
+// Dashboard
+
+.card-category {
+  background-color: #bebaba;
+  color: darkblue;
+  font-size: 16px;
+  line-height: 1.4em;
+}
+
+.card{
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  background-color: #bebaba;
+  color: black;
+  margin-bottom: 20px;
+  position: relative;
+  border: 0 none;
+
+  -webkit-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -moz-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -o-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -ms-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+
+    .card-body-d{
+        padding: 15px 15px 10px 15px;
+        background-color: #bebaba;
+
+    }
+
+    .card-header{
+      &:not([data-background-color]){
+        background-color: #bebaba;
+      }
+      padding: 15px 15px 0;
+      border: 0;
+
+      .card-title{
+          margin-top: 10px;
+      }
+    }
+
+    .card-footer{
+        background-color: #d23434;
+        border: 0;
+
+        .stats{
+            i{
+                margin-right: 5px;
+                position: relative;
+                top: 0px;
+                color: rgb(176, 95, 48);
+            }
+        }
+
+    }
+
+}
+
+// Agents
+
+.display-col {
+  color: #bebaba;
+}
+
+// Search by Hashtype
+
+.hashtype_selectize {
+  color: #bebaba;
+  background: #f2f2f2 !important;
+}
+
+@import 'node_modules/bootstrap-darkmode/scss/darktheme'
+
+
+
+
+
+

@@ -4,12 +4,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js'; //ToDo Change to a Common Module
 
+import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 import { FilesService } from '../../core/_services/files/files.service';
-import { AccessGroupsService } from '../../core/_services/accessgroups.service';
-
 import { AccessGroup } from '../../core/_models/access-group';
 import { Filetype } from '../../core/_models/files';
-
 
 @Component({
   selector: 'app-files-edit',
@@ -35,10 +34,13 @@ export class FilesEditComponent implements OnInit {
   constructor(private filesService: FilesService,
     private accessgroupService:AccessGroupsService,
     private route:ActivatedRoute,
+    private users: UsersService,
     private router: Router
     ) { }
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
 
     this.route.params
     .subscribe(
@@ -90,10 +92,18 @@ export class FilesEditComponent implements OnInit {
 
     });
   }
+  // Set permissions
+  manageFileAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(4,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageFileAccess = perm.globalPermissionGroup.permissions.manageFileAccess;
+    });
+  }
+
 
   onSubmit(): void{
-    if (this.updateForm.valid) {
-    console.log(this.updateForm.value);
+    if (this.updateForm.valid && (this.manageFileAccess || typeof this.manageFileAccess == 'undefined')) {
 
     this.isLoading = true;
 
@@ -137,6 +147,14 @@ export class FilesEditComponent implements OnInit {
     }
   );
   this.updateForm.reset(); // success, we reset form
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
   }
 }
 

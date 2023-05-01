@@ -1,13 +1,15 @@
 import { faHomeAlt, faPlus, faTrash, faEdit, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { environment } from 'src/environments/environment';
-import { AccessGroupsService } from '../../core/_services/accessgroups.service';
+
+import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 @Component({
   selector: 'app-groups',
@@ -37,10 +39,19 @@ export class GroupsComponent implements OnInit {
 
     public agroups: {accessGroupId: number, groupName: string, isEdit: false }[] = [];
 
-    constructor(private accessgroupService: AccessGroupsService,
-      private router: Router) { }
+    constructor(
+      private accessgroupService: AccessGroupsService,
+      private users: UsersService,
+      private router: Router
+      ) { }
 
     ngOnInit(): void {
+
+      this.loadAccessGroups();
+
+    }
+
+    loadAccessGroups(){
       this.signupForm = new FormGroup({
         'groupName': new FormControl('', [Validators.required, Validators.minLength(1)]),
       });
@@ -106,6 +117,7 @@ export class GroupsComponent implements OnInit {
       };
 
     }
+
     onEdit(item: any){
       this.agroups.forEach(element => {
         element.isEdit = false;

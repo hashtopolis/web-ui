@@ -1,69 +1,29 @@
-    <main>
-      <!-- Section -->
-      <section>
-          <div class="container">
-              <div class="row justify-content-center">
-                  <div class="col-12 d-flex align-items-center justify-content-center">
-                      <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                          <h1 class="h3 mb-4">Forgot password</h1>
-                           <!-- <app-alert ></app-alert> -->
-                          <form #authForm="ngForm" >
-                              <!-- Form -->
-                              <div class="mb-4">
-                                  <label for="inputUsername">User Name</label>
-                                  <div class="input-group">
-                                    <input type="text" class="form-control" id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
-                                  </div>
-                              </div>
-                              <!-- End of Form -->
-                              <!-- Form -->
-                              <div class="mb-4">
-                                <label for="inputEmail">Email</label>
-                                <div class="input-group">
-                                    <input type="email" class="form-control" id="inputEmail" placeholder="example@domain.com" ngModel name="email" autocomplete="on" autofocus required>
-                                </div>
+<section>&nbsp;
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex align-items-center justify-content-center">
+                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+                    <h1 class="h3 mb-4">Forgot password</h1>
+                      <!-- <app-alert ></app-alert> -->
+                    <form #authForm="ngForm" >
+                        <div class="mb-4">
+                            <label for="inputUsername">User Name</label>
+                            <div class="input-group">
+                              <input type="text" class="form-control" id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
                             </div>
-                            <!-- End of Form -->
-                              <div class="d-grid">
-                                  <button type="submit" class="btn btn-gray-800">Reset password</button>
-                              </div>
-                          </form>
+                        </div>
+                        <div class="mb-4">
+                          <label for="inputEmail">Email</label>
+                          <div class="input-group">
+                              <input type="email" class="form-control" id="inputEmail" placeholder="example@domain.com" ngModel name="email" autocomplete="on" autofocus required>
+                          </div>
                       </div>
-                  </div>
-              </div>
-          </div>
-      </section>
-  </main>
-
-  <!-- OLD STYLE - Can be deleted or included after -->
-
-<!-- <h2>Forgot password</h2>
-<div class="alert alert-neutral">
-    <div class="row">
-        <div class='col-md-3'></div>
-        <div class='col-md-6'>
-            <br>
-            <form #authForm="ngForm" >
-                <input type='hidden' name='fw' value='[[fw]]'>
-                <div class="form-group">
-                    <label for="inputUsername" class="col-sm-4 control-label">Username</label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" id="inputUsername" placeholder="Username" ngModel name="username" autocomplete="on" autofocus required>
-                    </div>
+                      <div class="d-grid">
+                          <button type="submit" class="btn btn-gray-800">Reset password</button>
+                      </div>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="inputEmail" class="col-sm-4 control-label">Email</label>
-                    <div class="col-sm-12">
-                        <input type="text" class="form-control" id="inputEmail" placeholder="Email" ngModel name="email" autocomplete="on" autofocus required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-4 col-sm-8"><br>
-                        <button type="submit" class="btn btn-success">Send new password</button>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
-        <div class='col-md-3'></div>
     </div>
-</div> -->
+</section>

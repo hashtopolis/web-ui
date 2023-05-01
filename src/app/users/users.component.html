@@ -1,19 +1,21 @@
 <section>
+  &nbsp;
   <div class="container">
       <div class="row justify-content-center">
           <div class="col-12 d-flex align-items-center justify-content-center">
-              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
               <h2 class="h5 mb-4">Create User</h2><br>
               <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
                   <div class="form-group">
-                    <label for="setusername">User Name</label>
+                    <label for="setName">User Name</label>
                     <input
                           type='text'
-                          id="username"
+                          id="name"
                           class='form-control'
-                          formControlName="username"
+                          formControlName="name"
                      >
                   </div>
+                  <span *ngIf="createForm.get('name').invalid && createForm.get('name').touched" class="help-block">User already exist!</span>
                   &nbsp;
                   <div class="form-group">
                     <label for="setemail">Email</label>
@@ -26,18 +28,18 @@
                   </div>
                   &nbsp;
                   <div class="form-group">
-                    <label for="setrightGroupId">User Group</label>
+                    <label for="setGlobalPermissionGroupId">Access Permission Group</label>
                     <select
                           type='number'
-                          id="rightGroupId"
+                          id="globalPermissionGroupId"
                           class='form-select'
-                          formControlName="rightGroupId"
+                          formControlName="globalPermissionGroupId"
                           >
-                    <span *ngIf="!createForm.errors?.['group'].valid && createForm.errors?.['group'].touched" class="help-block" >Please select a group!</span>
-                         <option *ngFor="let a of agp" [value]="a.rightGroupId">{{ a.groupName }}</option>
+                         <option *ngFor="let a of agp" [ngValue]="a.id">{{ a.name }}</option>
                     </select>
                   </div>
-                  <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
+                  <!-- <span *ngIf="!createForm.valid && (createForm.touched || createForm.dirty)" class="help-block" >Please complete all the form!</span> -->
+                  <br>
                   <button class="btn btn-gray-800" type="submit">Create</button>
               </form>
          </div>

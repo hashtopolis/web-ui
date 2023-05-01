@@ -1,19 +1,20 @@
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { AbstractControl, FormArray, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
 import { CrackerService } from '../../core/_services/config/cracker.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
 import { FilesService } from '../../core/_services/files/files.service';
 import { FileTypePipe } from 'src/app/core/_pipes/file-type.pipe';
-import { ModalDismissReasons, NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 declare let $:any;
 
@@ -33,15 +34,16 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   private maxAgents = environment.config.tasks.maxAgents;
 
   constructor(
-    private taskService: TasksService,
     private preTasksService: PreTasksService,
     private crackerService: CrackerService,
     private filesService: FilesService,
     private uiService: UIConfigService,
+    private taskService: TasksService,
     private modalService: NgbModal,
+    private fileType: FileTypePipe,
     private route:ActivatedRoute,
+    private users: UsersService,
     private router: Router,
-    private fileType: FileTypePipe
   ) { }
 
   copyMode = false;
@@ -84,7 +86,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
       this.filesFormArray.push(fileId);
       this.OnChangeAttack(fileName, fileType);
       this.createForm.patchValue({files: this.filesFormArray });
-      console.log(this.filesFormArray)
     } else {
       let index = this.filesFormArray.indexOf(fileId);
       this.filesFormArray.splice(index,1);
@@ -129,6 +130,8 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   ngOnInit(): void {
 
+    this.setAccessPermissions();
+
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -163,8 +166,8 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
       'taskName': new FormControl('', [Validators.required]),
       'attackCmd': new FormControl(this.uiService.getUIsettings('hashlistAlias').value, [Validators.required, this.forbiddenChars(this.getBanChars())]),
       'maxAgents': new FormControl(null || this.maxAgents),
-      'chunkTime': new FormControl(null || this.uiService.getUIsettings('chunktime').value),
-      'statusTimer': new FormControl(null || this.uiService.getUIsettings('statustimer').value),
+      'chunkTime': new FormControl(null || Number(this.uiService.getUIsettings('chunktime').value)),
+      'statusTimer': new FormControl(null || Number(this.uiService.getUIsettings('statustimer').value)),
       'priority': new FormControl(0),
       'color': new FormControl(''),
       'isCpuTask': new FormControl(null || false),
@@ -172,7 +175,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
       'isSmall': new FormControl(null || false),
       'useNewBench': new FormControl(null || true),
       'isMaskImport': new FormControl(false),
-      'files': new FormControl('')
+      'files': new FormControl('' || [])
     });
 
     this.crackerService.getCrackerType().subscribe((crackers: any) => {
@@ -242,6 +245,15 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   }
 
+  // Set permissions
+  createPretaskAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.createPretaskAccess = perm.globalPermissionGroup.permissions.createPretaskAccess;
+    });
+  }
+
   get attckcmd(){
     return this.createForm.controls['attackCmd'];
   };
@@ -270,7 +282,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     return this.uiService.getUIsettings('blacklistChars').value;
   }
 
-  // Path Color DOM value
+  // Patch Color DOM value
   OnChangeValue(value){
     this.createForm.patchValue({
       color: value
@@ -279,6 +291,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   }
 
   onSubmit(){
+    if(this.createPretaskAccess || typeof this.createPretaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.isLoading = true;
@@ -306,6 +319,15 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 
@@ -408,33 +430,5 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 			return `with: ${reason}`;
 		}
 	}
-
-  // Modal Information
-    attackmode =[
-      {'value': '0', 'name': 'Straight(Using rules)' },
-      {'value': '1', 'name': 'Combination' },
-      {'value': '3', 'name': 'Brute-force'},
-      {'value': '6', 'name': 'Hybrid Dictionary+ Mask'},
-      {'value': '7', 'name': 'Hybrid Mask + Dictionary'},
-    ]
-
-    attackex =[
-      {'value': 'Dictionary', 'example': '-w3 -O #HL# -a 0 rockyou.txt' },
-      {'value': 'Dictionary + Rules', 'example': '-w3 -O #HL# -a 0 rockyou.txt -r base64rule.txt' },
-      {'value': 'Combination', 'example': '-w3 -O #HL# -a 1 rockyou.txt rockyou2.txt'},
-      {'value': 'Hybrid Dictionary + Mask', 'example': '-w3 -O #HL# -a 6 -m dict.txt ?a?a?a?a'},
-      {'value': 'Hybrid Mask + Dictionary', 'example': '-w3 -O #HL# -a 7 -m ?a?a?a?a dict.txt'},
-    ]
-
-    charsets =[
-      {'value': '?l', 'descrip': 'abcdefghĳklmnopqrstuvwxyz' },
-      {'value': '?u', 'descrip': 'ABCDEFGHĲKLMNOPQRSTUVWXYZ' },
-      {'value': '?d', 'descrip': '0123456789' },
-      {'value': '?h', 'descrip': '0123456789abcdef' },
-      {'value': '?H', 'descrip': '0123456789ABCDEF' },
-      {'value': '?s', 'descrip': '«space»!"#$%&()*+,-./:;<=>?@[\]^_`{|}~'},
-      {'value': '?a', 'descrip': '?l?u?d?s'},
-      {'value': '?b', 'descrip': '0x00 - 0xff'},
-    ]
 
 }

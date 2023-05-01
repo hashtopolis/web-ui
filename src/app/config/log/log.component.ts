@@ -9,8 +9,8 @@ import { Subject, Subscription } from 'rxjs';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { LogentryService } from '../../core/_services/config/logentry.service';
 
-
-declare var _fnFeatureHtmlLength: any;
+declare var $: any;
+declare var _fnReDraw;
 
 @Component({
   selector: 'app-log',
@@ -24,6 +24,8 @@ export class LogComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
   uidateformat:any;
+  localStable: string = 'DataTables_DataTables_Table_0_/config/log';
+  localStablepage: string = 'DataTables_DataTables_Table_0_/config/log_lastpage';
 
   public logs: {logEntryId: number, issuer: string, issuerId: number, level: string, message: string, time: number}[] = [];
 
@@ -43,7 +45,7 @@ export class LogComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.loadLogs(1);
+    this.loadLogs(this.geStartPage());
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
   }
@@ -58,16 +60,35 @@ export class LogComponent implements OnInit {
   }
 
   getLenghtMenu(){
-    const lengthM = JSON.parse(localStorage.getItem('DataTables_DataTables_Table_0_/config/log')).length;
-    console.log(lengthM)
+    let lengthM = JSON.parse(localStorage.getItem(this.localStable));
     if (!lengthM) {
-      return null;
+      return 50;
+    }else{
+      return lengthM.length;
     }
-    return lengthM;
+  }
+
+  geStartPage(){
+    let startP = JSON.parse(localStorage.getItem(this.localStablepage));
+    if (!startP) {
+      let currentPage:any = {start: '1'};
+      localStorage.setItem(this.localStablepage, currentPage);
+    }else{
+      return startP.start;
+    }
+  }
+
+  saveCurrentPage(name: string, pagestart: number){
+    let currentPage = {start: pagestart};
+    localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
   }
 
   loadLogs(page: number){
-    let params = {'maxResults': this.pageSize, 'startsAt': (page - 1) * this.pageSize};
+
+    this.saveCurrentPage(this.localStable, page);
+
+    var maxresults = this.getLenghtMenu();
+    let params = {'maxResults': maxresults, 'startsAt': (page - 1) * this.pageSize};
 
     this.logentryService.getLogs(params).subscribe((log: any) => {
       this.logs = log.values;
@@ -76,18 +97,15 @@ export class LogComponent implements OnInit {
       this.dtTrigger.next(null);
     });
 
-    this.getLenghtMenu();
-
     var self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      scrollY: true,
       bStateSave:true,
       bPaginate: false,
       bLengthChange: false,
       bInfo: false,
-      // pageLength: 50,
-      lengthMenu: [ [25, 50, 100, 200, 300, 500, 1000 ], [25, 50, 100, 200, 300, 500, 1000] ],
+      bSort: true,
+      lengthMenu: [ [25, 50, 100, 200, 300, 500, 50000 ], [25, 50, 100, 200, 300, 500, 'All'] ],
       columnDefs: [
         {
             targets: 0,
@@ -152,14 +170,25 @@ export class LogComponent implements OnInit {
           {
             extend: "pageLength",
             className: "btn-sm",
-            customize: function ( e, dt, node, config ) {
-              self.rerender();
-            }
+            action: function ( e, dt, node, config ) {
+            var myButton = this;
+            var currentPageLen = dt.page.len();
+            $.fn.dataTable.ext.buttons.collection.action.call(myButton, e, dt, node, config);
+            self.onReload(maxresults,currentPageLen);
+           }
           },
         ],
       }
     };
 
+  }
+
+  onReload(mresults: number, cresults:number){
+    if(mresults == cresults){
+      setTimeout(() => {
+        // location.reload();
+      },3000);
+    }
   }
 
   ngOnDestroy(): void {
@@ -168,9 +197,7 @@ export class LogComponent implements OnInit {
 
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
       dtInstance.destroy();
-      // Call the dtTrigger to rerender again
       setTimeout(() => {
         this.dtTrigger['new'].next();
       });

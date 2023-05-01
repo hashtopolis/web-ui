@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 declare var options: any;
 declare var defaultOptions: any;
@@ -35,6 +36,7 @@ export class EditSupertasksComponent implements OnInit {
     private supertaskService: SuperTasksService,
     private pretasksService: PreTasksService,
     private route:ActivatedRoute,
+    private users: UsersService,
     private router: Router,
   ) { }
 
@@ -53,6 +55,8 @@ export class EditSupertasksComponent implements OnInit {
   pretasksFiles: any = [];
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
 
     this.route.params
     .subscribe(
@@ -83,7 +87,17 @@ export class EditSupertasksComponent implements OnInit {
     this.isLoading = false;
   }
 
+  // Set permissions
+  manageSupertaskAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageSupertaskAccess = perm.globalPermissionGroup.permissions.manageSupertaskAccess;
+    });
+  }
+
   onSubmit(){
+    if(this.manageSupertaskAccess || typeof this.manageSupertaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.isLoading = true;
@@ -112,6 +126,15 @@ export class EditSupertasksComponent implements OnInit {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 

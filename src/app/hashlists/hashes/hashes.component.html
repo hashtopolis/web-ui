@@ -3,13 +3,13 @@
   <div class="d-block mb-4 mb-md-0">
       <div [ngSwitch]="whichView">
         <div *ngSwitchCase="'chunks'">
-          <h2 class="h4">Hashes of chunk <b>Name</b></h2>
+          <h2 class="h4">Hashes of chunk <b>{{ titleName }}</b></h2>
         </div>
         <div *ngSwitchCase="'tasks'">
-          <h2 class="h4">Hashes of task <b>Name</b></h2>
+          <h2 class="h4">Hashes of task <b>{{ titleName }}</b></h2>
         </div>
-        <div *ngSwitchCase="'hashlist'">
-          <h2 class="h4">Hashes of hashlist <b>Name</b></h2>
+        <div *ngSwitchCase="'hashlists'">
+          <h2 class="h4">Hashes of hashlist <b>{{ titleName }}</b></h2>
         </div>
       </div>
   </div>
@@ -17,7 +17,7 @@
 
 <div class="row justify-content-center">
   <div class="col-12 d-flex align-items-center justify-content-center">
-    <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
+    <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
       <form [formGroup]="viewForm">
       <div class="row g-3">
         <div class="col-md-6">
@@ -48,7 +48,7 @@
                 <option *ngFor="let d of displays" [value]="d.name">{{ d.description }}</option>
           </select>
         </div>
-        <div *ngIf="whichView != 'tasks'"  class="col-md-4">
+        <div *ngIf="whichView != 'tasks'" class="col-md-4">
           <select
                 type='string'
                 class="form-select"
@@ -59,7 +59,7 @@
                 <option *ngFor="let f of filters" [value]="f.name">{{ f.description }}</option>
           </select>
         </div>
-        <div class="col-md-2">
+        <div *ngIf="whichView != 'tasks'" class="col-md-2">
           <button class="btn btn-gray-800" (click)="onOK()">Ok</button>
         </div>
       </div>

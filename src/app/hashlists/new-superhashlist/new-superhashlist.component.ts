@@ -7,6 +7,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashlist.service';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 @Component({
   selector: 'app-new-superhashlist',
@@ -20,9 +21,10 @@ export class NewSuperhashlistComponent implements OnInit {
 
   constructor(
     private superHashlistService:SuperHashlistService,
-    private hashlistService:ListsService,
-    private router: Router,
     private _changeDetectorRef: ChangeDetectorRef,
+    private hashlistService:ListsService,
+    private users: UsersService,
+    private router: Router
   ) { }
 
   createForm: FormGroup;
@@ -30,6 +32,9 @@ export class NewSuperhashlistComponent implements OnInit {
   formArr: FormArray;
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
+
     this.createForm = new FormGroup({
       superhashlistName: new FormControl(''),
       hashlists: new FormControl(''),
@@ -70,6 +75,15 @@ export class NewSuperhashlistComponent implements OnInit {
         });
   }
 
+  // Set permissions
+  createSuperhashlistAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.createSuperhashlistAccess = perm.globalPermissionGroup.permissions.createSuperhashlistAccess;
+    });
+  }
+
   OnChangeValue(value){
     let formArr = new FormArray([]);
     for (let val of value) {
@@ -86,6 +100,7 @@ export class NewSuperhashlistComponent implements OnInit {
   }
 
   onSubmit(){
+    if(this.createSuperhashlistAccess || typeof this.createSuperhashlistAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.isLoading = true;
@@ -114,6 +129,15 @@ export class NewSuperhashlistComponent implements OnInit {
         }
       );
     }
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
   }
 
 }

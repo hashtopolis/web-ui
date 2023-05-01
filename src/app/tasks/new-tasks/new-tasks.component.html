@@ -19,7 +19,7 @@
   <div class="container px-lg-5">
       <div class="row no-gutters">
           <div class="col-12 col-sm-6 col-md-8 d-flex align-items-center justify-content-center">
-              <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
+              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
                 <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
                   <div class="row">
                       <div class="form-group">
@@ -65,12 +65,11 @@
                             <label class="form-label requiredak" for="getattackCmd">Command line</label>
                             <fa-icon
                                     placement="bottom"
-                                    ngbTooltip="Use #HL# for hash list and assume all files in current directory.
-                                    If you have Linux agents, please mind the filename case sensitivity!
-                                    "
+                                    (click)="open(cheatsheet)"
                                     container="body"
                                     [icon]="faInfoCircle"
                                     aria-hidden="true"
+                            class="gray-light-ico"
                             >
                             </fa-icon>
                             <textarea
@@ -150,7 +149,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getchunkTime">Chunk size</label>
+                                      <label class="form-label display-col" for="getchunkTime">Chunk size</label>
                                       <span *ngIf="tasktip.chunkTime">
                                         <fa-icon
                                                 placement="bottom"
@@ -158,7 +157,7 @@
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
-                                                class="gray-light-ico"
+                                                class="gray-light-ico display-col"
                                         ></fa-icon>
                                       </span>
                                       <input
@@ -175,7 +174,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getStatusTimer">Status timer</label>
+                                      <label class="form-label display-col" for="getStatusTimer">Status timer</label>
                                       <span *ngIf="tasktip.statusTimer">
                                         <fa-icon
                                                 placement="bottom"
@@ -183,7 +182,7 @@
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
-                                                class="gray-light-ico"
+                                                class="gray-light-ico display-col"
                                         ></fa-icon>
                                       </span>
                                       <input
@@ -201,7 +200,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getskipKeyspace">Skip keyspace</label>
+                                      <label class="form-label display-col" for="getskipKeyspace">Skip keyspace</label>
                                       <span *ngIf="tasktip.skipKeyspace">
                                         <fa-icon
                                                 placement="bottom"
@@ -209,7 +208,7 @@
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
-                                                class="gray-light-ico"
+                                                class="gray-light-ico display-col"
                                         ></fa-icon>
                                       </span>
                                       <input
@@ -228,7 +227,7 @@
                               <div class="col">
                                 <div class="form-group">
                                   <div class="form-outline">
-                                    <label class="form-label" for="getisCpuTask">CPU only</label>
+                                    <label class="form-label display-col" for="getisCpuTask">CPU only</label>
                                     <span *ngIf="tasktip.isCpuTask">
                                       <fa-icon
                                               placement="bottom"
@@ -236,6 +235,7 @@
                                               container="body"
                                               [icon]="faInfoCircle"
                                               aria-hidden="true"
+                                              class="gray-light-ico display-col"
                                       >
                                       </fa-icon>
                                     </span>
@@ -253,7 +253,7 @@
                               <div class="col">
                                 <div class="form-group">
                                   <div class="form-outline">
-                                    <label class="form-label" for="getisSmall">Small task</label>
+                                    <label class="form-label display-col" for="getisSmall">Small task</label>
                                     <span *ngIf="tasktip.isSmall">
                                       <fa-icon
                                               placement="bottom"
@@ -261,6 +261,7 @@
                                               container="body"
                                               [icon]="faInfoCircle"
                                               aria-hidden="true"
+                                              class="gray-light-ico display-col"
                                       >
                                       </fa-icon>
                                     </span>
@@ -278,7 +279,7 @@
                               <div class="col">
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getforcePipe">Enforce piping</label>
+                                      <label class="form-label display-col" for="getforcePipe">Enforce piping</label>
                                       <span *ngIf="tasktip.forcePipe">
                                         <fa-icon
                                                 placement="bottom"
@@ -286,6 +287,7 @@
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
+                                                class="gray-light-ico display-col"
                                         >
                                         </fa-icon>
                                       </span>
@@ -306,7 +308,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getStaticChunks">Use static chunking</label>
+                                      <label class="form-label display-col" for="getStaticChunks">Use static chunking</label>
                                       <span *ngIf="tasktip.staticChunks">
                                         <fa-icon
                                                 placement="bottom"
@@ -314,6 +316,7 @@
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
+                                                class="gray-light-ico display-col"
                                         >
                                         </fa-icon>
                                       </span>
@@ -334,7 +337,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getchunkSize">if yes, chunk size:</label>
+                                      <label class="form-label display-col" for="getchunkSize">if yes, chunk size:</label>
                                       <input
                                             type='number'
                                             id="chunkSize"
@@ -350,7 +353,7 @@
                             <hr>
                             <div class="form-group">
                               <div class="form-outline">
-                                  <label class="form-label" for="getuseNewBench">Benchmark Type</label>
+                                  <label class="form-label display-col" for="getuseNewBench">Benchmark Type</label>
                                   <span *ngIf="tasktip.useNewBench">
                                     <fa-icon
                                             placement="bottom"
@@ -358,6 +361,7 @@
                                             container="body"
                                             [icon]="faInfoCircle"
                                             aria-hidden="true"
+                                            class="gray-light-ico display-col"
                                     >
                                     </fa-icon>
                                   </span>
@@ -378,7 +382,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                    <label class="form-label" for="getcrackerBinaryId">Binary type to run task</label>
+                                    <label class="form-label display-col" for="getcrackerBinaryId">Binary type to run task</label>
                                     <select
                                             type='number'
                                             id='crackerBinaryId'
@@ -396,7 +400,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                    <label class="form-label" for="getcrackerBinaryId">Binary type version</label>
+                                    <label class="form-label display-col" for="getcrackerBinaryId">Binary type version</label>
                                     <select
                                           type='number'
                                           id='crackerBinaryTypeId'
@@ -420,7 +424,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getpreprocessorId">Set Preprocessor</label>
+                                      <label class="form-label display-col" for="getpreprocessorId">Set Preprocessor</label>
                                       <span *ngIf="tasktip.preprocessorId">
                                         <fa-icon
                                                 placement="bottom"
@@ -428,6 +432,7 @@
                                                 container="body"
                                                 [icon]="faInfoCircle"
                                                 aria-hidden="true"
+                                                class="gray-light-ico display-col"
                                         >
                                         </fa-icon>
                                       </span>
@@ -448,7 +453,7 @@
                                 &nbsp;
                                 <div class="form-group">
                                   <div class="form-outline">
-                                      <label class="form-label" for="getPreprocessorCommand">
+                                      <label class="form-label display-col" for="getPreprocessorCommand">
                                         Preprocessor command
                                         <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
                                       </label>
@@ -476,7 +481,7 @@
          </div>
       </div>
     <div class="col-6 col-md-4">
-      <div class="bg-white shadow border-0 rounded p-6 w-100 fmxw-900">
+      <div class="layout-col shadow border-0 rounded p-6 w-100 fmxw-900">
         <div class="card">
             <ul ngbNav #nav="ngbNav" [(activeId)]="active"  class="nav-tabs">
               <li [ngbNavItem]="1">
@@ -687,4 +692,8 @@
       </div>
    </div>
 </div>
+<!-- Cheat Sheet Utilisation -->
+<ng-template #cheatsheet let-modal>
+  <app-cheatsheet></app-cheatsheet>
+</ng-template>
 

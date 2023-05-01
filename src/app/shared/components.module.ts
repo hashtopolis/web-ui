@@ -4,7 +4,9 @@ import { CommonModule } from '@angular/common';
 
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 import { HexconvertorComponent } from "./utils/hexconvertor/hexconvertor.component";
+import { CheatsheetComponent } from "./alert/cheatsheet/cheatsheet.component";
 import { FilterTextboxModule } from "./filter-textbox/filter-textbox.module";
+import { SwitchThemeModule } from "./switch-theme/switch-theme.module";
 import { TimeoutComponent } from "./alert/timeout/timeout.component";
 import { PaginationModule } from "./pagination/pagination.module";
 import { AlertComponent } from "./alert/alert.component";
@@ -12,15 +14,18 @@ import { GraphsModule } from "./graphs/graphs.module";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormsModule } from "@angular/forms";
 
+
 @NgModule({
   declarations: [
     LoadingSpinnerComponent,
     HexconvertorComponent,
+    CheatsheetComponent,
     TimeoutComponent,
     AlertComponent
   ],
   imports: [
     FilterTextboxModule,
+    SwitchThemeModule,
     ColorPickerModule,
     PaginationModule,
     GraphsModule,
@@ -32,6 +37,8 @@ import { FormsModule } from "@angular/forms";
     LoadingSpinnerComponent,
     HexconvertorComponent,
     FilterTextboxModule,
+    CheatsheetComponent,
+    SwitchThemeModule,
     ColorPickerModule,
     PaginationModule,
     TimeoutComponent,

@@ -8,9 +8,9 @@ import { DatePipe } from '@angular/common';
 import { User } from '../user.model';
 import { environment } from 'src/environments/environment';
 import { UsersService } from '../../core/_services/users/users.service';
-import { ValidationService } from '../../core/_services/validation.service';
+import { ValidationService } from '../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AccessPermissionGroupsService } from 'src/app/core/_services/accesspermissiongroups.service';
+import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
 
 @Component({
   selector: 'app-edit-users',
@@ -29,9 +29,6 @@ export class EditUsersComponent implements OnInit {
   isLoading = false;
 
   agp:any;
-  // ToDo checknames before.
-  usedUserNames = ['Admin', 'Guest'];
-
   user: any[];
   uidateformat:any;
 
@@ -49,15 +46,15 @@ export class EditUsersComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   updateForm = new FormGroup({
-      'userid': new FormControl({value: '', disabled: true}),
-      'username': new FormControl({value: '', disabled: true}),
+      'id': new FormControl({value: '', disabled: true}),
+      'name': new FormControl({value: '', disabled: true}),
       'email': new FormControl({value: '', disabled: true}),
       'registered': new FormControl({value: '', disabled: true}),
       'lastLogin': new FormControl({value: '', disabled: true}),
-      'groups': new FormControl({value: '', disabled: true}),
+      'globalPermissionGroup': new FormControl({value: '', disabled: true}),
       'updateData': new FormGroup({
-        'rightGroupId': new FormControl(''),
-        'setPassword': new FormControl('',ValidationService.passwordValidator),
+        'globalPermissionGroupId': new FormControl(''),
+        // 'setPassword': new FormControl('',ValidationService.passwordValidator),
         'isValid': new FormControl('')
       })
   });
@@ -82,7 +79,6 @@ export class EditUsersComponent implements OnInit {
     this.usersService.getUser(id).subscribe((user: any) => {
       this.user = user;
       this.isLoading = false;
-      console.log(this.user);
     });
 
     let params = {'maxResults': this.maxResults};
@@ -90,26 +86,38 @@ export class EditUsersComponent implements OnInit {
       this.agp = agp.values;
     });
 
-
-
-    // This options bind the params in the same (it is a better option but depends on the API structure)
-    // const id = +this.route.snapshot.params['id'];
-    // this.userdata = this.usersService.getUser(id);
-    // this.route.params
-    //   .subscribe(
-    //     (params: Params) => {
-    //       this.usersService.getUser(params['id']);
-    //     }
-    //   );
 }
   onUpdateUser(index: number): void{
     if (this.updateForm.valid) {
-      console.log(this.updateForm);
-      this.updateForm.reset();
-  }
+
+      this.isLoading = true;
+
+      this.usersService.updateUser(this.updateForm,this.editedUserIndex).subscribe((user: any) => {
+        this.isLoading = false;
+          Swal.fire({
+            title: "Good job!",
+            text: "User updated!",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.updateForm.reset(); // success, we reset form
+          this.router.navigate(['agents/show-agents']);
+        },
+        errorMessage => {
+          // check error status code is 500, if so, do some action
+          Swal.fire({
+            title: "Error!",
+            text: "User was not created, please try again!",
+            icon: "warning",
+            showConfirmButton: true
+          });
+        }
+      );
+    }
   }
 
-  onDelete(id: number){
+  onDelete(){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn btn-success',
@@ -128,15 +136,15 @@ export class EditUsersComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.usersService.deleteUser(id).subscribe(() => {
+        this.usersService.deleteUser(this.editedUserIndex).subscribe(() => {
           Swal.fire(
-            "Users has been deleted!",
+            "User has been deleted!",
             {
             icon: "success",
             showConfirmButton: false,
             timer: 1500
           });
-          this.ngOnInit();
+          this.router.navigate(['/users/all-users']);
         });
       } else {
         swalWithBootstrapButtons.fire(
@@ -186,15 +194,15 @@ export class EditUsersComponent implements OnInit {
     if (this.editMode) {
       this.usersService.getUser(this.editedUserIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
-        'userid': new FormControl(result['userId']),
-        'username': new FormControl(result['username']),
+        'id': new FormControl(result['id']),
+        'name': new FormControl(result['name']),
         'email': new FormControl(result['email']),
         'registered': new FormControl(this.datePipe.transform(result['registeredSince'],this.uidateformat)),
         'lastLogin': new FormControl(this.datePipe.transform(result['lastLoginDate'],this.uidateformat)),
-        'groups': new FormControl(result['groups']),
+        'globalPermissionGroup': new FormControl(result['globalPermissionGroup']),
         'updateData': new FormGroup({
-          'rightGroupId': new FormControl(result['rightGroupId']),
-          'setPassword': new FormControl(result['setPassword']),
+          'globalPermissionGroupId': new FormControl(result['globalPermissionGroupId']),
+          // 'setPassword': new FormControl(),
           'isValid': new FormControl(result['isValid']),
         })
       });

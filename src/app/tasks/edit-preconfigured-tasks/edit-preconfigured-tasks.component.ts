@@ -9,6 +9,7 @@ import { DataTableDirective } from 'angular-datatables';
 
 import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
 import { Pretask } from '../../core/_models/pretask';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 
 @Component({
@@ -32,6 +33,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   constructor(
     private preTasksService: PreTasksService,
     private route:ActivatedRoute,
+    private users: UsersService,
     private router: Router
   ) { }
 
@@ -50,6 +52,9 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   files: any //Add Model
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
+
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -105,6 +110,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   }
 
   onSubmit(){
+    if(this.managePretaskAccess || typeof this.managePretaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.isLoading = true;
@@ -134,6 +140,24 @@ export class EditPreconfiguredTasksComponent implements OnInit{
         }
       );
     }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
+  }
+
+  // Set permissions
+  managePretaskAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.managePretaskAccess = perm.globalPermissionGroup.permissions.managePretaskAccess;
+    });
   }
 
   private initForm() {

@@ -1,0 +1,392 @@
+<!-- Spinner Loading -->
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Header -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Permission Group <b>{{ editedGPG.name | lowercase | titlecase }}</b></h2>
+  </div>
+</div>
+<!-- Table current members -->
+<div class="row g-3">
+  <div class="col-md-5">
+  <h2 class="h4">Members</h2>
+  <div class="table-responsive">
+    &nbsp;
+      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
+        <thead class="thead-light">
+          <tr>
+            <th class="border-0 rounded-start">ID</th>
+            <th class="border-0 rounded-end">Cracked</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let g of editedGPG.user">
+            <td>{{ g.id }}</td>
+            <td>
+              <a class='btn-outline-gray-600 float-right' [routerLink]="['/users/',g.id,'edit']" title="View User">
+                <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+              </a>
+              {{ g.name }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+</div>
+<!-- Set permissions -->
+  <div class="col-md-7">
+    <h2 class="h4">Set permissions</h2>
+    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <div class="form-outline">
+              <label class="form-label requiredak" for="getname">Permission Group Name</label>
+              <input
+                    type='text'
+                    id="name"
+                    class='form-control'
+                    formControlName="name"
+              >
+          </div>
+      </div>
+      &nbsp;
+      <div formGroupName="permissions">
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Hashlists</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+
+            <div class="form-outline">
+              <label class="form-label display-col" for="SetHashlistAccess">View</label>
+              <select
+                    id='viewHashlistAccess'
+                    class='form-select'
+                    formControlName="viewHashlistAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="SetManageHashlistAccess">Manage</label>
+              <select
+                    id='manageHashlistAccess'
+                    class='form-select'
+                    formControlName="manageHashlistAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="SetcreateHashlistAccess">Create</label>
+              <select
+                    id='createHashlistAccess'
+                    class='form-select'
+                    formControlName="createHashlistAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="SetcreateSuperhashlistAccess">Create SuperHashlist</label>
+              <select
+                    id='createSuperhashlistAccess'
+                    class='form-select'
+                    formControlName="createSuperhashlistAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="SetviewHashesAccess">View Hashes</label>
+              <select
+                    id='viewHashesAccess'
+                    class='form-select'
+                    formControlName="viewHashesAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Agents</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setviewAgentsAccess">View</label>
+              <select
+                    id='viewAgentsAccess'
+                    class='form-select'
+                    formControlName="viewAgentsAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setmanageAgentAccess">Manage</label>
+              <select
+                    id='manageAgentAccess'
+                    class='form-select'
+                    formControlName="manageAgentAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setcreateAgentAccess">Create</label>
+              <select
+                    id='createAgentAccess'
+                    class='form-select'
+                    formControlName="createAgentAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Tasks</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setviewTaskAccess">View</label>
+              <select
+                    id='viewTaskAccess'
+                    class='form-select'
+                    formControlName="viewTaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setrunTaskAccess">Run</label>
+              <select
+                    id='runTaskAccess'
+                    class='form-select'
+                    formControlName="runTaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setcreateTaskAccess">Create</label>
+              <select
+                    id='createTaskAccess'
+                    class='form-select'
+                    formControlName="createTaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setmanageTaskAccess">Manage</label>
+              <select
+                    id='manageTaskAccess'
+                    class='form-select'
+                    formControlName="manageTaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setviewPretaskAccess">View Preconfigured Tasks</label>
+              <select
+                    id='viewPretaskAccess'
+                    class='form-select'
+                    formControlName="viewPretaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setcreatePretaskAccess">Create Preconfigured Tasks</label>
+              <select
+                    id='createPretaskAccess'
+                    class='form-select'
+                    formControlName="createPretaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setmanagePretaskAccess">Manage Preconfigured Tasks</label>
+              <select
+                    id='managePretaskAccess'
+                    class='form-select'
+                    formControlName="managePretaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setviewSupertaskAccess">View SuperTasks</label>
+              <select
+                    id='viewSupertaskAccess'
+                    class='form-select'
+                    formControlName="viewSupertaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="createSupertaskAccess">Create SuperTasks</label>
+              <select
+                    id='createSupertaskAccess'
+                    class='form-select'
+                    formControlName="createSupertaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="createManageSupertaskAccess">Manage SuperTasks</label>
+              <select
+                    id='manageSupertaskAccess'
+                    class='form-select'
+                    formControlName="manageSupertaskAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Files</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setViewFileAccess">View</label>
+              <select
+                    id='viewFileAccess'
+                    class='form-select'
+                    formControlName="viewFileAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setmanageFileAccess">Manage</label>
+              <select
+                    id='manageFileAccess'
+                    class='form-select'
+                    formControlName="manageFileAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setaddFileAccess">Create</label>
+              <select
+                    id='addFileAccess'
+                    class='form-select'
+                    formControlName="addFileAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Users</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setuserConfigAccess">Manage Users</label>
+              <select
+                    id='userConfigAccess'
+                    class='form-select'
+                    formControlName="userConfigAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setmanageAccessGroupAccess">Manage Access Groups</label>
+              <select
+                    id='manageAccessGroupAccess'
+                    class='form-select'
+                    formControlName="manageAccessGroupAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Configuration</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <div class="form-outline">
+              <label class="form-label display-col" for="setServerConfigAccess">Access Configuration</label>
+              <select
+                    id='serverConfigAccess'
+                    class='form-select'
+                    formControlName="serverConfigAccess"
+                  >
+                  <option [ngValue]="true">Yes</option>
+                  <option [ngValue]="false">No</option>
+              </select>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+    </div>
+    <button class="btn btn-gray-800" type="submit">Update</button>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+
+

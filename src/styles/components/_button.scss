@@ -2,6 +2,10 @@
           SECTION BUTTON
    ================================== */
 
+/*
+  01- Global
+*/
+
 .btn-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -132,3 +136,94 @@
   bottom:0px;
   margin-left:-50px;
 }
+
+/*
+  01- End
+*/
+
+/*
+  02- Button Page Settings icon fa Gear
+*/
+
+.fagearcust{
+  border:none;
+  background:#e7eaed;
+  padding:7px;
+  border-radius:25px;
+  color:black;
+}
+
+.fagearcust:hover{
+  color: rgb(177, 172, 172);
+}
+
+
+/*
+  02- End
+*/
+
+/*
+  03- Custom Checkbox color
+*/
+// Gray
+.form-check-input-gray:checked{
+  background-color: #343d49 !important;
+  border: 0;
+}
+
+.form-check-input-gray:focus, .label::after, label.form-check-label:focus, .form-check-input::after, .form-check-input:not(:disabled):not(.disabled):active:focus {
+  color: black;
+  outline: 0;
+  border: 0;
+  box-shadow: 0 0 0 0.1rem #1a232f !important;
+}
+
+// Violet
+.form-check-input-violet:checked{
+  background-color: #88315e !important;
+  border: 0;
+}
+
+.form-check-input-violet:focus, .label::after, label.form-check-label:focus, .form-check-input::after, .form-check-input:not(:disabled):not(.disabled):active:focus {
+  color: black;
+  outline: 0;
+  border: 0;
+  box-shadow: 0 0 0 0.1rem #5d2542 !important;
+}
+
+
+/*
+  03- End
+*/
+
+/*
+  04- Scoll Y to top menu button
+*/
+.scroll-to-top {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  opacity: 0;
+  color: rgba(134, 140, 144, 0.75);
+  border: 2px solid rgba(134, 140, 144, 0.75);
+  border-radius: 40px;
+  background: transparent;
+  transition: all .2s ease-in-out;
+ }
+
+ .scroll-to-top:hover {
+  color: #FFF;
+  background: rgba(134, 140, 144, 0.75);
+  border: 2px solid rgba(134, 140, 144, 0.75);
+ }
+
+ .show-scrollTop {
+  opacity: 1;
+  color: rgba(134, 140, 144, 0.75);
+  border: 2px solid rgba(134, 140, 144, 0.75);
+  transition: all .2s ease-in-out;
+ }
+
+/*
+  04- End
+*/

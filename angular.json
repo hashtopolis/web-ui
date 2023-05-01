@@ -30,8 +30,18 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap-darkmode/css/darktheme.css",
               "node_modules/sweetalert2/src/sweetalert2.scss",
-              "src/styles/styles.scss",
+              {
+                "input": "src/styles/styles.scss",
+                "bundleName": "default",
+                "inject": true
+              },
+              {
+                "input": "src/styles/dark.scss",
+                "bundleName": "dark",
+                "inject": false
+              },
               "node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css",
               "node_modules/datatables.net-buttons-dt/css/buttons.dataTables.css",
               "node_modules/datatables.net-select-dt/css/select.dataTables.css",

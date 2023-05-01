@@ -62,6 +62,18 @@ export class FilesService {
   }
 
 /**
+ * Create File
+ * @param arr - fields
+ * @returns Object
+**/
+  createFile(arr: any): Observable<any> {
+    return this.http.post<any>(this.endpoint, arr)
+    .pipe(
+      tap(data => console.log('All: ', JSON.stringify(data)))
+    );
+  }
+
+/**
  * Update File
  * @param arr - Fields
  * @returns Object

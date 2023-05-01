@@ -6,8 +6,9 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { interval, Subject, Subscription } from 'rxjs';
 
+import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
-import { ChunkService } from 'src/app/core/_services/chunks.service';
 
 declare let $:any;
 
@@ -51,10 +52,14 @@ export class ShowTasksComponent implements OnInit {
     private tasksService: TasksService,
     private chunkService: ChunkService,
     private route:ActivatedRoute,
+    private users: UsersService,
     private router: Router
     ) { }
 
   ngOnInit(): void {
+
+    this.setAccessPermissions();
+
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
@@ -81,6 +86,7 @@ export class ShowTasksComponent implements OnInit {
       destroy: true,
       select: {
         style: 'multi',
+        selector: 'tr>td:nth-child(1)'
         },
       buttons: {
           dom: {
@@ -181,91 +187,206 @@ export class ShowTasksComponent implements OnInit {
 
 }
 
-  getTasks():void {
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
+// Set permissions
+manageTaskAccess: any;
 
-    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
-      this.alltasks = tasks.values;
-      this.loadChunks();
-      this.dtTrigger.next(null);
+setAccessPermissions(){
+  this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+      this.manageTaskAccess = perm.globalPermissionGroup.permissions.manageTaskAccess;
+  });
+}
+
+getTasks():void {
+  let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
+
+  this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+    this.alltasks = tasks.values;
+    this.loadChunks();
+    this.dtTrigger.next(null);
+  });
+}
+
+loadChunks(){
+  let params = {'maxResults': 999999999};
+  this.chunkService.getChunks(params).subscribe((c: any)=>{
+    this.loadchunks = c;
+  });
+}
+
+rerender(): void {
+  this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+    // Destroy the table first
+    dtInstance.destroy();
+    // Call the dtTrigger to rerender again
+    setTimeout(() => {
+      this.dtTrigger['new'].next();
     });
-  }
+  });
+}
 
-  loadChunks(){
-    let params = {'maxResults': 999999999};
-    this.chunkService.getChunks(params).subscribe((c: any)=>{
-      this.loadchunks = c;
-    });
-  }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
-  }
-
-  onArchive(id: number){
-    this.tasksService.archiveTask(id).subscribe((tasks: any) => {
-      Swal.fire({
-        title: "Good job!",
-        text: "Archived!",
-        icon: "success",
-        showConfirmButton: false,
-        timer: 1500
-      });
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-    });
-  }
-
-  onDelete(id: number){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
-    })
+onArchive(id: number){
+  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
+  this.tasksService.archiveTask(id).subscribe((tasks: any) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.tasksService.deleteTask(id).subscribe(() => {
-          Swal.fire(
-            "Task has been deleted!",
-            {
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        });
-      } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Task is safe!',
-          'error'
-        )
-      }
+      title: "Good job!",
+      text: "Archived!",
+      icon: "success",
+      showConfirmButton: false,
+      timer: 1500
     });
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+  });
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+onDelete(id: number){
+  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-success',
+      cancelButton: 'btn btn-danger'
+    },
+    buttonsStyling: false
+  })
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Once deleted, it can not be recovered!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: '#4B5563',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!'
+  })
+  .then((result) => {
+    if (result.isConfirmed) {
+      this.tasksService.deleteTask(id).subscribe(() => {
+        Swal.fire(
+          "Task has been deleted!",
+          {
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        this.ngOnInit();
+        this.rerender();  // rerender datatables
+      });
+    } else {
+      swalWithBootstrapButtons.fire(
+        'Cancelled',
+        'No worries, your Task is safe!',
+        'error'
+      )
+    }
+  });
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+// Bulk actions
+
+onSelectedTasks(){
+  $(".dt-button-background").trigger("click");
+  let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  if(selection.length == 0) {
+    Swal.fire({
+      title: "You haven't selected any Task",
+      type: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    })
+    return;
+  }
+  let selectionnum = selection.map(i=>Number(i));
+
+  return selectionnum;
+}
+
+onDeleteBulk(){
+  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
+  const self = this;
+  let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  let sellen = selectionnum.length;
+  let errors = [];
+  selectionnum.forEach(function (value) {
+    Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
+    Swal.showLoading()
+  self.tasksService.deleteTask(value)
+  .subscribe(
+    err => {
+      console.log('HTTP Error', err)
+      err = 1;
+      errors.push(err);
+    },
+    );
+  });
+  self.onDone(sellen);
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+onUpdateBulk(value: any){
+  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
+    const self = this;
+    let selectionnum = this.onSelectedTasks();
+    let sellen = selectionnum.length;
+    selectionnum.forEach(function (id) {
+      Swal.fire('Updating...'+sellen+' Task(s)...Please wait')
+      Swal.showLoading()
+    self.tasksService.updateTask(id, value).subscribe(
+    );
+  });
+  self.onDone(sellen);
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+onDone(value?: any){
+  setTimeout(() => {
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+    Swal.close();
+    Swal.fire({
+      title: 'Done!',
+      type: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    })
+  },3000);
   }
 
-  // Bulk actions
+onModalProject(title: string){
+  (async () => {
 
-  onSelectedTasks(){
     $(".dt-button-background").trigger("click");
     let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
@@ -277,92 +398,26 @@ export class ShowTasksComponent implements OnInit {
       })
       return;
     }
-    let selectionnum = selection.map(i=>Number(i));
 
-    return selectionnum;
-  }
-
-  onDeleteBulk(){
-    const self = this;
-    let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-    let sellen = selectionnum.length;
-    let errors = [];
-    selectionnum.forEach(function (value) {
-      Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
-      Swal.showLoading()
-    self.tasksService.deleteTask(value)
-    .subscribe(
-      err => {
-        console.log('HTTP Error', err)
-        err = 1;
-        errors.push(err);
-      },
-      );
-    });
-   self.onDone(sellen);
-  }
-
-  onUpdateBulk(value: any){
-      const self = this;
-      let selectionnum = this.onSelectedTasks();
-      let sellen = selectionnum.length;
-      selectionnum.forEach(function (id) {
-        Swal.fire('Updating...'+sellen+' Task(s)...Please wait')
-        Swal.showLoading()
-      self.tasksService.updateTask(id, value).subscribe(
-      );
-    });
-    self.onDone(sellen);
-  }
-
-  onDone(value?: any){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-      Swal.close();
-      Swal.fire({
-        title: 'Done!',
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      })
-    },3000);
-   }
-
-  onModalProject(title: string){
-    (async () => {
-
-      $(".dt-button-background").trigger("click");
-      let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-      if(selection.length == 0) {
-        Swal.fire({
-          title: "You haven't selected any Task",
-          type: 'success',
-          timer: 1500,
-          showConfirmButton: false
-        })
-        return;
+    const { value: formValues } = await Swal.fire({
+      title: title,
+      html:
+        '<input id="project-input" class="swal2-input">',
+      focusConfirm: false,
+      confirmButtonColor: '#4B5563',
+      preConfirm: () => {
+        return [
+          (<HTMLInputElement>document.getElementById('project-input')).value,
+        ]
       }
+    })
 
-      const { value: formValues } = await Swal.fire({
-        title: title,
-        html:
-          '<input id="project-input" class="swal2-input">',
-        focusConfirm: false,
-        confirmButtonColor: '#4B5563',
-        preConfirm: () => {
-          return [
-            (<HTMLInputElement>document.getElementById('project-input')).value,
-          ]
-        }
-      })
+    if (formValues) {
+      let edit = {projectName: +formValues};
+      this.onUpdateBulk(edit);
+    }
 
-      if (formValues) {
-        let edit = {projectName: +formValues};
-        this.onUpdateBulk(edit);
-      }
-
-      })()
-  }
+    })()
+}
 
 }

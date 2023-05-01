@@ -1,15 +1,17 @@
 import { faTrash, faDownload, faInfoCircle, faCopy } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Subject } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DataTableDirective } from 'angular-datatables';
 import { environment } from './../../../environments/environment';
+import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
-import { CrackerService } from '../../core/_services/config/cracker.service';
-import { VoucherService } from '../../core/_services/agents/voucher.service';
+
 import { AgentBinService } from 'src/app/core/_services/config/agentbinary.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { VoucherService } from '../../core/_services/agents/voucher.service';
+import { CrackerService } from '../../core/_services/config/cracker.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 @Component({
   selector: 'app-new-agent',
@@ -19,9 +21,9 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   // Loader
   isLoading = false;
   // Form attributtes
-  faTrash=faTrash;
-  faDownload=faDownload;
   faInfoCircle=faInfoCircle;
+  faDownload=faDownload;
+  faTrash=faTrash;
   faCopy=faCopy;
 
   @ViewChild(DataTableDirective, {static: false})
@@ -46,6 +48,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     private agentBinService: AgentBinService,
     private voucherService: VoucherService,
     private uiService: UIConfigService,
+    private users: UsersService
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -57,6 +60,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     // URL paths
+    this.setAccessPermissions();
 
     // Generate Voucher
     this.randomstring = Math.random().toString(36).slice(-8);
@@ -87,6 +91,17 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   }
 
+  // Set permissions
+  manageAgentAccess: any;
+  createAgentAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
+        this.createAgentAccess = perm.globalPermissionGroup.permissions.createAgentAccess;
+    });
+  }
+
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
@@ -99,6 +114,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: number){
+    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn btn-success',
@@ -136,9 +152,20 @@ export class NewAgentComponent implements OnInit, OnDestroy {
         )
       }
     });
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
+    }
   }
 
   onSubmit(){
+    console.log(this.createAgentAccess)
+    if(this.createAgentAccess || typeof this.createAgentAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.isLoading = true;
@@ -167,6 +194,15 @@ export class NewAgentComponent implements OnInit, OnDestroy {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 

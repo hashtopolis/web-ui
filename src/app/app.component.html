@@ -1,17 +1,12 @@
 
-<div class="container">
-
+<div [ngClass]="{'container':screenmode == 'true','full-container-app':screenmode == 'false'}">
   <app-header></app-header>
-
-  <app-breadcrumb [deliminator]="''"></app-breadcrumb>
-
+  <!-- <app-breadcrumb [deliminator]="''"></app-breadcrumb> -->
   <router-outlet></router-outlet>
-
   <!-- ToDo scoll button doesnt work properly -->
   <!-- <app-scroll-top></app-scroll-top> -->
-
   <app-footer></app-footer>
-
+  <!-- <app-theme-switcher></app-theme-switcher> -->
 </div>
 
 

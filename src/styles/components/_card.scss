@@ -6,6 +6,12 @@
   01- custom card grid
 */
 
+.overflowAuto {
+  overflow-x: hidden;
+  overflow-y: auto;
+/*   height: calc(100vh - 163px); */
+}
+
 .card-container-ag {
   width:95%;
 }
@@ -54,4 +60,132 @@
 
 .gray-light-ico:hover{
   color: rgb(177, 172, 172);
+  cursor: pointer;
 }
+
+.highlight {
+  background-color: #999
+}
+
+hr.break:after {
+  background: none repeat scroll 0% 0% #000;
+  content: "";
+  height: 10px;
+  left: 50%;
+  margin: -5px auto auto -5px;
+  position: absolute;
+  // transform: rotate(-45deg);
+  // width: 10px;
+  }
+
+.err-msg {
+  background: #eee;
+  padding: 1rem;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/*
+  01- End
+*/
+
+/*
+  02- Dashboard Card
+*/
+
+.card{
+  box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.15);
+  background-color: #FFFFFF;
+  color: black;
+  margin-bottom: 20px;
+  position: relative;
+  border: 0 none;
+
+  -webkit-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -moz-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -o-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  -ms-transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+  transition: transform 300ms cubic-bezier(0.34, 2, 0.6, 1), box-shadow 200ms ease;
+
+    .card-body{
+        padding: 15px 15px 10px 15px;
+
+        &.table-full-width{
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
+    .card-header{
+      &:not([data-background-color]){
+        background-color: transparent;
+      }
+      padding: 15px 15px 0;
+      border: 0;
+
+      .card-title{
+          margin-top: 10px;
+      }
+    }
+
+    .card-footer{
+        background-color: transparent;
+        border: 0;
+
+        .stats{
+            i{
+                margin-right: 5px;
+                position: relative;
+                top: 0px;
+                color: rgb(144, 130, 122);
+            }
+        }
+
+    }
+
+}
+
+.card-dash{
+  .card-body{
+      padding: 15px 15px 0px;
+
+      .numbers{
+        text-align: right;
+        font-size: 2em;
+
+          p{
+              margin-bottom: 0;
+          }
+          .card-category {
+            color: darkblue;
+            font-size: 16px;
+            line-height: 1.4em;
+          }
+      }
+  }
+  .card-footer{
+      padding: 0px 15px 15px;
+
+      .stats{
+        color: darkblue;
+      }
+
+      hr{
+        margin-top: 10px;
+        margin-bottom: 15px;
+      }
+  }
+
+}
+
+.app-echarts {
+  margin: 0 !important;
+  padding: 0 !important;
+  // padding: 1.1rem;
+}
+
+/*
+  02- Dashboard Card End
+*/
+
+

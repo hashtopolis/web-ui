@@ -10,7 +10,9 @@ import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
 import { SearchHashComponent } from "./search-hash/search-hash.component";
 import { ShowCracksComponent } from "./show-cracks/show-cracks.component";
 import { HashlistComponent } from "./hashlist/hashlist.component";
+import { HashlistGuard } from "../core/_guards/hashlist.guard";
 import { HashesComponent } from "./hashes/hashes.component";
+
 
 const routes: Routes = [
   {
@@ -22,79 +24,81 @@ const routes: Routes = [
             kind: 'hashlist',
             breadcrumb: 'Hashlist'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'archived', component: HashlistComponent,
         data: {
             kind: 'archived',
             breadcrumb: 'Hashlist Archived'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'hashlist/:id/edit', component: EditHashlistComponent,
         data: {
             kind: 'edit-hashlist',
             breadcrumb: 'Edit Hashlist'
         },
-        canActivate: [AuthGuard],
-        canDeactivate: [PendingChangesGuard]},
+        canActivate: [AuthGuard,HashlistGuard],
+        // canDeactivate: [PendingChangesGuard]
+      },
       {
         path: 'new-hashlist', component: NewHashlistComponent,
         data: {
             kind: 'new-hashlist',
             breadcrumb: 'New Hashlist'
         },
-        canActivate: [AuthGuard],
-        canDeactivate: [PendingChangesGuard]},
+        canActivate: [AuthGuard,HashlistGuard],
+        // canDeactivate: [PendingChangesGuard]
+      },
       {
         path: 'superhashlist', component: SuperhashlistComponent,
         data: {
             kind: 'super-hashlist',
             breadcrumb: 'Super Hashlist'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'new-superhashlist', component: NewSuperhashlistComponent,
         data: {
             kind: 'new-superhashlist',
             breadcrumb: 'New Super Hashlist'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'hashes/tasks/:id', component: HashesComponent,
         data: {
-            kind: 'task-hashes',
+            kind: 'taskhas',
             breadcrumb: 'Task Hashes'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'hashes/hashlist/:id', component: HashesComponent,
         data: {
-            kind: 'hashlist-hashes',
+            kind: 'hashlisthash',
             breadcrumb: 'Hashlist Hashes'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'hashes/chunks/:id', component: HashesComponent,
         data: {
-            kind: 'chunks-hashes',
+            kind: 'chunkshash',
             breadcrumb: 'Chunks Hashes'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'search-hash', component: SearchHashComponent,
         data: {
             kind: 'search-hash',
             breadcrumb: 'Search-hash'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
       {
         path: 'show-cracks', component: ShowCracksComponent,
         data: {
             kind: 'show-cracks',
             breadcrumb: 'Show Cracks'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [AuthGuard,HashlistGuard]},
     ]
   }
 ]

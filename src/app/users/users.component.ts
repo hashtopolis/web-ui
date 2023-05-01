@@ -5,8 +5,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { environment } from 'src/environments/environment';
 import { UsersService } from '../core/_services/users/users.service';
-import { ValidationService } from '../core/_services/validation.service';
-import { AccessPermissionGroupsService } from '../core/_services/accesspermissiongroups.service';
+import { ValidationService } from '../core/_services/shared/validation.service';
+import { AccessPermissionGroupsService } from '../core/_services/access/accesspermissiongroups.service';
 
 @Component({
   selector: 'app-users',
@@ -16,9 +16,8 @@ export class UsersComponent implements OnInit {
   isLoading = false;
 
   createForm: FormGroup;
-  // We need an array uf user names, so we do not create a duplicate name.
   agp:any;
-  usedUserNames = ['Admin', 'Guest'];
+  usedUserNames = [];
 
   constructor(
      private route:ActivatedRoute,
@@ -36,23 +35,19 @@ export class UsersComponent implements OnInit {
       this.agp = agp.values;
     });
 
+    this.usersService.getAllusers(params).subscribe((res: any) => {
+      var arrNames = [];
+      for(let i=0; i < res.values.length; i++){
+        arrNames.push(res.values[i]['name']);
+      }
+      this.usedUserNames = arrNames;
+    });
+
     this.createForm = new FormGroup({
-      // 'username': new FormControl(null, [Validators.required, this.checkUserNameExist.bind(this)]),
-      'username': new FormControl('', Validators.required),
+      'name': new FormControl(null, [Validators.required, this.checkUserNameExist.bind(this)]),
       'email': new FormControl(null, [Validators.required, Validators.email]), //Check ValidationService.emailValidator
-      'rightGroupId': new FormControl(1),
-      'passwordHash': new FormControl(''),
-      'passwordSalt': new FormControl(''),
       'isValid': new FormControl(true),
-      'isComputedPassword': new FormControl(true),
-      'lastLoginDate': new FormControl(0),
-      'registeredSince': new FormControl(0),
-      'sessionLifetime': new FormControl(0),
-      'yubikey': new FormControl(''),
-      'otp1': new FormControl(''),
-      'otp2': new FormControl(''),
-      'otp3': new FormControl(''),
-      'otp4': new FormControl(''),
+      'globalPermissionGroupId': new FormControl()
     });
 
   }

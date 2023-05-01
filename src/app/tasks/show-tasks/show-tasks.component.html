@@ -46,24 +46,18 @@
               </thead>
               <tbody>
               <tr *ngFor="let task of alltasks">
-                  <td [ngClass]="!task.color ? '' : 'pill-ebidem-tk'"  [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
+                  <td [ngClass]="!task.color ? 'pill-ebidem' : 'pill-ebidem-tk'"  [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
                   <td>
-                      <a>{{ task.taskName | lowercase | titlecase }}</a>
+                      <a [routerLink]="[task.taskId,'edit']">{{ task.taskName | lowercase | titlecase }}</a>
                       <span *ngIf="task.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
                   </td>
                   <td>
-                    {{ task.hashlist.name }}
-                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashlist',task.hashlist.hashlistId,'edit']" title="Edit Hashlist">
-                      <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-                    </a>
+                    <a [routerLink]="['/hashlists/hashlist',task.hashlist.hashlistId,'edit']">{{ task.hashlist.name }}</a>
                   </td>
                   <td *ngIf="task.keyspace>0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}}/ {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
                   <td *ngIf="task.keyspace==0"></td>
                   <td>
-                    {{ loadchunks | tdcracked:task.taskId }}
-                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" title="Show Hashes">
-                      <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-                    </a>
+                    <a [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ loadchunks | tdcracked:task.taskId }}</a>
                   </td>
                   <td>{{ task.maxAgents }}</td>
                   <td>{{ task.priority }}</td>

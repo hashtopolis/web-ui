@@ -3,37 +3,37 @@
 </div>
 <!-- <h2 *ngIf="!allowEdit">You are not allowed to edit! Talk with your administrator.</h2>
 <div *ngIf="allowEdit"> -->
-<section>
+<section>&nbsp;
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12 d-flex align-items-center justify-content-center">
-          <div class="bg-white shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+          <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
               <h2 class="h5 mb-4">User Profile</h2><br>
               <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
                   <div class="row">
                         <div class="form-group">
                             <div class="form-outline">
-                              <label class="form-label" for="getuserid" >User ID</label>
+                              <label class="form-label" for="getId" >User ID</label>
                               <input
                                     type='number'
-                                    id="userid"
+                                    id="id"
                                     class='form-control'
-                                    formControlName="userid"
+                                    formControlName="id"
                               >
                             </div>
                         </div>
                         &nbsp;
                         <div class="form-outline">
-                          <label class="form-label" for="getusername">User Name</label>
+                          <label class="form-label" for="getName">User Name</label>
                               <div class="input-group">
                                   <span class="input-group-text">
                                     <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
                                   </span>
                                   <input
                                         type='text'
-                                        id="username"
+                                        id="name"
                                         class='form-control'
-                                        formControlName="username"
+                                        formControlName="name"
                                   />
                               </div>
                         </div>
@@ -87,23 +87,23 @@
                           <label class="form-label" for="updatemembergroup">Member of groups</label>
                               <input
                                     type='text'
-                                    id="groups"
+                                    id="globalPermissionGroup"
                                     class='form-control'
-                                    formControlName="groups"
+                                    formControlName="globalPermissionGroup"
                               />
                         </div>
                         <h2 class="h5 my-4">Update Settings</h2>
                         <div formGroupName="updateData">
                         <div class="form-outline">
-                          <label class="form-label" for="updaterightGroupId">Set users right group</label>
+                          <label class="form-label" for="updateGlobalPermissionGroupId">Set users right group</label>
                               <select
                                     type='number'
-                                    id="group"
+                                    id="globalPermissionGroupId"
                                     class='form-select'
-                                    formControlName="rightGroupId"
+                                    formControlName="globalPermissionGroupId"
                                   >
-                                  <span *ngIf="!updateForm.errors?.['group'].valid && updateForm.errors?.['group'].touched" class="help-block" >Please select a group!</span>
-                                  <option *ngFor="let a of agp" [value]="a.rightGroupId">{{ a.groupName }}</option>
+                                  <span *ngIf="!updateForm.errors?.['globalPermissionGroupId'].valid && updateForm.errors?.['globalPermissionGroupId'].touched" class="help-block" >Please select a group!</span>
+                                  <option *ngFor="let a of agp" [ngValue]="a.id">{{ a.name }}</option>
                               </select>
                         </div>
                         &nbsp;
@@ -117,8 +117,9 @@
                                       type='new-password'
                                       id="setpassword"
                                       class="form-control"
-                                      formControlName="setPassword"
+
                                 />
+                                <!-- formControlName="setPassword" -->
                             </div>
                       </div>
                       <div class="form-check form-switch">
@@ -135,10 +136,10 @@
                       </div>
                     </div>
                    </div>
-                   <button  class="btn btn-gray-800" type="submit" (ngSubmit)="onUpdateUser(user['userId'])">Update</button>
-                   &nbsp;
-                  <button  class="btn btn-danger" type="submit" (ngSubmit)="onDelete(user['userId'])">Delete User</button>
+                   <button  class="btn btn-gray-800" type="submit">Update</button>
+                   <a  class="btn btn-danger" (click)="onDelete()">Delete</a>
             </form>
+            &nbsp;
          </div>
       </div>
    </div>

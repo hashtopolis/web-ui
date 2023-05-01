@@ -8,7 +8,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { HashtypeService } from '../../core/_services/hashtype.service';
+import { HashtypeService } from '../../core/_services/config/hashtype.service';
 
 @Component({
   selector: 'app-hashtypes',

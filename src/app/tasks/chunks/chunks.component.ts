@@ -5,7 +5,7 @@ import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
 import { environment } from 'src/environments/environment';
-import { ChunkService } from '../../core/_services/chunks.service';
+import { ChunkService } from '../../core/_services/tasks/chunks.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
 import { AgentsService } from '../../core/_services/agents/agents.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';

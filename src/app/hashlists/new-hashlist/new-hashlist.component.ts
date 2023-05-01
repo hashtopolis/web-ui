@@ -1,20 +1,22 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener  } from '@angular/core';
-import { faMagnifyingGlass, faUpload, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { ShowHideTypeFile } from '../../shared/utils/forms';
-import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { HashtypeService } from 'src/app/core/_services/hashtype.service';
-import { AccessGroupsService } from '../../core/_services/accessgroups.service';
+import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UploadTUSService } from '../../core/_services/files/files_tus.service';
+import { ListsService } from '../../core/_services/hashlist/hashlist.service';
+import { HashtypeService } from 'src/app/core/_services/config/hashtype.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
+import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
 import { AccessGroup } from '../../core/_models/access-group';
+import { ShowHideTypeFile } from '../../shared/utils/forms';
 import { UploadFileTUS } from '../../core/_models/files';
+
 
 @Component({
   selector: 'app-new-hashlist',
@@ -28,6 +30,7 @@ export class NewHashlistComponent implements OnInit {
   */
   isLoading = false;
   faUpload=faUpload;
+  faFileUpload=faFileUpload;
   faInfoCircle=faInfoCircle;
   faMagnifyingGlass=faMagnifyingGlass;
 
@@ -52,6 +55,7 @@ export class NewHashlistComponent implements OnInit {
      private uploadService:UploadTUSService,
      private uiService: UIConfigService,
      private hlService: ListsService,
+     private users: UsersService,
      private router: Router
      ) { }
 
@@ -75,14 +79,22 @@ export class NewHashlistComponent implements OnInit {
       'useBrain': new FormControl(+this.brainenabled=== 1? true:false),
       'brainFeatures': new FormControl(null || 3),
       'notes': new FormControl(''),
-      "sourceType": new FormControl('upload' || null),
+      "sourceType": new FormControl('import' || null),
       "sourceData": new FormControl(''),
       'hashCount': new FormControl(0),
-      'cracked': new FormControl(0),
       'isArchived': new FormControl(false),
       'isSecret': new FormControl(true),
     });
 
+  }
+
+  // Set permissions
+  createHashlistAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.createHashlistAccess = perm.globalPermissionGroup.permissions.createHashlistAccess;
+    });
   }
 
   ngAfterViewInit() {
@@ -112,7 +124,6 @@ export class NewHashlistComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            console.log(item);
             return '<div  class="hashtype_selectize">' + escape(item.descrId) + '</div>';
           },
         },
@@ -132,7 +143,7 @@ export class NewHashlistComponent implements OnInit {
 
   OnChangeValue(value){
     this.signupForm.patchValue({
-      hashTypeId: value
+      hashTypeId: Number(value)
     });
     this._changeDetectorRef.detectChanges();
   }
@@ -146,7 +157,7 @@ export class NewHashlistComponent implements OnInit {
     const file = event.item(0)
     // const filename = `${new Date().getTime()}_${file.name}`;
     const filename = file.name;
-      console.log(`Uploading ${file.name} with size ${file.size} and type ${file.type}`);
+    console.log(`Uploading ${file.name} with size ${file.size} and type ${file.type}`);
     this.uploadService.uploadFile(file, filename);
   }
 
@@ -169,10 +180,10 @@ export class NewHashlistComponent implements OnInit {
     this.invalidFiles = fileList;
   }
 
-   /**
+  /**
    * Handle Input and return file size
    * @param event
-   */
+  */
 
   fileSizeValue = fileSizeValue;
 
@@ -193,11 +204,11 @@ export class NewHashlistComponent implements OnInit {
   /**
    * Create Hashlist
    *
-   */
+  */
 
   onSubmit(): void{
+      if(this.createHashlistAccess || typeof this.createHashlistAccess == 'undefined'){
       if (this.signupForm.valid) {
-      console.log(this.signupForm.value);
 
       this.isLoading = true;
 
@@ -210,14 +221,10 @@ export class NewHashlistComponent implements OnInit {
           showConfirmButton: false,
           timer: 1500
         });
-        this.router.navigate(['/hashlists/hashlist']);
+        this.signupForm.reset(); // success, we reset form
+        // this.router.navigate(['/hashlists/hashlist']);
       },
       errorMessage => {
-        // check error status code is 500, if so, do some action
-        // const exception = errorMessage.error.message.exception[0].message;
-        // const exception2 = errorMessage.error.message.exception['0'].message;
-        // console.log(exception);
-        // console.log(exception2);
         Swal.fire({
           title: "Oppss! Error",
           text: errorMessage.error.message,
@@ -226,22 +233,30 @@ export class NewHashlistComponent implements OnInit {
         });
       }
     );
-    // this.signupForm.reset(); // success, we reset form
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 
-    // @HostListener allows us to also guard against browser refresh, close, etc.
-    @HostListener('window:beforeunload', ['$event'])
-    unloadNotification($event: any) {
-      if (!this.canDeactivate()) {
-        $event.returnValue = "IE and Edge Message";
-      }
+  // @HostListener allows us to also guard against browser refresh, close, etc.
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    if (!this.canDeactivate()) {
+      $event.returnValue = "IE and Edge Message";
     }
+  }
 
-    canDeactivate(): Observable<boolean> | boolean {
-      if (this.signupForm.valid) {
-      return false;
-      }
-      return true;
+  canDeactivate(): Observable<boolean> | boolean {
+    if (this.signupForm.valid) {
+    return false;
     }
+    return true;
+  }
 }

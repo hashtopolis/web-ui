@@ -33,6 +33,12 @@
      transition: all 0.2s ease;
     }
 
+// Default pointer
+
+.point {
+  cursor: pointer;
+}
+
 
 // Dropdown medium - used for notifications
 
@@ -45,4 +51,10 @@
   .dropdown-menu-medium {
       min-width: 300px;
   }
+}
+
+// Remove hyperlink blue color and underline
+
+a:link {
+  text-decoration: none;
 }

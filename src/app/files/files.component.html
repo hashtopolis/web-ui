@@ -7,7 +7,7 @@
           </div>
           <div *ngSwitchCase="'rules'">
             <h2 class="h4">Rules</h2>
-            <p class="mb-0">Create/Manage your rules..</p>
+            <p class="mb-0">Create/Manage your rules.</p>
           </div>
           <div *ngSwitchCase="'other'">
             <h2 class="h4">Other</h2>
@@ -46,6 +46,140 @@
         </div>
   </div>
   <!-- Body -->
+  <!-- Import Files tabs -->
+  <button type="button" class="btn btn-sm btn-outline-gray-600" *ngIf="addFileAccess || addFileAccess == null"  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles">
+  <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+  Add Files
+  </button>
+  &nbsp;&nbsp;
+  <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+    <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-12 d-flex align-items-center justify-content-center">
+              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+
+                <div class="files files-effect-scale files-theme boxtest">
+                  <input type="radio" name="files" checked  id="tab1" class="tab-content-first" (change)='souceType("import")'>
+                  <label for="tab1"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon> Upload Files</label>
+
+                  <input type="radio" name="files" id="tab2" class="tab-content-2" (change)='souceType("inline")'>
+                  <label for="tab2"><fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon> Download URL</label>
+                  <ul>
+                    <li class="tab-content tab-content-first" >
+                      <div class="row" >
+                        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+                        <div class="col-sm">
+                          <div class="form-group">
+                            <label class="form-label requiredak" for="Associatedg">Associated Access Group</label>
+                            <select
+                                   type="number"
+                                   class='form-select'
+                                   formControlName="accessGroupId"
+                                    >
+                              <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                            </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                          <tr id="uploadLine">
+                           <div>
+                              <input
+                                    type="file"
+                                    accept="/*"
+                                    formControlName="sourceData"
+                                    [(ngModel)]="selectedFile"
+                                    (change)="handleFileInput($event)"
+                                    fileSelect directory #file
+                              >
+                              <span style="width: 100%;text-align: center" class="fileuploadspan"></span>
+                              <span style="width: 100%;text-align: center"><fa-icon [icon]="faFileUpload" class="btn btn-gray-800" title="Upload file" (click)="onuploadFile(file.files);" aria-hidden="true"></fa-icon></span>
+                            </div>
+                            <div *ngFor="let fileStatus of uploadProgress | async">
+                                 &nbsp;
+                                <p>Uploading File: {{fileStatus.filename}}</p>
+                                <progress
+                                        class="progress is-info"
+                                        color="primary"
+                                        mode="determinate"
+                                        [value]="fileStatus.progress"
+                                >
+                                </progress>
+                                <p>Progress: {{fileStatus.progress}}%</p>
+                                <div *ngIf="fileStatus.progress == 100">
+                                  <p>File Uploaded</p>
+                                </div>
+                            </div>
+                          </tr>
+                          &nbsp;
+
+                          <div class="col-sm">
+                            <button type="submit" class="btn btn-gray-800">Create</button>
+                          </div>
+                      </form>
+                      </div>
+                    </li>
+
+                    <li class="tab-content tab-content-2">
+                      <div class="row">
+                        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+                        <div class="col-sm">
+                          <div class="form-group">
+                            <label class="form-label requiredak" for="setName">Name</label>
+                            <input
+                                    type='text'
+                                    id="filename"
+                                    class='form-control'
+                                    formControlName="filename"
+                            >
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="col-sm">
+                          <div class="form-group">
+                            <label class="form-label requiredak" for="Associatedg">Associated Access Group</label>
+                            <select
+                                    type='number'
+                                    id="accessgroup"
+                                    class='form-select'
+                                    formControlName="accessGroupId"
+                            >
+                              <option [defaultSelected]=true>---</option>
+                              <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                            </select>
+                          </div>
+                        </div>
+                        &nbsp;
+                        <div class="col-sm">
+                          <div class="mb-3">
+                              <label for="secret">Download URL</label>
+                              <div class="input-group">
+                                  <span class="input-group-text">
+                                    <fa-icon [icon]="faLink" aria-hidden="true"></fa-icon>
+                                  </span>
+                                  <input
+                                        type="text"
+                                        id="urlimport"
+                                        class='form-control'
+                                        formControlName="sourceData"
+                                    >
+                              </div>
+                          </div>
+                        </div>
+                        <div class="col-sm">
+                          <button type="submit" class="btn btn-gray-800">Create</button>
+                        </div>
+                      </form>
+                      </div>
+                    </li>
+
+                  </ul>
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  </div>  <!-- Collapse End -->
+  &nbsp;&nbsp;
   <!-- WordList Table -->
   <div class="card border-0 shadow mb-4">
     <div class="card-body">
@@ -92,7 +226,7 @@
                             <a class='btn-outline-gray-600' [routerLink]="['/files',f.fileId,'other-edit']" [queryParams]="{allowEdit: +f.fileId === 2 ? '1' : '0'}" data-toggle="tooltip" data-placement="top" title="Edit">
                               <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
                             </a>
-                            <a class='btn-outline-gray-600 float-right'(click)="deleteFile(f.fileId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                            <a class='btn-outline-gray-600 float-right' (click)="deleteFile(f.fileId)" data-toggle="tooltip" data-placement="top" title="Delete">
                               <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
                             </a>
                           </div>

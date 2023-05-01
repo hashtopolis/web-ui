@@ -12,14 +12,15 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 import * as echarts from 'echarts/core';
 
-import { ChunkService } from '../../core/_services/chunks.service';
-import { TasksService } from '../../core/_services/tasks/tasks.sevice';
-import { HashtypeService } from 'src/app/core/_services/hashtype.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { CrackerService } from '../../core/_services/config/cracker.service';
+import { HashtypeService } from 'src/app/core/_services/config/hashtype.service';
 import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
+import { CrackerService } from '../../core/_services/config/cracker.service';
+import { AgentsService } from '../../core/_services/agents/agents.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
+import { ChunkService } from '../../core/_services/tasks/chunks.service';
+import { TasksService } from '../../core/_services/tasks/tasks.sevice';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -46,6 +47,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     private chunkService: ChunkService,
     private uiService:UIConfigService,
     private route: ActivatedRoute,
+    private users: UsersService,
     private router: Router
   ) { }
 
@@ -63,6 +65,9 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   getchunks: any;
 
   ngOnInit() {
+
+    this.setAccessPermissions();
+
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     this.route.params
@@ -101,6 +106,15 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   }
 
+  // Set permissions
+  manageTaskAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageTaskAccess = perm.globalPermissionGroup.permissions.manageTaskAccess;
+    });
+  }
+
   OnChangeValue(value){
     this.updateForm.patchValue({
       updateData:{color: value}
@@ -108,6 +122,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
   onSubmit(){
+    if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.isLoading = true;
@@ -136,6 +151,15 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 

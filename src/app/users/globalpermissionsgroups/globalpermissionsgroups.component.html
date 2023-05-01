@@ -1,0 +1,86 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+      <h2 class="h4">Global Permission Group</h2>
+      <p class="mb-0">Section to manage and create global permission groups.</p>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+      <a  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
+          New Global Permission Group
+      </a>
+  </div>
+</div>
+<!-- Create Create Global Permission Group -->
+<div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
+  <section>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex align-items-center justify-content-center">
+                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
+                <h2 class="h5 mb-4">New Global Permission Group</h2><br>
+                  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                    <div class="row">
+                        <div class="form-group">
+                          <div class="form-outline">
+                            <label class="form-label requiredak" for="groupName">Name</label>
+                            <input
+                                  class='form-control'
+                                  type='text'
+                                  formControlName="name"
+                            >
+                          </div>
+                        </div>
+                        &nbsp;
+                        <button class="btn btn-gray-800" type="submit">Create</button>
+                      </div>
+                </form>
+           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  &nbsp;&nbsp;
+</div>
+<!-- End Create Global Permission Group -->
+<!-- Table -->
+<div class="card border-0 shadow mb-4">
+  <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+              <thead class="thead-light">
+                <tr>
+                    <th class="border-0 rounded-start">ID</th>
+                    <th class="border-0">Name</th>
+                    <th class="border-0"># of Users</th>
+                    <th class="border-0 rounded-end">Action
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip="To delete a permission group, number of users has to be zero."
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let a of Allgpg; let i = index">
+                      <td class="text-align:center">{{ a.id }}</td>
+                      <td class="text-align:center">{{ a.name | lowercase | titlecase }}</td>
+                      <td class="text-align:center">{{ a.user.length }}</td>
+                      <td>
+                        <a class='btn-outline-gray-600 float-right' [routerLink]="['/users/global-permissions-groups/',a.id,'edit']" data-toggle="tooltip" data-placement="top" title="Update">
+                            <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
+                        </a>
+                        <a *ngIf="a.user.length == 0" class='btn-outline-gray-600 float-right' (click)="onDelete(a.id)" data-toggle="tooltip" data-placement="top" title="Cancel">
+                            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+                        </a>
+                      </td>
+                  </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- End Table -->

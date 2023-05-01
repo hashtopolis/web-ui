@@ -8,11 +8,12 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 
 import { environment } from './../../../environments/environment';
-import { HashtypeService } from '../../core/_services/hashtype.service';
+import { HashtypeService } from '../../core/_services/config/hashtype.service';
 import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { AccessGroupsService } from '../../core/_services/accessgroups.service';
-import { ChunkService } from 'src/app/core/_services/chunks.service';
+import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
+import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
+import { UsersService } from 'src/app/core/_services/users/users.service';
 
 @Component({
   selector: 'app-edit-hashlist',
@@ -43,6 +44,7 @@ export class EditHashlistComponent implements OnInit {
     private tasksService: TasksService,
     private format: StaticArrayPipe,
     private route: ActivatedRoute,
+    private users: UsersService,
     private router: Router
   ) { }
 
@@ -91,7 +93,17 @@ export class EditHashlistComponent implements OnInit {
 
   }
 
+  // Set permissions
+  manageHashlistAccess: any;
+
+  setAccessPermissions(){
+    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+        this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
+    });
+  }
+
   onSubmit(){
+    if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.isLoading = true;
@@ -120,6 +132,15 @@ export class EditHashlistComponent implements OnInit {
           });
         }
       );
+    }
+    }else{
+      Swal.fire({
+        title: "ACTION DENIED",
+        text: "Please contact your Administrator.",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
   }
 

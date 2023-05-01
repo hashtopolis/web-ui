@@ -2,18 +2,22 @@
           SECTION BASE
    ================================== */
 
-.justify-content-between {
-  justify-content: space-between !important;
+/*
+  00- Main Container Full Screen
+*/
+
+.full-container-app {
+  margin-left: 2%;
+  margin-right: 2%;
 }
 
-.align-items-center {
-  align-items: center !important;
+.layout-col {
+  background-color: rgb(255, 255, 255);
 }
 
-.align-items-right {
-  align-items: right !important;
-}
-
+/*
+  0- Main Container Full Screen End
+*/
 
 /*
   01- Margin style
@@ -206,6 +210,14 @@
   max-width: 800px !important;
 }
 
+.fmxw-900 {
+  max-width: 900px !important;
+}
+
+.fmxw-1000 {
+  max-width: 1000px !important;
+}
+
 /*
   03- Padding style End
 */
@@ -213,6 +225,18 @@
 /*
   04- Other
 */
+
+.justify-content-between {
+  justify-content: space-between !important;
+}
+
+.align-items-center {
+  align-items: center !important;
+}
+
+.align-items-right {
+  align-items: right !important;
+}
 
 .d-flex {
   display: flex !important;
@@ -233,3 +257,12 @@
 .mb-md-0 {
   margin-bottom: 0 !important;
 }
+
+.align-inner-right {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/*
+  04- Other End
+*/

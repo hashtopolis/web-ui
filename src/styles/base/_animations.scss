@@ -101,107 +101,23 @@ $AgentMAINinfobox-height: 4vmin;
   box-shadow: inset -1px 3px 0 1px $AgentMAIN-mainBoxShadow
 }
 
-/*
-  1- End
-*/
+// AGENT STATUS MODAL FLASHING BUTTON ―――――――――――――――――――――――――
 
-
-/*
-  1.2 - Main Server - Thermometer
-*/
-$AgentTM-mainCol: #3d3d44;
-$AgentTM-backgroundColor: darken($AgentTM-mainCol, 2%);
-$AgentTM-borderSize: 2px;
-$AgentTM-borderColor: darken($AgentTM-mainCol, 8%);
-$AgentTM-width: 7px;
-$AgentTM-height: 18px;
-$AgentTM-left: 11px;
-$AgentTM-bottom: 0px;
-$AgentTM-bulbSize: $AgentTM-width * 2;
-$AgentTM-radius: 20px;
-$AgentTM-graduationsStyle: 2px solid rgba(0, 0, 0, 0.5);
-$AgentTM-bulbColor: #c30e2e;
-$AgentTM-mercuryColor : linear-gradient(#f17a65, $AgentTM-bulbColor) no-repeat bottom;
-
-@mixin border() { border: $AgentTM-borderSize solid $AgentTM-borderColor; }
-
-// THERMOMETER ―――――――――――――――――――――――――
-
-#termometer {
-	width: $AgentTM-width;
-	background: $AgentTM-backgroundColor;
-	height: $AgentTM-height;
-	position: absolute;
-  left: $AgentTM-left;
-  bottom: $AgentTM-bottom;
-	@include border;
-	border-radius: $AgentTM-radius;
-	z-index: 1;
-	margin-bottom: $AgentTM-bulbSize;
-
-	&:before, &:after {
-		position: absolute;
-		content: "";
-		border-radius: 50%;
-	}
-
-	// Border cover
-
-	&:before {
-		width: 100%;
-		height: calc($AgentTM-bulbSize / 2)+ $AgentTM-borderSize;
-		bottom: $AgentTM-borderSize;
-		background: $AgentTM-backgroundColor;
-		z-index: -1;
-	}
-
-	// Bulb
-
-	&:after {
-		transform: translateX(-50%);
-		width: $AgentTM-bulbSize;
-		height: $AgentTM-bulbSize;
-		background-color: $AgentTM-bulbColor;
-		bottom: -$AgentTM-bulbSize + $AgentTM-borderSize;
-		@include border;
-		z-index: -3;
-		left: 50%;
-	}
-
-	#graduations {
-		height: 59%;
-		top: 20%;
-		width: 50%;
-
-		&, &:before {
-			position: absolute;
-			border-top: $AgentTM-graduationsStyle;
-			border-bottom: $AgentTM-graduationsStyle;
-		}
-
-		&:before {
-			content: "";
-			height: 34%;
-			width: 100%;
-			top: 32%;
-		}
-	}
-
-	#temperature {
-		bottom: 0;
-		background: $AgentTM-mercuryColor;
-		width: 100%;
-		border-radius: $AgentTM-radius;
-		background-size: 100% $AgentTM-height;
-		transition: all 0.2s ease-in-out;
-
-		&, &:before, &:after {
-			position: absolute;
-		}
-	}
+.astatusflash {
+  animation: redbuttonflashing 1.4s linear infinite;
 }
 
+@keyframes astatusflash {
+  0% { transform: scale(1);}
+  25% { transform: scale(1);}
+  30% { transform: scale(1.05);}
+  50% { transform: scale(1.1);}
+  70% { transform: scale(1.05);}
+  100% { transform: scale(1);}
+}
+
+
 /*
-  1.2 - Main Server - Termometer END
+  1- End
 */
 

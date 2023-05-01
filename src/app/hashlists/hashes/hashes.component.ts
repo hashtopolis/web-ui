@@ -5,6 +5,9 @@ import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { ListsService } from 'src/app/core/_services/hashlist/hashlist.service';
 
 @Component({
   selector: 'app-hashes',
@@ -19,7 +22,7 @@ export class HashesComponent implements OnInit {
   isLoading = false;
 
   whichView: string;
-  titleName: string;
+  titleName: any;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -29,6 +32,9 @@ export class HashesComponent implements OnInit {
 
   constructor(
     private hashesService: HashesService,
+    private tasksService: TasksService,
+    private chunkService: ChunkService,
+    private listsService: ListsService,
     private route:ActivatedRoute,
     private router:Router,
   ) { }
@@ -54,8 +60,6 @@ export class HashesComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.initDisplay();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -73,23 +77,26 @@ export class HashesComponent implements OnInit {
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
-        case 'chunks-hashes':
+        case 'chunkshash':
           this.whichView = 'chunks';
+          this.chunkService.getChunk(this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']});
           this.initChashes();
         break;
 
-        case 'task-hashes':
+        case 'taskhas':
           this.whichView = 'tasks';
+          this.tasksService.getTask(this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']});
           this.initThashes();
         break;
 
-        case 'hashlist-hashes':
-          this.whichView = 'hashlist';
+        case 'hashlisthash':
+          this.whichView = 'hashlists';
+          this.listsService.getHashlist(this.editedIndex).subscribe((result)=>{this.titleName = result['name']});
           this.initHhashes();
         break;
 
       }
-
+      this.initDisplay();
     });
   }
 
@@ -101,8 +108,9 @@ export class HashesComponent implements OnInit {
 
   private initThashes() {
     this.isLoading = true;
-    let param = {'filter': 'taskId='+this.editedIndex+''};
-    this.getHashes(param);
+    // This should enough to filter by id
+    // let param = {'filter': 'taskId='+this.editedIndex+''};
+    this.getHashes();
   }
 
   private initHhashes() {
@@ -111,17 +119,21 @@ export class HashesComponent implements OnInit {
     this.getHashes(param);
   }
 
-  async getHashes(param: any){
+  async getHashes(param?: any){
 
     let params = {'maxResults': 90000, 'expand':'hashlist,chunk'};
 
     const nwparams = {...params, ...param};
 
     this.hashesService.getAllhashes(nwparams).subscribe((hashes: any) => {
+      var res = hashes.values;
+      if(this.whichView = 'tasks'){
+        res = res.filter(u=> u.chunk.taskId == this.editedIndex);
+      }
       if(this.filtering == 'cracked'){
-        this.matchHashes = hashes.values.filter(u=> u.isCracked == 'true');
+        this.matchHashes = res.filter(u=> u.isCracked == 'true');
       }else{
-        this.matchHashes = hashes.values;
+        this.matchHashes = res;
       }
       this.dtTrigger.next(null);
     });

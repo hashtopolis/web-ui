@@ -1,11 +1,12 @@
+import { faServer, faTasks, faDatabase, faFileArchive, faCogs, faUserGroup,faPowerOff, faSun, faMoon, faUserCircle, faInbox, faQuestionCircle, faBell, faEye, faExchange, faArrowsH } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { faServer, faTasks, faDatabase, faFileArchive, faCogs, faUserGroup,faPowerOff, faSun, faMoon, faUserCircle, faInbox, faQuestionCircle, faBell, faEye } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
+import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 
-import { AuthService } from '../../core/_services/auth.service';
+import { AuthService } from '../../core/_services/access/auth.service';
+import { ThemeService } from 'src/app/core/_services/shared/theme.service';
 import { NotificationsBellService } from '../../core/_services/shared/notifbell.service';
-import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-header',
@@ -20,38 +21,46 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private userSub: Subscription;
   public dropdown: NgbDropdown;
   storedToggletheme:string = localStorage.getItem('toggledarkmode');
+  storedWidthScreentheme:string = localStorage.getItem('screenmode') || 'true';
 
   // Icons User Menu
+  faFileArchive=faFileArchive;
+  faUserGroup=faUserGroup;
+  faDatabase=faDatabase;
   faServer=faServer;
   faTasks=faTasks;
-  faDatabase=faDatabase;
-  faFileArchive=faFileArchive;
   faCogs=faCogs;
-  faUserGroup=faUserGroup;
   // SubMenu User
+  faQuestionCircle=faQuestionCircle;
+  faUserCircle=faUserCircle;
   faPowerOff=faPowerOff;
+  faExchange=faExchange;
+  faArrowsH=faArrowsH;
+  faInbox=faInbox;
+  faMoon=faMoon;
   faBell=faBell;
   faSun=faSun;
-  faMoon=faMoon;
-  faUserCircle=faUserCircle;
-  faInbox=faInbox;
-  faQuestionCircle=faQuestionCircle;
   faEye=faEye;
 
   public notifbell: {title: string, description: string, datetime: string}[] = [];
 
   constructor(
+    private notificationbService: NotificationsBellService,
     private authService: AuthService,
+    private theme: ThemeService,
     private ren: Renderer2,
-    private notificationbService: NotificationsBellService
     ) { }
 
   collapsed = true;
-  toggleCollapsed(): void {
+  public toggleCollapsed(): void {
     this.collapsed = !this.collapsed;
   }
 
-  getUser(){
+  public currentTheme(): string {
+    return this.theme.current;
+  }
+
+  public getUser(){
     const userData: { _username: string} = JSON.parse(localStorage.getItem('userData'));
     return userData._username;
   }
@@ -85,6 +94,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.storedToggletheme = localStorage.getItem('toggledarkmode');
     }
   }
+
+  switchScreen(){
+    if(this.storedWidthScreentheme === 'true'){
+      localStorage.setItem('screenmode','false')
+      this.storedWidthScreentheme = localStorage.getItem('screenmode');
+    }else{
+      localStorage.setItem('screenmode','true')
+      this.storedWidthScreentheme = localStorage.getItem('screenmode');
+    }
+    location.reload();
+  }
+
 
   onMouseEnter(drop:NgbDropdown){
     drop.open()

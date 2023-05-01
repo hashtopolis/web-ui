@@ -9,7 +9,7 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { HealthcheckService } from '../../core/_services/config/healthcheck.service';
-import { HashtypeService } from '../../core/_services/hashtype.service';
+import { HashtypeService } from '../../core/_services/config/hashtype.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
