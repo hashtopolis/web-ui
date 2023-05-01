@@ -1,0 +1,15 @@
+{
+	"name": "Hashtopolis Web UI Devcontainer",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "hashtopolis-web-ui",
+			
+	"appPort": [4200],
+
+	"workspaceMount": "src=${localWorkspaceFolder},dst=/app,type=bind,consistency=cached",
+	"workspaceFolder": "/app",
+
+	"remoteEnv": {
+		"NODE_OPTIONS": "--use-openssl-ca"
+	}
+	
+}
