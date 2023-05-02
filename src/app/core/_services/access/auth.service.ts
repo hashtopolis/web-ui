@@ -63,20 +63,22 @@ export class AuthService {
     }
 
     get token(): any {
-      if(!this.logged){
-        return true;
-      }else{
-        var token = JSON?.parse(localStorage.getItem('userData'))._token;
-        return  token;
-      }
+        var res;
+        var token = localStorage.getItem('userData');
+        if(token){
+          res = JSON?.parse(token)._token
+        }else{
+          res = 'notoken'
+        }
+        return res;
     }
 
     private getUserId(token: any){
-      if(!this.logged){
-        return true;
+      if(token == 'notoken'){
+        return true
       }else{
-      var b64string = Buffer.from(token.split('.')[1], 'base64');
-      return JSON.parse(b64string.toString()).userId
+        var b64string = Buffer.from(token.split('.')[1], 'base64');
+        return JSON.parse(b64string.toString()).userId
       }
     }
 
