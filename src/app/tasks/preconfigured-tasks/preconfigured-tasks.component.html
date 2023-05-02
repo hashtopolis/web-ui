@@ -29,7 +29,7 @@
               <tbody>
               <tr *ngFor="let ptask of allpretasks">
                   <td>
-                    <span [ngClass]="!ptask.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': ptask.color }">{{ ptask.pretaskId }}</span>
+                    <span [ngClass]="!ptask.color ? 'pill-ebidem' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': ptask.color }">{{ ptask.pretaskId }}</span>
                   </td>
                   <td>{{ ptask.taskName | shortenString:20 | lowercase | titlecase }}</td>
                   <td>{{ ptask.attackCmd | shortenString:25 }}</td>
