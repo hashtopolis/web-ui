@@ -1,6 +1,6 @@
 
 export const DEFAULT_CONFIG = {
-  prodApiEndpoint: 'https://localhost:8080/api/v2',
+  prodApiEndpoint: 'http://localhost:8080/api/v2',
   prodApiPort: '8080',
   frontEndUrl: 'http://localhost:8080',
   prodApiMaxResults: '3000',
