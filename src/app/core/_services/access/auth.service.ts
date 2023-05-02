@@ -29,7 +29,7 @@ export class AuthService {
       private http: HttpClient,
       private router: Router,
       ){
-        this.userId = this.getUserId(this.token);
+        // this.userId = this.getUserId(this.token);
       }
 
     autoLogin(){
@@ -60,13 +60,14 @@ export class AuthService {
         }));
     }
 
-    get token(): any {
-      if(!this.logged){
-        return true;
-      }else{
-        return  JSON.parse(localStorage.getItem('userData'))._token;
-      }
-    }
+    // get token(): any {
+    //   if(!this.logged){
+    //     return true;
+    //   }else{
+    //     var token = JSON?.parse(localStorage.getItem('userData'))._token;
+    //     return  token || 'no token';
+    //   }
+    // }
 
     private getUserId(token: any){
       if(!this.logged){
