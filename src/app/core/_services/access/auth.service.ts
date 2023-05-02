@@ -29,7 +29,9 @@ export class AuthService {
       private http: HttpClient,
       private router: Router,
       ){
-        // this.userId = this.getUserId(this.token);
+        if(this.logged){
+          this.userId = this.getUserId(this.token);
+        }
       }
 
     autoLogin(){
@@ -65,7 +67,7 @@ export class AuthService {
         return true;
       }else{
         var token = JSON?.parse(localStorage.getItem('userData'))._token;
-        return  token || 'no token';
+        return  token;
       }
     }
 
