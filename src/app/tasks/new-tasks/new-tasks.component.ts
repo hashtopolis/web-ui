@@ -294,7 +294,7 @@ export class NewTasksComponent implements OnInit {
       'preprocessorCommand': new FormControl(''),
       'isSmall': new FormControl(null || false),
       'useNewBench': new FormControl(null || true),
-      'files': new FormControl('')
+      'files': new FormControl('' || [])
     });
 
     this.patchHashalias();
