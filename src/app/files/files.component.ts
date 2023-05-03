@@ -87,6 +87,7 @@ export class FilesComponent implements OnInit {
   ngOnInit(): void {
 
     this.setAccessPermissions();
+    this.loadFiles();
 
   }
 
@@ -100,9 +101,6 @@ export class FilesComponent implements OnInit {
         this.viewFileAccess = perm.globalPermissionGroup.permissions.viewFileAccess;
         this.manageFileAccess = perm.globalPermissionGroup.permissions.manageFileAccess;
         this.addFileAccess = perm.globalPermissionGroup.permissions.addFileAccess;
-
-        this.loadFiles();
-
     });
   }
 
