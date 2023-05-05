@@ -44,8 +44,8 @@ export const DEFAULT_CONFIG = {
     maxAgents: 0,
     chunkSize: 0,
   },
-  // File settings
-  chunkSizeTUS: 5000,
+  // File settings 10 * 1024 *1024 (5.24mb)
+  chunkSizeTUS: 5242880,
 };
 
 
