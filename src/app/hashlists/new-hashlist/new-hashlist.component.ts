@@ -153,11 +153,10 @@ export class NewHashlistComponent implements OnInit {
   filenames: string[] = [];
 
   onuploadFile(event: any) {
-    console.log(event)
     const file = event.item(0)
     // const filename = `${new Date().getTime()}_${file.name}`;
     const filename = file.name;
-    console.log(`Uploading ${file.name} with size ${file.size} and type ${file.type}`);
+    // console.log(`Uploading ${file.name} with size ${file.size} and type ${file.type}`);
     this.uploadService.uploadFile(file, filename);
   }
 
@@ -221,8 +220,8 @@ export class NewHashlistComponent implements OnInit {
           showConfirmButton: false,
           timer: 1500
         });
-        this.signupForm.reset(); // success, we reset form
-        // this.router.navigate(['/hashlists/hashlist']);
+        this.signupForm.reset(this.signupForm.value); // success, we reset form
+        this.router.navigate(['/hashlists/hashlist']);
       },
       errorMessage => {
         Swal.fire({

@@ -29,6 +29,7 @@ declare let $:any;
 export class FilesComponent implements OnInit {
   public isCollapsed = true;
 
+  isLoading= false;
   faFileImport=faFileImport;
   faFileUpload=faFileUpload;
   faPaperclip=faPaperclip;
@@ -250,14 +251,12 @@ export class FilesComponent implements OnInit {
     onSubmit(): void{
       if (this.createForm.valid) {
 
-      // this.isLoading = true;
+      this.isLoading = true;
 
       var form = this.onPrep(this.createForm.value);
 
-      console.log(form)
-
       this.filesService.createFile(form).subscribe((hl: any) => {
-        // this.isLoading = false;
+        this.isLoading = false;
         Swal.fire({
           title: "Good job!",
           text: "New File created!",
@@ -265,10 +264,11 @@ export class FilesComponent implements OnInit {
           showConfirmButton: false,
           timer: 1500
         });
-        this.createForm.reset(); // success, we reset form
-        this.isCollapsed = true;
-        this.ngOnInit();
-        this.rerender();
+        // this.createForm.reset(this.createForm.value); // success, we reset form
+        // // this.isCollapsed = true;
+        // this.ngOnInit();
+        // this.rerender();
+        window.location.reload();
       },
       errorMessage => {
         Swal.fire({

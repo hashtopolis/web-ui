@@ -1,233 +1,229 @@
-  <section>&nbsp;
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
-                  <h2 class="h5 mb-4">Create Hashlist</h2><br>
-                  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-                    <div class="row">
-                        <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label requiredak" for="getname" >Name</label>
-                                <input
-                                      type='text'
-                                      id="name"
-                                      class='form-control'
-                                      formControlName="name"
-                                >
-                            </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
+<section>&nbsp;
+  <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-12 d-flex align-items-center justify-content-center">
+              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
+                <h2 class="h5 mb-4">Create Hashlist</h2><br>
+                <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                  <div class="row">
+                      <div class="form-group">
                           <div class="form-outline">
-                              <label class="form-label" for="notes">Notes</label>
+                              <label class="form-label requiredak" for="getname" >Name</label>
                               <input
                                     type='text'
-                                    id="notes"
+                                    id="name"
                                     class='form-control'
-                                    formControlName="notes"
+                                    formControlName="name"
                               >
                           </div>
+                      </div>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label" for="notes">Notes</label>
+                            <input
+                                  type='text'
+                                  id="notes"
+                                  class='form-control'
+                                  formControlName="notes"
+                            >
                         </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                              <label class="form-label requiredak" for="getaccessgroup">Access group</label>
+                      </div>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label requiredak" for="getaccessgroup">Access group</label>
+                            <select
+                                   type='number'
+                                   id='accessgroup'
+                                   class='form-select'
+                                   formControlName="accessGroupId"
+                                >
+                                <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                            </select>
+                        </div>
+                      </div>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label requiredak" for="gethashtype">Hashtype</label>
+                            <div class="input-group">
+                              <span class="input-group-text" >
+                                <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+                              </span>
                               <select
                                      type='number'
-                                     id='accessgroup'
+                                     id="hashtype"
                                      class='form-select'
-                                     formControlName="accessGroupId"
+                                     formControlName="hashTypeId"
                                   >
-                                  <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                                  <option [value]=""></option>
                               </select>
                           </div>
                         </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                              <label class="form-label requiredak" for="gethashtype">Hashtype</label>
-                              <div class="input-group">
-                                <span class="input-group-text" >
-                                  <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-                                </span>
-                                <select
-                                       type='number'
-                                       id="hashtype"
-                                       class='form-select'
-                                       formControlName="hashTypeId"
-                                    >
-                                    <option [value]=""></option>
-                                </select>
-                            </div>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                              <label class="form-label requiredak" for="gethashlistformat">Hashlist format</label>
-                              <td>
-                                <select
-                                       type='number'
-                                       id='hashlistformat'
-                                       class='form-select'
-                                       formControlName="format"
-                                       string-number
-                                    >
-                                    <option [ngValue]="0" [defaultSelected]=true>Text file</option>
-                                    <option [ngValue]="1">HCCAPX file / PMKID hash</option>
-                                    <option [ngValue]="2">Binary file (single hash)</option>
-                                </select>
-                                <span class="position-relative top-50 start-50">
-                                  <br>
-                                  <input
-                                        type="checkbox"
-                                        id="separator"
-                                        formControlName="isSalted"
-                                  > Salted hashes, separator:
-                                  <input
-                                        type="text"
-                                        class='form-control form-control-mini'
-                                        formControlName="separator"
-                                        value=";"
+                      </div>
+                      &nbsp;
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label requiredak" for="gethashlistformat">Hashlist format</label>
+                            <td>
+                              <select
+                                     type='number'
+                                     id='hashlistformat'
+                                     class='form-select'
+                                     formControlName="format"
+                                     string-number
                                   >
-                                </span>
-                                <span class="position-relative top-50 start-50">
-                                  <br>
-                                  <input
-                                        type="checkbox"
-                                        id="isHexSalt"
-                                        formControlName="isHexSalt"
-                                  > Salt is in hex (only when salted hashes)
-                                </span>
-                              </td>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div *ngIf="+brainenabled === 1">
-                          <hr>
-                          <h5>Hashcat Brain Enabled</h5>&nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                              <label class="form-label requiredak" for="getbrainfeatures">Hashlist format</label>
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='You can disable this setting in Config > Server > General Settings'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
+                                  <option [ngValue]="0" [defaultSelected]=true>Text file</option>
+                                  <option [ngValue]="1">HCCAPX file / PMKID hash</option>
+                                  <option [ngValue]="2">Binary file (single hash)</option>
+                              </select>
+                              <span class="position-relative top-50 start-50">
+                                <br>
+                                <input
+                                      type="checkbox"
+                                      id="separator"
+                                      formControlName="isSalted"
+                                > Salted hashes, separator:
+                                <input
+                                      type="text"
+                                      class='form-control form-control-mini'
+                                      formControlName="separator"
+                                      value=";"
                                 >
-                                </fa-icon>
-                              <td>
-                                <select
-                                      type='number'
-                                      id='brainfeatures'
-                                      class='form-select'
-                                      formControlName="brainFeatures"
-                                    >
-                                    <option [ngValue]="1">Send hashed passwords</option>
-                                    <option [ngValue]="2">Send attack positions</option>
-                                    <option [ngValue]="3" [defaultSelected]=true>Send hashed passwords and attack positions</option>
-                                </select>
-                                <div class='alert alert-info row justify-content-center closesys'>
-                                  Note: When brain is enabled it'll create a network server. If it is used wrongly it could cause bottlenecks or collapse the network server.
-                              </div>
-                            </div>
-                          </div>
-                          <hr>
-                          &nbsp;
+                              </span>
+                              <span class="position-relative top-50 start-50">
+                                <br>
+                                <input
+                                      type="checkbox"
+                                      id="isHexSalt"
+                                      formControlName="isHexSalt"
+                                > Salt is in hex (only when salted hashes)
+                              </span>
+                            </td>
                         </div>
+                      </div>
+                      &nbsp;
+                      <div *ngIf="+brainenabled === 1">
+                        <hr>
+                        <h5>Hashcat Brain Enabled</h5>&nbsp;
                         <div class="form-group">
                           <div class="form-outline">
-                              <label class="form-label requiredak" for="gethashsource">Hash source</label>
-                                <td>
-                                    <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("paste")' value="paste"  title="Pasting" formControlName="sourceType"> Paste<br>
-                                    <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("import")' value="import" title="Import" checked="checked" formControlName="sourceType" ngDefaultControl> Upload<br>
-                                    <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("url")' value="url" title="Import" formControlName="sourceType"> Url download<br>
-                                </td>
-                                &nbsp;
-                                <tr id="pasteLine" style="display: none;">
-                                  <td>
-                                    <textarea
-                                             class='form-control'
-                                             id='sourceData'
-                                             cols="60"
-                                             rows="10"
-                                             title="Hashes"
-                                             formControlName="sourceData"
-                                    >
-                                    </textarea>
-                                  </td>
-                                </tr>
-                                <tr id="uploadLine">  <!-- start Upload -->
-
-                                <!-- <div class="filedrop">
-                                    <div class="icon"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon></div>
-                                    <header>Drag & Drop here</header>
-                                    <span>OR</span>
-                                    <button (click)="fil.click()">Browse for File</button>
-                                    <input accept="/*" name="file" type="file" (change)="handleFileInput($event)" fileSelect directory hidden #fil formControlName="sourceData">
-                                    <span style="width: 100%;text-align: center" class="fileuploadspan"></span>
-                                </div> -->
-                                <!-- <div class="dropzone-list">
-                                  <ul class="valid">
-                                    <tr *ngFor="let file of fileList">
-                                      <li>{{ file.name }}</li>
-                                    </tr>
-                                  </ul>
-                                  <ul class="invalid">
-                                    <li *ngFor="let file of invalidFiles">
-                                      {{ file.name }}
-                                    </li>
-                                  </ul>
-                                </div> -->
-                                <div>
-                                <input
-                                      type="file"
-                                      accept="/*"
-                                      formControlName="sourceData"
-                                      (change)="handleFileInput($event)"
-                                      fileSelect directory #file
-                                >
-                                <span style="width: 100%;text-align: center" class="fileuploadspan"></span>
-                                <span style="width: 100%;text-align: center"><fa-icon [icon]="faFileUpload" class="btn btn-gray-800" title="Upload file" (click)="onuploadFile(file.files);" aria-hidden="true"></fa-icon></span>
-                                &nbsp;
-                                </div>
-                                <div *ngFor="let fileStatus of uploadProgress | async">
-                                  &nbsp;
-                                <p>Uploading File: {{fileStatus.filename}}</p>
-                                <progress
-                                        class="progress is-info"
-                                        color="primary"
-                                        mode="determinate"
-                                        [value]="fileStatus.progress"
-                                >
-                                </progress>
-                                <p>Progress: {{fileStatus.progress}}%</p>
-                                <!-- <button (click)="onuploadCancel(fileStatus.filename)" class="button is-danger">Cancel</button> -->
-                                  <div *ngIf="fileStatus.progress == 100">
-                                    <p>File Uploaded</p>
-                                  </div>
-                                </div>
-
-                                </tr>
-                                <!-- end Upload -->
-                                <tr id="importLine" style="display: none;">
-                                <!-- Section removed -->
-                                </tr>
-                                <tr id="downloadLine" style="display: none;">
-                                  <td>
-                                    <input type="text" class='form-control' name="url" size="35" title="Download URL" formControlName="sourceData">
-                                  </td>
-                                </tr>
-                              </div>
-                              &nbsp;
+                            <label class="form-label requiredak" for="getbrainfeatures">Hashlist format</label>
+                              <fa-icon
+                                      placement="bottom"
+                                      ngbTooltip='You can disable this setting in Config > Server > General Settings'
+                                      container="body"
+                                      [icon]="faInfoCircle"
+                                      aria-hidden="true"
+                              >
+                              </fa-icon>
+                            <td>
+                              <select
+                                    type='number'
+                                    id='brainfeatures'
+                                    class='form-select'
+                                    formControlName="brainFeatures"
+                                  >
+                                  <option [ngValue]="1">Send hashed passwords</option>
+                                  <option [ngValue]="2">Send attack positions</option>
+                                  <option [ngValue]="3" [defaultSelected]=true>Send hashed passwords and attack positions</option>
+                              </select>
+                              <div class='alert alert-info row justify-content-center closesys'>
+                                Note: When brain is enabled it'll create a network server. If it is used wrongly it could cause bottlenecks or collapse the network server.
+                            </div>
                           </div>
                         </div>
+                        <hr>
+                        &nbsp;
+                      </div>
+                      <div class="form-group">
+                        <div class="form-outline">
+                            <label class="form-label requiredak" for="gethashsource">Hash source</label>
+                              <td>
+                                  <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("paste")' value="paste"  title="Pasting" formControlName="sourceType"> Paste<br>
+                                  <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("upload")' value="import" title="Import" checked="checked" formControlName="sourceType" ngDefaultControl> Upload<br>
+                                  <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("url")' value="url" title="Import" formControlName="sourceType"> Url download<br>
+                              </td>
+                              &nbsp;
+                              <tr id="pasteLine" style="display: none;">
+                                <td>
+                                  <textarea
+                                           class='form-control'
+                                           id='sourceData'
+                                           cols="60"
+                                           rows="10"
+                                           title="Hashes"
+                                           formControlName="sourceData"
+                                  >
+                                  </textarea>
+                                </td>
+                              </tr>
+                              <tr id="uploadLine">  <!-- start Upload -->
 
-                    <button class="btn btn-gray-800" type="submit">Create</button>
-              </form>
-      </div>
+                              <!-- <div class="filedrop">
+                                  <div class="icon"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon></div>
+                                  <header>Drag & Drop here</header>
+                                  <span>OR</span>
+                                  <button (click)="fil.click()">Browse for File</button>
+                                  <input accept="/*" name="file" type="file" (change)="handleFileInput($event)" fileSelect directory hidden #fil formControlName="sourceData">
+                                  <span style="width: 100%;text-align: center" class="fileuploadspan"></span>
+                              </div> -->
+                              <!-- <div class="dropzone-list">
+                                <ul class="valid">
+                                  <tr *ngFor="let file of fileList">
+                                    <li>{{ file.name }}</li>
+                                  </tr>
+                                </ul>
+                                <ul class="invalid">
+                                  <li *ngFor="let file of invalidFiles">
+                                    {{ file.name }}
+                                  </li>
+                                </ul>
+                              </div> -->
+                              <div>
+                              <input
+                                    type="file"
+                                    accept="/*"
+                                    formControlName="sourceData"
+                                    (change)="handleFileInput($event)"
+                                    fileSelect directory #file
+                              >
+                              <span style="width: 100%;text-align: center" class="fileuploadspan"></span>&nbsp;
+                              <span style="width: 100%;text-align: center"><fa-icon [icon]="faFileUpload" class="btn btn-gray-800" title="Upload file" (click)="onuploadFile(file.files);" aria-hidden="true"></fa-icon></span>
+                              &nbsp;
+                              </div>
+                              <div *ngFor="let fileStatus of uploadProgress | async">
+                                &nbsp;
+                              <p *ngIf="fileStatus.progress != 100">Uploading File: {{fileStatus.filename}}</p>
+                              <ngb-progressbar
+                                              type="success"
+                                              textType="white"
+                                              [striped]="true"
+                                              [value]="fileStatus.progress"
+                                              [showValue]="true"
+                              ></ngb-progressbar>
+                              <!-- <button (click)="onuploadCancel(fileStatus.filename)" class="button is-danger">Cancel</button> -->
+                                <div *ngIf="fileStatus.progress == 100">
+                                  <p>File Uploaded</p>
+                                </div>
+                              </div>
+
+                              </tr>
+                              <!-- end Upload -->
+                              <tr id="downloadLine" style="display: none;">
+                                <td>
+                                  <input type="text" class='form-control' name="url" size="35" title="Download URL" formControlName="sourceData">
+                                </td>
+                              </tr>
+                            </div>
+                            &nbsp;
+                        </div>
+                      </div>
+
+                  <button class="btn btn-gray-800" type="submit">Create</button>
+            </form>
     </div>
   </div>
+</div>
 </div>

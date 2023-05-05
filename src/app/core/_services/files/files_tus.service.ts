@@ -31,6 +31,9 @@ export class UploadTUSService {
       if (!file) {
         return
       }
+      if (!tus.isSupported) {
+        alert('This browser does not support uploads. Please use a modern browser instead.')
+      }
 
       const fileStatus: UploadFileTUS = {filename, progress: 0, hash: '', uuid: ''};
 
@@ -55,6 +58,7 @@ export class UploadTUSService {
           // userId: "1234567"
         },
         onError: async (error) => {
+          console.log(error)
           if (error) {
             if (window.confirm(`Failed because: ${error}\nDo you want to retry?`)) {
               upload.start()
