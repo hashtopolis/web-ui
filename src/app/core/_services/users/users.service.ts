@@ -45,9 +45,6 @@ export class UsersService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -61,9 +58,6 @@ export class UsersService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(`${this.endpoint}/${id}`,{params: routerParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -73,9 +67,6 @@ export class UsersService {
 **/
   createUser(arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -85,9 +76,6 @@ export class UsersService {
 **/
   updateUser(arr: any, id?: number): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr.updateData)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**

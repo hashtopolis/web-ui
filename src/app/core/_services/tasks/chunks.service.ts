@@ -27,9 +27,6 @@ export class ChunkService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get<BaseChunk[]>(this.endpoint,{params: routerParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -39,9 +36,6 @@ export class ChunkService {
 **/
   getChunk(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -53,9 +47,6 @@ export class ChunkService {
   updateChunk(id:number, arr: any): Observable<any> {
     console.log(arr);
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

@@ -86,7 +86,7 @@ export class ShowTasksComponent implements OnInit {
       destroy: true,
       select: {
         style: 'multi',
-        selector: 'tr>td:nth-child(1)'
+        // selector: 'tr>td:nth-child(1)' //This only allows select the first row
         },
       buttons: {
           dom: {

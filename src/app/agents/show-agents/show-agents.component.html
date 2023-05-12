@@ -31,10 +31,11 @@
                     <!-- <td><input type="checkbox" [disabled]="agent.agentId === 1" class="checkboxCls" [value]="agent.agentId" [checked]="agent.checked" name="id" (change)="agent.checked = !agent.checked"></td> -->
                     <td>{{ agent.agentId }}</td>
                     <td>
-                        <a><b>{{ agent.agentName | lowercase | titlecase }}</b></a>
+                        <span *ngIf="agent.isActive == 1" ><fa-icon [icon]="faCheckCircle" aria-hidden="true" title="Active" style="color: green;"></fa-icon></span>
+                        <span *ngIf="agent.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true" title="Inactive" style="color: red;"></fa-icon></span>
+                        <a [routerLink]="[agent.agentId,'edit']"><b>{{ agent.agentName | lowercase | titlecase }}</b></a>
                         <span *ngIf="agent.notes > 1" ><fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon></span>
                         <span *ngIf="agent.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-                        <span *ngIf="agent.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
                         <br>
                         <a *ngIf="agent.userId > 0">Username By Id <a [routerLink]="['/users/',agent.userId,'edit']">{{ agent.userId}}</a></a>
                         <a *ngIf="agent.agentId == 0">---</a>

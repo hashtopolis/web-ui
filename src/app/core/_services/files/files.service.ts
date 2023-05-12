@@ -25,9 +25,6 @@ export class FilesService {
           queryParams = setParameter(routerParams);
       }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -37,9 +34,6 @@ export class FilesService {
 **/
   getFile(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -68,9 +62,6 @@ export class FilesService {
 **/
   createFile(arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -80,9 +71,6 @@ export class FilesService {
 **/
   updateFile(arr: any): Observable<UpdateFileType> {
     return this.http.patch<any>(this.endpoint + '/' + arr.fileId, arr.updateData)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -94,9 +82,6 @@ export class FilesService {
 **/
   updateBulkFile(id: number, arr: any): Observable<UpdateFileType> {
     return this.http.patch<any>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('Work: ', JSON.stringify(data)))
-    );
   }
 
 }

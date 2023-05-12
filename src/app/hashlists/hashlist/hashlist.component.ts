@@ -9,6 +9,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 
+declare let $:any;
+
 @Component({
   selector: 'app-hashlist',
   templateUrl: './hashlist.component.html'
@@ -24,7 +26,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
   faHome=faHomeAlt;
   faArchive=faArchive;
 
-  @ViewChild(DataTableDirective, {static: false})
+  @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
@@ -85,10 +87,13 @@ export class HashlistComponent implements OnInit, OnDestroy {
       this.dtTrigger.next(void 0);
     });
 
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       stateSave: true,
-      select: true,
+      select: {
+        style: 'multi',
+      },
       buttons: {
         dom: {
           button: {
@@ -133,6 +138,32 @@ export class HashlistComponent implements OnInit, OnDestroy {
             },
               'copy'
             ]
+          },
+          {
+            extend: 'collection',
+            text: 'Bulk Actions',
+            drawCallback: function() {
+              var hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
+              $('.buttons-excel')[0].style.visibility = hasRows ? 'visible' : 'hidden'
+            },
+            buttons: [
+                  {
+                    text: 'Delete Hashlist(s)',
+                    autoClose: true,
+                    action: function (e, dt, node, config) {
+                      self.onDeleteBulk();
+                    }
+                  },
+                  {
+                    text: 'Archive Hashlist(s)',
+                    autoClose: true,
+                    enabled: !this.isArchived,
+                    action: function (e, dt, node, config) {
+                      const edit = {isArchived: true};
+                      self.onUpdateBulk(edit);
+                    }
+                  }
+               ]
           },
           {
             extend: 'colvis',
@@ -245,6 +276,94 @@ onDelete(id: number){
     })
   }
 }
+
+// Bulk actions
+
+onSelectedHashlists(){
+  $(".dt-button-background").trigger("click");
+  let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  if(selection.length == 0) {
+    Swal.fire({
+      title: "You haven't selected any Hashlist",
+      type: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    })
+    return;
+  }
+  let selectionnum = selection.map(i=>Number(i));
+
+  return selectionnum;
+}
+
+onDeleteBulk(){
+  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
+  const self = this;
+  let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  let sellen = selectionnum.length;
+  let errors = [];
+  console.log(selectionnum)
+  selectionnum.forEach(function (value) {
+    Swal.fire('Deleting...'+sellen+' Hashlist(s)...Please wait')
+    Swal.showLoading()
+  self.listsService.deleteHashlist(value)
+  .subscribe(
+    err => {
+      console.log('HTTP Error', err)
+      err = 1;
+      errors.push(err);
+    },
+    );
+  });
+  self.onDone(sellen);
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+onUpdateBulk(value: any){
+  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
+    const self = this;
+    let selectionnum = this.onSelectedHashlists();
+    let sellen = selectionnum.length;
+    selectionnum.forEach(function (id) {
+      Swal.fire('Updating...'+sellen+' Hashlist(s)...Please wait')
+      Swal.showLoading()
+    self.listsService.updateHashlist(id, value).subscribe(
+    );
+  });
+  self.onDone(sellen);
+  }else{
+    Swal.fire({
+      title: "ACTION DENIED",
+      text: "Please contact your Administrator.",
+      icon: "error",
+      showConfirmButton: false,
+      timer: 2000
+    })
+  }
+}
+
+onDone(value?: any){
+  setTimeout(() => {
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+    Swal.close();
+    Swal.fire({
+      title: 'Done!',
+      type: 'success',
+      timer: 1500,
+      showConfirmButton: false
+    })
+  },3000);
+  }
+
 // Add unsubscribe to detect changes
 ngOnDestroy(){
   this.dtTrigger.unsubscribe();

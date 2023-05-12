@@ -27,9 +27,6 @@ export class HashesService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -39,9 +36,6 @@ export class HashesService {
 **/
   getHash(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

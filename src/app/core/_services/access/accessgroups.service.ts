@@ -22,9 +22,6 @@ export class AccessGroupsService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get<AccessGroup[]>(this.endpoint,{params: routerParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
   deleteAccessGroups(id: number):Observable<any> {
@@ -33,16 +30,10 @@ export class AccessGroupsService {
 
   createAccessGroups(item: any): Observable<AccessGroup[]> {
     return this.http.post<any>(this.endpoint, item)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
   updateAccessGroups(item: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + item.accessGroupId, {groupName: item.groupName})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

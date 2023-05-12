@@ -22,16 +22,10 @@ export class SuperHashlistService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
   getSuperhashlist(id:number):Observable<any> {
     return this.http.get(this.endpoint +'/'+ id)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
   deleteSuperhashlist(id:number):Observable<any> {
@@ -40,16 +34,10 @@ export class SuperHashlistService {
 
   createSuperhashlist(arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
   updateSuperhashlist(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

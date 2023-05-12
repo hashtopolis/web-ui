@@ -26,9 +26,6 @@ export class PreprocessorService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -38,9 +35,6 @@ export class PreprocessorService {
 **/
   getPreprocessor(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -59,9 +53,6 @@ export class PreprocessorService {
 **/
   createPreprocessor(arr: any): Observable<Preprocessor[]> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -72,9 +63,6 @@ export class PreprocessorService {
 **/
   updateHashType(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

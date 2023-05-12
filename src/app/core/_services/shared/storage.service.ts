@@ -80,6 +80,10 @@ export class UIConfigService {
     }
   }
 
+  public onDateCheck(){
+
+  }
+
   public getUIsettings(name?: string){
     const uiconfig = JSON.parse(localStorage.getItem('uis'));
     if (!uiconfig) {
@@ -87,8 +91,6 @@ export class UIConfigService {
     }
     return uiconfig.find(o => o.name === name);
   }
-
-
 
 }
 

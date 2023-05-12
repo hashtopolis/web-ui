@@ -26,9 +26,6 @@ export class CrackerService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -38,9 +35,6 @@ export class CrackerService {
 **/
   getCrackerBinary(id:number):Observable<any> {
     return this.http.get(this.endpoint +'/'+ id)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -51,9 +45,6 @@ export class CrackerService {
 **/
   createCrackerBinary(id:number, arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -73,9 +64,6 @@ export class CrackerService {
 **/
   updateCrackerBinary(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -89,9 +77,6 @@ export class CrackerService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint_types, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**

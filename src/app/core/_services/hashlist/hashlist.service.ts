@@ -27,9 +27,6 @@ export class ListsService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -39,9 +36,6 @@ export class ListsService {
 **/
   getHashlist(id: number):Observable<any> {
     return this.http.get(`${this.endpoint}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -80,9 +74,6 @@ export class ListsService {
             isArchived: hash.isArchived,
             isSecret: hash.isSecret
           })
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -91,11 +82,8 @@ export class ListsService {
  * @param arr - Fields
  * @returns Object
 **/
-  updateHashlist(arr: any): Observable<any> {
-    return this.http.patch<number>(this.endpoint + '/' + arr.hashTypeId, {description: arr.description})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
+  updateHashlist(id: number, arr: any): Observable<any> {
+    return this.http.patch<number>(this.endpoint + '/' + id, arr)
   }
 
 /**
@@ -105,9 +93,6 @@ export class ListsService {
 **/
   archiveHashlist(id: number): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, {isArchived: true})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

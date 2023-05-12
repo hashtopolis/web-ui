@@ -26,9 +26,6 @@ export class ConfigService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -40,8 +37,7 @@ export class ConfigService {
   updateConfig(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
     .pipe(
-      debounceTime(2000),
-      tap(data => console.log('All: ', JSON.stringify(data)))
+      debounceTime(2000)
     );
   }
 

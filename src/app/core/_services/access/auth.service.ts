@@ -75,7 +75,7 @@ export class AuthService {
 
     private getUserId(token: any){
       if(token == 'notoken'){
-        return true
+        return false
       }else{
         var b64string = Buffer.from(token.split('.')[1], 'base64');
         return JSON.parse(b64string.toString()).userId

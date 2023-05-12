@@ -36,11 +36,9 @@
               </thead>
               <tbody>
               <tr *ngFor="let list of allhashlists">
+                  <td>{{ list.hashlistId }}</td>
                   <td>
-                      <a>{{ list.hashlistId }}</a>
-                  </td>
-                  <td>
-                      <a>{{ list.name }}</a>
+                      <a [routerLink]="[list.hashlistId,'edit']">{{ list.name }}</a>
                       <span *ngIf="list.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
                   </td>
                   <td>{{ list.hashType.description }}</td>

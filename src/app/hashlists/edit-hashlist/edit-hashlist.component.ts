@@ -78,7 +78,6 @@ export class EditHashlistComponent implements OnInit {
         'name': new FormControl(''),
         'notes': new FormControl(''),
         'isSecret': new FormControl(''),
-        'isSmall': new FormControl(''),
         'accessGroupId': new FormControl(''),
       }),
     });
@@ -108,7 +107,7 @@ export class EditHashlistComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.listsService.updateHashlist(this.updateForm.value['updateData']).subscribe((hasht: any) => {
+      this.listsService.updateHashlist(this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
         const response = hasht;
         console.log(response);
         this.isLoading = false;
@@ -120,7 +119,7 @@ export class EditHashlistComponent implements OnInit {
             timer: 1500
           });
           this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['hashlist']);
+          this.router.navigate(['/hashlists/hashlist']);
         },
         errorMessage => {
           // check error status code is 500, if so, do some action
@@ -175,7 +174,6 @@ export class EditHashlistComponent implements OnInit {
             'name': new FormControl(result['name']),
             'notes': new FormControl(result['notes']),
             'isSecret': new FormControl(result['isSecret']),
-            'isSmall': new FormControl(result['isSmall']),
             'accessGroupId': new FormControl(result['accessGroupId']),
           }),
        });

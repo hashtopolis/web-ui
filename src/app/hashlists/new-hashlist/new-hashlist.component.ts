@@ -5,6 +5,7 @@ import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Buffer } from 'buffer';
 
 import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
@@ -211,7 +212,9 @@ export class NewHashlistComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.hlService.createHashlist(this.signupForm.value).subscribe((hl: any) => {
+      var res = this.handleUpload(this.signupForm.value);
+
+      this.hlService.createHashlist(res).subscribe((hl: any) => {
         this.isLoading = false;
         Swal.fire({
           title: "Good job!",
@@ -220,7 +223,6 @@ export class NewHashlistComponent implements OnInit {
           showConfirmButton: false,
           timer: 1500
         });
-        this.signupForm.reset(this.signupForm.value); // success, we reset form
         this.router.navigate(['/hashlists/hashlist']);
       },
       errorMessage => {
@@ -242,6 +244,27 @@ export class NewHashlistComponent implements OnInit {
         timer: 2000
       })
     }
+  }
+
+  handleUpload(arr: any){
+    var res = {
+      'name': arr.name,
+      'hashTypeId': arr.hashTypeId,
+      'format': arr.format,
+      'separator': arr.separator,
+      'isSalted': arr.isSalted,
+      'isHexSalt': arr.isHexSalt,
+      'accessGroupId': arr.accessGroupId,
+      'useBrain': arr.useBrain,
+      'brainFeatures': arr.brainFeatures,
+      'notes': arr.notes,
+      "sourceType": arr.sourceType,
+      "sourceData": Buffer.from(arr.sourceData).toString('base64'),
+      'hashCount': arr.hashCount,
+      'isArchived': arr.isArchived,
+      'isSecret': arr.isSecret,
+     }
+     return res;
   }
 
   // @HostListener allows us to also guard against browser refresh, close, etc.

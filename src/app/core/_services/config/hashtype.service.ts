@@ -26,9 +26,6 @@ export class HashtypeService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get<Hashtype[]>(this.endpoint,{params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -47,9 +44,6 @@ export class HashtypeService {
 **/
   createHashType(arr: any): Observable<Hashtype[]> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -60,9 +54,6 @@ export class HashtypeService {
   updateHashType(hash: any): Observable<any> {
     console.log(hash);
     return this.http.patch<number>(this.endpoint + '/' + hash.hashTypeId, {description: hash.description, isSalted:hash.isSalted, isSlowHash: hash.isSlowHash})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

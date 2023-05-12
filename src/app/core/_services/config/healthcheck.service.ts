@@ -28,9 +28,6 @@ export class HealthcheckService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint + '/ui/healthchecks', {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -40,9 +37,6 @@ export class HealthcheckService {
 **/
   getHealthCheck(id: number):Observable<any> {
     return this.http.get(`${this.endpoint + '/ui/healthchecks'}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 /**
  * Delete individial Health check by id
@@ -61,9 +55,6 @@ deleteHealthCheck(id: number):Observable<any> {
 **/
 createHealthCheck(arr: any): Observable<HealthCheck[]> {
   return this.http.post<any>(this.endpoint + '/ui/healthchecks', arr)
-  .pipe(
-    tap(data => console.log('All: ', JSON.stringify(data)))
-  );
 }
 
 /**
@@ -77,9 +68,6 @@ createHealthCheck(arr: any): Observable<HealthCheck[]> {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint + '/ui/healthcheckagents', {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -89,9 +77,6 @@ createHealthCheck(arr: any): Observable<HealthCheck[]> {
 **/
   getHealthCheckedAgent(id: number):Observable<any> {
     return this.http.get(`${this.endpoint + '/ui/healthcheckagents'}/${id}`)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 

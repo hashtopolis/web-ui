@@ -15,9 +15,6 @@ export class ReportService {
 
   getConfReport():Observable<any> {
     return this.http.get(this.endpoint)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }

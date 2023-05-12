@@ -25,9 +25,6 @@ export class TasksService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get(this.endpoint, {params: queryParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -37,9 +34,6 @@ export class TasksService {
 **/
   getTask(id:number):Observable<any> {
     return this.http.get(this.endpoint +'/'+ id)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -58,9 +52,6 @@ export class TasksService {
 **/
   createTask(arr: any): Observable<any> {
     return this.http.post<any>(this.endpoint, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -71,9 +62,6 @@ export class TasksService {
 **/
   updateTask(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -84,9 +72,6 @@ export class TasksService {
 **/
   archiveTask(id: number): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, {isArchived: true})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 

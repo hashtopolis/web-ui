@@ -27,9 +27,6 @@ export class AccessPermissionGroupsService {
         queryParams = setParameter(routerParams);
     }
     return this.http.get<AccessGroup[]>(this.endpoint,{params: routerParams})
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -43,9 +40,6 @@ getAccPGroup(id: number, routerParams?: Params): Observable<AccessGroup[]> {
       queryParams = setParameter(routerParams);
   }
   return this.http.get<AccessGroup[]>(`${this.endpoint}/${id}`,{params: routerParams})
-  .pipe(
-    tap(data => console.log('All: ', JSON.stringify(data)))
-  );
 }
 
 /**
@@ -64,9 +58,6 @@ getAccPGroup(id: number, routerParams?: Params): Observable<AccessGroup[]> {
 **/
   createAccP(item: any): Observable<AccessGroup[]> {
     return this.http.post<any>(this.endpoint, item)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 /**
@@ -76,9 +67,6 @@ getAccPGroup(id: number, routerParams?: Params): Observable<AccessGroup[]> {
 **/
   updateAccP(id: number, arr: any): Observable<any> {
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
-    .pipe(
-      tap(data => console.log('All: ', JSON.stringify(data)))
-    );
   }
 
 }
