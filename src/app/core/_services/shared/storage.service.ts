@@ -1,3 +1,4 @@
+import { dateFormat } from '../../../core/_constants/settings.config';
 import { environment } from '../../../../environments/environment';
 import { Injectable } from "@angular/core";
 
@@ -65,6 +66,10 @@ export class UIConfigService {
       this.cachevar.forEach((data) => {
         let name = data.name;
         let value = result.values.find(obj => obj.item === data.name).value;
+        // Check date format is valid
+        if(name == 'timefmt'){
+          value = this.onDateCheck(value);
+        }
         value = {name:name, value: value}
         post_data.push(value);
       });
@@ -80,8 +85,27 @@ export class UIConfigService {
     }
   }
 
-  public onDateCheck(){
+  public onDateCheck(format: any){
+    var res; //Default date format
+    for(let i=0; i < dateFormat.length; i++){
+      if(dateFormat[i]['format']== format){
+        res = format;
+      }
+    }
+    if(!res){
+      res = 'dd/MM/yyyy h:mm:ss';
+      this.updateDate(res);
+    }
+    return res;
+  }
 
+  public updateDate(val){
+    let keyn = 'timefmt';
+    let params = {'filter=item': keyn};
+    this.configService.getAllconfig(params).subscribe((result)=>{
+      let indexUpdate = result.values.find(obj => obj.item === keyn).configId;
+      let arr = {'item': keyn, 'value':  val};
+      this.configService.updateConfig(indexUpdate, arr).subscribe((result)=>{ }) })
   }
 
   public getUIsettings(name?: string){

@@ -34,6 +34,15 @@
   float: right;
 }
 
+// Overrule datatables color setting
+table.dataTable tbody tr.selected>* {
+  // box-shadow: inset 0 0 0 9999px rgb(89, 143, 105) !important;
+  a {
+    color: rgb(246, 246, 246) !important;
+  }
+}
+
+
 /*
   01- End
 */
