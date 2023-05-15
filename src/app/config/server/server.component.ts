@@ -45,6 +45,7 @@ export class ServerComponent implements OnInit {
   hchForm: FormGroup;
   notifForm: FormGroup;
   gsForm: FormGroup;
+  taskcookieForm: FormGroup
   cookieForm: FormGroup;
 
   serverlog = serverlog;
@@ -99,6 +100,9 @@ export class ServerComponent implements OnInit {
             'ruleSplitSmallTasks': new FormControl(),
             'ruleSplitAlways': new FormControl(),
             'ruleSplitDisable': new FormControl()
+          });
+          this.taskcookieForm = new FormGroup({
+            'autorefresh': new FormControl(),
           });
           this.tctip = this.tooltipService.getConfigTooltips().tc;
           this.initTCForm();
@@ -204,6 +208,9 @@ export class ServerComponent implements OnInit {
         'ruleSplitAlways': new FormControl(result.values.find(obj => obj.item === 'ruleSplitAlways').value === '0' ? false: true),
         'ruleSplitDisable': new FormControl((result.values.find(obj => obj.item === 'ruleSplitDisable').value) === '0' ? false: true)
       });
+      this.taskcookieForm = new FormGroup({
+        'autorefresh': new FormControl(this.getAutorefresh()),
+      });
       this.isLoading = false;
     });
   }
@@ -302,6 +309,16 @@ export class ServerComponent implements OnInit {
     }else {
       return value;
     }
+  }
+
+  getAutorefresh(){
+    return JSON.parse(this.cookieService.getCookie('autorefresh')).value;
+  }
+
+  setAutorefresh(value: string){
+      this.cookieService.setCookie('autorefresh', JSON.stringify({active:true, value: value}), 365);
+      this.savedAlert();
+      this.ngOnInit();
   }
 
   getTooltipLevel(){

@@ -1,4 +1,4 @@
-import { faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh, faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye } from '@fortawesome/free-solid-svg-icons';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { interval, Subject, Subscription } from 'rxjs';
 
+import { CookieService } from 'src/app/core/_services/shared/cookies.service';
 import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
@@ -21,6 +22,7 @@ export class ShowTasksComponent implements OnInit {
   faFileExport=faFileExport;
   faBookmark=faBookmark;
   faArchive=faArchive;
+  faRefresh=faRefresh;
   faHome=faHomeAlt;
   faTrash=faTrash;
   faEdit=faEdit;
@@ -28,6 +30,8 @@ export class ShowTasksComponent implements OnInit {
   faPlus=faPlus;
   faCopy=faCopy;
   faEye=faEye;
+
+  storedAutorefresh: any =[]
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -53,12 +57,15 @@ export class ShowTasksComponent implements OnInit {
     private chunkService: ChunkService,
     private route:ActivatedRoute,
     private users: UsersService,
+    private cs: CookieService,
     private router: Router
     ) { }
 
   ngOnInit(): void {
 
     this.setAccessPermissions();
+    this.storedAutorefresh = this.getAutoreload();
+    this.onAutorefresh();
 
     this.route.data.subscribe(data => {
       switch (data['kind']) {
@@ -185,6 +192,31 @@ export class ShowTasksComponent implements OnInit {
 
  });
 
+}
+
+onAutorefresh(){
+  if(this.storedAutorefresh.active == true){
+    setTimeout(() => {
+      window.location.reload()
+    },this.storedAutorefresh.value*1000);
+  }
+}
+
+// Manage Auto reload
+setAutoreload(value: any){
+  var set = Number(this.storedAutorefresh.value);
+  var val;
+  if(value == false){
+    val = true;
+  }if(value == true){
+    val = false;
+  }
+  this.cs.setCookie('autorefresh', JSON.stringify({active:val, value: set}), 365);
+  this.ngOnInit();
+}
+
+getAutoreload(){
+  return JSON.parse(this.cs.getCookie('autorefresh'));
 }
 
 // Set permissions

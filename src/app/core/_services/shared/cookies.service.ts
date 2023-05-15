@@ -21,7 +21,8 @@ export class CookieService {
   }
 
   public checkDefaultCookies(){
-    const defCookies = [{name: 'tooltip', value: '0', expiry: 365}];
+    var def_autorefresh:any = {active:false, value: '10'};
+    const defCookies = [{name: 'tooltip', value: '0', expiry: 365},{name: 'autorefresh', value:  JSON.stringify(def_autorefresh), expiry: 365}];
     let defCookiesLen = defCookies.length;
     for (let i  = 0; i < defCookiesLen; i += 1) {
       var name = defCookies[i].name;

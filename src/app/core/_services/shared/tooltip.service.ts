@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { environment } from './../../../../environments/environment';
 import { CookieService } from '../../_services/shared/cookies.service';
+import { environment } from './../../../../environments/environment';
+import { Injectable } from "@angular/core";
 
 @Injectable({
   providedIn: 'root'

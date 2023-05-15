@@ -22,10 +22,30 @@
 <div [ngSwitch]="whichView">
   <div *ngSwitchCase="'live'">
     <button [routerLink]="['../','show-tasks-archived']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Archived</button>
+    &nbsp;
+    <fa-icon
+            class="point fa-xl"
+            style="color:rgba(82, 207, 44, 0.459)"
+            ngbTooltip='Disable Auto-reload page. Edit interval time in Config/Settings/Task.'
+            *ngIf="storedAutorefresh.active == true"
+            (click)="setAutoreload(true)"
+            [icon]="faRefresh"
+            aria-hidden="true"
+      ></fa-icon>
+    <fa-icon
+            class="point fa-xl"
+            style="color:rgba(231, 219, 41, 0.459)"
+            ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
+            *ngIf="storedAutorefresh.active == false"
+            (click)="setAutoreload(false)"
+            [icon]="faRefresh"
+            aria-hidden="true"
+      ></fa-icon>
   </div>
   <div *ngSwitchCase="'archived'">
     <button [routerLink]="['../','show-tasks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
   </div>
+
 </div>
 <div class="card border-0 shadow mb-4">
   <div class="card-body">

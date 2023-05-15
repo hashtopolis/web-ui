@@ -712,6 +712,29 @@
               &nbsp;&nbsp;
             </div>
           </form>
+          <h5><u>Other</u></h5>&nbsp;
+          <form [formGroup]="taskcookieForm">
+            <div class="form-group">
+              <div class="form-outline">
+                <label class="form-label" for="setCookieTooltip">Refresh Interval (seconds)</label>
+                <fa-icon
+                        placement="bottom"
+                        ngbTooltip="Manage refresh interval in the show tasks view."
+                        container="body"
+                        [icon]="faInfoCircle"
+                        aria-hidden="true"
+                >
+                </fa-icon>
+                <td>
+                <input
+                      class='form-control'
+                      formControlName="autorefresh"
+                      #autorefresh
+                      (change)="setAutorefresh(autorefresh.value)"
+                 >
+              </div>
+            </div>&nbsp;
+          </form>
           <!-- <button  class="btn btn-gray-800" type="submit">Save</button> -->
         </div>
       </div>

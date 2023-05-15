@@ -1,5 +1,5 @@
 /**
- * Date formats, used in general settings
+ * Date formats, used in general settings and when app is initialized
 **/
 
 export const dateFormat = [
