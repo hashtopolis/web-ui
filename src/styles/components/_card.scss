@@ -12,6 +12,14 @@
 /*   height: calc(100vh - 163px); */
 }
 
+// Overflow for texarea Firefox
+@-moz-document url-prefix() {
+  textarea {
+      height: 4em;
+      width: 100%;
+  }
+}
+
 .card-container-ag {
   width:95%;
 }

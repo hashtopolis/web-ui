@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-basic-title">Hashtype Detector</h4>
+</div>
+<div class="modal-body">
+  <form>
+    <div class="mb-3">
+      <div class="row">
+
+        <form>
+          <textarea name="hashtypeDetector" rows="4" cols="100" #value></textarea>
+          <button class="btn btn-gray-800" type="submit" (click)="onTest(value.value)">Ok</button>
+        </form>
+        &nbsp;
+        <table *ngIf="type || type !== false"   class="table table-centered table-nowrap mb-0 rounded">
+          <thead class="thead-light">
+            <tr>
+                <th class="border-0 rounded-start">Hashcat ID</th>
+                <th class="border-0">Description</th>
+                <th class="border-0 rounded-end">Example</th>
+            </tr>
+            </thead>
+            <tbody *ngFor="let n of type">
+               <tr *ngFor="let nn of n.options">
+                <td>{{ nn.id }}</td>
+                <td>{{ nn.description }}</td>
+                <td>{{ nn.example }}</td>
+               </tr>
+            </tbody>
+        </table>
+
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <!-- <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button> -->
+</div>

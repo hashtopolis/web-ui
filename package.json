@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --host 0.0.0.0 --poll 500",
-    "build": "ng build --configuration production",
+    "build": "ng build --prod / && mv dist/uihashtopolis _static && \\cp -r _static/server/main.js _static/main.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
@@ -48,6 +48,7 @@
     "datatables.net-select": "^1.5.0",
     "datatables.net-select-dt": "^1.5.0",
     "echarts": "^5.4.2",
+    "hashtype-detector": "^0.0.6",
     "jquery": "^3.6.1",
     "jspdf": "^2.5.1",
     "jszip": "^3.10.1",

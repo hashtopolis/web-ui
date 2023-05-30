@@ -13,10 +13,11 @@ import { AlertComponent } from "./alert/alert.component";
 import { GraphsModule } from "./graphs/graphs.module";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormsModule } from "@angular/forms";
-
+import { HashtypeDetectorComponent } from "./hashtype-detector/hashtype-detector.component";
 
 @NgModule({
   declarations: [
+    HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     HexconvertorComponent,
     CheatsheetComponent,
@@ -34,6 +35,7 @@ import { FormsModule } from "@angular/forms";
     NgbModule
   ],
   exports: [
+    HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     HexconvertorComponent,
     FilterTextboxModule,
