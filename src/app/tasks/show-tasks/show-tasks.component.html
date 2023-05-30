@@ -34,11 +34,11 @@
       ></fa-icon>
     <fa-icon
             class="point fa-xl"
-            style="color:rgba(231, 219, 41, 0.459)"
+            style="color:rgba(231, 155, 41, 0.459)"
             ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
             *ngIf="storedAutorefresh.active == false"
             (click)="setAutoreload(false)"
-            [icon]="faRefresh"
+            [icon]="faPauseCircle"
             aria-hidden="true"
       ></fa-icon>
   </div>

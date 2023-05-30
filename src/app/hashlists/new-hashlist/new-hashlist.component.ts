@@ -1,5 +1,6 @@
+import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener  } from '@angular/core';
-import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload } from '@fortawesome/free-solid-svg-icons';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -8,15 +9,16 @@ import { Observable } from 'rxjs';
 import { Buffer } from 'buffer';
 
 import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
+import { HashtypeService } from 'src/app/core/_services/config/hashtype.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UploadTUSService } from '../../core/_services/files/files_tus.service';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { HashtypeService } from 'src/app/core/_services/config/hashtype.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
 import { AccessGroup } from '../../core/_models/access-group';
 import { ShowHideTypeFile } from '../../shared/utils/forms';
 import { UploadFileTUS } from '../../core/_models/files';
+
 
 
 @Component({
@@ -34,6 +36,8 @@ export class NewHashlistComponent implements OnInit {
   faFileUpload=faFileUpload;
   faInfoCircle=faInfoCircle;
   faMagnifyingGlass=faMagnifyingGlass;
+
+  faSearchPlus=faSearchPlus;
 
   /**
    * Form Settings
@@ -56,6 +60,7 @@ export class NewHashlistComponent implements OnInit {
      private uploadService:UploadTUSService,
      private uiService: UIConfigService,
      private hlService: ListsService,
+     private modalService: NgbModal,
      private users: UsersService,
      private router: Router
      ) { }
@@ -281,4 +286,28 @@ export class NewHashlistComponent implements OnInit {
     }
     return true;
   }
+
+  // Open Modal
+    // Modal Information
+    closeResult = '';
+    open(content) {
+      this.modalService.open(content, { size: 'xl' }).result.then(
+        (result) => {
+          this.closeResult = `Closed with: ${result}`;
+        },
+        (reason) => {
+          this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+        },
+      );
+    }
+
+    private getDismissReason(reason: any): string {
+      if (reason === ModalDismissReasons.ESC) {
+        return 'by pressing ESC';
+      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+        return 'by clicking on a backdrop';
+      } else {
+        return `with: ${reason}`;
+      }
+    }
 }

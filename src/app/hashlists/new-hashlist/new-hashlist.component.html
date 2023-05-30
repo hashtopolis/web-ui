@@ -47,6 +47,15 @@
                       <div class="form-group">
                         <div class="form-outline">
                             <label class="form-label requiredak" for="gethashtype">Hashtype</label>
+                            <fa-icon
+                                    placement="bottom"
+                                    (click)="open(cheatsheet)"
+                                    ngbTooltip='Click to use the Hash Detector'
+                                    container="body"
+                                    [icon]="faSearchPlus"
+                                    aria-hidden="true"
+                                    class="gray-light-ico"
+                            ></fa-icon>
                             <div class="input-group">
                               <span class="input-group-text" >
                                 <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
@@ -194,7 +203,7 @@
                               &nbsp;
                               </div>
                               <div *ngFor="let fileStatus of uploadProgress | async">
-                                &nbsp;
+                              &nbsp;
                               <p *ngIf="fileStatus.progress != 100">Uploading File: {{fileStatus.filename}}</p>
                               <ngb-progressbar
                                               type="success"
@@ -227,3 +236,7 @@
   </div>
 </div>
 </div>
+
+<ng-template #cheatsheet let-modal>
+  <app-hashtype-detector></app-hashtype-detector>
+</ng-template>

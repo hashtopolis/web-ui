@@ -13,7 +13,6 @@ import { HashesService } from '../core/_services/hashlist/hashes.service';
 import { AgentsService } from '../core/_services/agents/agents.service';
 import { TasksService } from '../core/_services/tasks/tasks.sevice';
 
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html'
