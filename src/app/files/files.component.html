@@ -161,10 +161,10 @@ Add Files
                                   <fa-icon [icon]="faLink" aria-hidden="true"></fa-icon>
                                 </span>
                                 <input
-                                      type="text"
-                                      id="urlimport"
                                       class='form-control'
                                       formControlName="sourceData"
+                                      pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                                      required
                                   >
                             </div>
                         </div>
