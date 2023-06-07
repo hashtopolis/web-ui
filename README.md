@@ -21,7 +21,7 @@ Notes:
 
 ## Set up
 
-1. Go to the folder and build the docker image `docker build . -t hashtopolis:latest`
+1. Go to the folder `cd web-ui` and build the docker image `docker build . -t hashtopolis:latest`
 2. Once installed start the project `docker run -d -p 4200:4200 --name hashtopolis-web-ui hashtopolis-web-ui:latest`
 
 # Community
