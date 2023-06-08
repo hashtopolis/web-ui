@@ -6,11 +6,11 @@ RUN mkdir /app
 WORKDIR /app
 
 # Storing npm install to speed-up building
-COPY package-lock.json package.json .
+COPY package-lock.json package.json ./
 RUN npm ci
 
 # Coping the app into the container
-COPY . .
+COPY . ./
 RUN npm run build
 
 #TODO: switch to nginx instead of ng serve development server
