@@ -45,7 +45,6 @@ export class ChunkService {
  * @returns  Object
 **/
   updateChunk(id:number, arr: any): Observable<any> {
-    console.log(arr);
     return this.http.patch<number>(this.endpoint + '/' + id, arr)
   }
 

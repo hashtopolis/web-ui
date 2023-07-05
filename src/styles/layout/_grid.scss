@@ -17,3 +17,17 @@
 /*
   01- Line Breaks END
 */
+
+.grid-container-main {
+  padding-bottom:10px;
+}
+
+.ui-label-inner {
+	font: 12px/14px;
+	vertical-align: middle;
+	transition: 250ms linear all;
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

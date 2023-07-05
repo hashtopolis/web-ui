@@ -1,88 +1,31 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Access Group</h2>
-      <p class="mb-0">Section to manage and create access groups.</p>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-      <a  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-          New Access Group
-      </a>
-  </div>
-</div>
-<!-- Create Access Group -->
-<div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
-  <section>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                <h2 class="h5 mb-4">Create Access Group</h2><br>
-                  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-                    <div class="row">
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="groupName">Access Group Name</label>
-                            <input  type='text' name='groupName' title="Group Name" class='form-control' id="groupName" formControlName="groupName">
-                          </div>
-                        </div>
-                        &nbsp;
-                        <button class="btn btn-gray-800" type="submit">Create</button>
-                      </div>
-                </form>
-           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  &nbsp;&nbsp;
-</div>
-<!-- End Create Access Group -->
+<app-page-title [title]="'Access Group'" [buttontitle]="'New Access Group'" [buttonlink]="'/users/access-groups/new'" [subbutton]="true"></app-page-title>
 <!-- Body -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                    <th class="border-0 rounded-start">Access Group ID</th>
-                    <th class="border-0">Group Name</th>
-                    <th class="border-0 rounded-end">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let a of agroups; let i = index">
-                      <td class="text-align:center">{{ a.accessGroupId }}</td>
-                      <td class="text-align:center">
-                        <div *ngIf="a.isEdit">
-                          <input  type="text" [(ngModel)]="a.groupName" class="form-control">
-                        </div>
-                        <div *ngIf="!a.isEdit">
-                          {{ a.groupName | lowercase | titlecase }}
-                        </div>
-                      </td>
-                      <td>
-                        <div *ngIf="a.isEdit">
-                          <a class='btn-outline-gray-600 float-right' (click)="onSave(a)" data-toggle="tooltip" data-placement="top" title="Update">
-                              <fa-icon [icon]="faSave" aria-hidden="true"></fa-icon>
-                          </a>
-                          <a class='btn-outline-gray-600 float-right' (click)="onCancel(a)" data-toggle="tooltip" data-placement="top" title="Cancel">
-                              <fa-icon [icon]="faCancel" aria-hidden="true"></fa-icon>
-                          </a>
-                          </div>
-                          <div *ngIf="!a.isEdit">
-                            <a class='btn-outline-gray-600 float-right' (click)="onEdit(a)" data-toggle="tooltip" data-placement="top" title="Edit">
-                              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
-                          </a>
-                          <a class='btn-outline-gray-600 float-right' (click)="onDelete(a.accessGroupId)" data-toggle="tooltip" data-placement="top" title="Delete">
-                              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-                          </a>
-                        </div>
-                      </td>
-                  </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<!-- End Body -->
+<app-table>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">Access Group ID</th>
+          <th>Group Name</th>
+          <th class="rounded-end">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of agroups; let i = index">
+            <td>{{ a.accessGroupId }}</td>
+            <td>{{ a.groupName | lowercase | titlecase }}</td>
+            <td class="overflow-hidden">
+              <app-button-actions>
+                <button ngbDropdownItem [routerLink]="['/users/access-groups/',a.accessGroupId,'edit']" data-placement="top" title="Edit">
+                  <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+                </button>
+                <div class="dropdown-divider"></div>
+                <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(a.accessGroupId)">
+                  <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+                </button>
+              </app-button-actions>
+            </td>
+        </tr>
+      </tbody>
+  </table>
+</app-table>
+

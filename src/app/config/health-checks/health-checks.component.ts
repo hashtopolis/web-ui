@@ -1,36 +1,33 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { faHomeAlt, faPlus, faEdit, faTrash, faEyeDropper} from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
 
 import { HealthcheckService } from '../../core/_services/config/healthcheck.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { HashtypeService } from '../../core/_services/config/hashtype.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-health-checks',
   templateUrl: './health-checks.component.html',
   // changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['Show Health Checks'])
 export class HealthChecksComponent implements OnInit {
   // Loader
   isLoading = false;
   // Form attributtes
-  public isCollapsed = true;
   faHome=faHomeAlt;
   faPlus=faPlus;
   faTrash=faTrash;
   faEdit=faEdit;
   faEyeDropper=faEyeDropper;
-
-  // Form create Health Check
-  createForm: FormGroup;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
@@ -42,14 +39,11 @@ export class HealthChecksComponent implements OnInit {
   constructor(
     private healthcheckService: HealthcheckService,
     private hashtypeService: HashtypeService,
-    private crackerService: CrackerService,
     private uiService: UIConfigService,
     // private _changeDetectorRef: ChangeDetectorRef,
     private route:ActivatedRoute,
-    private router:Router) { }
-
-  crackertype: any = [];
-  crackerversions: any = [];
+    private router:Router
+  ) { }
 
   public healthc: {
     attackCmd: string,
@@ -75,16 +69,6 @@ export class HealthChecksComponent implements OnInit {
   public mergedObjects: any
 
   ngOnInit(): void {
-
-  this.createForm = new FormGroup({
-    'checkType': new FormControl(0),
-    'hashtypeId': new FormControl(null || 0, [Validators.required]),
-    'crackerBinaryId': new FormControl('', [Validators.required])
-  });
-
-  this.crackerService.getCrackerType().subscribe((crackers: any) => {
-    this.crackertype = crackers.values;
-  });
 
   let params = {'maxResults': this.maxResults};
 
@@ -159,13 +143,6 @@ export class HealthChecksComponent implements OnInit {
 
   }
 
-  onChangeBinary(id: string){
-    let params = {'filter': 'crackerBinaryTypeId='+id+''};
-    this.crackerService.getCrackerBinaries(params).subscribe((crackers: any) => {
-      this.crackerversions = crackers.values;
-    });
-  }
-
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
@@ -177,63 +154,29 @@ export class HealthChecksComponent implements OnInit {
     });
   }
 
-  onSubmit(){
-    if (this.createForm.valid) {
-      console.log(this.createForm);
-
-      this.isLoading = true;
-
-      this.healthcheckService.createHealthCheck(this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        console.log(response);
-        this.isLoading = false;
-          Swal.fire({
-            title: "Good job!",
-            text: "New Health Check created!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.isCollapsed = true; //Close button new hashtype
-          this.createForm.reset(); // success, we reset form
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Health Check was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
-        }
-      );
-    }
-  }
-
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
     Swal.fire({
       title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.healthcheckService.deleteHealthCheck(id).subscribe(() => {
-          Swal.fire(
-            "Health Check has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -242,11 +185,13 @@ export class HealthChecksComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Health Check Task is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Health Check is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

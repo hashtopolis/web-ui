@@ -12,6 +12,7 @@ import { NgModule } from "@angular/core";
 import { NotificationsComponent } from "./notifications/notifications.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { AccountComponent } from "./account.component";
+import { NewNotificationComponent } from './notifications/new-notification/new-notification.component';
 
 
 @NgModule({
@@ -19,6 +20,7 @@ import { AccountComponent } from "./account.component";
     NotificationsComponent,
     SettingsComponent,
     AccountComponent,
+    NewNotificationComponent,
   ],
   imports:[
     AccountRoutingModule,

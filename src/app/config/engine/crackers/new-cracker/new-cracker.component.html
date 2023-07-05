@@ -1,0 +1,14 @@
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <app-page-subtitle [subtitle]="'Create Binary'"></app-page-subtitle>
+  <form (ngSubmit)="onSubmit()">
+    <div class="row">
+      <grid-form-input [name]="'Cracker Type Name'">
+        <select  class='form-select' name="name" title="Name">
+          <option value="hashcat">Hashcat</option>
+          <option value="generic">Generic Cracker</option>
+        </select>
+      </grid-form-input>
+      <button-submit [name]="'Create'"></button-submit>
+    </div>
+  </form>
+</grid-main>

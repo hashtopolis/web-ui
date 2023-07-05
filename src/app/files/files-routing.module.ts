@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
 import { FilesEditComponent } from "./files-edit/files-edit.component";
+import { NewFilesComponent } from "./new-files/new-files.component";
 import { FilesGuard } from "../core/_guards/file.guard";
 import { FilesComponent } from "./files.component";
 
@@ -15,6 +16,13 @@ const routes: Routes = [
         data: {
             kind: 'wordlist',
             breadcrumb: 'Wordlist'
+        },
+        canActivate: [AuthGuard,FilesGuard]},
+      {
+        path: 'wordlist/new-wordlist',  component: NewFilesComponent,
+        data: {
+            kind: 'wordlist-new',
+            breadcrumb: 'Wordlist New'
         },
         canActivate: [AuthGuard,FilesGuard]},
       {
@@ -32,6 +40,13 @@ const routes: Routes = [
         },
         canActivate: [AuthGuard,FilesGuard]},
       {
+        path: 'rules/new-rule',  component: NewFilesComponent,
+        data: {
+            kind: 'rule-new',
+            breadcrumb: 'Rule New'
+        },
+        canActivate: [AuthGuard,FilesGuard]},
+      {
         path: ':id/rules-edit',  component: FilesEditComponent,
         data: {
             kind: 'rules-edit',
@@ -43,6 +58,13 @@ const routes: Routes = [
         data: {
             kind: 'other',
             breadcrumb: 'Other'
+        },
+        canActivate: [AuthGuard,FilesGuard]},
+      {
+        path: 'other/new-other',  component: NewFilesComponent,
+        data: {
+            kind: 'other-new',
+            breadcrumb: 'Other New'
         },
         canActivate: [AuthGuard,FilesGuard]},
       {

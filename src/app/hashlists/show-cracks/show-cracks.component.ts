@@ -1,18 +1,27 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { faPlus} from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { faPlus} from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
 
 import { HashesService } from '../../core/_services/hashlist/hashes.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-show-cracks',
   templateUrl: './show-cracks.component.html'
 })
+@PageTitle(['Show Cracks'])
 export class ShowCracksComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Cracks";
+  buttontitle = "";
+  buttonlink = "";
+  subbutton = false;
+
   faPlus=faPlus;
 
   @ViewChild(DataTableDirective, {static: false})

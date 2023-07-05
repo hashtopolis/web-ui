@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
 import { UsersService } from 'src/app/core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 declare var options: any;
 declare var defaultOptions: any;
@@ -19,6 +20,7 @@ declare var parser: any;
   selector: 'app-edit-supertasks',
   templateUrl: './edit-supertasks.component.html'
 })
+@PageTitle(['Edit SuperTasks'])
 export class EditSupertasksComponent implements OnInit {
 
   editMode = false;
@@ -104,10 +106,9 @@ export class EditSupertasksComponent implements OnInit {
 
       this.supertaskService.updateSupertask(this.editedSTIndex,this.updateForm.value).subscribe((st: any) => {
         const response = st;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "SuperTask updated!",
             icon: "success",
             showConfirmButton: false,
@@ -115,15 +116,6 @@ export class EditSupertasksComponent implements OnInit {
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['/tasks/supertasks']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "SuperTask was not saved, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }
@@ -189,26 +181,26 @@ export class EditSupertasksComponent implements OnInit {
     const id = +this.route.snapshot.params['id'];
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
     Swal.fire({
       title: "Are you sure?",
-      text: "Once deleted, it cannot be recover.",
+      text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.supertaskService.deleteSupertask(id).subscribe(() => {
-          Swal.fire(
-            "Supertask has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -216,11 +208,13 @@ export class EditSupertasksComponent implements OnInit {
           this.ngOnInit();
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, it is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your SuperTask is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

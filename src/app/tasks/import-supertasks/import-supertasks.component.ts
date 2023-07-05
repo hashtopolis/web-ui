@@ -8,20 +8,21 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
-import { FilesService } from '../../core/_services/files/files.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { CrackerService } from '../../core/_services/config/cracker.service';
-import { TooltipService } from '../../core/_services/shared/tooltip.service';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { PreprocessorService } from '../../core/_services/config/preprocessors.service';
-
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
+import { ListsService } from '../../core/_services/hashlist/hashlist.service';
+import { TooltipService } from '../../core/_services/shared/tooltip.service';
+import { CrackerService } from '../../core/_services/config/cracker.service';
+import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { FilesService } from '../../core/_services/files/files.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-import-supertasks',
   templateUrl: './import-supertasks.component.html'
 })
+@PageTitle(['Import SuperTask'])
 export class ImportSupertasksComponent implements OnInit {
 
   // Loader
@@ -400,7 +401,7 @@ export class ImportSupertasksComponent implements OnInit {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New Task created!",
             icon: "success",
             showConfirmButton: false,
@@ -409,15 +410,6 @@ export class ImportSupertasksComponent implements OnInit {
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/show-tasks']);
           // this.router.navigate(['config/engine/crackers']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Task was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

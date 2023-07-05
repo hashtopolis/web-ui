@@ -125,7 +125,6 @@ get detectedTheme$(): Observable<DetectedTheme> {
     return of('light');
   }
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  console.log(mediaQuery);
   return fromEvent<MediaQueryListEvent>(mediaQuery, 'change').pipe(
     map(event => event.matches),
     startWith(mediaQuery.matches),

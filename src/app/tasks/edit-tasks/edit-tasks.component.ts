@@ -21,11 +21,14 @@ import { AgentsService } from '../../core/_services/agents/agents.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 import { ChunkService } from '../../core/_services/tasks/chunks.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
+import { colorpicker } from '../../core/_constants/settings.config';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html'
 })
+@PageTitle(['Edit Task'])
 export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   editMode = false;
@@ -53,6 +56,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   updateForm: FormGroup;
   color: string = '';
+  colorpicker=colorpicker;
   private maxResults = environment.config.prodApiMaxResults;
 
   @ViewChild(DataTableDirective)
@@ -129,10 +133,9 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
       this.tasksService.updateTask(this.editedTaskIndex,this.updateForm.value['updateData']).subscribe((tasks: any) => {
         const response = tasks;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "Task updated!",
             icon: "success",
             showConfirmButton: false,
@@ -140,15 +143,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/show-tasks']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Task was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

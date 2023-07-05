@@ -3,18 +3,23 @@
           SECTION NAVIGATION
    ================================== */
 
-// Remove caret from boostrap, gives a more stylish look
-.dropdown-toggle {
-  &:after, .dropend &:after, .dropstart &:before, .dropup &:after {
-      display: none;
-  }
+// Remove caret from boostrap
+// .dropdown-toggle {
+//   &:after, .dropend &:after, .dropstart &:before, .dropup &:after {
+//       display: none;
+//   }
+// }
+
+.active {
+  background-color : #E5E7EB
 }
 
 // Effect modern transition
 .dropdown-menu-center {left: 50%;
   transform: translateX(-50%);
  }
- .navbar-nav .dropdown-menu.show,.navbar-nav .dropdown-megamenu.show,.navbar-nav .dropdown-megamenu-md.show {
+
+.navbar-nav .dropdown-menu.show,.navbar-nav .dropdown-megamenu.show,.navbar-nav .dropdown-megamenu-md.show {
   opacity: 1;
   pointer-events: auto;
 }
@@ -39,7 +44,6 @@
   cursor: pointer;
 }
 
-
 // Dropdown medium - used for notifications
 
 .dropdown-menu-medium {
@@ -57,5 +61,11 @@
 
 a:link {
   text-decoration: none;
+}
+
+// Dots Nav
+
+.steps-container {
+  min-height: 300px;
 }
 

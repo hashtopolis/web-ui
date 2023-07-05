@@ -24,9 +24,11 @@
   border-radius: 0.5rem !important;
 }
 
+// Overrule Datatables button color
 .btn-outline-gray-600-dt {
-  color: #4B5563 !important;
-  border-color: #4B5563 !important;;
+  color: #ffffff !important;
+  background-color: #1a232f !important;
+  border-color: #19212c !important;
 }
 
 .btn-outline-gray-600-dt:hover {

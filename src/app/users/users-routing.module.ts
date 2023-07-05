@@ -3,7 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
 import { EditGlobalpermissionsgroupsComponent } from "./globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component";
+import { NewGlobalpermissionsgroupsComponent } from "./globalpermissionsgroups/new-globalpermissionsgroups/new-globalpermissionsgroups.component";
 import { GlobalpermissionsgroupsComponent } from "./globalpermissionsgroups/globalpermissionsgroups.component";
+import { CUGroupComponent } from "./groups/cu-group/cu-group.component";
 import { EditUsersComponent } from "./edit-users/edit-users.component";
 import { AccessGroupsGuard } from "../core/_guards/accessgroups.guard";
 import { AllUsersComponent } from "./all-users/all-users.component";
@@ -44,6 +46,13 @@ const routes: Routes = [
           },
           canActivate: [AuthGuard,UsersGuard]},
         {
+          path: 'global-permissions-groups/new', component: NewGlobalpermissionsgroupsComponent,
+          data: {
+              kind: 'new-globalpermissionsgp',
+              breadcrumb: 'New Global Permissions Groups'
+          },
+          canActivate: [AuthGuard,UsersGuard]},
+        {
           path: 'global-permissions-groups/:id/edit', component: EditGlobalpermissionsgroupsComponent,
           data: {
               kind: 'edit-gpg',
@@ -55,6 +64,20 @@ const routes: Routes = [
           data: {
               kind: 'access-groups',
               breadcrumb: 'Access Groups'
+          },
+          canActivate: [AuthGuard,AccessGroupsGuard]},
+        {
+          path: 'access-groups/new', component: CUGroupComponent,
+          data: {
+              kind: 'new-access-groups',
+              breadcrumb: 'New Access Group'
+          },
+          canActivate: [AuthGuard,AccessGroupsGuard]},
+        {
+          path: 'access-groups/:id/edit', component: CUGroupComponent,
+          data: {
+              kind: 'edit-access-groups',
+              breadcrumb: 'Edit Access Group'
           },
           canActivate: [AuthGuard,AccessGroupsGuard]},
         ]

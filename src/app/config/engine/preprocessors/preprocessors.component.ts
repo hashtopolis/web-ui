@@ -1,17 +1,20 @@
+import { faHomeAlt, faPlus, faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { faHomeAlt, faPlus, faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
-import { PreprocessorService } from '../../../core/_services/config/preprocessors.service';
-import { Router } from '@angular/router';
-import { environment } from './../../../../environments/environment';
-import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+
+import { PreprocessorService } from '../../../core/_services/config/preprocessors.service';
+import { environment } from './../../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-preprocessors',
   templateUrl: './preprocessors.component.html'
 })
+@PageTitle(['Show Preprocessors'])
 export class PreprocessorsComponent implements OnInit {
   public isCollapsed = true;
   faHome=faHomeAlt;
@@ -109,26 +112,26 @@ export class PreprocessorsComponent implements OnInit {
     onDelete(id: number){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
-          confirmButton: 'btn btn-success',
-          cancelButton: 'btn btn-danger'
+          confirmButton: 'btn',
+          cancelButton: 'btn'
         },
         buttonsStyling: false
       })
       Swal.fire({
         title: "Are you sure?",
-        text: "Once deleted, it cannot be recover.",
+        text: "Once deleted, it can not be recovered!",
         icon: "warning",
+        reverseButtons: true,
         showCancelButton: true,
-        confirmButtonColor: '#4B5563',
-        cancelButtonColor: '#d33',
+        cancelButtonColor: '#8A8584',
+        confirmButtonColor: '#C53819',
         confirmButtonText: 'Yes, delete it!'
       })
       .then((result) => {
         if (result.isConfirmed) {
           this.preprocessorService.deletePreprocessor(id).subscribe(() => {
-            Swal.fire(
-              "Preprocessor has been deleted!",
-              {
+            Swal.fire({
+              title: "Success",
               icon: "success",
               showConfirmButton: false,
               timer: 1500

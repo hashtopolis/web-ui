@@ -1,16 +1,18 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
-import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Router } from '@angular/router';
 
 import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-search-hash',
   templateUrl: './search-hash.component.html'
 })
+@PageTitle(['Search Hash'])
 export class SearchHashComponent implements OnInit {
   isLoading = false;
   faMagnifyingGlass=faMagnifyingGlass;

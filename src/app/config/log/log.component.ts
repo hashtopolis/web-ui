@@ -4,10 +4,11 @@ import { environment } from 'src/environments/environment';
 import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import { Router } from '@angular/router';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { LogentryService } from '../../core/_services/config/logentry.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 declare var $: any;
 declare var _fnReDraw;
@@ -16,7 +17,15 @@ declare var _fnReDraw;
   selector: 'app-log',
   templateUrl: './log.component.html'
 })
+@PageTitle(['Show Logs'])
 export class LogComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Logs";
+  buttontitle = "";
+  buttonlink = "";
+  subbutton = false;
+
   faHome=faHomeAlt;
 
   @ViewChild(DataTableDirective, {static: false})

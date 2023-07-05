@@ -1,22 +1,19 @@
-import { faEdit, faTrash, faHomeAlt, faPlus, faUpload, faFileImport, faDownload, faPaperclip, faLink, faLock, faFileUpload} from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faPlus, faLock} from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import { FormControl, FormGroup} from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, Observable } from 'rxjs';
-import { Buffer } from 'buffer';
+import { FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
 
-import { UploadTUSService } from '../core/_services/files/files_tus.service';
 import { AccessGroupsService } from '../core/_services/access/accessgroups.service';
-import { fileSizeValue, validateFileExt } from '../shared/utils/util';
+import { UploadTUSService } from '../core/_services/files/files_tus.service';
 import { FilesService } from '../core/_services/files/files.service';
-import { environment } from './../../environments/environment';
-
 import { UsersService } from '../core/_services/users/users.service';
+import { environment } from './../../environments/environment';
 import { AccessGroup } from '../core/_models/access-group';
-import { UploadFileTUS } from '../core/_models/files';
+import { PageTitle } from '../core/_decorators/autotitle';
 import { Filetype } from '../core/_models/files';
 
 declare let $:any;
@@ -25,20 +22,26 @@ declare let $:any;
   selector: 'app-files',
   templateUrl: './files.component.html'
 })
-
+@PageTitle(['Show Files'])
 export class FilesComponent implements OnInit {
-  public isCollapsed = true;
+
+  // Title Page
+  wTitle = "WordLists";
+  wbuttontitle = "New WordList";
+  wbuttonlink = "/files/wordlist/new-wordlist";
+  wsubbutton = true;
+  rTitle = "Rules";
+  rbuttontitle = "New Rule";
+  rbuttonlink = "/files/rules/new-rule";
+  rsubbutton = true;
+  oTitle = "Other";
+  obuttontitle = "New Other";
+  obuttonlink = "/files/other/new-other";
+  osubbutton = true;
 
   isLoading= false;
-  faFileImport=faFileImport;
-  faFileUpload=faFileUpload;
-  faPaperclip=faPaperclip;
-  faDownload=faDownload;
-  faUpload=faUpload;
-  faHome=faHomeAlt;
   faTrash=faTrash;
   faPlus=faPlus;
-  faLink=faLink;
   faLock=faLock;
   faEdit=faEdit;
 
@@ -56,18 +59,17 @@ export class FilesComponent implements OnInit {
     }
   }[] = [];
 
+  private maxResults = environment.config.prodApiMaxResults;
+
   constructor(
     private accessgroupService:AccessGroupsService,
     private uploadService:UploadTUSService,
-    private filesService: FilesService,
+    private filesService:FilesService,
     private route:ActivatedRoute,
-    private users: UsersService,
-    private http: HttpClient,
-    private router: Router
+    private users:UsersService,
+    private http:HttpClient,
+    private router:Router
     ) { }
-
-// accessgroup: AccessGroup; //Use models when data structure is reliable
-  accessgroup: any[]
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -81,9 +83,6 @@ export class FilesComponent implements OnInit {
 
   filterType: number
   whichView: string;
-  createForm: FormGroup;
-
-  private maxResults = environment.config.prodApiMaxResults
 
   ngOnInit(): void {
 
@@ -126,10 +125,6 @@ export class FilesComponent implements OnInit {
 
       }
       let params = {'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType='+this.filterType+''}
-
-      this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
-        this.accessgroup = agroups.values;
-      });
 
       this.filesService.getFiles(params).subscribe((files: any) => {
         this.allfiles = files.values;
@@ -228,90 +223,8 @@ export class FilesComponent implements OnInit {
         }
       };
 
-      this.createForm = new FormGroup({
-        filename: new FormControl(''),
-        isSecret: new FormControl(false),
-        fileType: new FormControl(this.filterType),
-        accessGroupId: new FormControl(''),
-        sourceType: new FormControl('import' || ''),
-        sourceData: new FormControl(''),
-      });
-
-      this.uploadProgress = this.uploadService.uploadProgress; //Uploading File using tus protocol
-
     });
   }
-
-
-  /**
-   * Create File
-   *
-  */
-
-    onSubmit(): void{
-      if (this.createForm.valid) {
-
-      this.isLoading = true;
-
-      var form = this.onPrep(this.createForm.value);
-
-      this.filesService.createFile(form).subscribe((hl: any) => {
-        this.isLoading = false;
-        Swal.fire({
-          title: "Good job!",
-          text: "New File created!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        // this.createForm.reset(this.createForm.value); // success, we reset form
-        // // this.isCollapsed = true;
-        // this.ngOnInit();
-        // this.rerender();
-        window.location.reload();
-      },
-      errorMessage => {
-        Swal.fire({
-          title: "Oppss! Error",
-          text: errorMessage.error.message,
-          icon: "warning",
-          showConfirmButton: true
-        });
-      }
-    );
-    }
-  }
-
-  souceType(type: string){
-    this.createForm.patchValue({
-      filename: '',
-      accessGroupId: '',
-      sourceType:type,
-      sourceData:''
-    });
-  }
-
-  onPrep(obj: any){
-    var sourcadata;
-    var fname;
-    if(obj.sourceType == 'inline'){
-      fname = obj.filename;
-      sourcadata = Buffer.from(obj.sourceData).toString('base64');
-    }else{
-      sourcadata = this.fileName;
-      fname = this.fileName;
-    }
-    var res = {
-      "filename": fname,
-      "isSecret": obj.isSecret,
-      "fileType": obj.fileType,
-      "accessGroupId": obj.accessGroupId,
-      "sourceType": obj.sourceType,
-      "sourceData": sourcadata
-     }
-     return res;
-  }
-
 
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
@@ -324,49 +237,12 @@ export class FilesComponent implements OnInit {
     });
   }
 
-  // Uploading file
-  uploadProgress: Observable<UploadFileTUS[]>;
-  filenames: string[] = [];
-
-  isHovering: boolean;
-
-  toggleHover(event) {
-    this.isHovering = event;
-    console.log(event)
-  }
-
-  fileSizeValue = fileSizeValue;
-
-  validateFileExt = validateFileExt;
-
-  selectedFile: '';
-  fileGroup: number;
-  fileToUpload: File | null = null;
-  fileSize: any;
-  fileName: any;
-
-  handleFileInput(event: any) {
-    this.fileToUpload = event.target.files[0];
-    this.fileSize = this.fileToUpload.size;
-    this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text(fileSizeValue(this.fileToUpload.size));
-  }
-
-  onuploadFile(files: FileList) {
-    // tslint:disable-next-line:prefer-for-of
-    for (let i = 0; i < files.length; i++) {
-      this.filenames.push(files[i].name);
-      console.log(`Uploading ${files[i].name} with size ${files[i].size} and type ${files[i].type}`);
-      this.uploadService.uploadFile(files[i], files[i].name);
-    }
-  }
-
   deleteFile(id: number){
     if(this.manageFileAccess || typeof this.manageFileAccess == 'undefined'){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
-          confirmButton: 'btn btn-success',
-          cancelButton: 'btn btn-danger'
+          confirmButton: 'btn',
+          cancelButton: 'btn'
         },
         buttonsStyling: false
       })
@@ -374,17 +250,17 @@ export class FilesComponent implements OnInit {
         title: "Are you sure?",
         text: "Once deleted, it can not be recovered!",
         icon: "warning",
+        reverseButtons: true,
         showCancelButton: true,
-        confirmButtonColor: '#4B5563',
-        cancelButtonColor: '#d33',
+        cancelButtonColor: '#8A8584',
+        confirmButtonColor: '#C53819',
         confirmButtonText: 'Yes, delete it!'
       })
       .then((result) => {
         if (result.isConfirmed) {
           this.filesService.deleteFile(id).subscribe(() => {
-            Swal.fire(
-              "File has been deleted!",
-              {
+            Swal.fire({
+              title: "Success",
               icon: "success",
               showConfirmButton: false,
               timer: 1500
@@ -393,11 +269,13 @@ export class FilesComponent implements OnInit {
             this.rerender();  // rerender datatables
           });
         } else {
-          swalWithBootstrapButtons.fire(
-            'Cancelled',
-            'No worries, your File is safe!',
-            'error'
-          )
+          swalWithBootstrapButtons.fire({
+            title: "Cancelled",
+            text: "Your File is safe!",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500
+          })
         }
       });
     }else{
@@ -411,7 +289,7 @@ export class FilesComponent implements OnInit {
     }
   }
 
-  // Bulk Actions
+// Bulk Actions
 
   onSelectedFiles(){
     $(".dt-button-background").trigger("click");
@@ -447,8 +325,8 @@ export class FilesComponent implements OnInit {
         errors.push(err);
       },
       );
-     });
-   self.onDone(sellen);
+      });
+    self.onDone(sellen);
   }else{
     Swal.fire({
       title: "ACTION DENIED",

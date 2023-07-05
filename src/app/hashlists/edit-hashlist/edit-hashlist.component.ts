@@ -7,19 +7,25 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from './../../../environments/environment';
-import { HashtypeService } from '../../core/_services/config/hashtype.service';
 import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
+import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
+import { ListsService } from '../../core/_services/hashlist/hashlist.service';
+import { HashtypeService } from '../../core/_services/config/hashtype.service';
+import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
 
 @Component({
   selector: 'app-edit-hashlist',
   templateUrl: './edit-hashlist.component.html'
 })
+@PageTitle(['Edit Hashlist'])
 export class EditHashlistComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Edit HashList";
+  subbutton = false;
 
   editMode = false;
   editedHashlistIndex: number;
@@ -109,10 +115,9 @@ export class EditHashlistComponent implements OnInit {
 
       this.listsService.updateHashlist(this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
         const response = hasht;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "HashList updated!",
             icon: "success",
             showConfirmButton: false,
@@ -120,15 +125,6 @@ export class EditHashlistComponent implements OnInit {
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['/hashlists/hashlist']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "HashList was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

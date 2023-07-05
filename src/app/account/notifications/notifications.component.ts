@@ -1,24 +1,22 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Subject } from 'rxjs';
 import { faTrash, faPlus, faEye } from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DataTableDirective } from 'angular-datatables';
 import { environment } from './../../../environments/environment';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
 import { NotifService } from '../../core/_services/users/notifications.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html'
 })
+@PageTitle(['Notifications'])
 export class NotificationsComponent implements OnInit {
   // Loader
   isLoading = false;
   // Form attributtes
-  public isCollapsed = true;
   faTrash=faTrash;
   faPlus=faPlus
   faEye=faEye;
@@ -30,50 +28,14 @@ export class NotificationsComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private notifService: NotifService,
-    private agentsService: AgentsService
+    private notifService: NotifService
   ) { }
 
-  createForm: FormGroup;
   Allnotif: any;
-  showagents: any;
-
-  allowedActions = [
-    '',
-    'agentError',
-    'deleteTask',
-    'deleteHashlist',
-    'deleteAgent',
-    'hashlistAllCracked',
-    'hashlistCrackedHash',
-    'logWarn',
-    'logFatal',
-    'logError',
-    'ownAgentError',
-    'newAgent',
-    'newTask',
-    'newHashlist',
-    'taskComplete',
-    'userCreated',
-    'userDeleted',
-    'userLoginFailed'
-  ];
 
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
-
-    this.createForm = new FormGroup({
-      'action': new FormControl('', [Validators.required]),
-      'actionFilter': new FormControl('', [Validators.required]),
-      'notification': new FormControl('', [Validators.required]),
-      'receiver': new FormControl('', [Validators.required]),
-      'isActive': new FormControl(true),
-    });
-
-    this.agentsService.getAgents().subscribe((agents: any) => {
-      this.showagents = agents.values;
-    });
 
     let params = {'maxResults': this.maxResults};
 
@@ -161,8 +123,8 @@ export class NotificationsComponent implements OnInit {
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
@@ -170,17 +132,17 @@ export class NotificationsComponent implements OnInit {
       title: "Are you sure?",
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.notifService.deleteNotif(id).subscribe(() => {
-          Swal.fire(
-            "Notification has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -189,45 +151,15 @@ export class NotificationsComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Notification is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Notification is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
-  }
-
-  onSubmit(){
-    if (this.createForm.valid) {
-
-      this.isLoading = true;
-
-      this.notifService.createNotif(this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        console.log(response);
-        this.isLoading = false;
-          Swal.fire({
-            title: "Good job!",
-            text: "New Notification created!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Notification was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
-        }
-      );
-    }
   }
 
 }

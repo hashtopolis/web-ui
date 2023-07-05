@@ -1,18 +1,28 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { SuperTasksService } from '../../core/_services/tasks/supertasks.sevice';
-import { ActivatedRoute } from '@angular/router';
 import { faEdit, faTrash, faPlus, faAdd } from '@fortawesome/free-solid-svg-icons';
-import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+
+import { SuperTasksService } from '../../core/_services/tasks/supertasks.sevice';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 // declare var $: any;
 @Component({
   selector: 'app-supertasks',
   templateUrl: './supertasks.component.html'
 })
+@PageTitle(['Show SuperTasks'])
 export class SupertasksComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Supertasks";
+  buttontitle = "New Supertasks";
+  buttonlink = "/tasks/new-supertasks";
+  subbutton = true;
+
 
   faEdit=faEdit;
   faTrash=faTrash;
@@ -51,7 +61,6 @@ export class SupertasksComponent implements OnInit {
       pageLength: 10,
       stateSave: true,
       responsive: true,
-      select: true,
       buttons: []
     };
 
@@ -71,8 +80,8 @@ export class SupertasksComponent implements OnInit {
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
@@ -80,17 +89,17 @@ export class SupertasksComponent implements OnInit {
       title: "Are you sure?",
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.supertaskService.deleteSupertask(id).subscribe(() => {
-          Swal.fire(
-            "SuperTask has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -99,11 +108,13 @@ export class SupertasksComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your SuperTask is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your SuperTask is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

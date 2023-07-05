@@ -3,15 +3,17 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { environment } from 'src/environments/environment';
-import { UsersService } from '../core/_services/users/users.service';
-import { ValidationService } from '../core/_services/shared/validation.service';
 import { AccessPermissionGroupsService } from '../core/_services/access/accesspermissiongroups.service';
+import { ValidationService } from '../core/_services/shared/validation.service';
+import { UsersService } from '../core/_services/users/users.service';
+import { environment } from 'src/environments/environment';
+import { PageTitle } from '../core/_decorators/autotitle';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html'
 })
+@PageTitle(['New User'])
 export class UsersComponent implements OnInit {
   isLoading = false;
 
@@ -59,25 +61,15 @@ export class UsersComponent implements OnInit {
 
       this.usersService.createUser(this.createForm.value).subscribe((user: any) => {
         const response = user;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New User created!",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
           });
           this.router.navigate(['users/all-users']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "User was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

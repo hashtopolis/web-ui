@@ -3,20 +3,26 @@ import { faHomeAlt, faPlus, faTrash, faInfoCircle, faEye, faLock} from '@fortawe
 import { FormControl, FormGroup, FormBuilder, NgForm, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { environment } from './../../../environments/environment';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
-import { Pretask } from '../../core/_models/pretask';
 import { UsersService } from 'src/app/core/_services/users/users.service';
-
+import { colorpicker } from '../../core/_constants/settings.config';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { Pretask } from '../../core/_models/pretask';
 
 @Component({
   selector: 'app-edit-preconfigured-tasks',
   templateUrl: './edit-preconfigured-tasks.component.html'
 })
+@PageTitle(['Edit Preconfigured Tasks'])
 export class EditPreconfiguredTasksComponent implements OnInit{
+
+  // Title Page
+  pTitle = "Edit Preconfigured Tasks";
+  subbutton = false;
 
   editMode = false;
   editedPretaskIndex: number;
@@ -39,6 +45,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
   pretask: any = [];
   color: string = '';
+  colorpicker=colorpicker;
   updateForm: FormGroup
   private maxResults = environment.config.prodApiMaxResults
 
@@ -117,10 +124,9 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
       this.preTasksService.updatePretask(this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
         const response = hasht;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "Pretask updated!",
             icon: "success",
             showConfirmButton: false,
@@ -128,15 +134,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Pretask was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

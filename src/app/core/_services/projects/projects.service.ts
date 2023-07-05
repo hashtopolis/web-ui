@@ -9,8 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class ProjectService {
 
-  private endpoint = environment.config.devApiEndpoint + '/projects';
-  private endpoint_project = environment.config.devApiEndpoint + '/projects';  // its for testing using nested json array
+  private endpoint = environment.config.prodApiEndpoint + '/ui/tasks';
 
   constructor(private http: HttpClient) { }
 
@@ -23,7 +22,7 @@ export class ProjectService {
 
   getProject(id: number):Observable<any> {
     // return this.http.get(`${this.endpoint_user}/${id}`)  // We need this for the API
-    return this.http.get(this.endpoint_project)
+    return this.http.get(this.endpoint)
     .pipe(
       tap(data => console.log('All: ', JSON.stringify(data)))
     );

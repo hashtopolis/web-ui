@@ -7,6 +7,7 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
 import { FilesEditComponent } from "./files-edit/files-edit.component";
+import { NewFilesComponent } from './new-files/new-files.component';
 import { ComponentsModule } from "../shared/components.module";
 import { FilesRoutingModule } from "./files-routing.module";
 import { PipesModule } from "../shared/pipes.module";
@@ -15,7 +16,8 @@ import { FilesComponent } from "./files.component";
 @NgModule({
   declarations:[
     FilesEditComponent,
-    FilesComponent
+    FilesComponent,
+    NewFilesComponent
   ],
   imports:[
     ReactiveFormsModule,

@@ -3,149 +3,124 @@
 </div>
 <!-- <h2 *ngIf="!allowEdit">You are not allowed to edit! Talk with your administrator.</h2>
 <div *ngIf="allowEdit"> -->
-<section>&nbsp;
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-12 d-flex align-items-center justify-content-center">
-          <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-              <h2 class="h5 mb-4">User Profile</h2><br>
-              <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-                  <div class="row">
-                        <div class="form-group">
-                            <div class="form-outline">
-                              <label class="form-label" for="getId" >User ID</label>
-                              <input
-                                    type='number'
-                                    id="id"
-                                    class='form-control'
-                                    formControlName="id"
-                              >
-                            </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-outline">
-                          <label class="form-label" for="getName">User Name</label>
-                              <div class="input-group">
-                                  <span class="input-group-text">
-                                    <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
-                                  </span>
-                                  <input
-                                        type='text'
-                                        id="name"
-                                        class='form-control'
-                                        formControlName="name"
-                                  />
-                              </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-outline">
-                          <label class="form-label" for="getemail">Email</label>
-                              <div class="input-group">
-                                  <span class="input-group-text">
-                                    <fa-icon [icon]="faEnvelope" aria-hidden="true"></fa-icon>
-                                  </span>
-                                  <input
-                                        type='text'
-                                        id="email"
-                                        class='form-control'
-                                        formControlName="email"
-                                  />
-                              </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-outline">
-                          <label class="form-label" for="getcreationdate">Creation date</label>
-                              <div class="input-group">
-                                <span class="input-group-text">
-                                  <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
-                                </span>
-                                <input
-                                      type="text"
-                                      id="registered"
-                                      class='form-control'
-                                      formControlName="registered"
-                                />
-                              </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-outline">
-                          <label class="form-label" for="getlastlogin">Last login</label>
-                              <div class="input-group">
-                                <span class="input-group-text">
-                                  <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
-                                </span>
-                                <input
-                                      type="text"
-                                      id="lastLogin"
-                                      class='form-control'
-                                      formControlName="lastLogin"
-                                />
-                              </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-outline">
-                          <label class="form-label" for="updatemembergroup">Member of groups</label>
-                              <input
-                                    type='text'
-                                    id="globalPermissionGroup"
-                                    class='form-control'
-                                    formControlName="globalPermissionGroup"
-                              />
-                        </div>
-                        <h2 class="h5 my-4">Update Settings</h2>
-                        <div formGroupName="updateData">
-                        <div class="form-outline">
-                          <label class="form-label" for="updateGlobalPermissionGroupId">Set users right group</label>
-                              <select
-                                    type='number'
-                                    id="globalPermissionGroupId"
-                                    class='form-select'
-                                    formControlName="globalPermissionGroupId"
-                                  >
-                                  <span *ngIf="!updateForm.errors?.['globalPermissionGroupId'].valid && updateForm.errors?.['globalPermissionGroupId'].touched" class="help-block" >Please select a group!</span>
-                                  <option *ngFor="let a of agp" [ngValue]="a.id">{{ a.name }}</option>
-                              </select>
-                        </div>
-                        &nbsp;
-                        <div class="form-outline mb-4">
-                          <label class="form-label" for="setpassword">Set password</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                                </span>
-                                <input
-                                      type='new-password'
-                                      id="setpassword"
-                                      class="form-control"
+<grid-main [class]="'width:100%'">
+  <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
+    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+      <grid-autocol>
+        <grid-form-input [name]="'User ID'">
+          <input
+                type='number'
+                id="id"
+                class='form-control'
+                formControlName="id"
+          >
+        </grid-form-input>
+        <grid-form-input [name]="'User Name'">
+          <div class="input-group">
+            <span class="input-group-text">
+              <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
+            </span>
+            <input
+                  type='text'
+                  id="name"
+                  class='form-control'
+                  formControlName="name"
+            />
+          </div>
+        </grid-form-input>
+        <grid-form-input [name]="'Email'">
+          <div class="input-group">
+            <span class="input-group-text">
+              <fa-icon [icon]="faEnvelope" aria-hidden="true"></fa-icon>
+            </span>
+            <input
+                  type='text'
+                  id="email"
+                  class='form-control'
+                  formControlName="email"
+            />
+          </div>
+        </grid-form-input>
+        <grid-form-input [name]="'Creation date'">
+          <div class="input-group">
+            <span class="input-group-text">
+              <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
+            </span>
+            <input
+                  type="text"
+                  id="registered"
+                  class='form-control'
+                  formControlName="registered"
+            />
+          </div>
+        </grid-form-input>
+        <grid-form-input [name]="'Last login'">
+          <div class="input-group">
+            <span class="input-group-text">
+              <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
+            </span>
+            <input
+                  type="text"
+                  id="lastLogin"
+                  class='form-control'
+                  formControlName="lastLogin"
+            />
+          </div>
+        </grid-form-input>
+        <grid-form-input [name]="'Member of groups'" [labelclass]="'requiredak'">
+          <input
+                type='text'
+                id="globalPermissionGroup"
+                class='form-control'
+                formControlName="globalPermissionGroup"
+          >
+        </grid-form-input>
+        <app-page-subtitle [subtitle]="'Update Settings'"></app-page-subtitle>
+        <div formGroupName="updateData">
+          <grid-form-input [name]="'Set users right group'">
+            <select
+                  type='number'
+                  id="globalPermissionGroupId"
+                  class='form-select'
+                  formControlName="globalPermissionGroupId"
+                >
+                <span *ngIf="!updateForm.errors?.['globalPermissionGroupId'].valid && updateForm.errors?.['globalPermissionGroupId'].touched" class="help-block" >Please select a group!</span>
+                <option *ngFor="let a of agp" [ngValue]="a.id">{{ a.name }}</option>
+            </select>
+          </grid-form-input>
+          <grid-form-input [name]="'Set password'">
+            <div class="input-group">
+              <span class="input-group-text">
+              <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+              </span>
+              <input
+                    type='new-password'
+                    id="setpassword"
+                    class="form-control"
 
-                                />
-                                <!-- formControlName="setPassword" -->
-                            </div>
-                      </div>
-                      <div class="form-check form-switch">
-                        <label class="form-label" for="setpassword"></label>
-                            <input
-                                  type="checkbox"
-                                  id="user-notification-1"
-                                  class="form-check-input"
-                                  formControlName="isValid"
-                            >
-                            <label *ngIf="user['isValid'] === false" class="form-label" for="isvalid">User Disabled</label>
-                            <label *ngIf="user['isValid'] === true" class="form-label" for="isvalid">User Enabled</label>
-                            &nbsp;&nbsp;
-                      </div>
-                    </div>
-                   </div>
-                   <button  class="btn btn-gray-800" type="submit">Update</button>
-                   <a  class="btn btn-danger" (click)="onDelete()">Delete</a>
-            </form>
-            &nbsp;
-         </div>
-      </div>
-   </div>
-</div>
-
-
+              />
+          </div>
+          </grid-form-input>
+          <grid-form-input [name]="''">
+            <div class="form-check form-switch form-input-custom">
+              <label class="form-label" for="setpassword"></label>
+                  <input
+                        type="checkbox"
+                        id="user-notification-1"
+                        class="form-check-input"
+                        formControlName="isValid"
+                  >
+                  <label *ngIf="user['isValid'] === false" class="form-label" for="isvalid">User Disabled</label>
+                  <label *ngIf="user['isValid'] === true" class="form-label" for="isvalid">User Enabled</label>
+                  &nbsp;&nbsp;
+            </div>
+        </grid-form-input>
+        <button-submit [name]="'Update'"></button-submit>
+        <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+     </div>
+    </grid-autocol>
+  </form>
+</grid-main>
 
 
 

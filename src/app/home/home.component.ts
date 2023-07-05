@@ -12,14 +12,15 @@ import { SuperTasksService } from '../core/_services/tasks/supertasks.sevice';
 import { HashesService } from '../core/_services/hashlist/hashes.service';
 import { AgentsService } from '../core/_services/agents/agents.service';
 import { TasksService } from '../core/_services/tasks/tasks.sevice';
+import { PageTitle } from '../core/_decorators/autotitle';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html'
 })
+@PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit {
 
-  title = 'Hastopolis';
   username: string = 'Admin';
 
   faCalendarWeek=faCalendarWeek;
@@ -34,7 +35,7 @@ export class HomeComponent implements OnInit {
   faGithub=faGithub;
 
   getUsername(){
-      return this.username;
+    return this.username;
   }
 
   // Dashboard variables

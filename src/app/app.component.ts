@@ -1,4 +1,4 @@
-import { Component,Inject,OnInit, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { Component,Inject,OnInit, PLATFORM_ID } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -10,17 +10,15 @@ import { filter } from 'rxjs';
 import { UIConfigService } from './core/_services/shared/storage.service';
 import { CookieService } from './core/_services/shared/cookies.service';
 import { AuthService } from './core/_services/access/auth.service';
-
 /**
  * Idle watching
  *
 **/
-
 import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ThemeService } from './core/_services/shared/theme.service';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
-import { ThemeService } from './core/_services/shared/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -47,16 +45,16 @@ export class AppComponent implements OnInit{
   theme: string;
 
   constructor(
-    private authService: AuthService,
     private cookieService: CookieService,
     private uicService:UIConfigService,
-    private router: Router,
-    private metaTitle: Title,
-    private meta: Meta,
-    private idle: Idle,
-    private keepalive: Keepalive,
+    private authService: AuthService,
     private modalService: NgbModal,
     private themes: ThemeService,
+    private keepalive: Keepalive,
+    private metaTitle: Title,
+    private router: Router,
+    private meta: Meta,
+    private idle: Idle,
     @Inject(PLATFORM_ID) private platformId: Object
     ){
       this.theme = this.themes.theme;

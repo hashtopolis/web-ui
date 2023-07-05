@@ -73,7 +73,6 @@ export class KeyspaceCalcPipe implements PipeTransform {
           // we assume no duplicate single characters are present in the custom charset!
           //       i.e. -1 abbc is considered to be a charset of 4 different characters in the calculation
           charsetOptions = charsetOptions + mask.length - 2 * (numA + numD + numL + numU + numS + numLH + numUH + numB);
-          // console.log("mask = " + mask + " this is " + charsetOptions+ " many options")
           return charsetOptions;
       }
 
@@ -105,7 +104,6 @@ export class KeyspaceCalcPipe implements PipeTransform {
           keyspaceRegularMask = keyspaceRegularMask * Math.pow(16, (mask.match(/\?h/g) || []).length);
           keyspaceRegularMask = keyspaceRegularMask * Math.pow(16, (mask.match(/\?H/g) || []).length);
           keyspaceRegularMask = keyspaceRegularMask * Math.pow(256, (mask.match(/\?b/g) || []).length);
-          // console.log("total keyspace: "+keyspaceRegularMask +" * "+ keyspaceCustomMask);
 
           return keyspaceRegularMask * keyspaceCustomMask;
       }

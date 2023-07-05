@@ -3,13 +3,14 @@ import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { interval, Subject, Subscription } from 'rxjs';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { CookieService } from 'src/app/core/_services/shared/cookies.service';
 import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 declare let $:any;
 
@@ -17,7 +18,16 @@ declare let $:any;
   selector: 'app-show-tasks',
   templateUrl: './show-tasks.component.html'
 })
+@PageTitle(['Show Tasks'])
 export class ShowTasksComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Tasks";
+  sTitle = "Archived Tasks";
+  buttontitle = "New Task";
+  buttonlink = "/tasks/new-tasks";
+  subbutton = true;
+
   faPauseCircle=faPauseCircle;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
@@ -103,6 +113,9 @@ export class ShowTasksComponent implements OnInit {
             }
           },
       buttons: [
+        // {
+        //   text: '<i class="fas fa-download"></i>',
+        // },
         {
           extend: 'collection',
           text: 'Export',
@@ -167,16 +180,27 @@ export class ShowTasksComponent implements OnInit {
                     self.onUpdateBulk(edit);
                   }
                 },
-                {
-                  text: 'Assign to Project (under construction)',
-                  autoClose: true,
-                  enabled: !this.isArchived,
-                  action: function ( e, dt, node, config ) {
-                    const title = 'Assign to Project'
-                    self.onModalProject(title)
-                  }
-                },
+                // {
+                //   text: 'Assign to Project (under construction)',
+                //   autoClose: true,
+                //   enabled: !this.isArchived,
+                //   action: function ( e, dt, node, config ) {
+                //     const title = 'Assign to Project'
+                //     self.onModalProject(title)
+                //   }
+                // },
              ]
+        },
+        {
+          text: !this.isArchived? 'Show Archived':'Show Live',
+          action: function () {
+            if(!self.isArchived) {
+              self.router.navigate(['tasks/show-tasks-archived']);
+            }
+            if(self.isArchived){
+              self.router.navigate(['tasks/show-tasks']);
+            }
+          }
         },
         {
           extend: 'colvis',
@@ -261,7 +285,7 @@ onArchive(id: number){
   if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
   this.tasksService.archiveTask(id).subscribe((tasks: any) => {
     Swal.fire({
-      title: "Good job!",
+      title: "Success",
       text: "Archived!",
       icon: "success",
       showConfirmButton: false,
@@ -283,28 +307,28 @@ onArchive(id: number){
 
 onDelete(id: number){
   if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
-  const swalWithBootstrapButtons = Swal.mixin({
-    customClass: {
-      confirmButton: 'btn btn-success',
-      cancelButton: 'btn btn-danger'
-    },
-    buttonsStyling: false
-  })
-  Swal.fire({
-    title: "Are you sure?",
-    text: "Once deleted, it can not be recovered!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: '#4B5563',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  })
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn',
+        cancelButton: 'btn'
+      },
+      buttonsStyling: false
+    })
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
+      icon: "warning",
+      reverseButtons: true,
+      showCancelButton: true,
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
+      confirmButtonText: 'Yes, delete it!'
+    })
   .then((result) => {
     if (result.isConfirmed) {
       this.tasksService.deleteTask(id).subscribe(() => {
-        Swal.fire(
-          "Task has been deleted!",
-          {
+        Swal.fire({
+          title: "Success",
           icon: "success",
           showConfirmButton: false,
           timer: 1500
@@ -313,11 +337,13 @@ onDelete(id: number){
         this.rerender();  // rerender datatables
       });
     } else {
-      swalWithBootstrapButtons.fire(
-        'Cancelled',
-        'No worries, your Task is safe!',
-        'error'
-      )
+      swalWithBootstrapButtons.fire({
+        title: "Cancelled",
+        text: "Your Task is safe!",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500
+      })
     }
   });
   }else{

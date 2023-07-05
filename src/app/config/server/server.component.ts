@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { ActivatedRoute, Params } from '@angular/router';
-import { environment } from './../../../environments/environment';
 import { faHomeAlt, faInfoCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { environment } from './../../../environments/environment';
+import { ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
 
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { ConfigService } from '../../core/_services/config/config.service';
 import { CookieService } from '../../core/_services/shared/cookies.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
@@ -16,6 +17,7 @@ import { dateFormat, serverlog, proxytype } from '../../core/_constants/settings
   selector: 'app-server',
   templateUrl: './server.component.html'
 })
+@PageTitle(['Settings'])
 export class ServerComponent implements OnInit {
 
   faHome=faHomeAlt;
@@ -190,6 +192,53 @@ export class ServerComponent implements OnInit {
       this.isLoading = false;
     });
   }
+
+  modelAgentActivity = [
+    {
+      type: "number",
+      formcontrol: "agenttimeout",
+      label: "Delay before considering an agent as inactive(or timed out)",
+    },
+    {
+      type: "number",
+      formcontrol: "benchtime",
+      label: "Delay before considering an issued chunk as inactive",
+    },
+    {
+      type: "number",
+      formcontrol: "statustimer",
+      label: "Frequency of the agent reporting about a task to the server",
+    },
+    {
+      type: "number",
+      formcontrol: "agentDataLifetime",
+      label: "Time during which util and temperature data are retained on the server",
+    },
+    {
+      type: "checkbox",
+      formcontrol: "hideIpInfo",
+      label: "Hide agents IP information",
+    },
+    {
+      type: "checkbox",
+      formcontrol: "voucherDeletion",
+      label: "Voucher(s) can be used to register multiple agents",
+    }
+  ];
+
+
+  // sectiontwo: [
+  //   {
+  //     type: "number",
+  //     formcontrol: "agentStatLimit",
+  //     label: "Maximum number of data points in agent (gpu) graphs",
+  //   },
+  //   {
+  //     type: "number",
+  //     formcontrol: "agentStatTension",
+  //     label: "Draw straigth lines in agent data graph instead of bezier curves",
+  //   },
+  // ]
 
   private initTCForm() {
     this.isLoading = true;

@@ -30,6 +30,15 @@ export class AccessGroupsService {
   }
 
 /**
+ * Returns an specific agent
+ * @param id - agent id
+ * @returns  Object
+**/
+  getAccessGroup(id: number):Observable<any> {
+    return this.http.get(`${this.endpoint}/${id}`)
+  }
+
+/**
  * Delete by id
  * @param id - id
  * @returns  Object
@@ -52,8 +61,8 @@ export class AccessGroupsService {
  * @param item - fields
  * @returns  Object
 **/
-  updateAccessGroups(item: any): Observable<any> {
-    return this.http.patch<number>(this.endpoint + '/' + item.accessGroupId, {groupName: item.groupName})
+  updateAccessGroups(id:number, val: any): Observable<any> {
+    return this.http.patch<number>(this.endpoint + '/' + id, val)
   }
 
 }

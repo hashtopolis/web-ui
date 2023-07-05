@@ -160,11 +160,9 @@ parser.filter('network_port', function(value) {
 // Option Parser (to be completed)
 // =======================================================================================
 parser.on('hash-type', function(name, value) {
-	// console.log('Hash Type: ' + value);
 	options.hashMode = parseInt(value); // TODO: Check Hash Mode
 });
 parser.on('attack-mode', function(name, value) {
-	// console.log('Attack Mode: ' + value);
 	if(parseInt(value) >= 0 && parseInt(value) <= 9) {
 		options.attackType = parseInt(value);
 	} else {
@@ -175,73 +173,54 @@ parser.on('rules-file', function(name, value) {
 	options.ruleFiles.push(value);
 });
 parser.on('status-timer', function(name, value) {
-	// console.log('Status Timer: ' + value);
 });
 parser.on('separator', function(name, value) {
-	// console.log('Separator: ' + value);
 });
 parser.on('encoding-from', function(name, value) {
-	// console.log('Encoding From: ' + value);
 });
 parser.on('cpu-affinity', function(name, value) {
-	// console.log('CPU Affinity: ' + value);
 });
 parser.on('brain-session', function(name, value) {
-	// console.log('Brain Session: ' + value);
 });
 parser.on('brain-session-whitelist', function(name, value) {
-	// console.log('Brain Session-whitelist: ' + value);
 });
 parser.on('spin-damp', function(name, value) {
-	// console.log('Spin Damp Percent: ' + value);
 });
 parser.on('custom-charset1', function(name, value) {
-	// console.log('Custom Charset 1: ' + value);
 	options.customCharset1 = value;
 });
 parser.on('custom-charset2', function(name, value) {
-	// console.log('Custom Charset 2: ' + value);
 	options.customCharset2 = value;
 });
 parser.on('custom-charset3', function(name, value) {
-	// console.log('Custom Charset 3: ' + value);
 	options.customCharset3 = value;
 });
 parser.on('custom-charset4', function(name, value) {
-	// console.log('Custom Charset 4: ' + value);
 	options.customCharset4 = value;
 });
 parser.on('print', function(value) {
-	// console.log('PRINT: ' + value);
 });
 parser.on('debug', function() {
 	options.debug = true;
 });
 parser.on(0, function(opt) {
-	// console.log('The first non-switch option is: ' + opt);
 	options.posArgs[0] = opt;
 });
 parser.on(1, function(opt) {
-	// console.log('The second non-switch option is: ' + opt);
 	options.posArgs[1] = opt;
 });
 parser.on(2, function(opt) {
-	// console.log('The third non-switch option is: ' + opt);
 	options.posArgs[2] = opt;
 });
 parser.on(3, function(opt) {
-	// console.log('The fourth non-switch option is: ' + opt);
 	options.posArgs[3] = opt;
 });
 parser.on(4, function(opt) {
-	// console.log('The fifth non-switch option is: ' + opt);
 	options.posArgs[4] = opt;
 });
 parser.on('*', function(opt, value) {
-    // console.log('wild handler for ' + opt + ', value=' + value);
 });
 parser.on(function(opt) {
-	// console.log('Unrecognized flag: ' + opt);
 	options.unrecognizedFlag.push(opt);
 });
 
@@ -285,7 +264,6 @@ function validateHashcatCommand(opt) {
 	} else if(opt.attackType == 0) { // 0: Word List Attack
 		// Required Dictionary
 		if(opt.posArgs.length == 2) {
-			// console.log('Dictionary: ' + opt.posArgs[1]);
 			if(opt.ruleFiles.length == 0) {
 				return {"result": true, "reason": "Word List Attack"};
 			} else {
@@ -297,7 +275,6 @@ function validateHashcatCommand(opt) {
 	} else if(opt.attackType == 1) { // 1: Combinator Attack
 		// Required Left and Right Wordlist
 		if(opt.posArgs.length == 3) {
-			// console.log('Left Wordlist: ' + opt.posArgs[1] + ', Right Wordlist: ' + opt.posArgs[2]);
 			if(opt.ruleFiles.length == 0) {
 				return {"result": true, "reason": "Combinator Attack"};
 			} else {

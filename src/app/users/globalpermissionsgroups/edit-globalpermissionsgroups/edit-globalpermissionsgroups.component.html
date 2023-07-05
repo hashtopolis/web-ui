@@ -11,14 +11,14 @@
 <!-- Table current members -->
 <div class="row g-3">
   <div class="col-md-5">
-  <h2 class="h4">Members</h2>
+  <app-page-subtitle [subtitle]="'Members'"></app-page-subtitle>
   <div class="table-responsive">
     &nbsp;
-      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
+      <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
         <thead class="thead-light">
           <tr>
-            <th class="border-0 rounded-start">ID</th>
-            <th class="border-0 rounded-end">Cracked</th>
+            <th class="rounded-start">ID</th>
+            <th class="rounded-end">Cracked</th>
           </tr>
           </thead>
           <tbody>
@@ -37,20 +37,16 @@
 </div>
 <!-- Set permissions -->
   <div class="col-md-7">
-    <h2 class="h4">Set permissions</h2>
+    <app-page-subtitle [subtitle]="'Set Permissions'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
-          <div class="form-outline">
-              <label class="form-label requiredak" for="getname">Permission Group Name</label>
-              <input
-                    type='text'
-                    id="name"
-                    class='form-control'
-                    formControlName="name"
-              >
-          </div>
-      </div>
-      &nbsp;
+      <grid-form-input [name]="'Permission Group Name'" [labelclass]="'requiredak'">
+        <input
+              type='text'
+              id="name"
+              class='form-control'
+              formControlName="name"
+        >
+      </grid-form-input>
       <div formGroupName="permissions">
       <ngb-accordion #acc="ngbAccordion" >
         <ngb-panel>
@@ -378,7 +374,7 @@
         </ngb-panel>
       </ngb-accordion>
     </div>
-    <button class="btn btn-gray-800" type="submit">Update</button>
+    <button-submit [name]="'Update'"></button-submit>
     </form>
   </div>
 </div>

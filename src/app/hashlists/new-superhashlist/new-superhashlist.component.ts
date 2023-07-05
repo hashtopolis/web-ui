@@ -1,19 +1,21 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
 import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
-import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Router } from '@angular/router';
 
 import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashlist.service';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-new-superhashlist',
   templateUrl: './new-superhashlist.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['New SuperHashlist'])
 export class NewSuperhashlistComponent implements OnInit {
   isLoading = false;
   faFile=faFile;
@@ -109,7 +111,7 @@ export class NewSuperhashlistComponent implements OnInit {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New SuperHashList created!",
             icon: "success",
             showConfirmButton: false,
@@ -117,15 +119,6 @@ export class NewSuperhashlistComponent implements OnInit {
           });
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['hashlists/superhashlist']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "SuperHashList was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

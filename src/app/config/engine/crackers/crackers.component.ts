@@ -1,17 +1,19 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
 import { faEdit, faTrash, faHomeAlt, faPlus, faEye } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../../environments/environment';
-import { Subject } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
 import { CrackerService } from '../../../core/_services/config/cracker.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-crackers',
   templateUrl: './crackers.component.html'
 })
+@PageTitle(['Show Crackers'])
 export class CrackersComponent implements OnInit, OnDestroy {
-  public isCollapsed = true;
+
   faEdit=faEdit;
   faTrash=faTrash;
   faHome=faHomeAlt;
@@ -94,15 +96,6 @@ export class CrackersComponent implements OnInit, OnDestroy {
     };
   }
 
-  onSubmit(){
-    Swal.fire({
-      title: "Good job!",
-      text: "New Cracker created!",
-      icon: "success",
-      button: "Close",
-    });
-  }
-
   onDelete(id: number){
     Swal.fire({
       title: "Are you sure?",
@@ -115,10 +108,11 @@ export class CrackersComponent implements OnInit, OnDestroy {
     .then((willDelete) => {
       if (willDelete) {
         this.crackerService.deleteCrackerType(id).subscribe(() => {
-          Swal.fire(
-            "File has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
+            showConfirmButton: false,
+            timer: 1500
           });
         });
       } else {

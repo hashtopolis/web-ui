@@ -15,6 +15,8 @@ import { AllUsersComponent } from "./all-users/all-users.component";
 import { GroupsComponent } from "./groups/groups.component";
 import { UsersRoutingModule } from "./users-routing.module";
 import { UsersComponent } from "./users.component";
+import { CUGroupComponent } from './groups/cu-group/cu-group.component';
+import { NewGlobalpermissionsgroupsComponent } from './globalpermissionsgroups/new-globalpermissionsgroups/new-globalpermissionsgroups.component';
 
 
 @NgModule({
@@ -24,7 +26,9 @@ import { UsersComponent } from "./users.component";
     EditUsersComponent,
     AllUsersComponent,
     GroupsComponent,
-    UsersComponent
+    UsersComponent,
+    CUGroupComponent,
+    NewGlobalpermissionsgroupsComponent
   ],
   imports:[
     ReactiveFormsModule,

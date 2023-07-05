@@ -1,20 +1,30 @@
+import { faEdit, faHomeAlt, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { faEdit,faHomeAlt, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Subject } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
+import { Subject } from 'rxjs';
 
-import { UsersService } from '../../core/_services/users/users.service';
 import { UIConfigService } from '../../core/_services/shared/storage.service';
+import { UsersService } from '../../core/_services/users/users.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html'
 })
+@PageTitle(['Show Users'])
 export class AllUsersComponent  implements OnInit, OnDestroy {
-  faEdit=faEdit;
+
+  // Title Page
+  pTitle = "Users";
+  buttontitle = "New User";
+  buttonlink = "/users";
+  subbutton = true;
+
   faHome=faHomeAlt;
+  faTrash=faTrash;
+  faEdit=faEdit;
   faPlus=faPlus;
 
   dtTrigger: Subject<any> = new Subject<any>();
@@ -116,6 +126,11 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   editButtonClick(){
     this.router.navigate(['edit'], {relativeTo: this.route});
+  }
+
+  //ToDo
+  onDelete(id: number){
+
   }
 
 

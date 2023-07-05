@@ -1,18 +1,21 @@
-import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
+import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Subject } from 'rxjs';
+
+import { ListsService } from 'src/app/core/_services/hashlist/hashlist.service';
+import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
 import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
 import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { ListsService } from 'src/app/core/_services/hashlist/hashlist.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-hashes',
   templateUrl: './hashes.component.html'
 })
+@PageTitle(['Show Hashes'])
 export class HashesComponent implements OnInit {
   editMode = false;
   editedIndex: number;

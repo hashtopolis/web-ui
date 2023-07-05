@@ -13,12 +13,19 @@ import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
 import { AgentsService } from '../../core/_services/agents/agents.service';
 import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
 import { UsersService } from '../../core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-edit-agent',
   templateUrl: './edit-agent.component.html'
 })
+@PageTitle(['Edit Agent'])
 export class EditAgentComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Agent Details";
+  subbutton = false;
+
   editMode = false;
   editedAgentIndex: number;
   editedAgent: any // Change to Model
@@ -42,7 +49,7 @@ export class EditAgentComponent implements OnInit {
     private chunkService: ChunkService,
     private tasksService:TasksService,
     private route:ActivatedRoute,
-    private router: Router,
+    private router: Router
   ) { }
 
   updateForm: FormGroup
@@ -90,7 +97,6 @@ export class EditAgentComponent implements OnInit {
     this.agentsService.getAgent(id).subscribe((agent: any) => {
       this.showagent = agent;
       this.isLoading = false;
-      console.log(this.showagent);
     });
 
     this.usersService.getAllusers().subscribe((user: any) => {
@@ -158,10 +164,9 @@ export class EditAgentComponent implements OnInit {
 
       this.agentsService.updateAgent(this.editedAgentIndex,this.updateForm.value).subscribe((agent: any) => {
         const response = agent;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "Agent updated!",
             icon: "success",
             showConfirmButton: false,
@@ -170,15 +175,6 @@ export class EditAgentComponent implements OnInit {
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['agents/show-agents']);
         },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Agent was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
-        }
       );
     }
     }else{

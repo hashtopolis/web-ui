@@ -5,18 +5,20 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { User } from '../user.model';
-import { environment } from 'src/environments/environment';
-import { UsersService } from '../../core/_services/users/users.service';
+import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
 import { ValidationService } from '../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
+import { UsersService } from '../../core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { environment } from 'src/environments/environment';
+import { User } from '../user.model';
 
 @Component({
   selector: 'app-edit-users',
   templateUrl: './edit-users.component.html',
   providers: [DatePipe]
 })
+@PageTitle(['Edit User'])
 export class EditUsersComponent implements OnInit {
   editMode = false;
   editedUserIndex: number;
@@ -95,7 +97,7 @@ export class EditUsersComponent implements OnInit {
       this.usersService.updateUser(this.updateForm,this.editedUserIndex).subscribe((user: any) => {
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "User updated!",
             icon: "success",
             showConfirmButton: false,
@@ -103,15 +105,6 @@ export class EditUsersComponent implements OnInit {
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['agents/show-agents']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "User was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }
@@ -120,26 +113,26 @@ export class EditUsersComponent implements OnInit {
   onDelete(){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
     Swal.fire({
       title: "Are you sure?",
-      text: "Once deleted, it cannot be recover.",
+      text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.usersService.deleteUser(this.editedUserIndex).subscribe(() => {
-          Swal.fire(
-            "User has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -147,11 +140,13 @@ export class EditUsersComponent implements OnInit {
           this.router.navigate(['/users/all-users']);
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your User is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your User is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }
@@ -163,10 +158,9 @@ export class EditUsersComponent implements OnInit {
 
       this.usersService.updateUser(this.updateForm.value, this.editedUserIndex).subscribe((agent: any) => {
         const response = agent;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "User updated!",
             icon: "success",
             showConfirmButton: false,
@@ -174,15 +168,6 @@ export class EditUsersComponent implements OnInit {
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['users/all-users']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "User was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

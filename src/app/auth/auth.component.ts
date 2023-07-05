@@ -1,19 +1,24 @@
-import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import { AuthService, AuthResponseData } from '../core/_services/access/auth.service';
-import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faUser, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { NgForm } from '@angular/forms';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html'
 })
 export class AuthComponent implements OnInit {
+
+  faEye=faEye;
   faLock=faLock;
   faUser=faUser;
+  faEyeSlash=faEyeSlash;
   isLoading = false;
   errorRes: string | null;
+  public showPassword: boolean;
+  public showPasswordOnPress: boolean;
 
   constructor(
     private authService: AuthService,

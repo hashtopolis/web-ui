@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 
 import { ASC } from '../../core/_constants/agentsc.config';
 import { environment } from 'src/environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
 import { FilterService } from 'src/app/core/_services/shared/filter.service';
 import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
@@ -18,6 +19,7 @@ import { AgentStatService } from 'src/app/core/_services/agents/agentstats.servi
   selector: 'app-agent-status',
   templateUrl: './agent-status.component.html'
 })
+@PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {
   public isCollapsed = true;
 

@@ -5,7 +5,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, delay } from 'rxjs';
 import { Buffer } from 'buffer';
 
 import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
@@ -15,17 +15,17 @@ import { UploadTUSService } from '../../core/_services/files/files_tus.service';
 import { ListsService } from '../../core/_services/hashlist/hashlist.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { AccessGroup } from '../../core/_models/access-group';
 import { ShowHideTypeFile } from '../../shared/utils/forms';
 import { UploadFileTUS } from '../../core/_models/files';
-
-
 
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['New Hashlist'])
 export class NewHashlistComponent implements OnInit {
   /**
    * Fa Icons
@@ -62,8 +62,9 @@ export class NewHashlistComponent implements OnInit {
      private hlService: ListsService,
      private modalService: NgbModal,
      private users: UsersService,
-     private router: Router
-     ) { }
+     private router: Router,
+     ) {
+     }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -222,21 +223,13 @@ export class NewHashlistComponent implements OnInit {
       this.hlService.createHashlist(res).subscribe((hl: any) => {
         this.isLoading = false;
         Swal.fire({
-          title: "Good job!",
+          title: "Success",
           text: "New HashList created!",
           icon: "success",
           showConfirmButton: false,
           timer: 1500
         });
         this.router.navigate(['/hashlists/hashlist']);
-      },
-      errorMessage => {
-        Swal.fire({
-          title: "Oppss! Error",
-          text: errorMessage.error.message,
-          icon: "warning",
-          showConfirmButton: true
-        });
       }
     );
     }

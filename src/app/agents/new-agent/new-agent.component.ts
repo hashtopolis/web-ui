@@ -12,11 +12,13 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { VoucherService } from '../../core/_services/agents/voucher.service';
 import { CrackerService } from '../../core/_services/config/cracker.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-new-agent',
   templateUrl: './new-agent.component.html'
 })
+@PageTitle(['New Agent'])
 export class NewAgentComponent implements OnInit, OnDestroy {
   // Loader
   isLoading = false;
@@ -117,8 +119,8 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
@@ -126,17 +128,17 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       title: "Are you sure?",
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.voucherService.deleteVoucher(id).subscribe(() => {
-          Swal.fire(
-            "Voucher has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -145,11 +147,13 @@ export class NewAgentComponent implements OnInit, OnDestroy {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Voucher is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Voucher is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
     }else{
@@ -164,7 +168,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(){
-    console.log(this.createAgentAccess)
     if(this.createAgentAccess || typeof this.createAgentAccess == 'undefined'){
     if (this.createForm.valid) {
 
@@ -172,10 +175,9 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
       this.voucherService.createVoucher(this.createForm.value).subscribe((hasht: any) => {
         const response = hasht;
-        console.log(response);
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New Voucher created!",
             icon: "success",
             showConfirmButton: false,
@@ -183,15 +185,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
           });
           this.ngOnInit();
           this.rerender();  // rerender datatables
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Voucher was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

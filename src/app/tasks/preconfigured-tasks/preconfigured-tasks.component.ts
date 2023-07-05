@@ -6,12 +6,21 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-preconfigured-tasks',
   templateUrl: './preconfigured-tasks.component.html'
 })
+@PageTitle(['Show Preconfigured Task'])
 export class PreconfiguredTasksComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Preconfigured Tasks";
+  buttontitle = "New";
+  buttonlink = "/tasks/new-preconfigured-tasks";
+  subbutton = true;
+
   faFileImport=faFileImport;
   faFileExport=faFileExport;
   faBookmark=faBookmark;
@@ -131,8 +140,8 @@ export class PreconfiguredTasksComponent implements OnInit {
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
@@ -140,17 +149,17 @@ export class PreconfiguredTasksComponent implements OnInit {
       title: "Are you sure?",
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.preTasksService.deletePretask(id).subscribe(() => {
-          Swal.fire(
-            "PreTask has been deleted!",
-            {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -159,11 +168,13 @@ export class PreconfiguredTasksComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your PreTask is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Preconfigured Task is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

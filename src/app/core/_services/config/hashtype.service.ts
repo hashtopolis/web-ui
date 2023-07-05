@@ -29,6 +29,15 @@ export class HashtypeService {
   }
 
 /**
+ * Returns an specific hashtype
+ * @param id - agent id
+ * @returns  Object
+**/
+  getHashtype(id: number):Observable<any> {
+    return this.http.get(`${this.endpoint}/${id}`)
+  }
+
+/**
  * Deletes hashtype by id
  * @param id - id
  * @returns Object
@@ -51,9 +60,8 @@ export class HashtypeService {
  * @param arr - fields to be updated
  * @returns Object
 **/
-  updateHashType(hash: any): Observable<any> {
-    console.log(hash);
-    return this.http.patch<number>(this.endpoint + '/' + hash.hashTypeId, {description: hash.description, isSalted:hash.isSalted, isSlowHash: hash.isSlowHash})
+  updateHashType(id:number, arr: any): Observable<any> {
+    return this.http.patch<number>(this.endpoint + '/' + id, {description: arr.description, isSalted:arr.isSalted, isSlowHash: arr.isSlowHash})
   }
 
 }

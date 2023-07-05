@@ -46,8 +46,6 @@ export class FileDropDirective {
     evt.stopPropagation();
     let files = evt.dataTransfer.files;
     let valid_files : Array<File> = files;
-    console.log(valid_files)
-    console.log(evt);
     this.filesChangeEmiter.emit(evt.target.files);
   }
 }

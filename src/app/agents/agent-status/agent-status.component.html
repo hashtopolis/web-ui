@@ -416,61 +416,56 @@
   </div>
 <br>
 <!-- Agent Activity Table -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                    <th class="border-0 rounded-start">ID</th>
-                    <th class="border-0">Name</th>
-                    <th class="border-0">Currently working on</th>
-                    <th class="border-0">Assigned to</th>
-                    <th class="border-0 rounded-end">Last Activity</th>
-                </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
-                    <td>
-                      {{ aa.agentId }}
-                      <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',aa.agentId,'edit']">
-                        <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
-                      </a>
-                    </td>
-                    <td>
-                      {{ aa.agentName | shortenString:15 | lowercase | titlecase }}
-                      <span *ngIf="aa.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-                      <span *ngIf="aa.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
-                    </td>
-                    <td>
-                      <a *ngIf="aa.taskId">Task: {{ aa.taskName | shortenString:15 | lowercase | titlecase }}
-                        <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">
-                          <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
-                        </a>,
-                      </a>
-                      <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
-                      <div *ngIf="aa.chunkId">working on chunk
-                        {{ aa.chunkId }}
-                        <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/chunks',aa.chunkId,'view']">
-                          <small><fa-icon [icon]="faEye" aria-hidden="true"></fa-icon></small>
-                        </a>
-                      </div>
-                    </td>
-                    <td>
-                      TD.Task Assignments
-                    </td>
-                    <td>
-                      Action: {{ aa.lastAct }}<br>
-                      Time: {{ aa.lastTime | date: uidateformat }}<br>
-                      <div *ngIf="aa.lastIp">IP:<code >{{ aa.lastIp }}</code></div>
-                    </td>
-                  </tr>
-                </tbody>
-          </table>
-        </div>
-    </div>
-</div>
-
+<app-table>
+  <table class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Name</th>
+          <th>Currently working on</th>
+          <th>Assigned to</th>
+          <th class="rounded-end">Last Activity</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
+          <td>
+            {{ aa.agentId }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',aa.agentId,'edit']">
+              <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
+            </a>
+          </td>
+          <td>
+            {{ aa.agentName | shortenString:15 | lowercase | titlecase }}
+            <span *ngIf="aa.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="aa.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
+          </td>
+          <td>
+            <a *ngIf="aa.taskId">Task: {{ aa.taskName | shortenString:15 | lowercase | titlecase }}
+              <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">
+                <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
+              </a>,
+            </a>
+            <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
+            <div *ngIf="aa.chunkId">working on chunk
+              {{ aa.chunkId }}
+              <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/chunks',aa.chunkId,'view']">
+                <small><fa-icon [icon]="faEye" aria-hidden="true"></fa-icon></small>
+              </a>
+            </div>
+          </td>
+          <td>
+            TD.Task Assignments
+          </td>
+          <td>
+            Action: {{ aa.lastAct }}<br>
+            Time: {{ aa.lastTime | date: uidateformat }}<br>
+            <div *ngIf="aa.lastIp">IP:<code >{{ aa.lastIp }}</code></div>
+          </td>
+        </tr>
+      </tbody>
+  </table>
+</app-table>
 <!-- Todo Fix Pagination -->
 <!-- <div class="align-items-right py-4">
   <cm-pagination

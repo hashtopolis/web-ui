@@ -14,65 +14,61 @@
       </div>
   </div>
 </div>
-
-<div class="row justify-content-center">
-  <div class="col-12 d-flex align-items-center justify-content-center">
-    <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-800">
-      <form [formGroup]="viewForm">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <th>Displaying: </th>
-          <td>
-            <a *ngIf="!displaying">Hash + Plain</a>
-            <a *ngIf="displaying">{{ displayingDescr }}</a>
-          </td>
-        </div>
-        <div class="col-md-6">
-          <th>Filter: </th>
-          <td>
-            <a *ngIf="!filtering">Cracked + Uncracked</a>
-            <a *ngIf="filtering">{{ filteringDescr }}</a>
-          </td>
-        </div>
-      </div>
-      <hr>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <select
-                type='string'
-                class="form-select"
-                (change)="onQueryp(display.value, 0)"
-                formControlName="display"
-                #display
-                >
-                <option *ngFor="let d of displays" [value]="d.name">{{ d.description }}</option>
-          </select>
-        </div>
-        <div *ngIf="whichView != 'tasks'" class="col-md-4">
-          <select
-                type='string'
-                class="form-select"
-                (change)="onQueryp(filter.value, 1)"
-                formControlName="filter"
-                #filter
-                >
-                <option *ngFor="let f of filters" [value]="f.name">{{ f.description }}</option>
-          </select>
-        </div>
-        <div *ngIf="whichView != 'tasks'" class="col-md-2">
-          <button class="btn btn-gray-800" (click)="onOK()">Ok</button>
-        </div>
-      </div>
-    </form>
+<!-- Form -->
+<grid-main [class]="'fmxw-800'" [centered]="true">
+  <form [formGroup]="viewForm">
+  <div class="row g-3">
+    <div class="col-md-6">
+      <th>Displaying: </th>
+      <td>
+        <a *ngIf="!displaying">Hash + Plain</a>
+        <a *ngIf="displaying">{{ displayingDescr }}</a>
+      </td>
+    </div>
+    <div class="col-md-6">
+      <th>Filter: </th>
+      <td>
+        <a *ngIf="!filtering">Cracked + Uncracked</a>
+        <a *ngIf="filtering">{{ filteringDescr }}</a>
+      </td>
     </div>
   </div>
-</div>&nbsp;
+  <hr>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <select
+            type='string'
+            class="form-select"
+            (change)="onQueryp(display.value, 0)"
+            formControlName="display"
+            #display
+            >
+            <option *ngFor="let d of displays" [value]="d.name">{{ d.description }}</option>
+      </select>
+    </div>
+    <div *ngIf="whichView != 'tasks'" class="col-md-4">
+      <select
+            type='string'
+            class="form-select"
+            (change)="onQueryp(filter.value, 1)"
+            formControlName="filter"
+            #filter
+            >
+            <option *ngFor="let f of filters" [value]="f.name">{{ f.description }}</option>
+      </select>
+    </div>
+    <div *ngIf="whichView != 'tasks'" class="col-md-2">
+      <button class="btn btn-gray-800" (click)="onOK()">Ok</button>
+    </div>
+  </div>
+ </form>
+</grid-main>
 <!-- Matching Table Section -->
-<div class="table-responsive">
-  <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+<app-table>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
       <thead class="thead-light">
         <tr>
-          <th class="border-0 rounded-start rounded-end">Matching hashes</th>
+          <th class="rounded-start rounded-end">Matching hashes</th>
         </tr>
       </thead>
       <tbody>
@@ -89,6 +85,6 @@
         </tr>
       </tbody>
   </table>
-</div>&nbsp;
+</app-table>&nbsp;
 <app-hexconvertor></app-hexconvertor>
 

@@ -45,6 +45,7 @@
               "node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css",
               "node_modules/datatables.net-buttons-dt/css/buttons.dataTables.css",
               "node_modules/datatables.net-select-dt/css/select.dataTables.css",
+              "node_modules/datatables.net-responsive-dt/css/responsive.dataTables.css",
               "node_modules/@selectize/selectize/dist/css/selectize.css",
               "node_modules/@selectize/selectize/dist/css/selectize.bootstrap5.css",
               "node_modules/jquery-ui/themes/base/selectable.css"
@@ -63,6 +64,7 @@
               "node_modules/datatables.net-buttons/js/buttons.html5.js",
               "node_modules/datatables.net-buttons/js/buttons.print.js",
               "node_modules/datatables.net-select/js/dataTables.select.js",
+              "node_modules/datatables.net-responsive/js/dataTables.responsive.js",
               "node_modules/@selectize/selectize/dist/js/selectize.js",
               "src/assets/optparse/optparse.1.1.1.js",
               "src/assets/optparse/optparse.hashtopolis.1.1.1.js"

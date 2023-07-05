@@ -25,7 +25,6 @@ export class FileSelectDirective {
 
   @HostListener('change', ['$event'])
   onChange($event) {
-    console.log($event);
     this.selectedFiles.emit($event.target.files);
   }
 }

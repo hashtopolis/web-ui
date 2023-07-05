@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Params } from '@angular/router';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js'; //ToDo Change to a Common Module
 
 import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
 import { FilesService } from '../../core/_services/files/files.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { AccessGroup } from '../../core/_models/access-group';
 import { Filetype } from '../../core/_models/files';
 
@@ -14,6 +15,7 @@ import { Filetype } from '../../core/_models/files';
   selector: 'app-files-edit',
   templateUrl: './files-edit.component.html'
 })
+@PageTitle(['Edit File'])
 export class FilesEditComponent implements OnInit {
 
   editMode = false;

@@ -15,6 +15,12 @@ input.ng-invalid.ng-touched {
   color: red;
 }
 
+.form-input-custom {
+  padding-bottom:10px;
+  padding-right:10px;
+  width: auto;
+}
+
 /*
   01- End
 */
@@ -243,30 +249,37 @@ input.ng-invalid.ng-touched {
   background: white;
   margin: 0px 0;
 }
+
 .filedrop.active{
   border: 2px solid #fff;
 }
+
 .filedrop.hovering {
   border: 2px solid rgb(62, 63, 66);
   color: #dadada !important;
 }
+
 .filedrop .file-label {
   font-size: 1.2em;
 }
+
 .filedrop header {
   font-size: 25px;
   font-weight: 500;
 }
+
 .filedrop span {
   font-size: 20px;
   font-weight: 500;
 }
+
 .filedrop p {
   font-size: 12px;
   font-weight: 500;
   color:rgb(143, 138, 138);
   margin: 10px 0;
 }
+
 .filedrop button {
   padding: 10px 25px;
   font-size: 15px;
@@ -278,6 +291,7 @@ input.ng-invalid.ng-touched {
   color:#fff;
   cursor: pointer;
 }
+
 .filedrop.hovering button {
   padding: 10px 25px;
   font-size: 15px;
@@ -288,11 +302,13 @@ input.ng-invalid.ng-touched {
   background: #969595;
   color:#fff;
 }
+
 .filedrop .icon {
   font-size: 45px;
   font-weight: 500;
   margin: 50px 0;
 }
+
 progress::-webkit-progress-value {
   transition: width 0.1s ease;
 }
@@ -325,3 +341,39 @@ progress::-webkit-progress-value {
 /*
   05- End
 */
+
+/*
+  06- Password input field style and eye hidden/show
+*/
+
+.input-icon-container{
+  display: flex;
+  flex-direction: row;
+  border: 1px solid #d4d5db;
+  border-radius: 10px;
+  background : #fff;
+  align-items : center;
+  overflow: hidden;
+}
+
+.input-icon-container input {
+  outline: none;
+  border: none;
+  background: none;
+  color: inherit;
+  flex : auto 1 1;
+  width : 100%;
+  background : none;
+  background-color : transperant;
+}
+
+.input-icon-container .fa{
+  padding : 10px;
+}
+
+/*
+  06- End
+*/
+
+
+

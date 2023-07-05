@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --host 0.0.0.0 --poll 500",
-    "build": "ng build --configuration production",
+    "start": "node git-version.js && ng serve --host 0.0.0.0 --poll 500 && node git-version.js",
+    "build": "node git-version.js && ng build --prod / && mv dist/uihashtopolis _static && \\cp -r _static/server/main.js _static/main.js",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
-    "build:ci": "ng build --configuration production"
+    "build:ci": "ng build --prod"
   },
   "private": true,
   "dependencies": {
@@ -45,6 +45,8 @@
     "datatables.net-buttons": "^2.2.3",
     "datatables.net-buttons-dt": "^2.2.3",
     "datatables.net-dt": "^1.12.1",
+    "datatables.net-responsive": "^2.4.1",
+    "datatables.net-responsive-dt": "^2.4.1",
     "datatables.net-select": "^1.5.0",
     "datatables.net-select-dt": "^1.5.0",
     "echarts": "^5.4.2",
@@ -60,7 +62,7 @@
     "pdfmake": "^0.2.6",
     "popper.js": "^1.16.1",
     "rxjs": "~7.5.0",
-    "sweetalert2": "^11.4.38",
+    "sweetalert2": "^11.4.8",
     "tslib": "^2.3.0",
     "tus-js-client": "^3.0.1",
     "zone.js": "~0.11.4"
@@ -79,7 +81,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
-    "nodemon": "2.0.4",
+    "nodemon": "^2.0.22",
     "puppeteer": "^19.3.0",
     "typescript": "~4.7.2"
   }

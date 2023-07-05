@@ -1,3 +1,11 @@
+// Menu
+// Nav Bar
+.active {
+  background-color : #8b8787 !important
+}
+
+// Global Style
+
 .layout-col {
   background-color: rgb(45, 47, 49);
 }
@@ -6,9 +14,15 @@
   background-color: #bebaba;
 }
 
+// Table
+
 .table .thead-light th {
   background-color: #bebaba;
   color: #1F2937;
+}
+
+.table-hover tbody tr:hover,.table-hover> tr:hover{
+  background-color: rgb(117, 117, 114);
 }
 
 // Dashboard

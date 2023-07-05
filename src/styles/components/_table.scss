@@ -14,13 +14,14 @@
   color: #1F2937;
 }
 
+.th{
+  border: 0 !important;
+  color: blueviolet !important;
+}
+
 .rounded-start {
   border-bottom-left-radius: 0.5rem !important;
   border-top-left-radius: 0.5rem !important;
-}
-
-.border-0 {
-  border: 0 !important;
 }
 
 .rounded-end {
@@ -40,6 +41,38 @@ table.dataTable tbody tr.selected>* {
   a {
     color: rgb(246, 246, 246) !important;
   }
+}
+
+table.dataTable {
+  th {
+    padding: 16px 12px;
+    padding-right: 12px;
+    text-align: left;
+    vertical-align: bottom;
+    font-size: .875rem;
+    font-weight: 400;
+    font-weight: normal;
+    color: #999;
+    text-transform: uppercase;
+  }
+  td {
+    vertical-align: top;
+    text-align: left;
+    font-size: .890rem;
+    font-weight: 400;
+    font-weight: normal;
+  }
+}
+
+.table-hover tbody tr:hover,.table-hover> tr:hover{
+  background-color: rgb(249, 249, 167);
+}
+
+.btn-actions {
+  vertical-align: center;
+  font-size: .680rem;
+  font-weight: 400;
+  font-weight: normal;
 }
 
 

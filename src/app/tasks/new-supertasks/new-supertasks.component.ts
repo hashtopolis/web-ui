@@ -8,12 +8,14 @@ import { Router } from '@angular/router';
 import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
 import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
 import { UsersService } from 'src/app/core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-new-supertasks',
   templateUrl: './new-supertasks.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['New SuperTask'])
 export class NewSupertasksComponent implements OnInit {
   isLoading = false;
   faFile=faFile;
@@ -111,7 +113,7 @@ export class NewSupertasksComponent implements OnInit {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New Supertask created!",
             icon: "success",
             showConfirmButton: false,
@@ -119,15 +121,6 @@ export class NewSupertasksComponent implements OnInit {
           });
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/supertasks']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Supertask was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

@@ -58,7 +58,6 @@ export class UploadTUSService {
           // userId: "1234567"
         },
         onError: async (error) => {
-          console.log(error)
           if (error) {
             if (window.confirm(`Failed because: ${error}\nDo you want to retry?`)) {
               upload.start()

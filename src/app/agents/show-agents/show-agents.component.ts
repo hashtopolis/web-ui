@@ -9,6 +9,7 @@ import {Subject} from 'rxjs';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AgentsService } from '../../core/_services/agents/agents.service';
 import { UsersService } from 'src/app/core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 declare let $:any;
 
@@ -16,7 +17,14 @@ declare let $:any;
   selector: 'app-show-agents',
   templateUrl: './show-agents.component.html'
 })
+@PageTitle(['Show Agents'])
 export class ShowAgentsComponent implements OnInit, OnDestroy {
+
+  // Title Page
+  pTitle = "Show Agents";
+  buttontitle = "New Agent";
+  buttonlink = "/agents/new-agent";
+  subbutton = true;
 
   faArrowCircleDown=faArrowCircleDown;
   faCheckCircle=faCheckCircle;
@@ -350,26 +358,26 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
-          confirmButton: 'btn btn-success',
-          cancelButton: 'btn btn-danger'
+          confirmButton: 'btn',
+          cancelButton: 'btn'
         },
         buttonsStyling: false
       })
       Swal.fire({
         title: "Are you sure?",
-        text: "Once deleted, it cannot be recover.",
+        text: "Once deleted, it can not be recovered!",
         icon: "warning",
+        reverseButtons: true,
         showCancelButton: true,
-        confirmButtonColor: '#4B5563',
-        cancelButtonColor: '#d33',
+        cancelButtonColor: '#8A8584',
+        confirmButtonColor: '#C53819',
         confirmButtonText: 'Yes, delete it!'
       })
       .then((result) => {
         if (result.isConfirmed) {
           this.agentsService.deleteAgent(id).subscribe(() => {
-            Swal.fire(
-              "Agent has been deleted!",
-              {
+            Swal.fire({
+              title: "Success",
               icon: "success",
               showConfirmButton: false,
               timer: 1500
@@ -378,11 +386,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
             this.rerender();  // rerender datatables
           });
         } else {
-          swalWithBootstrapButtons.fire(
-            'Cancelled',
-            'No worries, your Agent is safe!',
-            'error'
-          )
+          swalWithBootstrapButtons.fire({
+            title: "Cancelled",
+            text: "Your Agent is safe!",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500
+          })
         }
       });
     }else{

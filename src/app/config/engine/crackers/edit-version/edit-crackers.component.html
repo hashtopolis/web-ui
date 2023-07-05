@@ -1,0 +1,44 @@
+<!-- Spinner Loading -->
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Body -->
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <app-page-subtitle [subtitle]="'Edit Binary Version'"></app-page-subtitle>
+  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+    <grid-form-input [name]="'Binary Base Name'">
+      <input
+            type='text'
+            id="binaryName"
+            class='form-control'
+            formControlName="binaryName"
+      >
+    </grid-form-input>
+    <grid-form-input [name]="'Binary Version'">
+      <input
+            type='text'
+            id="version"
+            class='form-control'
+            formControlName="version"
+    >
+    </grid-form-input>
+    <grid-form-input [name]="'Download URL'">
+      <div class="input-group">
+        <span class="input-group-text">
+          <fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon>
+        </span>
+        <input
+                type='text'
+                id="downloadUrl"
+                class='form-control'
+                formControlName="downloadUrl"
+        >
+      </div>
+    </grid-form-input>
+    <button-submit [name]="'Update'"></button-submit>
+    &nbsp;
+    <button  class="btn btn-danger" type="submit" (ngSubmit)="onDelete()">Delete User</button>
+   </div>
+  </form>
+</grid-main>

@@ -1,40 +1,31 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Logs</h2>
-      <p class="mb-0"></p>
-  </div>
-</div>
+<app-page-title [title]="pTitle" [buttontitle]="buttontitle" [buttonlink]="buttonlink" [subbutton]="subbutton"></app-page-title>
 <!-- Body Log Entries -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered display table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                    <th class="border-0 rounded-start">ID</th>
-                    <th class="border-0">Time</th>
-                    <th class="border-0">Level</th>
-                    <th class="border-0">Issuer</th>
-                    <th class="border-0 rounded-end">Message</th>
-                </tr>
-                </thead>
-                <tbody>
-                  <ng-container>
-                    <tr *ngFor="let l of logs" [ngStyle]="{'background-color':l.level | warningColor }">
-                        <td class="text-align:center">{{ l.logEntryId }}</td>
-                        <td>{{ l.time*1000 | date: uidateformat }}</td>
-                        <td>{{ l.level | lowercase | titlecase }}</td>
-                        <td>{{ l.issuer }}-ID-{{ l.issuerId }}</td>
-                        <td>{{ l.message }}</td>
-                    </tr>
-                  </ng-container>
-                </tbody>
-            </table>
-            <cm-pagination
-                          [totalItems]="totalRecords"
-                          [pageSize]="pageSize"
-                          (pageChanged)="pageChanged($event)"
-              ></cm-pagination>
-        </div>
-    </div>
-</div>
+<app-table>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Time</th>
+          <th>Level</th>
+          <th>Issuer</th>
+          <th class="rounded-end">Message</th>
+      </tr>
+      </thead>
+      <tbody>
+        <ng-container>
+          <tr *ngFor="let l of logs" [ngStyle]="{'background-color':l.level | warningColor }">
+              <td class="display-col">{{ l.logEntryId }}</td>
+              <td class="display-col">{{ l.time*1000 | date: uidateformat }}</td>
+              <td class="display-col">{{ l.level | lowercase | titlecase }}</td>
+              <td class="display-col">{{ l.issuer }}-ID-{{ l.issuerId }}</td>
+              <td class="display-col">{{ l.message }}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+  </table>
+  <cm-pagination
+                [totalItems]="totalRecords"
+                [pageSize]="pageSize"
+                (pageChanged)="pageChanged($event)"
+    ></cm-pagination>
+</app-table>

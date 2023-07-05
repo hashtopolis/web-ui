@@ -2,14 +2,17 @@ import { AuthGuard } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
-import { NewPreprocessorComponent } from "./engine/preprocessors/new-preprocessor/new-preprocessor.component";
-import { NewAgentBinariesComponent } from "./engine/agent-binaries/new-agent-binary/new-agent-binaries.component";
-import { EditHealthChecksComponent } from "./health-checks/edit-health-checks/edit-health-checks.component";
-import { EditCrackersComponent } from "./engine/crackers/edit-crackers/edit-crackers.component";
-import { NewCrackersComponent } from "./engine/crackers/new-crackers/new-crackers.component";
+import { NewPreprocessorComponent } from "./engine/preprocessors/preprocessor/new-preprocessor.component";
+import { NewAgentBinariesComponent } from "./engine/agent-binaries/agent-binary/new-agent-binaries.component";
+import { EditHealthChecksComponent } from "./health-checks/edit-health-check/edit-health-checks.component";
+import { NewHealthChecksComponent } from "./health-checks/new-health-check/new-health-checks.component";
+import { EditCrackersComponent } from "./engine/crackers/edit-version/edit-crackers.component";
+import { NewCrackersComponent } from "./engine/crackers/new-version/new-crackers.component";
 import { AgentBinariesComponent } from "./engine/agent-binaries/agent-binaries.component";
+import { NewCrackerComponent } from "./engine/crackers/new-cracker/new-cracker.component";
 import { PreprocessorsComponent } from "./engine/preprocessors/preprocessors.component";
 import { HealthChecksComponent } from "./health-checks/health-checks.component";
+import { HashtypeComponent } from "./hashtypes/hashtype/hashtype.component";
 import { CrackersComponent } from "./engine/crackers/crackers.component";
 import { HashtypesComponent } from "./hashtypes/hashtypes.component";
 import { ServerComponent } from "./server/server.component";
@@ -63,6 +66,20 @@ const routes: Routes = [
           },
           canActivate: [AuthGuard,ConfigGuard]},
         {
+          path: 'hashtypes/new',  component: HashtypeComponent,
+          data: {
+              kind: 'new-hashtype',
+              breadcrumb: 'New Hashtype'
+          },
+          canActivate: [AuthGuard,ConfigGuard]},
+        {
+          path: 'hashtypes/:id/edit',  component: HashtypeComponent,
+          data: {
+              kind: 'edit-hashtype',
+              breadcrumb: 'Edit Hashtype'
+          },
+          canActivate: [AuthGuard,ConfigGuard]},
+        {
           path: 'log',  component: LogComponent,
           data: {
               kind: 'log',
@@ -74,6 +91,13 @@ const routes: Routes = [
           data: {
               kind: 'health-checks',
               breadcrumb: 'Health Checks'
+          },
+          canActivate: [AuthGuard,ConfigGuard]},
+        {
+          path: 'health-checks/new',  component: NewHealthChecksComponent,
+          data: {
+              kind: 'new-health-checks',
+              breadcrumb: 'New Health Checks'
           },
           canActivate: [AuthGuard,ConfigGuard]},
         {
@@ -112,16 +136,23 @@ const routes: Routes = [
           },
           canActivate: [AuthGuard,ConfigGuard]},
         {
+          path: 'engine/crackers/new',  component: NewCrackerComponent,
+          data: {
+              kind: 'new-cracker',
+              breadcrumb: 'Engine > New Cracker'
+          },
+          canActivate: [AuthGuard,ConfigGuard]},
+        {
           path: 'engine/crackers/:id/new',  component: NewCrackersComponent,
           data: {
-              kind: 'new-crackers',
-              breadcrumb: 'Engine > New Version/Binary'
+              kind: 'new-cracker-version',
+              breadcrumb: 'Engine > New Cracker Version/Binary'
           },
           canActivate: [AuthGuard,ConfigGuard]},
         {
           path: 'engine/crackers/:id/edit',  component: EditCrackersComponent,
           data: {
-              kind: 'edit-crackers',
+              kind: 'edit-cracker-version',
               breadcrumb: 'Engine > Edit Cracker Version/Binary'
           },
           canActivate: [AuthGuard,ConfigGuard]},

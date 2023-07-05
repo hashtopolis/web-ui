@@ -4,17 +4,28 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
-import { environment } from 'src/environments/environment';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AgentsService } from '../../core/_services/agents/agents.service';
 import { ChunkService } from '../../core/_services/tasks/chunks.service';
 import { TasksService } from '../../core/_services/tasks/tasks.sevice';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-chunks',
   templateUrl: './chunks.component.html'
 })
+@PageTitle(['Show Chunks'])
 export class ChunksComponent implements OnInit {
+
+  // Title Page
+  pTitle = "Chunks";
+  buttontitle = "View all chunks";
+  sbuttontitle = "View less";
+  buttonlink = "/tasks/chunks/show-all-chunks";
+  sbuttonlink = "/tasks/chunks";
+  subbutton = true;
+
   editedChunkIndex: number;
 
   faPlus=faPlus;
