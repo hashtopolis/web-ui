@@ -55,7 +55,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   private maxResults = environment.config.prodApiMaxResults;
 
-  pathURL = location.protocol + '//' + location.hostname + ':' + environment.config.prodApiPort;
+  pathURL = location.protocol + '//' + location.hostname + ':' + environment.config.agentApiPort;
   public agentURL = this.pathURL + environment.config.agentURL;
   public agentdownloadURL = this.pathURL + environment.config.agentdownloadURL;
 

@@ -9,7 +9,7 @@ import { map, Observable } from 'rxjs';
 })
 export class NotificationsBellService {
 
-  private endpoint = environment.config.devApiEndpoint + '/notifbell';
+  private endpoint = environment.config.prodApiEndpoint + '/notifbell';
 
   constructor(private http: HttpClient) { }
 
