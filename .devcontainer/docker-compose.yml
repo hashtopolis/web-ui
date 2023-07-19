@@ -1,7 +1,7 @@
 version: "3.8"
 services:
-  hashtopolis-web-ui:
-    container_name: devcontainer-hashtopolis-web-ui
+  hashtopolis-web-ui-dev:
+    container_name: hashtopolis-web-ui-dev
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile

@@ -1,8 +1,0 @@
-{
-  "shortSHA": "93bb4c4",
-  "SHA": "93bb4c4a411acb0b92c822ec59a6d51167111f77",
-  "branch": "dev",
-  "lastCommitTime": "'Wed Jul 5 16:15:18 2023 +0100'",
-  "lastCommitMessage": "Merge pull request #6 from rixvet/dev\n\nFix devcontainer not string",
-  "lastCommitNumber": "55"
-}

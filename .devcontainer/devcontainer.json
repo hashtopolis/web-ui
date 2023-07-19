@@ -1,7 +1,7 @@
 {
 	"name": "Hashtopolis Web UI Devcontainer",
 	"dockerComposeFile": "docker-compose.yml",
-	"service": "hashtopolis-web-ui",
+	"service": "hashtopolis-web-ui-dev",
 			
 	"workspaceFolder": "/app",
 
