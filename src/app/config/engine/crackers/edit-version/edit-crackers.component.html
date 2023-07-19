@@ -1,11 +1,11 @@
+<app-page-subtitle [subtitle]="'Edit Binary Version'"></app-page-subtitle>
 <!-- Spinner Loading -->
 <div *ngIf="isLoading" style="text-align: center;">
   <app-loading-spinner></app-loading-spinner>
 </div>
 <!-- Body -->
 <grid-main [class]="'fmxw-500'" [centered]="true">
-  <app-page-subtitle [subtitle]="'Edit Binary Version'"></app-page-subtitle>
-  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="updateForm">
     <div class="row">
     <grid-form-input [name]="'Binary Base Name'">
       <input
@@ -36,9 +36,10 @@
         >
       </div>
     </grid-form-input>
-    <button-submit [name]="'Update'"></button-submit>
-    &nbsp;
-    <button  class="btn btn-danger" type="submit" (ngSubmit)="onDelete()">Delete User</button>
+    <div>
+      <button-submit [name]="'Update'" (click)="onSubmit()"></button-submit>
+      <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+    </div>
    </div>
   </form>
 </grid-main>

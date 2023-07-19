@@ -3,8 +3,9 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { PreprocessorService } from '../../../../core/_services/config/preprocessors.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-preprocessor',
@@ -21,8 +22,8 @@ export class NewPreprocessorComponent implements OnInit {
   isLoading = false;
 
   constructor(
-    private preprocessorService:PreprocessorService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router: Router,
   ) { }
 
@@ -64,7 +65,7 @@ export class NewPreprocessorComponent implements OnInit {
           this.initForm();
 
           const id = +this.route.snapshot.params['id'];
-          this.preprocessorService.getPreprocessor(id).subscribe((prep: any) => {
+          this.gs.get(SERV.PREPROCESSORS,id).subscribe((prep: any) => {
             this.prep = prep;
             this.isLoading = false;
           });
@@ -83,7 +84,7 @@ export class NewPreprocessorComponent implements OnInit {
       switch (this.whichView) {
 
         case 'create':
-          this.preprocessorService.createPreprocessor(this.updateForm.value)
+          this.gs.create(SERV.PREPROCESSORS,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
             this.isLoading = false;
@@ -101,7 +102,7 @@ export class NewPreprocessorComponent implements OnInit {
 
         case 'edit':
           const id = +this.route.snapshot.params['id'];
-          this.preprocessorService.updateHashType(id,this.updateForm.value)
+          this.gs.update(SERV.PREPROCESSORS,id,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
             this.isLoading = false;
@@ -125,7 +126,7 @@ export class NewPreprocessorComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    this.preprocessorService.getPreprocessor(this.editedPreprocessorIndex).subscribe((result)=>{
+    this.gs.get(SERV.PREPROCESSORS,this.editedPreprocessorIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
         'name': new FormControl(result['name'], [Validators.required, Validators.minLength(1)]),
         'url': new FormControl(result['url'], [Validators.required, Validators.minLength(1)]),

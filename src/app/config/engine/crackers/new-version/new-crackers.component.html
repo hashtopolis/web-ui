@@ -1,6 +1,7 @@
-<grid-main [class]="'fmxw-500'">
-  <app-page-subtitle [subtitle]="'New Binary Version'"></app-page-subtitle>
+<app-page-title [title]="'New Binary Version'" [subbutton]="false"></app-page-title>
+<grid-main [class]="'fmxw-500'" [centered]="true">
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+    <div class="row">
         <grid-form-input [name]="'Binary Base Name'" [tooltip]="'Which needs to be called on the client without os-dependent extension'">
           <input
                 type='text'
@@ -41,6 +42,7 @@
               </div>
           </div>
         </div>
+      </div>
     <button-submit [name]="'Create'"></button-submit>
   </form>
 </grid-main>

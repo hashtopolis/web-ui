@@ -14,7 +14,7 @@ export class BreadcrumbComponent implements OnInit {
   allowViewBreadcrum: boolean;
 
   @Input()
-  public deliminator: string = ">";
+  public deliminator = ">";
 
   breadcrumbs: Array<{ label: string; url: string }>;
 
@@ -42,7 +42,7 @@ export class BreadcrumbComponent implements OnInit {
                 url: url
               });
               currentRoute = route;
-            };
+            }
             // if(route.snapshot.data['breadcrumb'].length > 1) {
             //     this.allowViewBreadcrum = false;
             // }

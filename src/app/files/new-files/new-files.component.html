@@ -1,3 +1,5 @@
+<app-page-subtitle [subtitle]="'New File'"></app-page-subtitle>
+<!-- Body -->
 <grid-main [class]="'fmxw-800'" [centered]="true">
   <div *ngIf="isLoading" style="text-align: center;">
     <app-loading-spinner></app-loading-spinner>
@@ -40,7 +42,7 @@
               </div>
               <div *ngFor="let fileStatus of uploadProgress | async">
                     &nbsp;
-                  <p *ngIf="fileStatus.progress != 100">Uploading File: {{fileStatus.filename}}</p>
+                  <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
                   <ngb-progressbar
                                   type="success"
                                   textType="white"
@@ -49,7 +51,7 @@
                                   [showValue]="true"
                   ></ngb-progressbar>
                   <!-- <p>Progress: {{fileStatus.progress}}%</p> -->
-                  <div *ngIf="fileStatus.progress == 100">
+                  <div *ngIf="fileStatus.progress === 100">
                     <p><b>File Uploaded</b></p>
                   </div>
               </div>

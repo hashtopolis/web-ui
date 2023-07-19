@@ -5,8 +5,9 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { NotifService } from '../../core/_services/users/notifications.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-notifications',
@@ -28,7 +29,7 @@ export class NotificationsComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private notifService: NotifService
+    private gs: GlobalService,
   ) { }
 
   Allnotif: any;
@@ -37,9 +38,9 @@ export class NotificationsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults};
+    const params = {'maxResults': this.maxResults};
 
-    this.notifService.getAllnotif(params).subscribe((notf: any) => {
+    this.gs.getAll(SERV.NOTIFICATIONS,params).subscribe((notf: any) => {
       this.Allnotif = notf.values;
       this.dtTrigger.next(void 0);
     });
@@ -83,8 +84,8 @@ export class NotificationsComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Notifications\n\n"+  dt;
                 }
                 return data;
@@ -140,7 +141,7 @@ export class NotificationsComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.notifService.deleteNotif(id).subscribe(() => {
+        this.gs.delete(SERV.NOTIFICATIONS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

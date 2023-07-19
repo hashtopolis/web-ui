@@ -4,9 +4,10 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 
-import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-search-hash',
@@ -18,8 +19,8 @@ export class SearchHashComponent implements OnInit {
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
-    private router: Router,
-    private hashesService: HashesService
+    private gs: GlobalService,
+    private router: Router
   ) { }
 
   createForm: FormGroup;
@@ -38,11 +39,11 @@ export class SearchHashComponent implements OnInit {
 
       this.isLoading = true;
 
-      let params = {'maxResults': this.maxResults}
+      const params = {'maxResults': this.maxResults}
 
-      this.hashesService.getAllhashes(params).subscribe((hasht: any) => {
+      this.gs.getAll(SERV.HASHES,params).subscribe((hasht: any) => {
 
-        var index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists']);
+        const index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists']);
 
         this.isLoading = false;
           Swal.fire({

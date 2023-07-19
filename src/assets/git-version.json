@@ -1,8 +1,8 @@
 {
-  "shortSHA": "ccc3018",
-  "SHA": "ccc3018a4bab95cb72e6fe2c309c541ed3936259",
-  "branch": "main",
-  "lastCommitTime": "'Mon Jul 3 12:27:16 2023 +0100'",
-  "lastCommitMessage": "UI changes",
-  "lastCommitNumber": "350"
+  "shortSHA": "93bb4c4",
+  "SHA": "93bb4c4a411acb0b92c822ec59a6d51167111f77",
+  "branch": "dev",
+  "lastCommitTime": "'Wed Jul 5 16:15:18 2023 +0100'",
+  "lastCommitMessage": "Merge pull request #6 from rixvet/dev\n\nFix devcontainer not string",
+  "lastCommitNumber": "55"
 }

@@ -5,8 +5,9 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-groups',
@@ -36,7 +37,7 @@ export class GroupsComponent implements OnInit {
     public agroups: {accessGroupId: number, groupName: string, isEdit: false }[] = [];
 
     constructor(
-      private accessgroupService: AccessGroupsService,
+      private gs: GlobalService,
       ) { }
 
     ngOnInit(): void {
@@ -47,8 +48,8 @@ export class GroupsComponent implements OnInit {
 
     loadAccessGroups(){
 
-      let params = {'maxResults': this.maxResults}
-      this.accessgroupService.getAccessGroups(params).subscribe((agroups: any) => {
+      const params = {'maxResults': this.maxResults}
+      this.gs.getAll(SERV.ACCESS_GROUPS,params).subscribe((agroups: any) => {
         this.agroups = agroups.values;
         this.dtTrigger.next(void 0);
       });
@@ -94,8 +95,8 @@ export class GroupsComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Agents\n\n"+  dt;
                   }
                   return data;
@@ -141,7 +142,7 @@ export class GroupsComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.accessgroupService.deleteAccessGroups(id).subscribe(() => {
+        this.gs.delete(SERV.ACCESS_GROUPS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

@@ -1,5 +1,6 @@
-<grid-main [class]="'width:100%'">
-  <app-page-subtitle [subtitle]="'Create Hashlist'"></app-page-subtitle>
+<app-page-subtitle [subtitle]="'Create Hashlist'"></app-page-subtitle>
+<!-- Body -->
+<grid-main [class]="'width:auto'" [centered]="true">
   <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
     <grid-autocol>
     <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
@@ -184,7 +185,7 @@
             </div>
             <div *ngFor="let fileStatus of uploadProgress | async">
             &nbsp;
-            <p *ngIf="fileStatus.progress != 100">Uploading File: {{fileStatus.filename}}</p>
+            <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
             <ngb-progressbar
                             type="success"
                             textType="white"
@@ -193,7 +194,7 @@
                             [showValue]="true"
             ></ngb-progressbar>
             <!-- <button (click)="onuploadCancel(fileStatus.filename)" class="button is-danger">Cancel</button> -->
-              <div *ngIf="fileStatus.progress == 100">
+              <div *ngIf="fileStatus.progress === 100">
                 <p>File Uploaded</p>
               </div>
             </div>

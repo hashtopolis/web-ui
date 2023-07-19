@@ -1,5 +1,6 @@
-<grid-main [class]="'fmxw-800'" [centered]="true">
-  <app-page-subtitle [subtitle]="'Health Check'"></app-page-subtitle>
+<app-page-subtitle [subtitle]="'Health Check'"></app-page-subtitle>
+<!-- Body -->
+<app-table>
   <div class="row g-3">
     <div class="col-md-7">
     <grid-form-input [name]="'Created'">
@@ -20,9 +21,6 @@
     </grid-form-input>
     </div>
   </div>
-</grid-main>
-<!-- Body -->
-<app-table>
   <app-page-subtitle [subtitle]="'Checked Agents'"></app-page-subtitle>
   <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
     <thead class="thead-light">

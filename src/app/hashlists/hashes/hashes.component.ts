@@ -5,11 +5,9 @@ import { DataTableDirective } from 'angular-datatables';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 
-import { ListsService } from 'src/app/core/_services/hashlist/hashlist.service';
-import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-hashes',
@@ -34,20 +32,17 @@ export class HashesComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private hashesService: HashesService,
-    private tasksService: TasksService,
-    private chunkService: ChunkService,
-    private listsService: ListsService,
     private route:ActivatedRoute,
-    private router:Router,
+    private gs: GlobalService,
+    private router:Router
   ) { }
 
   crackPos: any = true;
   cracked:any;
-  filtering: string = "";
-  filteringDescr: string = "";
-  displaying: string = "";
-  displayingDescr: string = "";
+  filtering = "";
+  filteringDescr = "";
+  displaying = "";
+  displayingDescr = "";
 
   filters: any = [{"name":"cracked", "description":"Cracked"},{"name":"uncracked", "description": "Uncracked"},{"name":"", "description": "All"}];
   displays: any = [
@@ -82,19 +77,19 @@ export class HashesComponent implements OnInit {
 
         case 'chunkshash':
           this.whichView = 'chunks';
-          this.chunkService.getChunk(this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']});
+          this.gs.get(SERV.CHUNKS,this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']});
           this.initChashes();
         break;
 
         case 'taskhas':
           this.whichView = 'tasks';
-          this.tasksService.getTask(this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']});
+          this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']});
           this.initThashes();
         break;
 
         case 'hashlisthash':
           this.whichView = 'hashlists';
-          this.listsService.getHashlist(this.editedIndex).subscribe((result)=>{this.titleName = result['name']});
+          this.gs.get(SERV.HASHLISTS,this.editedIndex).subscribe((result)=>{this.titleName = result['name']});
           this.initHhashes();
         break;
 
@@ -105,7 +100,7 @@ export class HashesComponent implements OnInit {
 
   private initChashes() {
     this.isLoading = true;
-    let param = {'filter': 'chunkId='+this.editedIndex+''};
+    const param = {'filter': 'chunkId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
@@ -118,18 +113,18 @@ export class HashesComponent implements OnInit {
 
   private initHhashes() {
     this.isLoading = true;
-    let param = {'filter': 'hashlistId='+this.editedIndex+''};
+    const param = {'filter': 'hashlistId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
   async getHashes(param?: any){
 
-    let params = {'maxResults': 90000, 'expand':'hashlist,chunk'};
+    const params = {'maxResults': 90000, 'expand':'hashlist,chunk'};
 
     const nwparams = {...params, ...param};
 
-    this.hashesService.getAllhashes(nwparams).subscribe((hashes: any) => {
-      var res = hashes.values;
+    this.gs.getAll(SERV.HASHES,nwparams).subscribe((hashes: any) => {
+      let res = hashes.values;
       if(this.whichView = 'tasks'){
         res = res.filter(u=> u.chunk.taskId == this.editedIndex);
       }
@@ -146,7 +141,7 @@ export class HashesComponent implements OnInit {
   viewForm: FormGroup;
 
   initDisplay(){
-    let qp = this.route.snapshot.queryParams;
+    const qp = this.route.snapshot.queryParams;
     if(qp['crackpos']){
       this.crackPos = qp['crackpos'];
     }if(qp['filter']){
@@ -163,7 +158,6 @@ export class HashesComponent implements OnInit {
       'filterdes': new FormControl(this.filteringDescr),
     });
   }
-
 
   onQueryp(name: any, type: number){
     let query = {}

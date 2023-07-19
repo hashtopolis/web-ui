@@ -19,12 +19,12 @@ export class HttpErrorInterceptor implements HttpInterceptor{
         .pipe(
           retry(1),
           catchError((error: HttpErrorResponse) => {
-            var errmsg:string= '';
+            let errmsg= '';
             if (error.error instanceof ErrorEvent) {
-              let err = error?.error.message || 'Unknown API error';
+              const err = error?.error.message || 'Unknown API error';
               errmsg = `Client Side Error: ${err}`;
             } else {
-              let err = error?.error?.exception[0]?.message || 'Unknown API error';
+              const err = error?.error?.exception[0]?.message || 'Unknown API error';
               errmsg = `Server Side Error: ${err}`;
             }
             if(error.status === 403){

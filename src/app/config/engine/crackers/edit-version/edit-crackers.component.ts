@@ -4,8 +4,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { CrackerService } from '../../../../core/_services/config/cracker.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-crackers',
@@ -23,8 +24,8 @@ export class EditCrackersComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
-    private router: Router,
-    private crackerService: CrackerService
+    private gs: GlobalService,
+    private router: Router
   ) { }
 
   updateForm = new FormGroup({
@@ -51,8 +52,7 @@ export class EditCrackersComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.crackerService.updateCrackerBinary(this.editedCrackervIndex,this.updateForm.value).subscribe((ck: any) => {
-        const response = ck;
+      this.gs.update(SERV.CRACKERS,this.editedCrackervIndex,this.updateForm.value).subscribe((ck: any) => {
         this.isLoading = false;
           Swal.fire({
             title: "Success",
@@ -88,7 +88,7 @@ export class EditCrackersComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.crackerService.deleteCrackerBinary(this.editedCrackervIndex).subscribe(() => {
+        this.gs.delete(SERV.CRACKERS,this.editedCrackervIndex).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",
@@ -112,7 +112,7 @@ export class EditCrackersComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    this.crackerService.getCrackerBinary(this.editedCrackervIndex).subscribe((result)=>{
+    this.gs.get(SERV.CRACKERS,this.editedCrackervIndex).subscribe((result)=>{
       this.crackerV = result;
       this.updateForm = new FormGroup({
         'binaryName': new FormControl(result['binaryName']),

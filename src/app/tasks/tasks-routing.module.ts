@@ -1,4 +1,4 @@
-import { AuthGuard } from "../core/_guards/auth.guard";
+import { IsAuth } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
@@ -28,42 +28,42 @@ const routes: Routes = [
               kind: 'show-tasks',
               breadcrumb: 'Show tasks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'show-tasks-archived', component: ShowTasksComponent,
           data: {
               kind: 'show-tasks-archived',
               breadcrumb: 'Show Archived Tasks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'show-tasks/:id/edit', component: EditTasksComponent,
           data: {
               kind: 'edit-task',
               breadcrumb: 'Edit Task'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'show-tasks/:id/edit/show-100-chunks', component: EditTasksComponent,
           data: {
               kind: 'edit-task-c100',
               breadcrumb: 'Edit Task > Show latest 100 chunks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'show-tasks/:id/edit/show-all-chunks', component: EditTasksComponent,
           data: {
               kind: 'edit-task-cAll',
               breadcrumb: 'Edit Task > Show All chunks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'new-tasks', component: NewTasksComponent,
           data: {
               kind: 'new-tasks',
               breadcrumb: 'New tasks'
           },
-          canActivate: [AuthGuard,TaskGuard],
+          canActivate: [IsAuth,TaskGuard],
           canDeactivate: [PendingChangesGuard]},
         {
           path: 'new-tasks/:id/copy', component: NewTasksComponent,
@@ -71,35 +71,35 @@ const routes: Routes = [
               kind: 'copy-task',
               breadcrumb: 'Copy Task'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'new-tasks/:id/copypretask', component: NewTasksComponent,
           data: {
               kind: 'copy-pretask',
               breadcrumb: 'Copy Task'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'preconfigured-tasks', component: PreconfiguredTasksComponent,
           data: {
               kind: 'preconfigured-tasks',
               breadcrumb: 'Preconfigured tasks'
           },
-          canActivate: [AuthGuard,PreTaskGuard]},
+          canActivate: [IsAuth,PreTaskGuard]},
         {
           path: 'new-preconfigured-tasks', component: NewPreconfiguredTasksComponent,
           data: {
               kind: 'new-preconfigured-tasks',
               breadcrumb: 'New Preconfigured tasks'
           },
-          canActivate: [AuthGuard,PreTaskGuard]},
+          canActivate: [IsAuth,PreTaskGuard]},
         {
           path: 'preconfigured-tasks/:id/edit', component: EditPreconfiguredTasksComponent,
           data: {
               kind: 'edit-preconfigured-tasks',
               breadcrumb: 'Edit Preconfigured tasks'
           },
-          canActivate: [AuthGuard,PreTaskGuard],
+          canActivate: [IsAuth,PreTaskGuard],
           canDeactivate: [PendingChangesGuard]},
         {
           path: 'preconfigured-tasks/:id/copy', component: NewPreconfiguredTasksComponent,
@@ -107,63 +107,63 @@ const routes: Routes = [
               kind: 'copy-preconfigured-tasks',
               breadcrumb: 'Copy Preconfigured tasks'
           },
-          canActivate: [AuthGuard,PreTaskGuard]},
+          canActivate: [IsAuth,PreTaskGuard]},
         {
           path: 'preconfigured-tasks/:id/copytask', component: NewPreconfiguredTasksComponent,
           data: {
               kind: 'copy-tasks',
               breadcrumb: 'Copy Task to Preconfigured task'
           },
-          canActivate: [AuthGuard,PreTaskGuard]},
+          canActivate: [IsAuth,PreTaskGuard]},
         {
           path: 'supertasks', component: SupertasksComponent,
           data: {
             kind: 'supertasks',
             breadcrumb: 'Supertasks'
            },
-           canActivate: [AuthGuard,TaskGuard]},
+           canActivate: [IsAuth,TaskGuard]},
         {
           path: 'new-supertasks', component: NewSupertasksComponent,
           data: {
             kind: 'new-supertasks',
             breadcrumb: 'New Supertasks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: ':id/edit', component: EditSupertasksComponent,
           data: {
             kind: 'edit-supertasks',
             breadcrumb: 'Edit Supertasks'
           },
-          canActivate: [AuthGuard,SuperTaskGuard]},
+          canActivate: [IsAuth,SuperTaskGuard]},
         {
           path: 'import-supertasks', component: ImportSupertasksComponent,
           data: {
             kind: 'import-supertasks',
             breadcrumb: 'Import Supertasks'
           },
-          canActivate: [AuthGuard,SuperTaskGuard]},
+          canActivate: [IsAuth,SuperTaskGuard]},
         {
           path: 'chunks', component: ChunksComponent,
           data: {
             kind: 'chunks',
             breadcrumb: 'Chunks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'chunks/:id/view', component: ChunksComponent,
           data: {
               kind: 'chunks-view',
               breadcrumb: 'Chunks > View Chunk'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         {
           path: 'chunks/show-all-chunks', component: ChunksComponent,
           data: {
               kind: 'chunks-cAll',
               breadcrumb: 'Chunks > Show All chunks'
           },
-          canActivate: [AuthGuard,TaskGuard]},
+          canActivate: [IsAuth,TaskGuard]},
         ]
      }
   ]

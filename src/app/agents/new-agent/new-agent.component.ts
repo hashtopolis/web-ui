@@ -6,13 +6,10 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-
-import { AgentBinService } from 'src/app/core/_services/config/agentbinary.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { VoucherService } from '../../core/_services/agents/voucher.service';
-import { CrackerService } from '../../core/_services/config/cracker.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-agent',
@@ -41,16 +38,13 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   createForm: FormGroup
   binaries: any = [];
-  // public binaries: {agentBinaryId: number, type: string, version: string, operatingSystems: string, filename: string, updateTrack: string, updateAvailable: string}[] = [];
   vouchers: any = [];
 
   randomstring:any
 
   constructor(
-    private agentBinService: AgentBinService,
-    private voucherService: VoucherService,
     private uiService: UIConfigService,
-    private users: UsersService
+    private gs: GlobalService
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -71,13 +65,13 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       'voucher': new FormControl(''),
     });
 
-    let params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults}
 
-    this.voucherService.getVouchers(params).subscribe((vouchers: any) => {
+    this.gs.getAll(SERV.VOUCHER,params).subscribe((vouchers: any) => {
       this.vouchers = vouchers.values;
     });
 
-    this.agentBinService.getAgentBins().subscribe((bin: any) => {
+    this.gs.getAll(SERV.AGENT_BINARY).subscribe((bin: any) => {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
     });
@@ -98,7 +92,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   createAgentAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
         this.createAgentAccess = perm.globalPermissionGroup.permissions.createAgentAccess;
     });
@@ -136,7 +130,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.voucherService.deleteVoucher(id).subscribe(() => {
+        this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",
@@ -173,7 +167,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
       this.isLoading = true;
 
-      this.voucherService.createVoucher(this.createForm.value).subscribe((hasht: any) => {
+      this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe((hasht: any) => {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({

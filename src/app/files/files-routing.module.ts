@@ -1,4 +1,4 @@
-import { AuthGuard } from "../core/_guards/auth.guard";
+import { IsAuth } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
@@ -17,63 +17,63 @@ const routes: Routes = [
             kind: 'wordlist',
             breadcrumb: 'Wordlist'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: 'wordlist/new-wordlist',  component: NewFilesComponent,
         data: {
             kind: 'wordlist-new',
             breadcrumb: 'Wordlist New'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: ':id/wordlist-edit',  component: FilesEditComponent,
         data: {
             kind: 'wordlist-edit',
             breadcrumb: 'Wordlist Edit'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: 'rules', component: FilesComponent,
         data: {
             kind: 'rules',
             breadcrumb: 'Rules'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: 'rules/new-rule',  component: NewFilesComponent,
         data: {
             kind: 'rule-new',
             breadcrumb: 'Rule New'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: ':id/rules-edit',  component: FilesEditComponent,
         data: {
             kind: 'rules-edit',
             breadcrumb: 'Rules Edit'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: 'other', component: FilesComponent,
         data: {
             kind: 'other',
             breadcrumb: 'Other'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: 'other/new-other',  component: NewFilesComponent,
         data: {
             kind: 'other-new',
             breadcrumb: 'Other New'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
       {
         path: ':id/other-edit',  component: FilesEditComponent,
         data: {
             kind: 'other-edit',
             breadcrumb: 'Other Edit'
         },
-        canActivate: [AuthGuard,FilesGuard]},
+        canActivate: [IsAuth,FilesGuard]},
     ]
   }
 ]

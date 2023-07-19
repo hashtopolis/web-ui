@@ -17,12 +17,20 @@
                 formControlName="type"
           >
         </grid-form-input>
-        <grid-form-input [name]="'Operating Systems'">
+        <grid-form-input [name]="'Operating Systems'" [labelclass]="'requiredak'">
           <input
                 type='text'
                 id="operatingSystems"
                 class='form-control'
                 formControlName="operatingSystems"
+          >
+        </grid-form-input>
+        <grid-form-input [name]="'Filename'" [tooltip]="'Placed in bin folder'" [labelclass]="'requiredak'">
+          <input
+                type='text'
+                id="filename"
+                class='form-control'
+                formControlName="filename"
           >
         </grid-form-input>
         <grid-form-input [name]="'Version'">
@@ -44,6 +52,13 @@
           </select>
         </grid-form-input>
       </div>
-    <button-submit [name]="'Update'"></button-submit>
+      <div [ngSwitch]="whichView">
+        <div *ngSwitchCase="'create'">
+          <button-submit [name]="'Create'"></button-submit>
+        </div>
+        <div *ngSwitchCase="'edit'">
+          <button-submit [name]="'Update'"></button-submit>
+        </div>
+      </div>
   </form>
 </grid-main>

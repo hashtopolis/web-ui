@@ -1,9 +1,10 @@
+<app-page-subtitle [subtitle]="'Create Superhaslist'"></app-page-subtitle>
+<!-- Spinner -->
 <div *ngIf="isLoading" style="text-align: center;">
   <app-loading-spinner></app-loading-spinner>
 </div>
 <!-- Body -->
 <grid-main [class]="'fmxw-500'" [centered]="true">
-  <app-page-subtitle [subtitle]="'Create Superhaslist'"></app-page-subtitle>
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
       <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
         <div class="input-group">

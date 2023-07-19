@@ -4,9 +4,10 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { HashtypeService } from '../../core/_services/config/hashtype.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-hashtypes',
@@ -34,16 +35,16 @@ export class HashtypesComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private hashtypeService: HashtypeService
+    private gs: GlobalService,
   ) { }
 
   public htypes: {hashTypeId: number, description: string, isSalted: number, isSlowHash: number}[] = [];
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults};
+    const params = {'maxResults': this.maxResults};
 
-    this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
+    this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
       this.htypes = htypes.values;
       this.dtTrigger.next(void 0);
     });
@@ -89,8 +90,8 @@ export class HashtypesComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Hashtypes\n\n"+  dt;
                 }
                 return data;
@@ -136,7 +137,7 @@ export class HashtypesComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.hashtypeService.deleteHashType(id).subscribe(() => {
+        this.gs.delete(SERV.HASHTYPES,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

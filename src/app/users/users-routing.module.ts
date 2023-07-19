@@ -1,4 +1,4 @@
-import { AuthGuard } from "../core/_guards/auth.guard";
+import { IsAuth } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
@@ -23,63 +23,63 @@ const routes: Routes = [
               kind: 'users',
               breadcrumb: 'New User'
           },
-          canActivate: [AuthGuard,UsersGuard]},
+          canActivate: [IsAuth,UsersGuard]},
         {
           path: ':id/edit', component: EditUsersComponent,
           data: {
               kind: 'edit',
               breadcrumb: 'Edit User'
           },
-          canActivate: [AuthGuard,UsersGuard]},
+          canActivate: [IsAuth,UsersGuard]},
         {
           path: 'all-users', component: AllUsersComponent,
           data: {
               kind: 'all-users',
               breadcrumb: 'All Users'
           },
-          canActivate: [AuthGuard,UsersGuard]},
+          canActivate: [IsAuth,UsersGuard]},
         {
           path: 'global-permissions-groups', component: GlobalpermissionsgroupsComponent,
           data: {
               kind: 'globalpermissionsgp',
               breadcrumb: 'Global Permissions Groups'
           },
-          canActivate: [AuthGuard,UsersGuard]},
+          canActivate: [IsAuth,UsersGuard]},
         {
           path: 'global-permissions-groups/new', component: NewGlobalpermissionsgroupsComponent,
           data: {
               kind: 'new-globalpermissionsgp',
               breadcrumb: 'New Global Permissions Groups'
           },
-          canActivate: [AuthGuard,UsersGuard]},
+          canActivate: [IsAuth,UsersGuard]},
         {
           path: 'global-permissions-groups/:id/edit', component: EditGlobalpermissionsgroupsComponent,
           data: {
               kind: 'edit-gpg',
               breadcrumb: 'Edit Global Permissions Group'
           },
-          canActivate: [AuthGuard,UsersGuard]},
+          canActivate: [IsAuth,UsersGuard]},
         {
           path: 'access-groups', component: GroupsComponent,
           data: {
               kind: 'access-groups',
               breadcrumb: 'Access Groups'
           },
-          canActivate: [AuthGuard,AccessGroupsGuard]},
+          canActivate: [IsAuth,AccessGroupsGuard]},
         {
           path: 'access-groups/new', component: CUGroupComponent,
           data: {
               kind: 'new-access-groups',
               breadcrumb: 'New Access Group'
           },
-          canActivate: [AuthGuard,AccessGroupsGuard]},
+          canActivate: [IsAuth,AccessGroupsGuard]},
         {
           path: 'access-groups/:id/edit', component: CUGroupComponent,
           data: {
               kind: 'edit-access-groups',
               breadcrumb: 'Edit Access Group'
           },
-          canActivate: [AuthGuard,AccessGroupsGuard]},
+          canActivate: [IsAuth,AccessGroupsGuard]},
         ]
       }
    ]

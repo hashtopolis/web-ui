@@ -88,7 +88,6 @@ import { AuthModule } from './auth/auth.module';
     ThemeService,
     AppPreloadingStrategy
   ],
-  entryComponents:[TimeoutComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {

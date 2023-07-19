@@ -6,9 +6,10 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { PreprocessorService } from '../../../core/_services/config/preprocessors.service';
 import { environment } from './../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-preprocessors',
@@ -30,15 +31,16 @@ export class PreprocessorsComponent implements OnInit {
 
   public preproc: {preprocessorId: number, name: string, url: string, binaryName: string, keyspaceCommand: string, skipCommand: string, limitCommand: string}[] = [];
 
-  constructor(private preprocessorService: PreprocessorService,
-    private route:ActivatedRoute, private router:Router) { }
+  constructor(
+    private gs: GlobalService,
+  ) { }
 
   private maxResults = environment.config.prodApiMaxResults
 
 
     ngOnInit(): void {
-      let params = {'maxResults': this.maxResults }
-      this.preprocessorService.getPreprocessors(params).subscribe((pre: any) => {
+      const params = {'maxResults': this.maxResults }
+      this.gs.getAll(SERV.PREPROCESSORS,params).subscribe((pre: any) => {
         this.preproc = pre.values;
         this.dtTrigger.next(void 0);
       });
@@ -82,8 +84,8 @@ export class PreprocessorsComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Preprocessors\n\n"+  dt;
                   }
                   return data;
@@ -129,7 +131,7 @@ export class PreprocessorsComponent implements OnInit {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.preprocessorService.deletePreprocessor(id).subscribe(() => {
+          this.gs.delete(SERV.PREPROCESSORS,id).subscribe(() => {
             Swal.fire({
               title: "Success",
               icon: "success",

@@ -3,7 +3,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { map, Observable, take } from "rxjs";
 import { Injectable } from "@angular/core";
 
-import { UsersService } from "../_services/users/users.service";
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { SERV } from '../../core/_services/main.config';
 
 @Injectable({
   providedIn: 'root'
@@ -12,12 +13,12 @@ export class PreTaskGuard implements CanActivate{
     isAuthenticated: boolean;
 
     constructor(
-      private users: UsersService,
+      private gs: GlobalService,
       private router: Router
     ){}
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree>  {
-        return this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).pipe(
+        return this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).pipe(
             take(1),
             map(perm =>{
             const isAuth = perm.globalPermissionGroup.permissions.viewPretaskAccess;

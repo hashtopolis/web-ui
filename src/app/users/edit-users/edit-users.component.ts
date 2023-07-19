@@ -5,12 +5,12 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
-import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
 import { ValidationService } from '../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UsersService } from '../../core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
+import { SERV } from '../../core/_services/main.config';
 import { User } from '../user.model';
 
 @Component({
@@ -37,12 +37,11 @@ export class EditUsersComponent implements OnInit {
   allowEdit = false;
 
   constructor(
-    private router: Router,
-    private datePipe:DatePipe,
-    private route:ActivatedRoute,
-    private usersService: UsersService,
     private uiService: UIConfigService,
-    private apgService:AccessPermissionGroupsService
+    private route:ActivatedRoute,
+    private gs: GlobalService,
+    private datePipe:DatePipe,
+    private router: Router
     ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -78,37 +77,17 @@ export class EditUsersComponent implements OnInit {
     this.isLoading = true;
 
     const id = +this.route.snapshot.params['id'];
-    this.usersService.getUser(id).subscribe((user: any) => {
+    this.gs.get(SERV.USERS,id).subscribe((user: any) => {
       this.user = user;
       this.isLoading = false;
     });
 
-    let params = {'maxResults': this.maxResults};
-    this.apgService.getAccPGroups(params).subscribe((agp: any) => {
+    const params = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((agp: any) => {
       this.agp = agp.values;
     });
 
 }
-  onUpdateUser(index: number): void{
-    if (this.updateForm.valid) {
-
-      this.isLoading = true;
-
-      this.usersService.updateUser(this.updateForm,this.editedUserIndex).subscribe((user: any) => {
-        this.isLoading = false;
-          Swal.fire({
-            title: "Success",
-            text: "User updated!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['agents/show-agents']);
-        }
-      );
-    }
-  }
 
   onDelete(){
     const swalWithBootstrapButtons = Swal.mixin({
@@ -130,7 +109,7 @@ export class EditUsersComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.usersService.deleteUser(this.editedUserIndex).subscribe(() => {
+        this.gs.delete(SERV.USERS,this.editedUserIndex).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",
@@ -156,7 +135,7 @@ export class EditUsersComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.usersService.updateUser(this.updateForm.value, this.editedUserIndex).subscribe((agent: any) => {
+      this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe((agent: any) => {
         const response = agent;
         this.isLoading = false;
           Swal.fire({
@@ -177,7 +156,7 @@ export class EditUsersComponent implements OnInit {
     this.isLoading = true;
 
     if (this.editMode) {
-      this.usersService.getUser(this.editedUserIndex).subscribe((result)=>{
+      this.gs.get(SERV.USERS,this.editedUserIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
         'id': new FormControl(result['id']),
         'name': new FormControl(result['name']),

@@ -23,13 +23,13 @@ export class SecondsToTimePipe implements PipeTransform {
     let result: number | string = 0;
     let formatted: string;
     let daylabel: string;
-    let daysformatted: string = '';
+    let daysformatted = '';
 
     if (seconds < 1 ) { return result = 'N/A'; }
 
     const secondsDay = (60*60*24);  // Seconds in a day
     if (seconds >= secondsDay){
-      let day = Math.floor(seconds / secondsDay);
+      const day = Math.floor(seconds / secondsDay);
       if(day === 1){ daylabel = ' Day '}else{daylabel = ' Days '}
       daysformatted = day + daylabel;
       seconds = (seconds - (secondsDay*day));   // Remaining Time

@@ -5,9 +5,10 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { SuperTasksService } from '../../core/_services/tasks/supertasks.sevice';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 // declare var $: any;
 @Component({
@@ -17,13 +18,6 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 @PageTitle(['Show SuperTasks'])
 export class SupertasksComponent implements OnInit {
 
-  // Title Page
-  pTitle = "Supertasks";
-  buttontitle = "New Supertasks";
-  buttonlink = "/tasks/new-supertasks";
-  subbutton = true;
-
-
   faEdit=faEdit;
   faTrash=faTrash;
   faPlus=faPlus;
@@ -32,8 +26,7 @@ export class SupertasksComponent implements OnInit {
   allsupertasks: any = [];
 
   constructor(
-    private supertaskService: SuperTasksService,
-    private route:ActivatedRoute
+    private gs: GlobalService,
   ) { }
 
   @ViewChild(DataTableDirective, {static: false})
@@ -49,9 +42,9 @@ export class SupertasksComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults
 
   ngOnInit(): void {
-    let params = {'maxResults': this.maxResults }
+    const params = {'maxResults': this.maxResults }
 
-    this.supertaskService.getAllsupertasks(params).subscribe((stasks: any) => {
+    this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((stasks: any) => {
       this.allsupertasks = stasks.values;
       this.dtTrigger.next(void 0);
     });
@@ -97,7 +90,7 @@ export class SupertasksComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.supertaskService.deleteSupertask(id).subscribe(() => {
+        this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

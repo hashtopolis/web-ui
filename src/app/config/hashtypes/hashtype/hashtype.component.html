@@ -1,12 +1,13 @@
-<grid-main [class]="'fmxw-500'" [centered]="true">
-  <div [ngSwitch]="whichView">
-    <div *ngSwitchCase="'create'">
-      <app-page-subtitle [subtitle]="'Create Hashtype'"></app-page-subtitle>
-    </div>
-    <div *ngSwitchCase="'edit'">
-      <app-page-subtitle [subtitle]="'Edit Hashtype'"></app-page-subtitle>
-    </div>
+<div [ngSwitch]="whichView">
+  <div *ngSwitchCase="'create'">
+    <app-page-subtitle [subtitle]="'Create Hashtype'"></app-page-subtitle>
   </div>
+  <div *ngSwitchCase="'edit'">
+    <app-page-subtitle [subtitle]="'Edit Hashtype'"></app-page-subtitle>
+  </div>
+</div>
+<!--body-->
+<grid-main [class]="'fmxw-500'" [centered]="true">
   <form [formGroup]="Form" (ngSubmit)="onSubmit()">
     <div class="row">
       <grid-form-input [name]="'Hashtype'" [tooltip]="'ie. Hashcat -m'" [labelclass]="'requiredak'">

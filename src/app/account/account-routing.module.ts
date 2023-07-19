@@ -1,4 +1,4 @@
-import { AuthGuard } from "../core/_guards/auth.guard";
+import { IsAuth } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
@@ -17,28 +17,28 @@ const routes: Routes = [
               kind: 'account',
               breadcrumb: ''
           },
-          canActivate: [AuthGuard]},
+          canActivate: [IsAuth]},
         {
           path: 'settings', component: SettingsComponent,
           data: {
               kind: 'settings',
               breadcrumb: 'Settings'
           },
-          canActivate: [AuthGuard]},
+          canActivate: [IsAuth]},
         {
           path: 'notifications', component: NotificationsComponent,
           data: {
               kind: 'notifications',
               breadcrumb: 'Notifications'
           },
-          canActivate: [AuthGuard]},
+          canActivate: [IsAuth]},
         {
           path: 'notifications/new-notification', component: NewNotificationComponent,
           data: {
               kind: 'new-notifications',
               breadcrumb: 'New Notification'
           },
-          canActivate: [AuthGuard]},
+          canActivate: [IsAuth]},
         ]
       }
    ]

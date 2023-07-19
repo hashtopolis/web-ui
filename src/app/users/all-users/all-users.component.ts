@@ -5,9 +5,10 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from '../../core/_services/shared/storage.service';
-import { UsersService } from '../../core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-all-users',
@@ -15,12 +16,6 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 })
 @PageTitle(['Show Users'])
 export class AllUsersComponent  implements OnInit, OnDestroy {
-
-  // Title Page
-  pTitle = "Users";
-  buttontitle = "New User";
-  buttonlink = "/users";
-  subbutton = true;
 
   faHome=faHomeAlt;
   faTrash=faTrash;
@@ -51,9 +46,9 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   }[] = [];
 
   constructor(
-    private usersService: UsersService,
     private uiService: UIConfigService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -61,8 +56,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults, 'expand': 'globalPermissionGroup' }
-    this.usersService.getAllusers(params).subscribe((users: any) => {
+    const params = {'maxResults': this.maxResults, 'expand': 'globalPermissionGroup' }
+    this.gs.getAll(SERV.USERS,params).subscribe((users: any) => {
       this.allusers = users.values;
       this.dtTrigger.next(void 0);
     });
@@ -73,6 +68,9 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
       dom: 'Bfrtip',
       pageLength: 10,
       stateSave: true,
+      // "stateLoadParams": function (settings, data) {
+      //   return false;
+      // },
       select: true,
       buttons: {
         dom: {
@@ -109,8 +107,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Agents\n\n"+  dt;
                 }
                 return data;

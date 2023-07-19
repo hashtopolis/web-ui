@@ -1,9 +1,11 @@
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { AccessGroupsService } from 'src/app/core/_services/access/accessgroups.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
+
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-cu-group',
@@ -19,8 +21,8 @@ export class CUGroupComponent implements OnInit {
   editedIndex: number;
 
   constructor(
-    private accessgroupService: AccessGroupsService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -49,7 +51,6 @@ export class CUGroupComponent implements OnInit {
           this.whichView = 'edit';
           this.isLoading = true;
           this.initForm();
-          const id = +this.route.snapshot.params['id'];
         break;
 
       }
@@ -60,7 +61,7 @@ export class CUGroupComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    this.accessgroupService.getAccessGroup(this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.ACCESS_GROUPS,this.editedIndex).subscribe((result)=>{
       this.Form = new FormGroup({
         'groupName': new FormControl(result['groupName']),
       });
@@ -77,7 +78,7 @@ export class CUGroupComponent implements OnInit {
     switch (this.whichView) {
 
       case 'create':
-        this.accessgroupService.createAccessGroups(this.Form.value).subscribe((agroup: any) => {
+        this.gs.create(SERV.ACCESS_GROUPS,this.Form.value).subscribe((agroup: any) => {
           this.isLoading = false;
           Swal.fire({
             title: "Success",
@@ -92,8 +93,7 @@ export class CUGroupComponent implements OnInit {
       break;
 
       case 'edit':
-        const id = +this.route.snapshot.params['id'];
-        this.accessgroupService.updateAccessGroups(id,this.Form.value).subscribe((hasht: any) => {
+        this.gs.update(SERV.ACCESS_GROUPS,this.editedIndex,this.Form.value).subscribe((hasht: any) => {
           this.isLoading = false;
           Swal.fire({
             title: "Updated!",

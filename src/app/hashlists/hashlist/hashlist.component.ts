@@ -1,14 +1,14 @@
 import { faEdit, faTrash, faLock, faFileImport, faFileExport, faArchive, faPlus, faHomeAlt } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { environment } from './../../../environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 declare let $:any;
 
@@ -18,12 +18,6 @@ declare let $:any;
 })
 @PageTitle(['Show Hashlists'])
 export class HashlistComponent implements OnInit, OnDestroy {
-
-  // Title Page
-  pTitle = "Hashlists";
-  buttontitle = "New Hashlist";
-  buttonlink = "/hashlists/new-hashlist";
-  subbutton = true;
 
   faEdit=faEdit;
   faTrash=faTrash;
@@ -61,9 +55,8 @@ export class HashlistComponent implements OnInit, OnDestroy {
   }[] = []; // Should be in models, Todo when data structure is confirmed
 
   constructor(
-    private listsService: ListsService,
     private route:ActivatedRoute,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
     ) { }
 
@@ -89,9 +82,9 @@ export class HashlistComponent implements OnInit, OnDestroy {
 
       }
 
-    let params = {'maxResults': this.maxResults, 'expand': 'hashType,accessGroup', 'filter': 'isArchived='+this.isArchived+''}
+    const params = {'maxResults': this.maxResults, 'expand': 'hashType,accessGroup', 'filter': 'isArchived='+this.isArchived+''}
 
-    this.listsService.getAllhashlists(params).subscribe((list: any) => {
+    this.gs.getAll(SERV.HASHLISTS,params).subscribe((list: any) => {
       this.allhashlists = list.values.filter(u=> u.format != 3); // Exclude superhashlists
       this.dtTrigger.next(void 0);
     });
@@ -138,8 +131,8 @@ export class HashlistComponent implements OnInit, OnDestroy {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Hashlist\n\n"+  dt;
                 }
                 return data;
@@ -152,7 +145,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
             extend: 'collection',
             text: 'Bulk Actions',
             drawCallback: function() {
-              var hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
+              const hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
               $('.buttons-excel')[0].style.visibility = hasRows ? 'visible' : 'hidden'
             },
             buttons: [
@@ -206,7 +199,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
 manageHashlistAccess: any;
 
 setAccessPermissions(){
-  this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+  this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
       this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
   });
 }
@@ -225,7 +218,7 @@ rerender(): void {
 
 onArchive(id: number){
   if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
-  this.listsService.archiveHashlist(id).subscribe((list: any) => {
+  this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
     Swal.fire({
       title: "Success",
       text: "Archived!",
@@ -268,7 +261,7 @@ onDelete(id: number){
   })
   .then((result) => {
     if (result.isConfirmed) {
-      this.listsService.deleteHashlist(id).subscribe(() => {
+      this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
         Swal.fire({
           title: "Success",
           icon: "success",
@@ -303,7 +296,7 @@ onDelete(id: number){
 
 onSelectedHashlists(){
   $(".dt-button-background").trigger("click");
-  let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
       title: "You haven't selected any Hashlist",
@@ -313,7 +306,7 @@ onSelectedHashlists(){
     })
     return;
   }
-  let selectionnum = selection.map(i=>Number(i));
+  const selectionnum = selection.map(i=>Number(i));
 
   return selectionnum;
 }
@@ -321,13 +314,13 @@ onSelectedHashlists(){
 onDeleteBulk(){
   if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
   const self = this;
-  let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-  let sellen = selectionnum.length;
-  let errors = [];
+  const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const sellen = selectionnum.length;
+  const errors = [];
   selectionnum.forEach(function (value) {
     Swal.fire('Deleting...'+sellen+' Hashlist(s)...Please wait')
     Swal.showLoading()
-  self.listsService.deleteHashlist(value)
+  self.gs.delete(SERV.HASHLISTS,value)
   .subscribe(
     err => {
       console.log('HTTP Error', err)
@@ -351,12 +344,12 @@ onDeleteBulk(){
 onUpdateBulk(value: any){
   if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
     const self = this;
-    let selectionnum = this.onSelectedHashlists();
-    let sellen = selectionnum.length;
+    const selectionnum = this.onSelectedHashlists();
+    const sellen = selectionnum.length;
     selectionnum.forEach(function (id) {
       Swal.fire('Updating...'+sellen+' Hashlist(s)...Please wait')
       Swal.showLoading()
-    self.listsService.updateHashlist(id, value).subscribe(
+    self.gs.update(SERV.HASHLISTS,id, value).subscribe(
     );
   });
   self.onDone(sellen);

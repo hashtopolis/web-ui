@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { HashtypeService } from 'src/app/core/_services/config/hashtype.service';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
+
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-hashtype',
@@ -19,7 +21,7 @@ export class HashtypeComponent implements OnInit {
   editedIndex: number;
 
   constructor(
-    private hashtypeService: HashtypeService,
+    private gs: GlobalService,
     private route:ActivatedRoute,
     private router:Router
   ) { }
@@ -64,7 +66,7 @@ export class HashtypeComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    this.hashtypeService.getHashtype(this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.HASHTYPES,this.editedIndex).subscribe((result)=>{
       this.Form = new FormGroup({
         'hashTypeId': new FormControl({value: result['hashTypeId'], disabled: true} ),
         'description': new FormControl(result['description']),
@@ -84,7 +86,7 @@ export class HashtypeComponent implements OnInit {
     switch (this.whichView) {
 
       case 'create':
-      this.hashtypeService.createHashType(this.Form.value).subscribe((hasht: any) => {
+      this.gs.create(SERV.HASHTYPES,this.Form.value).subscribe((hasht: any) => {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({
@@ -101,7 +103,7 @@ export class HashtypeComponent implements OnInit {
 
       case 'edit':
         const id = +this.route.snapshot.params['id'];
-        this.hashtypeService.updateHashType(id,this.Form.value).subscribe((hasht: any) => {
+        this.gs.update(SERV.HASHTYPES,id,this.Form.value).subscribe((hasht: any) => {
           this.isLoading = false;
           Swal.fire({
             title: "Updated!",

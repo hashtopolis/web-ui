@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 
 import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
 import { ErrorPageComponent } from './layout/error-page/error-page.component';
-import { AuthGuard } from './core/_guards/auth.guard';
+import { IsAuth } from './core/_guards/auth.guard';
 
 const appRoutes: Routes = [
     {path: '',
@@ -51,9 +51,9 @@ const appRoutes: Routes = [
       loadChildren: () => import('./config/config.module').then(m => m.ConfigModule),
       data: { preload: false, delay: false }
     },
-    {path: 'error', component: ErrorPageComponent, data:{message: 'Page Not Found!'} ,canActivate: [AuthGuard] },
-    {path: 'access-denied', component: ErrorPageComponent, data:{message: 'Sorry, You are not allowed to access this page!'} ,canActivate: [AuthGuard] },
-    {path: 'not-found', component: PageNotFoundComponent ,canActivate: [AuthGuard] },
+    {path: 'error', component: ErrorPageComponent, data:{message: 'Page Not Found!'} ,canActivate: [IsAuth] },
+    {path: 'access-denied', component: ErrorPageComponent, data:{message: 'Sorry, You are not allowed to access this page!'} ,canActivate: [IsAuth] },
+    {path: 'not-found', component: PageNotFoundComponent ,canActivate: [IsAuth] },
     {path: '**', redirectTo: 'not-found'}  // Note: Always the last route. Don't change position.
   ];
 
@@ -62,11 +62,10 @@ const appRoutes: Routes = [
         RouterModule.forRoot(
           appRoutes,
           {
-          // enableTracing: false, // <-- Debugging purposes only
-          preloadingStrategy: AppPreloadingStrategy,
-          relativeLinkResolution: 'corrected',
-          useHash: true  // Old browsers could have issues but can be fixed setting useHash: true. Note: if its enabled it will affect redirectURL after login
-      })
+    // enableTracing: false, // <-- Debugging purposes only
+    preloadingStrategy: AppPreloadingStrategy,
+    useHash: true // Old browsers could have issues but can be fixed setting useHash: true. Note: if its enabled it will affect redirectURL after login
+})
     ],
     exports:[
         RouterModule
