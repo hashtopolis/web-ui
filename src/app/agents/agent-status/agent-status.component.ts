@@ -4,16 +4,14 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { CookieService } from 'src/app/core/_services/shared/cookies.service';
+import { FilterService } from 'src/app/core/_services/shared/filter.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { ASC } from '../../core/_constants/agentsc.config';
 import { environment } from 'src/environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { FilterService } from 'src/app/core/_services/shared/filter.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { CookieService } from 'src/app/core/_services/shared/cookies.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AgentStatService } from 'src/app/core/_services/agents/agentstats.service';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-agent-status',
@@ -42,7 +40,7 @@ export class AgentStatusComponent implements OnInit {
 
   showagents: any[] = [];
   _filteresAgents: any[] = [];
-  filterText: string = '';
+  filterText = '';
 
   totalRecords = 0;
   pageSize = 20;
@@ -61,15 +59,12 @@ export class AgentStatusComponent implements OnInit {
   }
 
   constructor(
-    private astatService: AgentStatService,
     private offcanvasService: NgbOffcanvas,
-    private agentsService: AgentsService,
     private filterService: FilterService,
     private cookieService: CookieService,
-    private tasksService: TasksService,
-    private chunkService: ChunkService,
     private uiService: UIConfigService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private gs: GlobalService
   ) { }
 
   // View Menu
@@ -148,8 +143,8 @@ export class AgentStatusComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Agent Status\n\n"+  dt;
                   }
                   return data;
@@ -177,18 +172,18 @@ export class AgentStatusComponent implements OnInit {
   }
 
   getAgentsPage(page: number) {
-    let params = {'maxResults': this.maxResults}
-    this.agentsService.getAgents(params).subscribe((a: any) => {
-      var getAData = a.values;
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.AGENTS,params).subscribe((a: any) => {
+      const getAData = a.values;
       this.totalRecords = a.total;
-      this.chunkService.getChunks(params).subscribe((c: any)=>{
-        this.tasksService.getAlltasks(params).subscribe((t: any)=>{
-          var map = getAData.map(mainObject => {
-          let matchObjectAgents = c.values.find(e => e.agentId === mainObject.agentId)
+      this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
+        this.gs.getAll(SERV.TASKS,params).subscribe((t: any)=>{
+          const map = getAData.map(mainObject => {
+          const matchObjectAgents = c.values.find(e => e.agentId === mainObject.agentId)
           return { ...mainObject, ...matchObjectAgents}
           })
           this.showagents = this.filteredAgents = map.map(mainObject => {
-            let matchObjectTask = t.values.find(e => e.taskId === mainObject.taskId)
+            const matchObjectTask = t.values.find(e => e.taskId === mainObject.taskId)
             return { ...mainObject, ...matchObjectTask}
           })
           this.dtTrigger.next(void 0);
@@ -203,8 +198,8 @@ export class AgentStatusComponent implements OnInit {
   statCpu: any[] = [];
 
   getAgentStats(){
-    let paramsstat = {'maxResults': this.maxResults, 'filter': 'time>'+this.gettime()+''}
-    this.astatService.getAstats(paramsstat).subscribe((stats: any) => {
+    const paramsstat = {'maxResults': this.maxResults, 'filter': 'time>'+this.gettime()+''}
+    this.gs.getAll(SERV.AGENTS_STATS,paramsstat).subscribe((stats: any) => {
       this.statTemp = stats.values.filter(u=> u.statType == ASC.GPU_TEMP); // filter Device Temperature
       this.statDevice = stats.values.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
       this.statCpu = stats.values.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
@@ -213,7 +208,7 @@ export class AgentStatusComponent implements OnInit {
   }
 
   gettime(){
-    let time = (Date.now() - this.uiService.getUIsettings('agenttimeout').value)
+    const time = (Date.now() - this.uiService.getUIsettings('agenttimeout').value)
     return time;
   }
 

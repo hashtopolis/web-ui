@@ -1,5 +1,4 @@
-import { faEdit, faCopy, faBookmark, faArchive, faTrash  }  from '@fortawesome/free-solid-svg-icons';
-import { Component, Input, OnInit, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -17,8 +16,6 @@ import { Router } from '@angular/router';
 })
 export class ButtonActionsComponent  {
 
-  constructor(
-    private router: Router
-  ) { }
+  constructor() { }
 
 }

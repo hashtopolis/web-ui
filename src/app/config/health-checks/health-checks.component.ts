@@ -6,12 +6,11 @@ import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { HealthcheckService } from '../../core/_services/config/healthcheck.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { HashtypeService } from '../../core/_services/config/hashtype.service';
-import { CrackerService } from '../../core/_services/config/cracker.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-health-checks',
@@ -37,12 +36,8 @@ export class HealthChecksComponent implements OnInit {
   uidateformat:any;
 
   constructor(
-    private healthcheckService: HealthcheckService,
-    private hashtypeService: HashtypeService,
     private uiService: UIConfigService,
-    // private _changeDetectorRef: ChangeDetectorRef,
-    private route:ActivatedRoute,
-    private router:Router
+    private gs: GlobalService,
   ) { }
 
   public healthc: {
@@ -70,12 +65,12 @@ export class HealthChecksComponent implements OnInit {
 
   ngOnInit(): void {
 
-  let params = {'maxResults': this.maxResults};
+  const params = {'maxResults': this.maxResults};
 
-  this.healthcheckService.getHealthChecks(params).subscribe((check: any) => {
-    this.hashtypeService.getHashTypes(params).subscribe((hasht: any) => {
+  this.gs.getAll(SERV.HEALTH_CHECKS,params).subscribe((check: any) => {
+    this.gs.getAll(SERV.HASHTYPES,params).subscribe((hasht: any) => {
     this.mergedObjects = check.values.map(mainObject => {
-      let matchObject = hasht.values.find(element => element.hashTypeId === mainObject.hashtypeId)
+      const matchObject = hasht.values.find(element => element.hashTypeId === mainObject.hashtypeId)
       return { ...mainObject, ...matchObject }
     })
     this.dtTrigger.next(void 0);
@@ -123,8 +118,8 @@ export class HealthChecksComponent implements OnInit {
             exportOptions: {modifier: {selected: true}},
             select: true,
             customize: function (dt, csv) {
-              var data = "";
-              for (var i = 0; i < dt.length; i++) {
+              let data = "";
+              for (let i = 0; i < dt.length; i++) {
                 data = "Health Checks\n\n"+  dt;
               }
               return data;
@@ -174,7 +169,7 @@ export class HealthChecksComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.healthcheckService.deleteHealthCheck(id).subscribe(() => {
+        this.gs.delete(SERV.HEALTH_CHECKS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

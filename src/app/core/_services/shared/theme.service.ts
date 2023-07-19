@@ -1,11 +1,9 @@
 import {Inject, Injectable, InjectionToken, Renderer2, RendererFactory2} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-
 import {BehaviorSubject, fromEvent, Observable, of, Subject} from 'rxjs';
 import {filter, map, startWith} from 'rxjs/operators';
 
 export type DetectedTheme = 'dark' | 'light';
-
 export type ThemeLoader = () => Observable<string | null>;
 export type ThemeSaver = (theme: string | null) => void;
 
@@ -46,7 +44,7 @@ export const THEME_SAVER: InjectionToken<ThemeSaver> = new InjectionToken<ThemeS
 export interface ThemeObject {
   oldValue: string;
   newValue: string;
-};
+}
 
 
 @Injectable({

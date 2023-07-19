@@ -1,13 +1,13 @@
-import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { faDownload, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Params } from '@angular/router';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { CrackerService } from '../../../../core/_services/config/cracker.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-crackers',
@@ -23,12 +23,12 @@ export class NewCrackersComponent implements OnInit {
 
   editMode = false;
   editedTypeIndex: number;
-  createForm: FormGroup
+  createForm: FormGroup;
 
   constructor(
-    private crackerService: CrackerService,
     private route:ActivatedRoute,
-    private router: Router,
+    private gs: GlobalService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -54,8 +54,7 @@ export class NewCrackersComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.crackerService.createCrackerBinary(this.editedTypeIndex, this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
+      this.gs.create(SERV.CRACKERS, this.createForm.value).subscribe((hasht: any) => {
         this.isLoading = false;
           Swal.fire({
             title: "Success",
@@ -70,5 +69,6 @@ export class NewCrackersComponent implements OnInit {
       );
     }
   }
+
 
 }

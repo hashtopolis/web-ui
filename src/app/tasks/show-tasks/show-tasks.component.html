@@ -1,9 +1,9 @@
 <div [ngSwitch]="whichView">
   <div *ngSwitchCase="'live'">
-    <app-page-title [title]="pTitle" [buttontitle]="buttontitle" [buttonlink]="buttonlink" [subbutton]="subbutton"></app-page-title>
+    <app-page-title [title]="'Tasks'" [buttontitle]="'New Task'" [buttonlink]="'/tasks/new-tasks'" [subbutton]="true"></app-page-title>
   </div>
   <div *ngSwitchCase="'archived'">
-    <app-page-title [title]="sTitle" [buttontitle]="buttontitle" [buttonlink]="buttonlink" [subbutton]="subbutton"></app-page-title>
+    <app-page-title [title]="'Archived Tasks'" [buttontitle]="'New Task'" [buttonlink]="'/tasks/new-tasks'" [subbutton]="true"></app-page-title>
   </div>
 </div>
 <!-- Body -->
@@ -11,7 +11,7 @@
         class="point fa-xl"
         style="color:rgba(82, 207, 44, 0.459)"
         ngbTooltip='Disable Auto-reload page. Edit interval time in Config/Settings/Task.'
-        *ngIf="storedAutorefresh.active == true"
+        *ngIf="storedAutorefresh.active === true"
         (click)="setAutoreload(true)"
         [icon]="faRefresh"
         aria-hidden="true"
@@ -20,14 +20,14 @@
         class="point fa-xl"
         style="color:rgba(231, 155, 41, 0.459)"
         ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
-        *ngIf="storedAutorefresh.active == false"
+        *ngIf="storedAutorefresh.active === false"
         (click)="setAutoreload(false)"
         [icon]="faPauseCircle"
         aria-hidden="true"
   ></fa-icon>
 <!-- Table -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table class="table table-striped table-hover table-sm" #tasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tasks">
     <thead class="thead-light">
       <tr>
         <th class="rounded-start">ID</th>
@@ -46,13 +46,13 @@
         <td [ngClass]="!task.color ? 'pill-ebidem' : 'pill-ebidem-tk'"  [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
         <td>
             <a [routerLink]="[task.taskId,'edit']">{{ task.taskName | lowercase | titlecase }}</a>
-            <span *ngIf="task.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="task.isSecret === 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
         <td>
           <a [routerLink]="['/hashlists/hashlist',task.hashlist.hashlistId,'edit']">{{ task.hashlist.name }}</a>
         </td>
-        <td *ngIf="task.keyspace>0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}}/ {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
-        <td *ngIf="task.keyspace==0"></td>
+        <td *ngIf="task.keyspace > 0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}}/ {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
+        <td *ngIf="task.keyspace === 0"></td>
         <td>
           <a [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ loadchunks | tdcracked:task.taskId }}</a>
         </td>

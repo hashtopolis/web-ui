@@ -4,11 +4,10 @@ import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 
-import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashlist.service';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-import { environment } from './../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment'
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-superhashlist',
@@ -22,10 +21,8 @@ export class NewSuperhashlistComponent implements OnInit {
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
-    private superHashlistService:SuperHashlistService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private hashlistService:ListsService,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
@@ -42,11 +39,11 @@ export class NewSuperhashlistComponent implements OnInit {
       hashlists: new FormControl(''),
     });
 
-    let params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
+    const params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
 
-    this.hashlistService.getAllhashlists(params).subscribe((tasks: any) => {
-      var self = this;
-      var response = tasks.values;
+    this.gs.getAll(SERV.HASHLISTS,params).subscribe((tasks: any) => {
+      const self = this;
+      const response = tasks.values;
       ($("#hashlists") as any).selectize({
         maxItems: null,
         plugins: ["restore_on_backspace"],
@@ -65,9 +62,9 @@ export class NewSuperhashlistComponent implements OnInit {
           },
         },
         onInitialize: function(){
-          var selectize = this;
+          const selectize = this;
             selectize.addOption(response); // This is will add to option
-            var selected_items = [];
+            const selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
@@ -81,19 +78,19 @@ export class NewSuperhashlistComponent implements OnInit {
   createSuperhashlistAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.createSuperhashlistAccess = perm.globalPermissionGroup.permissions.createSuperhashlistAccess;
     });
   }
 
   OnChangeValue(value){
-    let formArr = new FormArray([]);
-    for (let val of value) {
+    const formArr = new FormArray([]);
+    for (const val of value) {
       formArr.push(
         new FormControl(+val)
       );
     }
-    let cname = this.createForm.get('superhashlistName').value;
+    const cname = this.createForm.get('superhashlistName').value;
     this.createForm = new FormGroup({
       superhashlistName: new FormControl(cname),
       hashlists: formArr
@@ -107,7 +104,7 @@ export class NewSuperhashlistComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.superHashlistService.createSuperhashlist(this.createForm.value).subscribe((hasht: any) => {
+      this.gs.create(SERV.SUPER_HASHLISTS,this.createForm.value).subscribe((hasht: any) => {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({

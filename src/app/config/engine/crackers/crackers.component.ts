@@ -4,8 +4,9 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { CrackerService } from '../../../core/_services/config/cracker.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-crackers',
@@ -28,16 +29,17 @@ export class CrackersComponent implements OnInit, OnDestroy {
   }
 
   crackerType: any = [];
+
   constructor(
-    private crackerService: CrackerService
+    private gs: GlobalService,
     ) { }
 
   private maxResults = environment.config.prodApiMaxResults
 
   ngOnInit(): void {
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerVersions'}
+    const params = {'maxResults': this.maxResults, 'expand': 'crackerVersions'}
 
-    this.crackerService.getCrackerType(params).subscribe((type: any) => {
+    this.gs.getAll(SERV.CRACKERS_TYPES,params).subscribe((type: any) => {
       this.crackerType = type.values;
       this.dtTrigger.next(void 0);
     });
@@ -81,8 +83,8 @@ export class CrackersComponent implements OnInit, OnDestroy {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Crackers\n\n"+  dt;
                 }
                 return data;
@@ -107,7 +109,7 @@ export class CrackersComponent implements OnInit, OnDestroy {
     })
     .then((willDelete) => {
       if (willDelete) {
-        this.crackerService.deleteCrackerType(id).subscribe(() => {
+        this.gs.delete(SERV.CRACKERS_TYPES,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

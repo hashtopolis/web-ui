@@ -4,11 +4,9 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-import { FilesService } from '../../core/_services/files/files.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { AccessGroup } from '../../core/_models/access-group';
+import { SERV } from '../../core/_services/main.config';
 import { Filetype } from '../../core/_models/files';
 
 @Component({
@@ -33,10 +31,9 @@ export class FilesEditComponent implements OnInit {
   allfiles: any[]
   filetype: any[]
 
-  constructor(private filesService: FilesService,
-    private accessgroupService:AccessGroupsService,
+  constructor(
     private route:ActivatedRoute,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
     ) { }
 
@@ -81,13 +78,11 @@ export class FilesEditComponent implements OnInit {
 
       this.filetype = [{fileType: 0, fileName: 'Wordlist'},{fileType: 1, fileName: 'Rules'},{fileType: 2, fileName: 'Other'}];
 
-      const id = +this.route.snapshot.params['id'];
-
-      this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
+      this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((agroups: any) => {
         this.accessgroup = agroups.values;
       });
 
-      this.filesService.getFile(id).subscribe((files: any) => {
+      this.gs.get(SERV.FILES,this.editedFileIndex).subscribe((files: any) => {
         this.allfiles = files;
         this.isLoading = false;
       });
@@ -98,7 +93,7 @@ export class FilesEditComponent implements OnInit {
   manageFileAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(4,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS, this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.manageFileAccess = perm.globalPermissionGroup.permissions.manageFileAccess;
     });
   }
@@ -109,7 +104,7 @@ export class FilesEditComponent implements OnInit {
 
     this.isLoading = true;
 
-    this.filesService.updateFile(this.updateForm.value).subscribe((hl: any) => {
+    this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value).subscribe((hl: any) => {
       this.isLoading = false;
       Swal.fire({
         title: "Great!",
@@ -163,7 +158,7 @@ export class FilesEditComponent implements OnInit {
 private initForm() {
   this.isLoading = true;
   if (this.editMode) {
-  this.filesService.getFile(this.editedFileIndex).subscribe((result)=>{
+  this.gs.get(SERV.FILES,this.editedFileIndex).subscribe((result)=>{
     this.updateForm = new FormGroup({
       'fileId': new FormControl(result['fileId'], Validators.required),
       'updateData': new FormGroup({

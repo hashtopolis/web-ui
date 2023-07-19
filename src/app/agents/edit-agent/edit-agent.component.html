@@ -1,9 +1,9 @@
+<!-- Header -->
+<app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
 <!-- Spinner Loading -->
 <div *ngIf="isLoading" style="text-align: center;">
   <app-loading-spinner></app-loading-spinner>
 </div>
-<!-- Header -->
-<app-page-title [title]="pTitle" [subbutton]="subbutton"></app-page-title>
 <!-- Body -->
 <grid-main [class]="'width:100%'">
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
@@ -43,12 +43,11 @@
                 <fa-icon [icon]="faIdBadge" aria-hidden="true"></fa-icon>
               </span>
               <select
-                      type='number'
                       id="userId"
                       class='form-select'
                       formControlName="userId"
               >
-              <option *ngFor="let u of users" [ngValue]="u.userId">{{ u.username }}</option>
+              <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }}</option>
               </select>
             </div>
           </grid-form-input>
@@ -106,7 +105,7 @@
           </div>
           <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
             <input
-                  type='number'
+                  type='string'
                   id="accessgroups"
                   class='form-control'
             >
@@ -130,6 +129,7 @@
               <option value="IGNORE_SAVE">Keep agent running, but save errors</option>
               <option value="IGNORE_NOSAVE">Keep agent running and discard errors</option>
             </select>
+            {{ showagent['ignoreErrors'] }}
           </grid-form-input>
           <hr>
           <h4 class="display-col">Agent Detailed Information</h4>
@@ -145,17 +145,12 @@
               </div>
               <div class="col">
                 <grid-form-input [name]="'Access token'" [labelclass]="'display-col'">
-                  <div class="input-group">
-                    <span class="input-group-text">
+                  <span class="pre input-group-text input-group-lg w-70 mx-auto">
                       <fa-icon [icon]="faKey" aria-hidden="true"></fa-icon>
-                    </span>
-                    <input
-                          type='text'
-                          id="token"
-                          class='form-control'
-                          formControlName="token"
-                    >
-                  </div>
+                    <td>
+                      {{ showagent['token'] }}
+                    </td>
+                  </span>
                 </grid-form-input>
             </div>
           </div>
@@ -163,13 +158,13 @@
             <div class="col-md-2">
               <grid-form-input [name]="'O.S.'" [labelclass]="'display-col'">
                 <div class="input-group">
-                  <span *ngIf="showagent['os'] == 0" class="input-group-text input-group-lg w-15 mx-auto">
+                  <span *ngIf="showagent['os'] === 0" class="input-group-text input-group-lg w-15 mx-auto">
                     <fa-icon [icon]="faLinux" aria-hidden="true"></fa-icon>Linux
                   </span>
-                  <span *ngIf="showagent['os'] == 1" class="input-group-text input-group-lg w-15 mx-auto">
+                  <span *ngIf="showagent['os'] === 1" class="input-group-text input-group-lg w-15 mx-auto">
                     <fa-icon [icon]="faWindows" aria-hidden="true"></fa-icon>Windows
                   </span>
-                  <span *ngIf="showagent['os'] == 2" class="input-group-text input-group-lg w-15 mx-auto">
+                  <span *ngIf="showagent['os'] === 2" class="input-group-text input-group-lg w-15 mx-auto">
                     <fa-icon [icon]="faApple" aria-hidden="true"></fa-icon>IOS
                   </span>
                 </div>
@@ -188,8 +183,8 @@
           <grid-form-input [name]="'Time spent cracking'" [labelclass]="'display-col'">
             <span class="pre input-group-text input-group-lg">
               <td>
-                <div  *ngIf="timespent">
-                  {{ timespent | sectotime }}
+                <div *ngIf="timespent">
+                  {{ timespent | sectotime }} / {{timespent}}
                 </div>
               </td>
             </span>

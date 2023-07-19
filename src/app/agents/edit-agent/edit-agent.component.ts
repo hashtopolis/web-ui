@@ -1,7 +1,6 @@
 import { faAlignJustify, faIdBadge, faComputer, faKey, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import { faLinux, faWindows, faApple } from '@fortawesome/free-brands-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
@@ -9,11 +8,10 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { UsersService } from '../../core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-agent',
@@ -21,10 +19,6 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 })
 @PageTitle(['Edit Agent'])
 export class EditAgentComponent implements OnInit {
-
-  // Title Page
-  pTitle = "Agent Details";
-  subbutton = false;
 
   editMode = false;
   editedAgentIndex: number;
@@ -42,20 +36,18 @@ export class EditAgentComponent implements OnInit {
   faKey=faKey;
   faEye=faEye;
 
+  private maxResults = environment.config.prodApiMaxResults;
+
   constructor(
-    private agentsService: AgentsService,
-    private usersService: UsersService,
     private uiService: UIConfigService,
-    private chunkService: ChunkService,
-    private tasksService:TasksService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
   updateForm: FormGroup
   showagent: any = [];
   users: any = [];
-  private maxResults = environment.config.prodApiMaxResults;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -94,12 +86,13 @@ export class EditAgentComponent implements OnInit {
     this.isLoading = true;
 
     const id = +this.route.snapshot.params['id'];
-    this.agentsService.getAgent(id).subscribe((agent: any) => {
+    this.gs.get(SERV.AGENTS,id).subscribe((agent: any) => {
       this.showagent = agent;
       this.isLoading = false;
     });
 
-    this.usersService.getAllusers().subscribe((user: any) => {
+    const params = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.USERS, params).subscribe((user: any) => {
       this.users = user.values;
     });
 
@@ -109,7 +102,7 @@ export class EditAgentComponent implements OnInit {
   manageAgentAccess: any;
 
   setAccessPermissions(){
-    this.usersService.getUser(this.usersService.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
     });
   }
@@ -118,7 +111,7 @@ export class EditAgentComponent implements OnInit {
   getchunks: any;
 
   timeCalc(chunks){
-    var tspent = [];
+    const tspent = [];
     for(let i=0; i < chunks.length; i++){
       tspent.push(Math.max(chunks[i].solveTime, chunks[i].dispatchTime)-chunks[i].dispatchTime);
     }
@@ -126,12 +119,12 @@ export class EditAgentComponent implements OnInit {
   }
 
   assignChunksInit(id: number){
-    let params = {'maxResults': 999999};
-    this.chunkService.getChunks(params).subscribe((c: any)=>{
-      var getchunks = c.values.filter(u=> u.agentId == id);
-      this.tasksService.getAlltasks(params).subscribe((t: any)=>{
+    const params = {'maxResults': 999999};
+    this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
+      const getchunks = c.values.filter(u=> u.agentId == id);
+      this.gs.getAll(SERV.TASKS,params).subscribe((t: any)=>{
         this.getchunks = getchunks.map(mainObject => {
-          let matchObjectAgents = t.values.find(e => e.taskId === mainObject.taskId)
+          const matchObjectAgents = t.values.find(e => e.taskId === mainObject.taskId)
           return { ...mainObject, ...matchObjectAgents}
         })
       this.timeCalc(this.getchunks);
@@ -162,8 +155,7 @@ export class EditAgentComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.agentsService.updateAgent(this.editedAgentIndex,this.updateForm.value).subscribe((agent: any) => {
-        const response = agent;
+      this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
         this.isLoading = false;
           Swal.fire({
             title: "Success",
@@ -191,7 +183,7 @@ export class EditAgentComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-      this.agentsService.getAgent(this.editedAgentIndex).subscribe((result)=>{
+      this.gs.get(SERV.AGENTS,this.editedAgentIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
         'isActive': new FormControl(result['isActive'], [Validators.required]),
         'userId': new FormControl(result['userId']),

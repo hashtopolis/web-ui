@@ -1,15 +1,16 @@
+<app-page-title [title]="'New Agent'" [subbutton]="false"></app-page-title>
 <!-- Instructions -->
 <ngb-accordion #acc="ngbAccordion" >
   <ngb-panel>
     <ng-template ngbPanelTitle>
-      <span><b>How to add a new Agent?</b></span>
+      <span>Instructions</span>
     </ng-template>
     <ng-template ngbPanelContent>
       <ol class="list-group list-group-numbered">
         <li class="list-group-item">In clients, download the file and run it</li>
         <li class="list-group-item">Generate voucher to link with agent (Used vouchers are automatically deleted)</li>
         <li class="list-group-item">
-          Using the URL link the agent with the server:
+          Using the URL, link the agent with the app:
           <code>{{ agentURL }}</code>
           <fa-icon
                   class='btn-outline-gray-600 float-right'

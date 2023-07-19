@@ -13,7 +13,7 @@ export class HashtypeDetectorComponent  {
 
   onTest(val){
 
-    var res = findHashType(val);
+    let res = findHashType(val);
 
     if(res === false){
 

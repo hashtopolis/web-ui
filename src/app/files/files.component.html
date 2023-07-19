@@ -25,8 +25,8 @@
       <tbody>
       <tr *ngFor="let f of allfiles">
           <td>{{ f.fileId }}</td>
-          <td *ngIf="f.isSecret == 1">{{ f.filename }} <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></td>
-          <td *ngIf="f.isSecret == 0">{{ f.filename }}</td>
+          <td *ngIf="f.isSecret === true">{{ f.filename }} <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></td>
+          <td *ngIf="f.isSecret === false">{{ f.filename }}</td>
           <td>{{ f.size | fileSize:false }}</td>
           <td>{{ f.lineCount }}</td>
           <td>{{ f.accessGroup.groupName }}</td>

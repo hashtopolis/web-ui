@@ -21,8 +21,13 @@
   color: #1F2937;
 }
 
-.table-hover tbody tr:hover,.table-hover> tr:hover{
+.table.dataTable.table-hover>tbody>tr:hover>*{
   background-color: rgb(117, 117, 114);
+}
+
+.table>:not(caption)>*>* {
+  padding: 0.5rem 0.5rem;
+  color: white;
 }
 
 // Dashboard

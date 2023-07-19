@@ -1,12 +1,13 @@
 import { faEdit, faTrash,faFileImport, faFileExport, faPlus, faLock } from '@fortawesome/free-solid-svg-icons';
-import { environment } from './../../../environments/environment';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashlist.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-superhashlist',
@@ -14,12 +15,6 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 })
 @PageTitle(['Show SuperHashlist'])
 export class SuperhashlistComponent implements OnInit {
-
-  // Title Page
-  pTitle = "SuperHashList";
-  buttontitle = "New SuperHashList";
-  buttonlink = "/hashlists/new-superhashlist";
-  subbutton = true;
 
   faEdit=faEdit;
   faLock=faLock;
@@ -35,7 +30,7 @@ export class SuperhashlistComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-  private superHashlist: SuperHashlistService
+    private gs: GlobalService,
   ) { }
 
   allsuperhashlisth: any
@@ -43,9 +38,9 @@ export class SuperhashlistComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults, 'expand': 'pretaskFiles'}
+    const params = {'maxResults': this.maxResults, 'expand': 'pretaskFiles'}
 
-    this.superHashlist.getAllsuperhashlists(params).subscribe((sh: any) => {
+    this.gs.getAll(SERV.SUPER_HASHLISTS,params).subscribe((sh: any) => {
       this.allsuperhashlisth = sh.values;
       this.dtTrigger.next(void 0);
     });
@@ -90,8 +85,8 @@ export class SuperhashlistComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "SuperHashlist\n\n"+  dt;
                 }
                 return data;
@@ -137,7 +132,7 @@ export class SuperhashlistComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.superHashlist.deleteSuperhashlist(id).subscribe(() => {
+        this.gs.delete(SERV.SUPER_HASHLISTS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

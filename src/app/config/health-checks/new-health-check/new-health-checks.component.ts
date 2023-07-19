@@ -1,11 +1,11 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { HealthcheckService } from 'src/app/core/_services/config/healthcheck.service';
-import { CrackerService } from 'src/app/core/_services/config/cracker.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -19,8 +19,7 @@ export class NewHealthChecksComponent implements OnInit {
   createForm: FormGroup;
 
   constructor(
-    private healthcheckService: HealthcheckService,
-    private crackerService: CrackerService,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -29,7 +28,7 @@ export class NewHealthChecksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.crackerService.getCrackerType().subscribe((crackers: any) => {
+    this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers: any) => {
       this.crackertype = crackers.values;
     });
 
@@ -42,8 +41,8 @@ export class NewHealthChecksComponent implements OnInit {
   }
 
   onChangeBinary(id: string){
-    let params = {'filter': 'crackerBinaryTypeId='+id+''};
-    this.crackerService.getCrackerBinaries(params).subscribe((crackers: any) => {
+    const params = {'filter': 'crackerBinaryTypeId='+id+''};
+    this.gs.getAll(SERV.CRACKERS,params).subscribe((crackers: any) => {
       this.crackerversions = crackers.values;
     });
   }
@@ -53,8 +52,7 @@ export class NewHealthChecksComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.healthcheckService.createHealthCheck(this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
+      this.gs.create(SERV.HEALTH_CHECKS,this.createForm.value).subscribe((hasht: any) => {
         this.isLoading = false;
           Swal.fire({
             title: "Success",

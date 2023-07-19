@@ -7,14 +7,10 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { HashtypeService } from '../../core/_services/config/hashtype.service';
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-hashlist',
@@ -22,10 +18,6 @@ import { AccessGroupsService } from '../../core/_services/access/accessgroups.se
 })
 @PageTitle(['Edit Hashlist'])
 export class EditHashlistComponent implements OnInit {
-
-  // Title Page
-  pTitle = "Edit HashList";
-  subbutton = false;
 
   editMode = false;
   editedHashlistIndex: number;
@@ -43,14 +35,9 @@ export class EditHashlistComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private accessgroupService:AccessGroupsService,
-    private hashtypeService: HashtypeService,
-    private chunkService: ChunkService,
-    private listsService: ListsService,
-    private tasksService: TasksService,
     private format: StaticArrayPipe,
     private route: ActivatedRoute,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
@@ -88,11 +75,13 @@ export class EditHashlistComponent implements OnInit {
       }),
     });
 
-    this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
+    this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex).subscribe((result)=>{
       this.editedHashlist = result;
     });
 
-    this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
+    const params = {'maxResults': this.maxResults};
+
+    this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
     });
 
@@ -102,7 +91,7 @@ export class EditHashlistComponent implements OnInit {
   manageHashlistAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
     });
   }
@@ -113,7 +102,7 @@ export class EditHashlistComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.listsService.updateHashlist(this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
+      this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({
@@ -153,8 +142,7 @@ export class EditHashlistComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    let params = {'maxResults': this.maxResults};
-    this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
+    this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex).subscribe((result)=>{
         this.getTasks();
         this.getHashtype();
         this.editedHashlist = result;
@@ -180,11 +168,11 @@ export class EditHashlistComponent implements OnInit {
 
   hashT: any;
   getHashtype(){
-    let params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedHashlistIndex+''}
-    let paramsh = {'maxResults': this.maxResults};
-    var matchObject =[]
-    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
-      this.hashtypeService.getHashTypes(paramsh).subscribe((htypes: any) => {
+    const params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedHashlistIndex+''}
+    const paramsh = {'maxResults': this.maxResults};
+    const matchObject =[]
+    this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
+      this.gs.getAll(SERV.HASHTYPES,paramsh).subscribe((htypes: any) => {
         this.hashT = tasks.values.map(mainObject => {
           matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
         return { ...mainObject, ...matchObject }
@@ -194,11 +182,11 @@ export class EditHashlistComponent implements OnInit {
   }
 
   getTasks():void {
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
-    var taskh = []
-    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+    const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
+    const taskh = []
+    this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
       for(let i=0; i < tasks.values.length; i++){
-        let match = tasks.values[i].hashlist.hashlistId == this.editedHashlistIndex;
+        const match = tasks.values[i].hashlist.hashlistId == this.editedHashlistIndex;
         if(match === true){
           taskh.push(tasks.values[i])
         }
@@ -229,8 +217,8 @@ export class EditHashlistComponent implements OnInit {
   }
 
   loadChunks(){
-    let params = {'maxResults': 999999999};
-    this.chunkService.getChunks(params).subscribe((c: any)=>{
+    const params = {'maxResults': 999999999};
+    this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
       this.loadchunks = c;
     });
   }

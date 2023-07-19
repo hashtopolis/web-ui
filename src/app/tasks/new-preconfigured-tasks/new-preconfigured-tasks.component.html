@@ -1,7 +1,3 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- Header -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
   <div class="d-block mb-4 mb-md-0">
     <div [ngSwitch]="whichView">
@@ -18,6 +14,10 @@
       </div>
     </div>
   </div>
+</div>
+<!-- Spinner -->
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
 </div>
 <!-- New PreTask End-->
 <div class="row no-gutters">
@@ -183,7 +183,7 @@
                     </thead>
                     <tbody>
                     <tr *ngFor="let f of allfiles | search:'0':'fileType'">
-                        <td *ngIf="f.isSecret == false" class="width: 100px">
+                        <td *ngIf="f.isSecret === false" class="width: 100px">
                           <form [formGroup]="createForm" novalidate>
                             <div class="form-check" >
                               <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
@@ -202,7 +202,7 @@
                           >
                           </fa-icon>
                         </td>
-                        <td *ngIf="f.isSecret == true">{{ f.filename | shortenString:18 }}
+                        <td *ngIf="f.isSecret === true">{{ f.filename | shortenString:18 }}
                           <fa-icon
                                   placement="bottom"
                                   ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
@@ -230,7 +230,7 @@
                     </thead>
                     <tbody>
                     <tr *ngFor="let f of allfiles | search:'1':'fileType'">
-                        <td *ngIf="f.isSecret == false">
+                        <td *ngIf="f.isSecret === false">
                           <form [formGroup]="createForm" novalidate>
                             <div class="form-check" >
                               <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
@@ -249,7 +249,7 @@
                           >
                           </fa-icon>
                         </td>
-                        <td *ngIf="f.isSecret == true">{{ f.filename | shortenString:18 }}
+                        <td *ngIf="f.isSecret === true">{{ f.filename | shortenString:18 }}
                           <fa-icon
                                   placement="bottom"
                                   ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
@@ -277,7 +277,7 @@
                     </thead>
                     <tbody>
                     <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-                        <td *ngIf="f.isSecret == false">
+                        <td *ngIf="f.isSecret === false">
                           <form [formGroup]="createForm" novalidate>
                             <div class="form-check" >
                               <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" >
@@ -296,7 +296,7 @@
                           >
                           </fa-icon>
                         </td>
-                        <td *ngIf="f.isSecret == true">{{ f.filename | shortenString:18 }}
+                        <td *ngIf="f.isSecret === true">{{ f.filename | shortenString:18 }}
                           <fa-icon
                                   placement="bottom"
                                   ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'

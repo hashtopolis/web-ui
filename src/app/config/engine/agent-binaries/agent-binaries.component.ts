@@ -1,13 +1,13 @@
 import { faHomeAlt, faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { AgentBinService } from '../../../core/_services/config/agentbinary.service';
+import { environment } from './../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-agent-binaries',
@@ -30,15 +30,16 @@ export class AgentBinariesComponent implements OnInit {
 
   public binaries: {agentBinaryId: number, type: string, version: string, operatingSystems: string, filename: string, updateTrack: string, updateAvailable: string}[] = [];
 
+  private maxResults = environment.config.prodApiMaxResults;
+
   constructor(
-    private agentBinService: AgentBinService,
-    private route:ActivatedRoute,
-    private router:Router
+    private gs: GlobalService,
   ) { }
 
   ngOnInit(): void {
 
-    this.agentBinService.getAgentBins().subscribe((bin: any) => {
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.AGENT_BINARY,params).subscribe((bin: any) => {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
     });
@@ -99,7 +100,7 @@ export class AgentBinariesComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.agentBinService.deleteAgentBin(id).subscribe(() => {
+        this.gs.delete(SERV.AGENT_BINARY,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

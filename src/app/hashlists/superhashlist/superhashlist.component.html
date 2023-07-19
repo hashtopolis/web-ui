@@ -1,4 +1,4 @@
-<app-page-title [title]="pTitle" [buttontitle]="buttontitle" [buttonlink]="buttonlink" [subbutton]="subbutton"></app-page-title>
+<app-page-title [title]="'SuperHashList'" [buttontitle]="'New SuperHashList'" [buttonlink]="'/hashlists/new-superhashlist'" [subbutton]="true"></app-page-title>
 <!-- Body -->
 <app-table>
   <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
@@ -18,7 +18,7 @@
         <td>{{ sh.hashlistId }}</td>
         <td>
           <a>{{ sh.name }}</a>
-          <span *ngIf="sh.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+          <span *ngIf="sh.isSecret === 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
         <td>{{ sh.hashType.description }}</td>
         <td>

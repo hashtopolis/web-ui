@@ -1,4 +1,4 @@
-import { AuthGuard } from "../core/_guards/auth.guard";
+import { IsAuth } from "../core/_guards/auth.guard";
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from '@angular/router';
 
@@ -15,14 +15,14 @@ const routes: Routes = [
             kind: 'projects',
             breadcrumb: 'Projects'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [IsAuth]},
       {
         path: ':id/edit-project',  component: EditProjectComponent,
         data: {
             kind: 'edit-project',
             breadcrumb: 'Edit Project'
         },
-        canActivate: [AuthGuard]},
+        canActivate: [IsAuth]},
       ]
     }
   ]

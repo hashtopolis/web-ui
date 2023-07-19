@@ -7,10 +7,9 @@ import { interval, Subject, Subscription } from 'rxjs';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { CookieService } from 'src/app/core/_services/shared/cookies.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-import { TasksService } from '../../core/_services/tasks/tasks.sevice';
+import { GlobalService } from '../../core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 declare let $:any;
 
@@ -20,13 +19,6 @@ declare let $:any;
 })
 @PageTitle(['Show Tasks'])
 export class ShowTasksComponent implements OnInit {
-
-  // Title Page
-  pTitle = "Tasks";
-  sTitle = "Archived Tasks";
-  buttontitle = "New Task";
-  buttonlink = "/tasks/new-tasks";
-  subbutton = true;
 
   faPauseCircle=faPauseCircle;
   faFileImport=faFileImport;
@@ -64,10 +56,8 @@ export class ShowTasksComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults
 
   constructor(
-    private tasksService: TasksService,
-    private chunkService: ChunkService,
+    private gs: GlobalService,
     private route:ActivatedRoute,
-    private users: UsersService,
     private cs: CookieService,
     private router: Router
     ) { }
@@ -144,8 +134,8 @@ export class ShowTasksComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Show Tasks\n\n"+  dt;
                 }
                 return data;
@@ -160,7 +150,7 @@ export class ShowTasksComponent implements OnInit {
           extend: 'collection',
           text: 'Bulk Actions',
           drawCallback: function() {
-            var hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
+            const hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
             $('.buttons-excel')[0].style.visibility = hasRows ? 'visible' : 'hidden'
           },
           buttons: [
@@ -229,8 +219,8 @@ onAutorefresh(){
 
 // Manage Auto reload
 setAutoreload(value: any){
-  var set = Number(this.storedAutorefresh.value);
-  var val;
+  const set = Number(this.storedAutorefresh.value);
+  let val;
   if(value == false){
     val = true;
   }if(value == true){
@@ -248,15 +238,15 @@ getAutoreload(){
 manageTaskAccess: any;
 
 setAccessPermissions(){
-  this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+  this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
       this.manageTaskAccess = perm.globalPermissionGroup.permissions.manageTaskAccess;
   });
 }
 
 getTasks():void {
-  let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
+  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
 
-  this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+  this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
     this.alltasks = tasks.values;
     this.loadChunks();
     this.dtTrigger.next(null);
@@ -264,8 +254,8 @@ getTasks():void {
 }
 
 loadChunks(){
-  let params = {'maxResults': 999999999};
-  this.chunkService.getChunks(params).subscribe((c: any)=>{
+  const params = {'maxResults': 999999999};
+  this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
     this.loadchunks = c;
   });
 }
@@ -283,7 +273,7 @@ rerender(): void {
 
 onArchive(id: number){
   if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
-  this.tasksService.archiveTask(id).subscribe((tasks: any) => {
+  this.gs.archive(SERV.TASKS,id).subscribe((tasks: any) => {
     Swal.fire({
       title: "Success",
       text: "Archived!",
@@ -326,7 +316,7 @@ onDelete(id: number){
     })
   .then((result) => {
     if (result.isConfirmed) {
-      this.tasksService.deleteTask(id).subscribe(() => {
+      this.gs.delete(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
           title: "Success",
           icon: "success",
@@ -361,7 +351,7 @@ onDelete(id: number){
 
 onSelectedTasks(){
   $(".dt-button-background").trigger("click");
-  let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
       title: "You haven't selected any Task",
@@ -371,7 +361,7 @@ onSelectedTasks(){
     })
     return;
   }
-  let selectionnum = selection.map(i=>Number(i));
+  const selectionnum = selection.map(i=>Number(i));
 
   return selectionnum;
 }
@@ -379,13 +369,13 @@ onSelectedTasks(){
 onDeleteBulk(){
   if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
   const self = this;
-  let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-  let sellen = selectionnum.length;
-  let errors = [];
+  const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const sellen = selectionnum.length;
+  const errors = [];
   selectionnum.forEach(function (value) {
     Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
     Swal.showLoading()
-  self.tasksService.deleteTask(value)
+  self.gs.delete(SERV.TASKS,value)
   .subscribe(
     err => {
       console.log('HTTP Error', err)
@@ -409,12 +399,12 @@ onDeleteBulk(){
 onUpdateBulk(value: any){
   if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
     const self = this;
-    let selectionnum = this.onSelectedTasks();
-    let sellen = selectionnum.length;
+    const selectionnum = this.onSelectedTasks();
+    const sellen = selectionnum.length;
     selectionnum.forEach(function (id) {
       Swal.fire('Updating...'+sellen+' Task(s)...Please wait')
       Swal.showLoading()
-    self.tasksService.updateTask(id, value).subscribe(
+    self.gs.update(SERV.TASKS, id, value).subscribe(
     );
   });
   self.onDone(sellen);
@@ -447,7 +437,7 @@ onModalProject(title: string){
   (async () => {
 
     $(".dt-button-background").trigger("click");
-    let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
         title: "You haven't selected any Task",
@@ -472,7 +462,7 @@ onModalProject(title: string){
     })
 
     if (formValues) {
-      let edit = {projectName: +formValues};
+      const edit = {projectName: +formValues};
       this.onUpdateBulk(edit);
     }
 

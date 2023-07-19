@@ -1,5 +1,4 @@
 import { faHomeAlt, faPlus, faTrash, faEdit, faFilePdf} from '@fortawesome/free-solid-svg-icons';
-import { ProjectService } from '../core/_services/projects/projects.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
@@ -8,9 +7,11 @@ import { InputFiles, Report } from './report';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { Subject } from 'rxjs';
 
-import { ReportService } from '../core/_services/config/report.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../core/_services/main.config';
+
 // import { ReportConfig } from '../shared/defines/logobase64';
-import { PageTitle } from '../core/_decorators/autotitle';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 @Component({
@@ -35,13 +36,12 @@ export class ProjectsComponent implements OnInit {
   public project: any[] = [];
 
   constructor(
-    private projectService:ProjectService,
-    private reportService: ReportService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private gs: GlobalService,
   ) { }
 
   ngOnInit(): void {
-    this.projectService.projects().subscribe((proj: any) => {
+    this.gs.getAll(SERV.PROJECTS).subscribe((proj: any) => {
       this.projects = proj.values;
       this.dtTrigger.next(void 0);
     });
@@ -87,8 +87,8 @@ export class ProjectsComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Show Projects\n\n"+  dt;
                 }
                 return data;
@@ -103,7 +103,7 @@ export class ProjectsComponent implements OnInit {
           extend: 'collection',
           text: 'Bulk Actions',
           drawCallback: function() {
-            var hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
+            const hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
             $('.buttons-excel')[0].style.visibility = hasRows ? 'visible' : 'hidden'
           },
           buttons: [
@@ -147,17 +147,13 @@ export class ProjectsComponent implements OnInit {
   public confreport: any[] = [];
 
   async renderPDF(id: number){
-    this.projectService.getProject(id).subscribe((proj: any) => {
+    this.gs.get(SERV.PROJECTS,id).subscribe((proj: any) => {
       this.project = proj.values;
     });
 
-    // this.reportService.getConfReport().subscribe((conf: any) => {
-    //   this.confreport = conf;
-    // });
+    const isHeaderAlt = 0; // Vairaible for log; O use alternative logo, 1 use hashtopolis logo
 
-    var isHeaderAlt:number = 0; // Vairaible for log; O use alternative logo, 1 use hashtopolis logo
-
-    var project = {
+    const project = {
       info: {
         title: 'Hashtopolis Report',
         author: 'xbenyx',
@@ -603,18 +599,18 @@ export class ProjectsComponent implements OnInit {
   //  Function creates converts the image in base64, so can be used in the report
   getBase64ImageFromURL(url: string) {
     return new Promise((resolve, reject) => {
-      var img = new Image();
+      const img = new Image();
       img.setAttribute("crossOrigin", "anonymous");
 
       img.onload = () => {
-        var canvas = document.createElement("canvas");
+        const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
 
-        var ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
 
-        var dataURL = canvas.toDataURL("image/png");
+        const dataURL = canvas.toDataURL("image/png");
 
         resolve(dataURL);
       };

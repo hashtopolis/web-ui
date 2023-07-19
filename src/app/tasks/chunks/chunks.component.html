@@ -1,9 +1,9 @@
 <div [ngSwitch]="chunkview">
   <div *ngSwitchCase="2">
-    <app-page-title [title]="pTitle" [buttontitle]="sbuttontitle" [buttonlink]="sbuttonlink" [subbutton]="subbutton"></app-page-title>
+    <app-page-title [title]="'Chunks'" [buttontitle]="'View all chunks'" [buttonlink]="'/tasks/chunks'" [subbutton]="true"></app-page-title>
   </div>
   <div *ngSwitchCase="0">
-    <app-page-title [title]="pTitle" [buttontitle]="buttontitle" [buttonlink]="buttonlink" [subbutton]="subbutton"></app-page-title>
+    <app-page-title [title]="'Chunks'" [buttontitle]="'View less'" [buttonlink]="'/tasks/chunks/show-all-chunks'" [subbutton]="true"></app-page-title>
   </div>
 </div>
 <!-- Body -->

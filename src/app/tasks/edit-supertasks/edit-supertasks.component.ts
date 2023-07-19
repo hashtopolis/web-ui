@@ -1,20 +1,19 @@
 import { faAlignJustify, faInfoCircle, faMagnifyingGlass, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
-import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
-declare var options: any;
-declare var defaultOptions: any;
-declare var parser: any;
+declare let options: any;
+declare let defaultOptions: any;
+declare let parser: any;
 
 @Component({
   selector: 'app-edit-supertasks',
@@ -35,10 +34,8 @@ export class EditSupertasksComponent implements OnInit {
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
-    private supertaskService: SuperTasksService,
-    private pretasksService: PreTasksService,
     private route:ActivatedRoute,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router,
   ) { }
 
@@ -93,7 +90,7 @@ export class EditSupertasksComponent implements OnInit {
   manageSupertaskAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.manageSupertaskAccess = perm.globalPermissionGroup.permissions.manageSupertaskAccess;
     });
   }
@@ -104,7 +101,7 @@ export class EditSupertasksComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.supertaskService.updateSupertask(this.editedSTIndex,this.updateForm.value).subscribe((st: any) => {
+      this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,this.updateForm.value).subscribe((st: any) => {
         const response = st;
         this.isLoading = false;
           Swal.fire({
@@ -132,9 +129,10 @@ export class EditSupertasksComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    this.pretasksService.getAllPretasks().subscribe((htypes: any) => {
-      var self = this;
-      var response = htypes.values;
+    const params = { 'maxResults': this.maxResults};
+    this.gs.getAll(SERV.PRETASKS,params).subscribe((htypes: any) => {
+      const self = this;
+      const response = htypes.values;
       ($("#pretasks") as any).selectize({
         plugins: ['remove_button'],
         valueField: "pretaskId",
@@ -152,9 +150,9 @@ export class EditSupertasksComponent implements OnInit {
           },
         },
         onInitialize: function(){
-          var selectize = this;
+          const selectize = this;
             selectize.addOption(response); // This is will add to option
-            var selected_items = [];
+            const selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
@@ -166,8 +164,8 @@ export class EditSupertasksComponent implements OnInit {
     }
 
   OnChangeValue(value){
-    let formArr = new FormArray([]);
-    for (let val of value) {
+    const formArr = new FormArray([]);
+    for (const val of value) {
       formArr.push(
         new FormControl(+val)
       );
@@ -198,7 +196,7 @@ export class EditSupertasksComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.supertaskService.deleteSupertask(id).subscribe(() => {
+        this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",
@@ -222,7 +220,7 @@ export class EditSupertasksComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    this.supertaskService.getSupertask(this.editedSTIndex).subscribe((result)=>{
+    this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex).subscribe((result)=>{
       this.viewForm = new FormGroup({
         supertaskId: new FormControl(result['supertaskId']),
         supertaskName: new FormControl(result['supertaskName']),
@@ -235,11 +233,11 @@ export class EditSupertasksComponent implements OnInit {
 
   async fetchPreTaskData() {
 
-    let params = {'maxResults': this.maxResults, 'expand': 'pretasks', 'filter': 'supertaskId='+this.editedSTIndex+''};
-    let paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
-    var matchObjectFiles =[]
-    this.supertaskService.getAllsupertasks(params).subscribe((result)=>{
-    this.pretasksService.getAllPretasks(paramspt).subscribe((pretasks: any) => {
+    const params = {'maxResults': this.maxResults, 'expand': 'pretasks', 'filter': 'supertaskId='+this.editedSTIndex+''};
+    const paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
+    const matchObjectFiles =[]
+    this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((result)=>{
+    this.gs.getAll(SERV.PRETASKS,paramspt).subscribe((pretasks: any) => {
       this.pretasks = result.values.map(mainObject => {
           for(let i=0; i < Object.keys(result.values[0].pretasks).length; i++){
             matchObjectFiles.push(pretasks.values.find((element:any) => element?.pretaskId === mainObject.pretasks[i]?.pretaskId))
@@ -274,15 +272,15 @@ export class EditSupertasksComponent implements OnInit {
   keyspaceTimeCalc(){
     if(this.etForm.value.benchmarka0 !==0 && this.etForm.value.benchmarka3 !== 0){
 
-      var totalSecondsSupertask = 0;
-      var unknown_runtime_included = 0;
-      var benchmarka0 = this.etForm.value.benchmarka0;
-      var benchmarka3 = this.etForm.value.benchmarka3;
+      let totalSecondsSupertask = 0;
+      let unknown_runtime_included = 0;
+      const benchmarka0 = this.etForm.value.benchmarka0;
+      const benchmarka3 = this.etForm.value.benchmarka3;
 
       $(".taskInSuper").each(function (index) {
-          var keyspace_size = $(this).find("td:nth-child(4)").text();
-          var seconds = null;
-          var runtime = null;
+          const keyspace_size = $(this).find("td:nth-child(4)").text();
+          let seconds = null;
+          let runtime = null;
 
           options = defaultOptions;
           options.ruleFiles = [];
@@ -300,11 +298,11 @@ export class EditSupertasksComponent implements OnInit {
 
           if (Number.isInteger(seconds)) {
               totalSecondsSupertask = totalSecondsSupertask + seconds;
-              var days = Math.floor(seconds / (3600 * 24));
+              const days = Math.floor(seconds / (3600 * 24));
               seconds -= days * 3600 * 24;
-              var hrs = Math.floor(seconds / 3600);
+              const hrs = Math.floor(seconds / 3600);
               seconds -= hrs * 3600;
-              var mins = Math.floor(seconds / 60);
+              const mins = Math.floor(seconds / 60);
               seconds -= mins * 60;
 
               runtime = days + "d, " + hrs + "h, " + mins + "m, " + seconds + "s";
@@ -317,12 +315,12 @@ export class EditSupertasksComponent implements OnInit {
       });
 
       // reduce total runtime to a human format
-      var seconds = totalSecondsSupertask;
-      var days = Math.floor(seconds / (3600 * 24));
+      let seconds = totalSecondsSupertask;
+      const days = Math.floor(seconds / (3600 * 24));
       seconds -= days * 3600 * 24;
-      var hrs = Math.floor(seconds / 3600);
+      const hrs = Math.floor(seconds / 3600);
       seconds -= hrs * 3600;
-      var mins = Math.floor(seconds / 60);
+      const mins = Math.floor(seconds / 60);
       seconds -= mins * 60;
 
       let totalRuntimeSupertask = days + "d, " + hrs + "h, " + mins + "m, " + seconds + "s";

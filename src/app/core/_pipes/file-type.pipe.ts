@@ -23,7 +23,7 @@ import {
 export class FileTypePipe implements PipeTransform {
 
     transform(value: any, edit?: boolean) {
-      var res = "";
+      let res = "";
         switch(value) {
 
             case 0:

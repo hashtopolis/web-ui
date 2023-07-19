@@ -4,16 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { HttpClient } from '@angular/common/http';
-import { FormGroup } from '@angular/forms';
 import { Subject } from 'rxjs';
 
-import { AccessGroupsService } from '../core/_services/access/accessgroups.service';
 import { UploadTUSService } from '../core/_services/files/files_tus.service';
-import { FilesService } from '../core/_services/files/files.service';
-import { UsersService } from '../core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../environments/environment';
-import { AccessGroup } from '../core/_models/access-group';
 import { PageTitle } from '../core/_decorators/autotitle';
+import { SERV } from '../core/_services/main.config';
 import { Filetype } from '../core/_models/files';
 
 declare let $:any;
@@ -49,7 +46,7 @@ export class FilesComponent implements OnInit {
     fileId: number,
     filename: string,
     size: number,
-    isSecret: number,
+    isSecret: boolean,
     fileType: number,
     accessGroupId: number,
     lineCount:number
@@ -62,13 +59,8 @@ export class FilesComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private accessgroupService:AccessGroupsService,
-    private uploadService:UploadTUSService,
-    private filesService:FilesService,
     private route:ActivatedRoute,
-    private users:UsersService,
-    private http:HttpClient,
-    private router:Router
+    private gs: GlobalService,
     ) { }
 
   @ViewChild(DataTableDirective)
@@ -97,7 +89,7 @@ export class FilesComponent implements OnInit {
   addFileAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.viewFileAccess = perm.globalPermissionGroup.permissions.viewFileAccess;
         this.manageFileAccess = perm.globalPermissionGroup.permissions.manageFileAccess;
         this.addFileAccess = perm.globalPermissionGroup.permissions.addFileAccess;
@@ -124,10 +116,11 @@ export class FilesComponent implements OnInit {
         break;
 
       }
-      let params = {'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType='+this.filterType+''}
+      const params = {'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType='+this.filterType+''}
 
-      this.filesService.getFiles(params).subscribe((files: any) => {
+      this.gs.getAll(SERV.FILES,params).subscribe((files: any) => {
         this.allfiles = files.values;
+        console.log(this.allfiles)
         this.dtTrigger.next(void 0);
       });
 
@@ -176,8 +169,8 @@ export class FilesComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Agents\n\n"+  dt;
                   }
                   return data;
@@ -258,7 +251,7 @@ export class FilesComponent implements OnInit {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.filesService.deleteFile(id).subscribe(() => {
+          this.gs.delete(SERV.FILES,id).subscribe(() => {
             Swal.fire({
               title: "Success",
               icon: "success",
@@ -293,7 +286,7 @@ export class FilesComponent implements OnInit {
 
   onSelectedFiles(){
     $(".dt-button-background").trigger("click");
-    let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
         title: "You haven't selected any File",
@@ -303,7 +296,7 @@ export class FilesComponent implements OnInit {
       })
       return;
     }
-    let selectionnum = selection.map(i=>Number(i));
+    const selectionnum = selection.map(i=>Number(i));
 
     return selectionnum;
   }
@@ -311,13 +304,13 @@ export class FilesComponent implements OnInit {
   onDeleteBulk(){
     if(this.manageFileAccess || typeof this.manageFileAccess == 'undefined'){
     const self = this;
-    let selectionnum = this.onSelectedFiles();
-    let sellen = selectionnum.length;
-    let errors = [];
+    const selectionnum = this.onSelectedFiles();
+    const sellen = selectionnum.length;
+    const errors = [];
     selectionnum.forEach(function (value) {
       Swal.fire('Deleting...'+sellen+' File(s)...Please wait')
       Swal.showLoading()
-    self.filesService.deleteFile(value)
+    self.gs.delete(SERV.FILES,value)
     .subscribe(
       err => {
         console.log('HTTP Error', err)
@@ -341,13 +334,13 @@ export class FilesComponent implements OnInit {
   onUpdateBulk(value: any){
     if(this.manageFileAccess || typeof this.manageFileAccess == 'undefined'){
       const self = this;
-      let selectionnum = this.onSelectedFiles();
-      let sellen = selectionnum.length;
+      const selectionnum = this.onSelectedFiles();
+      const sellen = selectionnum.length;
       // let edit = {fileType: value};
       selectionnum.forEach(function (id) {
         Swal.fire('Updating...'+sellen+' File(s)...Please wait')
         Swal.showLoading()
-      self.filesService.updateBulkFile(id, value).subscribe(
+      self.gs.update(SERV.FILES, id, value).subscribe(
       );
     });
     self.onDone(sellen);
@@ -380,7 +373,7 @@ export class FilesComponent implements OnInit {
     (async () => {
 
       $(".dt-button-background").trigger("click");
-      let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+      const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
       if(selection.length == 0) {
         Swal.fire({
           title: "You haven't selected any File",
@@ -405,7 +398,7 @@ export class FilesComponent implements OnInit {
       })
 
       if (formValues) {
-        let edit = {fileType: +formValues};
+        const edit = {fileType: +formValues};
         this.onUpdateBulk(edit);
       }
 

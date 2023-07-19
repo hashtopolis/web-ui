@@ -7,9 +7,9 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import {Subject} from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 declare let $:any;
 
@@ -19,12 +19,6 @@ declare let $:any;
 })
 @PageTitle(['Show Agents'])
 export class ShowAgentsComponent implements OnInit, OnDestroy {
-
-  // Title Page
-  pTitle = "Show Agents";
-  buttontitle = "New Agent";
-  buttonlink = "/agents/new-agent";
-  subbutton = true;
 
   faArrowCircleDown=faArrowCircleDown;
   faCheckCircle=faCheckCircle;
@@ -42,7 +36,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
   uidateformat:any;
-  isChecked:boolean =false;
+  isChecked =false;
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
@@ -54,18 +48,17 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   private maxResults = environment.config.prodApiMaxResults
 
   constructor(
-    private agentsService: AgentsService,
     private uiService: UIConfigService,
-    private users: UsersService
+    private gs: GlobalService,
   ) { }
 
   ngOnInit(): void {
 
     this.setAccessPermissions();
 
-    let params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults}
 
-    this.agentsService.getAgents(params).subscribe((agents: any) => {
+    this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
       this.showagents = agents.values;
       // this.showagents.forEach(f => (f.checked = false));
       this.dtTrigger.next(void 0);
@@ -81,12 +74,12 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       select: {
         style: 'multi',
         },
-      columnDefs: [ {
-        width: "10% !important;",
-        targets: 0,
-        searchable: false,
-        orderable: false,
-      } ],
+      // columnDefs: [ {
+      //   width: "10% !important;",
+      //   targets: 0,
+      //   searchable: false,
+      //   orderable: false,
+      // } ],
       buttons: {
         dom: {
           button: {
@@ -101,13 +94,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
             {
               extend: 'excelHtml5',
               exportOptions: {
-                columns: [1, 2, 3, 4, 5]
+                columns: [1, 2, 3, 4, 5, 6, 7, 8]
               },
             },
             {
               extend: 'print',
               exportOptions: {
-                columns: [1, 2, 3, 4, 5]
+                columns: [1, 2, 3, 4, 5, 6, 7, 8]
               },
               customize: function ( win ) {
                 $(win.document.body)
@@ -123,8 +116,8 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
               select: true,
               customize: function (dt, csv) {
                 self.onSelectedAgents();
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Agents\n\n"+  dt;
                 }
                 return data;
@@ -176,7 +169,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
           {
             extend: 'colvis',
             text: 'Column View',
-            columns: [ 1,2,3,4,5 ],
+            columns: [ 1, 2, 3, 4, 5, 6, 7, 8 ],
           },
           {
             extend: "pageLength",
@@ -191,13 +184,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   manageAgentAccess: any;
 
   setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
+    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
         this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
     });
   }
 
   setCheckAll(){
-    let chkBoxlength = $(".checkboxCls:checked").length;
+    const chkBoxlength = $(".checkboxCls:checked").length;
     if (this.isChecked == true) {
       $(".checkboxCls").prop("checked", false);
       this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
@@ -240,7 +233,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
 
   onSelectedAgents(){
     $(".dt-button-background").trigger("click");
-    let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
         title: "You haven't selected any Agent",
@@ -250,7 +243,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       })
       return;
     }
-    let selectionnum = selection.map(i=>Number(i));
+    const selectionnum = selection.map(i=>Number(i));
 
     return selectionnum;
   }
@@ -258,13 +251,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   onDeleteBulk(){
     if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
       const self = this;
-      let selectionnum = this.onSelectedAgents();
-      let sellen = selectionnum.length;
-      let errors = [];
+      const selectionnum = this.onSelectedAgents();
+      const sellen = selectionnum.length;
+      const errors = [];
       selectionnum.forEach(function (value) {
         Swal.fire('Deleting...'+sellen+' Agent(s)...Please wait')
         Swal.showLoading()
-      self.agentsService.deleteAgent(value)
+      self.gs.delete(SERV.AGENTS,value)
       .subscribe(
         err => {
           console.log('HTTP Error', err)
@@ -288,13 +281,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   onUpdateBulk(value: any){
     if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
         const self = this;
-        let selectionnum = this.onSelectedAgents();
-        let sellen = selectionnum.length;
-        let errors = [];
+        const selectionnum = this.onSelectedAgents();
+        const sellen = selectionnum.length;
+        const errors = [];
         selectionnum.forEach(function (id) {
           Swal.fire('Updating...'+sellen+' Agents...Please wait')
           Swal.showLoading()
-        self.agentsService.updateAgent(id, value).subscribe(
+        self.gs.update(SERV.AGENTS,id, value).subscribe(
           err => {
             console.log('HTTP Error', err)
             err = 1;
@@ -318,7 +311,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     (async () => {
 
       $(".dt-button-background").trigger("click");
-      let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+      const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
       if(selection.length == 0) {
         Swal.fire({
           title: "You haven't selected any Agent",
@@ -342,7 +335,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         }
       })
 
-      let rack = []
+      const rack = []
       if (formValues) {
         rack.push({rack: formValues})
         // we need to send pus
@@ -375,7 +368,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.agentsService.deleteAgent(id).subscribe(() => {
+          this.gs.delete(SERV.AGENTS,id).subscribe(() => {
             Swal.fire({
               title: "Success",
               icon: "success",

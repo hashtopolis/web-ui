@@ -3,8 +3,9 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-globalpermissionsgroups',
@@ -19,7 +20,7 @@ export class NewGlobalpermissionsgroupsComponent implements OnInit {
   public isCollapsed = true;
 
   constructor(
-    private gpg: AccessPermissionGroupsService,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -36,7 +37,7 @@ export class NewGlobalpermissionsgroupsComponent implements OnInit {
 
     this.isLoading = true;
 
-    this.gpg.createAccP(this.createForm.value).subscribe((agroup: any) => {
+    this.gs.create(SERV.ACCESS_PERMISSIONS_GROUPS,this.createForm.value).subscribe((agroup: any) => {
       this.isLoading = false;
       Swal.fire({
         title: "Success",

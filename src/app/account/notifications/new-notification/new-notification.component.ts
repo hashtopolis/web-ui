@@ -1,11 +1,12 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { Component, OnInit } from '@angular/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { NotifService } from '../../../core/_services/users/notifications.service';
-import { AgentsService } from 'src/app/core/_services/agents/agents.service';
 import { environment } from './../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
+
 
 @Component({
   selector: 'app-new-notification',
@@ -17,8 +18,7 @@ export class NewNotificationComponent implements OnInit {
   isLoading = false;
 
   constructor(
-    private agentsService: AgentsService,
-    private notifService: NotifService
+    private gs: GlobalService,
   ) { }
 
   createForm: FormGroup;
@@ -50,7 +50,7 @@ export class NewNotificationComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults};
+    const params = {'maxResults': this.maxResults};
 
     this.createForm = new FormGroup({
       'action': new FormControl('', [Validators.required]),
@@ -60,7 +60,7 @@ export class NewNotificationComponent implements OnInit {
       'isActive': new FormControl(true),
     });
 
-    this.agentsService.getAgents(params).subscribe((agents: any) => {
+    this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
       this.showagents = agents.values;
     });
 
@@ -71,7 +71,7 @@ export class NewNotificationComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.notifService.createNotif(this.createForm.value).subscribe((hasht: any) => {
+      this.gs.create(SERV.NOTIFICATIONS,this.createForm.value).subscribe((hasht: any) => {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({

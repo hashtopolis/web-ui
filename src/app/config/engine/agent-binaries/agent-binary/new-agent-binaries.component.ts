@@ -1,13 +1,13 @@
 import { faHomeAlt, faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ActivatedRoute, Params } from '@angular/router';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
 
-import { AgentBinService } from '../../../../core/_services/config/agentbinary.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../../core/_services/main.config';
 
 @Component({
   selector: 'app-agent-binaries',
@@ -31,8 +31,8 @@ export class NewAgentBinariesComponent implements OnInit {
   public binaries: {agentBinaryId: number, type: string, version: string, operatingSystems: string, filename: string, updateTrack: string, updateAvailable: string}[] = [];
 
   constructor(
-    private agentBinService: AgentBinService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -41,6 +41,7 @@ export class NewAgentBinariesComponent implements OnInit {
 
   updateForm = new FormGroup({
     'type': new FormControl(''),
+    'filename': new FormControl(''),
     'operatingSystems': new FormControl(''),
     'version': new FormControl(''),
     'updateTrack': new FormControl(''),
@@ -69,7 +70,7 @@ export class NewAgentBinariesComponent implements OnInit {
           this.initForm();
 
           const id = +this.route.snapshot.params['id'];
-          this.agentBinService.getAgentBin(id).subscribe((bin: any) => {
+          this.gs.get(SERV.AGENT_BINARY,id).subscribe((bin: any) => {
             this.binaries = bin.values;
             this.isLoading = false;
           });
@@ -87,7 +88,7 @@ export class NewAgentBinariesComponent implements OnInit {
       switch (this.whichView) {
 
         case 'create':
-          this.agentBinService.createAgentBin(this.updateForm.value)
+          this.gs.create(SERV.AGENT_BINARY,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
             this.isLoading = false;
@@ -105,7 +106,7 @@ export class NewAgentBinariesComponent implements OnInit {
 
         case 'edit':
           const id = +this.route.snapshot.params['id'];
-          this.agentBinService.updateAgentBin(id,this.updateForm.value)
+          this.gs.update(SERV.AGENT_BINARY,id,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
             this.isLoading = false;
@@ -129,9 +130,10 @@ export class NewAgentBinariesComponent implements OnInit {
   private initForm() {
     this.isLoading = true;
     if (this.editMode) {
-    this.agentBinService.getAgentBin(this.editedABIndex).subscribe((result)=>{
+    this.gs.get(SERV.AGENT_BINARY,this.editedABIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
         'type': new FormControl(result['type']),
+        'filename': new FormControl(result['filename']),
         'operatingSystems': new FormControl(result['operatingSystems']),
         'version': new FormControl(result['version']),
         'updateTrack': new FormControl(result['updateTrack']),

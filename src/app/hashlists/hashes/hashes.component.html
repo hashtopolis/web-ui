@@ -46,7 +46,7 @@
             <option *ngFor="let d of displays" [value]="d.name">{{ d.description }}</option>
       </select>
     </div>
-    <div *ngIf="whichView != 'tasks'" class="col-md-4">
+    <div *ngIf="whichView !== 'tasks'" class="col-md-4">
       <select
             type='string'
             class="form-select"
@@ -57,7 +57,7 @@
             <option *ngFor="let f of filters" [value]="f.name">{{ f.description }}</option>
       </select>
     </div>
-    <div *ngIf="whichView != 'tasks'" class="col-md-2">
+    <div *ngIf="whichView !== 'tasks'" class="col-md-2">
       <button class="btn btn-gray-800" (click)="onOK()">Ok</button>
     </div>
   </div>

@@ -405,19 +405,11 @@
       </div>
   </div>
 </div>
-
-
 <!-- Agent Activity -->
-<br>
-  <div class="d-block mb-4 mb-md-0">
-    <h2 class="h4">
-      Agents activity
-    </h2>
-  </div>
-<br>
+<app-page-subtitle [subtitle]="'Agents activity'"></app-page-subtitle>
 <!-- Agent Activity Table -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agentstatus">
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>

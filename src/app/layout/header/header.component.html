@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md layout-col rounded background-color: #f8f8f8">
   <a class="navbar-brand" routerLink="/" *ngIf="!isMobile">
     <img
-      *ngIf="currentTheme() != 'dark'"
+      *ngIf="currentTheme() !== 'dark'"
       [src]="this.headerConfig.brand.logo"
       [alt]="this.headerConfig.brand.name"
       [width]="this.headerConfig.brand.width"
@@ -10,7 +10,7 @@
       alt
     />
     <img
-      *ngIf="currentTheme() == 'dark'"
+      *ngIf="currentTheme() === 'dark'"
       [src]="this.headerConfig.brand.logored"
       [alt]="this.headerConfig.brand.name"
       [width]="this.headerConfig.brand.widthred"

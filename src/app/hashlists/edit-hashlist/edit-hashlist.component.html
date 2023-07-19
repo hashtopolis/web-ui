@@ -1,8 +1,8 @@
-<!-- <div *ngIf="isLoading" style="text-align: center;">
+<app-page-title [title]="'Edit HashList'" [subbutton]="false"></app-page-title>
+<!-- Spinner -->
+<div *ngIf="isLoading" style="text-align: center;">
   <app-loading-spinner></app-loading-spinner>
-</div> -->
-<!-- header -->
-<app-page-title [title]="pTitle" [subbutton]="subbutton"></app-page-title>
+</div>
 <!-- Edit Hashlist -->
 <div class="row g-3">
   <div class="col-md-7">
@@ -34,7 +34,7 @@
               </textarea>
           </grid-form-input>
           <div class="row g-3">
-            <div class="col-md-2">
+            <div class="col-md-3">
               <grid-form-input [name]="'Secret'" [tooltip]="'Contains secret data'">
                 <select
                         id='isSecret'
@@ -46,7 +46,7 @@
                   </select>
               </grid-form-input>
             </div>
-            <div class="col-md-10">
+            <div class="col-md-9">
               <grid-form-input [name]="'Access Group'">
                 <td>
                   <select
@@ -72,6 +72,7 @@
         <div class="row">
           <div class="col">
             <grid-form-input [name]="'Using hashcat brain'">
+              <label class="form-label" for="getHashTypeId"></label>
               <input
                     id='useBrain'
                     class='form-control'
@@ -142,18 +143,12 @@
             <span [ngClass]="!t.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': t.color }">{{ t.taskId }}</span>
           </td>
           <td>
-            {{ t.taskName }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',t.taskId,'edit']" title="Show Task">
-              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-            </a>
+            <a [routerLink]="['/tasks/show-tasks',t.taskId,'edit']">{{ t.taskName | lowercase | titlecase }}</a>
           </td>
           <td>{{ loadchunks | tdispatched:t.taskId:t.keyspace | percent}}</td>
           <td>{{ loadchunks | tdsearched:t.taskId:t.keyspace | percent}}</td>
           <td>
-            {{ loadchunks | tdcracked:t.taskId }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','tasks',t.taskId]" title="Show Hashes">
-              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-            </a>
+            <a [routerLink]="['/hashlists/hashes/','tasks',t.taskId]"> {{ loadchunks | tdcracked:t.taskId }}</a>
           </td>
         </tr>
       </tbody>

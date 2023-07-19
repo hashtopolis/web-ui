@@ -1,15 +1,14 @@
-import { faAlignJustify, faIdBadge, faComputer, faKey, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons';
-import { faLinux, faWindows, faApple } from '@fortawesome/free-brands-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { environment } from './../../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
-import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-globalpermissionsgroups',
@@ -26,8 +25,8 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
   faEye=faEye;
 
   constructor(
-    private gpg: AccessPermissionGroupsService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
@@ -86,7 +85,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.gpg.updateAccP(this.editedGPGIndex, this.updateForm.value).subscribe((hasht: any) => {
+      this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe((hasht: any) => {
         const response = hasht;
         this.isLoading = false;
           Swal.fire({
@@ -105,11 +104,11 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
 
   private initForm() {
     this.isLoading = true;
-    let params = {'expand': 'user'};
+    const params = {'expand': 'user'};
     if (this.editMode) {
-      this.gpg.getAccPGroup(this.editedGPGIndex, params).subscribe((res)=>{
+      this.gs.get(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, params).subscribe((res)=>{
       this.editedGPG = res;
-      var result = res['permissions'];
+      const result = res['permissions'];
       this.updateForm = new FormGroup({
         'name': new FormControl(res['name']),
         'permissions': new FormGroup({

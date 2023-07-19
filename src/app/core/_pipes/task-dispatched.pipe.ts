@@ -20,9 +20,9 @@ export class TaskDispatchedPipe implements PipeTransform {
       return null;
     }
 
-    let ch = obj.values?.filter(u=> u.taskId == id);
+    const ch = obj.values?.filter(u=> u.taskId == id);
 
-    var dispatched = []
+    const dispatched = []
 
     for(let i=0; i < ch.length; i++){
       if(ch[i].progress >= 10000){

@@ -17,9 +17,7 @@ export interface BaseHashlist {
   sourceData: string
 }
 
-export interface CreateHashlist extends BaseHashlist {
-
-}
+export type CreateHashlist = BaseHashlist
 
 // export interface Hashlist extends BaseHashlist {
 //     id: number;

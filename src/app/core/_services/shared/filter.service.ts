@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
-
 import { PropertyResolver } from '../property-resolver';
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'

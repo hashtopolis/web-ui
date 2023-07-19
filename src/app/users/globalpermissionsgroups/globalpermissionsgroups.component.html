@@ -29,8 +29,8 @@
                 <button ngbDropdownItem [routerLink]="['/users/global-permissions-groups/',a.id,'edit']" data-placement="top" title="Edit">
                   <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
                 </button>
-                <div *ngIf="a.user.length == 0" class="dropdown-divider"></div>
-                <button *ngIf="a.user.length == 0" ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(a.id)">
+                <div *ngIf="a.user.length === 0" class="dropdown-divider"></div>
+                <button *ngIf="a.user.length === 0" ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(a.id)">
                   <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
                 </button>
               </app-button-actions>

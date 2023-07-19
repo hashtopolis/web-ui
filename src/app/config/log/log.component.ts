@@ -1,17 +1,16 @@
-import { Component, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { faHomeAlt } from '@fortawesome/free-solid-svg-icons';
 import { environment } from 'src/environments/environment';
-import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { LogentryService } from '../../core/_services/config/logentry.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
-declare var $: any;
-declare var _fnReDraw;
+declare let $: any;
+declare let _fnReDraw;
 
 @Component({
   selector: 'app-log',
@@ -20,12 +19,6 @@ declare var _fnReDraw;
 @PageTitle(['Show Logs'])
 export class LogComponent implements OnInit {
 
-  // Title Page
-  pTitle = "Logs";
-  buttontitle = "";
-  buttonlink = "";
-  subbutton = false;
-
   faHome=faHomeAlt;
 
   @ViewChild(DataTableDirective, {static: false})
@@ -33,23 +26,21 @@ export class LogComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
   uidateformat:any;
-  localStable: string = 'DataTables_DataTables_Table_0_/config/log';
-  localStablepage: string = 'DataTables_DataTables_Table_0_/config/log_lastpage';
+  localStable = 'DataTables_DataTables_Table_0_/config/log';
+  localStablepage = 'DataTables_DataTables_Table_0_/config/log_lastpage';
 
   public logs: {logEntryId: number, issuer: string, issuerId: number, level: string, message: string, time: number}[] = [];
 
   private maxResults = environment.config.prodApiMaxResults;
 
-  totalRecords:number = 0;
+  totalRecords = 0;
   pageSize:number = this.getLenghtMenu();
-  isLast: boolean = false;
+  isLast = false;
   showLabel: string;
 
   constructor(
-    private logentryService: LogentryService,
     private uiService: UIConfigService,
-    private route:ActivatedRoute,
-    private router:Router
+    private gs: GlobalService
   ) { }
 
   ngOnInit(): void {
@@ -69,7 +60,7 @@ export class LogComponent implements OnInit {
   }
 
   getLenghtMenu(){
-    let lengthM = JSON.parse(localStorage.getItem(this.localStable));
+    const lengthM = JSON.parse(localStorage.getItem(this.localStable));
     if (!lengthM) {
       return 50;
     }else{
@@ -78,9 +69,9 @@ export class LogComponent implements OnInit {
   }
 
   geStartPage(){
-    let startP = JSON.parse(localStorage.getItem(this.localStablepage));
+    const startP = JSON.parse(localStorage.getItem(this.localStablepage));
     if (!startP) {
-      let currentPage:any = {start: '1'};
+      const currentPage:any = {start: '1'};
       localStorage.setItem(this.localStablepage, currentPage);
     }else{
       return startP.start;
@@ -88,7 +79,7 @@ export class LogComponent implements OnInit {
   }
 
   saveCurrentPage(name: string, pagestart: number){
-    let currentPage = {start: pagestart};
+    const currentPage = {start: pagestart};
     localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
   }
 
@@ -96,17 +87,17 @@ export class LogComponent implements OnInit {
 
     this.saveCurrentPage(this.localStable, page);
 
-    var maxresults = this.getLenghtMenu();
-    let params = {'maxResults': maxresults, 'startsAt': (page - 1) * this.pageSize};
+    const maxresults = this.getLenghtMenu();
+    const params = {'maxResults': maxresults, 'startsAt': (page - 1) * this.pageSize};
 
-    this.logentryService.getLogs(params).subscribe((log: any) => {
+    this.gs.getAll(SERV.LOGS,params).subscribe((log: any) => {
       this.logs = log.values;
       this.totalRecords = log.total;
       this.isLast = log.isLast;
       this.dtTrigger.next(null);
     });
 
-    var self = this;
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       bStateSave:true,
@@ -122,7 +113,7 @@ export class LogComponent implements OnInit {
         }
       ],
       stateSaveParams: function (settings, data) {
-        for ( var i=0, ien=data.columns.length ; i<ien ; i++ ) {
+        for ( let i=0, ien=data.columns.length ; i<ien ; i++ ) {
           // delete data.columns[i].visible;
         }
       },
@@ -161,8 +152,8 @@ export class LogComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Logs\n\n"+  dt;
                 }
                 return data;
@@ -180,8 +171,8 @@ export class LogComponent implements OnInit {
             extend: "pageLength",
             className: "btn-sm",
             action: function ( e, dt, node, config ) {
-            var myButton = this;
-            var currentPageLen = dt.page.len();
+            const myButton = this;
+            const currentPageLen = dt.page.len();
             $.fn.dataTable.ext.buttons.collection.action.call(myButton, e, dt, node, config);
             self.onReload(maxresults,currentPageLen);
            }

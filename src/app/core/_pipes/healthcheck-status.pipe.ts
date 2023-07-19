@@ -19,7 +19,7 @@ import {
   export class HealthCheckStatusPipe implements PipeTransform {
 
     transform(value: any) {
-      var status = "";
+      let status = "";
         switch(value) {
 
             case 0:

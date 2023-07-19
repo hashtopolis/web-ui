@@ -15,9 +15,9 @@ import {
  *   {{ object | keyspace:'lineCount':'cmd' }}
  * @returns number
 **/
-declare var options: any;
-declare var defaultOptions: any;
-declare var parser: any;
+declare let options: any;
+declare let defaultOptions: any;
+declare let parser: any;
 
 @Pipe({
   name: 'keyspace'
@@ -30,8 +30,8 @@ export class KeyspaceCalcPipe implements PipeTransform {
         return 'Wrong Command';
       }
       // Iterate over files and get file count
-      var arr = [];
-      var mpow = 0;
+      const arr = [];
+      let mpow = 0;
       if(value.length !== 0){
         for(let i=0; i < value.length; i++){
           arr.push(Number(value[i][name]));
@@ -53,15 +53,15 @@ export class KeyspaceCalcPipe implements PipeTransform {
       args = args.split(/ |=/g);
       parser.parse(args);
       function customCharsetToOptions(mask: string) {
-          let numA  = (mask.match(/\?a/g) || []).length;
-          let numD  = (mask.match(/\?d/g) || []).length;
-          let numL  = (mask.match(/\?l/g) || []).length;
-          let numU  = (mask.match(/\?u/g) || []).length;
-          let numS  = (mask.match(/\?s/g) || []).length;
-          let numLH = (mask.match(/\?h/g) || []).length;
-          let numUH = (mask.match(/\?H/g) || []).length;
-          let numB  = (mask.match(/\?b/g) || []).length;
-          var charsetOptions = 95 * Math.min(1, numA);
+          const numA  = (mask.match(/\?a/g) || []).length;
+          const numD  = (mask.match(/\?d/g) || []).length;
+          const numL  = (mask.match(/\?l/g) || []).length;
+          const numU  = (mask.match(/\?u/g) || []).length;
+          const numS  = (mask.match(/\?s/g) || []).length;
+          const numLH = (mask.match(/\?h/g) || []).length;
+          const numUH = (mask.match(/\?H/g) || []).length;
+          const numB  = (mask.match(/\?b/g) || []).length;
+          let charsetOptions = 95 * Math.min(1, numA);
           charsetOptions = charsetOptions + 10 * Math.min(1, numD);
           charsetOptions = charsetOptions + 26 * Math.min(1, numL);
           charsetOptions = charsetOptions + 26 * Math.min(1, numU);
@@ -77,7 +77,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
       }
 
       function maskToKeyspace(mask: string) {
-          var keyspaceCustomMask = 1;
+          let keyspaceCustomMask = 1;
           // The size of the custom charset equals the result of customCharsetToOptions.
           // This number is multiplied by the number occurrences of the custom mask to get the size of the keyspace formed by the custom masks alone
           if (options.customCharset1 !== "")
@@ -93,7 +93,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
               {
                   keyspaceCustomMask = keyspaceCustomMask * Math.pow(customCharsetToOptions(options.customCharset4), (mask.match(/\?4/g) || []).length);}
 
-          var keyspaceRegularMask = 1;
+          let keyspaceRegularMask = 1;
 
           // compute the keyspace size for the custom charsets separately, and multiply with the keyspace size formed by the regular mask part
           keyspaceRegularMask = Math.pow(95, (mask.match(/\?a/g) || []).length);
@@ -108,13 +108,13 @@ export class KeyspaceCalcPipe implements PipeTransform {
           return keyspaceRegularMask * keyspaceCustomMask;
       }
 
-      var keyspace: number;
+      let keyspace: number;
       if (options.attackType === 3 && mpow >= 0) {
           // compute keyspace for bruteforce attacks
-          for (var i = 0; i < options.posArgs.length; i++) {
-              let posArg = options.posArgs[i];
+          for (let i = 0; i < options.posArgs.length; i++) {
+              const posArg = options.posArgs[i];
               if (posArg.includes("?")) {
-                  let mask = posArg;
+                  const mask = posArg;
                   keyspace = maskToKeyspace(mask);
                   // return [keyspace, options.attackType]; // return also attack type
                   if(attcktype == true){keyspace = options.attackType}
@@ -126,7 +126,7 @@ export class KeyspaceCalcPipe implements PipeTransform {
         if(attcktype == true){mpow = options.attackType}
         return mpow;
       }else{
-        var result = null;
+        let result = null;
         if(attcktype == true){result = options.attackType}
         return result
       }

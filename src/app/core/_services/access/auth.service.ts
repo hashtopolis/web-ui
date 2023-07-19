@@ -21,7 +21,7 @@ export class AuthService {
     isAuthenticated = false;
     private logged = new ReplaySubject<boolean>(1);
     isLogged = this.logged.asObservable();
-    redirectUrl: string = '';
+    redirectUrl = '';
     private tokenExpiration: any;
     private endpoint = environment.config.prodApiEndpoint + '/auth';
 
@@ -63,8 +63,8 @@ export class AuthService {
     }
 
     get token(): any {
-        var res;
-        var token = localStorage.getItem('userData');
+        let res;
+        const token = localStorage.getItem('userData');
         if(token){
           res = JSON?.parse(token)._token
         }else{
@@ -77,7 +77,7 @@ export class AuthService {
       if(token == 'notoken'){
         return false
       }else{
-        var b64string = Buffer.from(token.split('.')[1], 'base64');
+        const b64string = Buffer.from(token.split('.')[1], 'base64');
         return JSON.parse(b64string.toString()).userId
       }
     }

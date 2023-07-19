@@ -1,5 +1,5 @@
 import { faPlus }  from '@fortawesome/free-solid-svg-icons';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({

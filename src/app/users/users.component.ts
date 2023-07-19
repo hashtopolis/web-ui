@@ -3,11 +3,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { AccessPermissionGroupsService } from '../core/_services/access/accesspermissiongroups.service';
 import { ValidationService } from '../core/_services/shared/validation.service';
-import { UsersService } from '../core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
-import { PageTitle } from '../core/_decorators/autotitle';
+import { SERV } from '../core/_services/main.config';
 
 @Component({
   selector: 'app-users',
@@ -23,22 +23,21 @@ export class UsersComponent implements OnInit {
 
   constructor(
      private route:ActivatedRoute,
-     private router: Router,
-     private usersService: UsersService,
-     private apgService:AccessPermissionGroupsService
+     private gs: GlobalService,
+     private router: Router
      ){}
 
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults};
-    this.apgService.getAccPGroups(params).subscribe((agp: any) => {
+    const params = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((agp: any) => {
       this.agp = agp.values;
     });
 
-    this.usersService.getAllusers(params).subscribe((res: any) => {
-      var arrNames = [];
+    this.gs.getAll(SERV.USERS,params).subscribe((res: any) => {
+      const arrNames = [];
       for(let i=0; i < res.values.length; i++){
         arrNames.push(res.values[i]['name']);
       }
@@ -59,7 +58,7 @@ export class UsersComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.usersService.createUser(this.createForm.value).subscribe((user: any) => {
+      this.gs.create(SERV.USERS,this.createForm.value).subscribe((user: any) => {
         const response = user;
         this.isLoading = false;
           Swal.fire({

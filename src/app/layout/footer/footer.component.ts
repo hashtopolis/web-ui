@@ -11,7 +11,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class FooterComponent implements OnInit {
 
-  url: string = '/assets/git-version.json';
+  url = '/assets/git-version.json';
   footerConfig = environment.config.footer;
   year = (new Date()).getFullYear();
   gitInfo:any;

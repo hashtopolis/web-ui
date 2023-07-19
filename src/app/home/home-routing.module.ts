@@ -1,4 +1,4 @@
-import { AuthGuard } from "../core/_guards/auth.guard";
+import { IsAuth } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
@@ -14,7 +14,7 @@ const routes: Routes = [
               kind: 'Home',
               breadcrumb: 'Home'
           },
-          canActivate: [AuthGuard]},
+          canActivate: [IsAuth]},
         ]
      }
   ]

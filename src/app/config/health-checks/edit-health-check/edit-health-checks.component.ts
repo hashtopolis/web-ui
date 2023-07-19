@@ -4,11 +4,11 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
-import { environment } from 'src/environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { AgentsService } from '../../../core/_services/agents/agents.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { HealthcheckService } from '../../../core/_services/config/healthcheck.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { environment } from 'src/environments/environment';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-health-checks',
@@ -29,10 +29,9 @@ export class EditHealthChecksComponent implements OnInit {
   uidateformat:any;
 
   constructor(
-    private healthcheckService: HealthcheckService,
-    private agentsService: AgentsService,
     private uiService: UIConfigService,
-    private route:ActivatedRoute
+    private route:ActivatedRoute,
+    private gs: GlobalService
     ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -72,22 +71,21 @@ export class EditHealthChecksComponent implements OnInit {
 
     this.editedHealthCIndex = +this.route.snapshot.params['id'];
 
-    this.healthcheckService.getHealthCheck(this.editedHealthCIndex).subscribe((hc: any) => {
+    this.gs.get(SERV.HEALTH_CHECKS,this.editedHealthCIndex).subscribe((hc: any) => {
       this.healthc = hc;
     });
 
     this.agentsInit();
 
-
   }
 
   agentsInit(){
-    let paramshc = {'maxResults': this.maxResults, 'filter': 'healthCheckId='+this.editedHealthCIndex+''};
-    let paramsa = {'maxResults': this.maxResults};
-    this.healthcheckService.getHealthCheckedAgents(paramshc).subscribe((hc: any) => {
-      this.agentsService.getAgents(paramsa).subscribe((agents: any) => {
+    const paramshc = {'maxResults': this.maxResults, 'filter': 'healthCheckId='+this.editedHealthCIndex+''};
+    const paramsa = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.HEALTH_CHECKS_AGENTS,paramshc).subscribe((hc: any) => {
+      this.gs.getAll(SERV.AGENTS,paramsa).subscribe((agents: any) => {
       this.healthca = hc.values.map(mainObject => {
-        let matchAObject = agents.values.find(element => element.agentId === mainObject.agentId)
+        const matchAObject = agents.values.find(element => element.agentId === mainObject.agentId)
         return { ...mainObject, ...matchAObject }
       })
       this.dtTrigger.next(void 0);
@@ -129,8 +127,8 @@ export class EditHealthChecksComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "HealthChecks\n\n"+  dt;
                 }
                 return data;

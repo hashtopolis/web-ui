@@ -3,7 +3,7 @@
 </div>
 <!-- <h2 *ngIf="!allowEdit">You are not allowed to edit! Talk with your administrator.</h2>
 <div *ngIf="allowEdit"> -->
-<grid-main [class]="'width:100%'">
+<grid-main [class]="'width:auto'" [centered]="true">
   <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <grid-autocol>
@@ -97,7 +97,6 @@
                     type='new-password'
                     id="setpassword"
                     class="form-control"
-
               />
           </div>
           </grid-form-input>
