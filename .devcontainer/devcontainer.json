@@ -3,7 +3,7 @@
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "hashtopolis-web-ui",
 			
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"workspaceFolder": "/app",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -32,6 +32,5 @@
 	"remoteEnv": {
 		"NODE_OPTIONS": "--use-openssl-ca"
 	},
-
-	"postStartCommand": "npm install"
+	"remoteUser": "node"
 }

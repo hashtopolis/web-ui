@@ -3,13 +3,16 @@ services:
   hashtopolis-web-ui:
     container_name: devcontainer-hashtopolis-web-ui
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    ports:
+      - "4200:4200"
     volumes:
-      - ../..:/workspaces:cached
+      # This is where VS Code should expect to find your project's source code
+      # and the value of "workspaceFolder" in .devcontainer/devcontainer.json
+      - ..:/app
     networks:
       - hashtopolis_dev
-    command: sleep infinity
 
 networks:
   hashtopolis_dev:
