@@ -4,7 +4,8 @@ services:
     container_name: hashtopolis-web-ui-dev
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: Dockerfile
+      target: hashtopolis-web-ui-dev
     ports:
       - "4200:4200"
     volumes:
