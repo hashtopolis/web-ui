@@ -1,3 +1,3 @@
 {
-  "apiUrl": "http://localhost:8080/api",
+    "hashtopolis_backend_url": "${HASHTOPOLIS_BACKEND_URL}"
 }
