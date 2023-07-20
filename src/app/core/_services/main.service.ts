@@ -39,7 +39,7 @@ export class GlobalService {
     if (routerParams) {
         queryParams = setParameter(routerParams);
     }
-    return this.http.get(this.endpoint + methodUrl, {params: queryParams})
+    return this.http.get(environment.config.prodApiEndpoint + methodUrl, {params: queryParams})
   }
 
 /**
@@ -52,7 +52,7 @@ export class GlobalService {
     if (routerParams) {
         queryParams = setParameter(routerParams);
     }
-    return this.http.get(`${this.endpoint+methodUrl}/${id}`,{params: routerParams})
+    return this.http.get(`${environment.config.prodApiEndpoint + methodUrl}/${id}`,{params: routerParams})
   }
 
 /**
@@ -61,7 +61,7 @@ export class GlobalService {
  * @returns  Object
 **/
   create(methodUrl:string, item: any): Observable<any> {
-    return this.http.post<any>(this.endpoint+methodUrl, item)
+    return this.http.post<any>(environment.config.prodApiEndpoint + methodUrl, item)
   }
 
 /**
@@ -73,7 +73,7 @@ export class GlobalService {
 createHashlist(methodUrl:string, arr: any): Observable<any> {
   const str = arr.sourceData;
   const filename = str.replace("C:\\fakepath\\", "");
-  return this.http.post<any>(this.endpoint+methodUrl, {
+  return this.http.post<any>(environment.config.prodApiEndpoint + methodUrl, {
           name: arr.name,
           hashTypeId: arr.hashTypeId,
           format: arr.format,
@@ -99,7 +99,7 @@ createHashlist(methodUrl:string, arr: any): Observable<any> {
  * @returns Object
 **/
   delete(methodUrl: string, id: number): Observable<any> {
-    return this.http.delete(this.endpoint+methodUrl +'/'+ id)
+    return this.http.delete(environment.config.prodApiEndpoint + methodUrl +'/'+ id)
     .pipe(
       tap(data => console.log(JSON.stringify(data))),
       retryWhen(errors => {
@@ -120,7 +120,7 @@ createHashlist(methodUrl:string, arr: any): Observable<any> {
  * @returns Object
 **/
   update(methodUrl: string, id: number, arr: any): Observable<any> {
-    return this.http.patch<number>(this.endpoint+methodUrl + '/' + id, arr)
+    return this.http.patch<number>(environment.config.prodApiEndpoint + methodUrl + '/' + id, arr)
     .pipe(
       debounceTime(2000)
     );
@@ -133,7 +133,7 @@ createHashlist(methodUrl:string, arr: any): Observable<any> {
  * @returns Object
 **/
   archive(methodUrl: string, id: number): Observable<any> {
-    return this.http.patch<number>(this.endpoint+methodUrl + '/' + id, {isArchived: true})
+    return this.http.patch<number>(environment.config.prodApiEndpoint + methodUrl + '/' + id, {isArchived: true})
   }
 
 

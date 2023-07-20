@@ -31,6 +31,7 @@ import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ConfigService } from './core/_services/shared/config.service';
 /**
  * App Modules, Reducers
  *
@@ -86,7 +87,8 @@ import { AuthModule } from './auth/auth.module';
       multi: true
     },
     ThemeService,
-    AppPreloadingStrategy
+    AppPreloadingStrategy,
+    ConfigService
   ],
   bootstrap: [AppComponent]
 })
@@ -98,4 +100,3 @@ export class AppModule {
     AppModule.injector = injector;
   }
 }
-

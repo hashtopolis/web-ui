@@ -43,3 +43,6 @@ Thumbs.db
 
 # Git info
 git-version.json
+
+# Config file
+config.json

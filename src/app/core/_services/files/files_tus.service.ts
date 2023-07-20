@@ -11,7 +11,7 @@ import { UploadFileTUS } from '../../_models/files';
 
 export class UploadTUSService {
 
-    private endpoint = environment.config.prodApiEndpoint + '/ui/files/import';
+    private endpoint = '/ui/files/import';
     private chunked = environment.config.chunkSizeTUS;
     private userData: {_token: string} = JSON.parse(localStorage.getItem('userData'));
 
@@ -42,7 +42,7 @@ export class UploadTUSService {
       this.uploadStatus.next(this.fileStatusArr);
 
       const upload = new tus.Upload(file, {
-        endpoint: this.endpoint,
+        endpoint: environment.config.prodApiEndpoint + this.endpoint,
         headers: {
           Authorization: `Bearer ${this.userData._token}`,
           'Tus-Resumable':'1.0.0',

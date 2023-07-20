@@ -23,7 +23,7 @@ export class AuthService {
     isLogged = this.logged.asObservable();
     redirectUrl = '';
     private tokenExpiration: any;
-    private endpoint = environment.config.prodApiEndpoint + '/auth';
+    private endpoint = '/auth';
 
     constructor(
       private http: HttpClient,
@@ -51,7 +51,7 @@ export class AuthService {
     }
 
     logIn(username: string, password: string): Observable<any>{
-        return this.http.post<AuthResponseData>(this.endpoint + '/token', {username: username, password: password},
+        return this.http.post<AuthResponseData>(environment.config.prodApiEndpoint + this.endpoint + '/token', {username: username, password: password},
             {headers: new HttpHeaders({ 'Authorization': 'Basic '+ window.btoa(username+':'+password) })})
             .pipe(
               catchError(this.handleError),
@@ -92,7 +92,7 @@ export class AuthService {
     getRefreshToken(expirationDuration: number){
         this.tokenExpiration = setTimeout(() => {
           const userData: {_token: string, _expires: string, _username: string} = JSON.parse(localStorage.getItem('userData'));
-          return this.http.post<AuthResponseData>(this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
+          return this.http.post<AuthResponseData>(environment.config.prodApiEndpoint + this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
                  .pipe(catchError(this.handleError), tap(resData => {
                  this.handleAuthentication(resData.token, +resData.expires, userData._username);
           }));
