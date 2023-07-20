@@ -1,2 +1,19 @@
+# Angular stuff
 node_modules
 .angular
+
+# Docker stuff
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Git stuff
+.gitignore
+
+# IDE stuff
+.vscode
+devcontainer.json
+
+# Project stuff
+README.md
+LICENSE
