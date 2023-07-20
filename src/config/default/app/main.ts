@@ -2,7 +2,6 @@
 export const DEFAULT_CONFIG = {
   prodApiEndpoint: 'http://localhost:8080/api/v2',
   prodApiMaxResults: '3000',
-  devApiEndpoint: 'http://localhost:3000',
   agentURL: '/api/server.php',
   agentApiPort: '8080',
   agentdownloadURL: '/agents.php?download=',
