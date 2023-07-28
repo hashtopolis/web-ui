@@ -1,5 +1,5 @@
 import { faEdit, faHomeAlt, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -9,6 +9,7 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { DataTableDirective } from 'angular-datatables';
 
 @Component({
   selector: 'app-all-users',
@@ -21,6 +22,9 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   faTrash=faTrash;
   faEdit=faEdit;
   faPlus=faPlus;
+
+  @ViewChild(DataTableDirective, {static: false})
+  dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
@@ -36,7 +40,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     registeredSince: number,
     lastLoginDate: number,
     email: string,
-    isValid: number,
+    isValid: boolean,
     sessionLifetime:number,
     rightGroupId: string,
     globalPermissionGroup: {
@@ -64,6 +68,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
@@ -79,6 +84,13 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -122,6 +134,11 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     };
   }
 
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
   editButtonClick(){
     this.router.navigate(['edit'], {relativeTo: this.route});
   }
@@ -130,6 +147,16 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   onDelete(id: number){
 
   }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.destroy();
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
 
 
 

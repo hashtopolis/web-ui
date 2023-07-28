@@ -213,7 +213,7 @@
                   <div *ngIf="tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templateNA">
                     <span class="pre input-group-text input-group-lg">
                       <td>
-                        {{ cprogress / tkeyspace | percent }}
+                        <b>{{ cprogress / tkeyspace | percent }}</b>
                       </td>
                     </span>
                   </div>
@@ -247,7 +247,7 @@
                   <div *ngIf="tkeyspace !== 0 && (cprogress/tkeyspace) !== 0; else templatedash">
                     <span class="pre input-group-text input-group-lg">
                       <td>
-                        {{ (ctimespent/(cprogress/tkeyspace)-ctimespent) | percent }}
+                        {{ (ctimespent/(cprogress/tkeyspace)-ctimespent) | sectotime }}
                       </td>
                     </span>
                   </div>
@@ -267,6 +267,11 @@
                         {{ currenspeed | fileSize:false }}H/s
                     </td>
                   </span>
+                  <span class="pre input-group-text input-group-lg" *ngIf="!currenspeed">
+                    <td>
+                        ---
+                    </td>
+                  </span>
                 </grid-form-input>
               </div>
             </div>
@@ -276,8 +281,7 @@
                   <label *ngIf="h.hashlist.format ===0" class="form-label" for="getTaskId">Hashlist</label>
                   <label *ngIf="h.hashlist.format ===3" class="form-label" for="getTaskId">Superhaslist</label>
                   <td>
-                    <fa-icon [icon]="faEye" [routerLink]="['/hashlists/hashlist', h.hashlist.hashlistId,'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
-                    {{ h.hashlist.name }} {{ h[0].description }}
+                    <a [routerLink]="['/hashlists/hashlist', h.hashlist.hashlistId,'edit']">{{ h.hashlist.name }} {{ h[0].description }}</a>
               </div>
             </div>
             <grid-form-input [name]="''">
@@ -328,6 +332,9 @@
   </div>
 </div>
 <app-table>
+  <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
+</app-table>
+<app-table>
   <app-page-subtitle [subtitle]="'Assigned agents'"></app-page-subtitle>
   <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]">
     <thead class="thead-light">
@@ -350,82 +357,79 @@
   </table>
 </app-table>
 <!-- Task speed -->
-<div>&nbsp;&nbsp;
+<div>
+<app-table>
   <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
   <div class="row">
     <div class="col col-12">
       <div id="tspeed" style="height: 310px;"></div>
     </div>
   </div>
-</div>
-<!-- Assigned Agents -->
-
+</app-table>
 <!-- Dispatched Chunks -->
-<app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
-<div [ngSwitch]="chunkview">
-  <div *ngSwitchCase="0">
-    <h6>Show Live Chunks</h6>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+<app-table>
+  <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
+  <div [ngSwitch]="chunkview">
+    <div *ngSwitchCase="0">
+      <h6>Show Live Chunks</h6>
+      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
+      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+    </div>
+    <div *ngSwitchCase="1">
+      <h6>Show Latest 100 Chunks</h6>
+      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
+      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+    </div>
+    <div *ngSwitchCase="2">
+      <h6>Show All Chunks</h6>
+      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
+      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
+    </div>
   </div>
-  <div *ngSwitchCase="1">
-    <h6>Show Latest 100 Chunks</h6>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+  <div class="table-responsive">
+    &nbsp;
+      <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+        <thead class="thead-light">
+          <tr>
+            <th class="rounded-start">ID</th>
+            <th>Start</th>
+            <th>Length</th>
+            <th>Checkpoint</th>
+            <th>Progress</th>
+            <th>Agent</th>
+            <th>Dispatch time</th>
+            <th>Last activity</th>
+            <th>Time spent</th>
+            <th>State</th>
+            <th>Cracked</th>
+            <th class="rounded-end">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let gc of getchunks">
+            <td>{{ gc.chunkId }}</td>
+            <td>{{ gc.skip }}</td>
+            <td>{{ gc.length }}</td>
+            <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
+            <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
+            <td *ngIf="!gc.progress">N/A</td>
+            <td>
+              <a [routerLink]="['/agents/show-agents',gc.agentId,'edit']"> {{ gc.agentName | shortenString:15 | lowercase | titlecase }}</a>
+            </td>
+            <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
+            <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
+            <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
+            <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
+            <td>{{ gc.state | staticArray:'states' }}</td>
+            <td>{{ gc.cracked }}</td>
+            <td>
+              <a>
+                <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
+                <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon></a>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
   </div>
-  <div *ngSwitchCase="2">
-    <h6>Show All Chunks</h6>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
-  </div>
-</div>
-<div class="table-responsive">
-  &nbsp;
-    <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[2]" [dtTrigger]="dtTrigger">
-      <thead class="thead-light">
-        <tr>
-          <th class="rounded-start">ID</th>
-          <th>Start</th>
-          <th>Length</th>
-          <th>Checkpoint</th>
-          <th>Progress</th>
-          <th>Agent</th>
-          <th>Dispatch time</th>
-          <th>Last activity</th>
-          <th>Time spent</th>
-          <th>State</th>
-          <th>Cracked</th>
-          <th class="rounded-end">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let gc of getchunks">
-          <td>{{ gc.chunkId }}</td>
-          <td>{{ gc.skip }}</td>
-          <td>{{ gc.length }}</td>
-          <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
-          <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
-          <td *ngIf="!gc.progress">N/A</td>
-          <td>
-            {{ gc.agentName | shortenString:15 | lowercase | titlecase }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',gc.agentId,'edit']" title="Edit Hashlist">
-              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-            </a>
-          </td>
-          <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
-          <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
-          <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
-          <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
-          <td>{{ gc.state | staticArray:'states' }}</td>
-          <td>{{ gc.cracked }}</td>
-          <td>
-            <a>
-              <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
-              <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon></a>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-</div>
-
+</app-table>

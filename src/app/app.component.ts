@@ -9,8 +9,8 @@ import { filter } from 'rxjs';
 **/
 import { UIConfigService } from './core/_services/shared/storage.service';
 import { CookieService } from './core/_services/shared/cookies.service';
-import { AuthService } from './core/_services/access/auth.service';
 import { ConfigService } from './core/_services/shared/config.service';
+import { AuthService } from './core/_services/access/auth.service';
 /**
  * Idle watching
  *
@@ -19,8 +19,8 @@ import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeService } from './core/_services/shared/theme.service';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
-import { Keepalive } from '@ng-idle/keepalive';
 import { environment } from 'src/environments/environment';
+import { Keepalive } from '@ng-idle/keepalive';
 
 @Component({
   selector: 'app-root',

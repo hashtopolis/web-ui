@@ -33,13 +33,13 @@ export class ShowCracksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    const params = {'maxResults': this.maxResults, 'filter': 'isCracked=1'}
+    const params = {'maxResults': this.maxResults, 'filter': 'isCracked=1', 'expand':'hashlist,chunk'}
 
     this.gs.getAll(SERV.HASHES,params).subscribe((hashes: any) => {
       this.allhashes = hashes.values;
       this.dtTrigger.next(void 0);
     });
-
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
@@ -53,6 +53,13 @@ export class ShowCracksComponent implements OnInit {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -105,6 +112,21 @@ export class ShowCracksComponent implements OnInit {
     };
 
   }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.destroy();
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();

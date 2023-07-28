@@ -44,9 +44,8 @@
               title="crackerBinaryId"
               formControlName="crackerBinaryId"
               #myVersion>
-        <!-- <option hiddenvalue="" disabled="true" [defaultSelected]=true>Please select</option> -->
         <option value="" disabled="true">--<option>
-        <option *ngFor="let cv of crackerversions" [ngValue]="cv.crackerBinaryId" type="number">{{ cv.version }}</option>
+        <option *ngFor="let cv of crackerversions; let first" [ngValue]="cv.crackerBinaryId" >{{ cv.version }}</option> //[selected]="first"
       </select>
     </grid-form-input>
     <button-submit [name]="'Create'"></button-submit>

@@ -22,6 +22,7 @@ import { FileTypePipe } from "../core/_pipes/file-type.pipe";
 import { GroupByPipe } from "../core/_pipes/groupby.pipe";
 import { SplitPipe } from "../core/_pipes/split.pipe";
 import { HashesFilterPipe } from "../core/_pipes/hashes-filter.pipe";
+import { SumPipe } from "../core/_pipes/sum-object.pipe";
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { HashesFilterPipe } from "../core/_pipes/hashes-filter.pipe";
     AveragePipe,
     GroupByPipe,
     SearchPipe,
-    SplitPipe
+    SplitPipe,
+    SumPipe
   ],
   imports: [CommonModule],
   exports: [
@@ -69,7 +71,8 @@ import { HashesFilterPipe } from "../core/_pipes/hashes-filter.pipe";
     AveragePipe,
     GroupByPipe,
     SearchPipe,
-    SplitPipe
+    SplitPipe,
+    SumPipe
   ]
 })
 export class PipesModule {}

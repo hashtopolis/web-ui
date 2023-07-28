@@ -3,19 +3,19 @@
   <div class="d-block mb-4 mb-md-0">
       <div [ngSwitch]="whichView">
         <div *ngSwitchCase="'chunks'">
-          <h2 class="h4">Hashes of chunk <b>{{ titleName }}</b></h2>
+          <h2 class="h4">Hashes of chunk <a [routerLink]="['/tasks/show-tasks/', this.editedIndex,'edit']">{{ titleName }}</a></h2>
         </div>
         <div *ngSwitchCase="'tasks'">
-          <h2 class="h4">Hashes of task <b>{{ titleName }}</b></h2>
+          <h2 class="h4">Hashes of task <a [routerLink]="['/tasks/show-tasks/', this.editedIndex,'edit']">{{ titleName }}</a></h2>
         </div>
         <div *ngSwitchCase="'hashlists'">
-          <h2 class="h4">Hashes of hashlist <b>{{ titleName }}</b></h2>
+          <h2 class="h4">Hashes of hashlist <a [routerLink]="['/hashlists/hashlist/', this.editedIndex,'edit']">{{ titleName }}</a></h2>
         </div>
       </div>
   </div>
 </div>
 <!-- Form -->
-<grid-main [class]="'fmxw-800'" [centered]="true">
+<grid-main [class]="'width:100%'" [centered]="true">
   <form [formGroup]="viewForm">
   <div class="row g-3">
     <div class="col-md-6">
@@ -85,6 +85,6 @@
         </tr>
       </tbody>
   </table>
-</app-table>&nbsp;
+</app-table>
 <app-hexconvertor></app-hexconvertor>
 

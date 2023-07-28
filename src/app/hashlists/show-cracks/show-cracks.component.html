@@ -20,7 +20,9 @@
         <td>{{ hash.hashId }}</td>
         <td>{{ hash.plaintext }}</td>
         <td>{{ hash.hash }}</td>
-        <td>{{ hash.hashlistId }}</td>
+        <td>
+          <a [routerLink]="['/hashlists/hashlist/',hash.hashlist.hashlistId,'edit']" >{{ hash.hashlist.name }}</a>
+        </td>
         <td>agent?</td>
         <td>taskid/taskname?</td>
         <td>{{ hash.chunkId }}</td>

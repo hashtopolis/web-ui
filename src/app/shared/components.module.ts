@@ -1,6 +1,6 @@
-import { NgModule } from "@angular/core";
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
+import { NgModule } from "@angular/core";
 
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 import { HashtypeDetectorComponent } from "./hashtype-detector/hashtype-detector.component";
@@ -15,6 +15,7 @@ import { GridModule } from "./grid-containers/grid.module";
 import { TableModule } from "./table/table-actions.module";
 import { AlertComponent } from "./alert/alert.component";
 import { ButtonsModule } from "./buttons/buttons.module";
+import { LottiesModule } from './lottie/lottie.module';
 import { GraphsModule } from "./graphs/graphs.module";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormsModule } from "@angular/forms";
@@ -35,6 +36,7 @@ import { FormsModule } from "@angular/forms";
     PaginationModule,
     PageTitleModule,
     ButtonsModule,
+    LottiesModule,
     GraphsModule,
     CommonModule,
     FormsModule,
@@ -55,6 +57,7 @@ import { FormsModule } from "@angular/forms";
     PageTitleModule,
     AlertComponent,
     ButtonsModule,
+    LottiesModule,
     GraphsModule,
     CommonModule,
     TableModule,

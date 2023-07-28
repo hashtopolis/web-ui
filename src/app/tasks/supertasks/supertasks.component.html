@@ -1,7 +1,7 @@
 <app-page-title [title]="'Supertasks'" [buttontitle]="'New Supertasks'" [buttonlink]="'/tasks/new-supertasks'" [subbutton]="true"></app-page-title>
 <!-- Body -->
 <app-table>
-  <table id="supertask" class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table id="supertask" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
     <thead class="thead-light">
       <tr>
         <th class="rounded-start">ID</th>
@@ -12,17 +12,24 @@
     <tbody>
     <tr *ngFor="let stask of allsupertasks">
         <td>{{ stask.supertaskId }}</td>
-        <td>{{ stask.supertaskName }}</td>
         <td>
-          <a class='btn-outline-gray-600 actions-td-right' (click)="onDelete(stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
-            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+          <a [routerLink]="['../',stask.supertaskId,'edit']">
+            {{ stask.supertaskName }}
           </a>
-          <a class='btn btn-outline-gray-600 actions-td-right' data-toggle="tooltip" data-placement="top" title="Apply to Hashlist">
-            <fa-icon [icon]="faAdd" aria-hidden="true"></fa-icon>Apply Hashlist
-          </a>
-          <a class='btn-outline-gray-600 actions-td-right' [routerLink]="['../',stask.supertaskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
-            <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
-          </a>
+        </td>
+        <td>
+          <app-button-actions>
+            <button ngbDropdownItem [routerLink]="['../',stask.supertaskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
+              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+            </button>
+            <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Copy to Task">
+              <fa-icon [icon]="faAdd" aria-hidden="true"></fa-icon>Apply Hashlist
+            </button>
+            <div class="dropdown-divider"></div>
+            <button ngbDropdownItem (click)="onDelete(stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+            </button>
+          </app-button-actions>
         </td>
     </tr>
     </tbody>

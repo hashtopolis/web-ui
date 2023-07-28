@@ -101,8 +101,7 @@ export class EditSupertasksComponent implements OnInit {
 
       this.isLoading = true;
 
-      this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,this.updateForm.value).subscribe((st: any) => {
-        const response = st;
+      this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,this.updateForm.value).subscribe(() => {
         this.isLoading = false;
           Swal.fire({
             title: "Success",
@@ -222,19 +221,18 @@ export class EditSupertasksComponent implements OnInit {
     if (this.editMode) {
     this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex).subscribe((result)=>{
       this.viewForm = new FormGroup({
-        supertaskId: new FormControl(result['supertaskId']),
-        supertaskName: new FormControl(result['supertaskName']),
+        supertaskId: new FormControl({value: result['supertaskId'], disabled: true}),
+        supertaskName: new FormControl({value: result['supertaskName'], disabled: true}),
       });
       this.isLoading = false;
     });
    }
   }
 
-
   async fetchPreTaskData() {
 
     const params = {'maxResults': this.maxResults, 'expand': 'pretasks', 'filter': 'supertaskId='+this.editedSTIndex+''};
-    const paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'}
+    const paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'};
     const matchObjectFiles =[]
     this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((result)=>{
     this.gs.getAll(SERV.PRETASKS,paramspt).subscribe((pretasks: any) => {

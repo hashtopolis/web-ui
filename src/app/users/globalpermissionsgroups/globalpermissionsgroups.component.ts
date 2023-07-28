@@ -50,6 +50,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
         this.Allgpg = gpg.values;
         this.dtTrigger.next(void 0);
       });
+      const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
         pageLength: 10,
@@ -64,6 +65,13 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
             }
           },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -106,6 +114,11 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
         }
       };
 
+    }
+
+    onRefresh(){
+      this.rerender();
+      this.ngOnInit();
     }
 
     setAccessPermissions(){

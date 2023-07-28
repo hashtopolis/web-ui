@@ -35,7 +35,7 @@ export class HashtypesComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private gs: GlobalService,
+    private gs: GlobalService
   ) { }
 
   public htypes: {hashTypeId: number, description: string, isSalted: number, isSlowHash: number}[] = [];
@@ -48,6 +48,7 @@ export class HashtypesComponent implements OnInit {
       this.htypes = htypes.values;
       this.dtTrigger.next(void 0);
     });
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
@@ -62,6 +63,13 @@ export class HashtypesComponent implements OnInit {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -104,6 +112,11 @@ export class HashtypesComponent implements OnInit {
       }
     };
 
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   rerender(): void {

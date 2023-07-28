@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import {
   Directive,
   HostListener,
@@ -45,7 +46,18 @@ export class CopyButtonDirective {
     document.addEventListener("copy", listener, false);
     document.execCommand("copy");
     document.removeEventListener("copy", listener, false);
+    this.savedAlert();
   }
 
+  savedAlert(){
+    Swal.fire({
+      position: 'top-end',
+      toast: true,
+      icon: 'success',
+      title: 'Copied',
+      showConfirmButton: false,
+      timer: 1500
+    })
+  }
 
 }

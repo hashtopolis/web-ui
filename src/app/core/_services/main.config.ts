@@ -27,7 +27,7 @@ export class SERV {
   // HASHLISTS
   public static HASHES = '/ui/hashes';
   public static HASHLISTS = '/ui/hashlists';
-  public static SUPER_HASHLISTS = '/ui/superhashlist';
+  public static SUPER_HASHLISTS = '/ui/superhashlists';
   // TASKS
   public static CHUNKS = '/ui/chunks';
   public static PRETASKS = '/ui/pretasks';

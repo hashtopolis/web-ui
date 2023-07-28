@@ -5,9 +5,9 @@ import { Router } from '@angular/router';
   selector: 'settings-menu',
   template: `
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-  <div #content><ng-content></ng-content></div>
-  </div>
+    <div class="d-block mb-4 mb-md-0">
+      <div #content><ng-content></ng-content></div>
+    </div>
   <div class="btn-toolbar mb-2 mb-md-0">
     <div class="btn-group ms-2 ms-3">
       <a type="button" (click)="Agent()" class="btn btn-sm btn-outline-gray-600 {{aclass}}">Agent</a>

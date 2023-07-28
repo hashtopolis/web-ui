@@ -147,13 +147,13 @@ export class EditHashlistComponent implements OnInit {
         this.getHashtype();
         this.editedHashlist = result;
         this.updateForm = new FormGroup({
-          'hashlistId': new FormControl(result['hashlistId']),
-          'accessGroupId': new FormControl(result['accessGroupId']),
-          'useBrain': new FormControl(result['useBrain'] == 0 ? 'Yes' : 'No'),
-          'format': new FormControl(this.format.transform(result['format'],'formats')),
-          'hashCount': new FormControl(result['hashCount']),
-          'cracked': new FormControl(result['cracked']),
-          'remaining': new FormControl(result['hashCount'] - result['cracked']),
+          'hashlistId': new FormControl({value: result['hashlistId'], disabled: true}),
+          'accessGroupId': new FormControl({value: result['accessGroupId'], disabled: true}),
+          'useBrain': new FormControl({value: result['useBrain'] == true ? 'Yes' : 'No', disabled: true}),
+          'format': new FormControl({value: this.format.transform(result['format'],'formats'), disabled: true}),
+          'hashCount': new FormControl({value: result['hashCount'], disabled: true}),
+          'cracked': new FormControl({value: result['cracked'], disabled: true}),
+          'remaining': new FormControl({value: result['hashCount'] - result['cracked'], disabled: true}),
           'updateData': new FormGroup({
             'name': new FormControl(result['name']),
             'notes': new FormControl(result['notes']),

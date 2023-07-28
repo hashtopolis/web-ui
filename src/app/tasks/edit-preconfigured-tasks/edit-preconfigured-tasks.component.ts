@@ -116,8 +116,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
       this.isLoading = true;
 
-      this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
-        const response = hasht;
+      this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
         this.isLoading = false;
           Swal.fire({
             title: "Success",
@@ -157,17 +156,18 @@ export class EditPreconfiguredTasksComponent implements OnInit{
     this.gs.get(SERV.PRETASKS,this.editedPretaskIndex).subscribe((result)=>{
       this.pretask = result;
       this.color = result['color'];
+      console.log(result['maxAgents'])
       this.updateForm = new FormGroup({
-        'pretaskId': new FormControl(result['pretaskId'], Validators.required),
-        'statusTimer': new FormControl(result['statusTimer'] + ' seconds', Validators.required),
-        'useNewBench': new FormControl(result['useNewBench'], Validators.required),
+        'pretaskId': new FormControl({value:  result['pretaskId'], disabled: true}),
+        'statusTimer': new FormControl({value: result['statusTimer'], disabled: true}),
+        'useNewBench': new FormControl({value: result['useNewBench'], disabled: true}),
         'updateData': new FormGroup({
           'taskName': new FormControl(result['taskName'], Validators.required),
           'attackCmd': new FormControl(result['attackCmd'], Validators.required),
-          'chunkTime': new FormControl(result['chunkTime'], Validators.required),
-          'color': new FormControl(result['color'], Validators.required),
-          'priority': new FormControl(result['priority'], Validators.required),
-          'maxAgents': new FormControl(result['maxAgents'], Validators.required),
+          'chunkTime': new FormControl(result['chunkTime']),
+          'color': new FormControl(result['color']),
+          'priority': new FormControl(result['priority']),
+          'maxAgents': new FormControl(result['maxAgents']),
           'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
           'isSmall': new FormControl(result['isSmall'], Validators.required),
         }),

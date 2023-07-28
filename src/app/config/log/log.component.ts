@@ -125,6 +125,13 @@ export class LogComponent implements OnInit {
         },
       buttons: [
         {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
           extend: 'collection',
           text: 'Export',
           buttons: [
@@ -183,6 +190,11 @@ export class LogComponent implements OnInit {
 
   }
 
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
   onReload(mresults: number, cresults:number){
     if(mresults == cresults){
       setTimeout(() => {
@@ -193,6 +205,8 @@ export class LogComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
+    const currentPage = {start: 0};
+    localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
   }
 
   rerender(): void {

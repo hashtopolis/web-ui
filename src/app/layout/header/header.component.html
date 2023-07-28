@@ -1,14 +1,24 @@
-<nav class="navbar navbar-expand-md layout-col rounded background-color: #f8f8f8">
-  <a class="navbar-brand" routerLink="/" *ngIf="!isMobile">
-    <img
+<nav class="navbar navbar-expand-md layout-col rounded background-color: #f8f8f8" >
+  <a class="navbar-brand" routerLink="/" *ngIf="!isMobile && isAuthentificated">
+     <video
+          [muted]="true" autoplay playsinline
+          *ngIf="currentTheme() !== 'dark'"
+          [width]="this.headerConfig.brand.width"
+          [height]="this.headerConfig.brand.height"
+          class="navbar-left"
+          type="video/mp4"
+          >
+        <source src={{this.headerConfig.brand.logo}} type="video/mp4">
+      </video>
+    <!-- <img
       *ngIf="currentTheme() !== 'dark'"
       [src]="this.headerConfig.brand.logo"
       [alt]="this.headerConfig.brand.name"
       [width]="this.headerConfig.brand.width"
       [height]="this.headerConfig.brand.height"
       class="navbar-left"
-      alt
-    />
+      alt="preview"
+    /> -->
     <img
       *ngIf="currentTheme() === 'dark'"
       [src]="this.headerConfig.brand.logored"
@@ -58,7 +68,7 @@
             <a class="dropdown-item" routerLink="tasks/show-tasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Show Tasks</a>
             <a class="dropdown-item" routerLink="tasks/preconfigured-tasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Preconfigured Tasks</a>
             <a class="dropdown-item" routerLink="tasks/supertasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Supertasks</a>
-            <a class="dropdown-item" routerLink="tasks/import-supertasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Import Supertask</a>
+            <a class="dropdown-item" routerLink="tasks/import-supertasks/masks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Import Supertask</a>
             <a class="dropdown-item" routerLink="tasks/chunks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Chunk activity</a>
           </div>
         </li>

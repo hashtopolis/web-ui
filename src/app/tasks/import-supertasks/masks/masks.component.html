@@ -1,0 +1,111 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+    <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group ms-2 ms-3">
+      <a type="button" [routerLink]="['/tasks/import-supertasks/masks']" class="btn btn-sm btn-outline-gray-600-select">Masks</a>
+      <a type="button" [routerLink]="['/tasks/import-supertasks/wrbulk']" class="btn btn-sm btn-outline-gray-600">WordList/Rules Bulk</a>
+    </div>
+  </div>
+</div>
+<!-- Spinner Loading -->
+<div *ngIf="isLoading" style="text-align: center;">
+  <app-loading-spinner></app-loading-spinner>
+</div>
+<!-- Body -->
+<grid-main [class]="'width:100%'">
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <grid-form-input [name]="'Name'">
+        <input
+              type='text'
+              id="name"
+              class='form-control'
+              formControlName="name"
+        >
+      </grid-form-input>
+      <div class="row">
+        <div class="col">
+          <grid-form-input [name]="'Small Tasks'">
+            <select
+                  type='number'
+                  id="isSmall"
+                  class='form-select'
+                  formControlName="isSmall"
+            >
+              <option [ngValue]="false">Yes</option>
+              <option [ngValue]="true" [defaultSelected]=true>No</option>
+            </select>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'CPU'">
+            <select
+                  type='number'
+                  id="cpu"
+                  class='form-select'
+                  formControlName="isCPU"
+            >
+              <option [ngValue]="false">Yes</option>
+              <option [ngValue]="true" [defaultSelected]=true>No</option>
+            </select>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'Use optimized flag (-O)'">
+            <select
+                  type='number'
+                  id="optFlag"
+                  class='form-select'
+                  formControlName="optFlag"
+            >
+              <option [ngValue]="false">Yes</option>
+              <option [ngValue]="true" [defaultSelected]=true>No</option>
+            </select>
+          </grid-form-input>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <grid-form-input [name]="'Benchmark type'">
+            <select
+                    type='number'
+                    id="useBench"
+                    class='form-select'
+                    formControlName="useBench"
+              >
+                <option [ngValue]="false">Runtime</option>
+                <option [ngValue]="true" [defaultSelected]=true>Speed</option>
+              </select>
+          </grid-form-input>
+        </div>
+          <div class="col">
+            <grid-form-input [name]="'Cracker Binary'">
+              <select
+                    type='number'
+                    id='crackerBinaryId'
+                    class='form-select'
+                    #myBinary
+                    formControlName="crackerBinaryId">
+              <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+            </select>
+            </grid-form-input>
+        </div>
+      </div>
+      <grid-form-input [name]="'Insert Masks'">
+        <textarea
+                type='text'
+                id="masks"
+                class='form-control'
+                formControlName="masks"
+                required
+          >
+          </textarea>
+      </grid-form-input>
+    </div>
+    <button-submit [name]="'Create Supertask'"></button-submit>
+    {{ createForm.value | json }}
+  </form>
+</grid-main>
+<!-- New Task End-->

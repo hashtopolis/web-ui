@@ -4,149 +4,144 @@
   <app-loading-spinner></app-loading-spinner>
 </div>
 <!-- Body -->
-<div class="container px-lg-5">
-  <div class="row no-gutters">
-      <div class="col-12 col-sm-6 col-md-8 align-items-center justify-content-left">
-            <div class="layout-col shadow rounded p-4 p-lg-5 w-100 fmxw-800">
-                <form [formGroup]="viewForm">
-                  <div class="row">
-                    <div class="row g-3">
-                      <div class="col-md-2">
-                        <grid-form-input [name]="'ID'">
-                          <input
-                                type='number'
-                                id="supertaskId"
-                                class='form-control'
-                                formControlName="supertaskId"
-                          >
-                        </grid-form-input>
-                      </div>
-                      <div class="col-md-10">
-                        <grid-form-input [name]="'Name'">
-                          <input
-                                type='text'
-                                id="supertaskName"
-                                class='form-control'
-                                formControlName="supertaskName"
-                          >
-                        </grid-form-input>
-                      </div>
-                    </div>
-                  </div>
-                  <a class="btn btn-gray-800" >Apply to Hashlist</a>
-                  &nbsp;
-                  <button  class="btn btn-danger" (ngSubmit)="onDelete()">Delete</button>
-                  </form>
-                  <hr>
-                  <h5> Estimate Time
-                  <fa-icon
-                          placement="bottom"
-                          ngbTooltip="The benchmark number to enter below is the total amount of hashes per second per attack type of all of the agents combined that will run the supertask."
-                          container="body"
-                          [icon]="faInfoCircle"
-                          aria-hidden="true"
-                  ></fa-icon>
-                  </h5>
-                  <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
-                  <div class="row">
-                    <div class="col">
-                      <grid-form-input [name]="'Benchmark for -a0 attacks'">
-                        <input
-                              type='number'
-                              id="benchmarka0"
-                              class='form-control'
-                              formControlName="benchmarka0"
-                        >
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Benchmark for -a3 attacks'">
-                        <input
-                              type='number'
-                              id="benchmarka3"
-                              class='form-control'
-                              formControlName="benchmarka3"
-                        >
-                        <pre></pre>
-                        <button class="btn btn-gray-800 actions-td-right">Calculate Runtime</button>
-                      </grid-form-input>
-                    </div>
-                  </div>
-                  <div *ngIf="etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0">
-                    &nbsp;
-                    <tr>
-                      <th>
-                        Estimated total runtime of supertask:
-                      </th>
-                      <td class="runtimeOfSupertask">
-                      </td>
-                    </tr>
-                  </div>
-              </form>
-        </div>
-      </div>
-      <div class="col-6 col-md-4">
-        <div class="layout-col shadow rounded p-4 w-100 fmxw-700">
-          <h5>Add Pretask</h5>
-          <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-              <grid-form-input [name]="'Select or search to assign pretasks'">
-                <div class="input-group">
-                    <span class="input-group-text" >
-                      <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-                    </span>
-                    <select
-                          type='number'
-                          id="pretasks"
-                          class='form-select'
-                          formControlName="pretasks"
-                        >
-                        <option [ngValue]=""></option>
-                    </select>
-                </div>
+<div class="row g-3">
+  <div class="col-md-7">
+    <grid-main [class]="'width:100%'">
+      <form [formGroup]="viewForm">
+        <div class="row">
+          <div class="row g-3">
+            <div class="col-md-2">
+              <grid-form-input [name]="'ID'">
+                <input
+                      type='number'
+                      id="supertaskId"
+                      class='form-control'
+                      formControlName="supertaskId"
+                >
               </grid-form-input>
             </div>
-            <button-submit [name]="'Add'"></button-submit>
-          </form>
+            <div class="col-md-10">
+              <grid-form-input [name]="'Name'">
+                <input
+                      type='text'
+                      id="supertaskName"
+                      class='form-control'
+                      formControlName="supertaskName"
+                >
+              </grid-form-input>
+            </div>
+          </div>
         </div>
+        <button class="btn btn-gray-800">Apply to Hashlist</button>
+        <button class="btn btn-danger" (ngSubmit)="onDelete()">Delete</button>
+        </form>
+        <hr>
+        <h5>Add Pretask</h5>
+        <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <grid-form-input [name]="'Select or search to assign pretasks'">
+              <div class="input-group">
+                  <span class="input-group-text" >
+                    <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+                  </span>
+                  <select
+                        type='number'
+                        id="pretasks"
+                        class='form-select'
+                        formControlName="pretasks"
+                      >
+                      <option [ngValue]=""></option>
+                  </select>
+              </div>
+            </grid-form-input>
+          </div>
+          <button-submit [name]="'Add'"></button-submit>
+        </form>
+  </grid-main>
+</div>
+<div class="col-md-5">
+  <grid-main [class]="'width:100%'">
+    <h5> Estimate Time
+    <fa-icon
+            placement="bottom"
+            ngbTooltip="The benchmark number to enter below is the total amount of hashes per second per attack type of all of the agents combined that will run the supertask."
+            container="body"
+            [icon]="faInfoCircle"
+            aria-hidden="true"
+    ></fa-icon>
+    </h5>
+    <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
+    <div class="row">
+      <div class="col">
+        <grid-form-input [name]="'Benchmark for -a0 attacks'">
+          <input
+                type='number'
+                id="benchmarka0"
+                class='form-control'
+                formControlName="benchmarka0"
+          >
+        </grid-form-input>
       </div>
-   </div>
+      <div class="col">
+        <grid-form-input [name]="'Benchmark for -a3 attacks'">
+          <input
+                type='number'
+                id="benchmarka3"
+                class='form-control'
+                formControlName="benchmarka3"
+          >
+        </grid-form-input>
+      </div>
+      <button class="btn btn-gray-800 actions-td-right">Calculate Runtime</button>
+    </div>
+    <div *ngIf="etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0">
+      &nbsp;
+      <tr>
+        <th>
+          Estimated total runtime of supertask:
+        </th>
+        <td class="runtimeOfSupertask">
+        </td>
+      </tr>
+    </div>
+   </form>
+  </grid-main>
+</div>
 </div>
 <!--Table Pretasks part of the supertask -->
-<div class="table-responsive">
+<app-table>
   <h4>Pretasks</h4>
-    <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[0]" [dtTrigger]="dtTrigger">
-      <thead class="thead-light">
-        <tr>
-            <th class="rounded-start">ID</th>
-            <th>Name</th>
-            <th>Attack Command</th>
-            <th>Estimated Keyspace</th>
-            <th>Attack runtime</th>
-            <th class="rounded-end">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="taskInSuper" *ngFor="let p of pretasks[0].matchObjectFiles">
-          <td>
-            <span [ngClass]="!p.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': p.color }">{{  p.pretaskId }}</span>
-          </td>
-          <td>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[0]" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Name</th>
+          <th>Attack Command</th>
+          <th>Estimated Keyspace</th>
+          <th>Attack runtime</th>
+          <th class="rounded-end">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="taskInSuper" *ngFor="let p of pretasks[0].matchObjectFiles">
+        <td>
+          <span [ngClass]="!p.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': p.color }">{{  p.pretaskId }}</span>
+        </td>
+        <td>
+          <a [routerLink]="['/tasks/preconfigured-tasks/', p.pretaskId, 'edit' ]">
             {{ p.taskName | shortenString:35 | lowercase | titlecase }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/preconfigured-tasks/', p.pretaskId, 'edit' ]">
-              <fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon>
-            </a>
-          </td>
-          <td>{{ p.attackCmd }}</td>
-          <td>{{ p.pretaskFiles | keyspace:'lineCount':p.attackCmd:false }}</td>
-          <td class="attackRuntime"></td>
-          <td>
-            <a>
-              <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete">
-              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon></a>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-</div>
+          </a>
+        </td>
+        <td>{{ p.attackCmd }}</td>
+        <td>{{ p.pretaskFiles | keyspace:'lineCount':p.attackCmd:false }}</td>
+        <td class="attackRuntime"></td>
+        <td>
+          <a>
+            <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete">
+            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon></a>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</app-table>

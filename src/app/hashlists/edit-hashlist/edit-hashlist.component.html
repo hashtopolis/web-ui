@@ -36,14 +36,15 @@
           <div class="row g-3">
             <div class="col-md-3">
               <grid-form-input [name]="'Secret'" [tooltip]="'Contains secret data'">
-                <select
-                        id='isSecret'
-                        class='form-select'
+                <td>
+                  <div class="form-check form-switch">
+                  <input
+                        type="checkbox"
+                        id="isSecret"
+                        class="form-check-input"
                         formControlName="isSecret"
-                    >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                  </select>
+                  >
+                  </div>
               </grid-form-input>
             </div>
             <div class="col-md-9">
@@ -62,17 +63,13 @@
         </div>
         <hr>
         <grid-form-input [name]="'Hash Type'">
-          <div *ngFor="let h of hashT" class="form-outline">
-            <label class="form-label" for="getHashTypeId"></label>
-            <span class="pre input-group-text input-group-lg">
-              {{ h[0].description }}
-            </span>
-          </div>
+          <span *ngFor="let h of hashT" class="pre input-group-text input-group-lg">
+            {{ h[0].description }}
+          </span>
         </grid-form-input>
         <div class="row">
           <div class="col">
             <grid-form-input [name]="'Using hashcat brain'">
-              <label class="form-label" for="getHashTypeId"></label>
               <input
                     id='useBrain'
                     class='form-control'

@@ -18,7 +18,7 @@
         <td>{{ sh.hashlistId }}</td>
         <td>
           <a>{{ sh.name }}</a>
-          <span *ngIf="sh.isSecret === 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+          <span *ngIf="sh.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
         <td>{{ sh.hashType.description }}</td>
         <td>

@@ -1,19 +1,16 @@
-<grid-main [class]="'fmxw-700'" [centered]="true">
-  <app-page-subtitle [subtitle]="'HEX convertor:'"></app-page-subtitle>
-  <div class="row">
-    <div class="form-group">
-        <div class="form-outline">
-          <input class="form-control input-lg" #hexval id="hexval" (input)="hexConv(hexval.value)"/>
-        </div>
-    </div>
-    &nbsp;
+<grid-main [class]="'width:100%;'" [centered]="true">
+    <grid-form-input [name]="'HEX convertor:'">
+      <input
+             class="form-control input-lg"
+             #hexval
+             id="hexval"
+             (input)="hexConv(hexval.value)"
+             />
+    </grid-form-input>
     <div class="highlight">
         {{ hexVal }}
-    </div>&nbsp;
-    <span>
-      <button class="btn btn-gray-800" (click)="onClear()">Clear</button>
-    </span>
-  </div>
+    </div>
+    <button class="btn btn-gray-800" (click)="onClear()">Clear</button>
 </grid-main>
 
 

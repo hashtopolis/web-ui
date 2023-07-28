@@ -45,6 +45,7 @@ export class ProjectsComponent implements OnInit {
       this.projects = proj.values;
       this.dtTrigger.next(void 0);
     });
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       bStateSave:true,
@@ -59,6 +60,13 @@ export class ProjectsComponent implements OnInit {
             }
           },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -127,6 +135,11 @@ export class ProjectsComponent implements OnInit {
         ],
       }
     };
+  }
+
+  onRefresh(){
+    // this.rerender();
+    this.ngOnInit();
   }
 
   getStatus(status: string): string{

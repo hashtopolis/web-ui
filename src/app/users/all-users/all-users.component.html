@@ -9,7 +9,7 @@
           <th>Creation date</th>
           <th>Last login</th>
           <th>Email</th>
-          <th>Validity</th>
+          <th>Status</th>
           <th>Session lifetime</th>
           <th>Right group</th>
           <th class="rounded-end"></th>
@@ -22,7 +22,11 @@
           <td>{{ user.registeredSince*1000 | date: uidateformat }}</td>
           <td>{{ user.lastLoginDate*1000 | date: uidateformat }}</td>
           <td>{{ user.email }}</td>
-          <td><span class="{{user.isValid === 1 ? 'fw-bold text-success' : 'fw-bold text-warning'}}">{{ user.isValid === 1 ? "Valid" : "Invalid/Not activated" }}</span></td>
+          <td>
+            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:yellow'}}">
+              {{ user.isValid === true ? "Valid" : "Invalid/Not activated" }}
+            </span>
+          </td>
           <td>{{ user.sessionLifetime }}</td>
           <td>{{ user.globalPermissionGroup.name }}</td>
           <td class="overflow-hidden">

@@ -44,7 +44,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   whichView: string;
   createForm: FormGroup
   crackertype: any
-  color = '#fff'
+  color: any;
   colorpicker=colorpicker;
 
   @ViewChild(DataTableDirective)
@@ -77,15 +77,25 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   onChange(fileId:number, fileType:number, fileName: string, $target: EventTarget) {
     const isChecked = (<HTMLInputElement>$target).checked;
     if(isChecked) {
+      if (this.copyMode) {
+        this.filesFormArray = this.createForm.get('files').value;
+      }
       this.filesFormArray.push(fileId);
       this.OnChangeAttack(fileName, fileType);
       this.createForm.patchValue({files: this.filesFormArray });
     } else {
+      if (this.copyMode) {
+        this.filesFormArray = this.createForm.get('files').value;
+      }
       const index = this.filesFormArray.indexOf(fileId);
       this.filesFormArray.splice(index,1);
       this.createForm.patchValue({files: this.filesFormArray});
       this.OnChangeAttack(fileName, fileType, true);
     }
+  }
+
+  onChecked(fileId: number){
+    return this.createForm.get('files').value.includes(fileId);
   }
 
   OnChangeAttack(item: string, fileType: number, onRemove?: boolean){
@@ -189,44 +199,12 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     });
 
 
-    this.dtOptions[0] = {
+    this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: "1000px",
       scrollCollapse: true,
       paging: false,
       // destroy: true,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
-      }
-    }
-
-    this.dtOptions[1] = {
-      dom: 'Bfrtip',
-      scrollY: "1000px",
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
-      }
-    }
-
-    this.dtOptions[2] = {
-      dom: 'Bfrtip',
-      scrollY: "1000px",
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
       buttons: {
           dom: {
             button: {
@@ -330,7 +308,14 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   private initForm() {
     this.isLoading = true;
     if (this.copyMode) {
-    this.gs.get(SERV.PRETASKS,this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.PRETASKS,this.editedIndex, {'expand':'pretaskFiles'}).subscribe((result)=>{
+      this.color = result['color'];
+      const arrFiles: Array<any> = [];
+      if(result['pretaskFiles']){
+        for(let i=0; i < result['pretaskFiles'].length; i++){
+          arrFiles.push(result['pretaskFiles'][i]['fileId']);
+        }
+      }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_pretask_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
         'attackCmd': new FormControl(result['attackCmd']),
@@ -344,7 +329,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
         'isSmall': new FormControl(result['isSmall'], Validators.required),
         'useNewBench': new FormControl(result['useNewBench'], Validators.required),
         'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
-        'files': new FormControl(result['files'], Validators.required),
+        'files': new FormControl(arrFiles, Validators.required),
       });
       this.isLoading = false;
     });
@@ -355,6 +340,13 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     this.isLoading = true;
     if (this.copyMode) {
     this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{
+      this.color = result['color'];
+      const arrFiles: Array<any> = [];
+      if(result['pretaskFiles']){
+        for(let i=0; i < result['pretaskFiles'].length; i++){
+          arrFiles.push(result['pretaskFiles'][i]['fileId']);
+        }
+      }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_pretask_from_task_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
         'attackCmd': new FormControl(result['attackCmd']),

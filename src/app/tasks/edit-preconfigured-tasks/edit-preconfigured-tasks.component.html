@@ -19,75 +19,103 @@
                       formControlName="pretaskId"
                 >
               </grid-form-input>
-            </div>
-            <div class="col-md-7">
-              <div formGroupName="updateData">
-                <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
+              </div>
+              <div class="col-md-7">
+                <div formGroupName="updateData">
+                  <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
+                    <input
+                          type='text'
+                          id='taskName'
+                          class='form-control'
+                          formControlName="taskName"
+                    >
+                  </grid-form-input>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <grid-form-input [name]="'Color'">
                   <input
                         type='text'
-                        id='taskName'
-                        class='form-control'
-                        formControlName="taskName"
-                  >
+                        class="form-control"
+                        [(colorPicker)]="color"
+                        (colorPickerChange)="OnChangeValue($event)"
+                        [style.background]="color"
+                        [value]="color"
+                        [cpPresetColors]="colorpicker"
+                        formControlName="color"/>
                 </grid-form-input>
               </div>
             </div>
-            <div class="col-md-3">
-              <grid-form-input [name]="'Color'">
-                <input
+            <div formGroupName="updateData">
+              <grid-form-input [name]="'Attack command'" [labelclass]="'requiredak'">
+                <textarea
                       type='text'
-                      class="form-control"
-                      [(colorPicker)]="color"
-                      (colorPickerChange)="OnChangeValue($event)"
-                      [style.background]="color"
-                      [value]="color"
-                      [cpPresetColors]="colorpicker"
-                      formControlName="color"/>
+                      id='attackCmd'
+                      class='form-control'
+                      formControlName="attackCmd"
+                ></textarea>
               </grid-form-input>
-            </div>
-            <grid-form-input [name]="'Attack command'" [labelclass]="'requiredak'">
-              <input
-                    type='text'
-                    id='attackCmd'
-                    class='form-control'
-                    formControlName="attackCmd"
-              >
-            </grid-form-input>
-            <div class="row g-3">
-              <div class="col-md-4">
-                <grid-form-input [name]="'Priority'">
-                  <input
-                        type='number'
-                        id='priority'
-                        class='form-control'
-                        formControlName="priority"
-                        validateInputNumber
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Priority'">
+                    <input
+                          type='number'
+                          id='priority'
+                          class='form-control'
+                          formControlName="priority"
+                          validateInputNumber
+                      >
+                  </grid-form-input>
+                </div>
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Max agents'">
+                    <input
+                          type='number'
+                          id='maxAgents'
+                          class='form-control'
+                          formControlName="maxAgents"
+                          validateInputNumber
+                      >
+                  </grid-form-input>
+                </div>
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Chunk size'" [tooltip]="'Measure is in seconds time.'">
+                    <input
+                          type='number'
+                          id='chunkTime'
+                          class='form-control'
+                          formControlName="chunkTime"
+                          validateInputNumber
                     >
-                </grid-form-input>
+                  </grid-form-input>
+                </div>
               </div>
-              <div class="col-md-4">
-                <grid-form-input [name]="'Max agents'">
-                  <input
-                        type='number'
-                        id='maxAgents'
-                        class='form-control'
-                        formControlName="maxAgents"
-                        validateInputNumber
-                    >
-                </grid-form-input>
+              <div class="row">
+                <div class="col">
+                  <grid-form-input [name]="'CPU only'" [tooltip]="'The task will work only with CPU agents assigned'">
+                    <select
+                          id='isCpuTask'
+                          class='form-select'
+                          formControlName="isCpuTask"
+                      >
+                      <option [ngValue]="false">No</option>
+                      <option [ngValue]="true">Yes</option>
+                    </select>
+                  </grid-form-input>
+                </div>
+                <div class="col">
+                  <grid-form-input [name]="'Small task'">
+                    <select
+                          id='isSmall'
+                          class='form-select'
+                          formControlName="isSmall"
+                      >
+                      <option [ngValue]="false">No</option>
+                      <option [ngValue]="true">Yes</option>
+                    </select>
+                  </grid-form-input>
+                </div>
               </div>
-              <div class="col-md-4">
-                <grid-form-input [name]="'Chunk size'" [tooltip]="'Measure is in seconds time.'">
-                  <input
-                        type='number'
-                        id='chunkTime'
-                        class='form-control'
-                        formControlName="chunkTime"
-                        validateInputNumber
-                  >
-                </grid-form-input>
-              </div>
-            </div>
           </div>
           <div class="row">
             <div class="col">
@@ -113,36 +141,8 @@
               </grid-form-input>
             </div>
           </div>
-          <div formGroupName="updateData">
-            <div class="row">
-              <div class="col">
-                <grid-form-input [name]="'CPU only'" [tooltip]="'The task will work only with CPU agents assigned'">
-                  <select
-                        id='isCpuTask'
-                        class='form-select'
-                        formControlName="isCpuTask"
-                    >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                  </select>
-                </grid-form-input>
-              </div>
-              <div class="col">
-                <grid-form-input [name]="'Small task'">
-                  <select
-                        id='isSmall'
-                        class='form-select'
-                        formControlName="isSmall"
-                    >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                  </select>
-                </grid-form-input>
-              </div>
-            </div>
-          </div>
-          </div>
         <button-submit [name]="'Update'"></button-submit>
+        </div>
       </form>
     </grid-main>
   </div>
@@ -162,11 +162,10 @@
         <tr *ngFor="let f of files[0].pretaskFiles">
             <td >{{ f.fileId }}</td>
             <td>
-              {{ f.filename | shortenString:35 | lowercase | titlecase }}
-              <span *ngIf="f.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
-                <fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon>
+              <a [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
+                {{ f.filename | shortenString:35 | lowercase | titlecase }}
               </a>
+              <span *ngIf="f.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
             </td>
             <td>{{ f.fileType | fileType  }}</td>
             <td>{{ f.size | fileSize:false }}</td>
@@ -176,4 +175,3 @@
     </app-table>
   </div>
 </div>
-

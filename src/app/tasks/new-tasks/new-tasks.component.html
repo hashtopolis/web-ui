@@ -3,7 +3,7 @@
     <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
   </div>
   <div *ngSwitchCase="'edit'">
-    <app-page-title [title]="'Data Copied From Pretask ID ' + editedIndex" [subbutton]="false"></app-page-title>
+    <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
   </div>
 </div>
 <!-- Spinner -->
@@ -56,7 +56,7 @@
                     class='form-select'
                     formControlName="hashlistId"
                 >
-                <option [ngValue]=""></option>
+                <option></option>
             </select>
             </grid-form-input>
             <div class="form-group">
@@ -333,7 +333,8 @@
                     <form [formGroup]="createForm" novalidate>
                       <!-- Main attack checkbox -->
                       <div class="form-check" >
-                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
+                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
+                        <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
                       </div>
                       <!-- Preprocessor checkbox -->
                       <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
@@ -341,11 +342,11 @@
                       </div>
                     </form>
                   </td>
-                  <td *ngIf="f.isSecret === true" class="width: 100px">
+                  <td class="width: 100px">
                     <label class="form-check-label" for="{{f.filename}}">
-                      {{f.filename | shortenString:25 }}
+                      {{f.filename | shortenString:25 }} {{f.fileId}}
                     </label>
-                    <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                    <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
                     <fa-icon
                             placement="bottom"
                             ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
@@ -354,19 +355,6 @@
                             aria-hidden="true"
                     >
                     </fa-icon>
-                </td>
-                <td *ngIf="f.isSecret === false">
-                  <label class="form-check-label" for="{{f.filename}}">
-                    {{ f.filename | shortenString:18 }}
-                  </label>
-                  <fa-icon
-                          placement="bottom"
-                          ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
-                          container="body"
-                          [icon]="faInfoCircle"
-                          aria-hidden="true"
-                  >
-                  </fa-icon>
                 </td>
               </tr>
             </tbody>
@@ -402,7 +390,8 @@
                     <form [formGroup]="createForm" novalidate>
                       <!-- Main attack checkbox -->
                       <div class="form-check" >
-                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
+                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
+                        <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
                       </div>
                       <!-- Preprocessor checkbox -->
                       <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
@@ -410,24 +399,14 @@
                       </div>
                     </form>
                   </td>
-                  <td *ngIf="f.isSecret === true">
+                  <td >
                     <label class="form-check-label" for="{{f.filename}}">
                       {{f.filename | shortenString:25 }}
                     </label>
-                    <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                    <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
                     <fa-icon
                             placement="bottom"
                             ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
-                            container="body"
-                            [icon]="faInfoCircle"
-                            aria-hidden="true"
-                    >
-                    </fa-icon>
-                  </td>
-                  <td *ngIf="f.isSecret === false">{{ f.filename | shortenString:18 }}
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
                             container="body"
                             [icon]="faInfoCircle"
                             aria-hidden="true"
@@ -464,42 +443,33 @@
               </thead>
               <tbody>
               <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-                  <td>
-                    <form [formGroup]="createForm" novalidate>
-                      <!-- Main attack checkbox -->
-                      <div class="form-check" >
-                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                      </div>
-                      <!-- Preprocessor checkbox -->
-                      <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                        <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                      </div>
-                    </form>
-                  </td>
-                  <td *ngIf="f.isSecret === true" class="width: 100px">
-                    <label class="form-check-label" for="{{f.filename}}">
-                      {{f.filename | shortenString:25 }}
-                    </label>
-                    <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
-                            container="body"
-                            [icon]="faInfoCircle"
-                            aria-hidden="true"
-                    >
-                    </fa-icon>
-                  </td>
-                  <td *ngIf="f.isSecret === false">{{ f.filename | shortenString:18 }}
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
-                            container="body"
-                            [icon]="faInfoCircle"
-                            aria-hidden="true"
-                    >
-                    </fa-icon>
-                  </td>
+                <td>
+                  <form [formGroup]="createForm" novalidate>
+                    <!-- Main attack checkbox -->
+                    <div class="form-check" >
+                      <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
+                      <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
+                    </div>
+                    <!-- Preprocessor checkbox -->
+                    <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
+                      <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
+                    </div>
+                  </form>
+                </td>
+                <td class="width: 100px">
+                  <label class="form-check-label" for="{{f.filename}}">
+                    {{f.filename | shortenString:25 }}
+                  </label>
+                  <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                  <fa-icon
+                          placement="bottom"
+                          ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                          container="body"
+                          [icon]="faInfoCircle"
+                          aria-hidden="true"
+                  >
+                  </fa-icon>
+                </td>
               </tr>
             </tbody>
           </table>

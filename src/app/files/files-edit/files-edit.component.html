@@ -9,7 +9,6 @@
     <div class="row">
     <grid-form-input [name]="'ID'">
       <input
-            type='number'
             id="fileId"
             class='form-control'
             formControlName="fileId"
@@ -43,6 +42,17 @@
             >
             <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
         </select>
+      </grid-form-input>
+      <grid-form-input [name]="'Secret'">
+        <td>
+          <div class="form-check form-switch">
+          <input
+                type="checkbox"
+                id="isSecret"
+                class="form-check-input"
+                formControlName="isSecret"
+          >
+          </div>
       </grid-form-input>
     </div>
     <button-submit [name]="'Update'"></button-submit>

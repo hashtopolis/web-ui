@@ -2,7 +2,15 @@
   <div class="container">
     <grid-main [class]="'fmxw-500'" [centered]="true">
       <div class="text-center text-md-center mb-0 mt-md-0">
-          <h1 class="mb-0 h3">Sign In</h1>
+        <video
+              [muted]="false" autoplay playsinline
+              width="120px"
+              height="120px"
+              class="navbar-left"
+              type="video/mp4"
+              >
+            <source src={{this.headerConfig.brand.logo}} type="video/mp4">
+          </video>
       </div>
       <!-- Handle authentification Error -->
       <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert>

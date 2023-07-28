@@ -1,10 +1,10 @@
 import { TitleComponent, TitleComponentOption, ToolboxComponent, ToolboxComponentOption, TooltipComponent, TooltipComponentOption, GridComponent, GridComponentOption, VisualMapComponent, VisualMapComponentOption, DataZoomComponent, DataZoomComponentOption, MarkLineComponent, MarkLineComponentOption } from 'echarts/components';
 import { faHomeAlt, faEye, faEraser } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { LineChart, LineSeriesOption } from 'echarts/charts';
+import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -159,12 +159,12 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.tusepreprocessor = result['preprocessorId'];
       this.updateForm = new FormGroup({
         'taskId': new FormControl(result['taskId']),
-        'forcePipe': new FormControl(result['forcePipe']== true? 'Yes':'No'),
-        'skipKeyspace': new FormControl(result['skipKeyspace'] > 0?result['skipKeyspace']:'N/A'),
-        'keyspace': new FormControl(result['keyspace']),
-        'keyspaceProgress': new FormControl(result['keyspaceProgress']),
+        'forcePipe': new FormControl({value: result['forcePipe']== true? 'Yes':'No', disabled: true}),
+        'skipKeyspace': new FormControl({value: result['skipKeyspace'] > 0?result['skipKeyspace']:'N/A', disabled: true}),
+        'keyspace': new FormControl({value: result['keyspace'], disabled: true}),
+        'keyspaceProgress': new FormControl({value: result['keyspaceProgress'], disabled: true}),
         'crackerBinaryId': new FormControl(result['crackerBinaryId']),
-        'chunkSize': new FormControl(result['chunkSize']),
+        'chunkSize': new FormControl({value: result['chunkSize'], disabled: true}),
         'updateData': new FormGroup({
           'taskName': new FormControl(result['taskName']),
           'attackCmd': new FormControl(result['attackCmd']),
@@ -182,6 +182,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     });
    }
   }
+
 
   attachFilesInit(id: number){
     this.dtOptions[0] = {
@@ -287,8 +288,9 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
         const resultArray = [];
         const cspeed = [];
         for(let i=0; i < this.getchunks.length; i++){
-          if(Date.now() - Math.max(this.getchunks[i].solveTime, this.getchunks[i].dispatchTime) < chunktime && this.getchunks[i].progress < 10000){
+          if(Date.now()/1000 - Math.max(this.getchunks[i].solveTime, this.getchunks[i].dispatchTime) < chunktime && this.getchunks[i].progress < 10000){
             this.isactive = 1;
+
             cspeed.push(this.getchunks[i].speed);
             resultArray.push(this.getchunks[i]);
           }
@@ -300,7 +302,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       });
     });
 
-    this.dtOptions[2] = {
+    this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: "700px",
       scrollCollapse: true,
@@ -365,14 +367,14 @@ getHashlist(){
 // Task Speed Graph
 getTaskSpeed(){
   this.editedTaskIndex;
-  const params = {'maxResults': 500 };
+  const params = {'maxResults': 3000 };
 
-  this.gs.getAll(SERV.HASHES,params).subscribe((hashes: any) => {
-    this.initTaskSpeed(hashes.values);
+  this.gs.getAll(SERV.SPEEDS,params).subscribe((sp: any) => {
+    this.initTaskSpeed(sp.values);
   });
 }
 
-initTaskSpeed(obj: Object){
+initTaskSpeed(obj: object){
 
   echarts.use([
     TitleComponent,
@@ -403,16 +405,16 @@ initTaskSpeed(obj: Object){
   const max = []
   for(let i=0; i < data.length; i++){
 
-    const iso = this.transDate(data[i]['timeCracked']);
-    arr.push([iso, data[i]['chunkId']]);
-    max.push(data[i]['timeCracked']);
+    const iso = this.transDate(data[i]['time']);
+    arr.push([iso, data[i]['speed']]);
+    max.push(data[i]['time']);
   }
 
   const startdate =  Math.max(...max);
   const datelabel = this.transDate(startdate);
-  const xAxis = this.generateIntervalsOf(5,+startdate-50,+startdate);
+  const xAxis = this.generateIntervalsOf(5,+startdate-3000,+startdate);
 
-  const chartDom = document.getElementById('tspeed')!;
+  const chartDom = document.getElementById('tspeed');
   const myChart = echarts.init(chartDom);
   let option: EChartsOption;
 
@@ -429,58 +431,47 @@ initTaskSpeed(obj: Object){
           }
         },
         grid: {
-          left: '5%',
-          right: '15%',
-          bottom: '10%'
+          right: '0%',
         },
         xAxis: {
           data: xAxis.map(function (item: any[] | any) {
             return self.transDate(item);
           })
         },
-        yAxis: {},
+        yAxis: {
+          type: 'value',
+          name: 'H/s',
+          position: 'left',
+          alignTicks: true,
+        },
+        useUTC: true,
         toolbox: {
-          right: 10,
+          itemGap: 10,
+          show: true,
           feature: {
             dataZoom: {
               yAxisIndex: 'none'
             },
             restore: {},
-            saveAsImage: {}
+            saveAsImage: {
+              name: "Task Speed"
+            }
           }
         },
         dataZoom: [
           {
-            startValue: datelabel
+            type: 'slider',
+            show: true,
+            start: 94,
+            end: 100,
+            handleSize: 8
           },
           {
-            type: 'inside'
-          }
+            type: 'inside',
+            start: 94,
+            end: 100
+          },
         ],
-        visualMap: {
-          top: 50,
-          right: 10,
-          pieces: [
-            {
-              gt: 0,
-              lte: 30000,
-              color: '#FC7D02'
-            },
-            {
-              gt: 30000,
-              lte: 60000,
-              color: '#FBDB0F'
-            },
-            {
-              gt: 60000,
-              lte: 10000000,
-              color: '#93CE07'
-            }
-          ],
-          outOfRange: {
-            color: '#999'
-          }
-        },
         series: {
           name: '',
           type: 'line',
@@ -519,7 +510,9 @@ initTaskSpeed(obj: Object){
 
  transDate(dt){
   const date:any = new Date(dt* 1000);
-  return date.getUTCFullYear()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCDate()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
+  // American Format
+  // return date.getUTCFullYear()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCDate()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
+  return date.getUTCDate()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCFullYear()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
  }
 
  generateIntervalsOf(interval, start, end) {
@@ -534,7 +527,7 @@ initTaskSpeed(obj: Object){
     return result;
   }
 
-  // @HostListener allows us to also guard against browser refresh, close, etc.
+ // @HostListener allows us to also guard against browser refresh, close, etc.
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any) {
     if (!this.canDeactivate()) {

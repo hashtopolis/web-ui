@@ -88,6 +88,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         },
       buttons: [
         {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
           extend: 'collection',
           text: 'Export',
           buttons: [
@@ -178,6 +185,11 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         ],
       }
     };
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   // Set permissions

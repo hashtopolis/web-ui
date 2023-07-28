@@ -58,9 +58,20 @@ table.dataTable {
   td {
     vertical-align: top;
     text-align: left;
-    font-size: .890rem;
+    font-size: .930rem;
     font-weight: 400;
     font-weight: normal;
+  }
+
+  .align-text {
+    margin-right: -12px;
+  }
+
+  .checkmark {
+    --bs-badge-padding-x: 0.0em !important;
+    --bs-badge-padding-y: 0.0em !important;
+    line-height: 1 !important;
+    white-space: normal !important;
   }
 }
 
@@ -151,3 +162,5 @@ button.dt-button, div.dt-button, a.dt-button, input.dt-button {
 /*
   02- End
 */
+
+

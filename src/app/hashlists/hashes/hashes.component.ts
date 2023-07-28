@@ -69,8 +69,46 @@ export class HashesComponent implements OnInit {
       dom: 'Bfrtip',
       pageLength: 10,
       searching: false,
-      buttons: []
-    };
+      buttons: {
+        dom: {
+          button: {
+            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+          }
+        },
+        buttons: [
+          {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+              {
+                extend: 'print',
+                customize: function ( win ) {
+                  $(win.document.title)
+                      .css( 'font-size', '14pt' )
+                  $(win.document.body)
+                      .css( 'font-size', '10pt' )
+                  $(win.document.body).find( 'table' )
+                      .addClass( 'compact' )
+                      .css( 'font-size', 'inherit' );
+               }
+              },
+              {
+                extend: 'csvHtml5',
+                exportOptions: {modifier: {selected: true}},
+                select: true,
+                customize: function (dt, csv) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
+                    data = "Hashes Information\n\n"+  dt;
+                  }
+                  return data;
+               }
+              }
+              ]
+            },
+          ],
+        }
+      }
 
     this.route.data.subscribe(data => {
       switch (data['kind']) {
@@ -125,10 +163,11 @@ export class HashesComponent implements OnInit {
 
     this.gs.getAll(SERV.HASHES,nwparams).subscribe((hashes: any) => {
       let res = hashes.values;
-      if(this.whichView = 'tasks'){
-        res = res.filter(u=> u.chunk.taskId == this.editedIndex);
+      console.log(this.whichView);
+      if(this.whichView === 'tasks'){
+        res = res.filter(u=> u.chunk?.taskId == this.editedIndex);
       }
-      if(this.filtering == 'cracked'){
+      if(this.filtering === 'cracked'){
         this.matchHashes = res.filter(u=> u.isCracked == 'true');
       }else{
         this.matchHashes = res;

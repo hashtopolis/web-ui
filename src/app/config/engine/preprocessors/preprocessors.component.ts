@@ -44,6 +44,7 @@ export class PreprocessorsComponent implements OnInit {
         this.preproc = pre.values;
         this.dtTrigger.next(void 0);
       });
+      const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
         pageLength: 10,
@@ -56,6 +57,13 @@ export class PreprocessorsComponent implements OnInit {
             }
           },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -98,6 +106,11 @@ export class PreprocessorsComponent implements OnInit {
         }
       };
 
+    }
+
+    onRefresh(){
+      this.rerender();
+      this.ngOnInit();
     }
 
     rerender(): void {

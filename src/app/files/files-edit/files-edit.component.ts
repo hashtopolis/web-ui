@@ -55,7 +55,8 @@ export class FilesEditComponent implements OnInit {
       'updateData': new FormGroup({
         'filename': new FormControl('', [Validators.required, Validators.minLength(1)]),
         'fileType': new FormControl(null),
-        'accessGroupId': new FormControl(null)
+        'accessGroupId': new FormControl(null),
+        'isSecret': new FormControl(null),
       })
     });
 
@@ -104,7 +105,7 @@ export class FilesEditComponent implements OnInit {
 
     this.isLoading = true;
 
-    this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value).subscribe((hl: any) => {
+    this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value['updateData']).subscribe(() => {
       this.isLoading = false;
       Swal.fire({
         title: "Great!",
@@ -160,11 +161,12 @@ private initForm() {
   if (this.editMode) {
   this.gs.get(SERV.FILES,this.editedFileIndex).subscribe((result)=>{
     this.updateForm = new FormGroup({
-      'fileId': new FormControl(result['fileId'], Validators.required),
+      'fileId': new FormControl({value: result['fileId'], disabled: true}),
       'updateData': new FormGroup({
         'filename': new FormControl(result['filename'], Validators.required),
         'fileType': new FormControl(result['fileType'], Validators.required),
         'accessGroupId': new FormControl(result['accessGroupId'], Validators.required),
+        'isSecret': new FormControl(result['isSecret']),
       })
     });
     this.isLoading = false;

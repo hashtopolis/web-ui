@@ -158,12 +158,12 @@ export class EditUsersComponent implements OnInit {
     if (this.editMode) {
       this.gs.get(SERV.USERS,this.editedUserIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
-        'id': new FormControl(result['id']),
-        'name': new FormControl(result['name']),
-        'email': new FormControl(result['email']),
-        'registered': new FormControl(this.datePipe.transform(result['registeredSince'],this.uidateformat)),
-        'lastLogin': new FormControl(this.datePipe.transform(result['lastLoginDate'],this.uidateformat)),
-        'globalPermissionGroup': new FormControl(result['globalPermissionGroup']),
+        'id': new FormControl({value: result['id'], disabled: true}),
+        'name': new FormControl({value: result['name'], disabled: true}),
+        'email': new FormControl({value: result['email'], disabled: true}),
+        'registered': new FormControl({value: this.datePipe.transform(result['registeredSince'],this.uidateformat), disabled: true}),
+        'lastLogin': new FormControl({value: this.datePipe.transform(result['lastLoginDate'],this.uidateformat), disabled: true} ),
+        'globalPermissionGroup': new FormControl({value: result['globalPermissionGroup'], disabled: true}) ,
         'updateData': new FormGroup({
           'globalPermissionGroupId': new FormControl(result['globalPermissionGroupId']),
           // 'setPassword': new FormControl(),

@@ -421,29 +421,19 @@
       </thead>
       <tbody>
         <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
+          <td>{{ aa.agentId }}</td>
           <td>
-            {{ aa.agentId }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',aa.agentId,'edit']">
-              <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
-            </a>
+            <a [routerLink]="['/agents/show-agents',aa.agentId,'edit']">{{ aa.agentName | shortenString:15 | lowercase | titlecase }}</a>
+            <span *ngIf="aa.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="aa.isActive === false" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
           </td>
           <td>
-            {{ aa.agentName | shortenString:15 | lowercase | titlecase }}
-            <span *ngIf="aa.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-            <span *ngIf="aa.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
-          </td>
-          <td>
-            <a *ngIf="aa.taskId">Task: {{ aa.taskName | shortenString:15 | lowercase | titlecase }}
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">
-                <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
-              </a>,
-            </a>
+            <div *ngIf="aa.taskId">Task:
+              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>,
+            </div>
             <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
-            <div *ngIf="aa.chunkId">working on chunk
-              {{ aa.chunkId }}
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/chunks',aa.chunkId,'view']">
-                <small><fa-icon [icon]="faEye" aria-hidden="true"></fa-icon></small>
-              </a>
+            <div *ngIf="aa.chunkId" >working on chunk
+              <a [routerLink]="['/tasks/chunks',aa.chunkId,'view']">{{ aa.chunkId }}</a>
             </div>
           </td>
           <td>

@@ -34,16 +34,10 @@
             <td *ngIf="c.progress > 0">{{ c.progress/100 }} %</td>
             <td *ngIf="!c.progress">N/A</td>
             <td>
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',c.taskId,'edit']" title="View Task">
-                <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-              </a>
-              {{ c.taskName | shortenString:15 | lowercase | titlecase}}
+              <a [routerLink]="['/tasks/show-tasks',c.taskId,'edit']">{{ c.taskName | shortenString:15 | lowercase | titlecase}}</a>
             </td>
             <td>
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',c.agentId,'edit']" title="View Agent">
-                <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-              </a>
-              {{ c.agentName | shortenString:15 | lowercase | titlecase }}
+              <a  [routerLink]="['/agents/show-agents',c.agentId,'edit']">{{ c.agentName | shortenString:15 | lowercase | titlecase }}</a>
             </td>
             <td>{{ c.dispatchTime*1000 | date: uidateformat }}</td>
             <td *ngIf="c.solveTime === 0">(No acitivity)</td>
@@ -51,10 +45,7 @@
             <td>{{ (c.solveTime - c.dispatchTime) | sectotime }}</td>
             <td>{{ c.state | staticArray:'states' }}</td>
             <td>
-              {{ c.cracked }}
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','chunks',c.chunkId]" title="Show Hashes">
-                <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-              </a>
+              <a [routerLink]="['/hashlists/hashes/','chunks',c.chunkId]">{{ c.cracked }}</a>
             </td>
         </tr>
       </tbody>

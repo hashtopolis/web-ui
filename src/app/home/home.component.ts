@@ -1,4 +1,4 @@
-import { faInfoCircle, faUserSecret, faTasks, faTasksAlt, faChainBroken, faCalendarWeek, faCalendarDay, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh, faPauseCircle, faInfoCircle, faUserSecret, faTasks, faTasksAlt, faChainBroken, faCalendarWeek, faCalendarDay, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { TitleComponent, CalendarComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
@@ -11,6 +11,7 @@ import * as echarts from 'echarts/core';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../core/_services/main.config';
+import { CookieService } from '../core/_services/shared/cookies.service';
 
 @Component({
   selector: 'app-home',
@@ -25,9 +26,11 @@ export class HomeComponent implements OnInit {
   faChainBroken=faChainBroken;
   faCheckCircle=faCheckCircle;
   faCalendarDay=faCalendarDay;
+  faPauseCircle=faPauseCircle;
   faInfoCircle=faInfoCircle;
   faUserSecret=faUserSecret;
   faTasksAlt=faTasksAlt;
+  faRefresh=faRefresh;
   faTasks=faTasks;
 
   faGithub=faGithub;
@@ -44,20 +47,47 @@ export class HomeComponent implements OnInit {
   allsupertasks = 0;
 
   private maxResults = environment.config.prodApiMaxResults;
+  storedAutorefresh: any =[]
   private updateSubscription: Subscription;
   public punchCardOpts = {}
   public punchCardOptss = {}
 
   constructor(
-    private gs: GlobalService
+    private gs: GlobalService,
+    private cs: CookieService
   ) { }
 
   async ngOnInit(): Promise<void> {
 
     this.initData();
-    this.updateSubscription = interval(300000).subscribe(
-      (val) => { this.initData()});
+    this.storedAutorefresh = this.getAutoreload();
+    this.onAutorefresh();
 
+  }
+
+  onAutorefresh(){
+    if(this.storedAutorefresh.active == true){
+      setTimeout(() => {
+        window.location.reload()
+      },this.storedAutorefresh.value*1000);
+    }
+  }
+
+  // Manage Auto reload
+  setAutoreload(value: any){
+    const set = Number(this.storedAutorefresh.value);
+    let val;
+    if(value == false){
+      val = true;
+    }if(value == true){
+      val = false;
+    }
+    this.cs.setCookie('autorefresh', JSON.stringify({active:val, value: set}), 365);
+    this.ngOnInit();
+  }
+
+  getAutoreload(){
+    return JSON.parse(this.cs.getCookie('autorefresh'));
   }
 
   async initData() {

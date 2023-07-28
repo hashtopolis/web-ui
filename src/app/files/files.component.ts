@@ -61,6 +61,7 @@ export class FilesComponent implements OnInit {
   constructor(
     private route:ActivatedRoute,
     private gs: GlobalService,
+    private router:Router
     ) { }
 
   @ViewChild(DataTableDirective)
@@ -75,6 +76,7 @@ export class FilesComponent implements OnInit {
 
   filterType: number
   whichView: string;
+  navEdit: string;
 
   ngOnInit(): void {
 
@@ -101,18 +103,21 @@ export class FilesComponent implements OnInit {
       switch (data['kind']) {
 
         case 'wordlist':
-          this.filterType = 0
+          this.filterType = 0;
           this.whichView = 'wordlist';
+          this.navEdit = 'wordlist-edit';
         break;
 
         case 'rules':
-          this.filterType = 1
+          this.filterType = 1;
           this.whichView = 'rules';
+          this.navEdit = 'rules-edit';
         break;
 
         case 'other':
-          this.filterType = 2
+          this.filterType = 2;
           this.whichView = 'other';
+          this.navEdit = 'rules-edit';
         break;
 
       }
@@ -120,7 +125,6 @@ export class FilesComponent implements OnInit {
 
       this.gs.getAll(SERV.FILES,params).subscribe((files: any) => {
         this.allfiles = files.values;
-        console.log(this.allfiles)
         this.dtTrigger.next(void 0);
       });
 
@@ -141,6 +145,13 @@ export class FilesComponent implements OnInit {
               }
             },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -217,6 +228,11 @@ export class FilesComponent implements OnInit {
       };
 
     });
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   rerender(): void {
@@ -367,6 +383,10 @@ export class FilesComponent implements OnInit {
         showConfirmButton: false
       })
     },3000);
+  }
+
+  onEdit(id: number){
+    this.router.navigate(['/files',id,this.navEdit]);
   }
 
   onModalEditType(title: string){

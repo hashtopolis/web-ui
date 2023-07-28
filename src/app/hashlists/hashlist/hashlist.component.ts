@@ -1,4 +1,4 @@
-import { faEdit, faTrash, faLock, faFileImport, faFileExport, faArchive, faPlus, faHomeAlt } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faLock, faFileImport, faFileExport, faArchive, faPlus, faHomeAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -19,14 +19,15 @@ declare let $:any;
 @PageTitle(['Show Hashlists'])
 export class HashlistComponent implements OnInit, OnDestroy {
 
-  faEdit=faEdit;
-  faTrash=faTrash;
-  faLock=faLock;
+  faCheckCircle=faCheckCircle;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
-  faPlus=faPlus;
-  faHome=faHomeAlt;
   faArchive=faArchive;
+  faHome=faHomeAlt;
+  faTrash=faTrash;
+  faLock=faLock;
+  faPlus=faPlus;
+  faEdit=faEdit;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -42,7 +43,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
     hashCount: number,
     saltSeparator: string,
     cracked: number,
-    isSecret: number,
+    isSecret: boolean,
     isHexSalt: string,
     isSalted: string,
     accessGroupId: number,
@@ -103,6 +104,13 @@ export class HashlistComponent implements OnInit, OnDestroy {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -193,6 +201,11 @@ export class HashlistComponent implements OnInit, OnDestroy {
 
   });
 
+}
+
+onRefresh(){
+  this.ngOnInit();
+  this.rerender();  // rerender datatables
 }
 
 // Set permissions

@@ -1,4 +1,4 @@
-import { faRefresh, faPauseCircle, faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye } from '@fortawesome/free-solid-svg-icons';
+import {  faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye, faMicrochip, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,7 +6,6 @@ import { DataTableDirective } from 'angular-datatables';
 import { interval, Subject, Subscription } from 'rxjs';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { CookieService } from 'src/app/core/_services/shared/cookies.service';
 import { GlobalService } from '../../core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -20,12 +19,12 @@ declare let $:any;
 @PageTitle(['Show Tasks'])
 export class ShowTasksComponent implements OnInit {
 
-  faPauseCircle=faPauseCircle;
+  faCheckCircle=faCheckCircle;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
+  faMicrochip=faMicrochip;
   faBookmark=faBookmark;
   faArchive=faArchive;
-  faRefresh=faRefresh;
   faHome=faHomeAlt;
   faTrash=faTrash;
   faEdit=faEdit;
@@ -33,8 +32,6 @@ export class ShowTasksComponent implements OnInit {
   faPlus=faPlus;
   faCopy=faCopy;
   faEye=faEye;
-
-  storedAutorefresh: any =[]
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -53,20 +50,17 @@ export class ShowTasksComponent implements OnInit {
   isArchived: boolean;
   whichView: string;
 
-  private maxResults = environment.config.prodApiMaxResults
+  private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private gs: GlobalService,
     private route:ActivatedRoute,
-    private cs: CookieService,
+    private gs: GlobalService,
     private router: Router
     ) { }
 
   ngOnInit(): void {
 
     this.setAccessPermissions();
-    this.storedAutorefresh = this.getAutoreload();
-    this.onAutorefresh();
 
     this.route.data.subscribe(data => {
       switch (data['kind']) {
@@ -84,8 +78,6 @@ export class ShowTasksComponent implements OnInit {
       }
 
     this.getTasks()
-    this.updateSubscription = interval(600000).subscribe(
-        (val) => { this.getTasks()});
 
     const self = this;
     this.dtOptions = {
@@ -103,9 +95,13 @@ export class ShowTasksComponent implements OnInit {
             }
           },
       buttons: [
-        // {
-        //   text: '<i class="fas fa-download"></i>',
-        // },
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -209,29 +205,9 @@ export class ShowTasksComponent implements OnInit {
 
 }
 
-onAutorefresh(){
-  if(this.storedAutorefresh.active == true){
-    setTimeout(() => {
-      window.location.reload()
-    },this.storedAutorefresh.value*1000);
-  }
-}
-
-// Manage Auto reload
-setAutoreload(value: any){
-  const set = Number(this.storedAutorefresh.value);
-  let val;
-  if(value == false){
-    val = true;
-  }if(value == true){
-    val = false;
-  }
-  this.cs.setCookie('autorefresh', JSON.stringify({active:val, value: set}), 365);
+onRefresh(){
   this.ngOnInit();
-}
-
-getAutoreload(){
-  return JSON.parse(this.cs.getCookie('autorefresh'));
+  this.rerender();  // rerender datatables
 }
 
 // Set permissions
@@ -273,7 +249,7 @@ rerender(): void {
 
 onArchive(id: number){
   if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
-  this.gs.archive(SERV.TASKS,id).subscribe((tasks: any) => {
+  this.gs.archive(SERV.TASKS,id).subscribe(() => {
     Swal.fire({
       title: "Success",
       text: "Archived!",

@@ -6,25 +6,6 @@
     <app-page-title [title]="'Archived Tasks'" [buttontitle]="'New Task'" [buttonlink]="'/tasks/new-tasks'" [subbutton]="true"></app-page-title>
   </div>
 </div>
-<!-- Body -->
-<fa-icon
-        class="point fa-xl"
-        style="color:rgba(82, 207, 44, 0.459)"
-        ngbTooltip='Disable Auto-reload page. Edit interval time in Config/Settings/Task.'
-        *ngIf="storedAutorefresh.active === true"
-        (click)="setAutoreload(true)"
-        [icon]="faRefresh"
-        aria-hidden="true"
-  ></fa-icon>
-<fa-icon
-        class="point fa-xl"
-        style="color:rgba(231, 155, 41, 0.459)"
-        ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
-        *ngIf="storedAutorefresh.active === false"
-        (click)="setAutoreload(false)"
-        [icon]="faPauseCircle"
-        aria-hidden="true"
-  ></fa-icon>
 <!-- Table -->
 <app-table>
   <table class="table table-striped table-hover table-sm" #tasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tasks">
@@ -32,6 +13,9 @@
       <tr>
         <th class="rounded-start">ID</th>
         <th>Name</th>
+        <th>Small Task</th>
+        <th>Only CPU</th>
+        <th>Preprocessor</th>
         <th>Hashlist</th>
         <th>Dispatched/Searched</th>
         <th>Cracked</th>
@@ -43,18 +27,35 @@
     </thead>
     <tbody>
     <tr *ngFor="let task of alltasks">
-        <td [ngClass]="!task.color ? 'pill-ebidem' : 'pill-ebidem-tk'"  [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
+        <td [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
         <td>
-            <a [routerLink]="[task.taskId,'edit']">{{ task.taskName | lowercase | titlecase }}</a>
-            <span *ngIf="task.isSecret === 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+          <a [ngClass]="task.keyspaceProgress >= task.keyspace ? 'align-text' : ''" [routerLink]="[task.taskId,'edit']">
+            {{ task.taskName | lowercase | titlecase }}
+          </a>
+          <span *ngIf="task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
+          <span *ngIf="task.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
+        <td>
+          <a *ngIf="task.isSmall === true">
+            <fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon>
+          </a>
+        </td>
+        <td>
+          <a *ngIf="task.isCpuTask === true">
+            <fa-icon [icon]="faMicrochip" aria-hidden="true"></fa-icon>
+          </a>
+        </td>
+        <td>{{ task.preprocessorId === 1 ? 'Prince':'-'}}</td>
         <td>
           <a [routerLink]="['/hashlists/hashlist',task.hashlist.hashlistId,'edit']">{{ task.hashlist.name }}</a>
+          <span *ngIf="task.hashlist.hashCount === task.hashlist.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
+          <span *ngIf="task.hashlist.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
-        <td *ngIf="task.keyspace > 0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}}/ {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
+        <td *ngIf="task.keyspace > 0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}} / {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
         <td *ngIf="task.keyspace === 0"></td>
         <td>
-          <a [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ loadchunks | tdcracked:task.taskId }}</a>
+          <a *ngIf="(loadchunks | tdcracked:task.taskId) > 0"  [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ loadchunks | tdcracked:task.taskId }}</a>
+          <a *ngIf="(loadchunks | tdcracked:task.taskId) === 0">0</a>
         </td>
         <td>{{ task.maxAgents }}</td>
         <td>{{ task.priority }}</td>
@@ -104,3 +105,5 @@
     </tbody>
   </table>
 </app-table>
+
+

@@ -5,7 +5,6 @@ import { NgModule } from "@angular/core";
 import { EditPreconfiguredTasksComponent } from "./edit-preconfigured-tasks/edit-preconfigured-tasks.component";
 import { NewPreconfiguredTasksComponent } from "./new-preconfigured-tasks/new-preconfigured-tasks.component";
 import { PreconfiguredTasksComponent } from "./preconfigured-tasks/preconfigured-tasks.component";
-import { ImportSupertasksComponent } from "./import-supertasks/import-supertasks.component";
 import { EditSupertasksComponent } from "./edit-supertasks/edit-supertasks.component";
 import { NewSupertasksComponent } from "./new-supertasks/new-supertasks.component";
 import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
@@ -17,6 +16,8 @@ import { SuperTaskGuard } from "../core/_guards/supertask.guard";
 import { PreTaskGuard } from "../core/_guards/pretask.guard";
 import { ChunksComponent } from "./chunks/chunks.component";
 import { TaskGuard } from "../core/_guards/task.guard";
+import { MasksComponent } from "./import-supertasks/masks/masks.component";
+import { WrbulkComponent } from "./import-supertasks/wrbulk/wrbulk.component";
 
 const routes: Routes = [
   {
@@ -137,10 +138,17 @@ const routes: Routes = [
           },
           canActivate: [IsAuth,SuperTaskGuard]},
         {
-          path: 'import-supertasks', component: ImportSupertasksComponent,
+          path: 'import-supertasks/masks', component: MasksComponent,
           data: {
-            kind: 'import-supertasks',
-            breadcrumb: 'Import Supertasks'
+            kind: 'masks',
+            breadcrumb: 'Import Masks'
+          },
+          canActivate: [IsAuth,SuperTaskGuard]},
+        {
+          path: 'import-supertasks/wrbulk', component: WrbulkComponent,
+          data: {
+            kind: 'wrbulk',
+            breadcrumb: 'Import Wordlist/Rules Bulk'
           },
           canActivate: [IsAuth,SuperTaskGuard]},
         {

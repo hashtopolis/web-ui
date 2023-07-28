@@ -78,7 +78,7 @@ export class HealthChecksComponent implements OnInit {
   });
 
   this.uidateformat = this.uiService.getUIsettings('timefmt').value;
-
+  const self = this;
   this.dtOptions = {
     dom: 'Bfrtip',
     stateSave: true,
@@ -90,6 +90,13 @@ export class HealthChecksComponent implements OnInit {
         }
       },
     buttons: [
+      {
+        text: '↻',
+        autoClose: true,
+        action: function (e, dt, node, config) {
+          self.onRefresh();
+        }
+      },
       {
         extend: 'collection',
         text: 'Export',
@@ -136,6 +143,11 @@ export class HealthChecksComponent implements OnInit {
     }
   };
 
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   rerender(): void {

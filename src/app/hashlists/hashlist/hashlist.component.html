@@ -18,19 +18,25 @@
         <td>{{ list.hashlistId }}</td>
         <td>
             <a [routerLink]="[list.hashlistId,'edit']">{{ list.name }}</a>
-            <span *ngIf="list.isSecret === 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="list.hashCount === list.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="list.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
         <td>{{ list.hashType.description }}</td>
         <td>{{ list.format | staticArray:'formats' }}</td>
         <td>
-            {{ list.cracked / list.hashCount | percent }}
-            (
-              <a
-                [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]"
-                [queryParams]="{filter: 'cracked'}"
-                >{{ list.cracked }}</a>
-            /
-            <a [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]">{{ list.hashCount }}</a>)
+            <p>
+            <span [ngClass]="list.cracked / list.hashCount ? 'ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0' : ''" style="{{list.cracked / list.hashCount ? 'background-color: rgb(16, 185, 129);' : ''}}">
+              {{ list.cracked / list.hashCount | percent }}
+            </span>
+              (
+                <a
+                  [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]"
+                  [queryParams]="{filter: 'cracked'}"
+                  >{{ list.cracked }}</a>
+              /
+              <a [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]">{{ list.hashCount }}</a>
+              )
+            </p>
         </td>
         <td>
           <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists',list.hashlistId,'copy']" data-toggle="tooltip" data-placement="top" title="Import Hashlist">

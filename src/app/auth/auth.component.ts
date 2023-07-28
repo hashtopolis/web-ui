@@ -1,5 +1,6 @@
 import { AuthService, AuthResponseData } from '../core/_services/access/auth.service';
 import { faLock, faUser, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { environment } from './../../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
@@ -17,8 +18,10 @@ export class AuthComponent implements OnInit {
   faEyeSlash=faEyeSlash;
   isLoading = false;
   errorRes: string | null;
+
   public showPassword: boolean;
   public showPasswordOnPress: boolean;
+  headerConfig = environment.config.header;
 
   constructor(
     private authService: AuthService,
