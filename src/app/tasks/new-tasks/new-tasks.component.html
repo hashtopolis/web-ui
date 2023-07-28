@@ -251,11 +251,8 @@
                               class='form-select'
                               formControlName="crackerBinaryTypeId"
                             >
-                            <!-- <option [ngValue]=""  disabled="true">--<option> -->
-                            <option *ngFor="let cv of crackerversions; let i = index"
-                                  type="number"
-                                  [selected]="i"
-                            >{{ cv.version }}</option>
+                            <option [ngValue]=""  disabled="true">--<option>
+                            <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
                         </select>
                       </grid-form-input>
                     </div>

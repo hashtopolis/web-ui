@@ -1,7 +1,7 @@
 import { AuthService, AuthResponseData } from '../core/_services/access/auth.service';
 import { faLock, faUser, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../environments/environment';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -21,14 +21,17 @@ export class AuthComponent implements OnInit {
 
   public showPassword: boolean;
   public showPasswordOnPress: boolean;
-  headerConfig = environment.config.header;
+  headerConfig: any;
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) { }
+  ) {
+    this.headerConfig = environment.config.header;
+  }
 
   ngOnInit(): void {
+
   }
 
   onSubmit(form: NgForm){

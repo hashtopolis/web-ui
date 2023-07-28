@@ -308,7 +308,8 @@ export class NewTasksComponent implements OnInit {
 
     await this.gs.getAll(SERV.CRACKERS,params_crack).subscribe((crackers: any) => {
       this.crackerversions = crackers.values;
-      this.createForm.get('crackerBinaryTypeId').setValue(1) //ToDo
+      const lastItem = crackers.values.slice(-1);
+      this.createForm.get('crackerBinaryTypeId').patchValue(lastItem[0]['crackerBinaryId']); //ToDo
     });
 
     await this.gs.getAll(SERV.PREPROCESSORS,params_prep).subscribe((prep: any) => {
