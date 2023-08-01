@@ -19,6 +19,9 @@ RUN if [ -n "${CONTAINER_USER_CMD_PRE}" ]; then echo "Applying CONTAINER_USER_CM
 RUN mkdir /app
 WORKDIR /app
 
+# Docker entry location
+COPY docker-entrypoint.sh /usr/local/bin
+
 # BUILD Image
 #----BEGIN----
 FROM hashtopolis-web-ui-base as hashtopolis-web-ui-build
@@ -27,6 +30,7 @@ COPY . ./
 
 # npm package - clean install
 COPY package-lock.json package.json ./
+
 RUN npm ci
 RUN npm run build
 # ----END----
@@ -36,18 +40,19 @@ RUN npm run build
 # ----BEGIN----
 FROM nginx:bullseye as hashtopolis-web-ui-prod
 COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
-COPY docker-entrypoint.sh /usr/local/bin
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "production" ]
 # ----END----
 
 
 # DEVELOPMENT Image
 # ----BEGIN----
 FROM hashtopolis-web-ui-base as hashtopolis-web-ui-dev
-COPY .devcontainer/docker-entrypoint.sh /usr/local/bin
 # Enable tooling like 'ng' for regular users
 RUN echo "export PATH=/app/node_modules/.bin:${PATH}" >> /etc/profile.d/npm.inc.sh
 
+# Install required tooling envsubst 
+RUN apt-get update && apt-get -y install --no-install-recommends gettext-base 2>&1
+
 USER node
-ENTRYPOINT [ "docker-entrypoint.sh" ]
+ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "development" ]
 # ----END----

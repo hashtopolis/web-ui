@@ -8,6 +8,8 @@ services:
       args:
         - CONTAINER_USER_CMD_PRE
         - CONTAINER_USER_CMD_POST
+    environment:
+      - HASHTOPOLIS_BACKEND_URL
     ports:
       - "4200:4200"
     volumes:
