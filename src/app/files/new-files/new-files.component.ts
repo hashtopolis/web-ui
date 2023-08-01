@@ -18,7 +18,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['New File'])
 export class NewFilesComponent implements OnInit {
-
-
-
+  ngOnInit() {
+    return;
+  }
 }
