@@ -128,7 +128,6 @@ export class EditUsersComponent implements OnInit {
 
   onSubmit(){
     if (this.updateForm.valid) {
-
       this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe(() => {
           Swal.fire({
             title: "Success",

@@ -1,1 +1,65 @@
-<p>Under construction!</p>
+<app-page-subtitle [subtitle]="'Account Settings'"></app-page-subtitle>
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <grid-form-input [name]="'Account Type'">
+        <input
+              type='text'
+              id="name"
+              class='form-control'
+              formControlName="name"
+        >
+      </grid-form-input>
+      <grid-form-input [name]="'Creation date'">
+        <div class="input-group">
+          <input
+                type="text"
+                id="registeredSince"
+                class='form-control'
+                formControlName="registeredSince"
+          />
+        </div>
+      </grid-form-input>
+      <grid-form-input [name]="'Email'">
+        <input
+                type='email'
+                id="email"
+                class='form-control'
+                formControlName="email"
+          >
+      </grid-form-input>
+      <grid-form-input [name]="'Old Password'">
+        <input
+              type='password'
+              id="oldpassword"
+              class='form-control'
+              formControlName="oldpassword"
+              placeholder="Enter Old Password"
+              required
+          >
+      </grid-form-input>
+      <grid-form-input [name]="'New Password'">
+        <input
+              type='password'
+              id="newpassword"
+              class='form-control'
+              formControlName="newpassword"
+              placeholder="Enter New Password"
+              required
+          >
+      </grid-form-input>
+    <grid-form-input [name]="'Confirm Password'">
+      <input
+              type='password'
+              id="confirmpass"
+              class='form-control'
+              formControlName="confirmpass"
+              placeholder="Confirm Password"
+              required
+        >
+    </grid-form-input>
+    <!-- <span *ngIf="!createForm.valid && (createForm.touched || createForm.dirty)" class="help-block" >Please complete all the form!</span> -->
+    <button-submit [name]="'Update'"></button-submit>
+    </div>
+  </form>
+</grid-main>

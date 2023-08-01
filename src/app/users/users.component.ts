@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
 
 import { ValidationService } from '../core/_services/shared/validation.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
