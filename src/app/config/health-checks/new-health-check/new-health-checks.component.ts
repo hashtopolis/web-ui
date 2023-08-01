@@ -13,8 +13,7 @@ import { SERV } from '../../../core/_services/main.config';
 })
 @PageTitle(['New Health Check'])
 export class NewHealthChecksComponent implements OnInit {
-  // Loader
-  isLoading = false;
+
   // Form create Health Check
   createForm: FormGroup;
 
@@ -50,10 +49,7 @@ export class NewHealthChecksComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.HEALTH_CHECKS,this.createForm.value).subscribe((hasht: any) => {
-        this.isLoading = false;
+      this.gs.create(SERV.HEALTH_CHECKS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New Health Check created!",

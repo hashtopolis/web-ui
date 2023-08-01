@@ -13,8 +13,6 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 @PageTitle(['New Cracker'])
 export class NewCrackerComponent implements OnInit {
-  // Loader
-  isLoading = false;
 
   createForm: FormGroup;
 
@@ -35,10 +33,7 @@ export class NewCrackerComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.CRACKERS_TYPES, this.createForm.value).subscribe((hasht: any) => {
-        this.isLoading = false;
+      this.gs.create(SERV.CRACKERS_TYPES, this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New Cracker created!",

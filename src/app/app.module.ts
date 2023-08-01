@@ -23,7 +23,7 @@ import { MomentModule } from 'ngx-moment';
 import { ScreenSizeDetectorComponent } from './layout/screen-size-detector/screen-size-detector.component';
 import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
 import { AuthInterceptorService } from './core/_interceptors/auth-interceptor.service';
-import { HttpErrorInterceptor } from './core/_interceptors/http-error.interceptor';
+import { HttpResInterceptor } from './core/_interceptors/http-res.interceptor';
 import { BreadcrumbComponent } from './shared/breadcrumb/breadcrumb.component';
 import { ErrorPageComponent } from './layout/error-page/error-page.component';
 import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
@@ -83,7 +83,7 @@ import { AuthModule } from './auth/auth.module';
     },
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: HttpErrorInterceptor,
+      useClass: HttpResInterceptor,
       multi: true
     },
     ThemeService,

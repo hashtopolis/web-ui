@@ -16,10 +16,8 @@ import { SERV } from '../../../../core/_services/main.config';
 @PageTitle(['New Crackers'])
 export class NewCrackersComponent implements OnInit {
 
-  // Loader
-  isLoading = false;
-  faDownload=faDownload;
   faInfoCircle=faInfoCircle;
+  faDownload=faDownload;
 
   editMode = false;
   editedTypeIndex: number;
@@ -52,10 +50,7 @@ export class NewCrackersComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.CRACKERS, this.createForm.value).subscribe((hasht: any) => {
-        this.isLoading = false;
+      this.gs.create(SERV.CRACKERS, this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New Version created!",

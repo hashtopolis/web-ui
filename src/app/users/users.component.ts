@@ -15,7 +15,6 @@ import { SERV } from '../core/_services/main.config';
 })
 @PageTitle(['New User'])
 export class UsersComponent implements OnInit {
-  isLoading = false;
 
   createForm: FormGroup;
   agp:any;
@@ -56,11 +55,7 @@ export class UsersComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.USERS,this.createForm.value).subscribe((user: any) => {
-        const response = user;
-        this.isLoading = false;
+      this.gs.create(SERV.USERS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New User created!",

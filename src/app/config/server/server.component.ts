@@ -24,7 +24,6 @@ export class ServerComponent implements OnInit {
   faHome=faHomeAlt;
   faInfoCircle=faInfoCircle;
   faExclamationTriangle=faExclamationTriangle;
-  isLoading = false;
 
   whichView: string;
 
@@ -170,7 +169,6 @@ export class ServerComponent implements OnInit {
   }
 
   private initAgentForm() {
-    this.isLoading = true;
     this.getTooltipLevel()
     const params = {'maxResults': this.maxResults}
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
@@ -188,7 +186,6 @@ export class ServerComponent implements OnInit {
         'agentUtilThreshold1': new FormControl(result.values.find(obj => obj.item === 'agentUtilThreshold1').value),
         'agentUtilThreshold2': new FormControl(result.values.find(obj => obj.item === 'agentUtilThreshold2').value),
       });
-      this.isLoading = false;
     });
   }
 
@@ -240,7 +237,6 @@ export class ServerComponent implements OnInit {
   // ]
 
   private initTCForm() {
-    this.isLoading = true;
     const params = {'maxResults': this.maxResults}
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.tcForm = new FormGroup({
@@ -259,12 +255,10 @@ export class ServerComponent implements OnInit {
       this.taskcookieForm = new FormGroup({
         'autorefresh': new FormControl(this.getAutorefresh()),
       });
-      this.isLoading = false;
     });
   }
 
   private initHCHForm() {
-    this.isLoading = true;
     const params = {'maxResults': this.maxResults}
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.hchForm = new FormGroup({
@@ -277,12 +271,10 @@ export class ServerComponent implements OnInit {
         'plainTextMaxLength': new FormControl(result.values.find(obj => obj.item === 'plainTextMaxLength').value),
         'hashMaxLength': new FormControl(result.values.find(obj => obj.item === 'hashMaxLength').value),
       });
-      this.isLoading = false;
     });
   }
 
   private initNotifForm() {
-    this.isLoading = true;
     const params = {'maxResults': this.maxResults}
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.notifForm = new FormGroup({
@@ -294,12 +286,10 @@ export class ServerComponent implements OnInit {
         'notificationsProxyPort': new FormControl(result.values.find(obj => obj.item === 'notificationsProxyPort').value),
         'notificationsProxyType': new FormControl(result.values.find(obj => obj.item === 'notificationsProxyType').value),
       });
-      this.isLoading = false;
     });
   }
 
   private initGSForm() {
-    this.isLoading = true;
     const params = {'maxResults': this.maxResults}
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.gsForm = new FormGroup({
@@ -318,7 +308,6 @@ export class ServerComponent implements OnInit {
       this.cookieForm = new FormGroup({
         'cookieTooltip': new FormControl(this.getTooltipLevel()),
       });
-      this.isLoading = false;
     });
   }
 
@@ -330,7 +319,6 @@ export class ServerComponent implements OnInit {
   autoSave(key: string, value: any, sw?: boolean, collap?: boolean){
     clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
-      this.isLoading = true;
       const params = {'filter=item': key};
       this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
         const indexUpdate = result.values.find(obj => obj.item === key).configId;
@@ -338,9 +326,7 @@ export class ServerComponent implements OnInit {
         const arr = {'item': key, 'value':  this.checkSwitch(value, valueUpdate, sw)};
         this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
           this.uicService.onUpdatingCheck(key);
-          if(collap === true){
-          this.isLoading = false;
-          }else{
+          if(collap !== true){
             this.savedAlert();
             this.ngOnInit();
           }

@@ -26,7 +26,6 @@ export class EditHashlistComponent implements OnInit {
   faEye=faEye;
   faHome=faHomeAlt;
   faInfoCircle=faInfoCircle;
-  isLoading = false;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
@@ -100,11 +99,7 @@ export class EditHashlistComponent implements OnInit {
     if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "HashList updated!",
@@ -140,7 +135,6 @@ export class EditHashlistComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex).subscribe((result)=>{
         this.getTasks();
@@ -161,7 +155,7 @@ export class EditHashlistComponent implements OnInit {
             'accessGroupId': new FormControl(result['accessGroupId']),
           }),
        });
-       this.isLoading = false;
+
     });
    }
   }

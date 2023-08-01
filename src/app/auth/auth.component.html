@@ -6,12 +6,9 @@
           <h6>Enter your credentials to access.</h6>
       </div>
       <!-- Handle authentification Error -->
-      <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert>
+      <!-- <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert> -->
       <!-- End of Handle authentification Error -->
-      <div *ngIf="isLoading" style="text-align: center;">
-          <app-loading-spinner></app-loading-spinner>
-      </div>
-      <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" *ngIf="!isLoading" class="mt-5">
+      <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" class="mt-5">
           <div class="form-group mb-0">
               <label for="inputUsername">User Name</label>
               <div class="input-group">

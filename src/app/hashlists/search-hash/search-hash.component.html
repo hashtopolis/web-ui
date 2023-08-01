@@ -1,8 +1,4 @@
 <app-page-subtitle [subtitle]="'Hash Search'"></app-page-subtitle>
-<!-- Spinner -->
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
 <!-- Body -->
 <grid-main [class]="'width:100%'">
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()">

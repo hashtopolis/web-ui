@@ -24,8 +24,6 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['New Task'])
 export class NewTasksComponent implements OnInit {
 
-  // Loader
-  isLoading = false;
   // Config
   private priority = environment.config.tasks.priority;
   private maxAgents = environment.config.tasks.maxAgents;
@@ -213,13 +211,11 @@ export class NewTasksComponent implements OnInit {
 
         case 'copy-task':
           this.whichView = 'edit';
-          this.isLoading = true;
           this.initFormt();
         break;
 
         case 'copy-pretask':
           this.whichView = 'edit';
-          this.isLoading = true;
           this.initFormpt();
         break;
 
@@ -406,10 +402,7 @@ export class NewTasksComponent implements OnInit {
     if(this.createTaskAccess || typeof this.createTaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
-        this.isLoading = false;
           Swal.fire({
             title: "Success",
             text: "New Task created!",
@@ -435,7 +428,6 @@ export class NewTasksComponent implements OnInit {
 
   // Copied from Task
   private initFormt() {
-    this.isLoading = true;
     if (this.copyMode) {
     this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{
       this.color = result['color'];
@@ -464,14 +456,12 @@ export class NewTasksComponent implements OnInit {
         'preprocessorCommand': new FormControl(''),
         'files': new FormControl(result['files'], Validators.required),
       });
-      this.isLoading = false;
     });
    }
   }
 
   // Copied from PreTask
   private initFormpt() {
-    this.isLoading = true;
     if (this.copyMode) {
     this.gs.get(SERV.PRETASKS,this.editedIndex,{'expand':'pretaskFiles'}).subscribe((result)=>{
       this.color = result['color'];
@@ -507,7 +497,6 @@ export class NewTasksComponent implements OnInit {
         'preprocessorCommand': new FormControl(''),
         'files': new FormControl(arrFiles, Validators.required),
       });
-      this.isLoading = false;
     });
    }
   }

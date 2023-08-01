@@ -21,7 +21,6 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
   editedGPG: any // Change to Model
   active= 1;
 
-  isLoading = false;
   faEye=faEye;
 
   constructor(
@@ -83,11 +82,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
   onSubmit(){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "Permission Updated!",
@@ -103,7 +98,6 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     const params = {'expand': 'user'};
     if (this.editMode) {
       this.gs.get(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, params).subscribe((res)=>{
@@ -138,7 +132,6 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
         'manageAccessGroupAccess': new FormControl(result['manageAccessGroupAccess'])
         })
       });
-      this.isLoading = false;
     });
    }
   }

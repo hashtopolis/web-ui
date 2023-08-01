@@ -26,7 +26,6 @@ export class EditSupertasksComponent implements OnInit {
   editedSTIndex: number;
   editedST: any // Change to Model
 
-  isLoading = false;
   faEye=faEye;
   faTrash=faTrash;
   faInfoCircle=faInfoCircle;
@@ -83,7 +82,6 @@ export class EditSupertasksComponent implements OnInit {
     setTimeout(() => {
       this.fetchPreTaskData();
      }, 1000);
-    this.isLoading = false;
   }
 
   // Set permissions
@@ -99,10 +97,7 @@ export class EditSupertasksComponent implements OnInit {
     if(this.manageSupertaskAccess || typeof this.manageSupertaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
       this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,this.updateForm.value).subscribe(() => {
-        this.isLoading = false;
           Swal.fire({
             title: "Success",
             text: "SuperTask updated!",
@@ -217,14 +212,12 @@ export class EditSupertasksComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex).subscribe((result)=>{
       this.viewForm = new FormGroup({
         supertaskId: new FormControl({value: result['supertaskId'], disabled: true}),
         supertaskName: new FormControl({value: result['supertaskName'], disabled: true}),
       });
-      this.isLoading = false;
     });
    }
   }

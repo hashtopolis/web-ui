@@ -13,8 +13,7 @@ import { SERV } from '../../../core/_services/main.config';
 })
 @PageTitle(['Hashtype'])
 export class HashtypeComponent implements OnInit {
-  // Loader
-  isLoading = false;
+
   // Create or Edit Hashtype
   whichView: string;
   editMode = false;
@@ -53,7 +52,6 @@ export class HashtypeComponent implements OnInit {
 
         case 'edit-hashtype':
           this.whichView = 'edit';
-          this.isLoading = true;
           this.initForm();
           const id = +this.route.snapshot.params['id'];
         break;
@@ -64,7 +62,6 @@ export class HashtypeComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.HASHTYPES,this.editedIndex).subscribe((result)=>{
       this.Form = new FormGroup({
@@ -73,7 +70,6 @@ export class HashtypeComponent implements OnInit {
         'isSalted': new FormControl(result['isSalted']),
         'isSlowHash': new FormControl(result['isSlowHash']),
       });
-      this.isLoading = false;
     });
   }
   }
@@ -81,14 +77,10 @@ export class HashtypeComponent implements OnInit {
   onSubmit(): void{
     if (this.Form.valid) {
 
-    this.isLoading = true;
-
     switch (this.whichView) {
 
       case 'create':
-      this.gs.create(SERV.HASHTYPES,this.Form.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.create(SERV.HASHTYPES,this.Form.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New Hashtype created!",
@@ -103,8 +95,7 @@ export class HashtypeComponent implements OnInit {
 
       case 'edit':
         const id = +this.route.snapshot.params['id'];
-        this.gs.update(SERV.HASHTYPES,id,this.Form.value).subscribe((hasht: any) => {
-          this.isLoading = false;
+        this.gs.update(SERV.HASHTYPES,id,this.Form.value).subscribe(() => {
           Swal.fire({
             title: "Updated!",
             icon: "success",

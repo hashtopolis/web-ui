@@ -15,8 +15,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['Notifications'])
 export class NotificationsComponent implements OnInit {
-  // Loader
-  isLoading = false;
+
   // Form attributtes
   faTrash=faTrash;
   faPlus=faPlus

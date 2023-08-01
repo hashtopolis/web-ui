@@ -16,8 +16,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['Show Global Permissions'])
 export class GlobalpermissionsgroupsComponent implements OnInit {
-    // Loader
-    isLoading = false;
+
     // Form attributtes
     faInfoCircle=faInfoCircle;
     faHome=faHomeAlt;

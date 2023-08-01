@@ -19,9 +19,6 @@ export class NewAgentBinariesComponent implements OnInit {
   editMode = false;
   editedABIndex: number;
 
-  // Loader
-  isLoading = false;
-
   public isCollapsed = true;
   faHome=faHomeAlt;
   faPlus=faPlus;
@@ -66,13 +63,11 @@ export class NewAgentBinariesComponent implements OnInit {
 
         case 'edit-agent-binary':
           this.whichView = 'edit';
-          this.isLoading = true;
           this.initForm();
 
           const id = +this.route.snapshot.params['id'];
           this.gs.get(SERV.AGENT_BINARY,id).subscribe((bin: any) => {
             this.binaries = bin.values;
-            this.isLoading = false;
           });
         break;
 
@@ -83,15 +78,12 @@ export class NewAgentBinariesComponent implements OnInit {
   onSubmit(): void{
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
       switch (this.whichView) {
 
         case 'create':
           this.gs.create(SERV.AGENT_BINARY,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-            this.isLoading = false;
               Swal.fire({
                 title: "Success",
                 text: "New Agent Binary created!",
@@ -109,7 +101,6 @@ export class NewAgentBinariesComponent implements OnInit {
           this.gs.update(SERV.AGENT_BINARY,id,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-            this.isLoading = false;
               Swal.fire({
                 title: "Success",
                 text: "Agent Binary updated!",
@@ -128,7 +119,6 @@ export class NewAgentBinariesComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.AGENT_BINARY,this.editedABIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
@@ -138,7 +128,6 @@ export class NewAgentBinariesComponent implements OnInit {
         'version': new FormControl(result['version']),
         'updateTrack': new FormControl(result['updateTrack']),
       });
-      this.isLoading = false;
     });
    }
   }

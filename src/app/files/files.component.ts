@@ -36,7 +36,6 @@ export class FilesComponent implements OnInit {
   obuttonlink = "/files/other/new-other";
   osubbutton = true;
 
-  isLoading= false;
   faTrash=faTrash;
   faPlus=faPlus;
   faLock=faLock;

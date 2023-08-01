@@ -20,8 +20,6 @@ export class FilesEditComponent implements OnInit {
   editedFileIndex: number;
   editedFile: any // Change to Model
 
-  isLoading = false;
-
   filterType: number
   whichView: string;
 
@@ -85,7 +83,6 @@ export class FilesEditComponent implements OnInit {
 
       this.gs.get(SERV.FILES,this.editedFileIndex).subscribe((files: any) => {
         this.allfiles = files;
-        this.isLoading = false;
       });
 
     });
@@ -103,10 +100,7 @@ export class FilesEditComponent implements OnInit {
   onSubmit(): void{
     if (this.updateForm.valid && (this.manageFileAccess || typeof this.manageFileAccess == 'undefined')) {
 
-    this.isLoading = true;
-
     this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value['updateData']).subscribe(() => {
-      this.isLoading = false;
       Swal.fire({
         title: "Great!",
         text: "File updated!",
@@ -157,7 +151,6 @@ export class FilesEditComponent implements OnInit {
 }
 
 private initForm() {
-  this.isLoading = true;
   if (this.editMode) {
   this.gs.get(SERV.FILES,this.editedFileIndex).subscribe((result)=>{
     this.updateForm = new FormGroup({
@@ -169,7 +162,6 @@ private initForm() {
         'isSecret': new FormControl(result['isSecret']),
       })
     });
-    this.isLoading = false;
   });
  }
 }

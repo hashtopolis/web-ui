@@ -15,8 +15,6 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['Show Hashtypes'])
 export class HashtypesComponent implements OnInit {
-  // Loader
-  isLoading = false;
 
   faHome=faHomeAlt;
   faPlus=faPlus;
@@ -35,7 +33,7 @@ export class HashtypesComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private gs: GlobalService
+    private gs: GlobalService,
   ) { }
 
   public htypes: {hashTypeId: number, description: string, isSalted: number, isSlowHash: number}[] = [];

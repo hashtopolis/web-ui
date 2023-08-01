@@ -25,10 +25,9 @@ export class EditUsersComponent implements OnInit {
   editedUser: any // Change to Model
 
   faCalendar=faCalendar;
+  faEnvelope=faEnvelope;
   faLock=faLock;
   faUser=faUser;
-  faEnvelope=faEnvelope;
-  isLoading = false;
 
   agp:any;
   user: any[];
@@ -74,12 +73,9 @@ export class EditUsersComponent implements OnInit {
       }
     );
 
-    this.isLoading = true;
-
     const id = +this.route.snapshot.params['id'];
     this.gs.get(SERV.USERS,id).subscribe((user: any) => {
       this.user = user;
-      this.isLoading = false;
     });
 
     const params = {'maxResults': this.maxResults};
@@ -133,11 +129,7 @@ export class EditUsersComponent implements OnInit {
   onSubmit(){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe((agent: any) => {
-        const response = agent;
-        this.isLoading = false;
+      this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "User updated!",
@@ -153,7 +145,6 @@ export class EditUsersComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
 
     if (this.editMode) {
       this.gs.get(SERV.USERS,this.editedUserIndex).subscribe((result)=>{
@@ -170,7 +161,6 @@ export class EditUsersComponent implements OnInit {
           'isValid': new FormControl(result['isValid']),
         })
       });
-      this.isLoading = false;
     });
    }
   }

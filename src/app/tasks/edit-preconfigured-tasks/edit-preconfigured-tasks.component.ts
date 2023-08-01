@@ -23,13 +23,12 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   editedPretaskIndex: number;
   editedPretask: any // Change to Model
 
-  faHome=faHomeAlt;
-  faPlus=faPlus;
-  faEye=faEye;
-  faLock=faLock;
-  faTrash=faTrash;
-  isLoading = false;
   faInfoCircle=faInfoCircle;
+  faHome=faHomeAlt;
+  faTrash=faTrash;
+  faPlus=faPlus;
+  faLock=faLock;
+  faEye=faEye;
 
   constructor(
     private route:ActivatedRoute,
@@ -114,10 +113,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
     if(this.managePretaskAccess || typeof this.managePretaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
       this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
-        this.isLoading = false;
           Swal.fire({
             title: "Success",
             text: "Pretask updated!",
@@ -151,7 +147,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.PRETASKS,this.editedPretaskIndex).subscribe((result)=>{
       this.pretask = result;
@@ -172,7 +167,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
           'isSmall': new FormControl(result['isSmall'], Validators.required),
         }),
       });
-      this.isLoading = false;
     });
    }
   }

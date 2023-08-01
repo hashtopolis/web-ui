@@ -24,8 +24,6 @@ export class EditAgentComponent implements OnInit {
   editedAgentIndex: number;
   editedAgent: any // Change to Model
 
-  isLoading = false;
-
   faAlignJustify=faAlignJustify;
   faInfoCircle=faInfoCircle;
   faComputer=faComputer;
@@ -83,12 +81,9 @@ export class EditAgentComponent implements OnInit {
       'isTrusted': new FormControl('')
     });
 
-    this.isLoading = true;
-
     const id = +this.route.snapshot.params['id'];
     this.gs.get(SERV.AGENTS,id).subscribe((agent: any) => {
       this.showagent = agent;
-      this.isLoading = false;
     });
 
     const params = {'maxResults': this.maxResults};
@@ -153,10 +148,7 @@ export class EditAgentComponent implements OnInit {
     if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
       this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
-        this.isLoading = false;
           Swal.fire({
             title: "Success",
             text: "Agent updated!",
@@ -181,7 +173,6 @@ export class EditAgentComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
       this.gs.get(SERV.AGENTS,this.editedAgentIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
@@ -194,7 +185,6 @@ export class EditAgentComponent implements OnInit {
         'ignoreErrors': new FormControl(result['ignoreErrors']),
         'isTrusted': new FormControl(result['isTrusted'])
       });
-      this.isLoading = false;
     });
    }
   }

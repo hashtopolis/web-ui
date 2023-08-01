@@ -18,9 +18,6 @@ export class NewPreprocessorComponent implements OnInit {
   editedPreprocessorIndex: number;
   Preprocessor: any // Change to Model
 
-  // Loader
-  isLoading = false;
-
   constructor(
     private route:ActivatedRoute,
     private gs: GlobalService,
@@ -61,13 +58,12 @@ export class NewPreprocessorComponent implements OnInit {
 
         case 'edit-preprocessor':
           this.whichView = 'edit';
-          this.isLoading = true;
+
           this.initForm();
 
           const id = +this.route.snapshot.params['id'];
           this.gs.get(SERV.PREPROCESSORS,id).subscribe((prep: any) => {
             this.prep = prep;
-            this.isLoading = false;
           });
         break;
 
@@ -79,15 +75,12 @@ export class NewPreprocessorComponent implements OnInit {
   onSubmit(): void{
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
       switch (this.whichView) {
 
         case 'create':
           this.gs.create(SERV.PREPROCESSORS,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-            this.isLoading = false;
               Swal.fire({
                 title: "Success",
                 text: "New Preprocessor created!",
@@ -105,7 +98,6 @@ export class NewPreprocessorComponent implements OnInit {
           this.gs.update(SERV.PREPROCESSORS,id,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-            this.isLoading = false;
               Swal.fire({
                 title: "Success",
                 text: "New Preprocessor created!",
@@ -124,7 +116,6 @@ export class NewPreprocessorComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.PREPROCESSORS,this.editedPreprocessorIndex).subscribe((result)=>{
       this.updateForm = new FormGroup({
@@ -135,7 +126,6 @@ export class NewPreprocessorComponent implements OnInit {
         'skipCommand': new FormControl(result['skipCommand'], Validators.required),
         'limitCommand': new FormControl(result['limitCommand'], Validators.required),
       });
-      this.isLoading = false;
     });
    }
   }

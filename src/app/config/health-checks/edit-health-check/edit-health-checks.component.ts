@@ -18,7 +18,6 @@ import { SERV } from '../../../core/_services/main.config';
 export class EditHealthChecksComponent implements OnInit {
   editedHealthCIndex: number;
 
-  isLoading = false;
   faEye=faEye;
 
   @ViewChild(DataTableDirective, {static: false})
@@ -67,8 +66,6 @@ export class EditHealthChecksComponent implements OnInit {
 
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
-    this.isLoading = true;
-
     this.editedHealthCIndex = +this.route.snapshot.params['id'];
 
     this.gs.get(SERV.HEALTH_CHECKS,this.editedHealthCIndex).subscribe((hc: any) => {
@@ -89,7 +86,6 @@ export class EditHealthChecksComponent implements OnInit {
         return { ...mainObject, ...matchAObject }
       })
       this.dtTrigger.next(void 0);
-      this.isLoading = false;
       });
     });
     const self = this;

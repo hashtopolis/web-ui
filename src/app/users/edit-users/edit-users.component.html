@@ -1,8 +1,3 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- <h2 *ngIf="!allowEdit">You are not allowed to edit! Talk with your administrator.</h2>
-<div *ngIf="allowEdit"> -->
 <grid-main [class]="'width:auto'" [centered]="true">
   <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">

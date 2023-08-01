@@ -6,10 +6,6 @@
     <app-page-subtitle [subtitle]="'Edit Preprocessor'"></app-page-subtitle>
   </div>
 </div>
-<!-- Spinner Loading -->
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
 <!-- Body -->
 <grid-main [class]="'fmxw-500'" [centered]="true">
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">

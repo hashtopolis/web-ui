@@ -12,11 +12,11 @@ import { Observable } from 'rxjs';
 })
 export class AuthComponent implements OnInit {
 
-  faEye=faEye;
+  faEyeSlash=faEyeSlash;
   faLock=faLock;
   faUser=faUser;
-  faEyeSlash=faEyeSlash;
-  isLoading = false;
+  faEye=faEye;
+
   errorRes: string | null;
 
   public showPassword: boolean;
@@ -43,13 +43,10 @@ export class AuthComponent implements OnInit {
 
     let authObs: Observable<AuthResponseData>;
 
-    this.isLoading = true;
-
     authObs = this.authService.logIn(username, password);
 
     authObs.subscribe(
       resData =>{
-      this.isLoading = false;
       if (this.authService.redirectUrl) {
         const redirectUrl = this.authService.redirectUrl;
         this.authService.redirectUrl = '';
@@ -59,7 +56,6 @@ export class AuthComponent implements OnInit {
       }
     }, errorMessage => {
       this.errorRes = errorMessage;
-      this.isLoading = false;
     });
 
     form.reset();

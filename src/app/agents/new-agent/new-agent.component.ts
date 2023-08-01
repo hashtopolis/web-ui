@@ -17,8 +17,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['New Agent'])
 export class NewAgentComponent implements OnInit, OnDestroy {
-  // Loader
-  isLoading = false;
+
   // Form attributtes
   faInfoCircle=faInfoCircle;
   faDownload=faDownload;
@@ -165,11 +164,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     if(this.createAgentAccess || typeof this.createAgentAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New Voucher created!",

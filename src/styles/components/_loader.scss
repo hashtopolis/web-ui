@@ -2,8 +2,255 @@
             SECTION LOADERS
    ================================== */
 
+
 /*
-  01- This loader only affects when the app is first loading
+  1- Main page spinner
+*/
+
+// Spinner container
+.logo_spinner_container{
+  background-color: rgba(0,0,0, 0.1);
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: removeLoader 3s linear forwards;
+  z-index: 10000
+}
+.logo_spinner_box{
+  width: 300px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  animation: rotation 4s linear infinite;
+}
+.logo_spinner_box img{
+  width: 100px;
+}
+
+@keyframes logoAnimation {
+  0%{
+      transform: scale(10);
+  }
+  100%{
+      transform: scale(1);
+  }
+}
+
+@keyframes logoRotation {
+  0%{
+      transform: rotate(0deg);
+  }
+  100%{
+      transform: rotate(360deg);
+  }
+}
+
+.removeLoader{
+  display: none;
+}
+
+//  Start Animation
+.heading{
+  text-align: center;
+  margin: 20px;
+}
+
+.loading-dots{
+  width: 100%;
+  justify-content: space-evenly;
+  align-items: center;
+  display: flex;
+}
+
+.dot{
+  width: 35px;
+  height: 35px;
+  background-color: black;
+  border-radius: 50%;
+}
+.dot1{
+  animation: dot1 2s linear infinite;
+}
+.dot2{
+  animation: dot2 2s linear infinite;
+}
+.dot3{
+  animation: dot3 2s linear infinite;
+}
+.dot4{
+  animation: dot4 2s linear infinite;
+}
+
+@keyframes dot1 {
+  0%{
+      transform: translateX(150px) scale(1);
+      opacity: 0;
+  }
+  30%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  50%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  100%{
+      transform: translateX(180px) scale(0);
+      opacity: 0;
+  }
+}
+
+@keyframes dot2 {
+  0%{
+      transform: translateX(100px) scale(1);
+      opacity: 0;
+  }
+  30%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  50%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  100%{
+      transform: translateX(100px) scale(0);
+      opacity: 0;
+  }
+}
+
+@keyframes dot3 {
+  0%{
+      transform: translateX(-10px) scale(1);
+      opacity: 0;
+  }
+  30%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  50%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  100%{
+      transform: translateX(-10px) scale(0);
+      opacity: 0;
+  }
+}
+
+@keyframes dot4 {
+  0%{
+      transform: translateX(-20px) scale(1);
+      opacity: 0;
+  }
+  30%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  50%{
+      transform: translateX(0px) scale(1);
+      opacity: 1;
+  }
+  100%{
+      transform: translateX(-100px) scale(0);
+      opacity: 0;
+  }
+}
+
+
+@keyframes rotation {
+  0%{
+      transform: rotate(0deg) scale(1);
+      opacity: 1;
+  }
+  20%{
+      transform: rotate(0deg) scale(1);
+      opacity: 1;
+  }
+  25%{
+      transform: rotate(0deg) scale(1);
+      opacity: 1;
+  }
+  37%{
+      transform: rotate(180deg) scale(0);
+      opacity: 1;
+  }
+  50%{
+      transform: rotate(360deg) scale(0);
+      opacity: 1;
+  }
+  51%{
+      opacity: 0;
+  }
+  100%{
+      opacity: 0;
+  }
+}
+
+@keyframes zoomOut {
+  0%{
+      transform: scale(1);
+  }
+  50%{
+      transform: scale(1);
+  }
+  75%{
+      transform: scale(1);
+  }
+  100%{
+      transform: scale(0);
+  }
+}
+.logoImage{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  transform: translate(-50%, -50%);
+  animation: bounceLogo 4s linear infinite;
+}
+@keyframes bounceLogo {
+  0%{
+      opacity: 0;
+  }
+  40%{
+      opacity: 0;
+  }
+  41%{
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+  }
+  50%{
+      transform: translate(-50%, -50%) scale(1.2);
+  }
+  55%{
+      transform: translate(-50%, -50%) scale(0.9);
+  }
+  60%{
+      transform: translate(-50%, -50%) scale(1);
+  }
+  90%{
+      transform: translate(-50%, -50%) scale(1);
+  }
+  100%{
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 1;
+  }
+}
+
+/*
+01- End
+*/
+
+/*
+  02- Secundary spinner
 */
 
 .loader {
@@ -25,99 +272,6 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/*
-  01- End
-*/
-
-/*
-  02- Loader spinner, this is the main spinner in the components
-*/
-
-.lds-roller {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-roller div {
-  animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  transform-origin: 40px 40px;
-}
-.lds-roller div:after {
-  content: " ";
-  display: block;
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgb(15, 14, 14);
-  margin: -4px 0 0 -4px;
-}
-.lds-roller div:nth-child(1) {
-  animation-delay: -0.036s;
-}
-.lds-roller div:nth-child(1):after {
-  top: 63px;
-  left: 63px;
-}
-.lds-roller div:nth-child(2) {
-  animation-delay: -0.072s;
-}
-.lds-roller div:nth-child(2):after {
-  top: 68px;
-  left: 56px;
-}
-.lds-roller div:nth-child(3) {
-  animation-delay: -0.108s;
-}
-.lds-roller div:nth-child(3):after {
-  top: 71px;
-  left: 48px;
-}
-.lds-roller div:nth-child(4) {
-  animation-delay: -0.144s;
-}
-.lds-roller div:nth-child(4):after {
-  top: 72px;
-  left: 40px;
-}
-.lds-roller div:nth-child(5) {
-  animation-delay: -0.18s;
-}
-.lds-roller div:nth-child(5):after {
-  top: 71px;
-  left: 32px;
-}
-.lds-roller div:nth-child(6) {
-  animation-delay: -0.216s;
-}
-.lds-roller div:nth-child(6):after {
-  top: 68px;
-  left: 24px;
-}
-.lds-roller div:nth-child(7) {
-  animation-delay: -0.252s;
-}
-.lds-roller div:nth-child(7):after {
-  top: 63px;
-  left: 17px;
-}
-.lds-roller div:nth-child(8) {
-  animation-delay: -0.288s;
-}
-.lds-roller div:nth-child(8):after {
-  top: 56px;
-  left: 12px;
-}
-@keyframes lds-roller {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 /*

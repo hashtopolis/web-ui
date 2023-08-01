@@ -20,9 +20,6 @@ import { Router } from '@angular/router';
 @PageTitle(['Import SuperTask - Wordlist/Rules Bulk'])
 export class WrbulkComponent implements OnInit {
 
-  // Loader
-  isLoading = false;
-
   faInfoCircle=faInfoCircle;
   faLock=faLock;
 

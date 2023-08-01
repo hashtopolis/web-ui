@@ -22,8 +22,7 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['New Preconfigured Tasks'])
 export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   @ViewChild('cmdAttack', {static: true}) cmdAttack: any;
-  // Loader
-  isLoading = false;
+
   faInfoCircle=faInfoCircle;
   faLock=faLock;
   // Config
@@ -153,13 +152,11 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
         case 'copy-preconfigured-tasks':
           this.whichView = 'edit';
-          this.isLoading = true;
           this.initForm();
         break;
 
         case 'copy-tasks':
           this.whichView = 'task';
-          this.isLoading = true;
           this.initFormt();
         break;
 
@@ -266,11 +263,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     if(this.createPretaskAccess || typeof this.createPretaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe((pret: any) => {
-        const response = pret;
-        this.isLoading = false;
+      this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New PreTask created!",
@@ -306,7 +299,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.copyMode) {
     this.gs.get(SERV.PRETASKS,this.editedIndex, {'expand':'pretaskFiles'}).subscribe((result)=>{
       this.color = result['color'];
@@ -331,13 +323,11 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
         'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
         'files': new FormControl(arrFiles, Validators.required),
       });
-      this.isLoading = false;
     });
    }
   }
 
   private initFormt() {
-    this.isLoading = true;
     if (this.copyMode) {
     this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{
       this.color = result['color'];
@@ -362,7 +352,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
         'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
         'files': new FormControl(result['files'], Validators.required),
       });
-      this.isLoading = false;
     });
    }
   }

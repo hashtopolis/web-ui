@@ -15,8 +15,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['Show Groups'])
 export class GroupsComponent implements OnInit {
-    // Loader
-    isLoading = false;
+
     // Form attributtes
     faHome=faHomeAlt;
     faPlus=faPlus;

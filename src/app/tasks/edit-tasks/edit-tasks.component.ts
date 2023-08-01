@@ -34,8 +34,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   faHome=faHomeAlt;
   faEye=faEye;
 
-  isLoading = false;
-
   constructor(
     private uiService:UIConfigService,
     private route: ActivatedRoute,
@@ -118,11 +116,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe((tasks: any) => {
-        const response = tasks;
-        this.isLoading = false;
+      this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "Task updated!",
@@ -147,7 +141,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.TASKS,this.editedTaskIndex).subscribe((result)=>{
       this.color = result['color'];
@@ -178,7 +171,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
           'isSmall': new FormControl(result['isSmall']),
         }),
       });
-      this.isLoading = false;
     });
    }
   }

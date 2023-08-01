@@ -16,9 +16,9 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['New SuperTask'])
 export class NewSupertasksComponent implements OnInit {
-  isLoading = false;
-  faFile=faFile;
+
   faMagnifyingGlass=faMagnifyingGlass;
+  faFile=faFile;
 
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
@@ -104,11 +104,7 @@ export class NewSupertasksComponent implements OnInit {
     if(this.createSupertaskAccess || typeof this.createSupertaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.SUPER_TASKS,this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.create(SERV.SUPER_TASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New Supertask created!",

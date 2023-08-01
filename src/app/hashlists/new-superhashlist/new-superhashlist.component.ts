@@ -16,7 +16,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['New SuperHashlist'])
 export class NewSuperhashlistComponent implements OnInit {
-  isLoading = false;
+
   faFile=faFile;
   faMagnifyingGlass=faMagnifyingGlass;
 
@@ -102,11 +102,7 @@ export class NewSuperhashlistComponent implements OnInit {
     if(this.createSuperhashlistAccess || typeof this.createSuperhashlistAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.SUPER_HASHLISTS,this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.create(SERV.SUPER_HASHLISTS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New SuperHashList created!",

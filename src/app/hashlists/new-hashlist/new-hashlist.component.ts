@@ -28,7 +28,6 @@ export class NewHashlistComponent implements OnInit {
    * Fa Icons
    *
   */
-  isLoading = false;
   faUpload=faUpload;
   faFileUpload=faFileUpload;
   faInfoCircle=faInfoCircle;
@@ -61,7 +60,6 @@ export class NewHashlistComponent implements OnInit {
      }
 
   ngOnInit(): void {
-    this.isLoading = true;
 
     this.brainenabled = this.uiService.getUIsettings('hashcatBrainEnable').value;
 
@@ -212,12 +210,9 @@ export class NewHashlistComponent implements OnInit {
       if(this.createHashlistAccess || typeof this.createHashlistAccess == 'undefined'){
       if (this.signupForm.valid) {
 
-      this.isLoading = true;
-
       const res = this.handleUpload(this.signupForm.value);
 
-      this.gs.createHashlist(SERV.HASHLISTS,res).subscribe((hl: any) => {
-        this.isLoading = false;
+      this.gs.createHashlist(SERV.HASHLISTS,res).subscribe(() => {
         Swal.fire({
           title: "Success",
           text: "New HashList created!",

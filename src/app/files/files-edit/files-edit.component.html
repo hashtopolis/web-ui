@@ -1,8 +1,4 @@
 <app-page-subtitle [subtitle]="'Edit File'"></app-page-subtitle>
-<!-- spinner -->
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
 <!-- Body Edit Files -->
 <grid-main [class]="'fmxw-500'" [centered]="true">
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">

@@ -19,8 +19,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['Show Health Checks'])
 export class HealthChecksComponent implements OnInit {
-  // Loader
-  isLoading = false;
+
   // Form attributtes
   faHome=faHomeAlt;
   faPlus=faPlus;

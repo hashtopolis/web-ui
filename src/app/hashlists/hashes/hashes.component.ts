@@ -20,7 +20,6 @@ export class HashesComponent implements OnInit {
   edited: any // Change to Model
 
   faCopy=faCopy;
-  isLoading = false;
 
   whichView: string;
   titleName: any;
@@ -137,20 +136,17 @@ export class HashesComponent implements OnInit {
   }
 
   private initChashes() {
-    this.isLoading = true;
     const param = {'filter': 'chunkId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
   private initThashes() {
-    this.isLoading = true;
     // This should enough to filter by id
     // let param = {'filter': 'taskId='+this.editedIndex+''};
     this.getHashes();
   }
 
   private initHhashes() {
-    this.isLoading = true;
     const param = {'filter': 'hashlistId='+this.editedIndex+''};
     this.getHashes(param);
   }

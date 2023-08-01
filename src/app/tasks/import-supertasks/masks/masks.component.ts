@@ -15,9 +15,6 @@ import { SERV } from '../../../core/_services/main.config';
 @PageTitle(['Import SuperTask - Mask'])
 export class MasksComponent implements OnInit {
 
-  // Loader
-  isLoading = false;
-
   faLock=faLock;
   color = '#fff'
 
@@ -52,11 +49,8 @@ export class MasksComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
 
-        this.isLoading = false;
           Swal.fire({
             title: "Success",
             text: "New Supertask created!",

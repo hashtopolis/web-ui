@@ -13,8 +13,7 @@ import { SERV } from '../../../core/_services/main.config';
 })
 @PageTitle(['New Global Permission Group'])
 export class NewGlobalpermissionsgroupsComponent implements OnInit {
-  // Loader
-  isLoading = false;
+
   // Form
   createForm: FormGroup;
   public isCollapsed = true;
@@ -35,10 +34,7 @@ export class NewGlobalpermissionsgroupsComponent implements OnInit {
   onSubmit(): void{
     if (this.createForm.valid) {
 
-    this.isLoading = true;
-
-    this.gs.create(SERV.ACCESS_PERMISSIONS_GROUPS,this.createForm.value).subscribe((agroup: any) => {
-      this.isLoading = false;
+    this.gs.create(SERV.ACCESS_PERMISSIONS_GROUPS,this.createForm.value).subscribe(() => {
       Swal.fire({
         title: "Success",
         text: "Global Permission Group created!",

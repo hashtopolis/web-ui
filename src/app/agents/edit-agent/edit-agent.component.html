@@ -1,9 +1,5 @@
 <!-- Header -->
 <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
-<!-- Spinner Loading -->
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
 <!-- Body -->
 <grid-main [class]="'width:100%'">
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">

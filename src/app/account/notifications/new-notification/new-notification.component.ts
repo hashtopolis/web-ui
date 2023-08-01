@@ -14,8 +14,6 @@ import { SERV } from '../../../core/_services/main.config';
 })
 @PageTitle(['New Notification'])
 export class NewNotificationComponent implements OnInit {
-  // Loader
-  isLoading = false;
 
   constructor(
     private gs: GlobalService,
@@ -69,11 +67,7 @@ export class NewNotificationComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.create(SERV.NOTIFICATIONS,this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.create(SERV.NOTIFICATIONS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success!",
             text: "New Notification created!",

@@ -1,13 +1,16 @@
 
+<app-loading-spinner></app-loading-spinner>
 <!-- <app-screen-size-detector></app-screen-size-detector> -->
 <div [ngClass]="{'container':screenmode === 'true','full-container-app':screenmode === 'false'}">
   <app-header></app-header>
+  <!-- Breadcrum -->
   <!-- <app-breadcrumb [deliminator]="''"></app-breadcrumb> -->
   <router-outlet></router-outlet>
-  <!-- ToDo scoll button doesnt work properly -->
+  <!-- ToDo button to go up -->
   <!-- <app-scroll-top></app-scroll-top> -->
   <app-footer></app-footer>
 </div>
+
 
 
 

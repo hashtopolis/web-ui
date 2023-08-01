@@ -19,7 +19,6 @@ export class EditCrackersComponent implements OnInit {
   editedCrackervIndex: number;
   crackerV: any // Change to Model
 
-  isLoading = false;
   faDownload=faDownload;
 
   constructor(
@@ -50,10 +49,7 @@ export class EditCrackersComponent implements OnInit {
   onSubmit(){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.gs.update(SERV.CRACKERS,this.editedCrackervIndex,this.updateForm.value).subscribe((ck: any) => {
-        this.isLoading = false;
+      this.gs.update(SERV.CRACKERS,this.editedCrackervIndex,this.updateForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "Agent updated!",
@@ -110,7 +106,6 @@ export class EditCrackersComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
     this.gs.get(SERV.CRACKERS,this.editedCrackervIndex).subscribe((result)=>{
       this.crackerV = result;
@@ -119,7 +114,6 @@ export class EditCrackersComponent implements OnInit {
         'version': new FormControl(result['version'], [Validators.required, Validators.minLength(1)]),
         'downloadUrl': new FormControl(result['downloadUrl'], [Validators.required, Validators.minLength(1)]),
       });
-      this.isLoading = false;
     });
    }
   }

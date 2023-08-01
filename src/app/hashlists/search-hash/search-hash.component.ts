@@ -15,7 +15,7 @@ import { SERV } from '../../core/_services/main.config';
 })
 @PageTitle(['Search Hash'])
 export class SearchHashComponent implements OnInit {
-  isLoading = false;
+
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
@@ -37,15 +37,12 @@ export class SearchHashComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
       const params = {'maxResults': this.maxResults}
 
       this.gs.getAll(SERV.HASHES,params).subscribe((hasht: any) => {
 
         const index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists']);
 
-        this.isLoading = false;
           Swal.fire({
             title: "We've got a match!",
             text: "Redirecting...",
@@ -64,7 +61,7 @@ export class SearchHashComponent implements OnInit {
             icon: "warning",
             showConfirmButton: true
           });
-          this.isLoading = false;
+
           this.createForm.reset(); // success, we reset form
         }
       );
