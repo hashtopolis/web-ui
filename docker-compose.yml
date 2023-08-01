@@ -1,7 +1,11 @@
 version: "3.8"
 services:
-  hashtopolis-web-ui-dev:
-    container_name: hashtopolis-web-ui-dev
+  hashtopolis-web-ui:
+    container_name: hashtopolis-web-ui
+    image: hashtopolis/web-ui:latest
+    restart: always
+    environment:
+      - HASHTOPOLIS_BACKEND_URL
     build:
       context: ..
       dockerfile: Dockerfile

@@ -1,8 +1,23 @@
-container_name: hashtopolis-web-ui-dev
-build:
-  context: ..
-  dockerfile: Dockerfile
-  target: hashtopolis-web-ui-dev
-ports:
-  - "4200:4200"
-volumes:
+version: "3.8"
+services:
+  hashtopolis-web-ui-dev:
+    container_name: hashtopolis-web-ui-dev
+    build:
+      context: ..
+      target: hashtopolis-web-ui-dev
+      args:
+        - CONTAINER_USER_CMD_PRE
+        - CONTAINER_USER_CMD_POST
+    ports:
+      - "4200:4200"
+    volumes:
+      # This is where VS Code should expect to find your project's source code
+      # and the value of "workspaceFolder" in .devcontainer/devcontainer.json
+      - ..:/app
+    networks:
+      - hashtopolis_dev
+
+networks:
+  hashtopolis_dev:
+    # This network will also be used by the python-agent
+    name: hashtopolis_dev
