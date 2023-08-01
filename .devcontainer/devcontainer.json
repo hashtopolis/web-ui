@@ -21,7 +21,7 @@
 			"Angular.ng-template",
 			"dbaeumer.vscode-eslint",
 			"ms-azuretools.vscode-docker",
-			"github.vscode-pull-request-github",
+			"github.vscode-pull-request-github"
 		  ]
 		}
 	},
