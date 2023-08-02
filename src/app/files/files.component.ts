@@ -6,7 +6,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
-import { UploadTUSService } from '../core/_services/files/files_tus.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../environments/environment';
 import { PageTitle } from '../core/_decorators/autotitle';
@@ -21,20 +20,6 @@ declare let $:any;
 })
 @PageTitle(['Show Files'])
 export class FilesComponent implements OnInit {
-
-  // Title Page
-  wTitle = "WordLists";
-  wbuttontitle = "New WordList";
-  wbuttonlink = "/files/wordlist/new-wordlist";
-  wsubbutton = true;
-  rTitle = "Rules";
-  rbuttontitle = "New Rule";
-  rbuttonlink = "/files/rules/new-rule";
-  rsubbutton = true;
-  oTitle = "Other";
-  obuttontitle = "New Other";
-  obuttonlink = "/files/other/new-other";
-  osubbutton = true;
 
   faTrash=faTrash;
   faPlus=faPlus;
@@ -120,7 +105,7 @@ export class FilesComponent implements OnInit {
         break;
 
       }
-      const params = {'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType='+this.filterType+''}
+      const params = {'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType='+this.filterType+''};
 
       this.gs.getAll(SERV.FILES,params).subscribe((files: any) => {
         this.allfiles = files.values;
