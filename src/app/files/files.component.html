@@ -1,12 +1,12 @@
 <div [ngSwitch]="whichView">
   <div *ngSwitchCase="'wordlist'">
-    <app-page-title [title]="wTitle" [buttontitle]="wbuttontitle" [buttonlink]="wbuttonlink" [subbutton]="wsubbutton"></app-page-title>
+    <app-page-title [title]="'WordLists'" [buttontitle]="'New WordList'" [buttonlink]="'/files/wordlist/new-wordlist'" [subbutton]="true"></app-page-title>
   </div>
   <div *ngSwitchCase="'rules'">
-    <app-page-title [title]="rTitle" [buttontitle]="rbuttontitle" [buttonlink]="rbuttonlink" [subbutton]="rsubbutton"></app-page-title>
+    <app-page-title [title]="'Rules'" [buttontitle]="'New Rule'" [buttonlink]="'/files/rules/new-rule'" [subbutton]="true"></app-page-title>
   </div>
   <div *ngSwitchCase="'other'">
-    <app-page-title [title]="oTitle" [buttontitle]="obuttontitle" [buttonlink]="obuttonlink" [subbutton]="osubbutton"></app-page-title>
+    <app-page-title [title]="'Other'" [buttontitle]="'New Other'" [buttonlink]="'/files/other/new-other'" [subbutton]="true"></app-page-title>
   </div>
 </div>
 <!-- Files Table -->

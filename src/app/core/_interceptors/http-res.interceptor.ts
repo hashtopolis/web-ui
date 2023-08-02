@@ -26,10 +26,13 @@ export class HttpResInterceptor implements HttpInterceptor{
             finalize(this.finalize.bind(this)),
             catchError((error: HttpErrorResponse) => {
               let errmsg= '';
+
               if (error.error instanceof ErrorEvent) {
+
                 const err = error?.error.message || 'Unknown API error';
                 errmsg = `Client Side Error: ${err}`;
-              } else {
+              }
+              else {
                 if(error.status === 403 || error.status === 401 || error.status === 0){
                   errmsg = `${error.statusText}`;
                 }

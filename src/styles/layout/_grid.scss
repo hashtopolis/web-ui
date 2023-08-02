@@ -32,3 +32,13 @@
 	text-overflow: ellipsis;
 }
 
+.ui-label-inner-lg {
+	font: 18px !important;
+	vertical-align: middle;
+	transition: 250ms linear all;
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
