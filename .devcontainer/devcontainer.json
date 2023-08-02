@@ -20,8 +20,9 @@
 		  "extensions": [
 			"Angular.ng-template",
 			"dbaeumer.vscode-eslint",
-			"ms-azuretools.vscode-docker",
-			"github.vscode-pull-request-github"
+			"firefox-devtools.vscode-firefox-debug",
+			"github.vscode-pull-request-github",
+			"ms-azuretools.vscode-docker"
 		  ]
 		}
 	},
