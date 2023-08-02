@@ -8,9 +8,6 @@
       "type": "msedge",
       "url": "http://localhost:4200",
       "webRoot": "${workspaceFolder}",
-      "sourceMapPathOverrides": {
-        "/app/webpack:/*": "${workspaceRoot}/*"
-      }
     },
     {
       "name": "Launch Chrome",
@@ -18,28 +15,13 @@
       "type": "chrome",
       "url": "http://localhost:4200",
       "webRoot": "${workspaceFolder}",
-      "sourceMapPathOverrides": {
-        "/app/webpack:/*": "${workspaceRoot}/*"
-      }
     },
     {
       "name": "Launch Firefox",
       "request": "launch",
       "type": "firefox",
       "url": "http://localhost:4200",
-      "pathMappings": [
-        { "url": "/app/webpack:///~/", "path": "${workspaceFolder}/node_modules/" },
-        { "url": "/app/webpack:///./~/", "path": "${workspaceFolder}/node_modules/" },
-        { "url": "/app/webpack:///./", "path": "${workspaceFolder}/" },
-        { "url": "/app/webpack:///src/", "path": "${workspaceFolder}/src/" },
-        { "url": "/app/webpack:///node_modules/", "path": "${workspaceFolder}/node_modules/" },
-        { "url": "/app/webpack:///webpack", "path": null },
-        { "url": "/app/webpack:///(webpack)", "path": null },
-        { "url": "/app/webpack:///pages/", "path": "${workspaceFolder}/pages/" },
-        { "url": "/app/webpack://[name]_[chunkhash]/node_modules/", "path": "${workspaceFolder}/node_modules/" },
-        { "url": "/app/webpack://[name]_[chunkhash]/", "path": null },
-        { "url": "/app/webpack:///", "path": "" },
-      ],
+      "webRoot": "${workspaceFolder}",
     },
     {
       "name": "ng test",
