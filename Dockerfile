@@ -36,14 +36,6 @@ RUN npm run build
 # ----END----
 
 
-# PRODUCTION Image
-# ----BEGIN----
-FROM nginx:bullseye as hashtopolis-web-ui-prod
-COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
-ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "production" ]
-# ----END----
-
-
 # DEVELOPMENT Image
 # ----BEGIN----
 FROM hashtopolis-web-ui-base as hashtopolis-web-ui-dev
@@ -55,4 +47,12 @@ RUN apt-get update && apt-get -y install --no-install-recommends gettext-base 2>
 
 USER node
 ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "development" ]
+# ----END----
+
+
+# PRODUCTION Image
+# ----BEGIN----
+FROM nginx:bullseye as hashtopolis-web-ui-prod
+COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
+ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "production" ]
 # ----END----
