@@ -1,5 +1,5 @@
 export const DEFAULT_CONFIG = {
-  prodApiEndpoint: 'http://192.168.1.31:8080/api/v2',
+  prodApiEndpoint: 'http://localhost:8080/api/v2',
   prodApiMaxResults: '3000',
   agentURL: '/api/server.php',
   agentApiPort: '8080',
