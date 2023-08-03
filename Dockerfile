@@ -54,5 +54,7 @@ ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "development" ]
 # ----BEGIN----
 FROM nginx:bullseye as hashtopolis-web-ui-prod
 COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
+COPY --from=hashtopolis-web-ui-build /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "production" ]
 # ----END----

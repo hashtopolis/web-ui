@@ -11,20 +11,18 @@ function update_app_config {
     envsubst < ${app_cfg_base}/assets/config.json.example > ${app_cfg_base}/assets/config.json
   fi
 
-  echo "Done configuring up Hashtopolis frontend (env=$environment) at $app_cfg_base/assets.config.json"
+  echo "Done configuring up Hashtopolis frontend (env=$environment) at $app_cfg_base/assets/config.json"
 }
 
-
-# Ensure workspace is mounted
-echo -n "Waiting for workspace to be mounted..."
-until [ -f /app/package.json ]
-do
-      sleep 5
-done
-echo "DONE"
-
-
 if [ "$environment" = "development" ]; then
+  # Ensure workspace is mounted
+  echo -n "Waiting for workspace to be mounted..."
+  until [ -f /app/package.json ]
+  do
+        sleep 5
+  done
+  echo "DONE"
+
   # Install/Update required Node.js packages
   export PUPPETEER_SKIP_DOWNLOAD='true'
   npm install
@@ -37,9 +35,9 @@ if [ "$environment" = "development" ]; then
   npm start
 else
   # Prepare configuration
-  update_app_config "/usr/share/nginx/html/assets"
+  update_app_config "/usr/share/nginx/html"
 
   # Start worker instance
-  echo "Starting worker  npm..."
+  echo "Starting worker nginx..."
   nginx -g 'daemon off;'
 fi
