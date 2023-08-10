@@ -10,10 +10,10 @@
           <th>Owner</th>
           <th>Client</th>
           <th>GPUs/CPUs</th>
-          <th>CPU only</th>
+          <th>+Info</th>
           <th>Last activity</th>
-          <th>Access Groups</th>
-          <th class="rounded-end"></th>
+          <th>Access Group</th>
+          <th class="rounded-end">Actions</th>
       </tr>
       </thead>
       <tbody>
@@ -46,7 +46,9 @@
             </span>
           </td>
           <td class="pre">{{ agent.devices }}</td>
-          <td>{{ agent.cpuOnly === true ? "Yes" : "No" }}</td>
+          <td style="white-space: nowrap;">
+            <fa-icon *ngIf="agent.cmdPars" [icon]="faTerminal" aria-hidden="true" ngbTooltip={{agent.cmdPars}}></fa-icon>
+            <fa-icon *ngIf="agent.cpuOnly" [icon]="faMicrochip" aria-hidden="true" ngbTooltip="CPU Only"></fa-icon>
           <td>
               <code>{{ agent.lastAct }}</code> at <br>
               {{ agent.lastTime *1000 | date: uidateformat }}<br>

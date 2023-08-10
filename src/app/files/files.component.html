@@ -15,20 +15,19 @@
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>
-          <th>File</th>
+          <th>Name</th>
+          <th>Status</th>
           <th>Size</th>
           <th>Line Count</th>
           <th>Access Group</th>
-          <th class="rounded-end"></th>
+          <th class="rounded-end">Actions</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let f of allfiles">
           <td>{{ f.fileId }}</td>
-          <td>
-            <a class="point" (click)="onEdit(f.fileId)">{{ f.filename }} </a>
-            <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
-          </td>
+          <td><a class="point" (click)="onEdit(f.fileId)" ngbTooltip={{f.filename}}>{{ f.filename | shortenString:35 | lowercase | titlecase }}</a></td>
+          <td><fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></td>
           <td>{{ f.size | fileSize:false }}</td>
           <td>{{ f.lineCount }}</td>
           <td>{{ f.accessGroup.groupName }}</td>

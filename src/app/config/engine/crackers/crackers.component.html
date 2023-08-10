@@ -8,7 +8,7 @@
           <th class="rounded-start">Cracker ID</th>
           <th>Name</th>
           <th>Available Versions</th>
-          <th class="rounded-end">Action</th>
+          <th class="rounded-end">Actions</th>
       </tr>
       </thead>
       <tbody>
@@ -16,12 +16,9 @@
           <td>{{ type.crackerBinaryTypeId }}</td>
           <td>{{ type.typeName | lowercase | titlecase }}</td>
           <td>
-            <p *ngFor="let ver of type.crackerVersions">
-              <a class='btn-outline-gray-600 float-right' [routerLink]="[ver.crackerBinaryId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Version/Binary">
-                <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-              </a>
-              {{ ver.version }}
-            </p>
+            <div *ngFor="let ver of type.crackerVersions">
+              <a [routerLink]="[ver.crackerBinaryId,'edit']">{{ ver.version }}</a>
+            </div>
           </td>
           <td class="overflow-hidden">
             <app-button-actions>
