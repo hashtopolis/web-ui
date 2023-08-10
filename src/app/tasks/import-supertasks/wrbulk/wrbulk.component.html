@@ -23,35 +23,6 @@
                 formControlName="name"
           >
         </grid-form-input>
-
-          <div class="row">
-            <div class="col">
-              <grid-form-input [name]="'Small tasks'">
-                <select
-                      type='number'
-                      id="smallTask"
-                      class='form-select'
-                      formControlName="smallTask"
-                >
-                  <option [ngValue]="false">Yes</option>
-                  <option [ngValue]="true" [defaultSelected]=true>No</option>
-                </select>
-              </grid-form-input>
-            </div>
-            <div class="col">
-              <grid-form-input [name]="'CPU'">
-                <select
-                      type='number'
-                      id="cpu"
-                      class='form-select'
-                      formControlName="isCPU"
-                >
-                  <option [ngValue]="false">Yes</option>
-                  <option [ngValue]="true" [defaultSelected]=true>No</option>
-                </select>
-              </grid-form-input>
-            </div>
-          </div>
           <div class="row">
             <div class="col">
               <grid-form-input [name]="'Benchmark type'">
@@ -77,6 +48,30 @@
                   <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
                 </select>
                 </grid-form-input>
+            </div>
+            <div class="col">
+              <grid-form-input [name]="'Small tasks'">
+                <div class="form-check form-switch">
+                  <input
+                        type="checkbox"
+                        id="smallTask"
+                        class="form-check-input"
+                        formControlName="smallTask"
+                  >
+                </div>
+              </grid-form-input>
+            </div>
+            <div class="col">
+              <grid-form-input [name]="'CPU'">
+                <div class="form-check form-switch">
+                  <input
+                        type="checkbox"
+                        id="isCPU"
+                        class="form-check-input"
+                        formControlName="isCPU"
+                  >
+                </div>
+              </grid-form-input>
             </div>
           </div>
           <grid-form-input [name]="'Base Command'">

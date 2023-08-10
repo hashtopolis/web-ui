@@ -23,47 +23,6 @@
       </grid-form-input>
       <div class="row">
         <div class="col">
-          <grid-form-input [name]="'Small Tasks'">
-            <select
-                  type='number'
-                  id="isSmall"
-                  class='form-select'
-                  formControlName="isSmall"
-            >
-              <option [ngValue]="false">Yes</option>
-              <option [ngValue]="true" [defaultSelected]=true>No</option>
-            </select>
-          </grid-form-input>
-        </div>
-        <div class="col">
-          <grid-form-input [name]="'CPU'">
-            <select
-                  type='number'
-                  id="cpu"
-                  class='form-select'
-                  formControlName="isCPU"
-            >
-              <option [ngValue]="false">Yes</option>
-              <option [ngValue]="true" [defaultSelected]=true>No</option>
-            </select>
-          </grid-form-input>
-        </div>
-        <div class="col">
-          <grid-form-input [name]="'Use optimized flag (-O)'">
-            <select
-                  type='number'
-                  id="optFlag"
-                  class='form-select'
-                  formControlName="optFlag"
-            >
-              <option [ngValue]="false">Yes</option>
-              <option [ngValue]="true" [defaultSelected]=true>No</option>
-            </select>
-          </grid-form-input>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
           <grid-form-input [name]="'Benchmark type'">
             <select
                     type='number'
@@ -76,17 +35,53 @@
               </select>
           </grid-form-input>
         </div>
-          <div class="col">
-            <grid-form-input [name]="'Cracker Binary'">
-              <select
-                    type='number'
-                    id='crackerBinaryId'
-                    class='form-select'
-                    #myBinary
-                    formControlName="crackerBinaryId">
-              <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
-            </select>
-            </grid-form-input>
+        <div class="col">
+          <grid-form-input [name]="'Cracker Binary'">
+            <select
+                  type='number'
+                  id='crackerBinaryId'
+                  class='form-select'
+                  #myBinary
+                  formControlName="crackerBinaryId">
+            <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+          </select>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'Small Tasks'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="isSmall"
+                    class="form-check-input"
+                    formControlName="isSmall"
+              >
+            </div>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'CPU'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="isCPU"
+                    class="form-check-input"
+                    formControlName="isCPU"
+              >
+            </div>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'Use optimized flag (-O)'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="optFlag"
+                    class="form-check-input"
+                    formControlName="optFlag"
+              >
+            </div>
+          </grid-form-input>
         </div>
       </div>
       <grid-form-input [name]="'Insert Masks'">
