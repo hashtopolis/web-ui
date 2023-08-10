@@ -56,7 +56,8 @@ table.dataTable {
     text-transform: uppercase;
   }
   td {
-    vertical-align: top;
+    padding: 10px 10px;
+    // vertical-align: top;
     text-align: left;
     font-size: .930rem;
     font-weight: 400;
@@ -73,6 +74,11 @@ table.dataTable {
     line-height: 1 !important;
     white-space: normal !important;
   }
+}
+
+.btn-actions{
+  margin-top: -3px !important;
+  margin-bottom: 0px !important;
 }
 
 .table.dataTable.table-hover>tbody>tr:hover>*{

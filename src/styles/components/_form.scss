@@ -200,19 +200,38 @@ input.ng-invalid.ng-touched {
   width: 35px !important;
 }
 
-.hashtype_selectize {
+.style_selectize {
   padding: 10px 3px;
-  border-bottom: 1px solid #CCC;
   visibility: visible !important;
-  background: #f2f2f2 !important;
-  background: rgba(0, 0, 0, 0.06) !important;
-  border: 0 none !important;
-  -webkit-box-shadow: inset 0 0 12px 4px #fff !important;
-  box-shadow: inset 0 0 12px 4px #fff !important;
+  position: relative;
+  padding-left: 15px;
+  height: 45px;
+  border-top: 1px solid rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: 0.2s;
 }
 
-.hashtype_selectize span{
+.style_selectize.active .select::after {
+  border: none;
+  color: #ffffff !important;
+  border-left: 2px solid white;
+  border-top: 2px solid white;
+}
+
+.style_selectize span{
   color: #000;
+}
+
+.selectize-dropdown .selected {
+  background-color: #949596;
+  color: #fff !important;
+}
+
+.selectize-dropdown .active {
+  font-size: 18px;
+  color: #070707 !important;
 }
 
 .active i {
