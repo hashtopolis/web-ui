@@ -56,8 +56,6 @@ export class EditAgentComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     this.route.params
@@ -91,15 +89,6 @@ export class EditAgentComponent implements OnInit {
       this.users = user.values;
     });
 
-  }
-
-  // Set permissions
-  manageAgentAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
-    });
   }
 
   timespent: number;
@@ -145,7 +134,6 @@ export class EditAgentComponent implements OnInit {
   }
 
   onSubmit(){
-    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
@@ -160,15 +148,6 @@ export class EditAgentComponent implements OnInit {
           this.router.navigate(['agents/show-agents']);
         },
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 

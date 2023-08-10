@@ -23,7 +23,6 @@ export class TooltipService {
     return this.cookieService.getCookie('tooltip');
   }
 
-
 }
 
 

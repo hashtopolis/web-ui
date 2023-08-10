@@ -1,10 +1,10 @@
-import { IsAuth } from "../core/_guards/auth.guard";
+import { CheckPerm } from "../core/_guards/permission.guard";
 import { Routes, RouterModule } from '@angular/router';
+import { IsAuth } from "../core/_guards/auth.guard";
 import { NgModule } from "@angular/core";
 
 import { FilesEditComponent } from "./files-edit/files-edit.component";
 import { NewFilesComponent } from "./new-files/new-files.component";
-import { FilesGuard } from "../core/_guards/file.guard";
 import { FilesComponent } from "./files.component";
 
 const routes: Routes = [
@@ -15,65 +15,74 @@ const routes: Routes = [
         path: 'wordlist',  component: FilesComponent,
         data: {
             kind: 'wordlist',
-            breadcrumb: 'Wordlist'
+            breadcrumb: 'Wordlist',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: 'wordlist/new-wordlist',  component: NewFilesComponent,
         data: {
             kind: 'wordlist-new',
-            breadcrumb: 'Wordlist New'
+            breadcrumb: 'Wordlist New',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: ':id/wordlist-edit',  component: FilesEditComponent,
         data: {
             kind: 'wordlist-edit',
-            breadcrumb: 'Wordlist Edit'
+            breadcrumb: 'Wordlist Edit',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: 'rules', component: FilesComponent,
         data: {
             kind: 'rules',
-            breadcrumb: 'Rules'
+            breadcrumb: 'Rules',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: 'rules/new-rule',  component: NewFilesComponent,
         data: {
             kind: 'rule-new',
-            breadcrumb: 'Rule New'
+            breadcrumb: 'Rule New',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: ':id/rules-edit',  component: FilesEditComponent,
         data: {
             kind: 'rules-edit',
-            breadcrumb: 'Rules Edit'
+            breadcrumb: 'Rules Edit',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: 'other', component: FilesComponent,
         data: {
             kind: 'other',
-            breadcrumb: 'Other'
+            breadcrumb: 'Other',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: 'other/new-other',  component: NewFilesComponent,
         data: {
             kind: 'other-new',
-            breadcrumb: 'Other New'
+            breadcrumb: 'Other New',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
       {
         path: ':id/other-edit',  component: FilesEditComponent,
         data: {
             kind: 'other-edit',
-            breadcrumb: 'Other Edit'
+            breadcrumb: 'Other Edit',
+            permission: 'File'
         },
-        canActivate: [IsAuth,FilesGuard]},
+        canActivate: [IsAuth,CheckPerm]},
     ]
   }
 ]

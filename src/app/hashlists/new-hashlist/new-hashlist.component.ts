@@ -89,15 +89,6 @@ export class NewHashlistComponent implements OnInit {
 
   }
 
-  // Set permissions
-  createHashlistAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createHashlistAccess = perm.globalPermissionGroup.permissions.createHashlistAccess;
-    });
-  }
-
   ngAfterViewInit() {
 
     this.uploadProgress = this.uploadService.uploadProgress; // TUS upload progress
@@ -125,7 +116,7 @@ export class NewHashlistComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.descrId) + '</div>';
+            return '<div  class="style_selectize">' + escape(item.descrId) + '</div>';
           },
         },
         onInitialize: function(){
@@ -207,7 +198,6 @@ export class NewHashlistComponent implements OnInit {
   */
 
   onSubmit(): void{
-      if(this.createHashlistAccess || typeof this.createHashlistAccess == 'undefined'){
       if (this.signupForm.valid) {
 
       const res = this.handleUpload(this.signupForm.value);
@@ -223,15 +213,6 @@ export class NewHashlistComponent implements OnInit {
         this.router.navigate(['/hashlists/hashlist']);
       }
     );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 

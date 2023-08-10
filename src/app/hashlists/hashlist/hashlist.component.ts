@@ -118,13 +118,13 @@ export class HashlistComponent implements OnInit, OnDestroy {
             {
               extend: 'excelHtml5',
               exportOptions: {
-                columns: [0, 1, 2, 3, 4]
+                columns: [0, 1, 2, 3, 4, 5]
               },
             },
             {
               extend: 'print',
               exportOptions: {
-                columns: [0, 1, 2, 3, 4]
+                columns: [0, 1, 2, 3, 4, 5]
               },
               customize: function ( win ) {
                 $(win.document.body)
@@ -189,7 +189,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
           {
             extend: 'colvis',
             text: 'Column View',
-            columns: [ 1,2,3,4 ],
+            columns: [ 1,2,3,4,5],
           },
           {
             extend: "pageLength",
@@ -208,16 +208,6 @@ onRefresh(){
   this.rerender();  // rerender datatables
 }
 
-// Set permissions
-manageHashlistAccess: any;
-
-setAccessPermissions(){
-  this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-      this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
-  });
-}
-
-
 rerender(): void {
   this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
     // Destroy the table first
@@ -230,7 +220,6 @@ rerender(): void {
 }
 
 onArchive(id: number){
-  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
   this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
     Swal.fire({
       title: "Success",
@@ -242,19 +231,9 @@ onArchive(id: number){
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 onDelete(id: number){
-  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: 'btn',
@@ -294,15 +273,6 @@ onDelete(id: number){
       })
     }
   });
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 // Bulk actions
@@ -325,7 +295,6 @@ onSelectedHashlists(){
 }
 
 onDeleteBulk(){
-  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
   const self = this;
   const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   const sellen = selectionnum.length;
@@ -343,19 +312,9 @@ onDeleteBulk(){
     );
   });
   self.onDone(sellen);
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 onUpdateBulk(value: any){
-  if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
     const self = this;
     const selectionnum = this.onSelectedHashlists();
     const sellen = selectionnum.length;
@@ -366,15 +325,6 @@ onUpdateBulk(value: any){
     );
   });
   self.onDone(sellen);
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 onDone(value?: any){

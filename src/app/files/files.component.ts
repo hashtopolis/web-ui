@@ -64,22 +64,8 @@ export class FilesComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
     this.loadFiles();
 
-  }
-
-  // Set permissions
-  viewFileAccess: any;
-  manageFileAccess: any;
-  addFileAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.viewFileAccess = perm.globalPermissionGroup.permissions.viewFileAccess;
-        this.manageFileAccess = perm.globalPermissionGroup.permissions.manageFileAccess;
-        this.addFileAccess = perm.globalPermissionGroup.permissions.addFileAccess;
-    });
   }
 
   loadFiles(){
@@ -143,13 +129,13 @@ export class FilesComponent implements OnInit {
               {
                 extend: 'excelHtml5',
                 exportOptions: {
-                  columns: [0, 1, 2, 3, 4]
+                  columns: [0, 1, 2, 3, 4, 5]
                 },
               },
               {
                 extend: 'print',
                 exportOptions: {
-                  columns: [0, 1, 2, 3, 4]
+                  columns: [0, 1, 2, 3, 4, 5]
                 },
                 customize: function ( win ) {
                   $(win.document.body)
@@ -204,6 +190,11 @@ export class FilesComponent implements OnInit {
                 ]
              },
              {
+              extend: 'colvis',
+              text: 'Column View',
+              columns: [0, 1, 2, 3, 4, 5],
+            },
+             {
               extend: "pageLength",
               className: "btn-sm"
              }
@@ -231,7 +222,6 @@ export class FilesComponent implements OnInit {
   }
 
   deleteFile(id: number){
-    if(this.manageFileAccess || typeof this.manageFileAccess == 'undefined'){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: 'btn',
@@ -271,15 +261,6 @@ export class FilesComponent implements OnInit {
           })
         }
       });
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
   }
 
 // Bulk Actions
@@ -302,7 +283,6 @@ export class FilesComponent implements OnInit {
   }
 
   onDeleteBulk(){
-    if(this.manageFileAccess || typeof this.manageFileAccess == 'undefined'){
     const self = this;
     const selectionnum = this.onSelectedFiles();
     const sellen = selectionnum.length;
@@ -320,19 +300,9 @@ export class FilesComponent implements OnInit {
       );
       });
     self.onDone(sellen);
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
   }
 
   onUpdateBulk(value: any){
-    if(this.manageFileAccess || typeof this.manageFileAccess == 'undefined'){
       const self = this;
       const selectionnum = this.onSelectedFiles();
       const sellen = selectionnum.length;
@@ -344,15 +314,6 @@ export class FilesComponent implements OnInit {
       );
     });
     self.onDone(sellen);
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
   }
 
   onDone(value?: any){

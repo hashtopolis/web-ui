@@ -21,22 +21,22 @@ import { SERV } from '../../core/_services/main.config';
 export class AgentStatusComponent implements OnInit {
   public isCollapsed = true;
 
-  faServer=faServer;
-  faUsers=faUsers;
-  faChevronDown=faChevronDown;
   faDigitalTachograph=faDigitalTachograph;
-  faMicrochip=faMicrochip;
-  faHomeAlt=faHomeAlt;
-  faPlus=faPlus;
-  faUserSecret=faUserSecret;
-  faEye=faEye;
   faTemperature0=faTemperature0;
   faPauseCircle=faPauseCircle;
-  faLock=faLock;
+  faChevronDown=faChevronDown;
   faInfoCircle=faInfoCircle;
+  faUserSecret=faUserSecret;
+  faMicrochip=faMicrochip;
+  faHomeAlt=faHomeAlt;
+  faServer=faServer;
+  faUsers=faUsers;
+  faPlus=faPlus;
+  faLock=faLock;
+  faEye=faEye;
 
-  public statusOrderBy = environment.config.agents.statusOrderBy;
   public statusOrderByName = environment.config.agents.statusOrderByName;
+  public statusOrderBy = environment.config.agents.statusOrderBy;
 
   showagents: any[] = [];
   _filteresAgents: any[] = [];

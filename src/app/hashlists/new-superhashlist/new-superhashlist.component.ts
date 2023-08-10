@@ -32,8 +32,6 @@ export class NewSuperhashlistComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.createForm = new FormGroup({
       superhashlistName: new FormControl(''),
       hashlists: new FormControl(''),
@@ -58,7 +56,7 @@ export class NewSuperhashlistComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
+            return '<div  class="style_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
           },
         },
         onInitialize: function(){
@@ -72,15 +70,6 @@ export class NewSuperhashlistComponent implements OnInit {
           }
           });
         });
-  }
-
-  // Set permissions
-  createSuperhashlistAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createSuperhashlistAccess = perm.globalPermissionGroup.permissions.createSuperhashlistAccess;
-    });
   }
 
   OnChangeValue(value){
@@ -99,7 +88,6 @@ export class NewSuperhashlistComponent implements OnInit {
   }
 
   onSubmit(){
-    if(this.createSuperhashlistAccess || typeof this.createSuperhashlistAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.gs.create(SERV.SUPER_HASHLISTS,this.createForm.value).subscribe(() => {
@@ -115,15 +103,6 @@ export class NewSuperhashlistComponent implements OnInit {
         }
       );
     }
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
   }
 
 }

@@ -10,7 +10,7 @@
         <th>Files / Size</th>
         <th>Priority</th>
         <th>Max Agents</th>
-        <th class="rounded-end">Action</th>
+        <th class="rounded-end">Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -39,7 +39,7 @@
             <button ngbDropdownItem [routerLink]="[ptask.pretaskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to pretask">
               <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon> Copy to Pretask
             </button>
-            <button ngbDropdownItem [routerLink]="['/tasks/new-tasks',ptask.pretaskId,'copypretask']" data-toggle="tooltip" data-placement="top" title="Copy to task">
+            <button ngbDropdownItem [routerLink]="['/tasks/new-task',ptask.pretaskId,'copypretask']" data-toggle="tooltip" data-placement="top" title="Copy to task">
               <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
             </button>
             <div class="dropdown-divider"></div>

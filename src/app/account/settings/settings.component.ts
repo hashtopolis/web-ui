@@ -11,16 +11,13 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
 function passwordMatchValidator(password: string): ValidatorFn {
-  console.log('here')
   return (control: FormControl) => {
-    console.log(control)
     if (!control || !control.parent) {
       return null;
     }
     return control.parent.get(password).value === control.value ? null : { mismatch: true };
   };
 }
-
 
 @Component({
   selector: 'app-settings',

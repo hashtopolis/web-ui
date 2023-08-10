@@ -34,6 +34,8 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   faHome=faHomeAlt;
   faEye=faEye;
 
+  private maxResults = environment.config.prodApiMaxResults;
+
   constructor(
     private uiService:UIConfigService,
     private route: ActivatedRoute,
@@ -42,22 +44,22 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   ) { }
 
   updateForm: FormGroup;
-  color = '';
   colorpicker=colorpicker;
-  private maxResults = environment.config.prodApiMaxResults;
+  color = '';
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  hashlistinform:any;
+  hashlistDescrip:any;
   uidateformat:any;
   crackerinfo:any;
   getchunks: any;
+  getFiles: any;
 
   ngOnInit() {
-
-    this.setAccessPermissions();
 
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
@@ -97,15 +99,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   }
 
-  // Set permissions
-  manageTaskAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageTaskAccess = perm.globalPermissionGroup.permissions.manageTaskAccess;
-    });
-  }
-
   OnChangeValue(value){
     this.updateForm.patchValue({
       updateData:{color: value}
@@ -113,7 +106,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
   onSubmit(){
-    if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe(() => {
@@ -129,25 +121,20 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
         }
       );
     }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
   }
 
   private initForm() {
     if (this.editMode) {
-    this.gs.get(SERV.TASKS,this.editedTaskIndex).subscribe((result)=>{
+    this.gs.get(SERV.TASKS,this.editedTaskIndex, {'expand': 'hashlist,speeds,crackerBinary,crackerBinaryType,files'}).subscribe((result)=>{
       this.color = result['color'];
-      this.gs.get(SERV.CRACKERS,result['crackerBinaryId']).subscribe((val) => {
-        this.crackerinfo = val;
-      });
-      this.getHashlist();
+      this.getFiles = result.files;
+      console.log(this.getFiles );
+      this.crackerinfo = result.crackerBinary;
+      // Hashlist Description and Type
+      this.hashlistinform =  result.hashlist;
+      this.gs.getAll(SERV.HASHTYPES,{'filter': 'hashTypeId='+result.hashlist['hashTypeId']+''}).subscribe((htypes: any) => {
+       this.hashlistDescrip = htypes.values[0].description;
+      })
       this.tkeyspace = result['keyspace'];
       this.tusepreprocessor = result['preprocessorId'];
       this.updateForm = new FormGroup({
@@ -174,7 +161,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     });
    }
   }
-
 
   attachFilesInit(id: number){
     this.dtOptions[0] = {
@@ -339,22 +325,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.rerender();
     });
   }
-// Get HashList Information
-hashL: any;
-
-getHashlist(){
-  const params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedTaskIndex+''}
-  const paramsh = {'maxResults': this.maxResults};
-  const matchObject =[]
-  this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
-    this.gs.getAll(SERV.HASHTYPES,paramsh).subscribe((htypes: any) => {
-      this.hashL = tasks.values.map(mainObject => {
-        matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
-      return { ...mainObject, ...matchObject }
-      })
-    })
-  })
-}
 
 // Task Speed Graph
 getTaskSpeed(){
@@ -395,11 +365,23 @@ initTaskSpeed(obj: object){
   const data:any = obj;
   const arr = [];
   const max = []
-  for(let i=0; i < data.length; i++){
 
-    const iso = this.transDate(data[i]['time']);
-    arr.push([iso, data[i]['speed']]);
-    max.push(data[i]['time']);
+  const result = [];
+  data.reduce(function(res, value) {
+    if (!res[value.time]) {
+      res[value.time] = { time: value.time, speed: 0 };
+      result.push(res[value.time])
+    }
+    res[value.time].speed += value.speed;
+    return res;
+  }, {});
+
+  for(let i=0; i < result.length; i++){
+
+    const iso = this.transDate(result[i]['time']);
+
+    arr.push([iso, result[i]['speed']]);
+    max.push(result[i]['time']);
   }
 
   const startdate =  Math.max(...max);

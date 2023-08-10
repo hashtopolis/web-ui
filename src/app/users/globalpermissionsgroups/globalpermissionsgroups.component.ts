@@ -42,8 +42,6 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
 
     ngOnInit(): void {
 
-      this.setAccessPermissions();
-
       const params = {'maxResults': this.maxResults , 'expand': 'user'}
       this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((gpg: any) => {
         this.Allgpg = gpg.values;
@@ -115,27 +113,21 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
 
     }
 
-    onRefresh(){
-      this.rerender();
-      this.ngOnInit();
-    }
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
 
-    setAccessPermissions(){
-      const param = {'expand':'globalPermissionGroup'};
-      this.gs.get(SERV.USERS,this.gs.userId,param).subscribe((perm: any) => {
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
       });
-    }
-
-    rerender(): void {
-      this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-        // Destroy the table first
-        dtInstance.destroy();
-        // Call the dtTrigger to rerender again
-        setTimeout(() => {
-          this.dtTrigger['new'].next();
-        });
-      });
-    }
+    });
+  }
 
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({

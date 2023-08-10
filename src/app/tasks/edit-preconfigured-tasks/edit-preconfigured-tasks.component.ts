@@ -53,8 +53,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -110,7 +108,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   }
 
   onSubmit(){
-    if(this.managePretaskAccess || typeof this.managePretaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
@@ -126,24 +123,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
         }
       );
     }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
-  }
-
-  // Set permissions
-  managePretaskAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.managePretaskAccess = perm.globalPermissionGroup.permissions.managePretaskAccess;
-    });
   }
 
   private initForm() {

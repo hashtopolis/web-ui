@@ -49,13 +49,10 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   private maxResults = environment.config.prodApiMaxResults;
 
   pathURL = location.protocol + '//' + location.hostname + ':' + environment.config.agentApiPort;
-  public agentURL = this.pathURL + environment.config.agentURL;
   public agentdownloadURL = this.pathURL + environment.config.agentdownloadURL;
+  public agentURL = this.pathURL + environment.config.agentURL;
 
   ngOnInit(): void {
-
-    // URL paths
-    this.setAccessPermissions();
 
     // Generate Voucher
     this.randomstring = Math.random().toString(36).slice(-8);
@@ -86,17 +83,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   }
 
-  // Set permissions
-  manageAgentAccess: any;
-  createAgentAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
-        this.createAgentAccess = perm.globalPermissionGroup.permissions.createAgentAccess;
-    });
-  }
-
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
@@ -109,7 +95,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: number){
-    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -149,19 +134,10 @@ export class NewAgentComponent implements OnInit, OnDestroy {
         })
       }
     });
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
+
   }
 
   onSubmit(){
-    if(this.createAgentAccess || typeof this.createAgentAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
@@ -176,15 +152,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
           this.rerender();  // rerender datatables
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 

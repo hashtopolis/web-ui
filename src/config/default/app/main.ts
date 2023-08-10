@@ -46,5 +46,3 @@ export const DEFAULT_CONFIG = {
   // File settings 10 * 1024 *1024 (5.24mb)
   chunkSizeTUS: 5242880,
 };
-
-

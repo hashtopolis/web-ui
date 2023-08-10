@@ -37,8 +37,6 @@ export class FilesEditComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -87,19 +85,8 @@ export class FilesEditComponent implements OnInit {
 
     });
   }
-  // Set permissions
-  manageFileAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS, this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageFileAccess = perm.globalPermissionGroup.permissions.manageFileAccess;
-    });
-  }
-
 
   onSubmit(): void{
-    if (this.updateForm.valid && (this.manageFileAccess || typeof this.manageFileAccess == 'undefined')) {
-
     this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value['updateData']).subscribe(() => {
       Swal.fire({
         title: "Great!",
@@ -139,15 +126,6 @@ export class FilesEditComponent implements OnInit {
     }
   );
   this.updateForm.reset(); // success, we reset form
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 private initForm() {

@@ -190,8 +190,6 @@ export class NewTasksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -205,7 +203,7 @@ export class NewTasksComponent implements OnInit {
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
-        case 'new-tasks':
+        case 'new-task':
           this.whichView = 'create';
         break;
 
@@ -269,15 +267,6 @@ export class NewTasksComponent implements OnInit {
 
   }
 
-  // Set permissions
-  createTaskAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createTaskAccess = perm.globalPermissionGroup.permissions.createTaskAccess;
-    });
-  }
-
   get attckcmd(){
     return this.createForm.controls['attackCmd'];
   }
@@ -294,25 +283,29 @@ export class NewTasksComponent implements OnInit {
   }
 
   async fetchData() {
-    const params_prep = {'maxResults': this.maxResults };
-    const params_crack = {'filter': 'crackerBinaryTypeId=1'};
+    const params = {'maxResults': this.maxResults };
     const params_f = {'maxResults': this.maxResults, 'expand': 'accessGroup'};
 
-    await this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers: any) => {
+    await this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers) => {
       this.crackertype = crackers.values;
+      let crackerBinaryTypeId = '';
+      if(this.crackertype.find(obj => obj.typeName === 'hashcat').crackerBinaryTypeId){
+        crackerBinaryTypeId = this.crackertype.find(obj => obj.typeName === 'hashcat').crackerBinaryTypeId;
+      }else{
+        crackerBinaryTypeId = this.crackertype.slice(-1)[0]['crackerBinaryTypeId'];
+      }
+      this.gs.getAll(SERV.CRACKERS,{'maxResults': this.maxResults,'filter': 'crackerBinaryTypeId='+crackerBinaryTypeId+'' }).subscribe((crackers) => {
+        this.crackerversions = crackers.values;
+        const lastItem = this.crackerversions.slice(-1)[0]['crackerBinaryId'];
+        this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
+      })
     });
 
-    await this.gs.getAll(SERV.CRACKERS,params_crack).subscribe((crackers: any) => {
-      this.crackerversions = crackers.values;
-      const lastItem = crackers.values.slice(-1);
-      this.createForm.get('crackerBinaryTypeId').patchValue(lastItem[0]['crackerBinaryId']); //ToDo
-    });
-
-    await this.gs.getAll(SERV.PREPROCESSORS,params_prep).subscribe((prep: any) => {
+    await this.gs.getAll(SERV.PREPROCESSORS,params).subscribe((prep) => {
       this.prep = prep.values;
     });
 
-    await this.gs.getAll(SERV.FILES,params_f).subscribe((files: any) => {
+    await this.gs.getAll(SERV.FILES,params_f).subscribe((files) => {
       this.allfiles = files.values;
       this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
         setTimeout(() => {
@@ -347,7 +340,6 @@ export class NewTasksComponent implements OnInit {
         plugins: ['remove_button'],
         preload: true,
         create: true,
-        items: [1],
         valueField: "hashlistId",
         placeholder: "Search hashlist...",
         labelField: "name",
@@ -359,18 +351,26 @@ export class NewTasksComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
+            return '<div  class="style_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
           },
         },
+        load: function (query, callback) {
+          if (self.copyMode) {
+            let that = this;
+            self.gs.get(SERV.TASKS,self.editedIndex,{'expand': 'hashlist'}).subscribe((result)=>{
+              that.setValue(result.hashlist['hashlistId']);
+            })
+          }
+        },
         onInitialize: function(){
-          const selectize = this;
+            const selectize = this;
             selectize.addOption(response);
             const selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
             selectize.setValue(selected_items);
-          }
+          },
           });
       });
 
@@ -394,14 +394,13 @@ export class NewTasksComponent implements OnInit {
     const params = {'filter': 'crackerBinaryTypeId='+id+''};
     this.gs.getAll(SERV.CRACKERS,params).subscribe((crackers: any) => {
       this.crackerversions = crackers.values;
-      // this.createForm.get('crackerBinaryTypeId').setValue(this.crackerversions.slice(-1)[0] ) // Auto select the latest version
+      const lastItem = this.crackerversions.slice(-1)[0]['crackerBinaryId'];
+      this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
     });
   }
 
   onSubmit(){
-    if(this.createTaskAccess || typeof this.createTaskAccess == 'undefined'){
     if (this.createForm.valid) {
-
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
@@ -415,26 +414,23 @@ export class NewTasksComponent implements OnInit {
         }
       );
     }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
   }
 
   // Copied from Task
   private initFormt() {
     if (this.copyMode) {
-    this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.TASKS,this.editedIndex,{'expand': 'hashlist,speeds,crackerBinary,crackerBinaryType,files'}).subscribe((result)=>{
       this.color = result['color'];
+      const arrFiles: Array<any> = [];
+      if(result.files){
+        for(let i=0; i < result.files.length; i++){
+          arrFiles.push(result.files[i]['fileId']);
+        }
+      }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_task_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
         'notes': new FormControl('Copied from task id'+this.editedIndex+'', Validators.required),
-        'hashlistId': new FormControl(result['hashlistId']),
+        'hashlistId': new FormControl(result.hashlist['hashlistId']),
         'attackCmd': new FormControl(result['attackCmd'], [Validators.required, this.forbiddenChars(/[&*;$()\[\]{}'"\\|<>\/]/)]),
         'maxAgents': new FormControl(result['maxAgents'], Validators.required),
         'chunkTime': new FormControl(result['chunkTime'], Validators.required),
@@ -442,19 +438,19 @@ export class NewTasksComponent implements OnInit {
         'priority': new FormControl(result['priority'], Validators.required),
         'color': new FormControl(result['color'], Validators.required),
         'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
-        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId'], Validators.required),
+        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId']),
         'isSmall': new FormControl(result['isSmall'], Validators.required),
-        'useNewBench': new FormControl(result['useNewBench'], Validators.required),
+        'useNewBench': new FormControl(result['useNewBench']),
         // 'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
-        'skipKeyspace': new FormControl(null || 0),
-        'crackerBinaryId': new FormControl(null || 1),
+        'skipKeyspace': new FormControl(result['skipKeyspace']),
+        'crackerBinaryId': new FormControl(result.crackerBinary['crackerBinaryId']),
         "isArchived": new FormControl(false),
-        'staticChunks': new FormControl(null || 0),
-        'chunkSize': new FormControl(null || this.chunkSize),
-        'forcePipe': new FormControl(null || false),
-        'preprocessorId': new FormControl(null || false),
-        'preprocessorCommand': new FormControl(''),
-        'files': new FormControl(result['files'], Validators.required),
+        'staticChunks': new FormControl(result['staticChunks']),
+        'chunkSize': new FormControl(result['chunkSize']),
+        'forcePipe': new FormControl(result['forcePipe']),
+        'preprocessorId': new FormControl(result['preprocessorId']),
+        'preprocessorCommand': new FormControl(result['preprocessorCommand']),
+        'files': new FormControl(arrFiles)
       });
     });
    }

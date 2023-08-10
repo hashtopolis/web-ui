@@ -86,17 +86,7 @@ export class EditHashlistComponent implements OnInit {
 
   }
 
-  // Set permissions
-  manageHashlistAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
-    });
-  }
-
   onSubmit(){
-    if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
@@ -111,15 +101,6 @@ export class EditHashlistComponent implements OnInit {
           this.router.navigate(['/hashlists/hashlist']);
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 

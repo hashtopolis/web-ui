@@ -26,19 +26,23 @@ export class HttpResInterceptor implements HttpInterceptor{
             finalize(this.finalize.bind(this)),
             catchError((error: HttpErrorResponse) => {
               let errmsg= '';
-
               if (error.error instanceof ErrorEvent) {
-
                 const err = error?.error.message || 'Unknown API error';
                 errmsg = `Client Side Error: ${err}`;
               }
               else {
-                if(error.status === 403 || error.status === 401 || error.status === 0){
-                  errmsg = `${error.statusText}`;
+                // console.log(error.error)
+                // console.log(error.status)
+                // errmsg = error.error.exception[0].message;
+                if(error.status === 401 || error.status === 0){
+                  errmsg = `${error.error.title}`;
                 }
-                if(error.status !== 404 && error.status !== 403  && error.status >= 300){
-                  this.router.navigate(['error']);
+                if(error.status === 403){
+                  errmsg = `You don't have permissions. Please contact your Administrator.`;
                 }
+                // if(error.status !== 404 && error.status !== 403 && error.status !== 401 && error.status >= 300){
+                //   this.router.navigate(['error']);
+                // }
                 else{
                   errmsg = error.error.exception[0].message;
                 }

@@ -54,8 +54,6 @@ export class EditSupertasksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -84,17 +82,7 @@ export class EditSupertasksComponent implements OnInit {
      }, 1000);
   }
 
-  // Set permissions
-  manageSupertaskAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageSupertaskAccess = perm.globalPermissionGroup.permissions.manageSupertaskAccess;
-    });
-  }
-
   onSubmit(){
-    if(this.manageSupertaskAccess || typeof this.manageSupertaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,this.updateForm.value).subscribe(() => {
@@ -109,15 +97,6 @@ export class EditSupertasksComponent implements OnInit {
           this.router.navigate(['/tasks/supertasks']);
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 
@@ -140,7 +119,7 @@ export class EditSupertasksComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize" ngbTooltip="The "">' + escape(item.pretaskId) + ' -  ' + escape(item.taskName) + '</div>';
+            return '<div  class="style_selectize" ngbTooltip="The "">' + escape(item.pretaskId) + ' -  ' + escape(item.taskName) + '</div>';
           },
         },
         onInitialize: function(){

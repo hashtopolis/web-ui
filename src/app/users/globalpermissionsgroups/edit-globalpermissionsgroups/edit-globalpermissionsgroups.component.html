@@ -5,33 +5,32 @@
 </div>
 <!-- Table current members -->
 <div class="row g-3">
-  <div class="col-md-5">
-  <app-page-subtitle [subtitle]="'Members'"></app-page-subtitle>
-  <div class="table-responsive">
-    &nbsp;
-      <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
-        <thead class="thead-light">
-          <tr>
-            <th class="rounded-start">ID</th>
-            <th class="rounded-end">Cracked</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let g of editedGPG.user">
-            <td>{{ g.id }}</td>
-            <td>
-              <a class='btn-outline-gray-600 float-right' [routerLink]="['/users/',g.id,'edit']" title="View User">
-                <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-              </a>
-              {{ g.name }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="col-md-5" *ngIf="editedGPG">
+    <app-page-subtitle [subtitle]="'Members'"></app-page-subtitle>
+    <div class="table-responsive">
+      &nbsp;
+        <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
+          <thead class="thead-light">
+            <tr>
+              <th class="rounded-start">ID</th>
+              <th class="rounded-end">Cracked</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let g of editedGPG.user">
+              <td>
+              {{ g.id }}
+              </td>
+              <td>
+                <a [routerLink]="['/users/',g.id,'edit']">{{ g.name }}</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
   </div>
-</div>
 <!-- Set permissions -->
-  <div class="col-md-7">
+  <div [ngClass]="editedGPG ? 'col-md-7':'' ">
     <app-page-subtitle [subtitle]="'Set Permissions'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <grid-form-input [name]="'Permission Group Name'" [labelclass]="'requiredak'">
@@ -42,73 +41,17 @@
               formControlName="name"
         >
       </grid-form-input>
+      <div class="row">
+        <div class="col">
+          <grid-form-input [name]="'Select/Deselect All'">
+            <td>
+              <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input" (change)="selectPerm()">
+              </div>
+          </grid-form-input>
+        </div>
+      </div>
       <div formGroupName="permissions">
-      <ngb-accordion #acc="ngbAccordion" >
-        <ngb-panel>
-          <ng-template ngbPanelTitle>
-            <span><b>Hashlists</b></span>
-          </ng-template>
-          <ng-template ngbPanelContent>
-
-            <div class="form-outline">
-              <label class="form-label display-col" for="SetHashlistAccess">View</label>
-              <select
-                    id='viewHashlistAccess'
-                    class='form-select'
-                    formControlName="viewHashlistAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="SetManageHashlistAccess">Manage</label>
-              <select
-                    id='manageHashlistAccess'
-                    class='form-select'
-                    formControlName="manageHashlistAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="SetcreateHashlistAccess">Create</label>
-              <select
-                    id='createHashlistAccess'
-                    class='form-select'
-                    formControlName="createHashlistAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="SetcreateSuperhashlistAccess">Create SuperHashlist</label>
-              <select
-                    id='createSuperhashlistAccess'
-                    class='form-select'
-                    formControlName="createSuperhashlistAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="SetviewHashesAccess">View Hashes</label>
-              <select
-                    id='viewHashesAccess'
-                    class='form-select'
-                    formControlName="viewHashesAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-
-          </ng-template>
-        </ngb-panel>
-      </ngb-accordion>
 
       <ngb-accordion #acc="ngbAccordion" >
         <ngb-panel>
@@ -116,38 +59,108 @@
             <span><b>Agents</b></span>
           </ng-template>
           <ng-template ngbPanelContent>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setviewAgentsAccess">View</label>
-              <select
-                    id='viewAgentsAccess'
-                    class='form-select'
-                    formControlName="viewAgentsAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setmanageAgentAccess">Manage</label>
-              <select
-                    id='manageAgentAccess'
-                    class='form-select'
-                    formControlName="manageAgentAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setcreateAgentAccess">Create</label>
-              <select
-                    id='createAgentAccess'
-                    class='form-select'
-                    formControlName="createAgentAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
+            <h5>Agent</h5>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Agent Stats</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentStatCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentStatDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentStatRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentStatUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Voucher</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRegVoucherCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRegVoucherDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRegVoucherRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRegVoucherUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
             </div>
           </ng-template>
         </ngb-panel>
@@ -159,115 +172,223 @@
             <span><b>Tasks</b></span>
           </ng-template>
           <ng-template ngbPanelContent>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setviewTaskAccess">View</label>
-              <select
-                    id='viewTaskAccess'
-                    class='form-select'
-                    formControlName="viewTaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
+            <h5>Task</h5>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permTaskCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permTaskDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permTaskRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permTaskUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>PreTask</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPretaskCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPretaskDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPretaskRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPretaskUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>SuperTask</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permSupertaskCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permSupertaskDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permSupertaskRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permSupertaskUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Chunks</h5>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permChunkDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permChunkRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permChunkUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
             </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setrunTaskAccess">Run</label>
-              <select
-                    id='runTaskAccess'
-                    class='form-select'
-                    formControlName="runTaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setcreateTaskAccess">Create</label>
-              <select
-                    id='createTaskAccess'
-                    class='form-select'
-                    formControlName="createTaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setmanageTaskAccess">Manage</label>
-              <select
-                    id='manageTaskAccess'
-                    class='form-select'
-                    formControlName="manageTaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setviewPretaskAccess">View Preconfigured Tasks</label>
-              <select
-                    id='viewPretaskAccess'
-                    class='form-select'
-                    formControlName="viewPretaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setcreatePretaskAccess">Create Preconfigured Tasks</label>
-              <select
-                    id='createPretaskAccess'
-                    class='form-select'
-                    formControlName="createPretaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setmanagePretaskAccess">Manage Preconfigured Tasks</label>
-              <select
-                    id='managePretaskAccess'
-                    class='form-select'
-                    formControlName="managePretaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setviewSupertaskAccess">View SuperTasks</label>
-              <select
-                    id='viewSupertaskAccess'
-                    class='form-select'
-                    formControlName="viewSupertaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="createSupertaskAccess">Create SuperTasks</label>
-              <select
-                    id='createSupertaskAccess'
-                    class='form-select'
-                    formControlName="createSupertaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="createManageSupertaskAccess">Manage SuperTasks</label>
-              <select
-                    id='manageSupertaskAccess'
-                    class='form-select'
-                    formControlName="manageSupertaskAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Hashlists</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <h5>Hashlist</h5>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashlistCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashlistDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashlistRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashlistUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>SuperHaslist</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashlistHashlistCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashlistHashlistRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Hash</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashTypeCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashTypeDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHashRead">
+                    </div>
+                </grid-form-input>
+              </div>
             </div>
           </ng-template>
         </ngb-panel>
@@ -279,70 +400,39 @@
             <span><b>Files</b></span>
           </ng-template>
           <ng-template ngbPanelContent>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setViewFileAccess">View</label>
-              <select
-                    id='viewFileAccess'
-                    class='form-select'
-                    formControlName="viewFileAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setmanageFileAccess">Manage</label>
-              <select
-                    id='manageFileAccess'
-                    class='form-select'
-                    formControlName="manageFileAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setaddFileAccess">Create</label>
-              <select
-                    id='addFileAccess'
-                    class='form-select'
-                    formControlName="addFileAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-          </ng-template>
-        </ngb-panel>
-      </ngb-accordion>
-
-      <ngb-accordion #acc="ngbAccordion" >
-        <ngb-panel>
-          <ng-template ngbPanelTitle>
-            <span><b>Users</b></span>
-          </ng-template>
-          <ng-template ngbPanelContent>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setuserConfigAccess">Manage Users</label>
-              <select
-                    id='userConfigAccess'
-                    class='form-select'
-                    formControlName="userConfigAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
-            </div>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setmanageAccessGroupAccess">Manage Access Groups</label>
-              <select
-                    id='manageAccessGroupAccess'
-                    class='form-select'
-                    formControlName="manageAccessGroupAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permFileCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permFileDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permFileRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permFileUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
             </div>
           </ng-template>
         </ngb-panel>
@@ -354,16 +444,368 @@
             <span><b>Configuration</b></span>
           </ng-template>
           <ng-template ngbPanelContent>
-            <div class="form-outline">
-              <label class="form-label display-col" for="setServerConfigAccess">Access Configuration</label>
-              <select
-                    id='serverConfigAccess'
-                    class='form-select'
-                    formControlName="serverConfigAccess"
-                  >
-                  <option [ngValue]="true">Yes</option>
-                  <option [ngValue]="false">No</option>
-              </select>
+            <h5>Global Settings</h5>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permConfigCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permConfigDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permConfigRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permConfigUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Agent Binary</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentBinaryCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentBinaryDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentBinaryRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAgentBinaryUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Cracker Binary</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Cracker Binary Type</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryTypeCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryTypeDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryTypeRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permCrackerBinaryTypeUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Preprocessor</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPreprocessorCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPreprocessorDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPreprocessorRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permPreprocessorUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Health Check</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHealthCheckCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHealthCheckDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHealthCheckRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permHealthCheckUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Users</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <h5>User</h5>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permUserCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permUserDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permUserRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permUserUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Notifications</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permNotificationSettingCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permNotificationSettingDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permNotificationSettingRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permNotificationSettingUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+            </div>
+          </ng-template>
+        </ngb-panel>
+      </ngb-accordion>
+
+      <ngb-accordion #acc="ngbAccordion" >
+        <ngb-panel>
+          <ng-template ngbPanelTitle>
+            <span><b>Permissions</b></span>
+          </ng-template>
+          <ng-template ngbPanelContent>
+            <h5>Global Permissions</h5>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRightGroupCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRightGroupDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRightGroupRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permRightGroupUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <hr>
+              <h5>Access Groups</h5>
+              <div class="col">
+                <grid-form-input [name]="'Create'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAccessGroupCreate">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Delete'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAccessGroupDelete">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Read'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAccessGroupRead">
+                    </div>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Update'">
+                  <td>
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" formControlName="permAccessGroupUpdate">
+                    </div>
+                </grid-form-input>
+              </div>
             </div>
           </ng-template>
         </ngb-panel>
@@ -373,11 +815,3 @@
     </form>
   </div>
 </div>
-
-
-
-
-
-
-
-

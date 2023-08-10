@@ -133,8 +133,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -214,15 +212,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   }
 
-  // Set permissions
-  createPretaskAccess: any;
-
-  setAccessPermissions(){
-    this.gs.get(SERV.USERS,this.gs.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createPretaskAccess = perm.globalPermissionGroup.permissions.createPretaskAccess;
-    });
-  }
-
   get attckcmd(){
     return this.createForm.controls['attackCmd'];
   }
@@ -260,7 +249,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   }
 
   onSubmit(){
-    if(this.createPretaskAccess || typeof this.createPretaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
       this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe(() => {
@@ -274,15 +262,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
           this.createForm.reset(); // success, we reset form
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 
@@ -329,12 +308,12 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   private initFormt() {
     if (this.copyMode) {
-    this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.TASKS,this.editedIndex,{'expand': 'files'}).subscribe((result)=>{
       this.color = result['color'];
       const arrFiles: Array<any> = [];
-      if(result['pretaskFiles']){
-        for(let i=0; i < result['pretaskFiles'].length; i++){
-          arrFiles.push(result['pretaskFiles'][i]['fileId']);
+      if(result.files){
+        for(let i=0; i < result.files.length; i++){
+          arrFiles.push(result.files[i]['fileId']);
         }
       }
       this.createForm = new FormGroup({
@@ -350,7 +329,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
         'isSmall': new FormControl(result['isSmall'], Validators.required),
         'useNewBench': new FormControl(result['useNewBench'], Validators.required),
         'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
-        'files': new FormControl(result['files'], Validators.required),
+        'files': new FormControl(arrFiles),
       });
     });
    }
