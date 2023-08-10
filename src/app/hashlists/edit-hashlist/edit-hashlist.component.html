@@ -30,7 +30,19 @@
               </textarea>
           </grid-form-input>
           <div class="row g-3">
-            <div class="col-md-3">
+            <div class="col-md-4">
+              <grid-form-input [name]="'Access Group'">
+                <td>
+                  <select
+                        id='accessGroupId'
+                        class='form-select'
+                        formControlName="accessGroupId"
+                    >
+                    <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+                  </select>
+              </grid-form-input>
+            </div>
+            <div class="col-md-8">
               <grid-form-input [name]="'Secret'" [tooltip]="'Contains secret data'">
                 <td>
                   <div class="form-check form-switch">
@@ -41,18 +53,6 @@
                         formControlName="isSecret"
                   >
                   </div>
-              </grid-form-input>
-            </div>
-            <div class="col-md-9">
-              <grid-form-input [name]="'Access Group'">
-                <td>
-                  <select
-                        id='accessGroupId'
-                        class='form-select'
-                        formControlName="accessGroupId"
-                    >
-                    <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
-                  </select>
               </grid-form-input>
             </div>
           </div>

@@ -33,59 +33,64 @@
           <span><b>Show/Hide details</b></span>
         </ng-template>
         <ng-template ngbPanelContent>
-          <grid-form-input [name]="'Owner'" [labelclass]="'display-col'">
-            <div class="input-group">
-              <span class="input-group-text">
-                <fa-icon [icon]="faIdBadge" aria-hidden="true"></fa-icon>
-              </span>
-              <select
-                      id="userId"
-                      class='form-select'
-                      formControlName="userId"
-              >
-              <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }}</option>
-              </select>
+          <div class="row">
+            <div class="col">
+              <grid-form-input [name]="'Machine Name'" [labelclass]="'display-col'">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <fa-icon [icon]="faComputer" aria-hidden="true"></fa-icon>
+                  </span>
+                  <input
+                        type='text'
+                        id="agentName"
+                        class='form-control'
+                        formControlName="agentName"
+                  >
+                </div>
+              </grid-form-input>
             </div>
-          </grid-form-input>
-          <grid-form-input [name]="'Machine Name'" [labelclass]="'display-col'">
-            <div class="input-group">
-              <span class="input-group-text">
-                <fa-icon [icon]="faComputer" aria-hidden="true"></fa-icon>
-              </span>
-              <input
-                    type='text'
-                    id="agentName"
-                    class='form-control'
-                    formControlName="agentName"
-              >
+            <div class="col">
+              <grid-form-input [name]="'Owner'" [labelclass]="'display-col'">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <fa-icon [icon]="faIdBadge" aria-hidden="true"></fa-icon>
+                  </span>
+                  <select
+                          id="userId"
+                          class='form-select'
+                          formControlName="userId"
+                  >
+                  <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }}</option>
+                  </select>
+                </div>
+              </grid-form-input>
             </div>
-          </grid-form-input>
+          </div>
           <hr>
           <div class="row g-3">
             <div class="col-md-2">
               <grid-form-input [name]="'CPU only'" [labelclass]="'display-col'">
-                <td>
-                  <select
+                <div class="form-check form-switch">
+                  <input
+                        type="checkbox"
                         id="cpuOnly"
-                        class='form-select'
+                        class="form-check-input"
                         formControlName="cpuOnly"
-                    >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                  </select>
-              </grid-form-input>
+                  >
+              </div>
+             </grid-form-input>
             </div>
             <div class="col-md-2">
               <grid-form-input [name]="'Trust'" [labelclass]="'display-col'" [tooltip]="'Trust agent with secret data'">
-                <select
-                      id="isTrusted"
-                      class='form-select'
-                      formControlName="isTrusted"
-                    >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                </select>
-              </grid-form-input>
+                <div class="form-check form-switch">
+                  <input
+                        type="checkbox"
+                        id="isTrusted"
+                        class="form-check-input"
+                        formControlName="isTrusted"
+                  >
+              </div>
+             </grid-form-input>
             </div>
             <div class="col-md-8">
               <grid-form-input [name]="'Assignment'" [labelclass]="'display-col'">
@@ -99,34 +104,32 @@
               </grid-form-input>
             </div>
           </div>
-          <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
-            <input
-                  type='string'
-                  id="accessgroups"
-                  class='form-control'
-            >
-          </grid-form-input>
-          <grid-form-input [name]="'Extra parameters'" [labelclass]="'display-col'">
-            <input
-                  type='text'
-                  id="cmdPars"
-                  class='form-control'
-                  formControlName="cmdPars"
-            >
-          </grid-form-input>
-          <grid-form-input [name]="'Cracker errors'" [labelclass]="'display-col'">
-            <select
-                  type='text'
-                  id="ignoreErrors"
-                  class='form-select'
-                  formControlName="ignoreErrors"
-              >
-              <option value="NO">Deactivate agent on error</option>
-              <option value="IGNORE_SAVE">Keep agent running, but save errors</option>
-              <option value="IGNORE_NOSAVE">Keep agent running and discard errors</option>
-            </select>
-            {{ showagent['ignoreErrors'] }}
-          </grid-form-input>
+          <div class="row">
+            <div class="col">
+              <grid-form-input [name]="'Extra parameters'" [labelclass]="'display-col'">
+                <input
+                      type='text'
+                      id="cmdPars"
+                      class='form-control'
+                      formControlName="cmdPars"
+                >
+              </grid-form-input>
+            </div>
+            <div class="col">
+              <grid-form-input [name]="'Cracker errors'" [labelclass]="'display-col'">
+                <select
+                      type='text'
+                      id="ignoreErrors"
+                      class='form-select'
+                      formControlName="ignoreErrors"
+                  >
+                  <option value="NO">Deactivate agent on error</option>
+                  <option value="IGNORE_SAVE">Keep agent running, but save errors</option>
+                  <option value="IGNORE_NOSAVE">Keep agent running and discard errors</option>
+                </select>
+              </grid-form-input>
+            </div>
+          </div>
           <hr>
           <h4 class="display-col">Agent Detailed Information</h4>
           <div class="row">
@@ -148,25 +151,23 @@
                     </td>
                   </span>
                 </grid-form-input>
-            </div>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'O.S.'" [labelclass]="'display-col'">
+                    <span *ngIf="showagent['os'] === 0" class="input-group-text input-group-lg w-15 mx-auto">
+                      <fa-icon [icon]="faLinux" aria-hidden="true"></fa-icon>Linux
+                    </span>
+                    <span *ngIf="showagent['os'] === 1" class="input-group-text input-group-lg w-15 mx-auto">
+                      <fa-icon [icon]="faWindows" aria-hidden="true"></fa-icon>Windows
+                    </span>
+                    <span *ngIf="showagent['os'] === 2" class="input-group-text input-group-lg w-15 mx-auto">
+                      <fa-icon [icon]="faApple" aria-hidden="true"></fa-icon>IOS
+                    </span>
+                </grid-form-input>
+              </div>
           </div>
           <div class="row g-3">
-            <div class="col-md-2">
-              <grid-form-input [name]="'O.S.'" [labelclass]="'display-col'">
-                <div class="input-group">
-                  <span *ngIf="showagent['os'] === 0" class="input-group-text input-group-lg w-15 mx-auto">
-                    <fa-icon [icon]="faLinux" aria-hidden="true"></fa-icon>Linux
-                  </span>
-                  <span *ngIf="showagent['os'] === 1" class="input-group-text input-group-lg w-15 mx-auto">
-                    <fa-icon [icon]="faWindows" aria-hidden="true"></fa-icon>Windows
-                  </span>
-                  <span *ngIf="showagent['os'] === 2" class="input-group-text input-group-lg w-15 mx-auto">
-                    <fa-icon [icon]="faApple" aria-hidden="true"></fa-icon>IOS
-                  </span>
-                </div>
-              </grid-form-input>
-            </div>
-            <div class="col-md-10">
+            <div class="col-md-8">
               <grid-form-input [name]="'Graphic cards'" [labelclass]="'display-col'">
                 <span class="pre input-group-text input-group-lg w-70 mx-auto">
                   <td>
@@ -175,8 +176,17 @@
                 </span>
               </grid-form-input>
             </div>
+            <div class="col-md-4">
+              <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
+                <input
+                      type='string'
+                      id="accessgroups"
+                      class='form-control'
+                >
+              </grid-form-input>
+            </div>
           </div>
-          <grid-form-input [name]="'Time spent cracking'" [labelclass]="'display-col'">
+          <grid-form-input [name]="'Time spent cracking'" [labelclass]="'display-col'" *ngIf="timespent">
             <span class="pre input-group-text input-group-lg">
               <td>
                 <div *ngIf="timespent">
@@ -190,12 +200,11 @@
     </ngb-accordion>
     &nbsp;
     <grid-form-input [name]="'Active'" [labelclass]="'display-col'">
-      <div class="form-check">
+      <div class="form-check form-switch">
         <input
               type="checkbox"
               id="isActive"
               class="form-check-input"
-              value=""
               formControlName="isActive"
         >
       </div>
@@ -207,53 +216,56 @@
 <!-- <p>Missing API for Agent Error Factory?</p> -->
 
 <!-- Dispatched Chunks -->
-<app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
-<h5>Latest 50 chunks</h5>
-<div class="table-responsive">
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-        <th class="rounded-start">ID</th>
-        <th>Start</th>
-        <th>Length</th>
-        <th>Checkpoint</th>
-        <th>Progress</th>
-        <th>Task</th>
-        <th>Dispatch time</th>
-        <th>Last activity</th>
-        <th>Time spent</th>
-        <th>State</th>
-        <th class="rounded-end">Cracked</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let gc of getchunks">
-        <td>{{ gc.chunkId }}</td>
-        <td>{{ gc.skip }}</td>
-        <td>{{ gc.length }}</td>
-        <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
-        <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
-        <td *ngIf="!gc.progress">N/A</td>
-        <td>
-          {{ gc.taskName | shortenString:15 | lowercase | titlecase}}
-          <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',gc.taskId,'edit']" title="View Task">
-            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-          </a>
-        </td>
-        <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
-        <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
-        <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
-        <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
-        <td>{{ gc.state | staticArray:'states' }}</td>
-        <td>
-          {{ gc.cracked }}
-          <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','tasks',gc.taskId]" title="Show Hashes">
-            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<app-table>
+  <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
+  <h5>Latest 50 chunks</h5>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
+      <thead class="thead-light">
+        <tr>
+          <th class="rounded-start">ID</th>
+          <th>Start</th>
+          <th>Length</th>
+          <th>Checkpoint</th>
+          <th>Progress</th>
+          <th>Task</th>
+          <th>Dispatch time</th>
+          <th>Last activity</th>
+          <th>Time spent</th>
+          <th>State</th>
+          <th class="rounded-end">Cracked</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let gc of getchunks">
+          <td>{{ gc.chunkId }}</td>
+          <td>{{ gc.skip }}</td>
+          <td>{{ gc.length }}</td>
+          <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
+          <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
+          <td *ngIf="!gc.progress">N/A</td>
+          <td>
+            {{ gc.taskName | shortenString:15 | lowercase | titlecase}}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',gc.taskId,'edit']" title="View Task">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+          <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
+          <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
+          <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
+          <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
+          <td>{{ gc.state | staticArray:'states' }}</td>
+          <td>
+            {{ gc.cracked }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','tasks',gc.taskId]" title="Show Hashes">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</app-table>
+
 
 

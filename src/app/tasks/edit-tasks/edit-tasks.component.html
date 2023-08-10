@@ -70,20 +70,6 @@
                       >
                 </grid-form-input>
               </div>
-                <div class="col">
-                  <grid-form-input [name]="'Max agents'">
-                    <td>
-                      <input
-                            type='number'
-                            id='maxAgents'
-                            class='form-control'
-                            formControlName="maxAgents"
-                            validateInputNumber
-                        >
-                  </grid-form-input>
-              </div>
-            </div>
-            <div class="row">
               <div class="col">
                 <grid-form-input [name]="'Status timer'">
                   <td>
@@ -96,6 +82,32 @@
                 </grid-form-input>
               </div>
               <div class="col">
+                <grid-form-input [name]="'CPU only'">
+                  <div class="form-check form-switch">
+                    <input
+                          type="checkbox"
+                          id="isCpuTask"
+                          class="form-check-input"
+                          formControlName="isCpuTask"
+                    >
+                </div>
+               </grid-form-input>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Max agents'">
+                  <td>
+                    <input
+                          type='number'
+                          id='maxAgents'
+                          class='form-control'
+                          formControlName="maxAgents"
+                          validateInputNumber
+                      >
+                </grid-form-input>
+            </div>
+              <div class="col">
                 <grid-form-input [name]="'Chunk size (seconds)'">
                   <td>
                     <input
@@ -107,32 +119,22 @@
                     >
                 </grid-form-input>
               </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <grid-form-input [name]="'CPU only'">
-                  <select
-                        id='isCpuTask'
-                        class='form-select'
-                        formControlName="isCpuTask"
-                    >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                  </select>
-                </grid-form-input>
-              </div>
               <div class="col">
                 <grid-form-input [name]="'Small task'">
-                  <select
-                        id='isSmall'
-                        class='form-select'
-                        formControlName="isSmall"
+                  <div class="form-check form-switch">
+                    <input
+                          type="checkbox"
+                          id="isSmall"
+                          class="form-check-input"
+                          formControlName="isSmall"
                     >
-                    <option [ngValue]="false">No</option>
-                    <option [ngValue]="true">Yes</option>
-                  </select>
-                </grid-form-input>
+                </div>
+               </grid-form-input>
               </div>
+            </div>
+            <div class="row">
+
+
               </div>
             </div>
           </div>
@@ -273,11 +275,11 @@
             </div>
             <hr>
             <div class="form-group">
-              <div *ngFor="let h of hashL" class="form-outline">
-                  <label *ngIf="h.hashlist.format ===0" class="form-label" for="getTaskId">Hashlist</label>
-                  <label *ngIf="h.hashlist.format ===3" class="form-label" for="getTaskId">Superhaslist</label>
+              <div class="form-outline">
+                  <label *ngIf="hashlistinform.format === 0" class="form-label" for="getTaskId">Hashlist</label>
+                  <label *ngIf="hashlistinform.format === 3" class="form-label" for="getTaskId">Superhaslist</label>
                   <td>
-                    <a [routerLink]="['/hashlists/hashlist', h.hashlist.hashlistId,'edit']">{{ h.hashlist.name }} {{ h[0].description }}</a>
+                    <a [routerLink]="['/hashlists/hashlist', hashlistinform.hashlistId,'edit']">{{ hashlistinform.name }} {{ hashlistDescrip }}</a>
               </div>
             </div>
             <grid-form-input [name]="''">
@@ -291,16 +293,11 @@
                 </div>
             </grid-form-input>
             </form>
-            <hr>
-            <div *ngIf="tkeyspace > 0">
-            <h6>Visual Representation</h6>
-
-            </div>
         </ng-template>
       </ngb-panel>
     </ngb-accordion>
     <!-- Attached Files -->
-    <ngb-accordion #acc="ngbAccordion" >
+    <ngb-accordion #acc="ngbAccordion" *ngIf="getFiles.length > 0">
       <ngb-panel>
         <ng-template ngbPanelTitle>
           <span><b>Attached Files</b></span>
@@ -311,14 +308,18 @@
               <thead class="thead-light">
                 <tr>
                     <th class="rounded-start">ID</th>
-                    <th>File Name</th>
+                    <th>Name</th>
+                    <th>Type</th>
                     <th class="rounded-end">Size</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-
-                </tr>
+                  <tr *ngFor="let file of getFiles">
+                    <td>{{ file.fileId }}</td>
+                    <td>{{ file.filename | shortenString:15 | lowercase | titlecase }}</td>
+                    <td>{{ file.fileType | fileType  }}</td>
+                    <td>{{ file.size | fileSize:false }}</td>
+                  </tr>
               </tbody>
             </table>
           </app-table>
@@ -327,9 +328,13 @@
     </ngb-accordion>
   </div>
 </div>
-<app-table>
+<!-- Visual  -->
+<app-table *ngIf="tkeyspace > 0">
   <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
+  <div>
+  </div>
 </app-table>
+<!-- Assigned Agents -->
 <app-table>
   <app-page-subtitle [subtitle]="'Assigned agents'"></app-page-subtitle>
   <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]">

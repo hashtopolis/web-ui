@@ -116,6 +116,44 @@
                 <ng-template ngbPanelContent>
                   <div class="row">
                     <div class="col">
+                      <grid-form-input [name]="'CPU only'" [tooltip]="tasktip.isCpuTask" [labelclass]="'display-col'">
+                          <div class="form-check form-switch">
+                            <input
+                                  type="checkbox"
+                                  id="isCpuTask"
+                                  class="form-check-input"
+                                  formControlName="isCpuTask"
+                            >
+                        </div>
+                      </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Small task'" [tooltip]="tasktip.isSmall" [labelclass]="'display-col'">
+                        <div class="form-check form-switch">
+                          <input
+                                type="checkbox"
+                                id="isSmall"
+                                class="form-check-input"
+                                formControlName="isSmall"
+                          >
+                      </div>
+                    </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Enforce piping'" [tooltip]="tasktip.forcePipe" [labelclass]="'display-col'">
+                        <div class="form-check form-switch">
+                          <input
+                                type="checkbox"
+                                id="forcePipe"
+                                class="form-check-input"
+                                formControlName="forcePipe"
+                          >
+                      </div>
+                     </grid-form-input>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
                       <grid-form-input [name]="'Chunk size'" [tooltip]="tasktip.chunkTime" [labelclass]="'display-col'">
                         <input
                               type='number'
@@ -150,44 +188,6 @@
                   </div>
                   <div class="row">
                     <div class="col">
-                      <grid-form-input [name]="'CPU only'" [tooltip]="tasktip.isCpuTask" [labelclass]="'display-col'">
-                        <select
-                              id='isCpuTask'
-                              class='form-select'
-                              formControlName="isCpuTask"
-                            >
-                            <option [ngValue]="false" [defaultSelected]=true>No</option>
-                            <option [ngValue]="true">Yes</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Small task'" [tooltip]="tasktip.isSmall" [labelclass]="'display-col'">
-                        <select
-                              id='isSmall'
-                              class='form-select'
-                              formControlName="isSmall"
-                            >
-                            <option [ngValue]="false" [defaultSelected]=true>No</option>
-                            <option [ngValue]="true">Yes</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Enforce piping'" [tooltip]="tasktip.forcePipe" [labelclass]="'display-col'">
-                        <select
-                              class='form-select'
-                              id='forcePipe'
-                              formControlName="forcePipe"
-                            >
-                            <option [ngValue]="false" [defaultSelected]=true>No</option>
-                            <option [ngValue]="true">Yes</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col">
                       <grid-form-input [name]="'Use static chunking'" [tooltip]="tasktip.staticChunks" [labelclass]="'display-col'">
                         <select
                               type='number'
@@ -214,18 +214,20 @@
                     </div>
                   </div>
                   <hr>
-                  <grid-form-input [name]="'Benchmark Type'" [labelclass]="'display-col'">
-                    <select
-                          type='number'
-                          id="useNewBench"
-                          class='form-select'
-                          formControlName="useNewBench"
-                    >
-                      <option [ngValue]="false">Runtime Benchmark</option>
-                      <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
-                    </select>
-                  </grid-form-input>
                   <div class="row">
+                    <div class="col">
+                      <grid-form-input [name]="'Benchmark Type'" [labelclass]="'display-col'">
+                        <select
+                              type='number'
+                              id="useNewBench"
+                              class='form-select'
+                              formControlName="useNewBench"
+                        >
+                          <option [ngValue]="false">Runtime Benchmark</option>
+                          <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
+                        </select>
+                      </grid-form-input>
+                    </div>
                     <div class="col">
                       <grid-form-input [name]="'Binary type to run task'" [labelclass]="'display-col'">
                         <select
@@ -247,7 +249,7 @@
                               class='form-select'
                               formControlName="crackerBinaryTypeId"
                             >
-                            <option [ngValue]=""  disabled="true">--<option>
+                            <!-- <option [ngValue]=""  disabled="true">--<option> -->
                             <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
                         </select>
                       </grid-form-input>
