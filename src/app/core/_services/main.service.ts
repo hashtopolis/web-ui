@@ -5,18 +5,17 @@ import { AuthService } from './access/auth.service';
 import { HttpClient} from '@angular/common/http';
 import { setParameter } from './buildparams';
 import { Params } from '@angular/router';
+import { ConfigService } from './shared/config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalService {
-
-  private endpoint = environment.config.prodApiEndpoint;
-
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     private as:AuthService,
+    private cs:ConfigService,
     ) { }
 
 /**
@@ -39,7 +38,7 @@ export class GlobalService {
     if (routerParams) {
         queryParams = setParameter(routerParams);
     }
-    return this.http.get(environment.config.prodApiEndpoint + methodUrl, {params: queryParams})
+    return this.http.get(this.cs.getEndpoint() + methodUrl, {params: queryParams})
   }
 
 /**
@@ -52,7 +51,7 @@ export class GlobalService {
     if (routerParams) {
         queryParams = setParameter(routerParams);
     }
-    return this.http.get(`${environment.config.prodApiEndpoint + methodUrl}/${id}`,{params: routerParams})
+    return this.http.get(`${this.cs.getEndpoint() + methodUrl}/${id}`,{params: routerParams})
   }
 
 /**
@@ -61,7 +60,7 @@ export class GlobalService {
  * @returns  Object
 **/
   create(methodUrl:string, item: any): Observable<any> {
-    return this.http.post<any>(environment.config.prodApiEndpoint + methodUrl, item)
+    return this.http.post<any>(this.cs.getEndpoint() + methodUrl, item)
   }
 
 /**
@@ -73,7 +72,7 @@ export class GlobalService {
 createHashlist(methodUrl:string, arr: any): Observable<any> {
   const str = arr.sourceData;
   const filename = str.replace("C:\\fakepath\\", "");
-  return this.http.post<any>(environment.config.prodApiEndpoint + methodUrl, {
+  return this.http.post<any>(this.cs.getEndpoint() + methodUrl, {
           name: arr.name,
           hashTypeId: arr.hashTypeId,
           format: arr.format,
@@ -99,7 +98,7 @@ createHashlist(methodUrl:string, arr: any): Observable<any> {
  * @returns Object
 **/
   delete(methodUrl: string, id: number): Observable<any> {
-    return this.http.delete(environment.config.prodApiEndpoint + methodUrl +'/'+ id)
+    return this.http.delete(this.cs.getEndpoint() + methodUrl +'/'+ id)
     .pipe(
       tap(data => console.log(JSON.stringify(data))),
       retryWhen(errors => {
@@ -120,7 +119,7 @@ createHashlist(methodUrl:string, arr: any): Observable<any> {
  * @returns Object
 **/
   update(methodUrl: string, id: number, arr: any): Observable<any> {
-    return this.http.patch<number>(environment.config.prodApiEndpoint + methodUrl + '/' + id, arr)
+    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, arr)
     .pipe(
       debounceTime(2000)
     );
@@ -133,7 +132,7 @@ createHashlist(methodUrl:string, arr: any): Observable<any> {
  * @returns Object
 **/
   archive(methodUrl: string, id: number): Observable<any> {
-    return this.http.patch<number>(environment.config.prodApiEndpoint + methodUrl + '/' + id, {isArchived: true})
+    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, {isArchived: true})
   }
 
 

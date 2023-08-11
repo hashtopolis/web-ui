@@ -19,7 +19,6 @@ import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeService } from './core/_services/shared/theme.service';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
-import { environment } from 'src/environments/environment';
 import { Keepalive } from '@ng-idle/keepalive';
 
 @Component({
@@ -115,16 +114,6 @@ export class AppComponent implements OnInit {
   isLogged: boolean;
 
   ngOnInit(): void {
-    this.configService.getConfig().subscribe(config => {
-      // Assuming the JSON contains a property named 'backendUrl'
-      if (config && config.hashtopolis_backend_url) {
-        // If we get a config from the backend, we set the config property
-        environment.config.prodApiEndpoint = config.hashtopolis_backend_url;
-      // Test if the config is set but the hashtopolis_backend_url is not set
-      } else if (config && !config.hashtopolis_backend_url) {
-        console.error('Invalid configuration file. Please check your config.json.');
-      }
-    });
     this.authService.autoLogin();
     this.authService.isLogged.subscribe(logged => {
       this.isLogged = logged;
@@ -133,7 +122,6 @@ export class AppComponent implements OnInit {
       }
     });
     this.authService.checkStatus();
-
   }
 
   private findCurrentStep(currentRoute) {

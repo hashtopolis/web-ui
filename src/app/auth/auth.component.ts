@@ -5,6 +5,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { ConfigService } from '../core/_services/shared/config.service';
 
 @Component({
   selector: 'app-auth',
@@ -25,13 +26,14 @@ export class AuthComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private configService: ConfigService,
     private router: Router
   ) {
     this.headerConfig = environment.config.header;
   }
 
   ngOnInit(): void {
-
+    this.configService.getEndpoint();
   }
 
   onSubmit(form: NgForm){

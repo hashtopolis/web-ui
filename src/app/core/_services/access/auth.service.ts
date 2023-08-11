@@ -6,6 +6,7 @@ import { User } from '../../_models/auth-user.model';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from "@angular/router";
 import { Buffer } from 'buffer';
+import { ConfigService } from "../shared/config.service";
 
 export interface AuthResponseData {
   token: string,
@@ -28,6 +29,7 @@ export class AuthService {
     constructor(
       private http: HttpClient,
       private router: Router,
+      private cs: ConfigService,
       ){
         if(this.logged){
           this.userId = this.getUserId(this.token);
@@ -51,7 +53,7 @@ export class AuthService {
     }
 
     logIn(username: string, password: string): Observable<any>{
-        return this.http.post<AuthResponseData>(environment.config.prodApiEndpoint + this.endpoint + '/token', {username: username, password: password},
+        return this.http.post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/token', {username: username, password: password},
             {headers: new HttpHeaders({ 'Authorization': 'Basic '+ window.btoa(username+':'+password) })})
             .pipe(
               catchError(this.handleError),
@@ -92,7 +94,7 @@ export class AuthService {
     getRefreshToken(expirationDuration: number){
         this.tokenExpiration = setTimeout(() => {
           const userData: {_token: string, _expires: string, _username: string} = JSON.parse(localStorage.getItem('userData'));
-          return this.http.post<AuthResponseData>(environment.config.prodApiEndpoint + this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
+          return this.http.post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
                  .pipe(catchError(this.handleError), tap(resData => {
                  this.handleAuthentication(resData.token, +resData.expires, userData._username);
           }));
