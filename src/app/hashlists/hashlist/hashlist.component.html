@@ -29,7 +29,7 @@
         <td>
           <div>
             <span [ngClass]="list.cracked / list.hashCount ? 'ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0' : ''" style="{{list.cracked / list.hashCount ? 'background-color: rgb(16, 185, 129);' : ''}}">
-              {{ list.cracked / list.hashCount | percent }}
+              {{ list.cracked / list.hashCount | percent:'1.2-2' }}
             </span>
               (
                 <a

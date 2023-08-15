@@ -31,28 +31,32 @@
               formControlName="description"
         >
       </grid-form-input>
-      <grid-form-input [name]="'Salted'" [tooltip]="'Only if there is a separate salt value'">
-        <td>
-          <select
-                class='form-select'
-                id="isSalted"
-                formControlName="isSalted"
-            >
-            <option [ngValue]="false">Yes</option>
-            <option [ngValue]="true" [defaultSelected]=true>No</option>
-          </select>
-      </grid-form-input>
-      <grid-form-input [name]="'Slow Hash'">
-        <td>
-          <select
-                class='form-select'
-                id="isSlowHash"
-                formControlName="isSlowHash"
-            >
-            <option [ngValue]="false">Yes</option>
-            <option [ngValue]="true" [defaultSelected]=true>No</option>
-          </select>
-      </grid-form-input>
+      <div class="row">
+        <div class="col-md-3">
+          <grid-form-input [name]="'Salted'" [tooltip]="'Only if there is a separate salt value'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="isSalted"
+                    class="form-check-input"
+                    formControlName="isSalted"
+              >
+          </div>
+         </grid-form-input>
+        </div>
+        <div class="col-md-4">
+          <grid-form-input [name]="'Slow Hash'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="isSlowHash"
+                    class="form-check-input"
+                    formControlName="isSlowHash"
+              >
+            </div>
+          </grid-form-input>
+        </div>
+      </div>
       <div [ngSwitch]="whichView">
         <div *ngSwitchCase="'create'">
           <button-submit [name]="'Create'"></button-submit>

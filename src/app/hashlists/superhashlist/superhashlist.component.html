@@ -22,7 +22,7 @@
         </td>
         <td>{{ sh.hashType.description }}</td>
         <td>
-          {{ sh.cracked / sh.hashCount | percent }}
+          {{ sh.cracked / sh.hashCount | percent:'1.2-2' }}
           (
             <a
               [routerLink]="['/hashlists/hashes/','hashlist',sh.hashlistId]"

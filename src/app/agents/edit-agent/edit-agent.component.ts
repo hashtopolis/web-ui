@@ -1,10 +1,16 @@
+import { TitleComponent,TitleComponentOption, ToolboxComponent, ToolboxComponentOption,TooltipComponent,TooltipComponentOption,GridComponent,GridComponentOption,LegendComponent,MarkLineComponent,MarkPointComponent,MarkLineComponentOption} from 'echarts/components';
 import { faAlignJustify, faIdBadge, faComputer, faKey, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons';
 import { faLinux, faWindows, faApple } from '@fortawesome/free-brands-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ASC } from '../../core/_constants/agentsc.config';
+import { UniversalTransition } from 'echarts/features';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { CanvasRenderer } from 'echarts/renderers';
+import { LineChart } from 'echarts/charts';
+import * as echarts from 'echarts/core';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
@@ -80,8 +86,9 @@ export class EditAgentComponent implements OnInit {
     });
 
     const id = +this.route.snapshot.params['id'];
-    this.gs.get(SERV.AGENTS,id).subscribe((agent: any) => {
+    this.gs.get(SERV.AGENTS,id,{'expand':'agentstats'}).subscribe((agent: any) => {
       this.showagent = agent;
+      this.agentStats(agent.agentstats);
     });
 
     const params = {'maxResults': this.maxResults};
@@ -116,7 +123,8 @@ export class EditAgentComponent implements OnInit {
       })
     });
 
-    this.dtOptions[1] = {
+    const self = this;
+    this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: "700px",
       scrollCollapse: true,
@@ -128,9 +136,38 @@ export class EditAgentComponent implements OnInit {
               className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
             }
           },
-      buttons:[]
+      buttons:[
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
+          extend: 'colvis',
+          text: 'Column View',
+          columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        }
+      ]
       }
     }
+  }
+
+  onRefresh(){
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
   }
 
   onSubmit(){
@@ -167,5 +204,181 @@ export class EditAgentComponent implements OnInit {
     });
    }
   }
+
+  // //
+  //  GRAPHS SECTION
+  // //
+
+  agentStats(obj: any){
+    // this.deviceTemperature(obj.filter(u=> u.statType == ASC.GPU_TEMP)); // filter Device Temperature
+    // let statDevice = obj.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
+    // let statCpu = obj.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
+  }
+
+  // Temperature Graph
+deviceTemperature(obj: object){
+
+  echarts.use([
+    TitleComponent,
+    ToolboxComponent,
+    TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    MarkLineComponent,
+    MarkPointComponent,
+    LineChart,
+    CanvasRenderer,
+    UniversalTransition
+  ]);
+
+  type EChartsOption = echarts.ComposeOption<
+  | TitleComponentOption
+  | ToolboxComponentOption
+  | TooltipComponentOption
+  | GridComponentOption
+  | MarkLineComponentOption
+ >;
+
+  let templabel = '°C';
+  if(this.getTemp2() > 100){ templabel = '°F'}
+
+  console.log(this.getTemp1());  //Min temp
+  console.log(this.getTemp2());  //Max temp
+
+  const data:any = obj;
+  const arr = [];
+  const max = [];
+  const ids = [];
+
+  const result = [];
+  data.reduce(function(res, value) {
+    if (!res[value.time]) {
+      res[value.time] = { time: value.time, value: 0, agentId: value.agentId};
+      result.push(res[value.time])
+    }
+    res[value.time].value += value.value;
+    return res;
+  }, {});
+
+  for(let i=0; i < result.length; i++){
+
+    const iso = this.transDate(result[i]['time']);
+
+    arr.push([iso, result[i].value, result[i].agentId]);
+    ids.push([result[i].agentId]);
+    max.push(result[i]['time']);
+  }
+
+  const startdate =  Math.max(...max);
+  const datelabel = this.transDate(startdate);
+  const xAxis = this.generateIntervalsOf(5,+startdate-500,+startdate);
+
+  const chartDom = document.getElementById('main');
+  const myChart = echarts.init(chartDom);
+  let option: EChartsOption;
+
+  const seriesData = function(ids) {
+    return Object.keys(ids).map(key => {
+      return {
+        name: ids,
+        data: arr,
+        type: 'line'
+      }
+    })
+  };
+
+  const self = this;
+  console.log(arr)
+  option = {
+    tooltip: {
+      position: 'top',
+      formatter: function (p) {
+
+        return p.data[0] + ': ' + self.leading_zeros(Number(p.data[1])) +templabel+ ' Device ' + p.data[2];
+      }
+    },
+    legend: {
+      //selectedMode: false,
+      orient: 'vertical',
+      x: 'left',
+      data:[1]
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        dataZoom: {
+          yAxisIndex: 'none'
+        },
+        dataView: { readOnly: false },
+        restore: {},
+        saveAsImage: {
+          name: "Device Temperature"
+        }
+      }
+    },
+    useUTC: true,
+    xAxis: {
+      data: xAxis.map(function (item: any[] | any) {
+        return self.transDate(item);
+      })
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '{value} '+templabel+''
+      }
+    },
+    series: seriesData(data),
+    // series: [
+    //   {
+    //     name: arr['agentId'],
+    //     type: 'line',
+    //     data: arr,
+    //     markPoint: {
+    //       data: [
+    //         { type: 'max', name: 'Max' },
+    //         { type: 'min', name: 'Min' }
+    //       ]
+    //     },
+    //     // markLine: {
+    //     //   data: [{ type: 'average', name: 'Avg' }],
+    //     //   symbol:['none', 'none'],
+    //     // }
+    //   },
+    // ]
+  };
+
+  option && myChart.setOption(option);
+ }
+
+getTemp1(){  // Temperature Config Setting
+  return this.uiService.getUIsettings('agentTempThreshold1').value;
+ }
+
+getTemp2(){  // Temperature 2 Config Setting
+  return this.uiService.getUIsettings('agentTempThreshold2').value;
+}
+
+transDate(dt){
+  const date:any = new Date(dt* 1000);
+  return date.getUTCDate()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCFullYear()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
+ }
+
+leading_zeros(dt){
+return (dt < 10 ? '0' : '') + dt;
+}
+
+generateIntervalsOf(interval, start, end) {
+  const result = [];
+  let current = start;
+
+  while (current < end) {
+    result.push(current);
+    current += interval;
+  }
+
+  return result;
+}
+
 
 }

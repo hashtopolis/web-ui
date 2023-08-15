@@ -30,7 +30,7 @@
             <td class="text-align:center">{{ c.chunkId }}</td>
             <td>{{ c.skip }}</td>
             <td>{{ c.length }}</td>
-            <td>{{ c.checkpoint }} ({{ (c.checkpoint-c.skip)/c.length | percent }})</td>
+            <td>{{ c.checkpoint }} ({{ (c.checkpoint-c.skip)/c.length | percent:'1.2-2' }})</td>
             <td *ngIf="c.progress > 0">{{ c.progress/100 }} %</td>
             <td *ngIf="!c.progress">N/A</td>
             <td>

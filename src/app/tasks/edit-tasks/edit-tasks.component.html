@@ -108,7 +108,7 @@
                 </grid-form-input>
             </div>
               <div class="col">
-                <grid-form-input [name]="'Chunk size (seconds)'">
+                <grid-form-input [name]="'Chunk size'">
                   <td>
                     <input
                           type='number'
@@ -211,7 +211,7 @@
                   <div *ngIf="tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templateNA">
                     <span class="pre input-group-text input-group-lg">
                       <td>
-                        <b>{{ cprogress / tkeyspace | percent }}</b>
+                        <b>{{ cprogress / tkeyspace | percent:'1.2-2' }}</b>
                       </td>
                     </span>
                   </div>
@@ -332,6 +332,8 @@
 <app-table *ngIf="tkeyspace > 0">
   <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
   <div>
+    <img class='img-fluid' style="height:32px" alt>
+    <!-- src="api/taskimg.php?task=[[task.getId()]]&x=1500&y=32" -->
   </div>
 </app-table>
 <!-- Assigned Agents -->
@@ -369,27 +371,10 @@
 </app-table>
 <!-- Dispatched Chunks -->
 <app-table>
-  <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
-  <div [ngSwitch]="chunkview">
-    <div *ngSwitchCase="0">
-      <h6>Show Live Chunks</h6>
-      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
-      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
-    </div>
-    <div *ngSwitchCase="1">
-      <h6>Show Latest 100 Chunks</h6>
-      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
-      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
-    </div>
-    <div *ngSwitchCase="2">
-      <h6>Show All Chunks</h6>
-      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
-      <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
-    </div>
-  </div>
+  <app-page-subtitle [subtitle]="'Dispatched chunks - '+chunktitle+''"></app-page-subtitle>
+
   <div class="table-responsive">
-    &nbsp;
-      <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+      <table class="table table-striped table-hover table-sm" #tasksdispchunks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tasksdispchunks">
         <thead class="thead-light">
           <tr>
             <th class="rounded-start">ID</th>
@@ -408,10 +393,12 @@
           </thead>
           <tbody>
           <tr *ngFor="let gc of getchunks">
-            <td>{{ gc.chunkId }}</td>
+            <td>{{ gc.chunkId }}
+              <!-- <app-active-spinner *ngIf="(gc.state | staticArray:'states') === 'Running'"></app-active-spinner> -->
+            </td>
             <td>{{ gc.skip }}</td>
             <td>{{ gc.length }}</td>
-            <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
+            <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent:'1.2-2' }})</td>
             <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
             <td *ngIf="!gc.progress">N/A</td>
             <td>
@@ -421,13 +408,16 @@
             <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
             <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
             <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
-            <td>{{ gc.state | staticArray:'states' }}</td>
+            <td>
+              <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{'background-color:'+(gc.state | staticArray:'statescolor')}}">
+                {{ gc.state | staticArray:'states' }}
+              </span>
+            </td>
             <td>{{ gc.cracked }}</td>
             <td>
-              <a>
-                <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
-                <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon></a>
-              </a>
+              <button class='navbar-toggler btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
+                <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon>
+              </button>
             </td>
           </tr>
         </tbody>
