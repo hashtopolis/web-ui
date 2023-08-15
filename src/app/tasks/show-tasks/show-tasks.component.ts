@@ -1,10 +1,10 @@
 import {  faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye, faMicrochip, faCheckCircle, faTerminal, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import { interval, Subject, Subscription } from 'rxjs';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject, Subscription } from 'rxjs';
 
 import { GlobalService } from '../../core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -48,9 +48,9 @@ export class ShowTasksComponent implements OnInit {
   }
 
   alltasks: any = []; //Change to Interface
-  loadchunks: any; //Change to Interface
   isArchived: boolean;
   whichView: string;
+  isTaskactive = 0;
   currenspeed = 0;
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -212,21 +212,14 @@ onRefresh(){
 }
 
 getTasks():void {
-  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
+  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,speeds', 'filter': 'isArchived='+this.isArchived+''}
 
   this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
     this.alltasks = tasks.values;
-    this.loadChunks();
     this.dtTrigger.next(null);
   });
 }
 
-loadChunks(){
-  const params = {'maxResults': 999999999};
-  this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
-    this.loadchunks = c;
-  });
-}
 
 rerender(): void {
   this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {

@@ -57,6 +57,19 @@ export class StaticArrayPipe implements PipeTransform {
       "Trimmed",
       "Aborting..."
     ];
+    const statescolor = [
+      "orange",
+      "black",
+      "green",
+      "black",
+      "black",
+      "blue",
+      "red",
+      "red",
+      "red",
+      "red",
+      "red"
+    ];
     switch (search) {
       case 'os':
         if (id == '-1') {
@@ -65,6 +78,8 @@ export class StaticArrayPipe implements PipeTransform {
         return oses[id];
       case 'states':
         return states[id];
+      case 'statescolor':
+        return statescolor[id];
       case 'formats':
         return formats[id];
       case 'formattables':

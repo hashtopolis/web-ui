@@ -20,6 +20,7 @@
         <th>Dispatched/Searched</th>
         <th>Cracked</th>
         <th>Agents</th>
+        <th>Speed</th>
         <th>Priority</th>
         <th>Max Agents</th>
         <th class="rounded-end">Actions</th>
@@ -33,9 +34,15 @@
             {{ task.taskName | shortenString:40 | lowercase | titlecase }}
           </a>
         </td>
-        <td>
-          <span *ngIf="task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
-          <span *ngIf="task.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+        <td style="white-space: nowrap;">
+          <div class="row">
+            <div class="col-md-4" *ngIf="(task.taskId | aspeed | async ) > 0">
+              <app-active-spinner></app-active-spinner>
+            </div>
+            <div class="col-md-4">
+              <span *ngIf="task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0" ngbTooltip="Completed"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
+            </div>
+          </div>
         </td>
         <td style="white-space: nowrap;">
           <fa-icon [icon]="faTerminal" aria-hidden="true" ngbTooltip={{task.attackCmd}}></fa-icon>
@@ -49,18 +56,15 @@
           <span *ngIf="task.hashlist.hashCount === task.hashlist.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
           <span *ngIf="task.hashlist.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
-        <td *ngIf="task.keyspace > 0">{{ loadchunks | tdispatched:task.taskId:task.keyspace | percent}} / {{ loadchunks | tdsearched:task.taskId:task.keyspace | percent}}</td>
+        <td *ngIf="task.keyspace > 0">{{ task.taskId | tdispatched:task.keyspace | async  | percent:'1.2-2'}} / {{ task.taskId | tdsearched:task.keyspace | async | percent:'1.2-2'}}</td>
         <td *ngIf="task.keyspace === 0"></td>
         <td>
-          <a *ngIf="(loadchunks | tdcracked:task.taskId) > 0"  [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ loadchunks | tdcracked:task.taskId }}</a>
-          <a *ngIf="(loadchunks | tdcracked:task.taskId) === 0">0</a>
+          <a *ngIf="(task.taskId | tdcracked | async) > 0"  [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ task.taskId | tdcracked | async }}</a>
         </td>
         <td>
-          {{ task.maxAgents }}
-          <a *ngIf="currenspeed">
-            {{ currenspeed | fileSize:false }}H/s
-          </a>
+          Missing
         </td>
+        <td style="white-space: nowrap;">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s</td>
         <td>{{ task.priority }}</td>
         <td>{{ task.maxAgents }}</td>
         <td>

@@ -3,10 +3,15 @@ import {
   Pipe
 } from '@angular/core';
 
+import { environment } from './../../../environments/environment';
+import { GlobalService } from '../_services/main.service';
+import { SERV } from '../../core/_services/main.config';
+import { firstValueFrom } from 'rxjs';
+
 /**
  * Returns search value over chunks
- * @param obj - Object of chunks
  * @param id - Task Id
+ * @param keyspace - Keyspace
 **/
 
 @Pipe({
@@ -14,15 +19,25 @@ import {
 })
 export class TaskSearchedPipe implements PipeTransform {
 
-  transform(obj: any, id: number, keyspace: number) {
+  constructor(
+    private gs: GlobalService
+  ) { }
 
-    if (!obj || !id) {
+  transform(id: number, keyspace: number) {
+
+    if (!id) {
       return null;
     }
 
-    const ch = obj.values?.filter(u=> u.taskId == id);
+    const maxResults = 10000;
+    // const maxResults = environment.config.prodApiMaxResults;
 
     const searched = []
+
+    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,{'maxResults': maxResults, 'filter': 'taskId='+id+''}))
+    .then((res) => {
+
+    const ch = res.values;
 
     for(let i=0; i < ch.length; i++){
         searched.push(ch[i].checkpoint - ch[i].skip);
@@ -30,6 +45,7 @@ export class TaskSearchedPipe implements PipeTransform {
 
     return searched?.reduce((a, i) => a + i,0)/keyspace;
 
-    }
+    });
+  }
 }
 

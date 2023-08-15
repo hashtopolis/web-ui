@@ -4,6 +4,7 @@ import { NgModule } from "@angular/core";
 
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 import { HashtypeDetectorComponent } from "./hashtype-detector/hashtype-detector.component";
+import { ActiveSpinnerComponent } from './loading-spinner/loading-spinner-active.component';
 import { HexconvertorComponent } from "./utils/hexconvertor/hexconvertor.component";
 import { CheatsheetComponent } from "./alert/cheatsheet/cheatsheet.component";
 import { FilterTextboxModule } from "./filter-textbox/filter-textbox.module";
@@ -24,6 +25,7 @@ import { FormsModule } from "@angular/forms";
   declarations: [
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
+    ActiveSpinnerComponent,
     HexconvertorComponent,
     CheatsheetComponent,
     TimeoutComponent,
@@ -47,6 +49,7 @@ import { FormsModule } from "@angular/forms";
   exports: [
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
+    ActiveSpinnerComponent,
     HexconvertorComponent,
     FilterTextboxModule,
     CheatsheetComponent,

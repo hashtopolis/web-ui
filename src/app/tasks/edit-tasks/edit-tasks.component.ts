@@ -9,6 +9,7 @@ import { DataTableDirective } from 'angular-datatables';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 import { Observable, Subject } from 'rxjs';
 import * as echarts from 'echarts/core';
 
@@ -16,12 +17,14 @@ import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { colorpicker } from '../../core/_constants/settings.config';
+import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-tasks',
-  templateUrl: './edit-tasks.component.html'
+  templateUrl: './edit-tasks.component.html',
+  providers: [FileSizePipe]
 })
 @PageTitle(['Edit Task'])
 export class EditTasksComponent implements OnInit,PendingChangesGuard {
@@ -40,6 +43,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     private uiService:UIConfigService,
     private route: ActivatedRoute,
     private gs: GlobalService,
+    private fs:FileSizePipe,
     private router: Router
   ) { }
 
@@ -95,8 +99,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       }),
     });
 
-    this.getTaskSpeed();
-
   }
 
   OnChangeValue(value){
@@ -128,8 +130,9 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     this.gs.get(SERV.TASKS,this.editedTaskIndex, {'expand': 'hashlist,speeds,crackerBinary,crackerBinaryType,files'}).subscribe((result)=>{
       this.color = result['color'];
       this.getFiles = result.files;
-      console.log(this.getFiles );
       this.crackerinfo = result.crackerBinary;
+      // Graph Speed
+      this.initTaskSpeed(result.speeds);
       // Hashlist Description and Type
       this.hashlistinform =  result.hashlist;
       this.gs.getAll(SERV.HASHTYPES,{'filter': 'hashTypeId='+result.hashlist['hashTypeId']+''}).subscribe((htypes: any) => {
@@ -163,39 +166,11 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
   attachFilesInit(id: number){
-    this.dtOptions[0] = {
-      dom: 'Bfrtip',
-      scrollY: "700px",
-      scrollCollapse: true,
-      paging: false,
-      autoWidth: false,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
-      }
-    }
+
   }
 
   assingAgentInit(id: number){
-    this.dtOptions[1] = {
-      dom: 'Bfrtip',
-      scrollY: "700px",
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
-      }
-    }
+
   }
 
 /**
@@ -226,6 +201,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   // Chunk View
   chunkview: number;
+  chunktitle: string;
   isactive = 0;
   currenspeed = 0;
   chunkresults: Object;
@@ -237,49 +213,26 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
         case 'edit-task':
           this.chunkview = 0;
+          this.chunktitle = 'Live Chunks';
           this.chunkresults = this.maxResults;
         break;
 
         case 'edit-task-c100':
           this.chunkview = 1;
+          this.chunktitle = 'Latest 100 Chunks';
           this.chunkresults = 100;
         break;
 
         case 'edit-task-cAll':
           this.chunkview = 2;
-          this.chunkresults = 6000;
+          this.chunktitle = 'All Chunks';
+          this.chunkresults = 60000;
         break;
 
       }
     });
-    const params = {'maxResults': this.chunkresults};
-    this.gs.getAll(SERV.CHUNKS,params).subscribe((result: any)=>{
-      const getchunks = result.values.filter(u=> u.taskId == id);
-      this.timeCalc(getchunks);
-      this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
-      this.getchunks = getchunks.map(mainObject => {
-        const matchObject = agents.values.find(element => element.agentId === mainObject.agentId)
-        return { ...mainObject, ...matchObject }
-        })
-      if(this.chunkview == 0){
-        const chunktime = this.uiService.getUIsettings('chunktime').value;
-        const resultArray = [];
-        const cspeed = [];
-        for(let i=0; i < this.getchunks.length; i++){
-          if(Date.now()/1000 - Math.max(this.getchunks[i].solveTime, this.getchunks[i].dispatchTime) < chunktime && this.getchunks[i].progress < 10000){
-            this.isactive = 1;
 
-            cspeed.push(this.getchunks[i].speed);
-            resultArray.push(this.getchunks[i]);
-          }
-        }
-        this.currenspeed = cspeed.reduce((a, i) => a + i);
-        this.getchunks = resultArray;
-      }
-      this.dtTrigger.next(void 0);
-      });
-    });
-
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: "700px",
@@ -292,9 +245,85 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
               className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
             }
           },
-      buttons:[]
+      buttons:[
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
+          text: self.chunkview === 0 ? 'Show Latest 100':'Show Live',
+          action: function () {
+            if(self.chunkview === 0) {
+              self.router.navigate(['/tasks/show-tasks',id,'edit','show-100-chunks']);
+            }
+            if(self.chunkview === 1) {
+              self.router.navigate(['/tasks/show-tasks',id,'edit']);
+            }
+            if(self.chunkview === 2) {
+              self.router.navigate(['/tasks/show-tasks',id,'edit']);
+            }
+          }
+        },
+        {
+          text: self.chunkview === 0 ? 'Show All':'Show Latest 100',
+          action: function () {
+            if(self.chunkview === 0) {
+              console.log(id)
+              self.router.navigate(['/tasks/show-tasks',id,'edit','show-all-chunks']);
+            }
+            if(self.chunkview === 1) {
+              self.router.navigate(['/tasks/show-tasks',id,'edit','show-all-chunks']);
+            }
+            if(self.chunkview === 2) {
+              self.router.navigate(['/tasks/show-tasks',id,'edit','show-100-chunks']);
+            }
+          }
+        },
+        {
+          extend: 'colvis',
+          text: 'Column View',
+          columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        }
+      ]
       }
     }
+
+    const params = {'maxResults': this.chunkresults};
+    this.gs.getAll(SERV.CHUNKS,{'maxResults': this.chunkresults, 'filter': 'taskId='+id+''}).subscribe((result: any)=>{
+      this.timeCalc(result.values);
+      this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
+      this.getchunks = result.values.map(mainObject => {
+        const matchObject = agents.values.find(element => element.agentId === mainObject.agentId)
+        return { ...mainObject, ...matchObject }
+        })
+      if(this.chunkview == 0){
+        const chunktime = this.uiService.getUIsettings('chunktime').value;
+        const resultArray = [];
+        const cspeed = [];
+        for(let i=0; i < this.getchunks.length; i++){
+          if(Date.now()/1000 - Math.max(this.getchunks[i].solveTime, this.getchunks[i].dispatchTime) < chunktime && this.getchunks[i].progress < 10000){
+            this.isactive = 1;
+            cspeed.push(this.getchunks[i].speed);
+            resultArray.push(this.getchunks[i]);
+          }
+        }
+        if(cspeed.length > 0){
+          this.currenspeed = cspeed.reduce((a, i) => a + i);
+        }
+        this.getchunks = resultArray;
+      }
+      this.dtTrigger.next(void 0);
+      });
+    });
+
+  }
+
+  onRefresh(){
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
   }
 
 /**
@@ -327,15 +356,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
 // Task Speed Graph
-getTaskSpeed(){
-  this.editedTaskIndex;
-  const params = {'maxResults': 3000 };
-
-  this.gs.getAll(SERV.SPEEDS,params).subscribe((sp: any) => {
-    this.initTaskSpeed(sp.values);
-  });
-}
-
 initTaskSpeed(obj: object){
 
   echarts.use([
@@ -364,7 +384,7 @@ initTaskSpeed(obj: object){
 
   const data:any = obj;
   const arr = [];
-  const max = []
+  const max = [];
 
   const result = [];
   data.reduce(function(res, value) {
@@ -380,7 +400,7 @@ initTaskSpeed(obj: object){
 
     const iso = this.transDate(result[i]['time']);
 
-    arr.push([iso, result[i]['speed']]);
+    arr.push([iso, this.fs.transform(result[i]['speed'],false,1000).match(/\d+(\.\d+)?/)[0], this.fs.transform(result[i]['speed'],false,1000).slice(-2)]);
     max.push(result[i]['time']);
   }
 
@@ -396,12 +416,12 @@ initTaskSpeed(obj: object){
 
    option = {
         title: {
-          subtext: 'Last record: '+datelabel,
+          subtext: 'Last record: '+ datelabel,
         },
         tooltip: {
           position: 'top',
           formatter: function (p) {
-            return p.data[0] + ': ' + p.data[1] + ' H/s';
+            return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
           }
         },
         grid: {

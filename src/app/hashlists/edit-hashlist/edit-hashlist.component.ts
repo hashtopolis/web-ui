@@ -43,7 +43,6 @@ export class EditHashlistComponent implements OnInit {
   updateForm: FormGroup
   accessgroup: any //Change to Interface
   alltasks: any; //Change to Interface
-  loadchunks: any; //Change to Interface
   private maxResults = environment.config.prodApiMaxResults;
 
 
@@ -167,7 +166,6 @@ export class EditHashlistComponent implements OnInit {
         }
       }
       this.alltasks = taskh;
-      this.loadChunks();
 
       this.dtOptions[0] = {
         dom: 'Bfrtip',
@@ -188,13 +186,6 @@ export class EditHashlistComponent implements OnInit {
 
       this.dtTrigger.next(null);
 
-    });
-  }
-
-  loadChunks(){
-    const params = {'maxResults': 999999999};
-    this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
-      this.loadchunks = c;
     });
   }
 

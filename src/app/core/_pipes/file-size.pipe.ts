@@ -7,14 +7,17 @@ import {
  * Transform bytes to a readable unit adding abbreviation units or long form
  * @param sizeB - The input number
  * @param longForm -The output unit abbreviation or long text
+ * @param basesize - If exist change base size
  * Usage:
- *   value | fileSize:Units
+ *   value | fileSize:Units:
  * Example:
- *   {{ 1024 | fileSize:FILE_SIZE_UNITS }}
+ *   {{ 1024 | fileSize:false }}
  * @returns 1KB
+ *   {{ 1000| fileSize:false:1000 }}
+ * @returns 1B
 **/
 
-const FILE_SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+const FILE_SIZE_UNITS = ['B ', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 const FILE_SIZE_UNITS_LONG = ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Pettabytes', 'Exabytes', 'Zettabytes', 'Yottabytes'];
 
 @Pipe({
@@ -22,8 +25,7 @@ const FILE_SIZE_UNITS_LONG = ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'P
 })
 export class FileSizePipe implements PipeTransform {
 
-  transform(sizeB: number, longForm: boolean): string {
-    const BASE_SIZE = 1024;
+  transform(sizeB: number, longForm: boolean, BASE_SIZE = 1024): string {
     const units = longForm
       ? FILE_SIZE_UNITS_LONG
       : FILE_SIZE_UNITS;
