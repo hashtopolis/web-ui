@@ -19,35 +19,25 @@
 export function ShowHideTypeFile(checkbox: string): void {
   const pasteObject = document.getElementById("pasteLine");
   const uploadObject = document.getElementById("uploadLine");
-  const importObject = document.getElementById("importLine");
-  const downloadObject = document.getElementById("downloadLine");
+  const urlObject = document.getElementById("urlLine");
   switch (checkbox) {
     case 'paste':
       pasteObject.style.display = '';
       uploadObject.style.display = 'none';
-      importObject.style.display = 'none';
-      downloadObject.style.display = 'none';
+      urlObject.style.display = 'none';
       break;
 
     case 'upload':
       pasteObject.style.display = 'none';
       uploadObject.style.display = '';
-      importObject.style.display = 'none';
-      downloadObject.style.display = 'none';
+      urlObject.style.display = 'none';
       break;
 
-    case 'import':
+    case 'download':
       pasteObject.style.display = 'none';
       uploadObject.style.display = 'none';
-      importObject.style.display = '';
-      downloadObject.style.display = 'none';
+      urlObject.style.display = '';
       break;
 
-    case 'url':
-      pasteObject.style.display = 'none';
-      uploadObject.style.display = 'none';
-      importObject.style.display = 'none';
-      downloadObject.style.display = '';
-      break;
   }
 }

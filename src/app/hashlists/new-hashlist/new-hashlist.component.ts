@@ -1,4 +1,4 @@
-import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus, faLink } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener  } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -33,6 +33,7 @@ export class NewHashlistComponent implements OnInit {
   faInfoCircle=faInfoCircle;
   faSearchPlus=faSearchPlus;
   faUpload=faUpload;
+  faLink=faLink;
 
   /**
    * Form Settings
@@ -143,12 +144,12 @@ export class NewHashlistComponent implements OnInit {
   uploadProgress: Observable<UploadFileTUS[]>;
   filenames: string[] = [];
 
-  onuploadFile(event: any) {
-    const file = event.item(0)
-    // const filename = `${new Date().getTime()}_${file.name}`;
-    const filename = file.name;
-    // console.log(`Uploading ${file.name} with size ${file.size} and type ${file.type}`);
-    this.uploadService.uploadFile(file, filename);
+  onuploadFile(files: FileList) {
+    for (let i = 0; i < files.length; i++) {
+      this.filenames.push(files[i].name);
+      console.log(`Uploading ${files[i].name} with size ${files[i].size} and type ${files[i].type}`);
+      this.uploadService.uploadFile(files[i], files[i].name);
+    }
   }
 
   onuploadCancel(filename: string) {
@@ -196,6 +197,14 @@ export class NewHashlistComponent implements OnInit {
    *
   */
 
+  submitted = false;
+  onSubmitFile(): void{
+    setTimeout(() => {
+      this.onSubmit();
+      this.submitted = true;
+    },1000);
+  }
+
   onSubmit(): void{
       if (this.signupForm.valid) {
 
@@ -219,7 +228,7 @@ export class NewHashlistComponent implements OnInit {
     const str = arr.sourceData;
     const filereplace = str.replace("C:\\fakepath\\", "");
     let filename = filereplace;
-    if(arr.sourceType !== 'import'){
+    if(arr.sourceType === 'paste'){
       filename = Buffer.from(filereplace).toString('base64');
     }
 
@@ -259,26 +268,27 @@ export class NewHashlistComponent implements OnInit {
   }
 
   // Open Modal
-    // Modal Information
-    closeResult = '';
-    open(content) {
-      this.modalService.open(content, { size: 'xl' }).result.then(
-        (result) => {
-          this.closeResult = `Closed with: ${result}`;
-        },
-        (reason) => {
-          this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-        },
-      );
-    }
+  // Modal Information
+  closeResult = '';
+  open(content) {
+    this.modalService.open(content, { size: 'xl' }).result.then(
+      (result) => {
+        this.closeResult = `Closed with: ${result}`;
+      },
+      (reason) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      },
+    );
+  }
 
-    private getDismissReason(reason: any): string {
-      if (reason === ModalDismissReasons.ESC) {
-        return 'by pressing ESC';
-      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-        return 'by clicking on a backdrop';
-      } else {
-        return `with: ${reason}`;
-      }
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
     }
+  }
+
 }

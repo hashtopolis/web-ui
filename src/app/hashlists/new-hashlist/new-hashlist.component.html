@@ -1,6 +1,6 @@
 <app-page-subtitle [subtitle]="'Create Hashlist'"></app-page-subtitle>
 <!-- Body -->
-<grid-main [class]="'width:auto'" [centered]="true">
+<grid-main [class]="'min-width: 450px;'" [centered]="true">
   <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
     <grid-autocol>
     <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
@@ -133,10 +133,10 @@
             <td>
                 <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("paste")' value="paste"  title="Pasting" formControlName="sourceType"> Paste<br>
                 <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("upload")' value="import" title="Import" checked="checked" formControlName="sourceType" ngDefaultControl> Upload<br>
-                <!-- <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("url")' value="url" title="Import" formControlName="sourceType"> Url download<br> -->
+                <!-- <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("download")' value="url" title="url" formControlName="sourceType"> Url download<br> -->
             </td>
             &nbsp;
-            <tr id="pasteLine" style="display: none;">
+            <div id="pasteLine" style="display: none;"> <!-- start paste Haslist -->
               <td>
                 <textarea
                           class='form-control'
@@ -148,68 +148,64 @@
                 >
                 </textarea>
               </td>
-            </tr>
-            <tr id="uploadLine">  <!-- start Upload -->
+              <br>
+              <button-submit [name]="'Create'"></button-submit>
+            </div>  <!-- end paste Haslist -->
 
-            <!-- <div class="filedrop">
-                <div class="icon"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon></div>
-                <header>Drag & Drop here</header>
-                <span>OR</span>
-                <button (click)="fil.click()">Browse for File</button>
-                <input accept="/*" name="file" type="file" (change)="handleFileInput($event)" fileSelect directory hidden #fil formControlName="sourceData">
-                <span style="width: 100%;text-align: center" class="fileuploadspan"></span>
-            </div> -->
-            <!-- <div class="dropzone-list">
-              <ul class="valid">
-                <tr *ngFor="let file of fileList">
-                  <li>{{ file.name }}</li>
-                </tr>
-              </ul>
-              <ul class="invalid">
-                <li *ngFor="let file of invalidFiles">
-                  {{ file.name }}
-                </li>
-              </ul>
-            </div> -->
-            <div>
-            <input
-                  type="file"
-                  accept="/*"
-                  formControlName="sourceData"
-                  (change)="handleFileInput($event)"
-                  fileSelect directory #file
-            >
-            <span style="width: 100%;text-align: center" class="fileuploadspan"></span>&nbsp;
-            <span style="width: 100%;text-align: center"><fa-icon [icon]="faFileUpload" class="btn btn-gray-800" title="Upload file" (click)="onuploadFile(file.files);" aria-hidden="true"></fa-icon></span>
-            &nbsp;
-            </div>
-            <div *ngFor="let fileStatus of uploadProgress | async">
-            &nbsp;
-            <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
-            <ngb-progressbar
-                            type="success"
-                            textType="white"
-                            [striped]="true"
-                            [value]="fileStatus.progress"
-                            [showValue]="true"
-            ></ngb-progressbar>
-            <!-- <button (click)="onuploadCancel(fileStatus.filename)" class="button is-danger">Cancel</button> -->
-              <div *ngIf="fileStatus.progress === 100">
-                <p>File Uploaded</p>
+            <div id="uploadLine">  <!-- start Upload Haslist -->
+
+              <div>
+                <input
+                      type="file"
+                      accept="/*"
+                      class="form-control fileuploadspan"
+                      formControlName="sourceData"
+                      (change)="handleFileInput($event)"
+                      fileSelect directory #file
+                >&nbsp;
+                <div class="col-md-4">
+                  <span class="fileuploadspan custom-file-upload-size"></span>
+                </div>
               </div>
-            </div>
+              <div *ngFor="let fileStatus of uploadProgress | async">&nbsp;
 
-            </tr>
-            <!-- end Upload -->
-            <tr id="downloadLine" style="display: none;">
-              <td>
-                <input type="text" class='form-control' name="url" size="35" title="Download URL" formControlName="sourceData">
-              </td>
-            </tr>
+                <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
+                <ngb-progressbar
+                                type="success"
+                                textType="white"
+                                [striped]="true"
+                                [value]="fileStatus.progress"
+                                [showValue]="true"
+                ></ngb-progressbar>
+                <div *ngIf="fileStatus.progress === 100">
+                  <p><b>Upload completed!</b></p>
+                  <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
+                </div>
+
+              </div>
+              <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+
+            </div>   <!-- end Upload -->
+
+            <!-- <tr id="urlLine" style="display: none;">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <fa-icon [icon]="faLink" aria-hidden="true"></fa-icon>
+                </span>
+                <input
+                      class='form-control'
+                      formControlName="sourceData"
+                      pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
+                      required
+                  >
+              </div>
+              <br>
+              <button-submit [name]="'Create'"></button-submit>
+            </tr>  -->
+
           </div>
           &nbsp;
       </div>
-      <button-submit [name]="'Create'"></button-submit>
     </grid-autocol>
   </form>
 </grid-main>

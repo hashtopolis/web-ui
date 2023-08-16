@@ -232,8 +232,7 @@
               </h6>
               <div class="col">
                 <grid-form-input [name]="'Time spent'">
-                  <td>
-                    <span class="pre input-group-text input-group-lg" *ngIf="ctimespent">
+                    <span class="pre input-group-text input-group-lg" *ngIf="ctimespent; else templatedash">
                       <td>
                           {{ ctimespent | sectotime }}
                       </td>
@@ -242,13 +241,11 @@
               </div>
               <div class="col">
                 <grid-form-input [name]="'E.T.'">
-                  <div *ngIf="tkeyspace !== 0 && (cprogress/tkeyspace) !== 0; else templatedash">
-                    <span class="pre input-group-text input-group-lg">
+                    <span class="pre input-group-text input-group-lg"  *ngIf="tkeyspace !== 0 && (cprogress/tkeyspace) !== 0; else templatedash">
                       <td>
                         {{ (ctimespent/(cprogress/tkeyspace)-ctimespent) | sectotime }}
                       </td>
                     </span>
-                  </div>
                   <ng-template #templatedash>
                     <span class="pre input-group-text input-group-lg">
                       <td>
@@ -260,14 +257,9 @@
               </div>
               <div class="col">
                 <grid-form-input [name]="'Speed'">
-                  <span class="pre input-group-text input-group-lg" *ngIf="currenspeed">
+                  <span class="pre input-group-text input-group-lg" *ngIf="currenspeed; else templatedash">
                     <td>
                         {{ currenspeed | fileSize:false }}H/s
-                    </td>
-                  </span>
-                  <span class="pre input-group-text input-group-lg" *ngIf="!currenspeed">
-                    <td>
-                        ---
                     </td>
                   </span>
                 </grid-form-input>
@@ -370,7 +362,7 @@
   </div>
 </app-table>
 <!-- Dispatched Chunks -->
-<app-table>
+<app-table >
   <app-page-subtitle [subtitle]="'Dispatched chunks - '+chunktitle+''"></app-page-subtitle>
 
   <div class="table-responsive">

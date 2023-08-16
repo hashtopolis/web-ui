@@ -45,19 +45,19 @@
                 </div> -->
               </div>
               <div *ngFor="let fileStatus of uploadProgress | async">
-                    &nbsp;
-                  <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
-                  <ngb-progressbar
-                                  type="success"
-                                  textType="white"
-                                  [striped]="true"
-                                  [value]="fileStatus.progress"
-                                  [showValue]="true"
-                  ></ngb-progressbar>
-                  <div *ngIf="fileStatus.progress === 100">
-                    <p><b>Upload completed!</b></p>
-                    <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
-                  </div>
+                  &nbsp;
+                <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
+                <ngb-progressbar
+                                type="success"
+                                textType="white"
+                                [striped]="true"
+                                [value]="fileStatus.progress"
+                                [showValue]="true"
+                ></ngb-progressbar>
+                <div *ngIf="fileStatus.progress === 100">
+                  <p><b>Upload completed!</b></p>
+                  <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
+                </div>
               </div>
             </tr>&nbsp;
             <div class="col-sm">

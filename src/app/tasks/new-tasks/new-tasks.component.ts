@@ -339,7 +339,7 @@ export class NewTasksComponent implements OnInit {
       ($("#hashlist") as any).selectize({
         plugins: ['remove_button'],
         preload: true,
-        create: true,
+        create: false,
         valueField: "hashlistId",
         placeholder: "Search hashlist...",
         labelField: "name",

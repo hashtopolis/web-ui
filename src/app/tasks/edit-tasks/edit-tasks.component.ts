@@ -356,6 +356,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
 // Task Speed Graph
+speedInfo = true;
 initTaskSpeed(obj: object){
 
   echarts.use([
@@ -495,7 +496,7 @@ initTaskSpeed(obj: object){
           }
           }
         };
-    option && myChart.setOption(option);
+        if(data.length > 0){  option && myChart.setOption(option);}
  }
 
  leading_zeros(dt){
