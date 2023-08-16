@@ -390,4 +390,44 @@ onModalProject(title: string){
     })()
 }
 
+onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean){
+  (async () => {
+
+    const { value: formValues } = await Swal.fire({
+      title: title,
+      html:
+        '<input id="project-input" class="swal2-input" type="number" placeholder="'+cvalue+'">',
+      focusConfirm: false,
+      confirmButtonColor: '#4B5563',
+      preConfirm: () => {
+        return [
+          (<HTMLInputElement>document.getElementById('project-input')).value,
+        ]
+      }
+    })
+
+    if (formValues) {
+      if(cvalue !== Number(formValues[0])){
+        let update;
+        if(formlabel){
+          update  = {priority: +formValues};
+        }else{
+          update  = {maxAgents: +formValues};
+        }
+        this.gs.update(SERV.TASKS,id, update).subscribe(() => {
+          Swal.fire({
+            title: "Success",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.ngOnInit();
+          this.rerender();  // rerender datatables
+        });
+      }
+    }
+
+  })()
+}
+
 }

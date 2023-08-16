@@ -64,9 +64,15 @@
         <td>
           Missing
         </td>
-        <td style="white-space: nowrap;">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s </td>
-        <td>{{ task.priority }}</td>
-        <td>{{ task.maxAgents }}</td>
+        <td style="white-space: nowrap;">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s {{ task.taskId | aspeed | async }}</td>
+        <td>
+          {{ task.priority }}
+          <fa-icon style="cursor: pointer;" (click)="this.onModalUpdate('New Priority', task.taskId, task.priority, true)" [icon]="faPlus" aria-hidden="true"></fa-icon>
+        </td>
+        <td>
+          {{ task.maxAgents }}
+          <fa-icon style="cursor: pointer;" (click)="this.onModalUpdate('New Max. Agents', task.taskId, task.maxAgents, false)" [icon]="faPlus" aria-hidden="true"></fa-icon>
+        </td>
         <td>
         <div [ngSwitch]="whichView">
           <div *ngSwitchCase="'live'">

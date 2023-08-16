@@ -45,7 +45,7 @@ export class AgentsSpeedPipe implements PipeTransform {
         .then((res) => {
         for(let i=0; i < res.values.length; i++){
           if(Date.now()/1000 - Math.max(res.values[i].solveTime, res.values[i].dispatchTime) < chunktime && res.values[i].progress < 10000){
-            cspeed.push(res.values[i].dispatchTime);
+            cspeed.push(res.values[i].speed);
           }
         }
         currenspeed = cspeed.reduce((a, i) => a + i, 0);
