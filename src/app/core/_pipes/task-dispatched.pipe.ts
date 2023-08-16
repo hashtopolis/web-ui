@@ -37,7 +37,6 @@ export class TaskDispatchedPipe implements PipeTransform {
     return firstValueFrom(this.gs.getAll(SERV.CHUNKS,{'maxResults': maxResults, 'filter': 'taskId='+id+''}))
     .then((res) => {
       const ch = res.values;
-      console.log(ch)
       for(let i=0; i < ch.length; i++){
         if(ch[i].progress >= 10000){
           dispatched.push(ch[i]['length']);

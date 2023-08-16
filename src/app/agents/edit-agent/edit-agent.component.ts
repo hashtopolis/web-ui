@@ -210,9 +210,9 @@ export class EditAgentComponent implements OnInit {
   // //
 
   agentStats(obj: any){
-    // this.deviceTemperature(obj.filter(u=> u.statType == ASC.GPU_TEMP)); // filter Device Temperature
-    // let statDevice = obj.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
-    // let statCpu = obj.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
+    this.deviceTemperature(obj.filter(u=> u.statType == ASC.GPU_TEMP)); // filter Device Temperature
+    let statDevice = obj.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
+    let statCpu = obj.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
   }
 
   // Temperature Graph
@@ -242,15 +242,14 @@ deviceTemperature(obj: object){
   let templabel = '°C';
   if(this.getTemp2() > 100){ templabel = '°F'}
 
-  console.log(this.getTemp1());  //Min temp
-  console.log(this.getTemp2());  //Max temp
+  // console.log(this.getTemp1());  //Min temp
+  // console.log(this.getTemp2());  //Max temp
 
   const data:any = obj;
   const arr = [];
   const max = [];
-  const ids = [];
-
   const result = [];
+
   data.reduce(function(res, value) {
     if (!res[value.time]) {
       res[value.time] = { time: value.time, value: 0, agentId: value.agentId};
@@ -264,45 +263,45 @@ deviceTemperature(obj: object){
 
     const iso = this.transDate(result[i]['time']);
 
-    arr.push([iso, result[i].value, result[i].agentId]);
-    ids.push([result[i].agentId]);
+    const repdec =  Number(result[i].value.replace(/,/, '.')); //replace comma decimmal for dot
+
+    arr.push([iso, repdec, result[i].agentId]);
     max.push(result[i]['time']);
   }
 
   const startdate =  Math.max(...max);
   const datelabel = this.transDate(startdate);
-  const xAxis = this.generateIntervalsOf(5,+startdate-500,+startdate);
+  const xAxis = this.generateIntervalsOf(1,+startdate-500,+startdate);
 
   const chartDom = document.getElementById('main');
   const myChart = echarts.init(chartDom);
   let option: EChartsOption;
 
-  const seriesData = function(ids) {
-    return Object.keys(ids).map(key => {
-      return {
-        name: ids,
-        data: arr,
-        type: 'line'
-      }
-    })
-  };
+  // const seriesData = function(ids) {
+  //   return Object.keys(ids).map(key => {
+  //     return {
+  //       name: ids,
+  //       data: arr,
+  //       type: 'line'
+  //     }
+  //   })
+  // };
 
   const self = this;
   console.log(arr)
   option = {
     tooltip: {
       position: 'top',
-      formatter: function (p) {
-
-        return p.data[0] + ': ' + self.leading_zeros(Number(p.data[1])) +templabel+ ' Device ' + p.data[2];
-      }
+      // formatter: function (p) {
+      //   return p.data[0] + ': ' + self.leading_zeros(Number(p.data[1])) +templabel+ ' Device ' + p.data[2];
+      // }
     },
-    legend: {
-      //selectedMode: false,
-      orient: 'vertical',
-      x: 'left',
-      data:[1]
-    },
+    // legend: {
+    //   //selectedMode: false,
+    //   orient: 'vertical',
+    //   x: 'left',
+    //   data:[1]
+    // },
     toolbox: {
       show: true,
       feature: {
@@ -328,24 +327,24 @@ deviceTemperature(obj: object){
         formatter: '{value} '+templabel+''
       }
     },
-    series: seriesData(data),
-    // series: [
-    //   {
-    //     name: arr['agentId'],
-    //     type: 'line',
-    //     data: arr,
-    //     markPoint: {
-    //       data: [
-    //         { type: 'max', name: 'Max' },
-    //         { type: 'min', name: 'Min' }
-    //       ]
-    //     },
-    //     // markLine: {
-    //     //   data: [{ type: 'average', name: 'Avg' }],
-    //     //   symbol:['none', 'none'],
-    //     // }
-    //   },
-    // ]
+    // series: seriesData(data),
+    series: [
+      {
+        name:'test',
+        type: 'line',
+        data: arr,
+        // markPoint: {
+        //   data: [
+        //     { type: 'max', name: 'Max' },
+        //     { type: 'min', name: 'Min' }
+        //   ]
+        // },
+        // markLine: {
+        //   data: [{ type: 'average', name: 'Avg' }],
+        //   symbol:['none', 'none'],
+        // }
+      },
+    ]
   };
 
   option && myChart.setOption(option);

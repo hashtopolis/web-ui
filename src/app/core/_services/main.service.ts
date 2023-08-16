@@ -64,35 +64,6 @@ export class GlobalService {
   }
 
 /**
- * Create Hashlist
- * @param arr - Fields
- * @returns Object
- * TODO FIX
-**/
-createHashlist(methodUrl:string, arr: any): Observable<any> {
-  const str = arr.sourceData;
-  const filename = str.replace("C:\\fakepath\\", "");
-  return this.http.post<any>(this.cs.getEndpoint() + methodUrl, {
-          name: arr.name,
-          hashTypeId: arr.hashTypeId,
-          format: arr.format,
-          separator: arr.separator,
-          isSalted: arr.isSalted,
-          isHexSalt: arr.isHexSalt,
-          accessGroupId: arr.accessGroupId,
-          useBrain: arr.useBrain,
-          brainFeatures: arr.brainFeatures,
-          notes: arr.notes,
-          sourceType: arr.sourceType,
-          sourceData: filename,
-          hashCount: arr.hashCount,
-          cracked: arr.cracked,
-          isArchived: arr.isArchived,
-          isSecret: arr.isSecret
-        })
-}
-
-/**
  * Deletes a element
  * @param id - element id
  * @returns Object

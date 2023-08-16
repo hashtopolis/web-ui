@@ -28,12 +28,11 @@ export class NewHashlistComponent implements OnInit {
    * Fa Icons
    *
   */
-  faUpload=faUpload;
+  faMagnifyingGlass=faMagnifyingGlass;
   faFileUpload=faFileUpload;
   faInfoCircle=faInfoCircle;
-  faMagnifyingGlass=faMagnifyingGlass;
-
   faSearchPlus=faSearchPlus;
+  faUpload=faUpload;
 
   /**
    * Form Settings
@@ -202,7 +201,7 @@ export class NewHashlistComponent implements OnInit {
 
       const res = this.handleUpload(this.signupForm.value);
 
-      this.gs.createHashlist(SERV.HASHLISTS,res).subscribe(() => {
+      this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
         Swal.fire({
           title: "Success",
           text: "New HashList created!",
@@ -217,6 +216,13 @@ export class NewHashlistComponent implements OnInit {
   }
 
   handleUpload(arr: any){
+    const str = arr.sourceData;
+    const filereplace = str.replace("C:\\fakepath\\", "");
+    let filename = filereplace;
+    if(arr.sourceType !== 'import'){
+      filename = Buffer.from(filereplace).toString('base64');
+    }
+
     const res = {
       'name': arr.name,
       'hashTypeId': arr.hashTypeId,
@@ -229,7 +235,7 @@ export class NewHashlistComponent implements OnInit {
       'brainFeatures': arr.brainFeatures,
       'notes': arr.notes,
       "sourceType": arr.sourceType,
-      "sourceData": Buffer.from(arr.sourceData).toString('base64'),
+      "sourceData": filename,
       'hashCount': arr.hashCount,
       'isArchived': arr.isArchived,
       'isSecret': arr.isSecret,
