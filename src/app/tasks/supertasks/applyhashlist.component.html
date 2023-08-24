@@ -20,18 +20,18 @@
                   class='form-select'
                   #myBinary
                   (change)="onChangeBinary(myBinary.value)"
-                  formControlName="crackerBinaryId">
+                  >
             <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
           </select>
         </grid-form-input>
         <grid-form-input [name]="'Binary version'">
           <select
                 type='number'
-                id='crackerBinaryTypeId'
+                id='crackerVersionId'
                 class='form-select'
-                formControlName="crackerBinaryTypeId"
+                formControlName="crackerVersionId"
               >
-              <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
+              <option *ngFor="let cv of crackerversions" [ngValue]="cv.crackerBinaryId">{{ cv.version }}</option>
           </select>
         </grid-form-input>
       </div>

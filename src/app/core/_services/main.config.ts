@@ -5,7 +5,7 @@
 export class SERV {
 
   // HELPER
-  public static HELPER = '/ui/helper';
+  public static HELPER = '/helper';
   // ACCESS
   public static AUTH = '/auth';
   public static ACCESS_GROUPS = '/ui/accessgroups';

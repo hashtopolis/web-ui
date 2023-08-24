@@ -41,8 +41,14 @@ export class ApplyHashlistComponent  {
         this.initForm();
       }
     );
-  }
 
+    this.createForm = new FormGroup({
+      "supertaskTemplateId":  new FormControl(this.Index),
+      'hashlistId': new FormControl(),
+      "crackerVersionId": new FormControl(),
+    });
+
+  }
 
   initForm(){
 
@@ -51,14 +57,9 @@ export class ApplyHashlistComponent  {
     })
 
     this.createForm = new FormGroup({
-      'accessGroupId': new FormControl(1),
-      'cracked': new FormControl(0),
+      "supertaskTemplateId":  new FormControl(this.Index),
       'hashlistId': new FormControl(),
-      'crackerBinaryId': new FormControl(null || 1),
-      "crackerBinaryTypeId": new FormControl(),
-      "isArchived": new FormControl(false),
-      "priority": new FormControl(0),
-      "taskType": new FormControl(1),
+      "crackerVersionId": new FormControl(),
     });
 
     this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers) => {
@@ -129,13 +130,12 @@ export class ApplyHashlistComponent  {
     this.gs.getAll(SERV.CRACKERS,params).subscribe((crackers: any) => {
       this.crackerversions = crackers.values;
       const lastItem = this.crackerversions.slice(-1)[0]['crackerBinaryId'];
-      this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
+      this.createForm.get('crackerVersionId').patchValue(lastItem);
     });
   }
 
   onSubmit(){
-    console.log('here')
-    this.gs.create(SERV.TASKS_WRAPPER,this.createForm.value).subscribe(() => {
+    this.gs.chelper(SERV.HELPER,'createSupertask', this.createForm.value).subscribe(() => {
         Swal.fire({
           title: "Success",
           text: "New Task created!",
