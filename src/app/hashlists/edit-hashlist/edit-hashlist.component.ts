@@ -151,6 +151,7 @@ export class EditHashlistComponent implements OnInit {
           matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
         return { ...mainObject, ...matchObject }
         })
+        console.log(this.hashT)
       })
     })
   }

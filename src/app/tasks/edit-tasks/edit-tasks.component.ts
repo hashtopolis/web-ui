@@ -1,5 +1,5 @@
 import { TitleComponent, TitleComponentOption, ToolboxComponent, ToolboxComponentOption, TooltipComponent, TooltipComponentOption, GridComponent, GridComponentOption, VisualMapComponent, VisualMapComponentOption, DataZoomComponent, DataZoomComponentOption, MarkLineComponent, MarkLineComponentOption } from 'echarts/components';
-import { faHomeAlt, faEye, faEraser } from '@fortawesome/free-solid-svg-icons';
+import { faHomeAlt, faEye, faEraser, faLock, faTrash, faPencil } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, HostListener, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -9,7 +9,6 @@ import { DataTableDirective } from 'angular-datatables';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-
 import { Observable, Subject } from 'rxjs';
 import * as echarts from 'echarts/core';
 
@@ -31,10 +30,14 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   editMode = false;
   editedTaskIndex: number;
+  taskWrapperId: number;
   editedTask: any // Change to Model
 
+  faPencil=faPencil;
   faEraser=faEraser;
   faHome=faHomeAlt;
+  faTrash=faTrash;
+  faLock=faLock;
   faEye=faEye;
 
   private maxResults = environment.config.prodApiMaxResults;
@@ -48,6 +51,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   ) { }
 
   updateForm: FormGroup;
+  createForm: FormGroup; // Assign Agent
   colorpicker=colorpicker;
   color = '';
 
@@ -55,11 +59,17 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
+  dtTrigger1: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  hashlistinform:any;
+  dtOptions1: any = {};
+  tusepreprocessor: any;
   hashlistDescrip:any;
+  hashlistinform:any;
+  assigAgents: any;
   uidateformat:any;
+  availAgents:any;
   crackerinfo:any;
+  tkeyspace: any;
   getchunks: any;
   getFiles: any;
 
@@ -99,6 +109,10 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       }),
     });
 
+    this.createForm = new FormGroup({
+      'agentId': new FormControl(),
+    });
+
   }
 
   OnChangeValue(value){
@@ -109,7 +123,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   onSubmit(){
     if (this.updateForm.valid) {
-
       this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
             title: "Success",
@@ -131,10 +144,13 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.color = result['color'];
       this.getFiles = result.files;
       this.crackerinfo = result.crackerBinary;
+      this.taskWrapperId - result.taskWrapperId;
       // Graph Speed
       this.initTaskSpeed(result.speeds);
+      // Assigned Agents init
+      this.assingAgentInit();
       // Hashlist Description and Type
-      this.hashlistinform =  result.hashlist;
+      this.hashlistinform =  result.hashlist[0];
       this.gs.getAll(SERV.HASHTYPES,{'filter': 'hashTypeId='+result.hashlist['hashTypeId']+''}).subscribe((htypes: any) => {
        this.hashlistDescrip = htypes.values[0].description;
       })
@@ -165,12 +181,106 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
    }
   }
 
-  attachFilesInit(id: number){
+/**
+ * The below functions are related with assign, manage and delete agents
+ *
+**/
+  assingAgentInit(){
+    this.gs.getAll(SERV.AGENT_ASSIGN).subscribe((res)=>{
+      this.gs.getAll(SERV.AGENTS,{'maxResults': this.maxResults}).subscribe((agents)=>{
+        this.availAgents = this.getAvalAgents(res.values,agents.values);
+        this.assigAgents = res.values.map(mainObject => {
+          const matchObject = agents.values.find(element => element.agentId === mainObject.agentId)
+          return { ...mainObject, ...matchObject }
+        })
+        this.dtTrigger1.next(void 0);
+      });
+    });
+
+    this.dtOptions1 = {
+      dom: 'Bfrtip',
+      scrollY: "700px",
+      scrollCollapse: true,
+      paging: false,
+      destroy: true,
+      searching: false,
+      bInfo: false,
+      buttons:[]
+    }
+  }
+
+  getAvalAgents(assing: any, agents: any){
+
+    return agents.filter(u => assing.findIndex(lu => lu.agentId === u.agentId) === -1);
 
   }
 
-  assingAgentInit(id: number){
+  asignAgents(){
+    if (this.createForm.valid) {
+      const payload = {"taskId": this.editedTaskIndex, "agentId":this.createForm.value['agentId']};
+      this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe(() => {
+          Swal.fire({
+            title: "Success",
+            text: "Agent Assigned!",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.rerender();  // rerender datatables
+          this.ngOnInit();
+        }
+      );
+    }
+  }
 
+  onDelete(id: number){
+    this.gs.delete(SERV.AGENT_ASSIGN,id).subscribe(() => {
+      Swal.fire({
+        title: "Success",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500
+      });
+      this.rerender();  // rerender datatables
+      this.ngOnInit();
+    });
+  }
+
+  onModalUpdate(title: string, id: number, cvalue: any, nameref: string ){
+    (async () => {
+
+      const { value: formValues } = await Swal.fire({
+        title: title + ' - '+ nameref,
+        html:
+          '<input id="project-input" class="swal2-input" type="number" placeholder="'+cvalue+'">',
+        focusConfirm: false,
+        showCancelButton: true,
+        cancelButtonColor: '#C53819',
+        confirmButtonColor: '#8A8584',
+        cancelButton: true,
+        preConfirm: () => {
+          return [
+            (<HTMLInputElement>document.getElementById('project-input')).value,
+          ]
+        }
+      })
+
+      if (formValues) {
+        if(cvalue !== Number(formValues[0])){
+          this.gs.update(SERV.AGENT_ASSIGN,id, {benchmark: +formValues}).subscribe(() => {
+            Swal.fire({
+              title: "Success",
+              icon: "success",
+              showConfirmButton: false,
+              timer: 1500
+            });
+            this.ngOnInit();
+            this.rerender();  // rerender datatables
+          });
+        }
+      }
+
+    })()
   }
 
 /**
@@ -179,8 +289,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 **/
   // Keyspace searched
   cprogress: any;
-  tkeyspace: any;
-  tusepreprocessor: any;
   // Time Spent
   ctimespent: any;
   timeCalc(chunks){
@@ -294,6 +402,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     const params = {'maxResults': this.chunkresults};
     this.gs.getAll(SERV.CHUNKS,{'maxResults': this.chunkresults, 'filter': 'taskId='+id+''}).subscribe((result: any)=>{
       this.timeCalc(result.values);
+      // this.initVisualGraph(result.values, 150, 150); // Get data for visual graph
       this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
       this.getchunks = result.values.map(mainObject => {
         const matchObject = agents.values.find(element => element.agentId === mainObject.agentId)
@@ -356,7 +465,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   }
 
 // Task Speed Graph
-speedInfo = true;
 initTaskSpeed(obj: object){
 
   echarts.use([
@@ -415,88 +523,79 @@ initTaskSpeed(obj: object){
 
   const self = this;
 
-   option = {
-        title: {
-          subtext: 'Last record: '+ datelabel,
-        },
-        tooltip: {
-          position: 'top',
-          formatter: function (p) {
-            return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
+  option = {
+      title: {
+        subtext: 'Last record: '+ datelabel,
+      },
+      tooltip: {
+        position: 'top',
+        formatter: function (p) {
+          return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
+        }
+      },
+      grid: {
+        left: '5%',
+        right: '4%',
+      },
+      xAxis: {
+        data: xAxis.map(function (item: any[] | any) {
+          return self.transDate(item);
+        })
+      },
+      yAxis: {
+        type: 'value',
+        name: 'H/s',
+        position: 'left',
+        alignTicks: true,
+      },
+      useUTC: true,
+      toolbox: {
+        itemGap: 10,
+        show: true,
+        left: '85%',
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none'
+          },
+          restore: {},
+          saveAsImage: {
+            name: "Task Speed"
           }
-        },
-        grid: {
-          right: '0%',
-        },
-        xAxis: {
-          data: xAxis.map(function (item: any[] | any) {
-            return self.transDate(item);
-          })
-        },
-        yAxis: {
-          type: 'value',
-          name: 'H/s',
-          position: 'left',
-          alignTicks: true,
-        },
-        useUTC: true,
-        toolbox: {
-          itemGap: 10,
+        }
+      },
+      dataZoom: [
+        {
+          type: 'slider',
           show: true,
-          feature: {
-            dataZoom: {
-              yAxisIndex: 'none'
-            },
-            restore: {},
-            saveAsImage: {
-              name: "Task Speed"
-            }
-          }
+          start: 94,
+          end: 100,
+          handleSize: 8
         },
-        dataZoom: [
-          {
-            type: 'slider',
-            show: true,
-            start: 94,
-            end: 100,
-            handleSize: 8
+        {
+          type: 'inside',
+          start: 94,
+          end: 100
+        },
+      ],
+      series: {
+        name: '',
+        type: 'line',
+        data: arr,
+        connectNulls: true,
+                markPoint: {
+        data: [
+          { type: 'max', name: 'Max' },
+          { type: 'min', name: 'Min' }
+        ]
+      },
+        markLine: {
+          lineStyle: {
+            color: '#333'
           },
-          {
-            type: 'inside',
-            start: 94,
-            end: 100
-          },
-        ],
-        series: {
-          name: '',
-          type: 'line',
-          data: arr,
-          markLine: {
-            silent: true,
-            lineStyle: {
-              color: '#333'
-            },
-            data: [
-              {
-                yAxis: 50
-              },
-              {
-                yAxis: 100
-              },
-              {
-                yAxis: 150
-              },
-              {
-                yAxis: 200
-              },
-              {
-                yAxis: 300
-              }
-            ]
-          }
-          }
-        };
-        if(data.length > 0){  option && myChart.setOption(option);}
+        }
+        }
+      };
+      if(data.length > 0){  option && myChart.setOption(option);}
  }
 
  leading_zeros(dt){

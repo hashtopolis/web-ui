@@ -23,7 +23,7 @@ export class TaskSearchedPipe implements PipeTransform {
     private gs: GlobalService
   ) { }
 
-  transform(id: number, keyspace: number) {
+  transform(id: number, keyspace: number, type?:boolean) {
 
     if (!id) {
       return null;
@@ -31,10 +31,16 @@ export class TaskSearchedPipe implements PipeTransform {
 
     const maxResults = 10000;
     // const maxResults = environment.config.prodApiMaxResults;
+    const searched = [];
+    let params: any;
 
-    const searched = []
+    if(type){
+      params = {'maxResults': maxResults, 'filter': 'agentId='+id+''};
+    }else{
+      params = {'maxResults': maxResults, 'filter': 'taskId='+id+''};
+    }
 
-    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,{'maxResults': maxResults, 'filter': 'taskId='+id+''}))
+    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,params))
     .then((res) => {
 
     const ch = res.values;

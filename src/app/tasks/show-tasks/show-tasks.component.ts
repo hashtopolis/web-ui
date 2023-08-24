@@ -1,4 +1,4 @@
-import {  faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye, faMicrochip, faCheckCircle, faTerminal, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import {  faPencil, faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye, faMicrochip, faCheckCircle, faTerminal, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -27,6 +27,7 @@ export class ShowTasksComponent implements OnInit {
   faTerminal=faTerminal;
   faBookmark=faBookmark;
   faArchive=faArchive;
+  faPencil=faPencil;
   faHome=faHomeAlt;
   faTrash=faTrash;
   faEdit=faEdit;
@@ -39,7 +40,9 @@ export class ShowTasksComponent implements OnInit {
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
+  dtTrigger1: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  dtOptions1: any = {};
 
   private updateSubscription: Subscription;
 
@@ -212,14 +215,29 @@ onRefresh(){
 }
 
 getTasks():void {
-  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,speeds', 'filter': 'isArchived='+this.isArchived+''}
+  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,speeds,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
 
-  this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
-    this.alltasks = tasks.values;
-    this.dtTrigger.next(null);
+  this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((tw: any) => {
+    this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
+      this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults}).subscribe((h: any) => {
+      let filtertasks = tw.values.filter(u=> (u.taskType == 0 && u.isArchived === this.isArchived)); //Active Tasks
+      let filtersupert = tw.values.filter(u=> (u.taskType == 1 && u.isArchived === this.isArchived)); // Active SuperTasks
+      let supertasks = filtersupert.map(mainObject => {
+        const matchObject = h.values.find(element => element.hashlistId === mainObject.hashlistId );
+        return { ...mainObject, ...matchObject }
+      }) //Join Supertasks from TaskWrapper with Hashlist info
+      let mergeTasks = filtertasks.map(mainObject => {
+        const matchObject = tasks.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
+        return { ...mainObject, ...matchObject }
+      }) // Join Tasks with Taskwrapper information for filtering
+      let prepdata = mergeTasks.concat(supertasks); // Join with supertasks
+      //Order by Task Priority. filter exclude when is cracked
+      this.alltasks = prepdata.sort((a, b) => parseFloat(a.priority) - parseFloat(b.priority) && (a.keyspaceProgress < a.keyspace));
+      this.dtTrigger.next(null);
+     });
+    });
   });
 }
-
 
 rerender(): void {
   this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
@@ -232,8 +250,9 @@ rerender(): void {
   });
 }
 
-onArchive(id: number){
-  this.gs.archive(SERV.TASKS,id).subscribe(() => {
+onArchive(id: number, type: number){
+  const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
+  this.gs.archive(path,id).subscribe(() => {
     Swal.fire({
       title: "Success",
       text: "Archived!",
@@ -246,7 +265,7 @@ onArchive(id: number){
   });
 }
 
-onDelete(id: number){
+onDelete(id: number, type: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -266,7 +285,8 @@ onDelete(id: number){
     })
   .then((result) => {
     if (result.isConfirmed) {
-      this.gs.delete(SERV.TASKS,id).subscribe(() => {
+      const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
+      this.gs.delete(path,id).subscribe(() => {
         Swal.fire({
           title: "Success",
           icon: "success",
@@ -390,15 +410,18 @@ onModalProject(title: string){
     })()
 }
 
-onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean){
+onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, nameref: string, type: number){
   (async () => {
 
     const { value: formValues } = await Swal.fire({
-      title: title,
+      title: title + ' - '+ nameref,
       html:
         '<input id="project-input" class="swal2-input" type="number" placeholder="'+cvalue+'">',
       focusConfirm: false,
-      confirmButtonColor: '#4B5563',
+      showCancelButton: true,
+      cancelButtonColor: '#C53819',
+      confirmButtonColor: '#8A8584',
+      cancelButton: true,
       preConfirm: () => {
         return [
           (<HTMLInputElement>document.getElementById('project-input')).value,
@@ -414,7 +437,8 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean){
         }else{
           update  = {maxAgents: +formValues};
         }
-        this.gs.update(SERV.TASKS,id, update).subscribe(() => {
+        const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
+        this.gs.update(path,id, update).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",

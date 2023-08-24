@@ -411,7 +411,9 @@
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>
+          <th>Status</th>
           <th>Name</th>
+          <th>Agent Status</th>
           <th>Currently working on</th>
           <th>Assigned to</th>
           <th class="rounded-end">Last Activity</th>
@@ -421,26 +423,40 @@
         <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
           <td>{{ aa.agentId }}</td>
           <td>
+            <app-active-spinner *ngIf="( aa.agentId | aspeed:true | async ) > 0"></app-active-spinner>
+          </td>
+          <td style="white-space: nowrap;">
             <a [routerLink]="['/agents/show-agents',aa.agentId,'edit']">{{ aa.agentName | shortenString:15 | lowercase | titlecase }}</a>
-            <span *ngIf="aa.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-            <span *ngIf="aa.isActive === false" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="aa.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
           </td>
           <td>
-            <div *ngIf="aa.taskId">Task:
-              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>,
-            </div>
-            <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
-            <div *ngIf="aa.chunkId" >working on chunk
-              <a [routerLink]="['/tasks/chunks',aa.chunkId,'view']">{{ aa.chunkId }}</a>
+            <span *ngIf="aa.isActive === true" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: green;">
+              Active
+            </span>
+            <span *ngIf="aa.isActive === false" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: rgba(255, 136, 0, 0.87);">
+              Inactive
+            </span>
+          </td>
+          <td>
+            <div *ngIf="( aa.agentId | aspeed:true | async ) > 0">
+              <div *ngIf="aa.taskId">Task:
+                <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>,
+              </div>
+              <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
+              <div *ngIf="aa.chunkId" >working on chunk
+                <a [routerLink]="['/tasks/chunks',aa.chunkId,'view']">{{ aa.chunkId }}</a>
+              </div>
             </div>
           </td>
           <td>
-            TD.Task Assignments
+            <a *ngIf="aa.taskId">
+              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']"> {{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>
+            </a>
           </td>
           <td>
             Action: {{ aa.lastAct }}<br>
             Time: {{ aa.lastTime | date: uidateformat }}<br>
-            <div *ngIf="aa.lastIp">IP:<code >{{ aa.lastIp }}</code></div>
+            <div *ngIf="aa.lastIp">IP: <b>{{ aa.lastIp }}</b></div>
           </td>
         </tr>
       </tbody>

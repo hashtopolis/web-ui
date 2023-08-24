@@ -28,7 +28,7 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-gray-800">Apply to Hashlist</button>
+        <button class="btn btn-gray-800" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" >Apply to Hashlist</button>
         <button class="btn btn-danger" (ngSubmit)="onDelete()">Delete</button>
         </form>
         <hr>

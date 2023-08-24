@@ -106,5 +106,27 @@ export class GlobalService {
     return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, {isArchived: true})
   }
 
+/**
+ * Helper Create function
+ * @param option - method used. ie. /abort /reset /importFile
+ * @param arr - fields to be updated
+ * @returns Object
+**/
+  chelper(methodUrl: string, option: string, arr: any): Observable<any> {
+    return this.http.post(this.cs.getEndpoint() + methodUrl + '/' + option, arr)
+  }
+
+/**
+ * Helper Update function
+ * @param option - method used. ie. /abort /reset /importFile
+ * @param arr - fields to be updated
+ * @returns Object
+**/
+  uhelper(methodUrl: string, option: string, arr: any): Observable<any> {
+    return this.http.patch(this.cs.getEndpoint() + methodUrl + '/' + option, arr)
+  }
+
+
+
 
 }

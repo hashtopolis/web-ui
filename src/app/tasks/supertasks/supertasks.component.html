@@ -1,7 +1,7 @@
 <app-page-title [title]="'Supertasks'" [buttontitle]="'New Supertasks'" [buttonlink]="'/tasks/new-supertasks'" [subbutton]="true"></app-page-title>
 <!-- Body -->
 <app-table>
-  <table id="supertask" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table class="table table-striped table-hover table-sm" #supertasks datatable [dtOptions]="dtOptions[0]" [dtTrigger]="dtTrigger" id="supertasks">
     <thead class="thead-light">
       <tr>
         <th class="rounded-start">ID</th>
@@ -10,7 +10,8 @@
       </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let stask of allsupertasks">
+      <ng-container *ngFor="let stask of allsupertasks;  let i = index">
+       <tr>
         <td>{{ stask.supertaskId }}</td>
         <td>
           <a [routerLink]="['../',stask.supertaskId,'edit']">
@@ -22,7 +23,36 @@
             <button ngbDropdownItem [routerLink]="['../',stask.supertaskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
               <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
             </button>
-            <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Copy to Task">
+            <button ngbDropdownItem (click)="open(pretask, stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Edit">
+              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
+            </button>
+            <!-- Modal Start -->
+              <ng-template #pretask let-modal>
+                <app-modal-table [title]="'Edit Pretasks of supertask '+stask.supertaskName+''">
+                  <table class="table table-striped table-hover table-sm" #tabpretasks datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger2" id="tabpretasks">
+                    <thead class="thead-light">
+                      <th class="rounded-start">ID</th>
+                      <th>Name</th>
+                      <th>Subtask Priority</th>
+                      <th class="rounded-end">Actions</th>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let pt of pretasks">
+                        <td>{{ pt.pretaskId }}</td>
+                        <td>
+                          <a [routerLink]="['/tasks/preconfigured-tasks/', pt.pretaskId,'edit']">
+                            {{ pt.taskName }}
+                          </a>
+                        </td>
+                        <td>{{ pt.priority }}</td>
+                        <td>delete Missing?</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </app-modal-table>
+              </ng-template>
+             <!-- Modal End -->
+            <button ngbDropdownItem [routerLink]="['../',stask.supertaskId,'applyhashlist']" data-toggle="tooltip" data-placement="top" title="Apply Hashlist">
               <fa-icon [icon]="faAdd" aria-hidden="true"></fa-icon>Apply Hashlist
             </button>
             <div class="dropdown-divider"></div>
@@ -31,7 +61,10 @@
             </button>
           </app-button-actions>
         </td>
-    </tr>
+       </tr>
+      </ng-container>
     </tbody>
   </table>
 </app-table>
+
+

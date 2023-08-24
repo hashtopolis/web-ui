@@ -8,6 +8,7 @@ import { NewPreconfiguredTasksComponent } from "./new-preconfigured-tasks/new-pr
 import { PreconfiguredTasksComponent } from "./preconfigured-tasks/preconfigured-tasks.component";
 import { EditSupertasksComponent } from "./edit-supertasks/edit-supertasks.component";
 import { NewSupertasksComponent } from "./new-supertasks/new-supertasks.component";
+import { ApplyHashlistComponent } from "./supertasks/applyhashlist.component";
 import { WrbulkComponent } from "./import-supertasks/wrbulk/wrbulk.component";
 import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
 import { MasksComponent } from "./import-supertasks/masks/masks.component";
@@ -135,6 +136,14 @@ const routes: Routes = [
             permission: 'SuperTask'
            },
            canActivate: [IsAuth,CheckPerm]},
+        {
+        path: ':id/applyhashlist', component: ApplyHashlistComponent,
+        data: {
+          kind: 'applyhashlist',
+          breadcrumb: 'Apply hashlist',
+          permission: 'SuperTask'
+          },
+          canActivate: [IsAuth,CheckPerm]},
         {
           path: 'new-supertasks', component: NewSupertasksComponent,
           data: {

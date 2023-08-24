@@ -62,13 +62,14 @@
             />
           </div>
         </grid-form-input>
-        <grid-form-input [name]="'Member of groups'" [labelclass]="'requiredak'">
-          <input
-                type='text'
-                id="globalPermissionGroup"
-                class='form-control'
-                formControlName="globalPermissionGroup"
-          >
+        <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
+          <span class="pre input-group-text input-group-lg">
+            <td>
+              <div *ngFor="let g of this.user['accessGroups']" style="text-align:left;">
+                <a [routerLink]="['/users/access-groups/',g.accessGroupId,'edit']">{{g.groupName}}</a>
+              </div>
+            </td>
+          </span>
         </grid-form-input>
         <app-page-subtitle [subtitle]="'Update Settings'"></app-page-subtitle>
         <div formGroupName="updateData">

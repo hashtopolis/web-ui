@@ -56,7 +56,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    const params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults, 'expand':'accessGroups'}
 
     this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
       this.showagents = agents.values;

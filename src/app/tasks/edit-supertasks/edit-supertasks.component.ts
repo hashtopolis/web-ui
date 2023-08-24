@@ -103,9 +103,10 @@ export class EditSupertasksComponent implements OnInit {
   ngAfterViewInit() {
 
     const params = { 'maxResults': this.maxResults};
+    this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex,{'expand':'pretasks'}).subscribe((res)=>{
     this.gs.getAll(SERV.PRETASKS,params).subscribe((htypes: any) => {
       const self = this;
-      const response = htypes.values;
+      const response =  this.getAvalPretasks(res.pretasks,htypes.values);
       ($("#pretasks") as any).selectize({
         plugins: ['remove_button'],
         valueField: "pretaskId",
@@ -133,8 +134,14 @@ export class EditSupertasksComponent implements OnInit {
           }
           });
         });
-
+      });
     }
+
+  getAvalPretasks(assing: any, pretasks: any){
+
+    return pretasks.filter(u => assing.findIndex(lu => lu.pretaskId === u.pretaskId) === -1);
+
+  }
 
   OnChangeValue(value){
     const formArr = new FormArray([]);

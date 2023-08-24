@@ -60,7 +60,7 @@
         <hr>
         <grid-form-input [name]="'Hash Type'">
           <span *ngFor="let h of hashT" class="pre input-group-text input-group-lg">
-            {{ h[0].description }}
+            {{ h.hashlist[0].name }}
           </span>
         </grid-form-input>
         <div class="row">

@@ -37,7 +37,7 @@ export class NewSuperhashlistComponent implements OnInit {
       hashlists: new FormControl(''),
     });
 
-    const params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
+    const params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'};
 
     this.gs.getAll(SERV.HASHLISTS,params).subscribe((tasks: any) => {
       const self = this;

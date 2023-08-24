@@ -5,7 +5,7 @@
     <thead class="thead-light">
       <tr>
           <th class="rounded-start"><input type="checkbox" (click)="setCheckAll()"> ID</th>
-          <th>Active</th>
+          <th>Status</th>
           <th>Name</th>
           <th>Owner</th>
           <th>Client</th>
@@ -28,10 +28,12 @@
               Inactive
             </span>
           </td>
-          <td>
-            <a [routerLink]="[agent.agentId,'edit']"><b>{{ agent.agentName | lowercase | titlecase }}</b></a>
+          <td style="white-space: nowrap;">
+            <a [routerLink]="[agent.agentId,'edit']" ngbTooltip={{agent.agentName}}>
+              {{ agent.agentName | shortenString:40 | lowercase | titlecase }}
+            </a>
             <span *ngIf="agent.notes > 1" ><fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon></span>
-            <span *ngIf="agent.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+            <span *ngIf="agent.isTrusted === true"><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
           </td>
           <td>
             <a *ngIf="agent.userId > 0"><a [routerLink]="['/users/',agent.userId,'edit']">{{ agent.userId}}</a></a>
@@ -55,7 +57,12 @@
               IP:
               <code>{{ agent.lastIp }}</code>
           </td>
-          <td>TD.Access groups</td>
+          <td>
+            <div *ngFor="let group of agent.accessGroups">
+              <a [routerLink]="['/users/access-groups/',group.accessGroupId,'edit']">{{group.groupName}}</a>
+              <hr *ngIf="agent.accessGroups.length > 1">
+            </div>
+          </td>
           <td class="overflow-hidden">
             <app-button-actions>
               <button ngbDropdownItem [routerLink]="[agent.agentId,'edit']" data-placement="top" title="Edit">

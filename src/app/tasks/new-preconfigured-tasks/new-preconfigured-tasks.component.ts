@@ -3,7 +3,7 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
@@ -36,6 +36,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     private fileType: FileTypePipe,
     private route:ActivatedRoute,
     private gs: GlobalService,
+    private router: Router
   ) { }
 
   copyMode = false;
@@ -260,6 +261,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
             timer: 1500
           });
           this.createForm.reset(); // success, we reset form
+          this.router.navigate(['tasks/preconfigured-tasks']);
         }
       );
     }

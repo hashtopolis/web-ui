@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 
 import { HealthCheckStatusPipe } from "../core/_pipes/healthcheck-status.pipe";
 import { TaskDispatchedPipe } from "../core/_pipes/task-dispatched.pipe";
+import { TaskTimeSpentPipe } from "../core/_pipes/task-timespent.pipe";
 import { ReplaceStringPipe } from "../core/_pipes/replace-string.pipe";
 import { ShortenStringPipe } from "../core/_pipes/shorten-string.pipe";
 import { SecondsToTimePipe } from "../core/_pipes/secondsto-time.pipe";
@@ -30,6 +31,7 @@ import { SplitPipe } from "../core/_pipes/split.pipe";
     HealthCheckStatusPipe,
     TaskDispatchedPipe,
     ReplaceStringPipe,
+    TaskTimeSpentPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,
@@ -56,6 +58,7 @@ import { SplitPipe } from "../core/_pipes/split.pipe";
     HealthCheckStatusPipe,
     TaskDispatchedPipe,
     ReplaceStringPipe,
+    TaskTimeSpentPipe,
     ShortenStringPipe,
     SecondsToTimePipe,
     WarningColorPipe,

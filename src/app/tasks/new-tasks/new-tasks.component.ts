@@ -51,7 +51,7 @@ export class NewTasksComponent implements OnInit {
   prep: any;  // ToDo change to interface
   crackertype: any;  // ToDo change to interface
   crackerversions: any = [];
-  createForm: FormGroup
+  createForm: FormGroup;
 
   // ToDo change to interface
   public allfiles: {
@@ -283,8 +283,6 @@ export class NewTasksComponent implements OnInit {
   }
 
   async fetchData() {
-    const params = {'maxResults': this.maxResults };
-    const params_f = {'maxResults': this.maxResults, 'expand': 'accessGroup'};
 
     await this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers) => {
       this.crackertype = crackers.values;
@@ -301,11 +299,11 @@ export class NewTasksComponent implements OnInit {
       })
     });
 
-    await this.gs.getAll(SERV.PREPROCESSORS,params).subscribe((prep) => {
+    await this.gs.getAll(SERV.PREPROCESSORS,{'maxResults': this.maxResults }).subscribe((prep) => {
       this.prep = prep.values;
     });
 
-    await this.gs.getAll(SERV.FILES,params_f).subscribe((files) => {
+    await this.gs.getAll(SERV.FILES,{'maxResults': this.maxResults, 'expand': 'accessGroup'}).subscribe((files) => {
       this.allfiles = files.values;
       this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
         setTimeout(() => {

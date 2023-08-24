@@ -4,6 +4,8 @@
 
 export class SERV {
 
+  // HELPER
+  public static HELPER = '/ui/helper';
   // ACCESS
   public static AUTH = '/auth';
   public static ACCESS_GROUPS = '/ui/accessgroups';
@@ -11,6 +13,7 @@ export class SERV {
   // AGENTS
   public static AGENTS = '/ui/agents';
   public static AGENTS_STATS = '/ui/agentstats';
+  public static AGENT_ASSIGN = '/ui/agentassignments';
   public static VOUCHER = '/ui/vouchers';
   // CONFIGURATION
   public static AGENT_BINARY = '/ui/agentbinaries';
@@ -23,7 +26,7 @@ export class SERV {
   public static LOGS = '/ui/logentries';
   public static PREPROCESSORS = '/ui/preprocessors';
   // FILES
-  public static FILES = '/ui/files';
+  public static FILES = '/ui/files'; // Previous call  '/ui/helper/importFile'
   // HASHLISTS
   public static HASHES = '/ui/hashes';
   public static HASHLISTS = '/ui/hashlists';
@@ -34,6 +37,7 @@ export class SERV {
   public static SPEEDS = '/ui/speeds';
   public static SUPER_TASKS = '/ui/supertasks';
   public static TASKS = '/ui/tasks';
+  public static TASKS_WRAPPER = '/ui/taskwrappers';
   // USERS
   public static NOTIFICATIONS = '/ui/notifications';
   public static USERS = '/ui/users';

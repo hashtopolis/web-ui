@@ -1,0 +1,42 @@
+<app-page-title [title]="'Use Supertask'" ></app-page-title>
+<!-- Body -->
+<grid-main [class]="'fmxw-800'" [centered]="true">
+    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <grid-form-input [name]="'Hashlist'">
+          <select
+                type='number'
+                id='hashlist'
+                class='form-select'
+                formControlName="hashlistId"
+            >
+           <option></option>
+          </select>
+        </grid-form-input>
+        <grid-form-input [name]="'Binary type'">
+          <select
+                  type='number'
+                  id='crackerBinaryId'
+                  class='form-select'
+                  #myBinary
+                  (change)="onChangeBinary(myBinary.value)"
+                  formControlName="crackerBinaryId">
+            <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+          </select>
+        </grid-form-input>
+        <grid-form-input [name]="'Binary version'">
+          <select
+                type='number'
+                id='crackerBinaryTypeId'
+                class='form-select'
+                formControlName="crackerBinaryTypeId"
+              >
+              <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
+          </select>
+        </grid-form-input>
+      </div>
+      <button-submit [name]="'Create'"></button-submit>
+      </form>
+</grid-main>
+
+

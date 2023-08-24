@@ -1,4 +1,5 @@
-import { faEdit, faTrash, faPlus, faAdd } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faPlus, faAdd, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -10,7 +11,6 @@ import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
-// declare var $: any;
 @Component({
   selector: 'app-supertasks',
   templateUrl: './supertasks.component.html'
@@ -18,14 +18,18 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['Show SuperTasks'])
 export class SupertasksComponent implements OnInit {
 
-  faEdit=faEdit;
+  faChevronRight=faChevronRight;
+  faChevronUp=faChevronUp;
   faTrash=faTrash;
+  faEdit=faEdit;
   faPlus=faPlus;
   faAdd=faAdd;
 
   allsupertasks: any = [];
+  pretasks: any = [];
 
   constructor(
+    private modalService: NgbModal,
     private gs: GlobalService,
   ) { }
 
@@ -39,17 +43,17 @@ export class SupertasksComponent implements OnInit {
     this.dtTrigger.unsubscribe();
   }
 
-  private maxResults = environment.config.prodApiMaxResults
+  private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
-    const params = {'maxResults': this.maxResults }
 
-    this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((stasks: any) => {
+    this.gs.getAll(SERV.SUPER_TASKS,{'maxResults': this.maxResults, 'expand': 'pretasks' }).subscribe((stasks: any) => {
       this.allsupertasks = stasks.values;
       this.dtTrigger.next(void 0);
     });
+
     const self = this;
-    this.dtOptions = {
+    this.dtOptions[0] = {
       dom: 'Bfrtip',
       bStateSave:true,
       destroy: true,
@@ -118,8 +122,23 @@ export class SupertasksComponent implements OnInit {
       }
     };
 
+  this.dtOptions[1] = {
+    dom: 'Bfrtip',
+    destroy: true,
+    select: {
+      style: 'multi',
+      },
+  };
+
   }
 
+ dtTrigger2: Subject<any> = new Subject();
+ getPretasks(id: number){
+  this.gs.get(SERV.SUPER_TASKS,id, {'expand': 'pretasks' }).subscribe((stasks: any) => {
+    this.pretasks = stasks.pretasks;
+  });
+
+ }
   onRefresh(){
     this.ngOnInit();
     this.rerender();  // rerender datatables
@@ -176,6 +195,36 @@ export class SupertasksComponent implements OnInit {
         })
       }
     });
+  }
+
+  // Open Modal
+  // Modal Information
+  closeResult = '';
+  open(content, id) {
+    this.getPretasks(id);
+    const modalRef = this.modalService.open(content, { size: 'xl' });
+    let opened = true;
+    const mySubscription = modalRef.componentInstance.someOutputEvent
+    .subscribe(_ => {
+        // do something
+    });
+    modalRef.result.then(_ => {
+      opened = false;
+      mySubscription.unsubscribe();
+      }, _ => {
+          opened = false;
+          mySubscription.unsubscribe();
+      });
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
   }
 
 }

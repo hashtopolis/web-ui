@@ -29,9 +29,9 @@ export class EditUsersComponent implements OnInit {
   faLock=faLock;
   faUser=faUser;
 
-  agp:any;
-  user: any[];
   uidateformat:any;
+  user: any[];
+  agp:any;
 
   allowEdit = false;
 
@@ -74,7 +74,7 @@ export class EditUsersComponent implements OnInit {
     );
 
     const id = +this.route.snapshot.params['id'];
-    this.gs.get(SERV.USERS,id).subscribe((user: any) => {
+    this.gs.get(SERV.USERS,id,{'expand':'accessGroups'}).subscribe((user: any) => {
       this.user = user;
     });
 

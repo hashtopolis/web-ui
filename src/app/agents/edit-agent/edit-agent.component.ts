@@ -51,6 +51,7 @@ export class EditAgentComponent implements OnInit {
 
   updateForm: FormGroup
   showagent: any = [];
+  groups: any = [];
   users: any = [];
 
   @ViewChild(DataTableDirective)
@@ -86,13 +87,24 @@ export class EditAgentComponent implements OnInit {
     });
 
     const id = +this.route.snapshot.params['id'];
-    this.gs.get(SERV.AGENTS,id,{'expand':'agentstats'}).subscribe((agent: any) => {
+    this.gs.get(SERV.AGENTS,id,{'expand':'agentstats,accessGroups'}).subscribe((agent: any) => {
       this.showagent = agent;
+      this.groups = agent.accessGroups;
       this.agentStats(agent.agentstats);
     });
 
-    const params = {'maxResults': this.maxResults};
-    this.gs.getAll(SERV.USERS, params).subscribe((user: any) => {
+    // For Test Only
+    this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((tw: any) => {
+      this.gs.getAll(SERV.TASKS, {'maxResults': this.maxResults, 'filter': 'isArchived=false'}).subscribe((tasks: any) => {
+        let supertasks = tw.values.map(mainObject => {
+          const matchObject = tasks.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
+          return { ...mainObject, ...matchObject }
+        })
+      });
+    });
+    // For Test Only
+
+    this.gs.getAll(SERV.USERS, {'maxResults': this.maxResults}).subscribe((user: any) => {
       this.users = user.values;
     });
 
@@ -210,13 +222,15 @@ export class EditAgentComponent implements OnInit {
   // //
 
   agentStats(obj: any){
-    this.deviceTemperature(obj.filter(u=> u.statType == ASC.GPU_TEMP)); // filter Device Temperature
-    let statDevice = obj.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
-    let statCpu = obj.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
+    this.getGraph(obj.filter(u=> u.statType == ASC.GPU_TEMP),ASC.GPU_TEMP,'tempgraph'); // filter Device Temperature
+    this.getGraph(obj.filter(u=> u.statType == ASC.GPU_UTIL),ASC.GPU_UTIL,'devicegraph'); // filter Device Utilization
+    this.getGraph(obj.filter(u=> u.statType == ASC.CPU_UTIL),ASC.CPU_UTIL,'cpugraph'); // filter CPU utilization
   }
 
   // Temperature Graph
-deviceTemperature(obj: object){
+getGraph(obj: object, status: number, name: string){
+
+  // console.log(obj)
 
   echarts.use([
     TitleComponent,
@@ -239,8 +253,18 @@ deviceTemperature(obj: object){
   | MarkLineComponentOption
  >;
 
-  let templabel = '°C';
-  if(this.getTemp2() > 100){ templabel = '°F'}
+  let templabel = '';
+
+
+  if(ASC.GPU_TEMP === status){
+    if(this.getTemp2() > 100){ templabel = '°F'}else{ templabel = '°C'}
+  }
+  if(ASC.GPU_UTIL === status){
+    templabel = '%';
+  }
+  if(ASC.CPU_UTIL === status){
+    templabel = '%'
+  }
 
   // console.log(this.getTemp1());  //Min temp
   // console.log(this.getTemp2());  //Max temp
@@ -259,6 +283,7 @@ deviceTemperature(obj: object){
     return res;
   }, {});
 
+  console.log(result)
   for(let i=0; i < result.length; i++){
 
     const iso = this.transDate(result[i]['time']);
@@ -273,7 +298,7 @@ deviceTemperature(obj: object){
   const datelabel = this.transDate(startdate);
   const xAxis = this.generateIntervalsOf(1,+startdate-500,+startdate);
 
-  const chartDom = document.getElementById('main');
+  const chartDom = document.getElementById(name);
   const myChart = echarts.init(chartDom);
   let option: EChartsOption;
 
@@ -288,7 +313,6 @@ deviceTemperature(obj: object){
   // };
 
   const self = this;
-  console.log(arr)
   option = {
     tooltip: {
       position: 'top',
@@ -330,19 +354,13 @@ deviceTemperature(obj: object){
     // series: seriesData(data),
     series: [
       {
-        name:'test',
+        name:'Device',
         type: 'line',
         data: arr,
-        // markPoint: {
-        //   data: [
-        //     { type: 'max', name: 'Max' },
-        //     { type: 'min', name: 'Min' }
-        //   ]
-        // },
-        // markLine: {
-        //   data: [{ type: 'average', name: 'Avg' }],
-        //   symbol:['none', 'none'],
-        // }
+        markLine: {
+          data: [{ type: 'average', name: 'Avg' }],
+          symbol:['none', 'none'],
+        }
       },
     ]
   };

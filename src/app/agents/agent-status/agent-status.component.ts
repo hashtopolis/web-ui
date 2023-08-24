@@ -199,22 +199,32 @@ export class AgentStatusComponent implements OnInit {
   getAgentsPage(page: number) {
     const params = {'maxResults': this.maxResults};
     this.gs.getAll(SERV.AGENTS,params).subscribe((a: any) => {
-      const getAData = a.values;
-      this.totalRecords = a.total;
-      this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
+      this.gs.getAll(SERV.AGENT_ASSIGN,params).subscribe((assign: any) => {
         this.gs.getAll(SERV.TASKS,params).subscribe((t: any)=>{
-          const map = getAData.map(mainObject => {
-          const matchObjectAgents = c.values.find(e => e.agentId === mainObject.agentId)
-          return { ...mainObject, ...matchObjectAgents}
-          })
-          this.showagents = this.filteredAgents = map.map(mainObject => {
-            const matchObjectTask = t.values.find(e => e.taskId === mainObject.taskId)
-            return { ...mainObject, ...matchObjectTask}
-          })
-          this.dtTrigger.next(void 0);
+          this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
+
+            const getAData = a.values.map(mainObject => {
+              const matchObjectTask = assign.values.find(e => e.agentId === mainObject.agentId)
+              return { ...mainObject, ...matchObjectTask}
+            })
+            this.totalRecords = a.total;
+            const jointasks = getAData.map(mainObject => {
+              const matchObjectTask = t.values.find(e => e.taskId === mainObject.taskId)
+              return { ...mainObject, ...matchObjectTask}
+            })
+
+
+            this.showagents = this.filteredAgents = jointasks.map(mainObject => {
+            const matchObjectAgents = c.values.find(e => e.agentId === mainObject.agentId)
+            return { ...mainObject, ...matchObjectAgents}
+            })
+
+            console.log(this.showagents);
+            this.dtTrigger.next(void 0);
         })
       })
     });
+  });
   }
 
   // Agents Stats

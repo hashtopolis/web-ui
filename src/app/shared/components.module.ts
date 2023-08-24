@@ -8,6 +8,7 @@ import { ActiveSpinnerComponent } from './loading-spinner/loading-spinner-active
 import { HexconvertorComponent } from "./utils/hexconvertor/hexconvertor.component";
 import { CheatsheetComponent } from "./alert/cheatsheet/cheatsheet.component";
 import { FilterTextboxModule } from "./filter-textbox/filter-textbox.module";
+import { ModalTableComponent } from './modal-table/modal-table.component';
 import { SwitchThemeModule } from "./switch-theme/switch-theme.module";
 import { TimeoutComponent } from "./alert/timeout/timeout.component";
 import { PaginationModule } from "./pagination/pagination.module";
@@ -28,6 +29,7 @@ import { FormsModule } from "@angular/forms";
     ActiveSpinnerComponent,
     HexconvertorComponent,
     CheatsheetComponent,
+    ModalTableComponent,
     TimeoutComponent,
     AlertComponent
   ],
@@ -53,6 +55,7 @@ import { FormsModule } from "@angular/forms";
     HexconvertorComponent,
     FilterTextboxModule,
     CheatsheetComponent,
+    ModalTableComponent,
     SwitchThemeModule,
     ColorPickerModule,
     PaginationModule,

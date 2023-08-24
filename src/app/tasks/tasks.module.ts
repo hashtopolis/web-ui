@@ -21,6 +21,7 @@ import { ComponentsModule } from "../shared/components.module";
 import { TasksRoutingModule } from "./tasks-routing.module";
 import { ChunksComponent } from "./chunks/chunks.component";
 import { PipesModule } from "../shared/pipes.module";
+import { ApplyHashlistComponent } from "./supertasks/applyhashlist.component";
 
 @NgModule({
   declarations:[
@@ -29,6 +30,7 @@ import { PipesModule } from "../shared/pipes.module";
     PreconfiguredTasksComponent,
     EditSupertasksComponent,
     NewSupertasksComponent,
+    ApplyHashlistComponent,
     SupertasksComponent,
     ShowTasksComponent,
     EditTasksComponent,

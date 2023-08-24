@@ -9,8 +9,14 @@ import { SERV } from '../../core/_services/main.config';
 import { firstValueFrom } from 'rxjs';
 
 /**
- * Returns cracked value iteration over chunks
- * @param id - Task Id
+ * Returns cracks when iterating over the chunks filtering by id
+ * @param id - Task Id or agent Id
+ * @param type - True check speed for Agent False for Task
+ * Usage:
+ *   object | tdcracked:true
+ * Example:
+ *   {{ number | tdcracked:'1' }}
+ * @returns number
 **/
 
 @Pipe({
@@ -22,7 +28,7 @@ export class TaskCrackedPipe implements PipeTransform {
     private gs: GlobalService
   ) { }
 
-  transform(id: number) {
+  transform(id: number, type?:boolean) {
 
     if (!id) {
       return null;
@@ -30,10 +36,16 @@ export class TaskCrackedPipe implements PipeTransform {
 
     const maxResults = 10000;
     // const maxResults = environment.config.prodApiMaxResults;
+    const searched = [];
+    let params: any;
 
-    const searched = []
+    if(type){
+      params = {'maxResults': maxResults, 'filter': 'agentId='+id+''};
+    }else{
+      params = {'maxResults': maxResults, 'filter': 'taskId='+id+''};
+    }
 
-    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,{'maxResults': maxResults, 'filter': 'taskId='+id+''}))
+    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,params))
     .then((res) => {
 
     const ch = res.values;

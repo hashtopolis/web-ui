@@ -93,15 +93,17 @@
              </grid-form-input>
             </div>
             <div class="col-md-8">
-              <grid-form-input [name]="'Assignment'" [labelclass]="'display-col'">
-                <select
-                      type='text'
-                      id="assignment"
-                      class='form-select'
-                    >
-                    <option>Missing</option>
-                </select>
-              </grid-form-input>
+              <form>
+                <grid-form-input [name]="'Assignment'" [labelclass]="'display-col'">
+                  <select
+                        type='text'
+                        id="assignment"
+                        class='form-select'
+                      >
+                      <option>Missing</option>
+                  </select>
+                </grid-form-input>
+              </form>
             </div>
           </div>
           <div class="row">
@@ -178,11 +180,13 @@
             </div>
             <div class="col-md-4">
               <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
-                <input
-                      type='string'
-                      id="accessgroups"
-                      class='form-control'
-                >
+                <span class="pre input-group-text input-group-lg">
+                  <td>
+                    <div *ngFor="let g of groups" style="text-align:left;">
+                      <a [routerLink]="['/users/access-groups/',g.accessGroupId,'edit']">{{g.groupName}}</a>
+                    </div>
+                  </td>
+                </span>
               </grid-form-input>
             </div>
           </div>
@@ -217,14 +221,21 @@
   <app-page-subtitle [subtitle]="'Device(s) Temperature'"></app-page-subtitle>
   <div class="row">
     <div class="col col-12">
-      <div id="main" style="height: 250px;"></div>
+      <div id="tempgraph" style="height: 250px;"></div>
     </div>
   </div>
-
   <app-page-subtitle [subtitle]="'Device(s) Utilization'"></app-page-subtitle>
-
+  <div class="row">
+    <div class="col col-12">
+      <div id="devicegraph" style="height: 250px;"></div>
+    </div>
+  </div>
   <app-page-subtitle [subtitle]="'Agent average CPU utilization'"></app-page-subtitle>
-
+  <div class="row">
+    <div class="col col-12">
+      <div id="cpugraph" style="height: 250px;"></div>
+    </div>
+  </div>
 </app-table>
 <!-- Errors -->
 <!-- <app-table>

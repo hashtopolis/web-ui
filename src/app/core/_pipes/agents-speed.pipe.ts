@@ -11,9 +11,10 @@ import { firstValueFrom } from 'rxjs';
 
 /**
  * This function calculates the agent current speed
- * @param id - Task Id
+ * @param id - Task Id or agent Id
+ * @param type - True check speed for Agent False for Task
  * Usage:
- *   object | aspeed:'id'
+ *   object | aspeed:true
  * Example:
  *   {{ number | aspeed:'1' }}
  * @returns number
@@ -32,16 +33,23 @@ export class AgentsSpeedPipe implements PipeTransform {
   currenspeed = 0;
   isactive = false;
 
-  transform(id: number ){
+  transform(id: number, type?:boolean){
 
       // const maxResults = environment.config.prodApiMaxResults;
       const maxResults = 60000;
       const chunktime = this.uiService.getUIsettings('chunktime').value;
       const cspeed = [];
+      let params: any;
 
       let currenspeed: any;
 
-      return firstValueFrom(this.gs.getAll(SERV.CHUNKS,{'maxResults': maxResults, 'filter': 'taskId='+id+''}))
+      if(type){
+        params = {'maxResults': maxResults, 'filter': 'agentId='+id+''};
+      }else{
+        params = {'maxResults': maxResults, 'filter': 'taskId='+id+''};
+      }
+
+      return firstValueFrom(this.gs.getAll(SERV.CHUNKS, params))
         .then((res) => {
         for(let i=0; i < res.values.length; i++){
           if(Date.now()/1000 - Math.max(res.values[i].solveTime, res.values[i].dispatchTime) < chunktime && res.values[i].progress < 10000){
