@@ -52,9 +52,7 @@ export class ApplyHashlistComponent  {
 
   initForm(){
 
-    this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((crackers) => {
-    console.log(crackers);
-    })
+    this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((crackers) => {})
 
     this.createForm = new FormGroup({
       "supertaskTemplateId":  new FormControl(this.Index),

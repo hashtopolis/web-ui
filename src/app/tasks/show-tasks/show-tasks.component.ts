@@ -330,18 +330,21 @@ onSelectedTasks(){
 onDeleteBulk(){
   const self = this;
   const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
+  const search = type.includes("SuperTask");
   const sellen = selectionnum.length;
   const errors = [];
   selectionnum.forEach(function (value) {
     Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
     Swal.showLoading()
-  self.gs.delete(SERV.TASKS,value)
-  .subscribe(
-    err => {
-      console.log('HTTP Error', err)
-      err = 1;
-      errors.push(err);
-    },
+    let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
+    self.gs.delete(SERV.TASKS,value)
+    .subscribe(
+      err => {
+        console.log('HTTP Error', err)
+        err = 1;
+        errors.push(err);
+      },
     );
   });
   self.onDone(sellen);
@@ -351,10 +354,13 @@ onUpdateBulk(value: any){
     const self = this;
     const selectionnum = this.onSelectedTasks();
     const sellen = selectionnum.length;
+    const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
+    const search = type.includes("SuperTask");
     selectionnum.forEach(function (id) {
       Swal.fire('Updating...'+sellen+' Task(s)...Please wait')
       Swal.showLoading()
-    self.gs.update(SERV.TASKS, id, value).subscribe(
+      let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
+    self.gs.update(path, id, value).subscribe(
     );
   });
   self.onDone(sellen);

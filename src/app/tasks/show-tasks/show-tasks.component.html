@@ -29,7 +29,7 @@
     <tbody>
     <tr *ngFor="let task of alltasks">
         <td *ngIf="task.taskType === 0" [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
-        <td *ngIf="task.taskType === 1">-</td>
+        <td *ngIf="task.taskType === 1" [ngStyle]="{'color': 'blue' }">{{ task.taskWrapperId }}</td>
         <td *ngIf="task.taskType === 0">
           <a [ngClass]="task.keyspaceProgress >= task.keyspace ? 'align-text' : ''" [routerLink]="[task.taskId,'edit']" ngbTooltip={{task.taskName}}>
             {{ task.taskName | shortenString:40 | lowercase | titlecase }}
@@ -84,7 +84,7 @@
         <td *ngIf="task.taskType === 1">-</td>
         <td>
           {{ task.priority }}
-          <fa-icon style="cursor: pointer;" (click)="this.onModalUpdate('New Priority', task.taskId, task.priority, true, ( task.taskType === 0 ? task.taskName: task.taskWrapperName ), task.taskType)" [icon]="faPencil" aria-hidden="true"></fa-icon>
+          <fa-icon style="cursor: pointer;" (click)="this.onModalUpdate('New Priority', ( task.taskType === 0 ? task.taskId: task.taskWrapperId ), task.priority, true, ( task.taskType === 0 ? task.taskName: task.taskWrapperName ), task.taskType)" [icon]="faPencil" aria-hidden="true"></fa-icon>
         </td>
         <td *ngIf="task.taskType === 0">
           {{ task.maxAgents }}
@@ -107,11 +107,11 @@
               <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
               </button>
-              <button ngbDropdownItem (click)="onArchive(task.taskId,task.taskType)" data-toggle="tooltip" data-placement="top" title="Archive">
+              <button ngbDropdownItem (click)="onArchive((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Archive">
                 <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="onDelete(task.taskId,task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>
@@ -131,7 +131,7 @@
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="onDelete(task.taskId,task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>
