@@ -54,10 +54,13 @@ export class EditUsersComponent implements OnInit {
       'globalPermissionGroup': new FormControl({value: '', disabled: true}),
       'updateData': new FormGroup({
         'globalPermissionGroupId': new FormControl(''),
-        // 'setPassword': new FormControl('',ValidationService.passwordValidator),
         'isValid': new FormControl('')
       })
   });
+
+  updatePassForm = new FormGroup({
+    'password': new FormControl(),
+  })
 
   ngOnInit(): void {
 
@@ -128,6 +131,9 @@ export class EditUsersComponent implements OnInit {
 
   onSubmit(){
     if (this.updateForm.valid) {
+
+      this.onUpdatePass(this.updatePassForm.value);
+
       this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe(() => {
           Swal.fire({
             title: "Success",
@@ -140,6 +146,14 @@ export class EditUsersComponent implements OnInit {
           this.router.navigate(['users/all-users']);
         }
       );
+    }
+  }
+
+  onUpdatePass(val: any){
+    let setpass = String(val['password']).length;
+    if(setpass > 0){
+      const payload = {"password": val['password'], "userId": this.editedUserIndex};
+      this.gs.chelper(SERV.HELPER,'setUserPassword', payload).subscribe();
     }
   }
 
@@ -156,7 +170,6 @@ export class EditUsersComponent implements OnInit {
         'globalPermissionGroup': new FormControl({value: result['globalPermissionGroup'], disabled: true}) ,
         'updateData': new FormGroup({
           'globalPermissionGroupId': new FormControl(result['globalPermissionGroupId']),
-          // 'setPassword': new FormControl(),
           'isValid': new FormControl(result['isValid']),
         })
       });

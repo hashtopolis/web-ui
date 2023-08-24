@@ -1,5 +1,6 @@
 import { faEdit, faHomeAlt, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -145,7 +146,45 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   //ToDo
   onDelete(id: number){
-
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn',
+        cancelButton: 'btn'
+      },
+      buttonsStyling: false
+    })
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
+      icon: "warning",
+      reverseButtons: true,
+      showCancelButton: true,
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
+      confirmButtonText: 'Yes, delete it!'
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        this.gs.delete(SERV.USERS,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.ngOnInit();
+          this.rerender();  // rerender datatables
+        });
+      } else {
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Hashtype is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
+      }
+    });
   }
 
   rerender(): void {

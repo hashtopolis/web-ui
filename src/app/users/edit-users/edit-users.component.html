@@ -84,21 +84,24 @@
                 <option *ngFor="let a of agp" [ngValue]="a.id">{{ a.name }}</option>
             </select>
           </grid-form-input>
-          <grid-form-input [name]="'Set password'">
-            <div class="input-group">
-              <span class="input-group-text">
-              <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-              </span>
-              <input
-                    type='new-password'
-                    id="setpassword"
-                    class="form-control"
-              />
-          </div>
-          </grid-form-input>
+          <form [formGroup]="updatePassForm" (ngSubmit)="onSubmit()">
+            <grid-form-input [name]="'Set password'">
+              <div class="input-group">
+                <span class="input-group-text">
+                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+                </span>
+                <input
+                      type='new-password'
+                      id="setpassword"
+                      class="form-control"
+                      formControlName="password"
+                />
+            </div>
+            </grid-form-input>
+          </form>
           <grid-form-input [name]="''">
             <div class="form-check form-switch form-input-custom">
-              <label class="form-label" for="setpassword"></label>
+              <label class="form-label" for="isvalid"></label>
                   <input
                         type="checkbox"
                         id="user-notification-1"

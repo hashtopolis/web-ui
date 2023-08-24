@@ -1,9 +1,7 @@
-import { faEdit, faTrash, faPlus, faAdd, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Subject } from 'rxjs';
 
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from '../../../environments/environment';
