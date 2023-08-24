@@ -49,7 +49,9 @@ export class EditAgentComponent implements OnInit {
     private router: Router
   ) { }
 
-  updateForm: FormGroup
+  updateAssignForm: FormGroup;
+  updateForm: FormGroup;
+  assignTasks: any = [];
   showagent: any = [];
   groups: any = [];
   users: any = [];
@@ -86,6 +88,10 @@ export class EditAgentComponent implements OnInit {
       'isTrusted': new FormControl('')
     });
 
+    this.updateAssignForm = new FormGroup({
+      'taskId': new FormControl(''),
+    });
+
     const id = +this.route.snapshot.params['id'];
     this.gs.get(SERV.AGENTS,id,{'expand':'agentstats,accessGroups'}).subscribe((agent: any) => {
       this.showagent = agent;
@@ -93,16 +99,10 @@ export class EditAgentComponent implements OnInit {
       this.agentStats(agent.agentstats);
     });
 
-    // For Test Only
-    this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((tw: any) => {
-      this.gs.getAll(SERV.TASKS, {'maxResults': this.maxResults, 'filter': 'isArchived=false'}).subscribe((tasks: any) => {
-        let supertasks = tw.values.map(mainObject => {
-          const matchObject = tasks.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
-          return { ...mainObject, ...matchObject }
-        })
-      });
+    // Get Task for Assigment
+    this.gs.getAll(SERV.TASKS, {'maxResults': this.maxResults, 'filter': 'isArchived=false'}).subscribe((tasks: any) => {
+      this.assignTasks = tasks.values.filter(u=> u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0 ); //Remove completed tasks
     });
-    // For Test Only
 
     this.gs.getAll(SERV.USERS, {'maxResults': this.maxResults}).subscribe((user: any) => {
       this.users = user.values;
@@ -184,7 +184,7 @@ export class EditAgentComponent implements OnInit {
 
   onSubmit(){
     if (this.updateForm.valid) {
-
+      this.onUpdateAssign(this.updateAssignForm.value);
       this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
@@ -195,9 +195,13 @@ export class EditAgentComponent implements OnInit {
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['agents/show-agents']);
-        },
-      );
+      });
     }
+  }
+
+  onUpdateAssign(val: any){
+    const payload = {"taskId": Number(val['taskId']), "agentId": this.editedAgentIndex};
+    this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe();
   }
 
   private initForm() {
@@ -214,6 +218,12 @@ export class EditAgentComponent implements OnInit {
         'isTrusted': new FormControl(result['isTrusted'])
       });
     });
+    this.gs.getAll(SERV.AGENT_ASSIGN, {'filter':'agentId='+this.editedAgentIndex+''}).subscribe((assign: any) => {
+      console.log(assign.values);
+      this.updateAssignForm = new FormGroup({
+          'taskId': new FormControl(assign?.values[0]['taskId']),
+        });
+    });
    }
   }
 
@@ -223,8 +233,8 @@ export class EditAgentComponent implements OnInit {
 
   agentStats(obj: any){
     this.getGraph(obj.filter(u=> u.statType == ASC.GPU_TEMP),ASC.GPU_TEMP,'tempgraph'); // filter Device Temperature
-    this.getGraph(obj.filter(u=> u.statType == ASC.GPU_UTIL),ASC.GPU_UTIL,'devicegraph'); // filter Device Utilization
-    this.getGraph(obj.filter(u=> u.statType == ASC.CPU_UTIL),ASC.CPU_UTIL,'cpugraph'); // filter CPU utilization
+    // this.getGraph(obj.filter(u=> u.statType == ASC.GPU_UTIL),ASC.GPU_UTIL,'devicegraph'); // filter Device Utilization
+    // this.getGraph(obj.filter(u=> u.statType == ASC.CPU_UTIL),ASC.CPU_UTIL,'cpugraph'); // filter CPU utilization
   }
 
   // Temperature Graph
@@ -283,7 +293,7 @@ getGraph(obj: object, status: number, name: string){
     return res;
   }, {});
 
-  console.log(result)
+  // console.log(result)
   for(let i=0; i < result.length; i++){
 
     const iso = this.transDate(result[i]['time']);

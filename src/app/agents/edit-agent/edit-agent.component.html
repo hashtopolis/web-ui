@@ -93,14 +93,15 @@
              </grid-form-input>
             </div>
             <div class="col-md-8">
-              <form>
+              <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
                 <grid-form-input [name]="'Assignment'" [labelclass]="'display-col'">
                   <select
                         type='text'
                         id="assignment"
                         class='form-select'
+                        formControlName="taskId"
                       >
-                      <option>Missing</option>
+                      <option *ngFor="let a of assignTasks" [ngValue]="a.taskId">{{ a.taskName }}</option>
                   </select>
                 </grid-form-input>
               </form>
