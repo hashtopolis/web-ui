@@ -29,7 +29,7 @@
     <tbody>
     <tr *ngFor="let task of alltasks">
         <td *ngIf="task.taskType === 0" [ngStyle]="{'background-color': task.color }">{{ task.taskId }}</td>
-        <td *ngIf="task.taskType === 1" [ngStyle]="{'color': 'blue' }">{{ task.taskWrapperId }}</td>
+        <td *ngIf="task.taskType === 1" [ngStyle]="{'color': 'purple' }">{{ task.taskWrapperId }}</td>
         <td *ngIf="task.taskType === 0">
           <a [ngClass]="task.keyspaceProgress >= task.keyspace ? 'align-text' : ''" [routerLink]="[task.taskId,'edit']" ngbTooltip={{task.taskName}}>
             {{ task.taskName | shortenString:40 | lowercase | titlecase }}
@@ -54,7 +54,7 @@
           <fa-icon *ngIf="task.isCpuTask === true" [icon]="faMicrochip" aria-hidden="true" ngbTooltip="CPU Only"></fa-icon>
         </td>
         <td *ngIf="task.taskType === 1">
-          <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color:blue">
+          <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color:purple">
             SuperTask
           </span>
         </td>
@@ -104,7 +104,7 @@
               <button ngbDropdownItem [routerLink]="['/tasks/preconfigured-tasks',task.taskId,'copytask']" data-toggle="tooltip" data-placement="top" title="Copy to Pretask" *ngIf="task.taskType === 0">
                 <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon>  Copy to Pretask
               </button>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
+              <button ngbDropdownItem (click)="open(task.taskWrapperName, task.taskWrapperId)" data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
               </button>
               <button ngbDropdownItem (click)="onArchive((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Archive">
@@ -127,7 +127,7 @@
               <button ngbDropdownItem [routerLink]="[task.taskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to pretask" *ngIf="task.taskType === 0">
                 <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon> Copy to task
               </button>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
+              <button ngbDropdownItem (click)="open(task.taskWrapper, task.taskWrapperId)" data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
               </button>
               <div class="dropdown-divider"></div>
@@ -151,16 +151,16 @@
                     <th class="rounded-end">Actions</th>
                   </thead>
                   <tbody>
-                    <!-- <tr *ngFor="let pt of pretasks">
-                      <td>{{ pt.pretaskId }}</td>
-                      <td>
-                        <a [routerLink]="['/tasks/preconfigured-tasks/', pt.pretaskId,'edit']">
-                          {{ pt.taskName }}
-                        </a>
-                      </td>
+                    <tr *ngFor="let pt of preTasks">
+                      <td>{{ pt.taskId }}</td>
+                      <td>{{ pt.taskName }}</td>
+                      <td>onProgress</td>
+                      <td>onProgress</td>
+                      <td>onProgress</td>
                       <td>{{ pt.priority }}</td>
-                      <td>delete Missing?</td>
-                    </tr> -->
+                      <td>{{ pt.maxAgents }}</td>
+                      <td></td>
+                    </tr>
                   </tbody>
                 </table>
               </app-modal-table>

@@ -137,7 +137,6 @@ export class SupertasksComponent implements OnInit {
   this.gs.get(SERV.SUPER_TASKS,id, {'expand': 'pretasks' }).subscribe((stasks: any) => {
     this.pretasks = stasks.pretasks;
   });
-
  }
   onRefresh(){
     this.ngOnInit();

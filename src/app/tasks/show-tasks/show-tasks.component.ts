@@ -1,4 +1,5 @@
 import {  faPencil, faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye, faMicrochip, faCheckCircle, faTerminal, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from './../../../environments/environment';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -59,6 +60,7 @@ export class ShowTasksComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
+    private modalService: NgbModal,
     private route:ActivatedRoute,
     private gs: GlobalService,
     private router: Router
@@ -265,6 +267,14 @@ onArchive(id: number, type: number){
   });
 }
 
+preTasks: any;
+getPretasks(id: number){
+  this.gs.getAll(SERV.TASKS,{'maxResults': 100, 'filter': 'taskWrapperId='+id+'' }).subscribe((result: any) => {
+    this.preTasks = result.values;
+  });
+
+}
+
 onDelete(id: number, type: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
@@ -459,5 +469,33 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, namere
 
   })()
 }
+ // Modal Pretaks
+  closeResult = '';
+  open(content, id) {
+    this.getPretasks(id);
+    const modalRef = this.modalService.open(content, { size: 'xl' });
+    let opened = true;
+    const mySubscription = modalRef.componentInstance.someOutputEvent
+    .subscribe(_ => {
+        // do something
+    });
+    modalRef.result.then(_ => {
+      opened = false;
+      mySubscription.unsubscribe();
+      }, _ => {
+          opened = false;
+          mySubscription.unsubscribe();
+      });
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
+  }
 
 }

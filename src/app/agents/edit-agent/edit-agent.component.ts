@@ -55,6 +55,8 @@ export class EditAgentComponent implements OnInit {
   showagent: any = [];
   groups: any = [];
   users: any = [];
+  assignNew: any;
+  assignId: any;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -200,8 +202,14 @@ export class EditAgentComponent implements OnInit {
   }
 
   onUpdateAssign(val: any){
-    const payload = {"taskId": Number(val['taskId']), "agentId": this.editedAgentIndex};
-    this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe();
+    const id = Number(val['taskId']);
+    if(id){
+        const payload = {"taskId": Number(val['taskId']), "agentId": this.editedAgentIndex};
+        this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe();
+    }
+    if(id === 0){
+      this.gs.delete(SERV.AGENT_ASSIGN,this.assignId).subscribe();
+    }
   }
 
   private initForm() {
@@ -219,7 +227,8 @@ export class EditAgentComponent implements OnInit {
       });
     });
     this.gs.getAll(SERV.AGENT_ASSIGN, {'filter':'agentId='+this.editedAgentIndex+''}).subscribe((assign: any) => {
-      console.log(assign.values);
+      this.assignNew = assign?.values[0]['taskId'] ? true: false;
+      this.assignId = assign?.values[0]['assignmentId'];
       this.updateAssignForm = new FormGroup({
           'taskId': new FormControl(assign?.values[0]['taskId']),
         });

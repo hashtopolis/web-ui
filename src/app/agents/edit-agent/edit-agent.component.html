@@ -101,7 +101,8 @@
                         class='form-select'
                         formControlName="taskId"
                       >
-                      <option *ngFor="let a of assignTasks" [ngValue]="a.taskId">{{ a.taskName }}</option>
+                      <option [ngValue]="0" *ngIf="assignNew">Unassigned</option>
+                      <option *ngFor="let a of assignTasks" [ngValue]="a.taskId">{{ a.taskId }} - {{ a.taskName }}</option>
                   </select>
                 </grid-form-input>
               </form>
