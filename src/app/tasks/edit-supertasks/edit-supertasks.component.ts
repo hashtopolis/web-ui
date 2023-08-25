@@ -51,6 +51,7 @@ export class EditSupertasksComponent implements OnInit {
   etForm:FormGroup; //estimation time form
   pretasks: any = [];
   pretasksFiles: any = [];
+  assignPretasks: any;
 
   ngOnInit(): void {
 
@@ -85,16 +86,23 @@ export class EditSupertasksComponent implements OnInit {
   onSubmit(){
     if (this.updateForm.valid) {
 
-      this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,this.updateForm.value).subscribe(() => {
+      const concat = []; // We get the current values and then concat with the new value
+      for(let i=0; i < this.assignPretasks.length; i++){
+        concat.push(this.assignPretasks[i].pretaskId);
+      }
+      let payload = concat.concat(this.updateForm.value['pretasks']);
+
+      this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe(() => {
           Swal.fire({
             title: "Success",
-            text: "SuperTask updated!",
+            text: "Pretask updated!",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
           });
           this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['/tasks/supertasks']);
+          this.onRefresh();
+          // this.router.navigate(['/tasks/supertasks']);
         }
       );
     }
@@ -115,6 +123,11 @@ export class EditSupertasksComponent implements OnInit {
         searchField: ["taskName"],
         loadingClass: 'Loading..',
         highlight: true,
+        onType: function(){
+          this.$input[0].selectize.renderCache = {};
+          this.$input[0].selectize.clearOptions();
+          this.$input[0].selectize.refreshOptions(true);
+        },
         onChange: function (value) {
             self.OnChangeValue(value); // We need to overide DOM event, Angular vs Jquery
         },
@@ -197,9 +210,32 @@ export class EditSupertasksComponent implements OnInit {
     });
   }
 
+  onDeletePret(id: number){
+    // { "supertaskName": "fdfdf", "pretasks": [ 2, 1 ] }
+
+    const filter = this.assignPretasks.filter(u => u.pretaskId !== id);
+    const payload = [];
+    for(let i=0; i < filter.length; i++){
+      payload.push(filter[i].pretaskId);
+    }
+    this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe((result)=>{
+      Swal.fire({
+        title: "Success",
+        text: "Pretask deleted!",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500
+      });
+      this.updateForm.reset(); // success, we reset form
+      this.onRefresh();
+    })
+
+  }
+
   private initForm() {
     if (this.editMode) {
-    this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex).subscribe((result)=>{
+    this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex,{'expand': 'pretasks'}).subscribe((result)=>{
+      this.assignPretasks = result.pretasks;
       this.viewForm = new FormGroup({
         supertaskId: new FormControl({value: result['supertaskId'], disabled: true}),
         supertaskName: new FormControl({value: result['supertaskName'], disabled: true}),
@@ -242,6 +278,24 @@ export class EditSupertasksComponent implements OnInit {
       }
     }
 
+  }
+
+  onRefresh(){
+    // this.rerender();
+    // this.ngOnInit();
+    // Todo using window reload as some issues clearing filter when adding pretask
+   window.location.reload();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
   }
 
   // Calculate Estimated duration
