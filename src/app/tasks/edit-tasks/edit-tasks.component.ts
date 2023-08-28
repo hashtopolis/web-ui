@@ -151,7 +151,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.assingAgentInit();
       // Hashlist Description and Type
       this.hashlistinform =  result.hashlist[0];
-      this.gs.getAll(SERV.HASHTYPES,{'filter': 'hashTypeId='+result.hashlist['hashTypeId']+''}).subscribe((htypes: any) => {
+      this.gs.getAll(SERV.HASHTYPES,{'filter': 'hashTypeId='+result.hashlist[0]['hashTypeId']+''}).subscribe((htypes: any) => {
        this.hashlistDescrip = htypes.values[0].description;
       })
       this.tkeyspace = result['keyspace'];
@@ -435,10 +435,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     this.rerender();  // rerender datatables
   }
 
-/**
- * This function reset information in the selected chunk, sets to zero; Dispatch Time, Solve Time, Progress and State
- *
-**/
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
@@ -450,11 +446,62 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     });
   }
 
-  onReset(id: number){
-    const reset = {'dispatchTime':0, 'solveTime':0, 'progress':0,'state':0};
-    this.gs.update(SERV.CHUNKS,id, reset).subscribe(()=>{
+/**
+ * Helper functions
+ *
+**/
+
+  purgeTask(){
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn',
+        cancelButton: 'btn'
+      },
+      buttonsStyling: false
+    })
+    Swal.fire({
+      title: "Are you sure?",
+      text: "It'll purge the Task!",
+      icon: "warning",
+      reverseButtons: true,
+      showCancelButton: true,
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
+      confirmButtonText: 'Yes, delete it!'
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        let payload = {"taskId":this.editedTaskIndex};
+        this.gs.chelper(SERV.HELPER,'purgeTask',payload).subscribe(() => {
+          Swal.fire({
+            title: "Success",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.ngOnInit();
+          this.rerender();  // rerender datatables
+        });
+      } else {
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Task is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
+      }
+    });
+
+  }
+
+  onReset(id: number, state: number){
+    const path = state === 2 ? 'abortChunk' :'resetChunk' ;
+    const title = state === 2 ? 'Chunk Abort!' :'Chunk Reset!' ;
+    let payload = {'chunkId': id};
+    this.gs.chelper(SERV.HELPER,path,payload).subscribe(() => {
       Swal.fire({
-        title: "Chunk Reset!",
+        title: title,
         icon: "success",
         showConfirmButton: false,
         timer: 1500
@@ -464,7 +511,10 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     });
   }
 
-// Task Speed Graph
+/**
+ * Task Speed Grap
+ *
+**/
 initTaskSpeed(obj: object){
 
   echarts.use([

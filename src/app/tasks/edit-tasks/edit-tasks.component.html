@@ -3,7 +3,7 @@
 <div class="row g-3">
   <div class="col-md-7">
     <grid-main [class]="'width:100%'">
-      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="updateForm">
         <div class="row">
           <div class="row g-3">
             <div class="col-md-2">
@@ -139,7 +139,8 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-gray-800" type="submit">Update</button>
+        <button class="btn btn-gray-800" (click)="onSubmit()">Update</button>
+        <button class="btn btn-danger" (click)="purgeTask()">Purge</button>
     </form>
   </grid-main>
   </div>
@@ -475,7 +476,7 @@
             </td>
             <td>{{ gc.cracked }}</td>
             <td>
-              <button class='navbar-toggler btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
+              <button class='navbar-toggler btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId,gc.state)">
                 <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon>
               </button>
             </td>
