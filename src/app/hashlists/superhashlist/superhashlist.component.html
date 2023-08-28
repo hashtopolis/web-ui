@@ -6,43 +6,66 @@
       <tr>
         <th class="rounded-start">ID</th>
         <th>Name</th>
+        <th>Status</th>
         <th>Hash type</th>
+        <!-- <th>Format</th> -->
         <th>Cracked</th>
-        <th>HashLists</th>
+        <th>Hashlists</th>
         <th>Pre-cracked</th>
-        <th class="rounded-end">Action</th>
+        <th class="rounded-end">Actions</th>
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let sh of allsuperhashlisth">
-        <td>{{ sh.hashlistId }}</td>
-        <td>
-          <a>{{ sh.name }}</a>
-          <span *ngIf="sh.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-        </td>
-        <td>{{ sh.hashType.description }}</td>
-        <td>
-          {{ sh.cracked / sh.hashCount | percent:'1.2-2' }}
-          (
-            <a
-              [routerLink]="['/hashlists/hashes/','hashlist',sh.hashlistId]"
-              [queryParams]="{cracked: true}"
-              >{{ sh.cracked }}</a>
-          /
-          <a [routerLink]="['/hashlists/hashes/','hashlist',sh.hashlistId]">{{ sh.hashCount }}</a>)
+      <tr *ngFor="let list of allsuperhashlisth">
+        <td>{{ list.hashlistId }}</td>
+        <td style="white-space: nowrap;">
+            <a [routerLink]="['/hashlists/superhashlist',list.hashlistId,'edit']" ngbTooltip={{list.name}}>{{ list.name | shortenString:35 | lowercase | titlecase }}</a>
+            <span *ngIf="list.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></span>
         </td>
         <td>
-          <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists',sh.hashlistId,'copy']" data-toggle="tooltip" data-placement="top" title="Import">
+          <span *ngIf="list.hashCount === list.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true" ngbTooltip='Cracked'></fa-icon></span>
+        </td>
+        <td>{{ list.hashType.description }}</td>
+        <!-- <td>{{ list.format | staticArray:'formats' }}</td> -->
+        <td>
+          <div>
+            <span [ngClass]="list.cracked / list.hashCount ? 'ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0' : ''" style="{{list.cracked / list.hashCount ? 'background-color: rgb(16, 185, 129);' : ''}}">
+              {{ list.cracked / list.hashCount | percent:'1.2-2' }}
+            </span>
+              (
+                <a
+                  [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]"
+                  [queryParams]="{filter: 'cracked'}"
+                  >{{ list.cracked }}</a>
+              /
+              <a [routerLink]="['/hashlists/hashes/','hashlist',list.hashlistId]">{{ list.hashCount }}</a>
+              )
+          </div>
+        </td>
+        <td>
+          <div *ngFor="let h of list.hashlists">
+            <a [routerLink]="['/hashlists/hashlist/',h.hashlistId,'edit']">{{h.name}}</a>
+            <hr *ngIf="list.hashlists.length > 1">
+          </div>
+        </td>
+        <td>
+          <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists',list.hashlistId,'copy']" data-toggle="tooltip" data-placement="top" ngbTooltip="Import Hashlist">
             <fa-icon [icon]="faFileExport" aria-hidden="true"></fa-icon>
           </a>
-          <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Export">
+          <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" ngbTooltip="Export Hashlist">
             <fa-icon [icon]="faFileImport" aria-hidden="true"></fa-icon>
           </a>
         </td>
         <td>
-          <a class='btn-outline-gray-600 float-right' (click)="onDelete(sh.hashlistId)" data-toggle="tooltip" data-placement="top" title="Delete">
-            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-          </a>
+          <app-button-actions>
+            <button ngbDropdownItem [routerLink]="['/hashlists/superhashlist',list.hashlistId,'edit']" data-placement="top">
+              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+            </button>
+            <div class="dropdown-divider"></div>
+            <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(list.hashlistId)">
+              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+            </button>
+          </app-button-actions>
         </td>
     </tr>
     </tbody>

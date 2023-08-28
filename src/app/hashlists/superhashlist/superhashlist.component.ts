@@ -1,4 +1,4 @@
-import { faEdit, faTrash,faFileImport, faFileExport, faPlus, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash,faFileImport, faFileExport, faPlus, faLock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -16,11 +16,12 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['Show SuperHashlist'])
 export class SuperhashlistComponent implements OnInit {
 
-  faEdit=faEdit;
-  faLock=faLock;
-  faTrash=faTrash;
+  faCheckCircle=faCheckCircle;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
+  faTrash=faTrash;
+  faEdit=faEdit;
+  faLock=faLock;
   faPlus=faPlus;
 
   @ViewChild(DataTableDirective, {static: false})
@@ -38,10 +39,9 @@ export class SuperhashlistComponent implements OnInit {
 
   ngOnInit(): void {
 
-    const params = {'maxResults': this.maxResults, 'expand': 'pretaskFiles'}
-
-    this.gs.getAll(SERV.SUPER_HASHLISTS,params).subscribe((sh: any) => {
+    this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults, 'filter': 'format=3', 'expand': 'hashType,hashlists'}).subscribe((sh: any) => {
       this.allsuperhashlisth = sh.values;
+      console.log(sh.values);
       this.dtTrigger.next(void 0);
     });
     const self = this;
@@ -144,7 +144,7 @@ export class SuperhashlistComponent implements OnInit {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.gs.delete(SERV.SUPER_HASHLISTS,id).subscribe(() => {
+        this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
           Swal.fire({
             title: "Success",
             icon: "success",
@@ -165,6 +165,7 @@ export class SuperhashlistComponent implements OnInit {
       }
     });
   }
+
   // Add unsubscribe to detect changes
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
