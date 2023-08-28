@@ -22,6 +22,9 @@ export class EditHashlistComponent implements OnInit {
   editMode = false;
   editedHashlistIndex: number;
   editedHashlist: any // Change to Model
+  hashtype: any;
+  type: any // Hashlist or SuperHaslist
+  hashlist: any
 
   faEye=faEye;
   faHome=faHomeAlt;
@@ -97,7 +100,8 @@ export class EditHashlistComponent implements OnInit {
             timer: 1500
           });
           this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['/hashlists/hashlist']);
+          const path = this.type === 3 ? '/hashlists/superhashlist':'/hashlists/hashlist';
+          this.router.navigate([path]);
         }
       );
     }
@@ -116,10 +120,12 @@ export class EditHashlistComponent implements OnInit {
 
   private initForm() {
     if (this.editMode) {
-    this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex).subscribe((result)=>{
+    this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex,{'expand':'tasks,hashlists,hashType'}).subscribe((result)=>{
         this.getTasks();
-        this.getHashtype();
         this.editedHashlist = result;
+        this.type = result['format'];
+        this.hashtype = result['hashType'];
+        this.hashlist = result['hashlists'];
         this.updateForm = new FormGroup({
           'hashlistId': new FormControl({value: result['hashlistId'], disabled: true}),
           'accessGroupId': new FormControl({value: result['accessGroupId'], disabled: true}),
@@ -140,30 +146,20 @@ export class EditHashlistComponent implements OnInit {
    }
   }
 
-  hashT: any;
-  getHashtype(){
-    const params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedHashlistIndex+''}
-    const paramsh = {'maxResults': this.maxResults};
-    const matchObject =[]
-    this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
-      this.gs.getAll(SERV.HASHTYPES,paramsh).subscribe((htypes: any) => {
-        this.hashT = tasks.values.map(mainObject => {
-          matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
-        return { ...mainObject, ...matchObject }
-        })
-        console.log(this.hashT)
-      })
-    })
-  }
-
+  // Remove when expand task is working
   getTasks():void {
     const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
     const taskh = []
     this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
+      console.log(tasks)
       for(let i=0; i < tasks.values.length; i++){
-        const match = tasks.values[i].hashlist.hashlistId == this.editedHashlistIndex;
-        if(match === true){
-          taskh.push(tasks.values[i])
+        console.log( tasks.values[i].hashlist)
+        let firtprep = tasks.values[i].hashlist;
+        for(let i=0; i < firtprep.length; i++){
+          const match = firtprep[i].hashlistId == this.editedHashlistIndex;
+          if(match === true){
+            taskh.push(tasks.values[i])
+          }
         }
       }
       this.alltasks = taskh;
