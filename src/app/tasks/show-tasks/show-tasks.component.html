@@ -104,8 +104,8 @@
               <button ngbDropdownItem [routerLink]="['/tasks/preconfigured-tasks',task.taskId,'copytask']" data-toggle="tooltip" data-placement="top" title="Copy to Pretask" *ngIf="task.taskType === 0">
                 <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon>  Copy to Pretask
               </button>
-              <button ngbDropdownItem (click)="open(task.taskWrapperName, task.taskWrapperId)" data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
+              <button ngbDropdownItem (click)="getSubtasks(task.taskWrapperName, task.taskWrapperId)" data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
+                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit SubTasks
               </button>
               <button ngbDropdownItem (click)="onArchive((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Archive">
                 <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
@@ -127,8 +127,8 @@
               <button ngbDropdownItem [routerLink]="[task.taskId,'copy']" data-toggle="tooltip" data-placement="top" title="Copy to pretask" *ngIf="task.taskType === 0">
                 <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon> Copy to task
               </button>
-              <button ngbDropdownItem (click)="open(task.taskWrapper, task.taskWrapperId)" data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
+              <button ngbDropdownItem (click)="getSubtasks(task.taskWrapper, task.taskWrapperId)" data-toggle="tooltip" data-placement="top" title="Edit" *ngIf="task.taskType === 1">
+                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit SubTasks
               </button>
               <div class="dropdown-divider"></div>
               <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
@@ -136,37 +136,6 @@
               </button>
             </app-button-actions>
           </div>
-            <!-- Modal Start -->
-            <ng-template #pretask let-modal>
-              <app-modal-table [title]="'Subtasks'">
-                <table class="table table-striped table-hover table-sm" #subtasks datatable [dtOptions]="dtOptions1" [dtTrigger]="dtTrigger1" id="subtasks">
-                  <thead class="thead-light">
-                    <th class="rounded-start">ID</th>
-                    <th>Name</th>
-                    <th>Dispatched / Searched</th>
-                    <th>Cracked</th>
-                    <th>Agents</th>
-                    <th>Priority</th>
-                    <th>Max. Agents</th>
-                    <th class="rounded-end">Actions</th>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let pt of preTasks">
-                      <td>{{ pt.taskId }}</td>
-                      <td>{{ pt.taskName }}</td>
-                      <td>onProgress</td>
-                      <td>onProgress</td>
-                      <td>onProgress</td>
-                      <td>{{ pt.priority }}</td>
-                      <td>{{ pt.maxAgents }}</td>
-                      <td></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </app-modal-table>
-            </ng-template>
-            <!-- Modal End -->
-        <!-- </td> -->
         </div>
       </tr>
     </tbody>

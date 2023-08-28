@@ -10,6 +10,7 @@ import { Subject, Subscription } from 'rxjs';
 import { GlobalService } from '../../core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { ModalSubtasksComponent } from './modal-subtasks/modal-subtasks.component';
 
 declare let $:any;
 
@@ -267,12 +268,13 @@ onArchive(id: number, type: number){
   });
 }
 
-preTasks: any;
-getPretasks(id: number){
-  this.gs.getAll(SERV.TASKS,{'maxResults': 100, 'filter': 'taskWrapperId='+id+'' }).subscribe((result: any) => {
-    this.preTasks = result.values;
-  });
-
+getSubtasks(name: string, id: number){
+  this.gs.getAll(SERV.TASKS,{'maxResults': this.maxResults, 'filter':'taskWrapperId='+id+'', 'expand':'assignedAgents'}).subscribe((subtasks: any) => {
+    const ref = this.modalService.open(ModalSubtasksComponent, { centered: true, size: 'xl'  });
+    ref.componentInstance.prep = subtasks.values;
+    ref.componentInstance.supertaskid = id;
+    ref.componentInstance.title = name;
+  })
 }
 
 onDelete(id: number, type: number){
@@ -469,33 +471,5 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, namere
 
   })()
 }
- // Modal Pretaks
-  closeResult = '';
-  open(content, id) {
-    this.getPretasks(id);
-    const modalRef = this.modalService.open(content, { size: 'xl' });
-    let opened = true;
-    const mySubscription = modalRef.componentInstance.someOutputEvent
-    .subscribe(_ => {
-        // do something
-    });
-    modalRef.result.then(_ => {
-      opened = false;
-      mySubscription.unsubscribe();
-      }, _ => {
-          opened = false;
-          mySubscription.unsubscribe();
-      });
-  }
-
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
-    }
-  }
 
 }
