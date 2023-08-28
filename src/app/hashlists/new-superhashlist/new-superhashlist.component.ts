@@ -33,16 +33,14 @@ export class NewSuperhashlistComponent implements OnInit {
   ngOnInit(): void {
 
     this.createForm = new FormGroup({
-      superhashlistName: new FormControl(''),
-      hashlists: new FormControl(''),
+      name: new FormControl(''),
+      hashlistIds: new FormControl(''),
     });
 
-    const params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'};
-
-    this.gs.getAll(SERV.HASHLISTS,params).subscribe((tasks: any) => {
+    this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults, 'filter': 'isArchived=false,format=0'}).subscribe((tasks: any) => {
       const self = this;
       const response = tasks.values;
-      ($("#hashlists") as any).selectize({
+      ($("#hashlistIds") as any).selectize({
         maxItems: null,
         plugins: ["restore_on_backspace"],
         valueField: "hashlistId",
@@ -79,18 +77,18 @@ export class NewSuperhashlistComponent implements OnInit {
         new FormControl(+val)
       );
     }
-    const cname = this.createForm.get('superhashlistName').value;
+    const cname = this.createForm.get('name').value;
     this.createForm = new FormGroup({
-      superhashlistName: new FormControl(cname),
-      hashlists: formArr
+      name: new FormControl(cname),
+      hashlistIds: formArr
     });
     this._changeDetectorRef.detectChanges();
   }
 
   onSubmit(){
     if (this.createForm.valid) {
-
-      this.gs.create(SERV.SUPER_HASHLISTS,this.createForm.value).subscribe(() => {
+      console.log(this.createForm.value);
+      this.gs.chelper(SERV.HELPER,'createSuperHashlist',this.createForm.value).subscribe(() => {
           Swal.fire({
             title: "Success",
             text: "New SuperHashList created!",
