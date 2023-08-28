@@ -1,11 +1,11 @@
 import { faEdit, faTrash, faPlus, faAdd, faChevronRight, faChevronUp } from '@fortawesome/free-solid-svg-icons';
-import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 
+import { ModalPretasksComponent } from './modal-pretasks/modal-pretasks.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -30,7 +30,7 @@ export class SupertasksComponent implements OnInit {
 
   constructor(
     private modalService: NgbModal,
-    private gs: GlobalService,
+    private gs: GlobalService
   ) { }
 
   @ViewChild(DataTableDirective, {static: false})
@@ -122,22 +122,17 @@ export class SupertasksComponent implements OnInit {
       }
     };
 
-  this.dtOptions[1] = {
-    dom: 'Bfrtip',
-    destroy: true,
-    select: {
-      style: 'multi',
-      },
-  };
-
   }
 
- dtTrigger2: Subject<any> = new Subject();
- getPretasks(id: number){
-  this.gs.get(SERV.SUPER_TASKS,id, {'expand': 'pretasks' }).subscribe((stasks: any) => {
-    this.pretasks = stasks.pretasks;
-  });
- }
+  getPretasks(id: number){
+    const ref = this.modalService.open(ModalPretasksComponent, { centered: true, size: 'xl'  });
+    const _filter = this.allsupertasks.filter(u=> u.supertaskId == id);
+    this.pretasks = _filter[0]['pretasks'];
+    ref.componentInstance.prep = _filter[0]['pretasks'];
+    ref.componentInstance.supertaskid = id;
+    ref.componentInstance.title = 'Edit Pretaks'
+  }
+
   onRefresh(){
     this.ngOnInit();
     this.rerender();  // rerender datatables
@@ -196,34 +191,6 @@ export class SupertasksComponent implements OnInit {
     });
   }
 
-  // Open Modal
-  // Modal Information
-  closeResult = '';
-  open(content, id) {
-    this.getPretasks(id);
-    const modalRef = this.modalService.open(content, { size: 'xl' });
-    let opened = true;
-    const mySubscription = modalRef.componentInstance.someOutputEvent
-    .subscribe(_ => {
-        // do something
-    });
-    modalRef.result.then(_ => {
-      opened = false;
-      mySubscription.unsubscribe();
-      }, _ => {
-          opened = false;
-          mySubscription.unsubscribe();
-      });
-  }
 
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
-    }
-  }
 
 }
