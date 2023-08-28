@@ -211,8 +211,6 @@ export class EditSupertasksComponent implements OnInit {
   }
 
   onDeletePret(id: number){
-    // { "supertaskName": "fdfdf", "pretasks": [ 2, 1 ] }
-
     const filter = this.assignPretasks.filter(u => u.pretaskId !== id);
     const payload = [];
     for(let i=0; i < filter.length; i++){

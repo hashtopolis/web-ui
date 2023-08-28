@@ -132,7 +132,7 @@
         <td>{{ p.pretaskFiles | keyspace:'lineCount':p.attackCmd:false }}</td>
         <td class="attackRuntime"></td>
         <td>
-          <a class='btn-outline-gray-600 float-right' (click)="onDelete()" data-toggle="tooltip" data-placement="top" title="Delete">
+          <a class='btn-outline-gray-600 float-right' (click)="onDeletePret(p.pretaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
             <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
           </a>
         </td>

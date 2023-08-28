@@ -130,7 +130,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
     this.gs.get(SERV.PRETASKS,this.editedPretaskIndex).subscribe((result)=>{
       this.pretask = result;
       this.color = result['color'];
-      console.log(result['maxAgents'])
       this.updateForm = new FormGroup({
         'pretaskId': new FormControl({value:  result['pretaskId'], disabled: true}),
         'statusTimer': new FormControl({value: result['statusTimer'], disabled: true}),
