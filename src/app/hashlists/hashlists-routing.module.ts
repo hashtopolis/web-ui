@@ -62,6 +62,14 @@ const routes: Routes = [
         },
         canActivate: [IsAuth,CheckPerm]},
       {
+        path: 'superhashlist/:id/edit', component: EditHashlistComponent,
+        data: {
+            kind: 'edit-super-hashlist',
+            breadcrumb: 'Edit Super Hashlist',
+            permission: 'SuperHashlist'
+        },
+        canActivate: [IsAuth,CheckPerm]},
+      {
         path: 'new-superhashlist', component: NewSuperhashlistComponent,
         data: {
             kind: 'new-superhashlist',
