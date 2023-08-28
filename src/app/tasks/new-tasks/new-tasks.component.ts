@@ -356,7 +356,7 @@ export class NewTasksComponent implements OnInit {
           if (self.copyMode) {
             let that = this;
             self.gs.get(SERV.TASKS,self.editedIndex,{'expand': 'hashlist'}).subscribe((result)=>{
-              that.setValue(result.hashlist['hashlistId']);
+              that.setValue(result.hashlist[0]['hashlistId']);
             })
           }
         },
@@ -427,19 +427,19 @@ export class NewTasksComponent implements OnInit {
       }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_task_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
-        'notes': new FormControl('Copied from task id'+this.editedIndex+'', Validators.required),
+        'notes': new FormControl('Copied from task id'+this.editedIndex+''),
         'hashlistId': new FormControl(result.hashlist['hashlistId']),
         'attackCmd': new FormControl(result['attackCmd'], [Validators.required, this.forbiddenChars(/[&*;$()\[\]{}'"\\|<>\/]/)]),
-        'maxAgents': new FormControl(result['maxAgents'], Validators.required),
-        'chunkTime': new FormControl(result['chunkTime'], Validators.required),
-        'statusTimer': new FormControl(result['statusTimer'], Validators.required),
-        'priority': new FormControl(result['priority'], Validators.required),
-        'color': new FormControl(result['color'], Validators.required),
-        'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
+        'maxAgents': new FormControl(result['maxAgents']),
+        'chunkTime': new FormControl(result['chunkTime']),
+        'statusTimer': new FormControl(result['statusTimer']),
+        'priority': new FormControl(result['priority']),
+        'color': new FormControl(result['color']),
+        'isCpuTask': new FormControl(result['isCpuTask']),
         'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId']),
-        'isSmall': new FormControl(result['isSmall'], Validators.required),
+        'isSmall': new FormControl(result['isSmall']),
         'useNewBench': new FormControl(result['useNewBench']),
-        // 'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
+        // 'isMaskImport': new FormControl(result['isMaskImport']),
         'skipKeyspace': new FormControl(result['skipKeyspace']),
         'crackerBinaryId': new FormControl(result.crackerBinary['crackerBinaryId']),
         "isArchived": new FormControl(false),
@@ -468,19 +468,19 @@ export class NewTasksComponent implements OnInit {
       }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_pretask_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
-        'notes': new FormControl('Copied from pretask id '+this.editedIndex+'', Validators.required),
+        'notes': new FormControl('Copied from pretask id '+this.editedIndex+''),
         'hashlistId': new FormControl(),
         'attackCmd': new FormControl(result['attackCmd'], [Validators.required, this.forbiddenChars(/[&*;$()\[\]{}'"\\|<>\/]/)]),
-        'maxAgents': new FormControl(result['maxAgents'], Validators.required),
-        'chunkTime': new FormControl(result['chunkTime'], Validators.required),
-        'statusTimer': new FormControl(result['statusTimer'], Validators.required),
-        'priority': new FormControl(result['priority'], Validators.required),
-        'color': new FormControl(result['color'], Validators.required),
-        'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
-        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId'], Validators.required),
-        'isSmall': new FormControl(result['isSmall'], Validators.required),
-        'useNewBench': new FormControl(result['useNewBench'], Validators.required),
-        // 'isMaskImport': new FormControl(result['isMaskImport'], Validators.required), //Now is not working with it
+        'maxAgents': new FormControl(result['maxAgents']),
+        'chunkTime': new FormControl(result['chunkTime']),
+        'statusTimer': new FormControl(result['statusTimer']),
+        'priority': new FormControl(result['priority']),
+        'color': new FormControl(result['color']),
+        'isCpuTask': new FormControl(result['isCpuTask']),
+        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId']),
+        'isSmall': new FormControl(result['isSmall']),
+        'useNewBench': new FormControl(result['useNewBench']),
+        // 'isMaskImport': new FormControl(result['isMaskImport']), //Now is not working with it
         'skipKeyspace': new FormControl(null || 0),
         'crackerBinaryId': new FormControl(null || 1),
         "isArchived": new FormControl(false),
@@ -489,7 +489,7 @@ export class NewTasksComponent implements OnInit {
         'forcePipe': new FormControl(null || false),
         'preprocessorId': new FormControl(0),
         'preprocessorCommand': new FormControl(''),
-        'files': new FormControl(arrFiles, Validators.required),
+        'files': new FormControl(arrFiles),
       });
     });
    }
