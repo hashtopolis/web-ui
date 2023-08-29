@@ -10,9 +10,9 @@
         </span>
         <textarea
               type='number'
-              id="hashlists"
+              id="hashes"
               class='form-control'
-              formControlName="hashlists"
+              formControlName="hashes"
             >
         </textarea>
       </div>
@@ -22,3 +22,19 @@
     </div>
   </form>
 </grid-main>
+<!-- Table -->
+<app-table *ngIf="searh">
+  <table class="table table-striped table-hover table-sm">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">Hash</th>
+          <th>Info</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let n of searh">
+          <td class="text-align:center">{{ n.notificationSettingId }}</td>
+      </tr>
+      </tbody>
+  </table>
+</app-table>

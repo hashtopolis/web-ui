@@ -169,11 +169,11 @@
               </span>
                 (
                   <a
-                    [routerLink]="['/hashlists/hashes/','hashlist',h.hashlistId]"
+                    [routerLink]="['/hashlists/hashes/','hashlists',h.hashlistId]"
                     [queryParams]="{filter: 'cracked'}"
                     >{{ h.cracked }}</a>
                 /
-                <a [routerLink]="['/hashlists/hashes/','hashlist',h.hashlistId]">{{ h.hashCount }}</a>
+                <a [routerLink]="['/hashlists/hashes/','hashlists',h.hashlistId]">{{ h.hashCount }}</a>
                 )
             </div>
           </td>

@@ -165,7 +165,11 @@ export class HashesComponent implements OnInit {
       }
       if(this.filtering === 'cracked'){
         this.matchHashes = res.filter(u=> u.isCracked == true);
-      }else{
+      }
+      if(this.filtering === 'uncracked'){
+        this.matchHashes = res.filter(u=> u.isCracked == false);
+      }
+      else{
         this.matchHashes = res;
       }
       this.dtTrigger.next(null);

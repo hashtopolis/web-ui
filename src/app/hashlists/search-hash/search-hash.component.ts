@@ -24,12 +24,13 @@ export class SearchHashComponent implements OnInit {
   ) { }
 
   createForm: FormGroup;
+  searh: any;
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
 
     this.createForm = new FormGroup({
-      hashlists: new FormControl('', [Validators.required]),
+      hashes: new FormControl('', [Validators.required]),
     });
 
   }
@@ -40,30 +41,8 @@ export class SearchHashComponent implements OnInit {
       const params = {'maxResults': this.maxResults}
 
       this.gs.getAll(SERV.HASHES,params).subscribe((hasht: any) => {
-
-        const index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists']);
-
-          Swal.fire({
-            title: "We've got a match!",
-            text: "Redirecting...",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.createForm.reset(); // success, we reset form
-          this.router.navigate(['hashlists/search-hash']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "No Match!",
-            icon: "warning",
-            showConfirmButton: true
-          });
-
-          this.createForm.reset(); // success, we reset form
-        }
+        console.log(hasht);
+        const index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists'])},
       );
     }
   }

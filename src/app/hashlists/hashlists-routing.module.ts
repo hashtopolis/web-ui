@@ -86,7 +86,7 @@ const routes: Routes = [
         },
         canActivate: [IsAuth,CheckPerm]},
       {
-        path: 'hashes/hashlist/:id', component: HashesComponent,
+        path: 'hashes/hashlists/:id', component: HashesComponent,
         data: {
             kind: 'hashlisthash',
             breadcrumb: 'Hashlist Hashes',
