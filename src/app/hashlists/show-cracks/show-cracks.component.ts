@@ -5,6 +5,7 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -23,15 +24,19 @@ export class ShowCracksComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  uidateformat:any;
 
   constructor(
+    private uiService: UIConfigService,
     private gs: GlobalService,
   ) { }
 
   allhashes: any = [];
-  private maxResults = environment.config.prodApiMaxResults
+  private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
+
+    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     const params = {'maxResults': this.maxResults, 'filter': 'isCracked=1', 'expand':'hashlist,chunk'}
 

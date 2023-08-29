@@ -412,7 +412,7 @@
         <td>
           <a *ngIf="(a.agentId | tdcracked | async) > 0"  [routerLink]="['/hashlists/hashes/','tasks',editedTaskIndex]" routerLinkActive="active">{{ a.agentId | tdcracked | async }}</a>
         </td>
-        <td>{{ a.lastTime | date: uidateformat }}</td>
+        <td>{{ a.lastTime*1000 | date: uidateformat }}</td>
         <td>
           <app-button-actions>
             <button ngbDropdownItem (click)="onDelete(a.assignmentId)" data-toggle="tooltip" data-placement="top" title="Delete">

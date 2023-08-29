@@ -455,7 +455,7 @@
           </td>
           <td>
             Action: {{ aa.lastAct }}<br>
-            Time: {{ aa.lastTime | date: uidateformat }}<br>
+            Time: {{ aa.lastTime*1000 | date: uidateformat }}<br>
             <div *ngIf="aa.lastIp">IP: <b>{{ aa.lastIp }}</b></div>
           </td>
         </tr>

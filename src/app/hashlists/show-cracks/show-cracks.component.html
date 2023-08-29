@@ -17,16 +17,20 @@
     </thead>
     <tbody>
     <tr *ngFor="let hash of allhashes">
-        <td>{{ hash.hashId }}</td>
+        <td>{{ hash.timeCracked*1000 | date: uidateformat  }}</td>
         <td>{{ hash.plaintext }}</td>
         <td>{{ hash.hash }}</td>
         <td>
-          <a [routerLink]="['/hashlists/hashlist/',hash.hashlist.hashlistId,'edit']" >{{ hash.hashlist.name }}</a>
+          <a [routerLink]="['/hashlists/hashlist/',hash.hashlist.hashlistId,'edit']" ngbTooltip={{hash.hashlist.name}}>{{ hash.hashlist.name | shortenString:30 | lowercase | titlecase }}</a>
         </td>
-        <td>agent?</td>
-        <td>taskid/taskname?</td>
+        <td>
+          <a [routerLink]="['/agents/show-agents/',hash.chunk['agentId'],'edit']">{{ hash.chunk['agentId'] }}</a>
+        </td>
+        <td>
+          <a [routerLink]="['/tasks/show-tasks/',hash.chunk['taskId'],'edit']">{{ hash.chunk['taskId'] }}</a>
+        </td>
         <td>{{ hash.chunkId }}</td>
-        <td>type?</td>
+        <td>{{ hash.hashlist['format'] }}</td>
         <td>{{ hash.salt }}</td>
     </tr>
     </tbody>
