@@ -48,6 +48,7 @@ export class NewTasksComponent implements OnInit {
   copyFiles: any;
   editedIndex: number;
   whichView: string;
+  copyType: number; //0 copy from task and 1 copy from pretask
   prep: any;  // ToDo change to interface
   crackertype: any;  // ToDo change to interface
   crackerversions: any = [];
@@ -209,11 +210,13 @@ export class NewTasksComponent implements OnInit {
 
         case 'copy-task':
           this.whichView = 'edit';
+          this.copyType = 0;
           this.initFormt();
         break;
 
         case 'copy-pretask':
           this.whichView = 'edit';
+          this.copyType = 1;
           this.initFormpt();
         break;
 
@@ -353,7 +356,7 @@ export class NewTasksComponent implements OnInit {
           },
         },
         load: function (query, callback) {
-          if (self.copyMode) {
+          if (self.copyMode && self.copyType === 0) {
             let that = this;
             self.gs.get(SERV.TASKS,self.editedIndex,{'expand': 'hashlist'}).subscribe((result)=>{
               that.setValue(result.hashlist[0]['hashlistId']);
