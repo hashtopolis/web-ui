@@ -12,7 +12,7 @@ import { UploadFileTUS } from '../../_models/files';
 
 export class UploadTUSService {
 
-    private endpoint = '/ui/files/import';
+    private endpoint = '/helper/importFile';
     private chunked = environment.config.chunkSizeTUS;
     private userData: {_token: string} = JSON.parse(localStorage.getItem('userData'));
 
