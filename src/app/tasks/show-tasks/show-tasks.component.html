@@ -78,7 +78,9 @@
           <a *ngIf="(task.taskId | tdcracked | async) > 0"  [routerLink]="['/hashlists/hashes/','tasks',task.taskId]" routerLinkActive="active">{{ task.taskId | tdcracked | async }}</a>
         </td>
         <td *ngIf="task.taskType === 1">-</td>
-        <td *ngIf="task.taskType === 0">{{ task.assignedAgents.length > 0 ? task.assignedAgents.length: 0 }}</td>
+        <td *ngIf="task.taskType === 0">
+          {{ task.assignedAgents.length > 0 ? task.assignedAgents.length: 0 }}
+        </td>
         <td *ngIf="task.taskType === 1">-</td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 0">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s</td>
         <td *ngIf="task.taskType === 1">-</td>

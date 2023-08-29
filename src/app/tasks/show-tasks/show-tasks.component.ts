@@ -91,6 +91,7 @@ export class ShowTasksComponent implements OnInit {
       dom: 'Bfrtip',
       bStateSave:true,
       destroy: true,
+      order: [], // Removes the default order by id. We need it to sort by priority.
       select: {
         style: 'multi',
         // selector: 'tr>td:nth-child(1)' //This only allows select the first row
@@ -219,23 +220,22 @@ onRefresh(){
 
 getTasks():void {
   const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,speeds,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
-
   this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((tw: any) => {
     this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
       this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults}).subscribe((h: any) => {
-      let filtertasks = tw.values.filter(u=> (u.taskType == 0 && u.isArchived === this.isArchived)); //Active Tasks
       let filtersupert = tw.values.filter(u=> (u.taskType == 1 && u.isArchived === this.isArchived)); // Active SuperTasks
       let supertasks = filtersupert.map(mainObject => {
         const matchObject = h.values.find(element => element.hashlistId === mainObject.hashlistId );
         return { ...mainObject, ...matchObject }
       }) //Join Supertasks from TaskWrapper with Hashlist info
-      let mergeTasks = filtertasks.map(mainObject => {
-        const matchObject = tasks.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
+      let mergeTasks = tasks.values.map(mainObject => {
+        const matchObject = tw.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
         return { ...mainObject, ...matchObject }
       }) // Join Tasks with Taskwrapper information for filtering
-      let prepdata = mergeTasks.concat(supertasks); // Join with supertasks
-      //Order by Task Priority. filter exclude when is cracked
-      this.alltasks = prepdata.sort((a, b) => parseFloat(a.priority) - parseFloat(b.priority) && (a.keyspaceProgress < a.keyspace));
+      let filtertasks = mergeTasks.filter(u=> (u.taskType == 0 && u.isArchived === this.isArchived)); //Filter Active Tasks remove subtasks
+      let prepdata = filtertasks.concat(supertasks); // Join with supertasks
+      //Order by Task Priority. filter exclude when is cracked && (a.keyspaceProgress < a.keyspace)
+      this.alltasks = prepdata.sort((a, b) => Number(b.priority) - Number(a.priority));
       this.dtTrigger.next(null);
      });
     });
