@@ -1,4 +1,4 @@
-import { Component,Inject,OnInit, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { Component, HostBinding, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
@@ -9,29 +9,23 @@ import { filter } from 'rxjs';
 **/
 import { UIConfigService } from './core/_services/shared/storage.service';
 import { CookieService } from './core/_services/shared/cookies.service';
+import { ConfigService } from './core/_services/shared/config.service';
 import { AuthService } from './core/_services/access/auth.service';
-
 /**
  * Idle watching
  *
 **/
-
 import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ThemeService } from './core/_services/shared/theme.service';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
-import { ThemeService } from './core/_services/shared/theme.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  host:{
-    "[class.light-theme]": "( theme === 'light' )",
-    "[class.dark-theme]": "( theme === 'dark' )",
-  },
-  // styleUrls: [ "../styles/styles.scss" ],
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
   currentUrl: string;
   currentStep: string;
   appTitle = 'Hashtopolis';
@@ -40,26 +34,42 @@ export class AppComponent implements OnInit{
   lastPing?: Date  = null;
   timeoutCountdown:number = null;
   timeoutMax= this.onTimeout();
-  idleTime= this.onTimeout();
+  idleTime: number = this.onTimeout();
   showingModal = false;
   modalRef = null;
   screenmode:string = localStorage.getItem('screenmode') || 'true';
   theme: string;
 
+  @HostBinding('class.light-theme')
+  public isLightTheme = false;
+
+  @HostBinding('class.dark-theme')
+  public isDarkTheme = false;
+
+  /**
+   * set theme
+   */
+  private setTheme(val: string) {
+    this.theme = val;
+    this.isLightTheme = (val === 'light');
+    this.isDarkTheme = (val === 'dark');
+  }
+
   constructor(
-    private authService: AuthService,
+    private configService: ConfigService,
     private cookieService: CookieService,
     private uicService:UIConfigService,
-    private router: Router,
-    private metaTitle: Title,
-    private meta: Meta,
-    private idle: Idle,
-    private keepalive: Keepalive,
+    private authService: AuthService,
     private modalService: NgbModal,
     private themes: ThemeService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private keepalive: Keepalive,
+    private metaTitle: Title,
+    private router: Router,
+    private meta: Meta,
+    private idle: Idle,
+    @Inject(PLATFORM_ID) private platformId: object
     ){
-      this.theme = this.themes.theme;
+      this.setTheme(this.themes.theme);
       this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: NavigationEnd) => {
@@ -91,7 +101,7 @@ export class AppComponent implements OnInit{
       idle.onIdleStart.subscribe(() => this.idleState = 'You\'ll be logged out in 15 seconds!');
       idle.onTimeoutWarning.subscribe((countdown) => {
           if(!this.showingModal && this.idleTime > 1){
-            this.openModal("timeoutProgress");
+            this.openModal();
           }
           this.timeoutCountdown = this.timeoutMax - countdown +1;
           this.modalRef.componentInstance.timeoutCountdown = this.timeoutCountdown;
@@ -112,7 +122,6 @@ export class AppComponent implements OnInit{
       }
     });
     this.authService.checkStatus();
-
   }
 
   private findCurrentStep(currentRoute) {
@@ -140,7 +149,7 @@ export class AppComponent implements OnInit{
     this.uicService.checkStorage();
   }
 
-  onTimeout(){
+  onTimeout() : number {
     const uisData = JSON.parse(localStorage?.getItem('uis'));
     let timeoutidle = 1;
     if(uisData !== null){
@@ -149,7 +158,7 @@ export class AppComponent implements OnInit{
     return timeoutidle;
   }
 
-  openModal(content){
+  openModal(){
     if (this.isLogged) {
       this.showingModal = true;
 
@@ -176,7 +185,7 @@ export class AppComponent implements OnInit{
 		);
 	}
 
-	private getDismissReason(reason: any): string {
+	private getDismissReason(reason: ModalDismissReasons | string): string {
 		if (reason === ModalDismissReasons.ESC) {
 			return 'by pressing ESC';
 		} else if (reason === ModalDismissReasons.BACKDROP_CLICK) {

@@ -23,12 +23,12 @@
     "allowJs": true,
     "typeRoots": [
       "node_modules/@types",
-      "src/typings.d.ts"
+      "src/decs.d.ts"
     ],
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

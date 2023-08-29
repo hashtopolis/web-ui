@@ -4,9 +4,8 @@ import { environment } from './../../../environments/environment';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 
-import { AuthService } from '../../core/_services/access/auth.service';
 import { ThemeService } from 'src/app/core/_services/shared/theme.service';
-import { NotificationsBellService } from '../../core/_services/shared/notifbell.service';
+import { AuthService } from '../../core/_services/access/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -45,7 +44,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public notifbell: {title: string, description: string, datetime: string}[] = [];
 
   constructor(
-    private notificationbService: NotificationsBellService,
     private authService: AuthService,
     private theme: ThemeService,
     private ren: Renderer2,
@@ -69,12 +67,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userSub = this.authService.user
         .subscribe(user => {
           this.isAuthentificated = !!user;
-    });
-
-    // this.notificationbService.getNoficationsBell().subscribe((nb: any) => {
-    //   this.notifbell = nb;
-    // });
-
+     });
   }
 
   ngOnDestroy(): void {

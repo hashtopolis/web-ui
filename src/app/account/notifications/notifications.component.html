@@ -1,106 +1,37 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Notifications</h2>
-      <p class="mb-0">Section to customize notifications. Note. Notifications are only triggers and won't be stored.</p>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-      <a  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-          New
-      </a>
-  </div>
-</div>
-<!-- New Notification -->
-<div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
-  <section>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                <h2 class="h5 mb-4">Create Notification</h2><br>
-                <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-                    <div class="row">
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="setaction">Trigger Action</label>
-                            <select name="action" class='form-select' title="action" formControlName="action"> allowedActions
-                              <option *ngFor="let alla of allowedActions">{{ alla }}</option>
-                            </select>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="sethashtypeId">Agent</label>
-                            <select name="hashtypeId" class='form-select' title="hashtypeId" formControlName="actionFilter">
-                              <option *ngFor="let a of showagents" [value]="a.agentId">{{ a.agentName }}</option>
-                            </select>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="setnotification">Notification</label>
-                            <select name="notification" class='form-select' title="notification">
-                              <!-- <option *ngFor="let b of binaries" >{{ b.type }}</option> -->
-                            </select>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="setreceiver">Receiver</label>
-                            <input type='text' id="receiver" class="form-control" formControlName="receiver"/>
-                          </div>
-                        </div>
-                        &nbsp;
-                      <button class="btn btn-gray-800" type="submit">Create</button>
-                      </div>
-              </form>
-        </div>
-      </div>
-    </div>
-  </div>
-  </section>
-  &nbsp;&nbsp;
-</div>
+<app-page-title [title]="'Notifications'" [buttontitle]="'New Notification'" [buttonlink]="'/account/notifications/new-notification'" [subbutton]="true"></app-page-title>
 <!-- Table Notifications -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                    <th class="border-0 rounded-start">ID</th>
-                    <th class="border-0">Active</th>
-                    <th class="border-0">Trigger action</th>
-                    <th class="border-0">Applied To</th>
-                    <th class="border-0">Called Notification</th>
-                    <th class="border-0">Receiver</th>
-                    <th class="border-0 rounded-end">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let n of Allnotif">
-                    <td class="text-align:center">{{ n.notificationSettingId }}</td>
-                    <td>{{ n.isActive == true ? "Yes" : "No" }}</td>
-                    <td>{{ n.action }}</td>
-                    <td>
-                      {{ n.objectId }}
-                      <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',n.objectId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Agent">
-                        <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-                      </a>
-                    </td>
-                    <td>{{ n.notification }}</td>
-                    <td><code>{{ n.receiver }}</code></td>
-                    <td>
-                     <a class='btn-outline-gray-600 float-right' (click)="onDelete(n.notificationSettingId)" data-toggle="tooltip" data-placement="top" title="Delete">
-                      <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-                     </a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<app-table>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Active</th>
+          <th>Trigger action</th>
+          <th>Applied To</th>
+          <th>Called Notification</th>
+          <th>Receiver</th>
+          <th class="rounded-end">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let n of Allnotif">
+          <td class="text-align:center">{{ n.notificationSettingId }}</td>
+          <td>{{ n.isActive == true ? "Yes" : "No" }}</td>
+          <td>{{ n.action }}</td>
+          <td>
+            {{ n.objectId }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',n.objectId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Agent">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+          <td>{{ n.notification }}</td>
+          <td><code>{{ n.receiver }}</code></td>
+          <td>
+            <a class='btn-outline-gray-600 float-right' (click)="onDelete(n.notificationSettingId)" data-toggle="tooltip" data-placement="top" title="Delete">
+            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+      </tr>
+      </tbody>
+  </table>
+</app-table>

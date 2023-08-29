@@ -1,36 +1,31 @@
-import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { faHomeAlt, faPlus, faEdit, faTrash, faEyeDropper} from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
 
-import { HealthcheckService } from '../../core/_services/config/healthcheck.service';
-import { HashtypeService } from '../../core/_services/config/hashtype.service';
-import { CrackerService } from '../../core/_services/config/cracker.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-health-checks',
   templateUrl: './health-checks.component.html',
   // changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['Show Health Checks'])
 export class HealthChecksComponent implements OnInit {
-  // Loader
-  isLoading = false;
+
   // Form attributtes
-  public isCollapsed = true;
   faHome=faHomeAlt;
   faPlus=faPlus;
   faTrash=faTrash;
   faEdit=faEdit;
   faEyeDropper=faEyeDropper;
-
-  // Form create Health Check
-  createForm: FormGroup;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
@@ -40,16 +35,9 @@ export class HealthChecksComponent implements OnInit {
   uidateformat:any;
 
   constructor(
-    private healthcheckService: HealthcheckService,
-    private hashtypeService: HashtypeService,
-    private crackerService: CrackerService,
     private uiService: UIConfigService,
-    // private _changeDetectorRef: ChangeDetectorRef,
-    private route:ActivatedRoute,
-    private router:Router) { }
-
-  crackertype: any = [];
-  crackerversions: any = [];
+    private gs: GlobalService,
+  ) { }
 
   public healthc: {
     attackCmd: string,
@@ -76,22 +64,12 @@ export class HealthChecksComponent implements OnInit {
 
   ngOnInit(): void {
 
-  this.createForm = new FormGroup({
-    'checkType': new FormControl(0),
-    'hashtypeId': new FormControl(null || 0, [Validators.required]),
-    'crackerBinaryId': new FormControl('', [Validators.required])
-  });
+  const params = {'maxResults': this.maxResults};
 
-  this.crackerService.getCrackerType().subscribe((crackers: any) => {
-    this.crackertype = crackers.values;
-  });
-
-  let params = {'maxResults': this.maxResults};
-
-  this.healthcheckService.getHealthChecks(params).subscribe((check: any) => {
-    this.hashtypeService.getHashTypes(params).subscribe((hasht: any) => {
+  this.gs.getAll(SERV.HEALTH_CHECKS,params).subscribe((check: any) => {
+    this.gs.getAll(SERV.HASHTYPES,params).subscribe((hasht: any) => {
     this.mergedObjects = check.values.map(mainObject => {
-      let matchObject = hasht.values.find(element => element.hashTypeId === mainObject.hashtypeId)
+      const matchObject = hasht.values.find(element => element.hashTypeId === mainObject.hashtypeId)
       return { ...mainObject, ...matchObject }
     })
     this.dtTrigger.next(void 0);
@@ -99,7 +77,7 @@ export class HealthChecksComponent implements OnInit {
   });
 
   this.uidateformat = this.uiService.getUIsettings('timefmt').value;
-
+  const self = this;
   this.dtOptions = {
     dom: 'Bfrtip',
     stateSave: true,
@@ -111,6 +89,13 @@ export class HealthChecksComponent implements OnInit {
         }
       },
     buttons: [
+      {
+        text: '↻',
+        autoClose: true,
+        action: function (e, dt, node, config) {
+          self.onRefresh();
+        }
+      },
       {
         extend: 'collection',
         text: 'Export',
@@ -139,8 +124,8 @@ export class HealthChecksComponent implements OnInit {
             exportOptions: {modifier: {selected: true}},
             select: true,
             customize: function (dt, csv) {
-              var data = "";
-              for (var i = 0; i < dt.length; i++) {
+              let data = "";
+              for (let i = 0; i < dt.length; i++) {
                 data = "Health Checks\n\n"+  dt;
               }
               return data;
@@ -159,11 +144,9 @@ export class HealthChecksComponent implements OnInit {
 
   }
 
-  onChangeBinary(id: string){
-    let params = {'filter': 'crackerBinaryTypeId='+id+''};
-    this.crackerService.getCrackerBinaries(params).subscribe((crackers: any) => {
-      this.crackerversions = crackers.values;
-    });
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   rerender(): void {
@@ -177,63 +160,29 @@ export class HealthChecksComponent implements OnInit {
     });
   }
 
-  onSubmit(){
-    if (this.createForm.valid) {
-      console.log(this.createForm);
-
-      this.isLoading = true;
-
-      this.healthcheckService.createHealthCheck(this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        console.log(response);
-        this.isLoading = false;
-          Swal.fire({
-            title: "Good job!",
-            text: "New Health Check created!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.isCollapsed = true; //Close button new hashtype
-          this.createForm.reset(); // success, we reset form
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Health Check was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
-        }
-      );
-    }
-  }
-
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
     Swal.fire({
       title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.healthcheckService.deleteHealthCheck(id).subscribe(() => {
-          Swal.fire(
-            "Health Check has been deleted!",
-            {
+        this.gs.delete(SERV.HEALTH_CHECKS,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -242,11 +191,13 @@ export class HealthChecksComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Health Check Task is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Health Check is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

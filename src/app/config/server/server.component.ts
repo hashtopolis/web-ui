@@ -1,42 +1,42 @@
-import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { ActivatedRoute, Params } from '@angular/router';
-import { environment } from './../../../environments/environment';
 import { faHomeAlt, faInfoCircle, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { environment } from './../../../environments/environment';
 import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
 
-import { ConfigService } from '../../core/_services/config/config.service';
-import { CookieService } from '../../core/_services/shared/cookies.service';
-import { TooltipService } from '../../core/_services/shared/tooltip.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { dateFormat, serverlog, proxytype } from '../../core/_constants/settings.config';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { TooltipService } from '../../core/_services/shared/tooltip.service';
+import { CookieService } from '../../core/_services/shared/cookies.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-server',
   templateUrl: './server.component.html'
 })
+@PageTitle(['Settings'])
 export class ServerComponent implements OnInit {
 
   faHome=faHomeAlt;
   faInfoCircle=faInfoCircle;
   faExclamationTriangle=faExclamationTriangle;
-  isLoading = false;
 
   whichView: string;
 
   constructor(
-    private configService: ConfigService,
+    private tooltipService: TooltipService,
     private cookieService: CookieService,
     private uicService: UIConfigService,
-    private tooltipService: TooltipService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private store: Store<{configList: {}}>
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
-
-  // public config: {agenttimeout: number, benchtime: number, chunktime: number, chunktimeout: number, fieldseparator: string, hashlistAlias: string, statustime: number, timefmt: string, blacklistChars: string, numLogEntries: number, disptolerance: number, batchSize: number, yubikey_id: string,yubikey_key: string, yubikey_url: string, pagingSize: string, PlaintextMaxLength: number, hashMaxLength: number, emailSender: string, emailSenderName: string, baseHost: string, maxHashlistSize: number, hideImportMasks: number, telegramBotToken: string, contactEmail: string, voucherDeletion: number, hashesPerPage: number, hideIpInfo: number, defaultBenchmark: number, showTaskPerformance: number, ruleSplitSmallTasks: number, ruleSplitAlways: number,ruleSplitDisable: number, agentStatLimit: number, agentDataLifetime: number, agentStatTension: number, multicastEnable: number, multicastDevice: string, multicastTransferRateEnable: number, multicastTranserRate: number, disableTrimming: number, serverLogLevel: number, notificationsProxyEnable: number, notificationsProxyServer: string, notificationsProxyPort: number, notificationsProxyType: string, priority0Start: number, baseUrl: string, maxSessionLength: number,hashcatBrainEnable: number, hashcatBrainHost: string, hashcatBrainPort: number, hashcatBrainPass: string, hashlistImportCheck: number, allowDeregister: number, agentTempThreshold1: number, agentTempThreshold2: number, agentUtilThreshold1: number, agentUtilThreshold2: number, uApiSendTaskIsComplete: number, hcErrorIgnore: string}[] = [];
 
   public config: {configId: number, configSectionId: number, item: string, value: number}[] = [];
 
@@ -169,10 +169,9 @@ export class ServerComponent implements OnInit {
   }
 
   private initAgentForm() {
-    this.isLoading = true;
     this.getTooltipLevel()
-    let params = {'maxResults': this.maxResults}
-    this.configService.getAllconfig(params).subscribe((result)=>{
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.agentForm = new FormGroup({
         'agenttimeout': new FormControl(result.values.find(obj => obj.item === 'agenttimeout').value),
         'benchtime': new FormControl(result.values.find(obj => obj.item === 'benchtime').value),
@@ -187,14 +186,59 @@ export class ServerComponent implements OnInit {
         'agentUtilThreshold1': new FormControl(result.values.find(obj => obj.item === 'agentUtilThreshold1').value),
         'agentUtilThreshold2': new FormControl(result.values.find(obj => obj.item === 'agentUtilThreshold2').value),
       });
-      this.isLoading = false;
     });
   }
 
+  modelAgentActivity = [
+    {
+      type: "number",
+      formcontrol: "agenttimeout",
+      label: "Delay before considering an agent as inactive(or timed out)",
+    },
+    {
+      type: "number",
+      formcontrol: "benchtime",
+      label: "Delay before considering an issued chunk as inactive",
+    },
+    {
+      type: "number",
+      formcontrol: "statustimer",
+      label: "Frequency of the agent reporting about a task to the server",
+    },
+    {
+      type: "number",
+      formcontrol: "agentDataLifetime",
+      label: "Time during which util and temperature data are retained on the server",
+    },
+    {
+      type: "checkbox",
+      formcontrol: "hideIpInfo",
+      label: "Hide agents IP information",
+    },
+    {
+      type: "checkbox",
+      formcontrol: "voucherDeletion",
+      label: "Voucher(s) can be used to register multiple agents",
+    }
+  ];
+
+
+  // sectiontwo: [
+  //   {
+  //     type: "number",
+  //     formcontrol: "agentStatLimit",
+  //     label: "Maximum number of data points in agent (gpu) graphs",
+  //   },
+  //   {
+  //     type: "number",
+  //     formcontrol: "agentStatTension",
+  //     label: "Draw straigth lines in agent data graph instead of bezier curves",
+  //   },
+  // ]
+
   private initTCForm() {
-    this.isLoading = true;
-    let params = {'maxResults': this.maxResults}
-    this.configService.getAllconfig(params).subscribe((result)=>{
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.tcForm = new FormGroup({
         'chunktime': new FormControl(result.values.find(obj => obj.item === 'chunktime').value),
         'disptolerance': new FormControl(result.values.find(obj => obj.item === 'disptolerance').value),
@@ -211,14 +255,12 @@ export class ServerComponent implements OnInit {
       this.taskcookieForm = new FormGroup({
         'autorefresh': new FormControl(this.getAutorefresh()),
       });
-      this.isLoading = false;
     });
   }
 
   private initHCHForm() {
-    this.isLoading = true;
-    let params = {'maxResults': this.maxResults}
-    this.configService.getAllconfig(params).subscribe((result)=>{
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.hchForm = new FormGroup({
         'maxHashlistSize': new FormControl(result.values.find(obj => obj.item === 'maxHashlistSize').value),
         'pagingSize': new FormControl(result.values.find(obj => obj.item === 'pagingSize').value),
@@ -229,14 +271,12 @@ export class ServerComponent implements OnInit {
         'plainTextMaxLength': new FormControl(result.values.find(obj => obj.item === 'plainTextMaxLength').value),
         'hashMaxLength': new FormControl(result.values.find(obj => obj.item === 'hashMaxLength').value),
       });
-      this.isLoading = false;
     });
   }
 
   private initNotifForm() {
-    this.isLoading = true;
-    let params = {'maxResults': this.maxResults}
-    this.configService.getAllconfig(params).subscribe((result)=>{
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.notifForm = new FormGroup({
         'emailSender': new FormControl(result.values.find(obj => obj.item === 'emailSender').value),
         'emailSenderName': new FormControl(result.values.find(obj => obj.item === 'emailSenderName').value),
@@ -246,14 +286,12 @@ export class ServerComponent implements OnInit {
         'notificationsProxyPort': new FormControl(result.values.find(obj => obj.item === 'notificationsProxyPort').value),
         'notificationsProxyType': new FormControl(result.values.find(obj => obj.item === 'notificationsProxyType').value),
       });
-      this.isLoading = false;
     });
   }
 
   private initGSForm() {
-    this.isLoading = true;
-    let params = {'maxResults': this.maxResults}
-    this.configService.getAllconfig(params).subscribe((result)=>{
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.gsForm = new FormGroup({
         'hashcatBrainEnable': new FormControl(result.values.find(obj => obj.item === 'hashcatBrainEnable').value === '0' ? false: true),
         'hashcatBrainHost': new FormControl(result.values.find(obj => obj.item === 'hashcatBrainHost').value),
@@ -270,29 +308,25 @@ export class ServerComponent implements OnInit {
       this.cookieForm = new FormGroup({
         'cookieTooltip': new FormControl(this.getTooltipLevel()),
       });
-      this.isLoading = false;
     });
   }
 
   // Auto Save Settings
 
-  searchTxt:string = '';
+  searchTxt = '';
   timeout = null;
 
   autoSave(key: string, value: any, sw?: boolean, collap?: boolean){
     clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
-      this.isLoading = true;
-      let params = {'filter=item': key};
-      this.configService.getAllconfig(params).subscribe((result)=>{
-        let indexUpdate = result.values.find(obj => obj.item === key).configId;
-        let valueUpdate = result.values.find(obj => obj.item === key).value;
-        let arr = {'item': key, 'value':  this.checkSwitch(value, valueUpdate, sw)};
-        this.configService.updateConfig(indexUpdate, arr).subscribe((result)=>{
+      const params = {'filter=item': key};
+      this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
+        const indexUpdate = result.values.find(obj => obj.item === key).configId;
+        const valueUpdate = result.values.find(obj => obj.item === key).value;
+        const arr = {'item': key, 'value':  this.checkSwitch(value, valueUpdate, sw)};
+        this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
           this.uicService.onUpdatingCheck(key);
-          if(collap === true){
-          this.isLoading = false;
-          }else{
+          if(collap !== true){
             this.savedAlert();
             this.ngOnInit();
           }
@@ -335,7 +369,7 @@ export class ServerComponent implements OnInit {
     Swal.fire({
       position: 'top-end',
       icon: 'success',
-      title: 'Setting change has been saved',
+      title: 'Saved',
       showConfirmButton: false,
       timer: 1500
     })

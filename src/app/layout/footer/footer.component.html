@@ -1,23 +1,27 @@
-  <footer class="layout-col rounded shadow p-lg-3 mb-4 mt-4">
-    <div class="row">
-        <div class="col-12 col-md-4 col-xl-6 mb-4 mb-md-0">
-            <p class="text-center">©2016-{{year}} - {{ this.footerConfig.copyright }}</p>
-        </div>
-        <div class="col-12 col-md-8 col-xl-6 text-center text-lg-start">
-            <!-- List -->
-            <ul class="list-inline list-group-flush list-group-borderless text-md-end mb-0">
-                <li class="list-inline-item px-0 px-sm-2">
-                    <a href={{this.footerConfig.footer_link_one.link}}>{{ this.footerConfig.footer_link_one.name }}</a>
-                </li>
-                <li class="list-inline-item px-0 px-sm-2">
-                    <a href={{this.footerConfig.footer_link_two.link}}>{{ this.footerConfig.footer_link_two.name }}</a>
-                </li>
-                <li class="list-inline-item px-0 px-sm-2">
-                    <a href={{this.footerConfig.footer_link_three.link}}>{{ this.footerConfig.footer_link_three.name }}</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+<footer class="layout-col rounded shadow p-lg-3 mb-4 mt-4" style="width:100%">
+  <div class="row">
+      <div class="col-12 col-md-4 mb-4 mb-md-0" *ngIf="gitInfo">
+          <p class="text-center">
+            ©2016-{{year}} {{ this.footerConfig.copyright }}
+            <a
+              class="list-inline-item"
+              ngbTooltip="Last Commit: {{ gitInfo.lastCommitTime }}"
+              >
+              {{ gitInfo.shortSHA }}
+            </a>
+          </p>
+      </div>
+      <div class="col-12 col-md-8 col-xl-6 text-center text-lg-start">
+          <ul class="list-inline list-group-flush list-group-borderless text-md-end mb-0">
+              <li class="list-inline-item px-0 px-sm-2">
+                  <a href={{this.footerConfig.footer_link_one.link}} target="_blank" rel="noopener">{{ this.footerConfig.footer_link_one.name }}</a>
+              </li>
+              <li class="list-inline-item px-0 px-sm-2">
+                  <a href={{this.footerConfig.footer_link_two.link}} target="_blank" rel="noopener">{{ this.footerConfig.footer_link_two.name }}</a>
+              </li>
+          </ul>
+      </div>
+  </div>
 </footer>
 
 

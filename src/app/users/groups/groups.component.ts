@@ -1,26 +1,22 @@
 import { faHomeAlt, faPlus, faTrash, faEdit, faSave, faCancel } from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html'
 })
+@PageTitle(['Show Groups'])
 export class GroupsComponent implements OnInit {
-    // Loader
-    isLoading = false;
+
     // Form attributtes
-    signupForm: FormGroup;
-    public isCollapsed = true;
     faHome=faHomeAlt;
     faPlus=faPlus;
     faEdit=faEdit;
@@ -40,9 +36,7 @@ export class GroupsComponent implements OnInit {
     public agroups: {accessGroupId: number, groupName: string, isEdit: false }[] = [];
 
     constructor(
-      private accessgroupService: AccessGroupsService,
-      private users: UsersService,
-      private router: Router
+      private gs: GlobalService,
       ) { }
 
     ngOnInit(): void {
@@ -52,14 +46,13 @@ export class GroupsComponent implements OnInit {
     }
 
     loadAccessGroups(){
-      this.signupForm = new FormGroup({
-        'groupName': new FormControl('', [Validators.required, Validators.minLength(1)]),
-      });
-      let params = {'maxResults': this.maxResults}
-      this.accessgroupService.getAccessGroups(params).subscribe((agroups: any) => {
+
+      const params = {'maxResults': this.maxResults}
+      this.gs.getAll(SERV.ACCESS_GROUPS,params).subscribe((agroups: any) => {
         this.agroups = agroups.values;
         this.dtTrigger.next(void 0);
       });
+      const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
         pageLength: 10,
@@ -74,6 +67,13 @@ export class GroupsComponent implements OnInit {
             }
           },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -102,8 +102,8 @@ export class GroupsComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Agents\n\n"+  dt;
                   }
                   return data;
@@ -118,102 +118,45 @@ export class GroupsComponent implements OnInit {
 
     }
 
-    onEdit(item: any){
-      this.agroups.forEach(element => {
-        element.isEdit = false;
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
       });
-      item.isEdit = true;
-    }
-
-    onSave(item: any){
-      console.log(item);
-      this.accessgroupService.updateAccessGroups(item).subscribe((hasht: any) => {
-        this.isLoading = false;
-        this.ngOnInit();  // reload ngOnInit
-        Swal.fire({
-          title: "Updated!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500
-        });
-      });
-      this.rerender();  // Destroy and rerender table
-      item.isEdit = false; //Change Edit status to false
-    }
-
-    onCancel(item: any){
-      item.isEdit = false;
-
-    }
-
-    rerender(): void {
-      this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-        // Destroy the table first
-        dtInstance.destroy();
-        // Call the dtTrigger to rerender again
-        setTimeout(() => {
-          this.dtTrigger['new'].next();
-        });
-      });
-    }
-
-    onSubmit(): void{
-      if (this.signupForm.valid) {
-      console.log(this.signupForm.value);
-
-      this.isLoading = true;
-
-      this.accessgroupService.createAccessGroups(this.signupForm.value).subscribe((agroup: any) => {
-        this.isLoading = false;
-        Swal.fire({
-          title: "Good job!",
-          text: "New HashList created!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        this.ngOnInit();
-        this.rerender();  // rerender datatables
-        this.isCollapsed = true; //Close button
-      },
-      errorMessage => {
-        // check error status code is 500, if so, do some action
-        Swal.fire({
-          title: "Oppss! Error",
-          text: "Access Group was not created, please try again!",
-          icon: "warning",
-          showConfirmButton: true
-        });
-        this.ngOnInit();
-      }
-    );
-    this.signupForm.reset(); // success, we reset form
-    }
+    });
   }
 
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
     Swal.fire({
       title: "Are you sure?",
-      text: "If your Hashtype is being in a Hashlist/Task that could lead to issues!",
+      text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.accessgroupService.deleteAccessGroups(id).subscribe(() => {
-          Swal.fire(
-            "Access Group has been deleted!",
-            {
+        this.gs.delete(SERV.ACCESS_GROUPS,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -222,14 +165,17 @@ export class GroupsComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Access Group is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Access Group is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }
+
   // Add unsubscribe to detect changes
   ngOnDestroy(){
     this.dtTrigger.unsubscribe();

@@ -15,7 +15,7 @@ import {
 export class HashesFilterPipe implements PipeTransform {
 
   transform(obj: any, display: string, filter: string, crackpos: string) {
-    var output:any = [];
+    const output:any = [];
     if (display == "") {
       if (filter == "cracked" || filter == "" || filter == "uncracked") {
         if (obj.isCracked == true) {

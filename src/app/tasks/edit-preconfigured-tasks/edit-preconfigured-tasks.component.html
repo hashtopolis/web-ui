@@ -1,255 +1,173 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- header -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Edit Preconfigured Tasks</h2>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-  </div>
-</div>
+<app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
 <!-- Edit PreTask -->
-<section>
-  <div class="container">
-      <div class="row justify-content-center">
-          <div class="col-12 d-flex align-items-center justify-content-center">
-              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-                  <div class="row">
-                    <div class="form-group">
-                      <div class="form-outline">
-                          <label class="form-label" for="getpretaskid">ID</label>
-                          <input
-                                type='text'
-                                id='pretaskId'
-                                class='form-control'
-                                formControlName="pretaskId"
-                          >
-                      </div>
-                    </div>
-                    &nbsp;
-                    <div formGroupName="updateData">
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label requiredak" for="getName">Name</label>
-                            <input
-                                  type='text'
-                                  id='taskName'
-                                  class='form-control'
-                                  formControlName="taskName"
-                            >
-                        </div>
-                      </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label requiredak" for="getAttackCmd">Attack command</label>
-                            <input
-                                  type='text'
-                                  id='attackCmd'
-                                  class='form-control'
-                                  formControlName="attackCmd"
-                            >
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col">
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getPriority">Priority</label>
-                                <input
-                                      type='number'
-                                      id='priority'
-                                      class='form-control'
-                                      formControlName="priority"
-                                      validateInputNumber
-                                  >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                        <div class="col">
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getMaxAgents">Max agents</label>
-                                <input
-                                      type='number'
-                                      id='maxAgents'
-                                      class='form-control'
-                                      formControlName="maxAgents"
-                                      validateInputNumber
-                                  >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label" for="getChunkTime">Chunk size</label>
-                            <fa-icon
-                                    placement="bottom"
-                                    ngbTooltip="Measure is in seconds time."
-                                    container="body"
-                                    [icon]="faInfoCircle"
-                                    aria-hidden="true"
-                                    class="gray-light-ico"
-                            ></fa-icon>
-                            <input
-                                  type='number'
-                                  id='chunkTime'
-                                  class='form-control'
-                                  formControlName="chunkTime"
-                                  validateInputNumber
-                            >
-                        </div>
-                      </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label" for="getcolor">Task Color Identifier</label>
-                            <div class="input-group-text w-50 mx-auto">
-                              <input type='text' class="form-control"
-                                  [(colorPicker)]="color" cpWidth='230px' cpHeight="100px"
-                                  [cpOKButton]="true"
-                                  [cpSaveClickOutside]="false"
-                                  [cpOKButtonClass]= "'btn btn-primary btn-xs'"
-                                  (colorPickerChange)="OnChangeValue($event)"
-                                  [style.background]="color" [value]="color" formControlName="color"/>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    &nbsp;
-                    <div class="row">
-                      <div class="col">
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                              <label class="form-label" for="getuseNewBench">Benchmark Type</label>
-                              <select
-                                    id='useNewBench'
-                                    class='form-control'
-                                    formControlName="useNewBench"
-                                >
-                                <option [ngValue]="false">Runtime Benchmark</option>
-                                <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
-                              </select>
-                          </div>
-                        </div>
-                        &nbsp;
-                      </div>
-                      <div class="col">
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                              <label class="form-label" for="getStatusTimer">Status timer</label>
-                              <input
-                                    type='text'
-                                    id='statusTimer'
-                                    class='form-control'
-                                    formControlName="statusTimer"
-                                >
-                          </div>
-                        </div>
-                        &nbsp;
-                      </div>
-                    </div>
-                    <div formGroupName="updateData">
-                      <div class="row">
-                        <div class="col">
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getisCpuTask">CPU only</label>
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip="The task will work only with CPU agents assigned"
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                        class="gray-light-ico"
-                                ></fa-icon>
-                                <select
-                                      id='isCpuTask'
-                                      class='form-select'
-                                      formControlName="isCpuTask"
-                                  >
-                                  <option [ngValue]="false">No</option>
-                                  <option [ngValue]="true">Yes</option>
-                                </select>
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                        <div class="col">
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getisSmall">Small task</label>
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip="The task will work only with CPU agents assigned"
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                        class="gray-light-ico"
-                                ></fa-icon>
-                                <select
-                                      id='isSmall'
-                                      class='form-select'
-                                      formControlName="isSmall"
-                                  >
-                                  <option [ngValue]="false">No</option>
-                                  <option [ngValue]="true">Yes</option>
-                                </select>
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                      </div>
-                    </div>
-                    </div>
-                  <button class="btn btn-gray-800" type="submit">Update</button>
-            </form>
-         </div>
-      </div>
-   </div>
-</div>
-&nbsp; &nbsp;
-<!-- Table -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                  <th class="border-0 rounded-start">ID</th>
-                  <th class="border-0">Filename</th>
-                  <th class="border-0">Filetype</th>
-                  <th class="border-0 rounded-end">Size</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let f of files[0].pretaskFiles">
-                  <td >{{ f.fileId }}</td>
-                  <td>
-                    {{ f.filename | shortenString:35 | lowercase | titlecase }}
-                    <span *ngIf="f.isSecret == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-                    <a class='btn-outline-gray-600 float-right' [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
-                      <fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon>
-                    </a>
-                  </td>
-                  <td>{{ f.fileType | fileType  }}</td>
-                  <td>{{ f.size | fileSize:false }}</td>
-                </tr>
-              </tbody>
-            </table>
+<div class="row g-3">
+  <div class="col-md-7">
+    <grid-main [class]="'width:100%'">
+      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="row g-3">
+            <div class="col-md-2">
+              <grid-form-input [name]="'ID'">
+                <input
+                      type='text'
+                      id='pretaskId'
+                      class='form-control'
+                      formControlName="pretaskId"
+                >
+              </grid-form-input>
+              </div>
+              <div class="col-md-7">
+                <div formGroupName="updateData">
+                  <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
+                    <input
+                          type='text'
+                          id='taskName'
+                          class='form-control'
+                          formControlName="taskName"
+                    >
+                  </grid-form-input>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <grid-form-input [name]="'Color'">
+                  <input
+                        type='text'
+                        class="form-control"
+                        [(colorPicker)]="color"
+                        (colorPickerChange)="OnChangeValue($event)"
+                        [style.background]="color"
+                        [value]="color"
+                        [cpPresetColors]="colorpicker"
+                        formControlName="color"/>
+                </grid-form-input>
+              </div>
+            </div>
+            <div formGroupName="updateData">
+              <grid-form-input [name]="'Attack command'" [labelclass]="'requiredak'">
+                <textarea
+                      type='text'
+                      id='attackCmd'
+                      class='form-control'
+                      formControlName="attackCmd"
+                ></textarea>
+              </grid-form-input>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Priority'">
+                    <input
+                          type='number'
+                          id='priority'
+                          class='form-control'
+                          formControlName="priority"
+                          validateInputNumber
+                      >
+                  </grid-form-input>
+                </div>
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Max agents'">
+                    <input
+                          type='number'
+                          id='maxAgents'
+                          class='form-control'
+                          formControlName="maxAgents"
+                          validateInputNumber
+                      >
+                  </grid-form-input>
+                </div>
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Chunk size'" [tooltip]="'Measure is in seconds time.'">
+                    <input
+                          type='number'
+                          id='chunkTime'
+                          class='form-control'
+                          formControlName="chunkTime"
+                          validateInputNumber
+                    >
+                  </grid-form-input>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col">
+                  <grid-form-input [name]="'CPU only'" [tooltip]="'The task will work only with CPU agents assigned'">
+                    <select
+                          id='isCpuTask'
+                          class='form-select'
+                          formControlName="isCpuTask"
+                      >
+                      <option [ngValue]="false">No</option>
+                      <option [ngValue]="true">Yes</option>
+                    </select>
+                  </grid-form-input>
+                </div>
+                <div class="col">
+                  <grid-form-input [name]="'Small task'">
+                    <select
+                          id='isSmall'
+                          class='form-select'
+                          formControlName="isSmall"
+                      >
+                      <option [ngValue]="false">No</option>
+                      <option [ngValue]="true">Yes</option>
+                    </select>
+                  </grid-form-input>
+                </div>
+              </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <grid-form-input [name]="'Benchmark Type'">
+                <select
+                      id='useNewBench'
+                      class='form-control'
+                      formControlName="useNewBench"
+                  >
+                  <option [ngValue]="false">Runtime Benchmark</option>
+                  <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
+                </select>
+              </grid-form-input>
+            </div>
+            <div class="col">
+              <grid-form-input [name]="'Status timer'">
+                <input
+                      type='text'
+                      id='statusTimer'
+                      class='form-control'
+                      formControlName="statusTimer"
+                  >
+              </grid-form-input>
+            </div>
+          </div>
+        <button-submit [name]="'Update'"></button-submit>
         </div>
-    </div>
+      </form>
+    </grid-main>
+  </div>
+  <div class="col-md-5">
+    <!-- Table -->
+    <app-table>
+      <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+        <thead class="thead-light">
+          <tr>
+            <th class="rounded-start">ID</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th class="rounded-end">Size</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let f of files[0].pretaskFiles">
+            <td >{{ f.fileId }}</td>
+            <td>
+              <a [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
+                {{ f.filename | shortenString:35 | lowercase | titlecase }}
+              </a>
+              <span *ngIf="f.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+            </td>
+            <td>{{ f.fileType | fileType  }}</td>
+            <td>{{ f.size | fileSize:false }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </app-table>
+  </div>
 </div>
-
-

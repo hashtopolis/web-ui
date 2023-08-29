@@ -1,25 +1,23 @@
 import { faHomeAlt, faPlus, faTrash, faEdit, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
-import { AccessPermissionGroupsService } from 'src/app/core/_services/access/accesspermissiongroups.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-globalpermissionsgroups',
   templateUrl: './globalpermissionsgroups.component.html'
 })
+@PageTitle(['Show Global Permissions'])
 export class GlobalpermissionsgroupsComponent implements OnInit {
-    // Loader
-    isLoading = false;
+
     // Form attributtes
-    signupForm: FormGroup;
-    public isCollapsed = true;
     faInfoCircle=faInfoCircle;
     faHome=faHomeAlt;
     faPlus=faPlus;
@@ -38,23 +36,18 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
     public Allgpg: {id: number, name: string , user:[]}[] = [];
 
     constructor(
-      private gpg: AccessPermissionGroupsService,
-      private users: UsersService,
+      private gs: GlobalService,
       private router: Router
     ) { }
 
     ngOnInit(): void {
 
-      this.setAccessPermissions();
-
-      this.signupForm = new FormGroup({
-        'name': new FormControl('', [Validators.required, Validators.minLength(1)]),
-      });
-      let params = {'maxResults': this.maxResults , 'expand': 'user'}
-      this.gpg.getAccPGroups(params).subscribe((gpg: any) => {
+      const params = {'maxResults': this.maxResults , 'expand': 'user'}
+      this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((gpg: any) => {
         this.Allgpg = gpg.values;
         this.dtTrigger.next(void 0);
       });
+      const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
         pageLength: 10,
@@ -69,6 +62,13 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
             }
           },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -97,8 +97,8 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Agents\n\n"+  dt;
                   }
                   return data;
@@ -113,80 +113,45 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
 
     }
 
-    setAccessPermissions(){
-      this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-         console.log(perm.globalPermissionGroup)
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
       });
-    }
-
-    rerender(): void {
-      this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-        // Destroy the table first
-        dtInstance.destroy();
-        // Call the dtTrigger to rerender again
-        setTimeout(() => {
-          this.dtTrigger['new'].next();
-        });
-      });
-    }
-
-    onSubmit(): void{
-      if (this.signupForm.valid) {
-      console.log(this.signupForm.value);
-
-      this.isLoading = true;
-
-      this.gpg.createAccP(this.signupForm.value).subscribe((agroup: any) => {
-        this.isLoading = false;
-        Swal.fire({
-          title: "Good job!",
-          text: "Global Permission Group created!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        this.ngOnInit();
-        this.rerender();  // rerender datatables
-        this.isCollapsed = true; //Close button
-      },
-      errorMessage => {
-        // check error status code is 500, if so, do some action
-        Swal.fire({
-          title: "Oppss! Error",
-          text: "Global Permission Group was not created, please try again!",
-          icon: "warning",
-          showConfirmButton: true
-        });
-        this.ngOnInit();
-      }
-    );
-    this.signupForm.reset(); // success, we reset form
-    }
+    });
   }
 
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
     Swal.fire({
       title: "Are you sure?",
-      text: "Once deleted, it cannot be recover.",
+      text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.gpg.deleteAccP(id).subscribe(() => {
-          Swal.fire(
-            "Global Permission Group has been deleted!",
-            {
+        this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -195,11 +160,13 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Global Permission Group is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Global Permission is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

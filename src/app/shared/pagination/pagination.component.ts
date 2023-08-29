@@ -8,12 +8,12 @@ import { Observable, range, map } from 'rxjs';
 
 export class PaginationComponent implements OnInit {
 
-  private pagerTotalItems: number = 0;
-  private pagerPageSize: number = 0;
-  private pagerRange: number = 0;
+  private pagerTotalItems = 0;
+  private pagerPageSize = 0;
+  private pagerRange = 0;
 
-  totalPages: number = 0;
-  totalRecords: number = 0;
+  totalPages = 0;
+  totalRecords = 0;
   pages: number[] = [];
   currentPage = 1;
   isVisible = false;
@@ -34,7 +34,7 @@ export class PaginationComponent implements OnInit {
     return this.pagerTotalItems;
   }
 
-  @Input() range:number = 10;
+  @Input() range = 10;
   @Input() offset: number;
 
   set totalItems(itemCount: number) {
@@ -58,7 +58,7 @@ export class PaginationComponent implements OnInit {
       this.isVisible = true;
       if (this.totalItems >= this.pageSize) {
          this.getTotalPages();
-      };
+      }
       return;
     }
     this.isVisible = false;
@@ -130,7 +130,7 @@ export class PaginationComponent implements OnInit {
 
   sInfoDisplay(page: number){
 
-    var
+    let
       tlen = this.totalItems,
       start = ((page - 1) * this.pageSize)+1,
       ending = start + this.pageSize-1,

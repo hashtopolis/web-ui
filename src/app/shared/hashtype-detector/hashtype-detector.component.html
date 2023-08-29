@@ -1,22 +1,22 @@
 <div class="modal-header">
-  <h4 class="modal-title" id="modal-basic-title">Hashtype Detector</h4>
+  <app-page-subtitle [subtitle]="'Hashtype Detector'"></app-page-subtitle>
 </div>
 <div class="modal-body">
   <form>
     <div class="mb-3">
       <div class="row">
-
         <form>
-          <textarea name="hashtypeDetector" rows="4" cols="100" #value></textarea>
-          <button class="btn btn-gray-800" type="submit" (click)="onTest(value.value)">Ok</button>
+          <grid-form-input>
+            <textarea name="hashtypeDetector" rows="4" cols="100" #value></textarea>
+            <button class="btn btn-gray-800" type="submit" (click)="onTest(value.value)">Ok</button>
+          </grid-form-input>
         </form>
-        &nbsp;
-        <table *ngIf="type || type !== false"   class="table table-centered table-nowrap mb-0 rounded">
+        <table *ngIf="type || type !== false" class="table table-centered table-nowrap mb-0 rounded">
           <thead class="thead-light">
             <tr>
-                <th class="border-0 rounded-start">Hashcat ID</th>
-                <th class="border-0">Description</th>
-                <th class="border-0 rounded-end">Example</th>
+                <th class="rounded-start">Hashcat ID</th>
+                <th>Description</th>
+                <th class="rounded-end">Example</th>
             </tr>
             </thead>
             <tbody *ngFor="let n of type">
@@ -27,7 +27,6 @@
                </tr>
             </tbody>
         </table>
-
       </div>
     </div>
   </form>

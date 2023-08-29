@@ -1,53 +1,35 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
+<app-page-subtitle [subtitle]="'Create Superhaslist'"></app-page-subtitle>
 <!-- Body -->
-<section>
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-12 d-flex align-items-center justify-content-center">
-          <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-              <h2 class="h5 mb-4">Create Superhashlist</h2><br>
-              <div class="row">
-                <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-                    <div class="form-outline">
-                      <label class="form-label requiredak" for="getsuperhashlistName">Name</label>
-                          <div class="input-group">
-                              <span class="input-group-text">
-                                <fa-icon [icon]="faFile" aria-hidden="true"></fa-icon>
-                              </span>
-                              <input
-                                    type='text'
-                                    id="superhashlistName"
-                                    class='form-control'
-                                    formControlName="superhashlistName"
-                              />
-                          </div>
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label requiredak" for="getHashlists">Select or search Hashlists assigned to this superhashlist:</label>
-                                <div class="input-group">
-                                  <span class="input-group-text" >
-                                    <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-                                  </span>
-                                  <select
-                                        type='number'
-                                        id="hashlists"
-                                        class='form-select'
-                                        formControlName="hashlists"
-                                      >
-                                      <option [ngValue]=""></option>
-                                  </select>
-                              </div>
-                            </div>
-                          </div>
-                          &nbsp;
-                     </div>
-                   <button  class="btn btn-gray-800" type="submit">Create</button>
-              </form>
-         </div>
-     </div>
-  </div>
-</div>
-
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
+        <div class="input-group">
+          <span class="input-group-text">
+            <fa-icon [icon]="faFile" aria-hidden="true"></fa-icon>
+          </span>
+          <input
+                type='text'
+                id="name"
+                class='form-control'
+                formControlName="name"
+          />
+        </div>
+      </grid-form-input>
+      <grid-form-input [name]="'Select or search Hashlists assigned to this superhashlist:'">
+        <div class="input-group">
+          <span class="input-group-text" >
+            <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+          </span>
+          <select
+                type='number'
+                id="hashlistIds"
+                class='form-select'
+                formControlName="hashlistIds"
+              >
+              <option [ngValue]=""></option>
+          </select>
+        </div>
+      </grid-form-input>
+      <button-submit [name]="'Create'"></button-submit>
+  </form>
+</grid-main>

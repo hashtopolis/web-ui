@@ -1,82 +1,58 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-    <div class="d-block mb-4 mb-md-0">
-        <h2 class="h4">Chunks</h2>
-        <p class="mb-0">Section to manage and view chunk activity.</p>
-    </div>
-    <div class="btn-toolbar mb-2 mb-md-0">
-      <div [ngSwitch]="chunkview">
-        <div *ngSwitchCase="2">
-          <a  [routerLink]="['/tasks/chunks']" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-            <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-             View Less
-          </a>
-        </div>
-        <div *ngSwitchCase="0">
-          <a  [routerLink]="['/tasks/chunks', 'show-all-chunks']" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-            <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-              View all chunks
-          </a>
-        </div>
-      </div>
-
-    </div>
+<div [ngSwitch]="chunkview">
+  <div *ngSwitchCase="2">
+    <app-page-title [title]="'Chunks'" [buttontitle]="'View all chunks'" [buttonlink]="'/tasks/chunks'" [subbutton]="true"></app-page-title>
+  </div>
+  <div *ngSwitchCase="0">
+    <app-page-title [title]="'Chunks'" [buttontitle]="'View less'" [buttonlink]="'/tasks/chunks/show-all-chunks'" [subbutton]="true"></app-page-title>
+  </div>
 </div>
 <!-- Body -->
-<div class="card border-0 shadow mb-4">
-    <div class="card-body">
-          <div class="table-responsive">
-              <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-                <thead class="thead-light">
-                  <tr>
-                      <th class="border-0 rounded-start">ID</th>
-                      <th class="border-0">Start</th>
-                      <th class="border-0">Length</th>
-                      <th class="border-0">Checkpoint</th>
-                      <th class="border-0">Progress</th>
-                      <th class="border-0">Task</th>
-                      <th class="border-0">Agent</th>
-                      <th class="border-0">Dispatch time</th>
-                      <th class="border-0">Last activity</th>
-                      <th class="border-0">Time spent</th>
-                      <th class="border-0">State</th>
-                      <th class="border-0 rounded-end">Cracked</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let c of chunks; let i = index">
-                        <td class="text-align:center">{{ c.chunkId }}</td>
-                        <td>{{ c.skip }}</td>
-                        <td>{{ c.length }}</td>
-                        <td>{{ c.checkpoint }} ({{ (c.checkpoint-c.skip)/c.length | percent }})</td>
-                        <td *ngIf="c.progress > 0">{{ c.progress/100 }} %</td>
-                        <td *ngIf="!c.progress">N/A</td>
-                        <td>
-                          <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks',c.taskId,'edit']" title="View Task">
-                            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-                          </a>
-                          {{ c.taskName | shortenString:15 | lowercase | titlecase}}
-                        </td>
-                        <td>
-                          <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',c.agentId,'edit']" title="View Agent">
-                            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-                          </a>
-                          {{ c.agentName | shortenString:15 | lowercase | titlecase }}
-                        </td>
-                        <td>{{ c.dispatchTime*1000 | date: uidateformat }}</td>
-                        <td *ngIf="c.solveTime === 0">(No acitivity)</td>
-                        <td *ngIf="c.solveTime > 0">{{ c.solveTime*1000 | date: uidateformat }}</td>
-                        <td>{{ (c.solveTime - c.dispatchTime) | sectotime }}</td>
-                        <td>{{ c.state | staticArray:'states' }}</td>
-                        <td>
-                          {{ c.cracked }}
-                          <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists/hashes/','chunks',c.chunkId]" title="Show Hashes">
-                            <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-                          </a>
-                        </td>
-                    </tr>
-                  </tbody>
-              </table>
-          </div>
-      </div>
-  </div>
+<app-table>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Start</th>
+          <th>Length</th>
+          <th>Checkpoint</th>
+          <th>Progress</th>
+          <th>Task</th>
+          <th>Agent</th>
+          <th>Dispatch time</th>
+          <th>Last activity</th>
+          <th>Time spent</th>
+          <th>State</th>
+          <th class="rounded-end">Cracked</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of chunks; let i = index">
+            <td class="text-align:center">{{ c.chunkId }}</td>
+            <td>{{ c.skip }}</td>
+            <td>{{ c.length }}</td>
+            <td>{{ c.checkpoint }} ({{ (c.checkpoint-c.skip)/c.length | percent:'1.2-2' }})</td>
+            <td *ngIf="c.progress > 0">{{ c.progress/100 }} %</td>
+            <td *ngIf="!c.progress">N/A</td>
+            <td>
+              <a [routerLink]="['/tasks/show-tasks',c.taskId,'edit']">{{ c.taskName | shortenString:15 | lowercase | titlecase}}</a>
+            </td>
+            <td>
+              <a  [routerLink]="['/agents/show-agents',c.agentId,'edit']">{{ c.agentName | shortenString:15 | lowercase | titlecase }}</a>
+            </td>
+            <td>{{ c.dispatchTime*1000 | date: uidateformat }}</td>
+            <td *ngIf="c.solveTime === 0">(No acitivity)</td>
+            <td *ngIf="c.solveTime > 0">{{ c.solveTime*1000 | date: uidateformat }}</td>
+            <td>{{ (c.solveTime - c.dispatchTime) | sectotime }}</td>
+            <td>
+              <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{'background-color:'+(c.state | staticArray:'statescolor')}}">
+                {{ c.state | staticArray:'states' }}
+              </span>
+            </td>
+            <td>
+              <a *ngIf="c.cracked > 0" [routerLink]="['/hashlists/hashes/','chunks',c.chunkId]">{{ c.cracked }}</a>
+            </td>
+        </tr>
+      </tbody>
+  </table>
+</app-table>
 

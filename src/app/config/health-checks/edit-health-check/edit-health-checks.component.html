@@ -1,0 +1,76 @@
+<app-page-subtitle [subtitle]="'Health Check'"></app-page-subtitle>
+<!-- Body -->
+<app-table>
+  <div class="row g-3">
+    <div class="col-md-7">
+    <grid-form-input [name]="'Created'">
+      <span class="pre input-group-text input-group-lg w-70 mx-auto">
+        <td>
+          {{ healthc['time']*1000 | date: uidateformat }}
+        </td>
+      </span>
+    </grid-form-input>
+    </div>
+    <div class="col-md-5">
+    <grid-form-input [name]="'Status'">
+      <span class="pre input-group-text input-group-lg w-70 mx-auto">
+        <td>
+          {{ healthc['status'] | HCstatus | lowercase | titlecase }}
+        </td>
+      </span>
+    </grid-form-input>
+    </div>
+  </div>
+  <app-page-subtitle [subtitle]="'Checked Agents'"></app-page-subtitle>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Agent</th>
+          <th>Status</th>
+          <th>Time Required</th>
+          <th># Devices</th>
+          <th>Cracked</th>
+          <th class="rounded-end" >Errors</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr  *ngFor="let ha of healthca">
+          <td class="text-align:center">{{ ha.healthCheckAgentId }}</td>
+          <td>
+            {{ ha.agentName | shortenString:15 | lowercase | titlecase }}
+            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',ha.agentId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Agent">
+              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
+            </a>
+          </td>
+          <td>{{ ha.status | HCstatus | lowercase | titlecase  }}</td>
+          <td>
+            <div *ngIf="ha.status != 0; else templateNA">
+            {{ ha.start }}
+            </div>
+          </td>
+          <td>
+            <div *ngIf="ha.status != 0; else templateNA">
+            {{ ha.numGpus }}
+            </div>
+          </td>
+          <td>
+            <div *ngIf="ha.status != 0; else templateNA">
+            {{ ha.cracked }}
+            </div>
+          </td>
+          <td>
+            <div *ngIf="ha.status != 0; else templateNA">
+            {{ ha.errors }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+  </table>
+</app-table>
+<!-- Template NA -->
+<ng-template #templateNA>
+    <td>
+      N/A
+    </td>
+</ng-template>

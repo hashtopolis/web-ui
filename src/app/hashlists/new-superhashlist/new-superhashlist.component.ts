@@ -1,29 +1,28 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
 import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
-import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Router } from '@angular/router';
 
-import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashlist.service';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment'
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-superhashlist',
   templateUrl: './new-superhashlist.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['New SuperHashlist'])
 export class NewSuperhashlistComponent implements OnInit {
-  isLoading = false;
+
   faFile=faFile;
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
-    private superHashlistService:SuperHashlistService,
     private _changeDetectorRef: ChangeDetectorRef,
-    private hashlistService:ListsService,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
@@ -33,19 +32,15 @@ export class NewSuperhashlistComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.createForm = new FormGroup({
-      superhashlistName: new FormControl(''),
-      hashlists: new FormControl(''),
+      name: new FormControl(''),
+      hashlistIds: new FormControl(''),
     });
 
-    let params = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
-
-    this.hashlistService.getAllhashlists(params).subscribe((tasks: any) => {
-      var self = this;
-      var response = tasks.values;
-      ($("#hashlists") as any).selectize({
+    this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults, 'filter': 'isArchived=false,format=0'}).subscribe((tasks: any) => {
+      const self = this;
+      const response = tasks.values;
+      ($("#hashlistIds") as any).selectize({
         maxItems: null,
         plugins: ["restore_on_backspace"],
         valueField: "hashlistId",
@@ -59,13 +54,13 @@ export class NewSuperhashlistComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
+            return '<div  class="style_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
           },
         },
         onInitialize: function(){
-          var selectize = this;
+          const selectize = this;
             selectize.addOption(response); // This is will add to option
-            var selected_items = [];
+            const selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
@@ -75,41 +70,27 @@ export class NewSuperhashlistComponent implements OnInit {
         });
   }
 
-  // Set permissions
-  createSuperhashlistAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createSuperhashlistAccess = perm.globalPermissionGroup.permissions.createSuperhashlistAccess;
-    });
-  }
-
   OnChangeValue(value){
-    let formArr = new FormArray([]);
-    for (let val of value) {
+    const formArr = new FormArray([]);
+    for (const val of value) {
       formArr.push(
         new FormControl(+val)
       );
     }
-    let cname = this.createForm.get('superhashlistName').value;
+    const cname = this.createForm.get('name').value;
     this.createForm = new FormGroup({
-      superhashlistName: new FormControl(cname),
-      hashlists: formArr
+      name: new FormControl(cname),
+      hashlistIds: formArr
     });
     this._changeDetectorRef.detectChanges();
   }
 
   onSubmit(){
-    if(this.createSuperhashlistAccess || typeof this.createSuperhashlistAccess == 'undefined'){
     if (this.createForm.valid) {
-
-      this.isLoading = true;
-
-      this.superHashlistService.createSuperhashlist(this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      console.log(this.createForm.value);
+      this.gs.chelper(SERV.HELPER,'createSuperHashlist',this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New SuperHashList created!",
             icon: "success",
             showConfirmButton: false,
@@ -117,27 +98,9 @@ export class NewSuperhashlistComponent implements OnInit {
           });
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['hashlists/superhashlist']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "SuperHashList was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
   }
 
 }

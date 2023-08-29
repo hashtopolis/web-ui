@@ -1,17 +1,21 @@
+import { faHomeAlt, faPlus, faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
-import { faHomeAlt, faPlus, faTrash, faEdit} from '@fortawesome/free-solid-svg-icons';
-import { PreprocessorService } from '../../../core/_services/config/preprocessors.service';
-import { Router } from '@angular/router';
-import { environment } from './../../../../environments/environment';
-import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+
+import { environment } from './../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-preprocessors',
   templateUrl: './preprocessors.component.html'
 })
+@PageTitle(['Show Preprocessors'])
 export class PreprocessorsComponent implements OnInit {
   public isCollapsed = true;
   faHome=faHomeAlt;
@@ -27,18 +31,20 @@ export class PreprocessorsComponent implements OnInit {
 
   public preproc: {preprocessorId: number, name: string, url: string, binaryName: string, keyspaceCommand: string, skipCommand: string, limitCommand: string}[] = [];
 
-  constructor(private preprocessorService: PreprocessorService,
-    private route:ActivatedRoute, private router:Router) { }
+  constructor(
+    private gs: GlobalService,
+  ) { }
 
   private maxResults = environment.config.prodApiMaxResults
 
 
     ngOnInit(): void {
-      let params = {'maxResults': this.maxResults }
-      this.preprocessorService.getPreprocessors(params).subscribe((pre: any) => {
+      const params = {'maxResults': this.maxResults }
+      this.gs.getAll(SERV.PREPROCESSORS,params).subscribe((pre: any) => {
         this.preproc = pre.values;
         this.dtTrigger.next(void 0);
       });
+      const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
         pageLength: 10,
@@ -51,6 +57,13 @@ export class PreprocessorsComponent implements OnInit {
             }
           },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -79,8 +92,8 @@ export class PreprocessorsComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Preprocessors\n\n"+  dt;
                   }
                   return data;
@@ -93,6 +106,11 @@ export class PreprocessorsComponent implements OnInit {
         }
       };
 
+    }
+
+    onRefresh(){
+      this.rerender();
+      this.ngOnInit();
     }
 
     rerender(): void {
@@ -109,26 +127,26 @@ export class PreprocessorsComponent implements OnInit {
     onDelete(id: number){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
-          confirmButton: 'btn btn-success',
-          cancelButton: 'btn btn-danger'
+          confirmButton: 'btn',
+          cancelButton: 'btn'
         },
         buttonsStyling: false
       })
       Swal.fire({
         title: "Are you sure?",
-        text: "Once deleted, it cannot be recover.",
+        text: "Once deleted, it can not be recovered!",
         icon: "warning",
+        reverseButtons: true,
         showCancelButton: true,
-        confirmButtonColor: '#4B5563',
-        cancelButtonColor: '#d33',
+        cancelButtonColor: '#8A8584',
+        confirmButtonColor: '#C53819',
         confirmButtonText: 'Yes, delete it!'
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.preprocessorService.deletePreprocessor(id).subscribe(() => {
-            Swal.fire(
-              "Preprocessor has been deleted!",
-              {
+          this.gs.delete(SERV.PREPROCESSORS,id).subscribe(() => {
+            Swal.fire({
+              title: "Success",
               icon: "success",
               showConfirmButton: false,
               timer: 1500

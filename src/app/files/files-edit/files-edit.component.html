@@ -1,74 +1,57 @@
-<div *ngIf="isLoading" style="text-align: center;">
-    <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- Body Files -->
-<section> &nbsp;
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                  <h2 class="h5 mb-4">Edit</h2><br>
-                    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-                      <div class="row">
-                          <div class="form-group">
-                              <div class="form-outline">
-                                <label class="form-label" for="getfileid">ID</label>
-                                <input
-                                       type='number'
-                                       id="fileId"
-                                       class='form-control'
-                                       formControlName="fileId"
-                                >
-                              </div>
-                          </div>
-                          &nbsp;
-                          <div formGroupName="updateData">
-                            <div class="form-group">
-                                <div class="form-outline">
-                                  <label class="form-label" for="getfilename">Name</label>
-                                  <input
-                                        type='text'
-                                        id="filename"
-                                        class='form-control'
-                                        formControlName="filename"
-                                  >
-                                </div>
-                            </div>
-                            &nbsp;
-                            <div class="form-group">
-                                <div class="form-outline">
-                                  <label class="form-label" for="getfiletype">File Type</label>
-                                  <select
-                                        type='number'
-                                        id='filetype'
-                                        class='form-select'
-                                        formControlName="fileType"
-                                      >
-                                      <option *ngFor="let f of filetype" [ngValue]="f.fileType">{{ f.fileName }}</option>
-                                  </select>
-                                </div>
-                            </div>
-                            &nbsp;
-                            <div class="form-group">
-                                <div class="form-outline">
-                                  <label class="form-label" for="getaccessgroup">Access group</label>
-                                  <select
-                                        type='number'
-                                        id='accessgroup'
-                                        class='form-select'
-                                        formControlName="accessGroupId"
-                                      >
-                                      <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
-                                  </select>
-                                </div>
-                            </div>
-                          </div>
-                          &nbsp;
-                        <button  class="btn btn-gray-800" type="submit">Save</button>
-                      </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<app-page-subtitle [subtitle]="'Edit File'"></app-page-subtitle>
+<!-- Body Edit Files -->
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+    <grid-form-input [name]="'ID'">
+      <input
+            id="fileId"
+            class='form-control'
+            formControlName="fileId"
+    >
+    </grid-form-input>
+    <div formGroupName="updateData">
+      <grid-form-input [name]="'Name'">
+        <input
+              type='text'
+              id="filename"
+              class='form-control'
+              formControlName="filename"
+        >
+      </grid-form-input>
+      <grid-form-input [name]="'File Type'">
+        <select
+              type='number'
+              id='filetype'
+              class='form-select'
+              formControlName="fileType"
+            >
+            <option *ngFor="let f of filetype" [ngValue]="f.fileType">{{ f.fileName }}</option>
+        </select>
+      </grid-form-input>
+      <grid-form-input [name]="'Access group'">
+        <select
+              type='number'
+              id='accessgroup'
+              class='form-select'
+              formControlName="accessGroupId"
+            >
+            <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
+        </select>
+      </grid-form-input>
+      <grid-form-input [name]="'Secret'">
+        <td>
+          <div class="form-check form-switch">
+          <input
+                type="checkbox"
+                id="isSecret"
+                class="form-check-input"
+                formControlName="isSecret"
+          >
+          </div>
+      </grid-form-input>
     </div>
-</section>
+    <button-submit [name]="'Update'"></button-submit>
+    </div>
+  </form>
+</grid-main>

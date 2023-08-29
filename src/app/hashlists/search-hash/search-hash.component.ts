@@ -1,32 +1,41 @@
-import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-search-hash',
   templateUrl: './search-hash.component.html'
 })
+@PageTitle(['Search Hash'])
 export class SearchHashComponent implements OnInit {
-  isLoading = false;
+
   faMagnifyingGlass=faMagnifyingGlass;
 
   constructor(
-    private router: Router,
-    private hashesService: HashesService
+    private uiService: UIConfigService,
+    private gs: GlobalService,
+    private router: Router
   ) { }
 
   createForm: FormGroup;
+  uidateformat:any;
+  searh: any;
+
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
 
+    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+
     this.createForm = new FormGroup({
-      hashlists: new FormControl('', [Validators.required]),
+      hashes: new FormControl('', [Validators.required]),
     });
 
   }
@@ -34,37 +43,22 @@ export class SearchHashComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
+      let hash = this.createForm.value['hashes'].split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
+      const arr = [];
+      for(let i=0; i < hash.length; i++){
 
-      let params = {'maxResults': this.maxResults}
+        this.gs.getAll(SERV.HASHES,{'filter':'hash='+hash[i]+''}).subscribe((res: any) => {
+            if(res.values[0]){
+              arr.push(res.values[0]);
+            }else{
+              arr.push({'hash':hash[i],'isCracked': 3});
+            }
+        });
 
-      this.hashesService.getAllhashes(params).subscribe((hasht: any) => {
+      }
 
-        var index = hasht.findIndex(obj => obj.hash === this.createForm['hashlists']);
+      this.searh = arr;
 
-        this.isLoading = false;
-          Swal.fire({
-            title: "We've got a match!",
-            text: "Redirecting...",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.createForm.reset(); // success, we reset form
-          this.router.navigate(['hashlists/search-hash']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "No Match!",
-            icon: "warning",
-            showConfirmButton: true
-          });
-          this.isLoading = false;
-          this.createForm.reset(); // success, we reset form
-        }
-      );
     }
   }
 

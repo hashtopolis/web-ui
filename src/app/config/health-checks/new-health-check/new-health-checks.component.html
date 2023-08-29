@@ -1,0 +1,54 @@
+<app-page-subtitle [subtitle]="'Create Health Check'"></app-page-subtitle>
+<!-- Body -->
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+    <grid-form-input [name]="'Attack'" [labelclass]="'requiredak'">
+      <select
+            type='checkType'
+            id="checkType"
+            class='form-control'
+            formControlName="checkType"
+      >
+        <option [ngValue]="0" [defaultSelected]=true>Brute-Force</option>
+      </select>
+    </grid-form-input>
+    <grid-form-input [name]="'Hashtype'" [labelclass]="'requiredak'">
+      <select
+            type='hashtypeId'
+            id="hashtypeId"
+            class='form-select'
+            formControlName="hashtypeId"
+      >
+        <option [ngValue]="0" [defaultSelected]=true>MD5</option>
+        <option [ngValue]="3200">BCRYPT</option>
+      </select>
+    </grid-form-input>
+    <grid-form-input [name]="'Binary'" [labelclass]="'requiredak'">
+      <select
+            type='number'
+            name="crackerBinaryType"
+            class='form-select'
+            title="crackerBinaryType"
+            #myBinary
+            (change)="onChangeBinary(myBinary.value)">
+      <option hiddenvalue="" disabled="true" [defaultSelected]=true>Please select</option>
+      <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId" type="number">{{ cb.typeName }}</option>
+    </select>
+    </grid-form-input>
+    <grid-form-input [name]="'Binary Version'" [labelclass]="'requiredak'">
+      <select
+              type='number'
+              name="crackerBinaryId"
+              class='form-select'
+              title="crackerBinaryId"
+              formControlName="crackerBinaryId"
+              #myVersion>
+        <option value="" disabled="true">--<option>
+        <option *ngFor="let cv of crackerversions; let first" [ngValue]="cv.crackerBinaryId" >{{ cv.version }}</option> //[selected]="first"
+      </select>
+    </grid-form-input>
+    <button-submit [name]="'Create'"></button-submit>
+  </div>
+  </form>
+</grid-main>

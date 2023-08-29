@@ -1,22 +1,27 @@
+import { faEdit, faTrash,faFileImport, faFileExport, faPlus, faLock, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { faEdit, faTrash,faFileImport, faFileExport, faPlus, faLock } from '@fortawesome/free-solid-svg-icons';
-import { environment } from './../../../environments/environment';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
-import { SuperHashlistService } from 'src/app/core/_services/hashlist/superhashlist.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-superhashlist',
   templateUrl: './superhashlist.component.html'
 })
+@PageTitle(['Show SuperHashlist'])
 export class SuperhashlistComponent implements OnInit {
-  faEdit=faEdit;
-  faLock=faLock;
-  faTrash=faTrash;
+
+  faCheckCircle=faCheckCircle;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
+  faTrash=faTrash;
+  faEdit=faEdit;
+  faLock=faLock;
   faPlus=faPlus;
 
   @ViewChild(DataTableDirective, {static: false})
@@ -26,7 +31,7 @@ export class SuperhashlistComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-  private superHashlist: SuperHashlistService
+    private gs: GlobalService,
   ) { }
 
   allsuperhashlisth: any
@@ -34,13 +39,12 @@ export class SuperhashlistComponent implements OnInit {
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults, 'expand': 'pretaskFiles'}
-
-    this.superHashlist.getAllsuperhashlists(params).subscribe((sh: any) => {
+    this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults, 'filter': 'format=3', 'expand': 'hashType,hashlists'}).subscribe((sh: any) => {
       this.allsuperhashlisth = sh.values;
+      console.log(sh.values);
       this.dtTrigger.next(void 0);
     });
-
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
@@ -53,6 +57,13 @@ export class SuperhashlistComponent implements OnInit {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -81,8 +92,8 @@ export class SuperhashlistComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "SuperHashlist\n\n"+  dt;
                 }
                 return data;
@@ -95,6 +106,11 @@ export class SuperhashlistComponent implements OnInit {
       }
     };
 
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   rerender(): void {
@@ -111,8 +127,8 @@ export class SuperhashlistComponent implements OnInit {
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
@@ -120,17 +136,17 @@ export class SuperhashlistComponent implements OnInit {
       title: "Are you sure?",
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.superHashlist.deleteSuperhashlist(id).subscribe(() => {
-          Swal.fire(
-            "SuperHashList has been deleted!",
-            {
+        this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -139,14 +155,17 @@ export class SuperhashlistComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your SuperHashList is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your SuperHashlist is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }
+
   // Add unsubscribe to detect changes
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();

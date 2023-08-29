@@ -1,510 +1,487 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- header -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Edit Task</h2>
-  </div>
-</div>
+<app-page-subtitle [subtitle]="'Edit Task'"></app-page-subtitle>
 <!-- Edit Task -->
-  <div class="container px-lg-5">
-    <div class="row no-gutters">
-        <div class="col-6 col-sm-8 col-md-8 d-flex align-items-center justify-content-center">
-            <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-600">
-                <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-                  <div class="row">
-                    <div class="form-group">
-                      <div class="form-outline">
-                          <label class="form-label" for="gettaskid">ID</label>
-                          <input
-                                type='text'
-                                id='taskId'
-                                class='form-control'
-                                formControlName="taskId"
-                          >
-                      </div>
-                    </div>
-                    &nbsp;
-                    <div formGroupName="updateData">
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label requiredak" for="gettaskName">Name</label>
-                            <input
-                                  type='text'
-                                  id='taskName'
-                                  class='form-control'
-                                  formControlName="taskName"
-                            >
-                        </div>
-                      </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label requiredak" for="getAttackCmd">Attack command</label>
-                            <textarea
-                                  id='attackCmd'
-                                  class='form-control'
-                                  formControlName="attackCmd"
-                            >
-                            </textarea>
-                        </div>
-                      </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label" for="getnotes">Notes</label>
-                            <textarea
-                                  id='notes'
-                                  class='form-control'
-                                  formControlName="notes"
-                            >
-                            </textarea>
-                        </div>
-                      </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label" for="getcolor">Pick or enter color (identify tasks)</label>
-                            <div class="input-group-text w-50 mx-auto">
-                              <input
-                                    type='text'
-                                    class="form-control"
-                                    [(colorPicker)]="color" cpWidth='230px' cpHeight="100px"
-                                    [cpOKButton]="true"
-                                    [cpSaveClickOutside]="false"
-                                    [cpOKButtonClass]= "'btn btn-primary btn-xs'"
-                                    (colorPickerChange)="OnChangeValue($event)"
-                                    [style.background]="color"
-                                    [value]="color"
-                                    formControlName="color"
-                                  />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col">
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getPriority">Priority</label>
-                                <td>
-                                <input
-                                      type='number'
-                                      id='priority'
-                                      class='form-control'
-                                      formControlName="priority"
-                                      validateInputNumber
-                                  >
-                            </div>
-                          </div>
-                          &nbsp;
-                          </div>
-                          <div class="col">
-                            &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getMaxAgents">Max agents</label>
-                                <td>
-                                <input
-                                      type='number'
-                                      id='maxAgents'
-                                      class='form-control'
-                                      formControlName="maxAgents"
-                                      validateInputNumber
-                                  >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col">
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getstatusTimer">Status timer</label>
-                                <td>
-                                <input
-                                      type='text'
-                                      id='statusTimer'
-                                      class='form-control'
-                                      formControlName="statusTimer"
-                                  >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                        <div class="col">
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getChunkTime">Chunk size (seconds)</label>
-                                <td>
-                                <input
-                                      type='number'
-                                      id='chunkTime'
-                                      class='form-control'
-                                      formControlName="chunkTime"
-                                      validateInputNumber
-                                >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col">
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getisCpuTask">CPU only</label>
-                                <select
-                                      id='isCpuTask'
-                                      class='form-select'
-                                      formControlName="isCpuTask"
-                                  >
-                                  <option [ngValue]="false">No</option>
-                                  <option [ngValue]="true">Yes</option>
-                                </select>
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                        <div class="col">
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getisSmall">Small task</label>
-                                <select
-                                      id='isSmall'
-                                      class='form-select'
-                                      formControlName="isSmall"
-                                  >
-                                  <option [ngValue]="false">No</option>
-                                  <option [ngValue]="true">Yes</option>
-                                </select>
-                              </div>
-                            </div>
-                            &nbsp;
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <button class="btn btn-gray-800" type="submit">Update</button>
-            </form>
-         </div>
-      </div>
-      <div class="col-12 col-sm-8 col-md-4 d-flex">
-        <div class="layout-col shadow border-0 rounded p-4 w-100 fmxw-500">
-          <h4>Task Information</h4>
-          &nbsp;
-          <form [formGroup]="updateForm">
-          <div class="row">
-            <div class="col">
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getchunkSize">No. of Chunks</label>
+<div class="row g-3">
+  <div class="col-md-7">
+    <grid-main [class]="'width:100%'">
+      <form [formGroup]="updateForm">
+        <div class="row">
+          <div class="row g-3">
+            <div class="col-md-2">
+              <grid-form-input [name]="'ID'">
+                <input
+                      type='text'
+                      id='taskId'
+                      class='form-control'
+                      formControlName="taskId"
+                >
+              </grid-form-input>
+            </div>
+            <div class="col-md-7" formGroupName="updateData">
+              <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
+                <input
+                      type='text'
+                      id='taskName'
+                      class='form-control'
+                      formControlName="taskName"
+                >
+              </grid-form-input>
+            </div>
+            <div class="col-md-3">
+              <grid-form-input [name]="'Color'" formGroupName="updateData">
+                <input
+                      type='text'
+                      class="form-control"
+                      [(colorPicker)]="color"
+                      (colorPickerChange)="OnChangeValue($event)"
+                      [style.background]="color"
+                      [value]="color"
+                      [cpPresetColors]="colorpicker"
+                      formControlName="color"
+                    />
+              </grid-form-input>
+            </div>
+            <div formGroupName="updateData">
+            <grid-form-input [name]="'Attack command'" [labelclass]="'requiredak'">
+              <textarea
+                      id='attackCmd'
+                      class='form-control'
+                      formControlName="attackCmd"
+                >
+                </textarea>
+            </grid-form-input>
+            <grid-form-input [name]="'Notes'">
+              <textarea
+                      id='notes'
+                      class='form-control'
+                      formControlName="notes"
+                >
+                </textarea>
+            </grid-form-input>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Priority'">
+                  <td>
                     <input
-                          type='text'
-                          id='chunkSize'
+                          type='number'
+                          id='priority'
                           class='form-control'
-                          formControlName="chunkSize"
+                          formControlName="priority"
+                          validateInputNumber
+                      >
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Status timer'">
+                  <td>
+                    <input
+                          type='number'
+                          id='statusTimer'
+                          class='form-control'
+                          formControlName="statusTimer"
+                      >
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'CPU only'">
+                  <div class="form-check form-switch">
+                    <input
+                          type="checkbox"
+                          id="isCpuTask"
+                          class="form-check-input"
+                          formControlName="isCpuTask"
                     >
                 </div>
+               </grid-form-input>
               </div>
             </div>
-            <div class="col">
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getforcePipe">Enforce Piping</label>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Max agents'">
+                  <td>
                     <input
-                          type='text'
-                          id='forcePipe'
+                          type='number'
+                          id='maxAgents'
                           class='form-control'
-                          formControlName="forcePipe"
+                          formControlName="maxAgents"
+                          validateInputNumber
                       >
-                </div>
-              </div>
+                </grid-form-input>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              &nbsp;
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getSkipKeyspace">Skipping keyspace</label>
+              <div class="col">
+                <grid-form-input [name]="'Chunk size'">
+                  <td>
                     <input
-                          type='text'
-                          id='skipKeyspace'
+                          type='number'
+                          id='chunkTime'
                           class='form-control'
-                          formControlName="skipKeyspace"
-                      >
-                </div>
+                          formControlName="chunkTime"
+                          validateInputNumber
+                    >
+                </grid-form-input>
               </div>
-            </div>
-            <div class="col">
-              &nbsp;
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">Keyspace size</label>
+              <div class="col">
+                <grid-form-input [name]="'Small task'">
+                  <div class="form-check form-switch">
                     <input
-                          type='text'
-                          id='keyspace'
-                          class='form-control'
-                          formControlName="keyspace"
-                      >
+                          type="checkbox"
+                          id="isSmall"
+                          class="form-check-input"
+                          formControlName="isSmall"
+                    >
                 </div>
+               </grid-form-input>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              &nbsp;
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">Keyspace dispatched</label>
-                    <input
-                          type='text'
-                          id='keyspaceProgress'
-                          class='form-control'
-                          formControlName="keyspaceProgress"
-                      >
-                </div>
-              </div>
-              &nbsp;
-            </div>
-            <div class="col">
-              &nbsp;
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">Keyspace Searched</label>
-                    <div *ngIf="tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templateNA">
-                      <span class="pre input-group-text input-group-lg">
-                        <td>
-                         {{ cprogress / tkeyspace | percent }}
-                        </td>
-                      </span>
-                    </div>
-                    <ng-template #templateNA>
-                      <span class="pre input-group-text input-group-lg">
-                        <td>
-                          N/A
-                        </td>
-                      </span>
-                    </ng-template>
-                </div>
-              </div>
-              &nbsp;
-            </div>
-          </div>
-          <hr>
-          <div class="row">
-            <h5>
-              Calculations
-            </h5>
-            <div class="col">
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">Time spent</label>
-                    <td>
-                    <span class="pre input-group-text input-group-lg" *ngIf="ctimespent">
-                      <td>
-                          {{ ctimespent | sectotime }}
-                      </td>
-                    </span>
-                </div>
-              </div>
-              &nbsp;
-            </div>
-            <div class="col">
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">E.T.</label>
-                    <div *ngIf="tkeyspace != 0 && (cprogress/tkeyspace) != 0; else templatedash">
-                      <span class="pre input-group-text input-group-lg">
-                        <td>
-                         {{ (ctimespent/(cprogress/tkeyspace)-ctimespent) | percent }}
-                        </td>
-                      </span>
-                    </div>
-                    <ng-template #templatedash>
-                      <span class="pre input-group-text input-group-lg">
-                        <td>
-                          ---
-                        </td>
-                      </span>
-                    </ng-template>
-                </div>
-              </div>
-              &nbsp;
-            </div>
-            <div class="col">
-              <div class="form-group">
-                <div class="form-outline">
-                    <label class="form-label" for="getKeyspace">Speed</label>
-                    <span class="pre input-group-text input-group-lg" *ngIf="currenspeed">
-                      <td>
-                          {{ currenspeed | fileSize:false }}H/s
-                      </td>
-                    </span>
-                </div>
-              </div>
-              &nbsp;
-            </div>
-          </div>
-          <hr>
-          <div class="form-group">
-            <div *ngFor="let h of hashL" class="form-outline">
-                <label *ngIf="h.hashlist.format ===0" class="form-label" for="getTaskId">Hashlist</label>
-                <label *ngIf="h.hashlist.format ===3" class="form-label" for="getTaskId">Superhaslist</label>
-                <td>
-                  <fa-icon [icon]="faEye" [routerLink]="['/hashlists/hashlist', h.hashlist.hashlistId,'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
-                  {{ h.hashlist.name }} {{ h[0].description }}
-            </div>
-          </div>
-          &nbsp;
-          <div class="form-group">
-            <div class="form-outline">
-              <div *ngIf="crackerinfo">
-                <h5>
-                   Cracker Information
-                  <fa-icon [icon]="faEye" [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
-                </h5>
-                  <small>Name</small>: {{ crackerinfo['binaryName'] | lowercase | titlecase }}<br>
-                  <small>Version</small>: {{ crackerinfo['version'] }}
-                </div>
-            </div>
-            &nbsp;
-          </div>
-         </form>
-         <hr>
-         <div *ngIf="tkeyspace > 0">
-         <h5>Visual Representation</h5>
+            <div class="row">
 
-         </div>
+
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-   </div>
-</div>
-<!-- Attached Files -->
-&nbsp;&nbsp;
-<section>
-<h2>Attached Files</h2>
-<div class="table-responsive">
-  &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
-      <thead class="thead-light">
-        <tr>
-            <th class="border-0 rounded-start">ID</th>
-            <th class="border-0">File Name</th>
-            <th class="border-0 rounded-end">Size</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-
-        </tr>
-      </tbody>
-    </table>
-</div>
-<!-- Task speed -->
-<div>&nbsp;&nbsp;
-  <h2>Task Speed</h2>
-  <div class="row">
-    <div class="col col-12">
-      <div id="tspeed" style="height: 310px;"></div>
-    </div>
+        <button class="btn btn-gray-800" (click)="onSubmit()">Update</button>
+        <button class="btn btn-danger" (click)="purgeTask()">Purge</button>
+    </form>
+  </grid-main>
+  </div>
+  <div class="col-md-5">
+    <ngb-accordion #acc="ngbAccordion" >
+      <ngb-panel>
+        <ng-template ngbPanelTitle>
+          <span><b>Task Information</b></span>
+        </ng-template>
+        <ng-template ngbPanelContent>
+          <form [formGroup]="updateForm">
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'No. of Chunks'">
+                  <input
+                        type='text'
+                        id='chunkSize'
+                        class='form-control'
+                        formControlName="chunkSize"
+                  >
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Enforce Piping'">
+                  <input
+                        type='text'
+                        id='forcePipe'
+                        class='form-control'
+                        formControlName="forcePipe"
+                    >
+                </grid-form-input>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Skipping keyspace'">
+                  <input
+                        type='text'
+                        id='skipKeyspace'
+                        class='form-control'
+                        formControlName="skipKeyspace"
+                    >
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Keyspace size'">
+                  <input
+                        type='text'
+                        id='keyspace'
+                        class='form-control'
+                        formControlName="keyspace"
+                    >
+                </grid-form-input>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Keyspace dispatched'">
+                  <input
+                        type='text'
+                        id='keyspaceProgress'
+                        class='form-control'
+                        formControlName="keyspaceProgress"
+                    >
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Keyspace Searched'">
+                  <div *ngIf="tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templateNA">
+                    <span class="pre input-group-text input-group-lg">
+                      <td>
+                        <b>{{ cprogress / tkeyspace | percent:'1.2-2' }}</b>
+                      </td>
+                    </span>
+                  </div>
+                  <ng-template #templateNA>
+                    <span class="pre input-group-text input-group-lg">
+                      <td>
+                        N/A
+                      </td>
+                    </span>
+                  </ng-template>
+                </grid-form-input>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <h6>
+                Calculations
+              </h6>
+              <div class="col">
+                <grid-form-input [name]="'Time spent'">
+                    <span class="pre input-group-text input-group-lg" *ngIf="ctimespent; else templatedash">
+                      <td>
+                          {{ editedTaskIndex | ttimespent:false:true | async | sectotime }}
+                      </td>
+                    </span>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'E.T.'">
+                    <span class="pre input-group-text input-group-lg"  *ngIf="tkeyspace !== 0 && (cprogress/tkeyspace) !== 0; else templatedash">
+                      <td>
+                        {{ (ctimespent/(cprogress/tkeyspace)-ctimespent) | sectotime }}
+                      </td>
+                    </span>
+                  <ng-template #templatedash>
+                    <span class="pre input-group-text input-group-lg">
+                      <td>
+                        ---
+                      </td>
+                    </span>
+                  </ng-template>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Speed'">
+                  <span class="pre input-group-text input-group-lg" *ngIf="currenspeed; else templatedash">
+                    <td>
+                        {{ currenspeed | fileSize:false }}H/s
+                    </td>
+                  </span>
+                </grid-form-input>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="''">
+                  <label *ngIf="hashlistinform.format === 0" class="form-label" for="getTaskId">Hashlist</label>
+                  <label *ngIf="hashlistinform.format === 3" class="form-label" for="getTaskId">Superhaslist</label>
+                  <td>
+                    <a [routerLink]="['/hashlists/hashlist', hashlistinform.hashlistId,'edit']">{{ hashlistinform.name }} / {{ hashlistDescrip }}</a>
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="''">
+                  <div *ngIf="crackerinfo">
+                    <h6>
+                        Cracker Information
+                      <fa-icon [icon]="faEye" [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
+                    </h6>
+                      <small>Name</small>: {{ crackerinfo['binaryName'] | lowercase | titlecase }}<br>
+                      <small>Version</small>: {{ crackerinfo['version'] }}
+                    </div>
+                </grid-form-input>
+              </div>
+            </div>
+            </form>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
+    <!-- Attached Files -->
+    <ngb-accordion #acc="ngbAccordion" *ngIf="getFiles.length > 0">
+      <ngb-panel>
+        <ng-template ngbPanelTitle>
+          <span><b>Attached Files</b></span>
+        </ng-template>
+        <ng-template ngbPanelContent>
+          <app-table>
+            <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[0]">
+              <thead class="thead-light">
+                <tr>
+                    <th class="rounded-start">ID</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th class="rounded-end">Size</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let file of getFiles">
+                    <td>{{ file.fileId }}</td>
+                    <td>{{ file.filename | shortenString:15 | lowercase | titlecase }}</td>
+                    <td>{{ file.fileType | fileType  }}</td>
+                    <td>{{ file.size | fileSize:false }}</td>
+                  </tr>
+              </tbody>
+            </table>
+          </app-table>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
   </div>
 </div>
+<!-- Visual  -->
+<app-table *ngIf="tkeyspace > 0">
+  <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
+  <task-visual
+              [view]="'task'"
+              [tkeyspace]="tkeyspace"
+              [cprogress]="cprogress"
+              [taskid]="editedTaskIndex"
+              [taskWrapperId]="taskWrapperId"
+              [tusepreprocessor]="tusepreprocessor"
+  ></task-visual>
+</app-table>
 <!-- Assigned Agents -->
-&nbsp;&nbsp;
-<h2>Assigned agents</h2>
-<div class="table-responsive">
-  &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]">
-      <thead class="thead-light">
-        <tr>
-            <th class="border-0 rounded-start">ID</th>
-            <th class="border-0">Name</th>
-            <th class="border-0">Benchmark</th>
-            <th class="border-0">Keyspace searched</th>
-            <th class="border-0">Time spent</th>
-            <th class="border-0">Cracked</th>
-            <th class="border-0">Last activity</th>
-            <th class="border-0 rounded-end">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr >
-
-        </tr>
-      </tbody>
-    </table>
-</div>
+<app-table>
+  <app-page-subtitle [subtitle]="'Assigned agents'"></app-page-subtitle>
+  <ngb-accordion #acc="ngbAccordion" >
+    <ngb-panel>
+      <ng-template ngbPanelTitle>
+        <span><b>Assing</b></span>
+      </ng-template>
+      <ng-template ngbPanelContent>
+        <form [formGroup]="createForm">
+          <grid-form-input>
+            <select
+                  type='text'
+                  id="agentId"
+                  class='form-select'
+                  formControlName="agentId"
+            >
+            <option *ngFor="let aval of availAgents" [ngValue]="aval.agentId">{{ aval.agentName }}</option>
+          </select>
+          </grid-form-input>
+          <button-submit (click)="asignAgents()" [name]="'Assign'"></button-submit>
+        </form>
+      </ng-template>
+    </ngb-panel>
+  </ngb-accordion>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions1" [dtTrigger]="dtTrigger1">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Status</th>
+          <th>Name</th>
+          <th>Agent Status</th>
+          <th>Benchmark</th>
+          <th>Speed</th>
+          <th>Keyspace searched</th>
+          <th>Time spent</th>
+          <th>Cracked</th>
+          <th>Last activity</th>
+          <th class="rounded-end">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let a of assigAgents">
+        <td>{{ a.assignmentId }}</td>
+        <td>
+          <app-active-spinner *ngIf="( a.agentId | aspeed:true | async ) > 0"></app-active-spinner>
+        </td>
+        <td style="white-space: nowrap;">
+          <a [routerLink]="['/agents/show-agents/',a.agentId,'edit']" ngbTooltip={{a.agentName}}>
+            {{ a.agentName | shortenString:30 | lowercase | titlecase }}
+          </a>
+          <span *ngIf="a.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
+        </td>
+        <td>
+          <span *ngIf="a.isActive === true" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: green;">
+            Active
+          </span>
+          <span *ngIf="a.isActive === false" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: rgba(255, 136, 0, 0.87);">
+            Inactive
+          </span>
+        </td>
+        <td style="white-space: nowrap;">
+          <a ngbTooltip={{a.benchmark}}>{{ a.benchmark | shortenString:20 }}</a>
+          <fa-icon style="cursor: pointer;" (click)="this.onModalUpdate('New Benchmark', a.assignmentId, a.benchmark, a.agentName)" [icon]="faPencil" aria-hidden="true"></fa-icon>
+        </td>
+        <td>{{ a.agentId | aspeed:true | async | fileSize:false:1000 }} H/s</td>
+        <td>
+          <a *ngIf="tkeyspace > 0">{{ a.agentId | tdsearched:tkeyspace:true | async | percent:'1.2-2'}}</a>
+        </td>
+        <td>
+          {{ a.agentId | ttimespent:false:true | async | sectotime }}
+        </td>
+        <td>
+          <a *ngIf="(a.agentId | tdcracked | async) > 0"  [routerLink]="['/hashlists/hashes/','tasks',editedTaskIndex]" routerLinkActive="active">{{ a.agentId | tdcracked | async }}</a>
+        </td>
+        <td>{{ a.lastTime*1000 | date: uidateformat }}</td>
+        <td>
+          <app-button-actions>
+            <button ngbDropdownItem (click)="onDelete(a.assignmentId)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+            </button>
+          </app-button-actions>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</app-table>
+<!-- Task speed -->
+<div>
+<app-table>
+  <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
+  <div id="tspeed" style="height: 310px;"></div>
+</app-table>
 <!-- Dispatched Chunks -->
-&nbsp;&nbsp;
-<h2>Dispatched chunks</h2>
-<div [ngSwitch]="chunkview">
-  <div *ngSwitchCase="0">
-    <h5>Show Live Chunks</h5>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
+<app-table >
+  <app-page-subtitle [subtitle]="'Dispatched chunks - '+chunktitle+''"></app-page-subtitle>
+
+  <div class="table-responsive">
+      <table class="table table-striped table-hover table-sm" #tasksdispchunks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tasksdispchunks">
+        <thead class="thead-light">
+          <tr>
+            <th class="rounded-start">ID</th>
+            <th>Start</th>
+            <th>Length</th>
+            <th>Checkpoint</th>
+            <th>Progress</th>
+            <th>Agent</th>
+            <th>Dispatch time</th>
+            <th>Last activity</th>
+            <th>Time spent</th>
+            <th>State</th>
+            <th>Cracked</th>
+            <th class="rounded-end">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let gc of getchunks">
+            <td>{{ gc.chunkId }}
+              <!-- <app-active-spinner *ngIf="(gc.state | staticArray:'states') === 'Running'"></app-active-spinner> -->
+            </td>
+            <td>{{ gc.skip }}</td>
+            <td>{{ gc.length }}</td>
+            <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent:'1.2-2' }})</td>
+            <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
+            <td *ngIf="!gc.progress">N/A</td>
+            <td>
+              <a [routerLink]="['/agents/show-agents',gc.agentId,'edit']"> {{ gc.agentName | shortenString:15 | lowercase | titlecase }}</a>
+            </td>
+            <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
+            <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
+            <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
+            <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
+            <td>
+              <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{'background-color:'+(gc.state | staticArray:'statescolor')}}">
+                {{ gc.state | staticArray:'states' }}
+              </span>
+            </td>
+            <td>{{ gc.cracked }}</td>
+            <td>
+              <button class='navbar-toggler btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId,gc.state)">
+                <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
   </div>
-  <div *ngSwitchCase="1">
-    <h5>Show Latest 100 Chunks</h5>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-all-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show All</button>
-  </div>
-  <div *ngSwitchCase="2">
-    <h5>Show All Chunks</h5>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Live</button>
-    <button [routerLink]="['/tasks/show-tasks',editedTaskIndex,'edit','show-100-chunks']" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">Show Latest 100</button>
-  </div>
-</div>
-<div class="table-responsive">
-  &nbsp;
-    <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[2]" [dtTrigger]="dtTrigger">
-      <thead class="thead-light">
-        <tr>
-          <th class="border-0 rounded-start">ID</th>
-          <th class="border-0">Start</th>
-          <th class="border-0">Length</th>
-          <th class="border-0">Checkpoint</th>
-          <th class="border-0">Progress</th>
-          <th class="border-0">Agent</th>
-          <th class="border-0">Dispatch time</th>
-          <th class="border-0">Last activity</th>
-          <th class="border-0">Time spent</th>
-          <th class="border-0">State</th>
-          <th class="border-0">Cracked</th>
-          <th class="border-0 rounded-end">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let gc of getchunks">
-          <td>{{ gc.chunkId }}</td>
-          <td>{{ gc.skip }}</td>
-          <td>{{ gc.length }}</td>
-          <td>{{ gc.checkpoint }} ({{ (gc.checkpoint-gc.skip)/gc.length | percent }})</td>
-          <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
-          <td *ngIf="!gc.progress">N/A</td>
-          <td>
-            {{ gc.agentName | shortenString:15 | lowercase | titlecase }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',gc.agentId,'edit']" title="Edit Hashlist">
-              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-            </a>
-          </td>
-          <td>{{ gc.dispatchTime*1000 | date: uidateformat }}</td>
-          <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
-          <td *ngIf="gc.solveTime > 0"> {{ gc.solveTime*1000 | date: uidateformat }} </td>
-          <td>{{ (gc.solveTime - gc.dispatchTime) | sectotime }}</td>
-          <td>{{ gc.state | staticArray:'states' }}</td>
-          <td>{{ gc.cracked }}</td>
-          <td>
-            <a>
-              <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Reset Chunk" (click)="onReset(gc.chunkId)">
-              <fa-icon [icon]="faEraser" aria-hidden="true"></fa-icon></a>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-</div>
-</section>
+</app-table>

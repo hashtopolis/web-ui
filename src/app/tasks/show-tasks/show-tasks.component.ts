@@ -1,15 +1,16 @@
-import { faRefresh, faPauseCircle, faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye } from '@fortawesome/free-solid-svg-icons';
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import {  faPencil, faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark, faEye, faMicrochip, faCheckCircle, faTerminal, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from './../../../environments/environment';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { interval, Subject, Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
-import { CookieService } from 'src/app/core/_services/shared/cookies.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-import { TasksService } from '../../core/_services/tasks/tasks.sevice';
+import { GlobalService } from '../../core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
+import { ModalSubtasksComponent } from './modal-subtasks/modal-subtasks.component';
 
 declare let $:any;
 
@@ -17,13 +18,18 @@ declare let $:any;
   selector: 'app-show-tasks',
   templateUrl: './show-tasks.component.html'
 })
+@PageTitle(['Show Tasks'])
 export class ShowTasksComponent implements OnInit {
-  faPauseCircle=faPauseCircle;
+
+  faCheckCircle=faCheckCircle;
+  faNoteSticky=faNoteSticky;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
+  faMicrochip=faMicrochip;
+  faTerminal=faTerminal;
   faBookmark=faBookmark;
   faArchive=faArchive;
-  faRefresh=faRefresh;
+  faPencil=faPencil;
   faHome=faHomeAlt;
   faTrash=faTrash;
   faEdit=faEdit;
@@ -32,13 +38,13 @@ export class ShowTasksComponent implements OnInit {
   faCopy=faCopy;
   faEye=faEye;
 
-  storedAutorefresh: any =[]
-
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
+  dtTrigger1: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  dtOptions1: any = {};
 
   private updateSubscription: Subscription;
 
@@ -47,26 +53,21 @@ export class ShowTasksComponent implements OnInit {
   }
 
   alltasks: any = []; //Change to Interface
-  loadchunks: any; //Change to Interface
   isArchived: boolean;
   whichView: string;
+  isTaskactive = 0;
+  currenspeed = 0;
 
-  private maxResults = environment.config.prodApiMaxResults
+  private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private tasksService: TasksService,
-    private chunkService: ChunkService,
+    private modalService: NgbModal,
     private route:ActivatedRoute,
-    private users: UsersService,
-    private cs: CookieService,
+    private gs: GlobalService,
     private router: Router
     ) { }
 
   ngOnInit(): void {
-
-    this.setAccessPermissions();
-    this.storedAutorefresh = this.getAutoreload();
-    this.onAutorefresh();
 
     this.route.data.subscribe(data => {
       switch (data['kind']) {
@@ -84,14 +85,13 @@ export class ShowTasksComponent implements OnInit {
       }
 
     this.getTasks()
-    this.updateSubscription = interval(600000).subscribe(
-        (val) => { this.getTasks()});
 
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       bStateSave:true,
       destroy: true,
+      order: [], // Removes the default order by id. We need it to sort by priority.
       select: {
         style: 'multi',
         // selector: 'tr>td:nth-child(1)' //This only allows select the first row
@@ -104,19 +104,26 @@ export class ShowTasksComponent implements OnInit {
           },
       buttons: [
         {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
           extend: 'collection',
           text: 'Export',
           buttons: [
             {
               extend: 'excelHtml5',
               exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
               },
             },
             {
               extend: 'print',
               exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
               },
               customize: function ( win ) {
                 $(win.document.body)
@@ -131,8 +138,8 @@ export class ShowTasksComponent implements OnInit {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Show Tasks\n\n"+  dt;
                 }
                 return data;
@@ -147,7 +154,7 @@ export class ShowTasksComponent implements OnInit {
           extend: 'collection',
           text: 'Bulk Actions',
           drawCallback: function() {
-            var hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
+            const hasRows = this.api().rows({ filter: 'applied' }).data().length > 0;
             $('.buttons-excel')[0].style.visibility = hasRows ? 'visible' : 'hidden'
           },
           buttons: [
@@ -167,21 +174,32 @@ export class ShowTasksComponent implements OnInit {
                     self.onUpdateBulk(edit);
                   }
                 },
-                {
-                  text: 'Assign to Project (under construction)',
-                  autoClose: true,
-                  enabled: !this.isArchived,
-                  action: function ( e, dt, node, config ) {
-                    const title = 'Assign to Project'
-                    self.onModalProject(title)
-                  }
-                },
+                // {
+                //   text: 'Assign to Project (under construction)',
+                //   autoClose: true,
+                //   enabled: !this.isArchived,
+                //   action: function ( e, dt, node, config ) {
+                //     const title = 'Assign to Project'
+                //     self.onModalProject(title)
+                //   }
+                // },
              ]
+        },
+        {
+          text: !this.isArchived? 'Show Archived':'Show Live',
+          action: function () {
+            if(!self.isArchived) {
+              self.router.navigate(['tasks/show-tasks-archived']);
+            }
+            if(self.isArchived){
+              self.router.navigate(['tasks/show-tasks']);
+            }
+          }
         },
         {
           extend: 'colvis',
           text: 'Column View',
-          columns: [ 1, 2, 3, 4, 5, 6, 7 ],
+          columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         },
         {
           extend: "pageLength",
@@ -195,54 +213,32 @@ export class ShowTasksComponent implements OnInit {
 
 }
 
-onAutorefresh(){
-  if(this.storedAutorefresh.active == true){
-    setTimeout(() => {
-      window.location.reload()
-    },this.storedAutorefresh.value*1000);
-  }
-}
-
-// Manage Auto reload
-setAutoreload(value: any){
-  var set = Number(this.storedAutorefresh.value);
-  var val;
-  if(value == false){
-    val = true;
-  }if(value == true){
-    val = false;
-  }
-  this.cs.setCookie('autorefresh', JSON.stringify({active:val, value: set}), 365);
+onRefresh(){
   this.ngOnInit();
-}
-
-getAutoreload(){
-  return JSON.parse(this.cs.getCookie('autorefresh'));
-}
-
-// Set permissions
-manageTaskAccess: any;
-
-setAccessPermissions(){
-  this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-      this.manageTaskAccess = perm.globalPermissionGroup.permissions.manageTaskAccess;
-  });
+  this.rerender();  // rerender datatables
 }
 
 getTasks():void {
-  let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived='+this.isArchived+''}
-
-  this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
-    this.alltasks = tasks.values;
-    this.loadChunks();
-    this.dtTrigger.next(null);
-  });
-}
-
-loadChunks(){
-  let params = {'maxResults': 999999999};
-  this.chunkService.getChunks(params).subscribe((c: any)=>{
-    this.loadchunks = c;
+  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,speeds,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
+  this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((tw: any) => {
+    this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
+      this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults}).subscribe((h: any) => {
+      let filtersupert = tw.values.filter(u=> (u.taskType == 1 && u.isArchived === this.isArchived)); // Active SuperTasks
+      let supertasks = filtersupert.map(mainObject => {
+        const matchObject = h.values.find(element => element.hashlistId === mainObject.hashlistId );
+        return { ...mainObject, ...matchObject }
+      }) //Join Supertasks from TaskWrapper with Hashlist info
+      let mergeTasks = tasks.values.map(mainObject => {
+        const matchObject = tw.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
+        return { ...mainObject, ...matchObject }
+      }) // Join Tasks with Taskwrapper information for filtering
+      let filtertasks = mergeTasks.filter(u=> (u.taskType == 0 && u.isArchived === this.isArchived)); //Filter Active Tasks remove subtasks
+      let prepdata = filtertasks.concat(supertasks); // Join with supertasks
+      //Order by Task Priority. filter exclude when is cracked && (a.keyspaceProgress < a.keyspace)
+      this.alltasks = prepdata.sort((a, b) => Number(b.priority) - Number(a.priority));
+      this.dtTrigger.next(null);
+     });
+    });
   });
 }
 
@@ -257,11 +253,11 @@ rerender(): void {
   });
 }
 
-onArchive(id: number){
-  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
-  this.tasksService.archiveTask(id).subscribe((tasks: any) => {
+onArchive(id: number, type: number){
+  const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
+  this.gs.archive(path,id).subscribe(() => {
     Swal.fire({
-      title: "Good job!",
+      title: "Success",
       text: "Archived!",
       icon: "success",
       showConfirmButton: false,
@@ -270,41 +266,41 @@ onArchive(id: number){
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
-onDelete(id: number){
-  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
-  const swalWithBootstrapButtons = Swal.mixin({
-    customClass: {
-      confirmButton: 'btn btn-success',
-      cancelButton: 'btn btn-danger'
-    },
-    buttonsStyling: false
+getSubtasks(name: string, id: number){
+  this.gs.getAll(SERV.TASKS,{'maxResults': this.maxResults, 'filter':'taskWrapperId='+id+'', 'expand':'assignedAgents'}).subscribe((subtasks: any) => {
+    const ref = this.modalService.open(ModalSubtasksComponent, { centered: true, size: 'xl'  });
+    ref.componentInstance.prep = subtasks.values;
+    ref.componentInstance.supertaskid = id;
+    ref.componentInstance.title = name;
   })
-  Swal.fire({
-    title: "Are you sure?",
-    text: "Once deleted, it can not be recovered!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: '#4B5563',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  })
+}
+
+onDelete(id: number, type: number){
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn',
+        cancelButton: 'btn'
+      },
+      buttonsStyling: false
+    })
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
+      icon: "warning",
+      reverseButtons: true,
+      showCancelButton: true,
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
+      confirmButtonText: 'Yes, delete it!'
+    })
   .then((result) => {
     if (result.isConfirmed) {
-      this.tasksService.deleteTask(id).subscribe(() => {
-        Swal.fire(
-          "Task has been deleted!",
-          {
+      const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
+      this.gs.delete(path,id).subscribe(() => {
+        Swal.fire({
+          title: "Success",
           icon: "success",
           showConfirmButton: false,
           timer: 1500
@@ -313,29 +309,22 @@ onDelete(id: number){
         this.rerender();  // rerender datatables
       });
     } else {
-      swalWithBootstrapButtons.fire(
-        'Cancelled',
-        'No worries, your Task is safe!',
-        'error'
-      )
+      swalWithBootstrapButtons.fire({
+        title: "Cancelled",
+        text: "Your Task is safe!",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500
+      })
     }
   });
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 // Bulk actions
 
 onSelectedTasks(){
   $(".dt-button-background").trigger("click");
-  let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
       title: "You haven't selected any Task",
@@ -345,62 +334,48 @@ onSelectedTasks(){
     })
     return;
   }
-  let selectionnum = selection.map(i=>Number(i));
+  const selectionnum = selection.map(i=>Number(i));
 
   return selectionnum;
 }
 
 onDeleteBulk(){
-  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
   const self = this;
-  let selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-  let sellen = selectionnum.length;
-  let errors = [];
+  const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+  const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
+  const search = type.includes("SuperTask");
+  const sellen = selectionnum.length;
+  const errors = [];
   selectionnum.forEach(function (value) {
     Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
     Swal.showLoading()
-  self.tasksService.deleteTask(value)
-  .subscribe(
-    err => {
-      console.log('HTTP Error', err)
-      err = 1;
-      errors.push(err);
-    },
+    let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
+    self.gs.delete(SERV.TASKS,value)
+    .subscribe(
+      err => {
+        console.log('HTTP Error', err)
+        err = 1;
+        errors.push(err);
+      },
     );
   });
   self.onDone(sellen);
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 onUpdateBulk(value: any){
-  if(this.manageTaskAccess || typeof this.manageTaskAccess == 'undefined'){
     const self = this;
-    let selectionnum = this.onSelectedTasks();
-    let sellen = selectionnum.length;
+    const selectionnum = this.onSelectedTasks();
+    const sellen = selectionnum.length;
+    const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
+    const search = type.includes("SuperTask");
     selectionnum.forEach(function (id) {
       Swal.fire('Updating...'+sellen+' Task(s)...Please wait')
       Swal.showLoading()
-    self.tasksService.updateTask(id, value).subscribe(
+      let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
+    self.gs.update(path, id, value).subscribe(
     );
   });
   self.onDone(sellen);
-  }else{
-    Swal.fire({
-      title: "ACTION DENIED",
-      text: "Please contact your Administrator.",
-      icon: "error",
-      showConfirmButton: false,
-      timer: 2000
-    })
-  }
 }
 
 onDone(value?: any){
@@ -421,7 +396,7 @@ onModalProject(title: string){
   (async () => {
 
     $(".dt-button-background").trigger("click");
-    let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
         title: "You haven't selected any Task",
@@ -446,11 +421,55 @@ onModalProject(title: string){
     })
 
     if (formValues) {
-      let edit = {projectName: +formValues};
+      const edit = {projectName: +formValues};
       this.onUpdateBulk(edit);
     }
 
     })()
+}
+
+onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, nameref: string, type: number){
+  (async () => {
+
+    const { value: formValues } = await Swal.fire({
+      title: title + ' - '+ nameref,
+      html:
+        '<input id="project-input" class="swal2-input" type="number" placeholder="'+cvalue+'">',
+      focusConfirm: false,
+      showCancelButton: true,
+      cancelButtonColor: '#C53819',
+      confirmButtonColor: '#8A8584',
+      cancelButton: true,
+      preConfirm: () => {
+        return [
+          (<HTMLInputElement>document.getElementById('project-input')).value,
+        ]
+      }
+    })
+
+    if (formValues) {
+      if(cvalue !== Number(formValues[0])){
+        let update;
+        if(formlabel){
+          update  = {priority: +formValues};
+        }else{
+          update  = {maxAgents: +formValues};
+        }
+        const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
+        this.gs.update(path,id, update).subscribe(() => {
+          Swal.fire({
+            title: "Success",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.ngOnInit();
+          this.rerender();  // rerender datatables
+        });
+      }
+    }
+
+  })()
 }
 
 }

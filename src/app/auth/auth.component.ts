@@ -1,26 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import { AuthService, AuthResponseData } from '../core/_services/access/auth.service';
-import { faLock, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faUser, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { environment } from './../../environments/environment';
+import { Component, Inject, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { NgForm } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { ConfigService } from '../core/_services/shared/config.service';
 
 @Component({
   selector: 'app-auth',
   templateUrl: './auth.component.html'
 })
 export class AuthComponent implements OnInit {
+
+  faEyeSlash=faEyeSlash;
   faLock=faLock;
   faUser=faUser;
-  isLoading = false;
+  faEye=faEye;
+
   errorRes: string | null;
+
+  public showPassword: boolean;
+  public showPasswordOnPress: boolean;
+  headerConfig: any;
 
   constructor(
     private authService: AuthService,
+    private configService: ConfigService,
     private router: Router
-  ) { }
+  ) {
+    this.headerConfig = environment.config.header;
+  }
 
   ngOnInit(): void {
+    this.configService.getEndpoint();
   }
 
   onSubmit(form: NgForm){
@@ -32,13 +45,10 @@ export class AuthComponent implements OnInit {
 
     let authObs: Observable<AuthResponseData>;
 
-    this.isLoading = true;
-
     authObs = this.authService.logIn(username, password);
 
     authObs.subscribe(
       resData =>{
-      this.isLoading = false;
       if (this.authService.redirectUrl) {
         const redirectUrl = this.authService.redirectUrl;
         this.authService.redirectUrl = '';
@@ -48,7 +58,6 @@ export class AuthComponent implements OnInit {
       }
     }, errorMessage => {
       this.errorRes = errorMessage;
-      this.isLoading = false;
     });
 
     form.reset();

@@ -1,19 +1,20 @@
-import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
 
-import { environment } from 'src/environments/environment';
-import { UsersService } from '../core/_services/users/users.service';
 import { ValidationService } from '../core/_services/shared/validation.service';
-import { AccessPermissionGroupsService } from '../core/_services/access/accesspermissiongroups.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { environment } from 'src/environments/environment';
+import { SERV } from '../core/_services/main.config';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html'
 })
+@PageTitle(['New User'])
 export class UsersComponent implements OnInit {
-  isLoading = false;
 
   createForm: FormGroup;
   agp:any;
@@ -21,22 +22,21 @@ export class UsersComponent implements OnInit {
 
   constructor(
      private route:ActivatedRoute,
-     private router: Router,
-     private usersService: UsersService,
-     private apgService:AccessPermissionGroupsService
+     private gs: GlobalService,
+     private router: Router
      ){}
 
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults};
-    this.apgService.getAccPGroups(params).subscribe((agp: any) => {
+    const params = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((agp: any) => {
       this.agp = agp.values;
     });
 
-    this.usersService.getAllusers(params).subscribe((res: any) => {
-      var arrNames = [];
+    this.gs.getAll(SERV.USERS,params).subscribe((res: any) => {
+      const arrNames = [];
       for(let i=0; i < res.values.length; i++){
         arrNames.push(res.values[i]['name']);
       }
@@ -55,29 +55,15 @@ export class UsersComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.usersService.createUser(this.createForm.value).subscribe((user: any) => {
-        const response = user;
-        console.log(response);
-        this.isLoading = false;
+      this.gs.create(SERV.USERS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New User created!",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
           });
           this.router.navigate(['users/all-users']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "User was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }

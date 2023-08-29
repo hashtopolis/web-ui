@@ -1,10 +1,15 @@
-version: "3.5"
+version: "3.8"
 services:
-  hashtopolis-web-ui:
-    container_name: hashtopolis-web-ui
+  hashtopolis-web-ui-dev:
+    container_name: hashtopolis-web-ui-dev
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      target: hashtopolis-web-ui-dev
+      args:
+        - CONTAINER_USER_CMD_PRE
+        - CONTAINER_USER_CMD_POST
+    environment:
+      - HASHTOPOLIS_BACKEND_URL
     ports:
       - "4200:4200"
     volumes:

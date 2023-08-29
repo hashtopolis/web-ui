@@ -1,699 +1,481 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- Header -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">New Tasks</h2>
-      <div [ngSwitch]="whichView">
-        <div *ngSwitchCase="'create'">
-          <p class="mb-0">Section to create a new task.</p>
-        </div>
-        <div *ngSwitchCase="'edit'">
-          <p class="mb-0">Data Copied From Pretask ID {{editedIndex}}</p>
-        </div>
-      </div>
+<div [ngSwitch]="whichView">
+  <div *ngSwitchCase="'create'">
+    <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
+  </div>
+  <div *ngSwitchCase="'edit'">
+    <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
   </div>
 </div>
 <!-- New Task End-->
-  <div class="container px-lg-5">
-      <div class="row no-gutters">
-          <div class="col-12 col-sm-6 col-md-8 d-flex align-items-center justify-content-center">
-              <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-700">
-                <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+<div class="row g-3">
+  <div class="col-md-7">
+    <grid-main [class]="'width:100%'">
+      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+            <div class="row g-3">
+              <div class="col-md-9">
+                <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
+                  <input
+                        type='text'
+                        id="taskname"
+                        class='form-control'
+                        formControlName="taskName"
+                  >
+                </grid-form-input>
+              </div>
+              <div class="col-md-3">
+                <grid-form-input [name]="'Color'">
+                  <input
+                        class="form-control"
+                        [(colorPicker)]="color"
+                        (colorPickerChange)="OnChangeValue($event)"
+                        [style.background]="color"
+                        [value]="color"
+                        [cpPresetColors]="colorpicker"
+                        formControlName="color"/>
+                </grid-form-input>
+              </div>
+            </div>
+            <div class="form-group">
+              <grid-form-input [name]="'Task notes'">
+                <input
+                      type='text'
+                      id="tasknotes"
+                      class='form-control'
+                      formControlName="notes"
+                >
+              </grid-form-input>
+            </div>
+            <grid-form-input [name]="'Hashlist'" [labelclass]="'requiredak'">
+              <select
+                    type='number'
+                    id='hashlist'
+                    class='form-select'
+                    formControlName="hashlistId"
+                >
+                <option></option>
+            </select>
+            </grid-form-input>
+            <div class="form-group">
+              <div class="form-outline form-input-custom">
+                  <label class="form-label requiredak" for="getattackCmd">Command line</label>
+                  <fa-icon
+                          placement="bottom"
+                          (click)="open(cheatsheet)"
+                          container="body"
+                          [icon]="faInfoCircle"
+                          aria-hidden="true"
+                          class="gray-light-ico"
+                  >
+                  </fa-icon>
+                  <textarea
+                        type='text'
+                        id="attackCmd"
+                        class='form-control'
+                        formControlName="attackCmd"
+                        required
+                  >
+                  </textarea>
+                  <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
+                    Please remove manually the blacklisted Characters or use the button below!
+                    <br>
+                    <b>BlackListed Chars: {{this.getBanChar()}} </b>
+                    <br>
+                    <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
+                  </span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <grid-form-input [name]="'Priority'" [labelclass]="'requiredak'">
+                  <input
+                        type='number'
+                        id="priority"
+                        class='form-control'
+                        formControlName="priority"
+                        validateInputNumber
+                  >
+                </grid-form-input>
+              </div>
+              <div class="col">
+                <grid-form-input [name]="'Max. number of agents'">
+                  <input
+                        type='number'
+                        id="maxAgents"
+                        class='form-control'
+                        formControlName="maxAgents"
+                        validateInputNumber
+                  >
+                </grid-form-input>
+              </div>
+            </div>
+            <ngb-accordion #acc="ngbAccordion" >
+              <ngb-panel>
+                <ng-template ngbPanelTitle>
+                  <span><b>Advanced Settings</b></span>
+                </ng-template>
+                <ng-template ngbPanelContent>
                   <div class="row">
-                      <div class="form-group">
-                          <div class="form-outline">
-                              <label class="form-label requiredak" for="getname">Name</label>
-                              <input
-                                    type='text'
-                                    id="taskname"
-                                    class='form-control'
-                                    formControlName="taskName"
-                              >
-                          </div>
-                      </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label" for="getTasknotes">Task notes</label>
+                    <div class="col">
+                      <grid-form-input [name]="'CPU only'" [tooltip]="tasktip.isCpuTask" [labelclass]="'display-col'">
+                          <div class="form-check form-switch">
                             <input
-                                  type='text'
-                                  id="tasknotes"
-                                  class='form-control'
-                                  formControlName="notes"
+                                  type="checkbox"
+                                  id="isCpuTask"
+                                  class="form-check-input"
+                                  formControlName="isCpuTask"
                             >
                         </div>
+                      </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Small task'" [tooltip]="tasktip.isSmall" [labelclass]="'display-col'">
+                        <div class="form-check form-switch">
+                          <input
+                                type="checkbox"
+                                id="isSmall"
+                                class="form-check-input"
+                                formControlName="isSmall"
+                          >
                       </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label requiredak" for="gethashlistId">Hashlist</label>
-                            <select
-                                   type='number'
-                                   id='hashlist'
-                                   class='form-select'
-                                   formControlName="hashlistId"
-                                >
-                                <option [ngValue]=""></option>
-                            </select>
-                        </div>
+                    </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Enforce piping'" [tooltip]="tasktip.forcePipe" [labelclass]="'display-col'">
+                        <div class="form-check form-switch">
+                          <input
+                                type="checkbox"
+                                id="forcePipe"
+                                class="form-check-input"
+                                formControlName="forcePipe"
+                          >
                       </div>
-                      &nbsp;
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label requiredak" for="getattackCmd">Command line</label>
-                            <fa-icon
-                                    placement="bottom"
-                                    (click)="open(cheatsheet)"
-                                    container="body"
-                                    [icon]="faInfoCircle"
-                                    aria-hidden="true"
-                            class="gray-light-ico"
+                     </grid-form-input>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <grid-form-input [name]="'Chunk size'" [tooltip]="tasktip.chunkTime" [labelclass]="'display-col'">
+                        <input
+                              type='number'
+                              id="chunkTime"
+                              class='form-control'
+                              formControlName="chunkTime"
+                        >
+                      </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Status timer'" [tooltip]="tasktip.statusTimer" [labelclass]="'display-col'">
+                        <input
+                              type='number'
+                              id="statusTimer"
+                              class='form-control'
+                              formControlName="statusTimer"
+                              validateInputNumber
+                        >
+                      </grid-form-input>
+                  </div>
+                  <div class="col">
+                      <grid-form-input [name]="'Skip keyspace'" [tooltip]="tasktip.skipKeyspace" [labelclass]="'display-col'">
+                        <input
+                              type='number'
+                              id="skipKeyspace"
+                              class='form-control'
+                              formControlName="skipKeyspace"
+                              validateInputNumber
+                        >
+                      </grid-form-input>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <grid-form-input [name]="'Use static chunking'" [tooltip]="tasktip.staticChunks" [labelclass]="'display-col'">
+                        <select
+                              type='number'
+                              id='staticChunks'
+                              class='form-select'
+                              formControlName="staticChunks"
                             >
-                            </fa-icon>
+                            <option [ngValue]="0" [defaultSelected]=true>No</option>
+                            <option [ngValue]="1">Fixed Chunk Size</option>
+                            <option [ngValue]="2">Fixed number of chunks</option>
+                        </select>
+                      </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'if yes, chunk size:'" [labelclass]="'display-col'">
+                        <input
+                              type='number'
+                              id="chunkSize"
+                              class='form-control'
+                              formControlName="chunkSize"
+                              validateInputNumber
+                        >
+                      </grid-form-input>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col">
+                      <grid-form-input [name]="'Benchmark Type'" [labelclass]="'display-col'">
+                        <select
+                              type='number'
+                              id="useNewBench"
+                              class='form-select'
+                              formControlName="useNewBench"
+                        >
+                          <option [ngValue]="false">Runtime Benchmark</option>
+                          <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
+                        </select>
+                      </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Binary type to run task'" [labelclass]="'display-col'">
+                        <select
+                              type='number'
+                              id='crackerBinaryId'
+                              class='form-select'
+                              #myBinary
+                              (change)="onChangeBinary(myBinary.value)"
+                              formControlName="crackerBinaryId">
+                        <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+                      </select>
+                      </grid-form-input>
+                    </div>
+                    <div class="col">
+                      <grid-form-input [name]="'Binary type version'" [labelclass]="'display-col'">
+                        <select
+                              type='number'
+                              id='crackerBinaryTypeId'
+                              class='form-select'
+                              formControlName="crackerBinaryTypeId"
+                            >
+                            <!-- <option [ngValue]=""  disabled="true">--<option> -->
+                            <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
+                        </select>
+                      </grid-form-input>
+                    </div>
+                  </div>
+                  <hr/>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <grid-form-input [name]="'Set Preprocessor'" [tooltip]="tasktip.preprocessorId"  [labelclass]="'display-col'">
+                        <select
+                              type='number'
+                              id='preprocessorId'
+                              class='form-select'
+                              formControlName="preprocessorId"
+                            >
+                            <option [ngValue]="0" [defaultSelected]=true>No</option>
+                            <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
+                        </select>
+                      </grid-form-input>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="form-group">
+                        <div class="form-outline form-input-custom">
+                            <label class="form-label display-col" for="getPreprocessorCommand">
+                              Preprocessor command
+                              <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
+                            </label>
                             <textarea
                                   type='text'
-                                  id="attackCmd"
+                                  id="preprocessorCommand"
                                   class='form-control'
-                                  formControlName="attackCmd"
-                                  required
+                                  formControlName="preprocessorCommand"
+                                  #cmdPreAttack
                             >
                             </textarea>
-                            <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
-                              Please remove manually the blacklisted Characters or use the button below!
-                              <br>
-                              <b>BlackListed Chars: {{this.getBanChar()}} </b>
-                              <br>
-                              <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
-                            </span>
                         </div>
                       </div>
-                      <div class="row">
-                        <div class="col">
-                          &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label requiredak" for="getpriority">Priority</label>
-                                <input
-                                      type='number'
-                                      id="priority"
-                                      class='form-control'
-                                      formControlName="priority"
-                                      validateInputNumber
-                                >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                          <div class="col">
-                            &nbsp;
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label" for="getmaxAgents">Max. number of agents</label>
-                                <input
-                                      type='number'
-                                      id="maxAgents"
-                                      class='form-control'
-                                      formControlName="maxAgents"
-                                      validateInputNumber
-                                >
-                            </div>
-                          </div>
-                          &nbsp;
-                        </div>
-                      </div>
-                      <div class="form-group">
-                        <div class="form-outline">
-                            <label class="form-label" for="getcolor">Task Color Identifier</label>
-                            <div class="input-group-text w-50 mx-auto">
-                              <input type='text' class="form-control"
-                                  [(colorPicker)]="color" cpWidth='230px' cpHeight="100px"
-                                  [cpOKButton]="true"
-                                  [cpSaveClickOutside]="false"
-                                  [cpOKButtonClass]= "'btn btn-primary btn-xs'"
-                                  (colorPickerChange)="OnChangeValue($event)"
-                                  [style.background]="color" [value]="color" formControlName="color"/>
-                          </div>
-                        </div>
-                      </div>
-                      &nbsp;
-                      <ngb-accordion #acc="ngbAccordion" >
-                        <ngb-panel>
-                          <ng-template ngbPanelTitle>
-                            <span><b>Advanced Settings</b></span>
-                          </ng-template>
-                          <ng-template ngbPanelContent>
-                            <div class="row">
-                              <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getchunkTime">Chunk size</label>
-                                      <span *ngIf="tasktip.chunkTime">
-                                        <fa-icon
-                                                placement="bottom"
-                                                ngbTooltip='{{tasktip.chunkTime}}'
-                                                container="body"
-                                                [icon]="faInfoCircle"
-                                                aria-hidden="true"
-                                                class="gray-light-ico display-col"
-                                        ></fa-icon>
-                                      </span>
-                                      <input
-                                            type='number'
-                                            id="chunkTime"
-                                            class='form-control'
-                                            formControlName="chunkTime"
-                                      >
-                                  </div>
-                                </div>
-                                &nbsp;
-                              </div>
-                              <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getStatusTimer">Status timer</label>
-                                      <span *ngIf="tasktip.statusTimer">
-                                        <fa-icon
-                                                placement="bottom"
-                                                ngbTooltip='{{tasktip.statusTimer}}'
-                                                container="body"
-                                                [icon]="faInfoCircle"
-                                                aria-hidden="true"
-                                                class="gray-light-ico display-col"
-                                        ></fa-icon>
-                                      </span>
-                                      <input
-                                            type='number'
-                                            id="statusTimer"
-                                            class='form-control'
-                                            formControlName="statusTimer"
-                                            validateInputNumber
-                                      >
-                                  </div>
-                                </div>
-                              &nbsp;
-                            </div>
-                            <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getskipKeyspace">Skip keyspace</label>
-                                      <span *ngIf="tasktip.skipKeyspace">
-                                        <fa-icon
-                                                placement="bottom"
-                                                ngbTooltip='{{tasktip.skipKeyspace}}'
-                                                container="body"
-                                                [icon]="faInfoCircle"
-                                                aria-hidden="true"
-                                                class="gray-light-ico display-col"
-                                        ></fa-icon>
-                                      </span>
-                                      <input
-                                            type='number'
-                                            id="skipKeyspace"
-                                            class='form-control'
-                                            formControlName="skipKeyspace"
-                                            validateInputNumber
-                                      >
-                                  </div>
-                                </div>
-                                &nbsp;
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col">
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                    <label class="form-label display-col" for="getisCpuTask">CPU only</label>
-                                    <span *ngIf="tasktip.isCpuTask">
-                                      <fa-icon
-                                              placement="bottom"
-                                              ngbTooltip='{{tasktip.isCpuTask}}'
-                                              container="body"
-                                              [icon]="faInfoCircle"
-                                              aria-hidden="true"
-                                              class="gray-light-ico display-col"
-                                      >
-                                      </fa-icon>
-                                    </span>
-                                    <select
-                                          id='isCpuTask'
-                                          class='form-select'
-                                          formControlName="isCpuTask"
-                                        >
-                                        <option [ngValue]="false" [defaultSelected]=true>No</option>
-                                        <option [ngValue]="true">Yes</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col">
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                    <label class="form-label display-col" for="getisSmall">Small task</label>
-                                    <span *ngIf="tasktip.isSmall">
-                                      <fa-icon
-                                              placement="bottom"
-                                              ngbTooltip='{{tasktip.isSmall}}'
-                                              container="body"
-                                              [icon]="faInfoCircle"
-                                              aria-hidden="true"
-                                              class="gray-light-ico display-col"
-                                      >
-                                      </fa-icon>
-                                    </span>
-                                    <select
-                                          id='isSmall'
-                                          class='form-select'
-                                          formControlName="isSmall"
-                                        >
-                                        <option [ngValue]="false" [defaultSelected]=true>No</option>
-                                        <option [ngValue]="true">Yes</option>
-                                    </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col">
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getforcePipe">Enforce piping</label>
-                                      <span *ngIf="tasktip.forcePipe">
-                                        <fa-icon
-                                                placement="bottom"
-                                                ngbTooltip='{{tasktip.forcePipe}}'
-                                                container="body"
-                                                [icon]="faInfoCircle"
-                                                aria-hidden="true"
-                                                class="gray-light-ico display-col"
-                                        >
-                                        </fa-icon>
-                                      </span>
-                                      <select
-                                            class='form-select'
-                                            id='forcePipe'
-                                            formControlName="forcePipe"
-                                          >
-                                          <option [ngValue]="false" [defaultSelected]=true>No</option>
-                                          <option [ngValue]="true">Yes</option>
-                                      </select>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row">
-                              <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getStaticChunks">Use static chunking</label>
-                                      <span *ngIf="tasktip.staticChunks">
-                                        <fa-icon
-                                                placement="bottom"
-                                                ngbTooltip='{{tasktip.staticChunks}}'
-                                                container="body"
-                                                [icon]="faInfoCircle"
-                                                aria-hidden="true"
-                                                class="gray-light-ico display-col"
-                                        >
-                                        </fa-icon>
-                                      </span>
-                                      <select
-                                            type='number'
-                                            id='staticChunks'
-                                            class='form-select'
-                                            formControlName="staticChunks"
-                                          >
-                                          <option [ngValue]="0" [defaultSelected]=true>No</option>
-                                          <option [ngValue]="1">Fixed Chunk Size</option>
-                                          <option [ngValue]="2">Fixed number of chunks</option>
-                                      </select>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getchunkSize">if yes, chunk size:</label>
-                                      <input
-                                            type='number'
-                                            id="chunkSize"
-                                            class='form-control'
-                                            formControlName="chunkSize"
-                                            validateInputNumber
-                                      >
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            &nbsp;
-                            <hr>
-                            <div class="form-group">
-                              <div class="form-outline">
-                                  <label class="form-label display-col" for="getuseNewBench">Benchmark Type</label>
-                                  <span *ngIf="tasktip.useNewBench">
-                                    <fa-icon
-                                            placement="bottom"
-                                            ngbTooltip='{{tasktip.useNewBench}}'
-                                            container="body"
-                                            [icon]="faInfoCircle"
-                                            aria-hidden="true"
-                                            class="gray-light-ico display-col"
-                                    >
-                                    </fa-icon>
-                                  </span>
-                                  <select
-                                        type='number'
-                                        id="useNewBench"
-                                        class='form-select'
-                                        formControlName="useNewBench"
-                                  >
-                                    <option [ngValue]="false">Runtime Benchmark</option>
-                                    <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
-                                  </select>
-                              </div>
-                            </div>
-                            &nbsp;
-                            <div class="row">
-                              <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                    <label class="form-label display-col" for="getcrackerBinaryId">Binary type to run task</label>
-                                    <select
-                                            type='number'
-                                            id='crackerBinaryId'
-                                            class='form-select'
-                                            #myBinary
-                                            (change)="onChangeBinary(myBinary.value)"
-                                            formControlName="crackerBinaryId">
-                                      <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                &nbsp;
-                              </div>
-                              <div class="col">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                    <label class="form-label display-col" for="getcrackerBinaryId">Binary type version</label>
-                                    <select
-                                          type='number'
-                                          id='crackerBinaryTypeId'
-                                          class='form-select'
-                                          formControlName="crackerBinaryTypeId"
-                                        >
-                                        <!-- <option [ngValue]=""  disabled="true">--<option> -->
-                                        <option *ngFor="let cv of crackerversions; let i = index"
-                                              type="number"
-                                              [selected]="i"
-                                        >{{ cv.version }}</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                &nbsp;
-                              </div>
-                            </div>
-                            <hr/>
-                            <div class="row g-3">
-                              <div class="col-md-4">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getpreprocessorId">Set Preprocessor</label>
-                                      <span *ngIf="tasktip.preprocessorId">
-                                        <fa-icon
-                                                placement="bottom"
-                                                ngbTooltip='{{tasktip.preprocessorId}}'
-                                                container="body"
-                                                [icon]="faInfoCircle"
-                                                aria-hidden="true"
-                                                class="gray-light-ico display-col"
-                                        >
-                                        </fa-icon>
-                                      </span>
-                                      <select
-                                            type='number'
-                                            id='preprocessorId'
-                                            class='form-select'
-                                            formControlName="preprocessorId"
-                                          >
-                                          <option [ngValue]="0" [defaultSelected]=true>No</option>
-                                          <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
-                                      </select>
-                                  </div>
-                                </div>
-                                &nbsp;
-                              </div>
-                              <div class="col-md-8">
-                                &nbsp;
-                                <div class="form-group">
-                                  <div class="form-outline">
-                                      <label class="form-label display-col" for="getPreprocessorCommand">
-                                        Preprocessor command
-                                        <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
-                                      </label>
-                                      <textarea
-                                            type='text'
-                                            id="preprocessorCommand"
-                                            class='form-control'
-                                            formControlName="preprocessorCommand"
-                                            #cmdPreAttack
-                                      >
-                                      </textarea>
-                                  </div>
-                                </div>
-                              &nbsp;
-                             </div>
-                            </div>
-                          </ng-template>
-                        </ngb-panel>
-                      </ngb-accordion>
-                      &nbsp;
                     </div>
-                    <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
-                  <button class="btn btn-gray-800" type="submit">Create</button>
-            </form>
-         </div>
-      </div>
-    <div class="col-6 col-md-4">
-      <div class="layout-col shadow border-0 rounded p-6 w-100 fmxw-900">
-        <div class="card">
-            <ul ngbNav #nav="ngbNav" [(activeId)]="active"  class="nav-tabs">
-              <li [ngbNavItem]="1">
-                <a ngbNavLink>WordList</a>
-                <ng-template ngbNavContent>
-                  <div class="table-responsive">
-                    &nbsp;
-                      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[0]">
-                        <thead class="thead-light">
-                          <tr>
-                              <th class="border-0 rounded-start">
-                                T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
-                                  <fa-icon
-                                          placement="bottom"
-                                          ngbTooltip='T: Task, P: Preprocessor'
-                                          container="body"
-                                          [icon]="faInfoCircle"
-                                          aria-hidden="true"
-                                  >
-                                  </fa-icon>
-                                </a>
-                              </th>
-                              <th class="border-0 rounded-end">File Name</th>
-                          </tr>
-                          </thead>
-                          <tbody>
-                          <tr *ngFor="let f of allfiles | search:'0':'fileType'">
-                              <td>
-                                <form [formGroup]="createForm" novalidate>
-                                  <!-- Main attack checkbox -->
-                                  <div class="form-check" >
-                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                                  </div>
-                                  <!-- Preprocessor checkbox -->
-                                  <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                                  </div>
-                                </form>
-                              </td>
-                              <td *ngIf="f.isSecret == 1" class="width: 100px">
-                                <label class="form-check-label" for="{{f.filename}}">
-                                  {{f.filename | shortenString:25 }}
-                                </label>
-                                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                >
-                                </fa-icon>
-                            </td>
-                            <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
-                              <fa-icon
-                                      placement="bottom"
-                                      ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
-                                      container="body"
-                                      [icon]="faInfoCircle"
-                                      aria-hidden="true"
-                              >
-                              </fa-icon>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
                   </div>
                 </ng-template>
-              </li>
-              <li [ngbNavItem]="2">
-                <a ngbNavLink>Rules</a>
-                <ng-template ngbNavContent>
-                  <div class="table-responsive">
-                    &nbsp;
-                      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]">
-                        <thead class="thead-light">
-                          <tr>
-                              <th class="border-0 rounded-start">
-                                T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
-                                  <fa-icon
-                                          placement="bottom"
-                                          ngbTooltip='T: Task, P: Preprocessor'
-                                          container="body"
-                                          [icon]="faInfoCircle"
-                                          aria-hidden="true"
-                                  >
-                                  </fa-icon>
-                                </a>
-                              </th>
-                              <th class="border-0 rounded-end">File Name</th>
-                          </tr>
-                          </thead>
-                          <tbody>
-                          <tr *ngFor="let f of allfiles | search:'1':'fileType'">
-                              <td>
-                                <form [formGroup]="createForm" novalidate>
-                                  <!-- Main attack checkbox -->
-                                  <div class="form-check" >
-                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                                  </div>
-                                  <!-- Preprocessor checkbox -->
-                                  <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                                  </div>
-                                </form>
-                              </td>
-                              <td *ngIf="f.isSecret == 1">
-                                <label class="form-check-label" for="{{f.filename}}">
-                                  {{f.filename | shortenString:25 }}
-                                </label>
-                                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                >
-                                </fa-icon>
-                              </td>
-                              <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                >
-                                </fa-icon>
-                              </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                  </div>
-                </ng-template>
-              </li>
-              <li [ngbNavItem]="3">
-                <a ngbNavLink>Other</a>
-                <ng-template ngbNavContent>
-                  <div class="table-responsive">
-                    &nbsp;
-                      <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions[1]" >
-                        <thead class="thead-light">
-                          <tr>
-                              <th class="border-0 rounded-start">
-                                T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
-                                  <fa-icon
-                                          placement="bottom"
-                                          ngbTooltip='T: Task, P: Preprocessor'
-                                          container="body"
-                                          [icon]="faInfoCircle"
-                                          aria-hidden="true"
-                                  >
-                                  </fa-icon>
-                                </a>
-                              </th>
-                              <th class="border-0 rounded-end">File Name</th>
-                          </tr>
-                          </thead>
-                          <tbody>
-                          <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-                              <td>
-                                <form [formGroup]="createForm" novalidate>
-                                  <!-- Main attack checkbox -->
-                                  <div class="form-check" >
-                                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                                  </div>
-                                  <!-- Preprocessor checkbox -->
-                                  <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                                  </div>
-                                </form>
-                              </td>
-                              <td *ngIf="f.isSecret == 1" class="width: 100px">
-                                <label class="form-check-label" for="{{f.filename}}">
-                                  {{f.filename | shortenString:25 }}
-                                </label>
-                                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                >
-                                </fa-icon>
-                              </td>
-                              <td *ngIf="f.isSecret == 0">{{ f.filename | shortenString:18 }}
-                                <fa-icon
-                                        placement="bottom"
-                                        ngbTooltip='Line Count:{{f.lineCount}}/ Size:{{ f.size | fileSize:false}}'
-                                        container="body"
-                                        [icon]="faInfoCircle"
-                                        aria-hidden="true"
-                                >
-                                </fa-icon>
-                              </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                  </div>
-                </ng-template>
-              </li>
-            </ul>
-            <div [ngbNavOutlet]="nav" class="mt-2"></div>
-          </div>
-        </div>
-      </div>
-   </div>
+              </ngb-panel>
+            </ngb-accordion>
+          <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
+          <button-submit [name]="'Create'"></button-submit>
+      </form>
+    </grid-main>
+  </div>
+  <div class="col-md-5">
+    <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
+      <ngb-panel id="panel0">
+        <ng-template ngbPanelTitle>
+          <span><b>WordList</b></span>
+        </ng-template>
+        <ng-template ngbPanelContent [collapsed]="false">
+          <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
+            <thead class="thead-light">
+                <tr>
+                  <th class="rounded-start">
+                    T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='T: Task, P: Preprocessor'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </a>
+                  </th>
+                  <th class="rounded-end">File Name</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let f of allfiles | search:'0':'fileType'">
+                  <td>
+                    <form [formGroup]="createForm" novalidate>
+                      <!-- Main attack checkbox -->
+                      <div class="form-check" >
+                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
+                        <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
+                      </div>
+                      <!-- Preprocessor checkbox -->
+                      <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
+                        <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
+                      </div>
+                    </form>
+                  </td>
+                  <td class="width: 100px">
+                    <label class="form-check-label" for="{{f.filename}}">
+                      {{f.filename | shortenString:25 }} {{f.fileId}}
+                    </label>
+                    <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-template>
+      </ngb-panel>
+      <ngb-panel>
+        <ng-template ngbPanelTitle>
+          <span><b>Rules</b></span>
+        </ng-template>
+        <ng-template ngbPanelContent>
+          <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
+            <thead class="thead-light">
+              <tr>
+                  <th class="rounded-start">
+                    T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='T: Task, P: Preprocessor'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </a>
+                  </th>
+                  <th class="rounded-end">File Name</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let f of allfiles | search:'1':'fileType'">
+                  <td>
+                    <form [formGroup]="createForm" novalidate>
+                      <!-- Main attack checkbox -->
+                      <div class="form-check" >
+                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
+                        <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
+                      </div>
+                      <!-- Preprocessor checkbox -->
+                      <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
+                        <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
+                      </div>
+                    </form>
+                  </td>
+                  <td >
+                    <label class="form-check-label" for="{{f.filename}}">
+                      {{f.filename | shortenString:25 }}
+                    </label>
+                    <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                    <fa-icon
+                            placement="bottom"
+                            ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                            container="body"
+                            [icon]="faInfoCircle"
+                            aria-hidden="true"
+                    >
+                    </fa-icon>
+                  </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-template>
+      </ngb-panel>
+      <ngb-panel>
+        <ng-template ngbPanelTitle>
+          <span><b>Other</b></span>
+        </ng-template>
+        <ng-template ngbPanelContent>
+          <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" >
+            <thead class="thead-light">
+              <tr>
+                  <th class="rounded-start">
+                    T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
+                      <fa-icon
+                              placement="bottom"
+                              ngbTooltip='T: Task, P: Preprocessor'
+                              container="body"
+                              [icon]="faInfoCircle"
+                              aria-hidden="true"
+                      >
+                      </fa-icon>
+                    </a>
+                  </th>
+                  <th class="rounded-end">File Name</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let f of allfiles | search:'2':'fileType'">
+                <td>
+                  <form [formGroup]="createForm" novalidate>
+                    <!-- Main attack checkbox -->
+                    <div class="form-check" >
+                      <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
+                      <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
+                    </div>
+                    <!-- Preprocessor checkbox -->
+                    <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
+                      <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
+                    </div>
+                  </form>
+                </td>
+                <td class="width: 100px">
+                  <label class="form-check-label" for="{{f.filename}}">
+                    {{f.filename | shortenString:25 }}
+                  </label>
+                  <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                  <fa-icon
+                          placement="bottom"
+                          ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                          container="body"
+                          [icon]="faInfoCircle"
+                          aria-hidden="true"
+                  >
+                  </fa-icon>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-template>
+      </ngb-panel>
+    </ngb-accordion>
+  </div>
 </div>
 <!-- Cheat Sheet Utilisation -->
 <ng-template #cheatsheet let-modal>
   <app-cheatsheet></app-cheatsheet>
 </ng-template>
+
 

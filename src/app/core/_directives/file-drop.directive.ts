@@ -44,10 +44,8 @@ export class FileDropDirective {
   @HostListener('drop', ['$event']) public onDrop(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    let files = evt.dataTransfer.files;
-    let valid_files : Array<File> = files;
-    console.log(valid_files)
-    console.log(evt);
+    const files = evt.dataTransfer.files;
+    const valid_files : Array<File> = files;
     this.filesChangeEmiter.emit(evt.target.files);
   }
 }

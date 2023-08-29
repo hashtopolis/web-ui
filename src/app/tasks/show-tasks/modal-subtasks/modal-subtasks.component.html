@@ -1,0 +1,112 @@
+<div class="modal-header">
+  <app-page-subtitle [subtitle]="title"></app-page-subtitle>
+  <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="createForm">
+    <div class="mb-3">
+      <table class="table table-striped table-hover table-sm" #tabpretasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tabpretasks">
+        <thead class="thead-light">
+          <tr>
+            <th class="rounded-start">ID</th>
+            <th>Name</th>
+            <th>Dispatch/Searched</th>
+            <th>Cracked</th>
+            <th>Agents</th>
+            <th>Priority</th>
+            <th>Max. Agents</th>
+            <th class="rounded-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container formArrayName="KeysAndValues">
+            <ng-container *ngFor="let st of subtasks;let i = index">
+              <tr [formGroupName]="i">
+                <td [ngStyle]="{'background-color': st.color }">{{ st.taskId }}</td>
+                <td>
+                  <a (click)="redirectTask(st.taskId)" ngbTooltip={{st.taskName}} class="color: blue;" style="cursor: pointer;">
+                    {{ st.taskName | shortenString:40 | lowercase | titlecase }}
+                  </a>
+                </td>
+                <td>
+                  <a *ngIf="st.keyspace > 0">{{ st.taskId | tdispatched:st.keyspace | async  | percent:'1.2-2'}} / {{ st.taskId | tdsearched:st.keyspace | async | percent:'1.2-2'}}</a>
+                </td>
+                <td>
+                  <a *ngIf="(st.taskId | tdcracked | async) > 0" (click)="redirectTask(st.taskId)" class="color: blue;" style="cursor: pointer;" routerLinkActive="active">{{ st.taskId | tdcracked | async }}</a>
+                </td>
+                <td>
+                  {{ st.assignedAgents.length > 0 ? st.assignedAgents.length: 0 }}
+                </td>
+                <td>
+                  <input type="number" class="form-control" id="Priority" formControlName="priority" placeholder="{{ st.priority }}">
+                </td>
+                <td>
+                  <input type="number" class="form-control" id="maxAgents" formControlName="maxAgents" placeholder="{{ st.maxAgents }}">
+                </td>
+                <td>
+                  <app-button-actions>
+                    <button ngbDropdownItem (click)="redirectTask(st.taskId)" data-toggle="tooltip" data-placement="top" title="Edit">
+                      <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+                    </button>
+                    <button ngbDropdownItem (click)="redirectCopyTask(st.taskId)" data-toggle="tooltip" data-placement="top" title="Copy to Task">
+                      <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
+                    </button>
+                    <button ngbDropdownItem (click)="redirectCopyPreTask(st.taskId)" data-toggle="tooltip" data-placement="top" title="Copy to Pretask">
+                      <fa-icon [icon]="faBookmark" aria-hidden="true"></fa-icon>  Copy to Pretask
+                    </button>
+                    <button ngbDropdownItem (click)="onArchive(st.taskId)" data-toggle="tooltip" data-placement="top" title="Archive">
+                      <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button ngbDropdownItem (click)="onDelete(st.taskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+                      <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+                    </button>
+                  </app-button-actions>
+                </td>
+              </tr>
+            </ng-container>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="submit" class="btn btn-primary" (click)="onSubmit()">Update</button>
+  <button class="btn" style="background-color: rgb(138, 133, 132);" (click)="modal.close('Cancel')">Cancel</button>
+</div>
+
+

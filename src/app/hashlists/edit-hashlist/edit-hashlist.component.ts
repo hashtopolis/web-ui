@@ -7,28 +7,28 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
-import { HashtypeService } from '../../core/_services/config/hashtype.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-hashlist',
   templateUrl: './edit-hashlist.component.html'
 })
+@PageTitle(['Edit Hashlist'])
 export class EditHashlistComponent implements OnInit {
 
   editMode = false;
   editedHashlistIndex: number;
   editedHashlist: any // Change to Model
+  hashtype: any;
+  type: any // Hashlist or SuperHaslist
+  hashlist: any
 
   faEye=faEye;
   faHome=faHomeAlt;
   faInfoCircle=faInfoCircle;
-  isLoading = false;
 
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
@@ -37,21 +37,15 @@ export class EditHashlistComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private accessgroupService:AccessGroupsService,
-    private hashtypeService: HashtypeService,
-    private chunkService: ChunkService,
-    private listsService: ListsService,
-    private tasksService: TasksService,
     private format: StaticArrayPipe,
     private route: ActivatedRoute,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
   updateForm: FormGroup
   accessgroup: any //Change to Interface
   alltasks: any; //Change to Interface
-  loadchunks: any; //Change to Interface
   private maxResults = environment.config.prodApiMaxResults;
 
 
@@ -82,64 +76,34 @@ export class EditHashlistComponent implements OnInit {
       }),
     });
 
-    this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
+    this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex).subscribe((result)=>{
       this.editedHashlist = result;
     });
 
-    this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
+    const params = {'maxResults': this.maxResults};
+
+    this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
     });
 
   }
 
-  // Set permissions
-  manageHashlistAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageHashlistAccess = perm.globalPermissionGroup.permissions.manageHashlistAccess;
-    });
-  }
-
   onSubmit(){
-    if(this.manageHashlistAccess || typeof this.manageHashlistAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.listsService.updateHashlist(this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
-        const response = hasht;
-        console.log(response);
-        this.isLoading = false;
+      this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "HashList updated!",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
           });
           this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['/hashlists/hashlist']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "HashList was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
+          const path = this.type === 3 ? '/hashlists/superhashlist':'/hashlists/hashlist';
+          this.router.navigate([path]);
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 
@@ -155,21 +119,21 @@ export class EditHashlistComponent implements OnInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
-    let params = {'maxResults': this.maxResults};
-    this.listsService.getHashlist(this.editedHashlistIndex).subscribe((result)=>{
+    this.gs.get(SERV.HASHLISTS,this.editedHashlistIndex,{'expand':'tasks,hashlists,hashType'}).subscribe((result)=>{
         this.getTasks();
-        this.getHashtype();
         this.editedHashlist = result;
+        this.type = result['format'];
+        this.hashtype = result['hashType'];
+        this.hashlist = result['hashlists'];
         this.updateForm = new FormGroup({
-          'hashlistId': new FormControl(result['hashlistId']),
-          'accessGroupId': new FormControl(result['accessGroupId']),
-          'useBrain': new FormControl(result['useBrain'] == 0 ? 'Yes' : 'No'),
-          'format': new FormControl(this.format.transform(result['format'],'formats')),
-          'hashCount': new FormControl(result['hashCount']),
-          'cracked': new FormControl(result['cracked']),
-          'remaining': new FormControl(result['hashCount'] - result['cracked']),
+          'hashlistId': new FormControl({value: result['hashlistId'], disabled: true}),
+          'accessGroupId': new FormControl({value: result['accessGroupId'], disabled: true}),
+          'useBrain': new FormControl({value: result['useBrain'] == true ? 'Yes' : 'No', disabled: true}),
+          'format': new FormControl({value: this.format.transform(result['format'],'formats'), disabled: true}),
+          'hashCount': new FormControl({value: result['hashCount'], disabled: true}),
+          'cracked': new FormControl({value: result['cracked'], disabled: true}),
+          'remaining': new FormControl({value: result['hashCount'] - result['cracked'], disabled: true}),
           'updateData': new FormGroup({
             'name': new FormControl(result['name']),
             'notes': new FormControl(result['notes']),
@@ -177,38 +141,28 @@ export class EditHashlistComponent implements OnInit {
             'accessGroupId': new FormControl(result['accessGroupId']),
           }),
        });
-       this.isLoading = false;
+
     });
    }
   }
 
-  hashT: any;
-  getHashtype(){
-    let params = {'maxResults': this.maxResults, 'expand': 'hashlist', 'filter': 'taskId='+this.editedHashlistIndex+''}
-    let paramsh = {'maxResults': this.maxResults};
-    var matchObject =[]
-    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
-      this.hashtypeService.getHashTypes(paramsh).subscribe((htypes: any) => {
-        this.hashT = tasks.values.map(mainObject => {
-          matchObject.push(htypes.values.find((element:any) => element.hashTypeId === mainObject.hashlist.hashTypeId))
-        return { ...mainObject, ...matchObject }
-        })
-      })
-    })
-  }
-
+  // Remove when expand task is working
   getTasks():void {
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
-    var taskh = []
-    this.tasksService.getAlltasks(params).subscribe((tasks: any) => {
+    const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
+    const taskh = []
+    this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
+      console.log(tasks)
       for(let i=0; i < tasks.values.length; i++){
-        let match = tasks.values[i].hashlist.hashlistId == this.editedHashlistIndex;
-        if(match === true){
-          taskh.push(tasks.values[i])
+        console.log( tasks.values[i].hashlist)
+        let firtprep = tasks.values[i].hashlist;
+        for(let i=0; i < firtprep.length; i++){
+          const match = firtprep[i].hashlistId == this.editedHashlistIndex;
+          if(match === true){
+            taskh.push(tasks.values[i])
+          }
         }
       }
       this.alltasks = taskh;
-      this.loadChunks();
 
       this.dtOptions[0] = {
         dom: 'Bfrtip',
@@ -229,13 +183,6 @@ export class EditHashlistComponent implements OnInit {
 
       this.dtTrigger.next(null);
 
-    });
-  }
-
-  loadChunks(){
-    let params = {'maxResults': 999999999};
-    this.chunkService.getChunks(params).subscribe((c: any)=>{
-      this.loadchunks = c;
     });
   }
 

@@ -1,21 +1,31 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { faEdit,faHomeAlt, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Subject } from 'rxjs';
+import { faEdit, faHomeAlt, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { environment } from './../../../environments/environment';
+import { Subject } from 'rxjs';
 
-import { UsersService } from '../../core/_services/users/users.service';
 import { UIConfigService } from '../../core/_services/shared/storage.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
+import { DataTableDirective } from 'angular-datatables';
 
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html'
 })
+@PageTitle(['Show Users'])
 export class AllUsersComponent  implements OnInit, OnDestroy {
-  faEdit=faEdit;
+
   faHome=faHomeAlt;
+  faTrash=faTrash;
+  faEdit=faEdit;
   faPlus=faPlus;
+
+  @ViewChild(DataTableDirective, {static: false})
+  dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
@@ -31,7 +41,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     registeredSince: number,
     lastLoginDate: number,
     email: string,
-    isValid: number,
+    isValid: boolean,
     sessionLifetime:number,
     rightGroupId: string,
     globalPermissionGroup: {
@@ -41,9 +51,9 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   }[] = [];
 
   constructor(
-    private usersService: UsersService,
     private uiService: UIConfigService,
     private route:ActivatedRoute,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -51,18 +61,22 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    let params = {'maxResults': this.maxResults, 'expand': 'globalPermissionGroup' }
-    this.usersService.getAllusers(params).subscribe((users: any) => {
+    const params = {'maxResults': this.maxResults, 'expand': 'globalPermissionGroup' }
+    this.gs.getAll(SERV.USERS,params).subscribe((users: any) => {
       this.allusers = users.values;
       this.dtTrigger.next(void 0);
     });
 
     this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
       stateSave: true,
+      // "stateLoadParams": function (settings, data) {
+      //   return false;
+      // },
       select: true,
       buttons: {
         dom: {
@@ -71,6 +85,13 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -99,8 +120,8 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Agents\n\n"+  dt;
                 }
                 return data;
@@ -114,9 +135,67 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     };
   }
 
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
   editButtonClick(){
     this.router.navigate(['edit'], {relativeTo: this.route});
   }
+
+  //ToDo
+  onDelete(id: number){
+    const swalWithBootstrapButtons = Swal.mixin({
+      customClass: {
+        confirmButton: 'btn',
+        cancelButton: 'btn'
+      },
+      buttonsStyling: false
+    })
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Once deleted, it can not be recovered!",
+      icon: "warning",
+      reverseButtons: true,
+      showCancelButton: true,
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
+      confirmButtonText: 'Yes, delete it!'
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        this.gs.delete(SERV.USERS,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          this.ngOnInit();
+          this.rerender();  // rerender datatables
+        });
+      } else {
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Hashtype is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
+      }
+    });
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.destroy();
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
 
 
 

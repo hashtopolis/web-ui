@@ -3,11 +3,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "ng serve",
-      "type": "pwa-chrome",
+      "name": "Launch Edge",
       "request": "launch",
-      "preLaunchTask": "npm: start",
-      "url": "http://localhost:4200/"
+      "type": "msedge",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}",
+    },
+    {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}",
+    },
+    {
+      "name": "Launch Firefox",
+      "request": "launch",
+      "type": "firefox",
+      "url": "http://localhost:4200",
+      "webRoot": "${workspaceFolder}",
     },
     {
       "name": "ng test",

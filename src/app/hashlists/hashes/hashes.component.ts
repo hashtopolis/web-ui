@@ -1,25 +1,25 @@
-import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HashesService } from 'src/app/core/_services/hashlist/hashes.service';
+import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { ListsService } from 'src/app/core/_services/hashlist/hashlist.service';
+import { Subject } from 'rxjs';
+
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-hashes',
   templateUrl: './hashes.component.html'
 })
+@PageTitle(['Show Hashes'])
 export class HashesComponent implements OnInit {
   editMode = false;
   editedIndex: number;
   edited: any // Change to Model
 
   faCopy=faCopy;
-  isLoading = false;
 
   whichView: string;
   titleName: any;
@@ -31,20 +31,17 @@ export class HashesComponent implements OnInit {
   dtOptions: any = {};
 
   constructor(
-    private hashesService: HashesService,
-    private tasksService: TasksService,
-    private chunkService: ChunkService,
-    private listsService: ListsService,
     private route:ActivatedRoute,
-    private router:Router,
+    private gs: GlobalService,
+    private router:Router
   ) { }
 
   crackPos: any = true;
   cracked:any;
-  filtering: string = "";
-  filteringDescr: string = "";
-  displaying: string = "";
-  displayingDescr: string = "";
+  filtering = "";
+  filteringDescr = "";
+  displaying = "";
+  displayingDescr = "";
 
   filters: any = [{"name":"cracked", "description":"Cracked"},{"name":"uncracked", "description": "Uncracked"},{"name":"", "description": "All"}];
   displays: any = [
@@ -71,27 +68,65 @@ export class HashesComponent implements OnInit {
       dom: 'Bfrtip',
       pageLength: 10,
       searching: false,
-      buttons: []
-    };
+      buttons: {
+        dom: {
+          button: {
+            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+          }
+        },
+        buttons: [
+          {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+              {
+                extend: 'print',
+                customize: function ( win ) {
+                  $(win.document.title)
+                      .css( 'font-size', '14pt' )
+                  $(win.document.body)
+                      .css( 'font-size', '10pt' )
+                  $(win.document.body).find( 'table' )
+                      .addClass( 'compact' )
+                      .css( 'font-size', 'inherit' );
+               }
+              },
+              {
+                extend: 'csvHtml5',
+                exportOptions: {modifier: {selected: true}},
+                select: true,
+                customize: function (dt, csv) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
+                    data = "Hashes Information\n\n"+  dt;
+                  }
+                  return data;
+               }
+              }
+              ]
+            },
+          ],
+        }
+      }
 
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
         case 'chunkshash':
           this.whichView = 'chunks';
-          this.chunkService.getChunk(this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']});
+          this.gs.get(SERV.CHUNKS,this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']});
           this.initChashes();
         break;
 
         case 'taskhas':
           this.whichView = 'tasks';
-          this.tasksService.getTask(this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']});
+          this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']});
           this.initThashes();
         break;
 
         case 'hashlisthash':
           this.whichView = 'hashlists';
-          this.listsService.getHashlist(this.editedIndex).subscribe((result)=>{this.titleName = result['name']});
+          this.gs.get(SERV.HASHLISTS,this.editedIndex).subscribe((result)=>{this.titleName = result['name']});
           this.initHhashes();
         break;
 
@@ -101,38 +136,40 @@ export class HashesComponent implements OnInit {
   }
 
   private initChashes() {
-    this.isLoading = true;
-    let param = {'filter': 'chunkId='+this.editedIndex+''};
+    const param = {'filter': 'chunkId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
   private initThashes() {
-    this.isLoading = true;
     // This should enough to filter by id
     // let param = {'filter': 'taskId='+this.editedIndex+''};
     this.getHashes();
   }
 
   private initHhashes() {
-    this.isLoading = true;
-    let param = {'filter': 'hashlistId='+this.editedIndex+''};
+    const param = {'filter': 'hashlistId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
   async getHashes(param?: any){
 
-    let params = {'maxResults': 90000, 'expand':'hashlist,chunk'};
+    const params = {'maxResults': 90000, 'expand':'hashlist,chunk'};
 
     const nwparams = {...params, ...param};
 
-    this.hashesService.getAllhashes(nwparams).subscribe((hashes: any) => {
-      var res = hashes.values;
-      if(this.whichView = 'tasks'){
-        res = res.filter(u=> u.chunk.taskId == this.editedIndex);
+    this.gs.getAll(SERV.HASHES,nwparams).subscribe((hashes: any) => {
+      let res = hashes.values;
+      console.log(this.whichView);
+      if(this.whichView === 'tasks'){
+        res = res.filter(u=> u.chunk?.taskId == this.editedIndex);
       }
-      if(this.filtering == 'cracked'){
-        this.matchHashes = res.filter(u=> u.isCracked == 'true');
-      }else{
+      if(this.filtering === 'cracked'){
+        this.matchHashes = res.filter(u=> u.isCracked == true);
+      }
+      if(this.filtering === 'uncracked'){
+        this.matchHashes = res.filter(u=> u.isCracked == false);
+      }
+      else{
         this.matchHashes = res;
       }
       this.dtTrigger.next(null);
@@ -143,7 +180,7 @@ export class HashesComponent implements OnInit {
   viewForm: FormGroup;
 
   initDisplay(){
-    let qp = this.route.snapshot.queryParams;
+    const qp = this.route.snapshot.queryParams;
     if(qp['crackpos']){
       this.crackPos = qp['crackpos'];
     }if(qp['filter']){
@@ -160,7 +197,6 @@ export class HashesComponent implements OnInit {
       'filterdes': new FormControl(this.filteringDescr),
     });
   }
-
 
   onQueryp(name: any, type: number){
     let query = {}

@@ -1,22 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
 import { faEdit, faTrash, faHomeAlt, faPlus, faEye } from '@fortawesome/free-solid-svg-icons';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { environment } from './../../../../environments/environment';
-import { Subject } from 'rxjs';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
 
-import { CrackerService } from '../../../core/_services/config/cracker.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
+import { DataTableDirective } from 'angular-datatables';
 
 @Component({
   selector: 'app-crackers',
   templateUrl: './crackers.component.html'
 })
+@PageTitle(['Show Crackers'])
 export class CrackersComponent implements OnInit, OnDestroy {
-  public isCollapsed = true;
+
   faEdit=faEdit;
   faTrash=faTrash;
   faHome=faHomeAlt;
   faPlus=faPlus;
   faEye=faEye;
+
+  @ViewChild(DataTableDirective, {static: false})
+  dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
@@ -26,19 +33,21 @@ export class CrackersComponent implements OnInit, OnDestroy {
   }
 
   crackerType: any = [];
+
   constructor(
-    private crackerService: CrackerService
+    private gs: GlobalService,
     ) { }
 
   private maxResults = environment.config.prodApiMaxResults
 
   ngOnInit(): void {
-    let params = {'maxResults': this.maxResults, 'expand': 'crackerVersions'}
+    const params = {'maxResults': this.maxResults, 'expand': 'crackerVersions'}
 
-    this.crackerService.getCrackerType(params).subscribe((type: any) => {
+    this.gs.getAll(SERV.CRACKERS_TYPES,params).subscribe((type: any) => {
       this.crackerType = type.values;
       this.dtTrigger.next(void 0);
     });
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       pageLength: 10,
@@ -51,6 +60,13 @@ export class CrackersComponent implements OnInit, OnDestroy {
           }
         },
       buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
         {
           extend: 'collection',
           text: 'Export',
@@ -79,8 +95,8 @@ export class CrackersComponent implements OnInit, OnDestroy {
               exportOptions: {modifier: {selected: true}},
               select: true,
               customize: function (dt, csv) {
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Crackers\n\n"+  dt;
                 }
                 return data;
@@ -94,12 +110,17 @@ export class CrackersComponent implements OnInit, OnDestroy {
     };
   }
 
-  onSubmit(){
-    Swal.fire({
-      title: "Good job!",
-      text: "New Cracker created!",
-      icon: "success",
-      button: "Close",
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.destroy();
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
     });
   }
 
@@ -114,11 +135,12 @@ export class CrackersComponent implements OnInit, OnDestroy {
     })
     .then((willDelete) => {
       if (willDelete) {
-        this.crackerService.deleteCrackerType(id).subscribe(() => {
-          Swal.fire(
-            "File has been deleted!",
-            {
+        this.gs.delete(SERV.CRACKERS_TYPES,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
             icon: "success",
+            showConfirmButton: false,
+            timer: 1500
           });
         });
       } else {

@@ -3,10 +3,20 @@ import {
   Pipe
 } from '@angular/core';
 
+import { environment } from './../../../environments/environment';
+import { GlobalService } from '../_services/main.service';
+import { SERV } from '../../core/_services/main.config';
+import { firstValueFrom } from 'rxjs';
+
 /**
- * Returns cracked value iteration over chunks
- * @param obj - Object of chunks
- * @param id - Task Id
+ * Returns cracks when iterating over the chunks filtering by id
+ * @param id - Task Id or agent Id
+ * @param type - True check speed for Agent False for Task
+ * Usage:
+ *   object | tdcracked:true
+ * Example:
+ *   {{ number | tdcracked:'1' }}
+ * @returns number
 **/
 
 @Pipe({
@@ -14,15 +24,31 @@ import {
 })
 export class TaskCrackedPipe implements PipeTransform {
 
-  transform(obj: any, id: number) {
+  constructor(
+    private gs: GlobalService
+  ) { }
 
-    if (!obj || !id) {
+  transform(id: number, type?:boolean) {
+
+    if (!id) {
       return null;
     }
 
-    let ch = obj.values?.filter(u=> u.taskId == id);
+    const maxResults = 10000;
+    // const maxResults = environment.config.prodApiMaxResults;
+    const searched = [];
+    let params: any;
 
-    var searched = []
+    if(type){
+      params = {'maxResults': maxResults, 'filter': 'agentId='+id+''};
+    }else{
+      params = {'maxResults': maxResults, 'filter': 'taskId='+id+''};
+    }
+
+    return firstValueFrom(this.gs.getAll(SERV.CHUNKS,params))
+    .then((res) => {
+
+    const ch = res.values;
 
     for(let i=0; i < ch.length; i++){
         searched.push(ch[i].cracked);
@@ -30,6 +56,7 @@ export class TaskCrackedPipe implements PipeTransform {
 
     return searched?.reduce((a, i) => a + i,0);
 
-    }
+  });
+ }
 }
 

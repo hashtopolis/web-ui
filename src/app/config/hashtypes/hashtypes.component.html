@@ -1,172 +1,36 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">Hashtypes</h2>
-      <p class="mb-0">Section to manage and create hashtypes.</p>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-      <a  (click)="collapse.toggle()" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseFiles" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-          New Hashtype
-      </a>
-  </div>
-</div>
-<!-- New Hashtype -->
-<div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed">
-  <section>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-                <h2 class="h5 mb-4">Create Hashtype</h2><br>
-                  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-                    <div class="row">
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="sethashtype">Hashtype</label>
-                            <fa-icon
-                                    placement="bottom"
-                                    ngbTooltip="ie. Hashcat -m"
-                                    container="body"
-                                    [icon]="faInfoCircle"
-                                    aria-hidden="true"
-                            >
-                            </fa-icon>
-                            <input
-                                  type='number'
-                                  id="hashtype"
-                                  class='form-control'
-                                  formControlName="hashTypeId"
-                                  validateInputNumber
-                            >
-                            <span *ngIf="!createForm.errors?.['hashTypeId'].valid && createForm.errors?.['hashTypeId'].touched" class="help-block" >
-                              <span *ngIf="createForm.errors?.['hashtypeIsUsed']" >This name is already in use!</span>
-                              <span *ngIf="createForm.errors?.['required']" >This field is required!</span>
-                            </span>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label requiredak" for="setdescription">Description</label>
-                            <input  type='text' name='description' title="Description" class='form-control' id="description" formControlName="description">
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label for="setsalted">Salted</label>
-                            <fa-icon
-                                    placement="bottom"
-                                    ngbTooltip="Only if there is a separate salt value"
-                                    container="body"
-                                    [icon]="faInfoCircle"
-                                    aria-hidden="true"
-                            >
-                            </fa-icon>
-                            <td>
-                            <select
-                                  class='form-select'
-                                  id="isSalted"
-                                  formControlName="isSalted"
-                              >
-                              <option [ngValue]="true" [defaultSelected]=true>No</option>
-                              <option [ngValue]="false">Yes</option>
-                            </select>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <div class="form-group">
-                          <div class="form-outline">
-                            <label class="form-label" for="setsalted">Slow Hash</label>
-                            <td>
-                            <select
-                                  class='form-select'
-                                  id="isSlowHash"
-                                  formControlName="isSlowHash"
-                              >
-                              <option [ngValue]="true" [defaultSelected]=true>No</option>
-                              <option [ngValue]="false">Yes</option>
-                            </select>
-                          </div>
-                        </div>
-                        &nbsp;
-                        <button class="btn btn-gray-800" type="submit">Create</button>
-                      </div>
-                </form>
-           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  &nbsp;&nbsp;
-</div>
-<!-- New Hashtype End-->
-<!-- Body -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                    <th class="border-0 rounded-start">Hashtype (Hashcat -m)</th>
-                    <th class="border-0">Description</th>
-                    <th class="border-0">Salted</th>
-                    <th class="border-0">Slow Hash</th>
-                    <th class="border-0 rounded-end">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let h of htypes; let i = index">
-                      <td class="text-align:center">{{ h.hashTypeId }}</td>
-                        <!-- Normal View -->
-                        <td *ngIf="!h.isEdit">{{ h.description }}</td>
-                        <td *ngIf="!h.isEdit">{{ h.isSalted == 1 ? "Yes" : "No" }}</td>
-                        <td *ngIf="!h.isEdit">{{ h.isSlowHash == 1 ? "Yes" : "No" }}</td>
-                        <td *ngIf="!h.isEdit">
-                          <a class='btn-outline-gray-600 float-right' (click)="onEdit(h)" data-toggle="tooltip" data-placement="top" title="Edit">
-                            <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon>
-                          </a>
-                          <a class='btn-outline-gray-600 float-right' (click)="onDelete(h.hashTypeId)" data-toggle="tooltip" data-placement="top" title="Delete">
-                            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-                          </a>
-                        </td>
-                        <!-- Normal View end  -->
-                        <!-- Edit view -->
-                        <td *ngIf="h.isEdit">
-                          <input
-                                type="text"
-                                class="form-control"
-                                [(ngModel)]="h.description"
-                                >
-                        </td>
-                        <td *ngIf="h.isEdit">
-                          <select
-                                 class='form-select'
-                                 [(ngModel)]="h.isSalted"
-                              >
-                              <option *ngFor="let b of booleanopt" [value]="b.value">{{ b.value == 'false'? 'No':'Yes' }}</option>
-                          </select>
-                        </td>
-                        <td *ngIf="h.isEdit">
-                          <select
-                                class='form-select'
-                                [(ngModel)]="h.isSlowHash"
-                              >
-                              <option *ngFor="let b of booleanopt" [value]="b.value">{{ b.value == 'false'? 'No':'Yes' }}</option>
-                          </select>
-                        </td>
-                        <td *ngIf="h.isEdit">
-                          <a class='btn-outline-gray-600 float-right' (click)="onSave(h)" data-toggle="tooltip" data-placement="top" title="Update">
-                            <fa-icon [icon]="faSave" aria-hidden="true"></fa-icon>
-                          </a>
-                          <a class='btn-outline-gray-600 float-right' (click)="onCancel(h)" data-toggle="tooltip" data-placement="top" title="Cancel">
-                            <fa-icon [icon]="faCancel" aria-hidden="true"></fa-icon>
-                          </a>
-                        </td>
-                      <!-- Edit view end -->
-                  </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<app-page-title [title]="'Hashtypes'" [buttontitle]="'New Hashtype'" [buttonlink]="'/config/hashtypes/new'" [subbutton]="true"></app-page-title>
+<!-- Table -->
+<app-table>
+  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">Hashtype (Hashcat -m)</th>
+          <th>Description</th>
+          <th>Salted</th>
+          <th>Slow Hash</th>
+          <th class="rounded-end">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let h of htypes; let i = index">
+            <td class="text-align:center">{{ h.hashTypeId }}</td>
+            <td>{{ h.description }}</td>
+            <td>{{ h.isSalted == 0 ? "Yes" : "No" }}</td>
+            <td>{{ h.isSlowHash == 0 ? "Yes" : "No" }}</td>
+            <td class="overflow-hidden">
+              <div>
+                <app-button-actions>
+                  <button ngbDropdownItem [routerLink]="[h.hashTypeId,'edit']" data-placement="top" title="Edit">
+                    <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+                  </button>
+                  <div class="dropdown-divider"></div>
+                  <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(h.hashTypeId)">
+                    <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+                  </button>
+                </app-button-actions>
+              </div>
+            </td>
+        </tr>
+      </tbody>
+  </table>
+</app-table>

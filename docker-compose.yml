@@ -1,20 +1,25 @@
-version: "3.7"
-
+version: "3.8"
 services:
-  hastopolis-client:
+  hashtopolis-web-ui:
+    container_name: hashtopolis-web-ui
+    image: hashtopolis/web-ui:latest
+    restart: always
+    environment:
+      - HASHTOPOLIS_BACKEND_URL
     build:
-      context: .
-      dockerfile: .docker/node.dockerfile
-    command: npm start
-    container_name: hashtopolis-client-start
-    image: hashtopolis-client
+      context: ..
+      dockerfile: Dockerfile
+      target: hashtopolis-web-ui-dev
     ports:
       - "4200:4200"
     volumes:
-      - "/app/node_modules"
-      - ".:/home/app/"
+      # This is where VS Code should expect to find your project's source code
+      # and the value of "workspaceFolder" in .devcontainer/devcontainer.json
+      - ..:/app
+    networks:
+      - hashtopolis_dev
 
 networks:
-  default:
-    name: hashtopolis_bridge
-
+  hashtopolis_dev:
+    # This network will also be used by the python-agent
+    name: hashtopolis_dev

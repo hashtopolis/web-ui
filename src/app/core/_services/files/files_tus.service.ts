@@ -2,6 +2,7 @@ import { Injectable, ViewChild, ChangeDetectorRef} from '@angular/core';
 import { environment } from './../../../../environments/environment';
 import * as tus from 'tus-js-client';
 import { Subject } from 'rxjs';
+import { ConfigService } from '../shared/config.service';
 
 import { UploadFileTUS } from '../../_models/files';
 
@@ -11,7 +12,7 @@ import { UploadFileTUS } from '../../_models/files';
 
 export class UploadTUSService {
 
-    private endpoint = environment.config.prodApiEndpoint + '/ui/files/import';
+    private endpoint = '/helper/importFile';
     private chunked = environment.config.chunkSizeTUS;
     private userData: {_token: string} = JSON.parse(localStorage.getItem('userData'));
 
@@ -20,6 +21,9 @@ export class UploadTUSService {
 
     fileStatusArr: UploadFileTUS[] = [];
 
+    constructor(
+      private cs: ConfigService,
+    ){}
 /**
  * Upload file using TUS protocol
  * @param file - File
@@ -42,7 +46,7 @@ export class UploadTUSService {
       this.uploadStatus.next(this.fileStatusArr);
 
       const upload = new tus.Upload(file, {
-        endpoint: this.endpoint,
+        endpoint: this.cs.getEndpoint() + this.endpoint,
         headers: {
           Authorization: `Bearer ${this.userData._token}`,
           'Tus-Resumable':'1.0.0',
@@ -58,7 +62,6 @@ export class UploadTUSService {
           // userId: "1234567"
         },
         onError: async (error) => {
-          console.log(error)
           if (error) {
             if (window.confirm(`Failed because: ${error}\nDo you want to retry?`)) {
               upload.start()

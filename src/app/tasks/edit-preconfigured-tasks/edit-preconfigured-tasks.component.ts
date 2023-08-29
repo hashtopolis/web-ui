@@ -1,44 +1,44 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy ,ChangeDetectorRef, ViewChild, HostListener   } from '@angular/core';
 import { faHomeAlt, faPlus, faTrash, faInfoCircle, faEye, faLock} from '@fortawesome/free-solid-svg-icons';
-import { FormControl, FormGroup, FormBuilder, NgForm, Validators } from '@angular/forms';
+import { Component, OnInit, ViewChild, HostListener   } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Observable, Subject, Subscription } from 'rxjs';
-import { environment } from './../../../environments/environment';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Observable, Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
-import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
-import { Pretask } from '../../core/_models/pretask';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { colorpicker } from '../../core/_constants/settings.config';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-preconfigured-tasks',
   templateUrl: './edit-preconfigured-tasks.component.html'
 })
+@PageTitle(['Edit Preconfigured Tasks'])
 export class EditPreconfiguredTasksComponent implements OnInit{
 
   editMode = false;
   editedPretaskIndex: number;
   editedPretask: any // Change to Model
 
-  faHome=faHomeAlt;
-  faPlus=faPlus;
-  faEye=faEye;
-  faLock=faLock;
-  faTrash=faTrash;
-  isLoading = false;
   faInfoCircle=faInfoCircle;
+  faHome=faHomeAlt;
+  faTrash=faTrash;
+  faPlus=faPlus;
+  faLock=faLock;
+  faEye=faEye;
 
   constructor(
-    private preTasksService: PreTasksService,
     private route:ActivatedRoute,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
   pretask: any = [];
-  color: string = '';
+  color = '';
+  colorpicker=colorpicker;
   updateForm: FormGroup
   private maxResults = environment.config.prodApiMaxResults
 
@@ -52,8 +52,6 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   files: any //Add Model
 
   ngOnInit(): void {
-
-    this.setAccessPermissions();
 
     this.route.params
     .subscribe(
@@ -82,13 +80,13 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
     // Files Table
 
-    let params = {
+    const params = {
       'maxResults': this.maxResults,
       'filter': 'pretaskId='+this.editedPretaskIndex+'',
       'expand': 'pretaskFiles'
     }
 
-    this.preTasksService.getAllPretasks(params).subscribe((pretasks: any) => {
+    this.gs.getAll(SERV.PRETASKS,params).subscribe((pretasks: any) => {
       this.files = pretasks.values;
       this.dtTrigger.next(void 0);
     });
@@ -110,17 +108,11 @@ export class EditPreconfiguredTasksComponent implements OnInit{
   }
 
   onSubmit(){
-    if(this.managePretaskAccess || typeof this.managePretaskAccess == 'undefined'){
     if (this.updateForm.valid) {
 
-      this.isLoading = true;
-
-      this.preTasksService.updatePretask(this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe((hasht: any) => {
-        const response = hasht;
-        console.log(response);
-        this.isLoading = false;
+      this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "Pretask updated!",
             icon: "success",
             showConfirmButton: false,
@@ -128,60 +120,31 @@ export class EditPreconfiguredTasksComponent implements OnInit{
           });
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Pretask was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
     }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
-  }
-
-  // Set permissions
-  managePretaskAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.managePretaskAccess = perm.globalPermissionGroup.permissions.managePretaskAccess;
-    });
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.editMode) {
-    this.preTasksService.getPretask(this.editedPretaskIndex).subscribe((result)=>{
+    this.gs.get(SERV.PRETASKS,this.editedPretaskIndex).subscribe((result)=>{
       this.pretask = result;
       this.color = result['color'];
       this.updateForm = new FormGroup({
-        'pretaskId': new FormControl(result['pretaskId'], Validators.required),
-        'statusTimer': new FormControl(result['statusTimer'] + ' seconds', Validators.required),
-        'useNewBench': new FormControl(result['useNewBench'], Validators.required),
+        'pretaskId': new FormControl({value:  result['pretaskId'], disabled: true}),
+        'statusTimer': new FormControl({value: result['statusTimer'], disabled: true}),
+        'useNewBench': new FormControl({value: result['useNewBench'], disabled: true}),
         'updateData': new FormGroup({
           'taskName': new FormControl(result['taskName'], Validators.required),
           'attackCmd': new FormControl(result['attackCmd'], Validators.required),
-          'chunkTime': new FormControl(result['chunkTime'], Validators.required),
-          'color': new FormControl(result['color'], Validators.required),
-          'priority': new FormControl(result['priority'], Validators.required),
-          'maxAgents': new FormControl(result['maxAgents'], Validators.required),
+          'chunkTime': new FormControl(result['chunkTime']),
+          'color': new FormControl(result['color']),
+          'priority': new FormControl(result['priority']),
+          'maxAgents': new FormControl(result['maxAgents']),
           'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
           'isSmall': new FormControl(result['isSmall'], Validators.required),
         }),
       });
-      this.isLoading = false;
     });
    }
   }

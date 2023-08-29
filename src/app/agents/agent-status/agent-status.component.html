@@ -70,9 +70,10 @@
                                     [icon]="faDigitalTachograph"
                                     aria-hidden="true"
                                     hoverDashed
+                                    style="cursor: pointer;"
                                     [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}"
                             ></fa-icon>
-                            <a underline class="display-col">{{ result === 'No data'? result:result +'%' }}</a>
+                            <a (click)="open(device)" underline class="display-col pointer" style="cursor: pointer;">{{ result === 'No data'? result:result +'%' }}</a>
                           <div>
                             <!-- Modal Device Utilisation -->
                             <ng-template #device let-modal>
@@ -122,10 +123,10 @@
                                   [icon]="faTemperature0"
                                   aria-hidden="true"
                                   hoverDashed
+                                  style="cursor: pointer;"
                                   [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}"
-
                           ></fa-icon>
-                          <a underline class="display-col">{{ result === 'No data'? result:result +'°' }}</a>
+                          <a (click)="open(temperature)" underline class="display-col" style="cursor: pointer;">{{ result === 'No data'? result:result +'°' }}</a>
                           <div>
                             <!-- Modal Temperature -->
                             <ng-template #temperature let-modal>
@@ -175,9 +176,10 @@
                                   [icon]="faMicrochip"
                                   aria-hidden="true"
                                   hoverDashed
+                                  style="cursor: pointer;"
                                   [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}"
                           ></fa-icon>
-                          <a underline class="display-col">{{ result === 'No data'? result:result +'%' }}</a>
+                          <a (click)="open(cpu)" underline class="display-col" style="cursor: pointer;">{{ result === 'No data'? result:result +'%' }}</a>
                           <div>
                             <!-- CPU Utilisation -->
                             <ng-template #cpu let-modal>
@@ -235,15 +237,12 @@
   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let gname of _filteresAgents | groupBy:'agentName' | sort:'asc':'agentName'">
       <div class="card card-section">
           <div class="card-header-ag text-center">
-            <a underline>{{ gname.k | shortenString:15 | lowercase | titlecase}} </a>
+            <a>{{ gname.k | shortenString:15 | lowercase | titlecase}} </a>
           </div>
           <div class="card-body" *ngFor="let a of gname.value ; let last=last">
             <div class="row">
               <small><b>
-                <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">
-                  <fa-icon [icon]="faEye" aria-hidden="true" class="gray-light-ico"></fa-icon>
-                </a>
-                <a class="display-col">{{ a.agentName | split:'-':1 | shortenString:15 | lowercase | titlecase }}</a>
+                <a class="display-col" [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | split:'-':1 | shortenString:15 | lowercase | titlecase }}</a>
               </b></small>
               <div class="col" *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result">
                 <fa-icon
@@ -405,72 +404,64 @@
       </div>
   </div>
 </div>
-
-
-<!-- Agent Activity -->
-<br>
-  <div class="d-block mb-4 mb-md-0">
-    <h2 class="h4">
-      Agents activity
-    </h2>
-  </div>
-<br>
 <!-- Agent Activity Table -->
-<div class="card border-0 shadow mb-4">
-  <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-centered table-nowrap mb-0 rounded" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-              <thead class="thead-light">
-                <tr>
-                    <th class="border-0 rounded-start">ID</th>
-                    <th class="border-0">Name</th>
-                    <th class="border-0">Currently working on</th>
-                    <th class="border-0">Assigned to</th>
-                    <th class="border-0 rounded-end">Last Activity</th>
-                </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
-                    <td>
-                      {{ aa.agentId }}
-                      <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',aa.agentId,'edit']">
-                        <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
-                      </a>
-                    </td>
-                    <td>
-                      {{ aa.agentName | shortenString:15 | lowercase | titlecase }}
-                      <span *ngIf="aa.isTrusted == 1" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
-                      <span *ngIf="aa.isActive == 0" ><fa-icon [icon]="faPauseCircle" aria-hidden="true"></fa-icon></span>
-                    </td>
-                    <td>
-                      <a *ngIf="aa.taskId">Task: {{ aa.taskName | shortenString:15 | lowercase | titlecase }}
-                        <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">
-                          <small><fa-icon [icon]="faEye" aria-hidden="true" ></fa-icon></small>
-                        </a>,
-                      </a>
-                      <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
-                      <div *ngIf="aa.chunkId">working on chunk
-                        {{ aa.chunkId }}
-                        <a class='btn-outline-gray-600 float-right' [routerLink]="['/tasks/chunks',aa.chunkId,'view']">
-                          <small><fa-icon [icon]="faEye" aria-hidden="true"></fa-icon></small>
-                        </a>
-                      </div>
-                    </td>
-                    <td>
-                      TD.Task Assignments
-                    </td>
-                    <td>
-                      Action: {{ aa.lastAct }}<br>
-                      Time: {{ aa.lastTime | date: uidateformat }}<br>
-                      <div *ngIf="aa.lastIp">IP:<code >{{ aa.lastIp }}</code></div>
-                    </td>
-                  </tr>
-                </tbody>
-          </table>
-        </div>
-    </div>
-</div>
-
+<app-table>
+  <app-page-subtitle [subtitle]="'Agents activity'"></app-page-subtitle>
+  <table class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agentstatus">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">ID</th>
+          <th>Status</th>
+          <th>Name</th>
+          <th>Agent Status</th>
+          <th>Currently working on</th>
+          <th>Assigned to</th>
+          <th class="rounded-end">Last Activity</th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
+          <td>{{ aa.agentId }}</td>
+          <td>
+            <app-active-spinner *ngIf="( aa.agentId | aspeed:true | async ) > 0"></app-active-spinner>
+          </td>
+          <td style="white-space: nowrap;">
+            <a [routerLink]="['/agents/show-agents',aa.agentId,'edit']">{{ aa.agentName | shortenString:15 | lowercase | titlecase }}</a>
+            <span *ngIf="aa.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
+          </td>
+          <td>
+            <span *ngIf="aa.isActive === true" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: green;">
+              Active
+            </span>
+            <span *ngIf="aa.isActive === false" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: rgba(255, 136, 0, 0.87);">
+              Inactive
+            </span>
+          </td>
+          <td>
+            <div *ngIf="( aa.agentId | aspeed:true | async ) > 0">
+              <div *ngIf="aa.taskId">Task:
+                <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>,
+              </div>
+              <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
+              <div *ngIf="aa.chunkId" >working on chunk
+                <a [routerLink]="['/tasks/chunks',aa.chunkId,'view']">{{ aa.chunkId }}</a>
+              </div>
+            </div>
+          </td>
+          <td>
+            <a *ngIf="aa.taskId">
+              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']"> {{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>
+            </a>
+          </td>
+          <td>
+            Action: {{ aa.lastAct }}<br>
+            Time: {{ aa.lastTime*1000 | date: uidateformat }}<br>
+            <div *ngIf="aa.lastIp">IP: <b>{{ aa.lastIp }}</b></div>
+          </td>
+        </tr>
+      </tbody>
+  </table>
+</app-table>
 <!-- Todo Fix Pagination -->
 <!-- <div class="align-items-right py-4">
   <cm-pagination

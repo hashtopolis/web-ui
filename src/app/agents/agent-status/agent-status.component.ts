@@ -4,48 +4,48 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { CookieService } from 'src/app/core/_services/shared/cookies.service';
+import { FilterService } from 'src/app/core/_services/shared/filter.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { ASC } from '../../core/_constants/agentsc.config';
 import { environment } from 'src/environments/environment';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { FilterService } from 'src/app/core/_services/shared/filter.service';
-import { ChunkService } from 'src/app/core/_services/tasks/chunks.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { CookieService } from 'src/app/core/_services/shared/cookies.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AgentStatService } from 'src/app/core/_services/agents/agentstats.service';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-agent-status',
   templateUrl: './agent-status.component.html'
 })
+@PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {
   public isCollapsed = true;
 
-  faServer=faServer;
-  faUsers=faUsers;
-  faChevronDown=faChevronDown;
   faDigitalTachograph=faDigitalTachograph;
-  faMicrochip=faMicrochip;
-  faHomeAlt=faHomeAlt;
-  faPlus=faPlus;
-  faUserSecret=faUserSecret;
-  faEye=faEye;
   faTemperature0=faTemperature0;
   faPauseCircle=faPauseCircle;
-  faLock=faLock;
+  faChevronDown=faChevronDown;
   faInfoCircle=faInfoCircle;
+  faUserSecret=faUserSecret;
+  faMicrochip=faMicrochip;
+  faHomeAlt=faHomeAlt;
+  faServer=faServer;
+  faUsers=faUsers;
+  faPlus=faPlus;
+  faLock=faLock;
+  faEye=faEye;
 
-  public statusOrderBy = environment.config.agents.statusOrderBy;
   public statusOrderByName = environment.config.agents.statusOrderByName;
+  public statusOrderBy = environment.config.agents.statusOrderBy;
 
   showagents: any[] = [];
   _filteresAgents: any[] = [];
-  filterText: string = '';
+  filterText = '';
 
   totalRecords = 0;
   pageSize = 20;
 
-  private maxResults = environment.config.prodApiMaxResults
+  private maxResults = environment.config.prodApiMaxResults;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -59,15 +59,12 @@ export class AgentStatusComponent implements OnInit {
   }
 
   constructor(
-    private astatService: AgentStatService,
     private offcanvasService: NgbOffcanvas,
-    private agentsService: AgentsService,
     private filterService: FilterService,
     private cookieService: CookieService,
-    private tasksService: TasksService,
-    private chunkService: ChunkService,
     private uiService: UIConfigService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private gs: GlobalService
   ) { }
 
   // View Menu
@@ -96,6 +93,7 @@ export class AgentStatusComponent implements OnInit {
     this.getAgentsPage(1);
     this.getAgentStats();
 
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: true,
@@ -118,6 +116,13 @@ export class AgentStatusComponent implements OnInit {
             }
           },
         buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
           {
             extend: 'collection',
             text: 'Export',
@@ -146,8 +151,8 @@ export class AgentStatusComponent implements OnInit {
                 exportOptions: {modifier: {selected: true}},
                 select: true,
                 customize: function (dt, csv) {
-                  var data = "";
-                  for (var i = 0; i < dt.length; i++) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
                     data = "Agent Status\n\n"+  dt;
                   }
                   return data;
@@ -170,29 +175,56 @@ export class AgentStatusComponent implements OnInit {
       }
   }
 
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
+
   pageChanged(page: number) {
     this.getAgentsPage(page);
   }
 
   getAgentsPage(page: number) {
-    let params = {'maxResults': this.maxResults}
-    this.agentsService.getAgents(params).subscribe((a: any) => {
-      var getAData = a.values;
-      this.totalRecords = a.total;
-      this.chunkService.getChunks(params).subscribe((c: any)=>{
-        this.tasksService.getAlltasks(params).subscribe((t: any)=>{
-          var map = getAData.map(mainObject => {
-          let matchObjectAgents = c.values.find(e => e.agentId === mainObject.agentId)
-          return { ...mainObject, ...matchObjectAgents}
-          })
-          this.showagents = this.filteredAgents = map.map(mainObject => {
-            let matchObjectTask = t.values.find(e => e.taskId === mainObject.taskId)
-            return { ...mainObject, ...matchObjectTask}
-          })
-          this.dtTrigger.next(void 0);
+    const params = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.AGENTS,params).subscribe((a: any) => {
+      this.gs.getAll(SERV.AGENT_ASSIGN,params).subscribe((assign: any) => {
+        this.gs.getAll(SERV.TASKS,params).subscribe((t: any)=>{
+          this.gs.getAll(SERV.CHUNKS,params).subscribe((c: any)=>{
+
+            const getAData = a.values.map(mainObject => {
+              const matchObjectTask = assign.values.find(e => e.agentId === mainObject.agentId)
+              return { ...mainObject, ...matchObjectTask}
+            })
+            this.totalRecords = a.total;
+            const jointasks = getAData.map(mainObject => {
+              const matchObjectTask = t.values.find(e => e.taskId === mainObject.taskId)
+              return { ...mainObject, ...matchObjectTask}
+            })
+
+
+            this.showagents = this.filteredAgents = jointasks.map(mainObject => {
+            const matchObjectAgents = c.values.find(e => e.agentId === mainObject.agentId)
+            return { ...mainObject, ...matchObjectAgents}
+            })
+
+            console.log(this.showagents);
+            this.dtTrigger.next(void 0);
         })
       })
     });
+  });
   }
 
   // Agents Stats
@@ -201,17 +233,22 @@ export class AgentStatusComponent implements OnInit {
   statCpu: any[] = [];
 
   getAgentStats(){
-    let paramsstat = {'maxResults': this.maxResults, 'filter': 'time>'+this.gettime()+''}
-    this.astatService.getAstats(paramsstat).subscribe((stats: any) => {
-      this.statTemp = stats.values.filter(u=> u.statType == ASC.GPU_TEMP); // filter Device Temperature
-      this.statDevice = stats.values.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
-      this.statCpu = stats.values.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
+    // const paramsstat = {'maxResults': this.maxResults, 'filter': 'time>'+this.gettime()+''}; //Waiting for API date filters
+    const paramsstat = {'maxResults': this.maxResults};
+    this.gs.getAll(SERV.AGENTS_STATS,paramsstat).subscribe((stats: any) => {
+      const tempDateFilter = stats.values.filter(u=> u.time > 10000000); // Temp
+      // const tempDateFilter = stats.values.filter(u=> u.time > this.gettime()); // Temp
+      this.statTemp = tempDateFilter.filter(u=> u.statType == ASC.GPU_TEMP); // Temp
+      this.statDevice = tempDateFilter.filter(u=> u.statType == ASC.GPU_UTIL); // Temp
+      this.statCpu =tempDateFilter.filter(u=> u.statType == ASC.CPU_UTIL); // Temp
+      // this.statTemp = stats.values.filter(u=> u.statType == ASC.GPU_TEMP); // filter Device Temperature
+      // this.statDevice = stats.values.filter(u=> u.statType == ASC.GPU_UTIL); // filter Device Utilization
+      // this.statCpu = stats.values.filter(u=> u.statType == ASC.CPU_UTIL); // filter CPU utilization
     });
-
   }
 
   gettime(){
-    let time = (Date.now() - this.uiService.getUIsettings('agenttimeout').value)
+    const time = (Date.now() - this.uiService.getUIsettings('agenttimeout').value)
     return time;
   }
 

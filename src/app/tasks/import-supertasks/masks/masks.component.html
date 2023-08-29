@@ -1,0 +1,102 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+  <div class="d-block mb-4 mb-md-0">
+    <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
+  </div>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group ms-2 ms-3">
+      <a type="button" [routerLink]="['/tasks/import-supertasks/masks']" class="btn btn-sm btn-outline-gray-600-select">Masks</a>
+      <a type="button" [routerLink]="['/tasks/import-supertasks/wrbulk']" class="btn btn-sm btn-outline-gray-600">WordList/Rules Bulk</a>
+    </div>
+  </div>
+</div>
+<!-- Body -->
+<grid-main [class]="'width:100%'">
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+      <grid-form-input [name]="'Name'">
+        <input
+              type='text'
+              id="name"
+              class='form-control'
+              formControlName="name"
+        >
+      </grid-form-input>
+      <div class="row">
+        <div class="col">
+          <grid-form-input [name]="'Benchmark type'">
+            <select
+                    type='number'
+                    id="useBench"
+                    class='form-select'
+                    formControlName="useBench"
+              >
+                <option [ngValue]="false">Runtime</option>
+                <option [ngValue]="true" [defaultSelected]=true>Speed</option>
+              </select>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'Cracker Binary'">
+            <select
+                  type='number'
+                  id='crackerBinaryId'
+                  class='form-select'
+                  #myBinary
+                  formControlName="crackerBinaryId">
+            <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+          </select>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'Small Tasks'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="isSmall"
+                    class="form-check-input"
+                    formControlName="isSmall"
+              >
+            </div>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'CPU'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="isCPU"
+                    class="form-check-input"
+                    formControlName="isCPU"
+              >
+            </div>
+          </grid-form-input>
+        </div>
+        <div class="col">
+          <grid-form-input [name]="'Use optimized flag (-O)'">
+            <div class="form-check form-switch">
+              <input
+                    type="checkbox"
+                    id="optFlag"
+                    class="form-check-input"
+                    formControlName="optFlag"
+              >
+            </div>
+          </grid-form-input>
+        </div>
+      </div>
+      <grid-form-input [name]="'Insert Masks'">
+        <textarea
+                type='text'
+                id="masks"
+                class='form-control'
+                formControlName="masks"
+                required
+          >
+          </textarea>
+      </grid-form-input>
+    </div>
+    <button-submit [name]="'Create Supertask'"></button-submit>
+    {{ createForm.value | json }}
+  </form>
+</grid-main>
+<!-- New Task End-->

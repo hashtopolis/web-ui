@@ -1,5 +1,5 @@
 
-import { faEdit, faLock, faPauseCircle,faHomeAlt, faPlus, faFileText, faTrash, faCheckCircle, faArrowCircleDown} from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faLock, faPauseCircle,faHomeAlt, faPlus, faFileText, faTrash, faCheckCircle, faArrowCircleDown, faMicrochip, faTerminal} from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { DataTableDirective } from 'angular-datatables';
@@ -7,8 +7,9 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import {Subject} from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AgentsService } from '../../core/_services/agents/agents.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 declare let $:any;
 
@@ -16,11 +17,14 @@ declare let $:any;
   selector: 'app-show-agents',
   templateUrl: './show-agents.component.html'
 })
+@PageTitle(['Show Agents'])
 export class ShowAgentsComponent implements OnInit, OnDestroy {
 
   faArrowCircleDown=faArrowCircleDown;
   faCheckCircle=faCheckCircle;
   faPauseCircle=faPauseCircle;
+  faMicrochip=faMicrochip;
+  faTerminal=faTerminal;
   faFileText=faFileText;
   faHome=faHomeAlt;
   faTrash=faTrash;
@@ -34,7 +38,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
   uidateformat:any;
-  isChecked:boolean =false;
+  isChecked =false;
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
@@ -46,18 +50,15 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   private maxResults = environment.config.prodApiMaxResults
 
   constructor(
-    private agentsService: AgentsService,
     private uiService: UIConfigService,
-    private users: UsersService
+    private gs: GlobalService,
   ) { }
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
+    const params = {'maxResults': this.maxResults, 'expand':'accessGroups'}
 
-    let params = {'maxResults': this.maxResults}
-
-    this.agentsService.getAgents(params).subscribe((agents: any) => {
+    this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
       this.showagents = agents.values;
       // this.showagents.forEach(f => (f.checked = false));
       this.dtTrigger.next(void 0);
@@ -73,12 +74,12 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       select: {
         style: 'multi',
         },
-      columnDefs: [ {
-        width: "10% !important;",
-        targets: 0,
-        searchable: false,
-        orderable: false,
-      } ],
+      // columnDefs: [ {
+      //   width: "10% !important;",
+      //   targets: 0,
+      //   searchable: false,
+      //   orderable: false,
+      // } ],
       buttons: {
         dom: {
           button: {
@@ -87,19 +88,26 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         },
       buttons: [
         {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
           extend: 'collection',
           text: 'Export',
           buttons: [
             {
               extend: 'excelHtml5',
               exportOptions: {
-                columns: [1, 2, 3, 4, 5]
+                columns: [1, 2, 3, 4, 5, 6, 7, 8]
               },
             },
             {
               extend: 'print',
               exportOptions: {
-                columns: [1, 2, 3, 4, 5]
+                columns: [1, 2, 3, 4, 5, 6, 7, 8]
               },
               customize: function ( win ) {
                 $(win.document.body)
@@ -115,8 +123,8 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
               select: true,
               customize: function (dt, csv) {
                 self.onSelectedAgents();
-                var data = "";
-                for (var i = 0; i < dt.length; i++) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
                   data = "Agents\n\n"+  dt;
                 }
                 return data;
@@ -168,7 +176,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
           {
             extend: 'colvis',
             text: 'Column View',
-            columns: [ 1,2,3,4,5 ],
+            columns: [ 1, 2, 3, 4, 5, 6, 7, 8 ],
           },
           {
             extend: "pageLength",
@@ -179,17 +187,13 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     };
   }
 
-  // Set permissions
-  manageAgentAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageAgentAccess = perm.globalPermissionGroup.permissions.manageAgentAccess;
-    });
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   setCheckAll(){
-    let chkBoxlength = $(".checkboxCls:checked").length;
+    const chkBoxlength = $(".checkboxCls:checked").length;
     if (this.isChecked == true) {
       $(".checkboxCls").prop("checked", false);
       this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
@@ -232,7 +236,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
 
   onSelectedAgents(){
     $(".dt-button-background").trigger("click");
-    let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
         title: "You haven't selected any Agent",
@@ -242,75 +246,55 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       })
       return;
     }
-    let selectionnum = selection.map(i=>Number(i));
+    const selectionnum = selection.map(i=>Number(i));
 
     return selectionnum;
   }
 
   onDeleteBulk(){
-    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
       const self = this;
-      let selectionnum = this.onSelectedAgents();
-      let sellen = selectionnum.length;
-      let errors = [];
+      const selectionnum = this.onSelectedAgents();
+      const sellen = selectionnum.length;
+      const errors = [];
       selectionnum.forEach(function (value) {
         Swal.fire('Deleting...'+sellen+' Agent(s)...Please wait')
         Swal.showLoading()
-      self.agentsService.deleteAgent(value)
+      self.gs.delete(SERV.AGENTS,value)
       .subscribe(
         err => {
-          console.log('HTTP Error', err)
+          // console.log('HTTP Error', err)
           err = 1;
           errors.push(err);
         },
         );
       });
     self.onDone(sellen);
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
   }
 
   onUpdateBulk(value: any){
-    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
         const self = this;
-        let selectionnum = this.onSelectedAgents();
-        let sellen = selectionnum.length;
-        let errors = [];
+        const selectionnum = this.onSelectedAgents();
+        const sellen = selectionnum.length;
+        const errors = [];
         selectionnum.forEach(function (id) {
           Swal.fire('Updating...'+sellen+' Agents...Please wait')
           Swal.showLoading()
-        self.agentsService.updateAgent(id, value).subscribe(
+        self.gs.update(SERV.AGENTS,id, value).subscribe(
           err => {
-            console.log('HTTP Error', err)
+            // console.log('HTTP Error', err)
             err = 1;
             errors.push(err);
           },
         );
       });
       self.onDone(sellen);
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
   }
 
   onModal(title: string){
     (async () => {
 
       $(".dt-button-background").trigger("click");
-      let selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+      const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
       if(selection.length == 0) {
         Swal.fire({
           title: "You haven't selected any Agent",
@@ -334,7 +318,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         }
       })
 
-      let rack = []
+      const rack = []
       if (formValues) {
         rack.push({rack: formValues})
         // we need to send pus
@@ -347,29 +331,28 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: number){
-    if(this.manageAgentAccess || typeof this.manageAgentAccess == 'undefined'){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
-          confirmButton: 'btn btn-success',
-          cancelButton: 'btn btn-danger'
+          confirmButton: 'btn',
+          cancelButton: 'btn'
         },
         buttonsStyling: false
       })
       Swal.fire({
         title: "Are you sure?",
-        text: "Once deleted, it cannot be recover.",
+        text: "Once deleted, it can not be recovered!",
         icon: "warning",
+        reverseButtons: true,
         showCancelButton: true,
-        confirmButtonColor: '#4B5563',
-        cancelButtonColor: '#d33',
+        cancelButtonColor: '#8A8584',
+        confirmButtonColor: '#C53819',
         confirmButtonText: 'Yes, delete it!'
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.agentsService.deleteAgent(id).subscribe(() => {
-            Swal.fire(
-              "Agent has been deleted!",
-              {
+          this.gs.delete(SERV.AGENTS,id).subscribe(() => {
+            Swal.fire({
+              title: "Success",
               icon: "success",
               showConfirmButton: false,
               timer: 1500
@@ -378,23 +361,15 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
             this.rerender();  // rerender datatables
           });
         } else {
-          swalWithBootstrapButtons.fire(
-            'Cancelled',
-            'No worries, your Agent is safe!',
-            'error'
-          )
+          swalWithBootstrapButtons.fire({
+            title: "Cancelled",
+            text: "Your Agent is safe!",
+            icon: "error",
+            showConfirmButton: false,
+            timer: 1500
+          })
         }
       });
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
-    }
   }
-
 
 }

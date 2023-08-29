@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import {
   Directive,
   HostListener,
@@ -23,10 +24,10 @@ export class CopyButtonDirective {
   @Input("copyButton")
   public payload: string;
 
-  @Input("context")
+  @Input()
   public context: string;
 
-  @Output("copied")
+  @Output()
   public copied: EventEmitter<string> = new EventEmitter<string>();
 
   @HostListener("click", ["$event"])
@@ -35,8 +36,8 @@ export class CopyButtonDirective {
     if (!this.payload)
       return;
 
-    let listener = (e: ClipboardEvent) => {
-      let clipboard = e.clipboardData || window["clipboardData"];
+    const listener = (e: ClipboardEvent) => {
+      const clipboard = e.clipboardData || window["clipboardData"];
       clipboard.setData("text", this.payload.toString());
       e.preventDefault();
       this.copied.emit(this.payload);
@@ -45,7 +46,18 @@ export class CopyButtonDirective {
     document.addEventListener("copy", listener, false);
     document.execCommand("copy");
     document.removeEventListener("copy", listener, false);
+    this.savedAlert();
   }
 
+  savedAlert(){
+    Swal.fire({
+      position: 'top-end',
+      toast: true,
+      icon: 'success',
+      title: 'Copied',
+      showConfirmButton: false,
+      timer: 1500
+    })
+  }
 
 }

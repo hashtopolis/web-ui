@@ -1,29 +1,28 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
 import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 
-import { SuperTasksService } from 'src/app/core/_services/tasks/supertasks.sevice';
-import { PreTasksService } from 'src/app/core/_services/tasks/pretasks.sevice';
-import { UsersService } from 'src/app/core/_services/users/users.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-supertasks',
   templateUrl: './new-supertasks.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['New SuperTask'])
 export class NewSupertasksComponent implements OnInit {
-  isLoading = false;
-  faFile=faFile;
+
   faMagnifyingGlass=faMagnifyingGlass;
+  faFile=faFile;
 
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
-    private supertaskService: SuperTasksService,
-    private pretasksService: PreTasksService,
-    private users: UsersService,
+    private gs: GlobalService,
     private router: Router
   ) { }
 
@@ -33,18 +32,16 @@ export class NewSupertasksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.createForm = new FormGroup({
       supertaskName: new FormControl(''),
       pretasks: new FormControl(''),
     });
 
-    let params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults}
 
-    this.pretasksService.getAllPretasks(params).subscribe((tasks: any) => {
-      var self = this;
-      var response = tasks.values;
+    this.gs.getAll(SERV.PRETASKS,params).subscribe((tasks: any) => {
+      const self = this;
+      const response = tasks.values;
       ($("#preTasks") as any).selectize({
         maxItems: null,
         plugins: ["restore_on_backspace"],
@@ -59,13 +56,13 @@ export class NewSupertasksComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.pretaskId) + ' -  ' + escape(item.taskName) + '</div>';
+            return '<div  class="style_selectize">' + escape(item.pretaskId) + ' -  ' + escape(item.taskName) + '</div>';
           },
         },
         onInitialize: function(){
-          var selectize = this;
+          const selectize = this;
             selectize.addOption(response); // This is will add to option
-            var selected_items = [];
+            const selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
@@ -75,25 +72,14 @@ export class NewSupertasksComponent implements OnInit {
         });
   }
 
-  // Set permissions
-  manageSupertaskAccess: any;
-  createSupertaskAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.manageSupertaskAccess = perm.globalPermissionGroup.permissions.manageSupertaskAccess;
-        this.createSupertaskAccess = perm.globalPermissionGroup.permissions.createSupertaskAccess;
-    });
-  }
-
   OnChangeValue(value){
-    let formArr = new FormArray([]);
-    for (let val of value) {
+    const formArr = new FormArray([]);
+    for (const val of value) {
       formArr.push(
         new FormControl(+val)
       );
     }
-    let cname = this.createForm.get('supertaskName').value;
+    const cname = this.createForm.get('supertaskName').value;
     this.createForm = new FormGroup({
       supertaskName: new FormControl(cname),
       pretasks: formArr
@@ -102,16 +88,11 @@ export class NewSupertasksComponent implements OnInit {
   }
 
   onSubmit(){
-    if(this.createSupertaskAccess || typeof this.createSupertaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.supertaskService.createSupertask(this.createForm.value).subscribe((hasht: any) => {
-        const response = hasht;
-        this.isLoading = false;
+      this.gs.create(SERV.SUPER_TASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New Supertask created!",
             icon: "success",
             showConfirmButton: false,
@@ -119,26 +100,8 @@ export class NewSupertasksComponent implements OnInit {
           });
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/supertasks']);
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "Supertask was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 }

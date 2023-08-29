@@ -6,26 +6,28 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppPreloadingStrategy } from './core/app_preloading_strategy';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
-import { BrowserModule } from '@angular/platform-browser';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataTablesModule } from 'angular-datatables';
 import { ReactiveFormsModule } from '@angular/forms';
+import { Injector, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StoreModule } from '@ngrx/store';
 import { MomentModule } from 'ngx-moment';
-import { NgModule } from '@angular/core';
 /**
  * App Pages Components
  *
 */
+import { ScreenSizeDetectorComponent } from './layout/screen-size-detector/screen-size-detector.component';
 import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
 import { AuthInterceptorService } from './core/_interceptors/auth-interceptor.service';
-import { HttpErrorInterceptor } from './core/_interceptors/http-error.interceptor';
+import { HttpResInterceptor } from './core/_interceptors/http-res.interceptor';
 import { BreadcrumbComponent } from './shared/breadcrumb/breadcrumb.component';
 import { ErrorPageComponent } from './layout/error-page/error-page.component';
 import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
+import { ConfigService } from './core/_services/shared/config.service';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { AppRoutingModule } from './app-routing.module';
@@ -44,6 +46,7 @@ import { AuthModule } from './auth/auth.module';
 
 @NgModule({
   declarations: [
+    ScreenSizeDetectorComponent,
     PageNotFoundComponent,
     ScrollYTopComponent,
     BreadcrumbComponent,
@@ -72,6 +75,7 @@ import { AuthModule } from './auth/auth.module';
     StoreModule.forRoot({configList: configReducer})
   ],
   providers: [
+    Title,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,
@@ -79,14 +83,21 @@ import { AuthModule } from './auth/auth.module';
     },
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: HttpErrorInterceptor,
+      useClass: HttpResInterceptor,
       multi: true
     },
     ThemeService,
-    AppPreloadingStrategy
+    AppPreloadingStrategy,
+    ConfigService
   ],
-  entryComponents:[TimeoutComponent],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+  static injector: Injector;
+  constructor(
+    injector: Injector
+  ){
+    AppModule.injector = injector;
+  }
+}
 

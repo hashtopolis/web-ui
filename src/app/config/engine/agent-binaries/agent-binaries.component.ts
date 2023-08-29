@@ -1,18 +1,21 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { faHomeAlt, faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-
-import { AgentBinService } from '../../../core/_services/config/agentbinary.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject } from 'rxjs';
+
+import { environment } from './../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-agent-binaries',
   templateUrl: './agent-binaries.component.html'
 })
+@PageTitle(['Show Agent Binaries'])
 export class AgentBinariesComponent implements OnInit {
+
   public isCollapsed = true;
   faHome=faHomeAlt;
   faPlus=faPlus;
@@ -25,17 +28,18 @@ export class AgentBinariesComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-
   public binaries: {agentBinaryId: number, type: string, version: string, operatingSystems: string, filename: string, updateTrack: string, updateAvailable: string}[] = [];
 
+  private maxResults = environment.config.prodApiMaxResults;
+
   constructor(
-    private agentBinService: AgentBinService,
-    private route:ActivatedRoute, private router:Router
+    private gs: GlobalService,
   ) { }
 
   ngOnInit(): void {
 
-    this.agentBinService.getAgentBins().subscribe((bin: any) => {
+    const params = {'maxResults': this.maxResults}
+    this.gs.getAll(SERV.AGENT_BINARY,params).subscribe((bin: any) => {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
     });
@@ -58,7 +62,7 @@ export class AgentBinariesComponent implements OnInit {
 
   onSubmit(){
     Swal.fire({
-      title: "Good job!",
+      title: "Success",
       text: "New Binary created!",
       icon: "success",
       button: "Close",
@@ -79,8 +83,8 @@ export class AgentBinariesComponent implements OnInit {
   onDelete(id: number){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
+        confirmButton: 'btn',
+        cancelButton: 'btn'
       },
       buttonsStyling: false
     })
@@ -88,17 +92,17 @@ export class AgentBinariesComponent implements OnInit {
       title: "Are you sure?",
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
+      reverseButtons: true,
       showCancelButton: true,
-      confirmButtonColor: '#4B5563',
-      cancelButtonColor: '#d33',
+      cancelButtonColor: '#8A8584',
+      confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
     .then((result) => {
       if (result.isConfirmed) {
-        this.agentBinService.deleteAgentBin(id).subscribe(() => {
-          Swal.fire(
-            "Agent Binary has been deleted!",
-            {
+        this.gs.delete(SERV.AGENT_BINARY,id).subscribe(() => {
+          Swal.fire({
+            title: "Success",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
@@ -107,11 +111,13 @@ export class AgentBinariesComponent implements OnInit {
           this.rerender();  // rerender datatables
         });
       } else {
-        swalWithBootstrapButtons.fire(
-          'Cancelled',
-          'No worries, your Binary is safe!',
-          'error'
-        )
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Binary is safe!",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1500
+        })
       }
     });
   }

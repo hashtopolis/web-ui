@@ -38,3 +38,10 @@ export const proxytype = [
   {value:'SOCKS4'},
   {value:'SOCKS5'}
 ];
+
+/**
+ * Color picker preset colors
+**/
+
+export const colorpicker = ['#D41A29', '#00A5ff', '#D000A4', '#FF9000', '#F32E6E', '#D35F00', '#7ad54d'];
+

@@ -1,46 +1,50 @@
-<div *ngIf="isLoading" style="text-align: center;">
-  <app-loading-spinner></app-loading-spinner>
-</div>
-<!-- Body -->&nbsp;
-<div class="row justify-content-center">
-    <div class="col-12 d-flex align-items-center justify-content-center">
-        <div class="layout-col shadow border-0 rounded p-4 p-lg-5 w-100 fmxw-500">
-            <h2 class="h5 mb-4">Hash Search</h2><br>
-            <div class="row">
-                <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-                    <div class="form-outline">
-                          <div class="form-group">
-                            <div class="form-outline">
-                                <label class="form-label requiredak" for="getHashlists">Search Hashes:</label>
-                                <div class="input-group">
-                                  <span class="input-group-text" >
-                                    <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-                                  </span>
-                                  <textarea
-                                        type='number'
-                                        id="hashlists"
-                                        class='form-control'
-                                        formControlName="hashlists"
-                                      >
-                                  </textarea>
-                                </div>
-                            </div>
-                          </div>
-                          &nbsp;
-                     </div>
-                  <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Minimum 1 hash required!</span><br>
-                   <button
-                          type="submit"
-                          class="btn btn-gray-800"
-                          [disabled]="createForm.invalid"
-                   >
-                   Create
-                  </button>
-              </form>
-         </div>
-     </div>
-  </div>
-</div>
-
-
-
+<app-page-subtitle [subtitle]="'Hash Search'"></app-page-subtitle>
+<!-- Body -->
+<grid-main [class]="'width:100%'">
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+    <div class="row">
+    <grid-form-input [name]="'Search Hashes:'" [labelclass]="'requiredak'">
+      <div class="input-group">
+        <span class="input-group-text" >
+          <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
+        </span>
+        <textarea
+              type='number'
+              id="hashes"
+              class='form-control'
+              formControlName="hashes"
+            >
+        </textarea>
+      </div>
+    </grid-form-input>
+    <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Minimum 1 hash required!</span><br>
+    <button-submit [name]="'Create'"></button-submit>
+    </div>
+  </form>
+</grid-main>
+<!-- Table -->
+<app-table *ngIf="searh">
+  <table class="table table-striped table-hover table-sm">
+    <thead class="thead-light">
+      <tr>
+          <th class="rounded-start">Hash</th>
+          <th>Info</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let n of searh">
+          <td>{{ n.hash }}</td>
+          <td *ngIf="n.isCracked !== 3">
+            {{ n.isCracked ? 'Cracked':'Uncracked' }} on {{ n.timeCracked*1000 | date: uidateformat }}
+            <br>
+            Hashlist:
+            <a
+            [routerLink]="['/hashlists/hashes/','hashlists',n.hashlistId]"
+            [queryParams]="{filter: 'cracked'}"
+            >{{ n.hashlistId }}</a>
+          </td>
+          <td *ngIf="n.isCracked === 3">Not Found</td>
+      </tr>
+      </tbody>
+  </table>
+</app-table>

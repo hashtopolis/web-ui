@@ -1,16 +1,26 @@
 <nav class="navbar navbar-expand-md layout-col rounded background-color: #f8f8f8">
   <a class="navbar-brand" routerLink="/" *ngIf="!isMobile">
-    <img
-      *ngIf="currentTheme() != 'dark'"
+     <video
+          [muted]="true" autoplay playsinline
+          *ngIf="currentTheme() !== 'dark'"
+          [width]="this.headerConfig.brand.width"
+          [height]="this.headerConfig.brand.height"
+          class="navbar-left"
+          type="video/mp4"
+          >
+        <source src={{this.headerConfig.brand.logo_animated}} type="video/mp4">
+      </video>
+    <!-- <img
+      *ngIf="currentTheme() !== 'dark'"
       [src]="this.headerConfig.brand.logo"
       [alt]="this.headerConfig.brand.name"
       [width]="this.headerConfig.brand.width"
       [height]="this.headerConfig.brand.height"
       class="navbar-left"
-      alt
-    />
+      alt="preview"
+    /> -->
     <img
-      *ngIf="currentTheme() == 'dark'"
+      *ngIf="currentTheme() === 'dark'"
       [src]="this.headerConfig.brand.logored"
       [alt]="this.headerConfig.brand.name"
       [width]="this.headerConfig.brand.widthred"
@@ -35,11 +45,11 @@
    <span class="navbar-toggler-icon"></span>
  </button>
 	<div id="navbarSupportedContent" [ngClass]="{'collapse': collapsed, 'navbar-collapse': true}">
-        <ul class="navbar-nav mr-auto">
+        <ul class="nav navbar-nav mr-auto">
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" [routerLinkActive]="['active']" *ngIf="isAuthentificated">
-          <div ngbDropdownToggle id="dropdownAgents" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <div ngbDropdownToggle id="dropdownAgents" routerLink="agents/show-agents" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faServer" aria-hidden="true"></fa-icon>
-            Agents
+             Agents
           </div>
           <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aria-labelledby="dropdownAgents">
             <a class="dropdown-item" routerLink="agents/show-agents" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Show Agents</a>
@@ -50,37 +60,32 @@
           <a class="nav-link" routerLinkActive="active" routerLink="projects/" *ngIf="isAuthentificated">Projects</a>
         </li> -->
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
-          <div ngbDropdownToggle id="dropdownTasks" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <div ngbDropdownToggle id="dropdownTasks" routerLink="tasks/show-tasks" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faTasks" aria-hidden="true"></fa-icon>
             Tasks
           </div>
           <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aria-labelledby="dropdownTasks">
             <a class="dropdown-item" routerLink="tasks/show-tasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Show Tasks</a>
-            <div role="separator" class="dropdown-divider my-1"></div>
             <a class="dropdown-item" routerLink="tasks/preconfigured-tasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Preconfigured Tasks</a>
-            <div role="separator" class="dropdown-divider my-1"></div>
             <a class="dropdown-item" routerLink="tasks/supertasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Supertasks</a>
-            <a class="dropdown-item" routerLink="tasks/import-supertasks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Import Supertask</a>
-            <div role="separator" class="dropdown-divider my-1"></div>
+            <a class="dropdown-item" routerLink="tasks/import-supertasks/masks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Import Supertask</a>
             <a class="dropdown-item" routerLink="tasks/chunks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Chunk activity</a>
           </div>
         </li>
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
-          <div ngbDropdownToggle id="dropdownHashlists" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <div ngbDropdownToggle id="dropdownHashlists" routerLink="hashlists/hashlist" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faDatabase" aria-hidden="true"></fa-icon>
             Hashlists
           </div>
           <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aria-labelledby="dropdownHashlists">
           <a class="dropdown-item" routerLink="hashlists/hashlist" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Hashlists</a>
-          <div role="separator" class="dropdown-divider my-1"></div>
           <a class="dropdown-item" routerLink="hashlists/superhashlist" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Superhashlists</a>
-          <div role="separator" class="dropdown-divider my-1"></div>
           <a class="dropdown-item" routerLink="hashlists/search-hash" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Search Hash</a>
           <a class="dropdown-item" routerLink="hashlists/show-cracks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Show cracks</a>
           </div>
         </li>
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
-          <div ngbDropdownToggle id="dropdownFiles" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <div ngbDropdownToggle id="dropdownFiles" routerLink="files/wordlist"  data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faFileArchive" aria-hidden="true"></fa-icon>
             Files
           </div>
@@ -91,27 +96,25 @@
           </div>
         </li>
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
-          <div ngbDropdownToggle id="dropdownConfig" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <div ngbDropdownToggle id="dropdownConfig" routerLink="config/agent" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faCogs" aria-hidden="true"></fa-icon>
               Config
           </div>
           <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aaria-labelledby="dropdownConfig">
+          <a class="dropdown-item" routerLink="config/agent" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Settings</a>
           <a class="dropdown-item" routerLink="config/engine/agent-binaries" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Engines</a>
           <a class="dropdown-item" routerLink="config/hashtypes" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Hashtypes</a>
           <a class="dropdown-item" routerLink="config/health-checks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Health Checks</a>
-          <div role="separator" class="dropdown-divider my-1"></div>
           <a class="dropdown-item" routerLink="config/log" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Log</a>
-          <a class="dropdown-item" routerLink="config/agent" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Settings</a>
           </div>
         </li>
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
-          <div ngbDropdownToggle id="dropdownUsers" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+          <div ngbDropdownToggle id="dropdownUsers" routerLink="users/all-users" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faUserGroup" aria-hidden="true"></fa-icon>
               Users
           </div>
           <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aria-labelledby="dropdownUsers">
           <a class="dropdown-item" routerLink="users/all-users" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">All users</a>
-          <div role="separator" class="dropdown-divider my-1"></div>
           <a class="dropdown-item" routerLink="users/global-permissions-groups" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Global Permissions</a>
           <a class="dropdown-item" routerLink="users/access-groups" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Access Groups</a>
           </div>
@@ -166,7 +169,7 @@
             <fa-icon class="dropdown-icon" [icon]="faInbox" aria-hidden="true"></fa-icon>
               Notifications
           </a>
-          <app-switch-theme></app-switch-theme>
+          <app-switch-theme class="point"></app-switch-theme>
           <a *ngIf="storedWidthScreentheme === 'true'" class="dropdown-item align-items-center point" (click)="switchScreen()">
             <fa-icon class="dropdown-icon" [icon]="faArrowsH" aria-hidden="true"></fa-icon>
               Full Width
@@ -175,12 +178,11 @@
             <fa-icon class="dropdown-icon" [icon]="faExchange" aria-hidden="true"></fa-icon>
               Normal Width
           </a>
-          <a class="dropdown-item align-items-center" href="https://discord.com/channels/419123475538509844/419123475538509846">
+          <a class="dropdown-item align-items-center" href="https://discord.com/channels/419123475538509844/419123475538509846" target="_blank" rel="noopener">
             <fa-icon class="dropdown-icon" [icon]="faQuestionCircle" aria-hidden="true"></fa-icon>
               Support
           </a>
-          <div role="separator" class="dropdown-divider my-1"></div>
-          <a class="dropdown-item align-items-center" (click)="onLogOut()">
+          <a class="dropdown-item align-items-center point" (click)="onLogOut()">
             <fa-icon class="dropdown-icon text-danger" [icon]="faPowerOff" aria-hidden="true"></fa-icon>
               Logout
           </a>
@@ -189,4 +191,3 @@
     </ul>
   </div>
 </nav>
-

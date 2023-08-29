@@ -1,5 +1,5 @@
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
@@ -9,23 +9,20 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { PreTasksService } from '../../core/_services/tasks/pretasks.sevice';
-import { CrackerService } from '../../core/_services/config/cracker.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
-import { TasksService } from 'src/app/core/_services/tasks/tasks.sevice';
-import { FilesService } from '../../core/_services/files/files.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { colorpicker } from '../../core/_constants/settings.config';
 import { FileTypePipe } from 'src/app/core/_pipes/file-type.pipe';
-
-declare let $:any;
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-preconfigured-tasks',
   templateUrl: './new-preconfigured-tasks.component.html'
 })
+@PageTitle(['New Preconfigured Tasks'])
 export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   @ViewChild('cmdAttack', {static: true}) cmdAttack: any;
-  // Loader
-  isLoading = false;
+
   faInfoCircle=faInfoCircle;
   faLock=faLock;
   // Config
@@ -34,16 +31,12 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   private maxAgents = environment.config.tasks.maxAgents;
 
   constructor(
-    private preTasksService: PreTasksService,
-    private crackerService: CrackerService,
-    private filesService: FilesService,
     private uiService: UIConfigService,
-    private taskService: TasksService,
     private modalService: NgbModal,
     private fileType: FileTypePipe,
     private route:ActivatedRoute,
-    private users: UsersService,
-    private router: Router,
+    private gs: GlobalService,
+    private router: Router
   ) { }
 
   copyMode = false;
@@ -51,7 +44,8 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   whichView: string;
   createForm: FormGroup
   crackertype: any
-  color: string = '#fff'
+  color: any;
+  colorpicker=colorpicker;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -83,20 +77,30 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   onChange(fileId:number, fileType:number, fileName: string, $target: EventTarget) {
     const isChecked = (<HTMLInputElement>$target).checked;
     if(isChecked) {
+      if (this.copyMode) {
+        this.filesFormArray = this.createForm.get('files').value;
+      }
       this.filesFormArray.push(fileId);
       this.OnChangeAttack(fileName, fileType);
       this.createForm.patchValue({files: this.filesFormArray });
     } else {
-      let index = this.filesFormArray.indexOf(fileId);
+      if (this.copyMode) {
+        this.filesFormArray = this.createForm.get('files').value;
+      }
+      const index = this.filesFormArray.indexOf(fileId);
       this.filesFormArray.splice(index,1);
       this.createForm.patchValue({files: this.filesFormArray});
       this.OnChangeAttack(fileName, fileType, true);
     }
   }
 
+  onChecked(fileId: number){
+    return this.createForm.get('files').value.includes(fileId);
+  }
+
   OnChangeAttack(item: string, fileType: number, onRemove?: boolean){
     if(onRemove == true){
-      let currentCmd = this.createForm.get('attackCmd').value;
+      const currentCmd = this.createForm.get('attackCmd').value;
       let newCmd = item
       if (fileType === 1 ){newCmd = '-r '+ newCmd;}
       newCmd = currentCmd.replace(newCmd,'');
@@ -105,7 +109,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
         attackCmd: newCmd
       });
     } else {
-      let currentCmd = this.createForm.get('attackCmd').value;
+      const currentCmd = this.createForm.get('attackCmd').value;
       let newCmd = item;
       this.validateFile(newCmd);
       if (fileType === 1 ){
@@ -130,8 +134,6 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   ngOnInit(): void {
 
-    this.setAccessPermissions();
-
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -149,13 +151,11 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
         case 'copy-preconfigured-tasks':
           this.whichView = 'edit';
-          this.isLoading = true;
           this.initForm();
         break;
 
         case 'copy-tasks':
           this.whichView = 'task';
-          this.isLoading = true;
           this.initFormt();
         break;
 
@@ -178,13 +178,13 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
       'files': new FormControl('' || [])
     });
 
-    this.crackerService.getCrackerType().subscribe((crackers: any) => {
+    this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers: any) => {
       this.crackertype = crackers.values;
     });
 
-    let params = {'maxResults': this.maxResults, 'expand': 'accessGroup'}
+    const params = {'maxResults': this.maxResults, 'expand': 'accessGroup'}
 
-    this.filesService.getFiles(params).subscribe((files: any) => {
+    this.gs.getAll(SERV.FILES,params).subscribe((files: any) => {
       this.allfiles = files.values;
       this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
         setTimeout(() => {
@@ -195,7 +195,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     });
 
 
-    this.dtOptions[0] = {
+    this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: "1000px",
       scrollCollapse: true,
@@ -211,52 +211,11 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
       }
     }
 
-    this.dtOptions[1] = {
-      dom: 'Bfrtip',
-      scrollY: "1000px",
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
-      }
-    }
-
-    this.dtOptions[2] = {
-      dom: 'Bfrtip',
-      scrollY: "1000px",
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
-      }
-    }
-
-  }
-
-  // Set permissions
-  createPretaskAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createPretaskAccess = perm.globalPermissionGroup.permissions.createPretaskAccess;
-    });
   }
 
   get attckcmd(){
     return this.createForm.controls['attackCmd'];
-  };
+  }
 
   forbiddenChars(name: RegExp): ValidatorFn{
     return (control: AbstractControl): { [key: string]: any } => {
@@ -274,7 +233,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   }
 
   getBanChars(){
-    var chars = this.uiService.getUIsettings('blacklistChars').value.replace(']', '\\]').replace('[', '\\[');
+    const chars = this.uiService.getUIsettings('blacklistChars').value.replace(']', '\\]').replace('[', '\\[');
     return new RegExp('['+chars+'\/]', "g")
   }
 
@@ -291,43 +250,20 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   }
 
   onSubmit(){
-    if(this.createPretaskAccess || typeof this.createPretaskAccess == 'undefined'){
     if (this.createForm.valid) {
 
-      this.isLoading = true;
-
-      this.preTasksService.createPretask(this.createForm.value).subscribe((pret: any) => {
-        const response = pret;
-        console.log(response);
-        this.isLoading = false;
+      this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Good job!",
+            title: "Success",
             text: "New PreTask created!",
             icon: "success",
             showConfirmButton: false,
             timer: 1500
           });
           this.createForm.reset(); // success, we reset form
-        },
-        errorMessage => {
-          // check error status code is 500, if so, do some action
-          Swal.fire({
-            title: "Error!",
-            text: "PreTask was not created, please try again!",
-            icon: "warning",
-            showConfirmButton: true
-          });
+          this.router.navigate(['tasks/preconfigured-tasks']);
         }
       );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 
@@ -344,49 +280,59 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
   }
 
   private initForm() {
-    this.isLoading = true;
     if (this.copyMode) {
-    this.preTasksService.getPretask(this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.PRETASKS,this.editedIndex, {'expand':'pretaskFiles'}).subscribe((result)=>{
+      this.color = result['color'];
+      const arrFiles: Array<any> = [];
+      if(result['pretaskFiles']){
+        for(let i=0; i < result['pretaskFiles'].length; i++){
+          arrFiles.push(result['pretaskFiles'][i]['fileId']);
+        }
+      }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_pretask_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
         'attackCmd': new FormControl(result['attackCmd']),
-        'maxAgents': new FormControl(result['maxAgents'], Validators.required),
-        'chunkTime': new FormControl(result['chunkTime'], Validators.required),
-        'statusTimer': new FormControl(result['statusTimer'], Validators.required),
-        'priority': new FormControl(result['priority'], Validators.required),
-        'color': new FormControl(result['color'], Validators.required),
-        'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
-        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId'], Validators.required),
-        'isSmall': new FormControl(result['isSmall'], Validators.required),
-        'useNewBench': new FormControl(result['useNewBench'], Validators.required),
-        'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
-        'files': new FormControl(result['files'], Validators.required),
+        'maxAgents': new FormControl(result['maxAgents']),
+        'chunkTime': new FormControl(result['chunkTime']),
+        'statusTimer': new FormControl(result['statusTimer']),
+        'priority': new FormControl(result['priority']),
+        'color': new FormControl(result['color']),
+        'isCpuTask': new FormControl(result['isCpuTask']),
+        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId']),
+        'isSmall': new FormControl(result['isSmall']),
+        'useNewBench': new FormControl(result['useNewBench']),
+        'isMaskImport': new FormControl(false),
+        'files': new FormControl(arrFiles),
       });
-      this.isLoading = false;
     });
    }
   }
 
   private initFormt() {
-    this.isLoading = true;
     if (this.copyMode) {
-    this.taskService.getTask(this.editedIndex).subscribe((result)=>{
+    this.gs.get(SERV.TASKS,this.editedIndex,{'expand': 'files'}).subscribe((result)=>{
+      this.color = result['color'];
+      const arrFiles: Array<any> = [];
+      if(result.files){
+        for(let i=0; i < result.files.length; i++){
+          arrFiles.push(result.files[i]['fileId']);
+        }
+      }
       this.createForm = new FormGroup({
         'taskName': new FormControl(result['taskName']+'_(Copied_pretask_from_task_id_'+this.editedIndex+')', [Validators.required, Validators.minLength(1)]),
         'attackCmd': new FormControl(result['attackCmd']),
-        'maxAgents': new FormControl(result['maxAgents'], Validators.required),
-        'chunkTime': new FormControl(result['chunkTime'], Validators.required),
-        'statusTimer': new FormControl(result['statusTimer'], Validators.required),
-        'priority': new FormControl(result['priority'], Validators.required),
-        'color': new FormControl(result['color'], Validators.required),
-        'isCpuTask': new FormControl(result['isCpuTask'], Validators.required),
-        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId'], Validators.required),
-        'isSmall': new FormControl(result['isSmall'], Validators.required),
-        'useNewBench': new FormControl(result['useNewBench'], Validators.required),
-        'isMaskImport': new FormControl(result['isMaskImport'], Validators.required),
-        'files': new FormControl(result['files'], Validators.required),
+        'maxAgents': new FormControl(result['maxAgents']),
+        'chunkTime': new FormControl(result['chunkTime']),
+        'statusTimer': new FormControl(result['statusTimer']),
+        'priority': new FormControl(result['priority']),
+        'color': new FormControl(result['color']),
+        'isCpuTask': new FormControl(result['isCpuTask']),
+        'crackerBinaryTypeId': new FormControl(result['crackerBinaryTypeId']),
+        'isSmall': new FormControl(result['isSmall']),
+        'useNewBench': new FormControl(result['useNewBench']),
+        'isMaskImport': new FormControl(false),
+        'files': new FormControl(arrFiles),
       });
-      this.isLoading = false;
     });
    }
   }

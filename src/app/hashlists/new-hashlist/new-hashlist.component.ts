@@ -1,43 +1,39 @@
-import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus, faLink } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener  } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, delay } from 'rxjs';
 import { Buffer } from 'buffer';
 
-import { AccessGroupsService } from '../../core/_services/access/accessgroups.service';
-import { HashtypeService } from 'src/app/core/_services/config/hashtype.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UploadTUSService } from '../../core/_services/files/files_tus.service';
-import { ListsService } from '../../core/_services/hashlist/hashlist.service';
-import { UsersService } from 'src/app/core/_services/users/users.service';
 import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
-import { AccessGroup } from '../../core/_models/access-group';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { ShowHideTypeFile } from '../../shared/utils/forms';
 import { UploadFileTUS } from '../../core/_models/files';
-
-
+import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+@PageTitle(['New Hashlist'])
 export class NewHashlistComponent implements OnInit {
   /**
    * Fa Icons
    *
   */
-  isLoading = false;
-  faUpload=faUpload;
+  faMagnifyingGlass=faMagnifyingGlass;
   faFileUpload=faFileUpload;
   faInfoCircle=faInfoCircle;
-  faMagnifyingGlass=faMagnifyingGlass;
-
   faSearchPlus=faSearchPlus;
+  faUpload=faUpload;
+  faLink=faLink;
 
   /**
    * Form Settings
@@ -54,23 +50,22 @@ export class NewHashlistComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-     private accessgroupService: AccessGroupsService,
      private _changeDetectorRef: ChangeDetectorRef,
-     private hashtypeService: HashtypeService,
      private uploadService:UploadTUSService,
      private uiService: UIConfigService,
-     private hlService: ListsService,
      private modalService: NgbModal,
-     private users: UsersService,
-     private router: Router
-     ) { }
+     private gs: GlobalService,
+     private router: Router,
+     ) {
+     }
 
   ngOnInit(): void {
-    this.isLoading = true;
 
     this.brainenabled = this.uiService.getUIsettings('hashcatBrainEnable').value;
 
-    this.accessgroupService.getAccessGroups().subscribe((agroups: any) => {
+    const params = {'maxResults': this.maxResults};
+
+    this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
     });
 
@@ -94,25 +89,16 @@ export class NewHashlistComponent implements OnInit {
 
   }
 
-  // Set permissions
-  createHashlistAccess: any;
-
-  setAccessPermissions(){
-    this.users.getUser(this.users.userId,{'expand':'globalPermissionGroup'}).subscribe((perm: any) => {
-        this.createHashlistAccess = perm.globalPermissionGroup.permissions.createHashlistAccess;
-    });
-  }
-
   ngAfterViewInit() {
 
     this.uploadProgress = this.uploadService.uploadProgress; // TUS upload progress
 
-    let params = {'maxResults': this.maxResults};
+    const params = {'maxResults': this.maxResults};
 
-    this.hashtypeService.getHashTypes(params).subscribe((htypes: any) => {
-      var self = this;
-      var prep = htypes.values;
-      var response = [];
+    this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
+      const self = this;
+      const prep = htypes.values;
+      const response = [];
       for(let i=0; i < prep.length; i++){
         const obj = { hashTypeId: prep[i].hashTypeId, descrId: prep[i].hashTypeId +' '+prep[i].description };
         response.push(obj)
@@ -130,13 +116,13 @@ export class NewHashlistComponent implements OnInit {
         },
         render: {
           option: function (item, escape) {
-            return '<div  class="hashtype_selectize">' + escape(item.descrId) + '</div>';
+            return '<div  class="style_selectize">' + escape(item.descrId) + '</div>';
           },
         },
         onInitialize: function(){
-          var selectize = this;
+          const selectize = this;
             selectize.addOption(response);
-            var selected_items = [];
+            const selected_items = [];
             $.each(response, function( i, obj) {
                 selected_items.push(obj.id);
             });
@@ -158,12 +144,12 @@ export class NewHashlistComponent implements OnInit {
   uploadProgress: Observable<UploadFileTUS[]>;
   filenames: string[] = [];
 
-  onuploadFile(event: any) {
-    const file = event.item(0)
-    // const filename = `${new Date().getTime()}_${file.name}`;
-    const filename = file.name;
-    // console.log(`Uploading ${file.name} with size ${file.size} and type ${file.type}`);
-    this.uploadService.uploadFile(file, filename);
+  onuploadFile(files: FileList) {
+    for (let i = 0; i < files.length; i++) {
+      this.filenames.push(files[i].name);
+      console.log(`Uploading ${files[i].name} with size ${files[i].size} and type ${files[i].type}`);
+      this.uploadService.uploadFile(files[i], files[i].name);
+    }
   }
 
   onuploadCancel(filename: string) {
@@ -211,48 +197,42 @@ export class NewHashlistComponent implements OnInit {
    *
   */
 
+  submitted = false;
+  onSubmitFile(): void{
+    setTimeout(() => {
+      this.onSubmit();
+      this.submitted = true;
+    },1000);
+  }
+
   onSubmit(): void{
-      if(this.createHashlistAccess || typeof this.createHashlistAccess == 'undefined'){
       if (this.signupForm.valid) {
 
-      this.isLoading = true;
+      const res = this.handleUpload(this.signupForm.value);
 
-      var res = this.handleUpload(this.signupForm.value);
-
-      this.hlService.createHashlist(res).subscribe((hl: any) => {
-        this.isLoading = false;
+      this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
         Swal.fire({
-          title: "Good job!",
+          title: "Success",
           text: "New HashList created!",
           icon: "success",
           showConfirmButton: false,
           timer: 1500
         });
         this.router.navigate(['/hashlists/hashlist']);
-      },
-      errorMessage => {
-        Swal.fire({
-          title: "Oppss! Error",
-          text: errorMessage.error.message,
-          icon: "warning",
-          showConfirmButton: true
-        });
       }
     );
-    }
-    }else{
-      Swal.fire({
-        title: "ACTION DENIED",
-        text: "Please contact your Administrator.",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 2000
-      })
     }
   }
 
   handleUpload(arr: any){
-    var res = {
+    const str = arr.sourceData;
+    const filereplace = str.replace("C:\\fakepath\\", "");
+    let filename = filereplace;
+    if(arr.sourceType === 'paste'){
+      filename = Buffer.from(filereplace).toString('base64');
+    }
+
+    const res = {
       'name': arr.name,
       'hashTypeId': arr.hashTypeId,
       'format': arr.format,
@@ -264,7 +244,7 @@ export class NewHashlistComponent implements OnInit {
       'brainFeatures': arr.brainFeatures,
       'notes': arr.notes,
       "sourceType": arr.sourceType,
-      "sourceData": Buffer.from(arr.sourceData).toString('base64'),
+      "sourceData": filename,
       'hashCount': arr.hashCount,
       'isArchived': arr.isArchived,
       'isSecret': arr.isSecret,
@@ -288,26 +268,27 @@ export class NewHashlistComponent implements OnInit {
   }
 
   // Open Modal
-    // Modal Information
-    closeResult = '';
-    open(content) {
-      this.modalService.open(content, { size: 'xl' }).result.then(
-        (result) => {
-          this.closeResult = `Closed with: ${result}`;
-        },
-        (reason) => {
-          this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-        },
-      );
-    }
+  // Modal Information
+  closeResult = '';
+  open(content) {
+    this.modalService.open(content, { size: 'xl' }).result.then(
+      (result) => {
+        this.closeResult = `Closed with: ${result}`;
+      },
+      (reason) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      },
+    );
+  }
 
-    private getDismissReason(reason: any): string {
-      if (reason === ModalDismissReasons.ESC) {
-        return 'by pressing ESC';
-      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-        return 'by clicking on a backdrop';
-      } else {
-        return `with: ${reason}`;
-      }
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
     }
+  }
+
 }
