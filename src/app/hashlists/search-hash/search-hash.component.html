@@ -33,7 +33,9 @@
       </thead>
       <tbody>
       <tr *ngFor="let n of searh">
-          <td class="text-align:center">{{ n.notificationSettingId }}</td>
+          <td>{{ n.hash }}</td>
+          <td *ngIf="n.isCracked !== 3">{{ n.isCracked ? 'Cracked':'Uncracked' }} on {{ n.timeCracked*1000 | date: uidateformat }}</td>
+          <td *ngIf="n.isCracked === 3">Not Found</td>
       </tr>
       </tbody>
   </table>
