@@ -35,8 +35,8 @@ export class AgentsSpeedPipe implements PipeTransform {
 
   transform(id: number, type?:boolean){
 
-      // const maxResults = environment.config.prodApiMaxResults;
-      const maxResults = 60000;
+      const maxResults = environment.config.prodApiMaxResults;
+      // const maxResults = 60000;
       const chunktime = this.uiService.getUIsettings('chunktime').value;
       const cspeed = [];
       let params: any;
