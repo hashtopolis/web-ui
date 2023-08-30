@@ -5,7 +5,7 @@
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>
-          <th>Active</th>
+          <th>Status</th>
           <th>Trigger action</th>
           <th>Applied To</th>
           <th>Called Notification</th>
@@ -16,13 +16,14 @@
       <tbody>
       <tr *ngFor="let n of Allnotif">
           <td class="text-align:center">{{ n.notificationSettingId }}</td>
-          <td>{{ n.isActive == true ? "Yes" : "No" }}</td>
+          <td>
+            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{n.isActive === true ? 'background-color:green' : 'background-color:yellow'}}">
+              {{  n.isActive === true ? "Valid" : "Invalid/Not activated" }}
+            </span>
+          </td>
           <td>{{ n.action }}</td>
           <td>
             {{ n.objectId }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',n.objectId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Agent">
-              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-            </a>
           </td>
           <td>{{ n.notification }}</td>
           <td><code>{{ n.receiver }}</code></td>
