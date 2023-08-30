@@ -242,14 +242,12 @@ export class EditAgentComponent implements OnInit {
 
   agentStats(obj: any){
     this.getGraph(obj.filter(u=> u.statType == ASC.GPU_TEMP),ASC.GPU_TEMP,'tempgraph'); // filter Device Temperature
-    // this.getGraph(obj.filter(u=> u.statType == ASC.GPU_UTIL),ASC.GPU_UTIL,'devicegraph'); // filter Device Utilization
-    // this.getGraph(obj.filter(u=> u.statType == ASC.CPU_UTIL),ASC.CPU_UTIL,'cpugraph'); // filter CPU utilization
+    this.getGraph(obj.filter(u=> u.statType == ASC.GPU_UTIL),ASC.GPU_UTIL,'devicegraph'); // filter Device Utilization
+    this.getGraph(obj.filter(u=> u.statType == ASC.CPU_UTIL),ASC.CPU_UTIL,'cpugraph'); // filter CPU utilization
   }
 
   // Temperature Graph
 getGraph(obj: object, status: number, name: string){
-
-  // console.log(obj)
 
   echarts.use([
     TitleComponent,
@@ -274,7 +272,6 @@ getGraph(obj: object, status: number, name: string){
 
   let templabel = '';
 
-
   if(ASC.GPU_TEMP === status){
     if(this.getTemp2() > 100){ templabel = '°F'}else{ templabel = '°C'}
   }
@@ -291,27 +288,26 @@ getGraph(obj: object, status: number, name: string){
   const data:any = obj;
   const arr = [];
   const max = [];
-  const result = [];
+  const devlabels = [];
+  const result:any = obj;
 
-  data.reduce(function(res, value) {
-    if (!res[value.time]) {
-      res[value.time] = { time: value.time, value: 0, agentId: value.agentId};
-      result.push(res[value.time])
-    }
-    res[value.time].value += value.value;
-    return res;
-  }, {});
-
-  // console.log(result)
   for(let i=0; i < result.length; i++){
-
-    const iso = this.transDate(result[i]['time']);
-
-    const repdec =  Number(result[i].value.replace(/,/, '.')); //replace comma decimmal for dot
-
-    arr.push([iso, repdec, result[i].agentId]);
-    max.push(result[i]['time']);
+    let val = result[i].value;
+    for(let i=0; i < val.length; i++){
+      const iso = this.transDate(result[i]['time']);
+      arr.push({ 'time': iso, 'value': val[i], 'device': i});
+      max.push(result[i]['time']);
+      devlabels.push('Device '+i+'');
+    }
   }
+
+  const grouped = [];
+  arr.forEach(function (a) {
+    grouped[a.device] = grouped[a.device] || [];
+    grouped[a.device].push({ time: a.time, value: a.value });
+  });
+
+  let labels = [...new Set(devlabels)];
 
   const startdate =  Math.max(...max);
   const datelabel = this.transDate(startdate);
@@ -321,30 +317,26 @@ getGraph(obj: object, status: number, name: string){
   const myChart = echarts.init(chartDom);
   let option: EChartsOption;
 
-  // const seriesData = function(ids) {
-  //   return Object.keys(ids).map(key => {
-  //     return {
-  //       name: ids,
-  //       data: arr,
-  //       type: 'line'
-  //     }
-  //   })
-  // };
+  const seriesData= [];
+  for(let i=0; i < grouped.length; i++){
+    seriesData.push({
+      name: 'Device '+i+'',
+      type: 'line',
+      data: grouped[i],
+      markLine: {
+        data: [{ type: 'average', name: 'Avg' }],
+        symbol:['none', 'none'],
+    }})
+  }
 
   const self = this;
   option = {
     tooltip: {
       position: 'top',
-      // formatter: function (p) {
-      //   return p.data[0] + ': ' + self.leading_zeros(Number(p.data[1])) +templabel+ ' Device ' + p.data[2];
-      // }
     },
-    // legend: {
-    //   //selectedMode: false,
-    //   orient: 'vertical',
-    //   x: 'left',
-    //   data:[1]
-    // },
+    legend: {
+      data: labels
+    },
     toolbox: {
       show: true,
       feature: {
@@ -370,20 +362,8 @@ getGraph(obj: object, status: number, name: string){
         formatter: '{value} '+templabel+''
       }
     },
-    // series: seriesData(data),
-    series: [
-      {
-        name:'Device',
-        type: 'line',
-        data: arr,
-        markLine: {
-          data: [{ type: 'average', name: 'Avg' }],
-          symbol:['none', 'none'],
-        }
-      },
-    ]
+    series: seriesData
   };
-
   option && myChart.setOption(option);
  }
 
