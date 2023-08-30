@@ -218,8 +218,9 @@ onRefresh(){
   this.rerender();  // rerender datatables
 }
 
+//Get Tasks and SuperTasks combining the task API and the task wrapper
 getTasks():void {
-  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,speeds,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
+  const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
   this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((tw: any) => {
     this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
       this.gs.getAll(SERV.HASHLISTS,{'maxResults': this.maxResults}).subscribe((h: any) => {
