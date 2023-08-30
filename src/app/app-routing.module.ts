@@ -64,7 +64,10 @@ const appRoutes: Routes = [
           {
     // enableTracing: false, // <-- Debugging purposes only
     preloadingStrategy: AppPreloadingStrategy,
-    useHash: true // Old browsers could have issues but can be fixed setting useHash: true. Note: if its enabled it will affect redirectURL after login
+    // When useHash is set to true, Angular uses the # symbol to append the route to the base URL.
+    // If it is set false, the route is appended to the URL as a path. This would require server-side configuration.
+    // For direct access to URLs, the server needs to be configured to return the index.html file for all requested URLs.
+    useHash: true
 })
     ],
     exports:[
