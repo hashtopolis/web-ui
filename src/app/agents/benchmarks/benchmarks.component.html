@@ -1,0 +1,48 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+    <div class="d-block mb-4 mb-md-0">
+        <h2 class="h4">Benchmarks</h2>
+        <p class="mb-0">Section to view and manage cached benchmarks.</p>
+    </div>
+  
+  </div>
+  <!-- Body -->
+  <div class="card border-0 shadow mb-4">
+    <div class="card-body">
+          <div class="table-responsive">
+              <table class="table table-centered table-nowrap mb-0 rounded" #benchmark datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="benchmarks">
+                <thead class="thead-light">
+                  <tr>
+                      <th class="border-0 rounded-start"><input type="checkbox" (click)="setCheckAll()"> ID</th>
+                      <th class="border-0">CMD</th>
+                      <th class="border-0">Hashmode</th>
+                      <th class="border-0">Cracker Binary</th>
+                      <th class="border-0">GPU/CPU</th>
+                      <th class="border-0">Benchmark Value</th>
+                      <th class="border-0">TTL</th>
+                      <th class="border-0 rounded-end">Action</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let benchmark of benchmarks">
+                      <td>{{ benchmark.benchmarkId }}</td>
+                      <td>{{ benchmark.attackParameters }}</td>
+                      <td>{{ benchmark.hashMode }}</td>
+                      <td>{{ benchmark.crackerBinary.binaryName }}  {{benchmark.crackerBinary.version}}</td>
+                      <td class="pre">{{ benchmark.hardwareGroup.devices }}</td>
+                      <td>{{ benchmark.benchmarkValue }}</td>
+                      <td>{{ benchmark.ttl *1000 | date: uidateformat}}</td>
+                      <td>
+                        <a>
+                          <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(benchmark.benchmarkId)">
+                          <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon></a>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+            </table>
+          </div>
+      </div>
+  </div>
+  
+  
+  <!-- Bulk Actions Modal -->

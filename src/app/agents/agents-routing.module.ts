@@ -5,6 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AgentStatusComponent } from "./agent-status/agent-status.component";
 import { PendingChangesGuard } from "../core/_guards/pendingchanges.guard";
 import { ShowAgentsComponent } from "./show-agents/show-agents.component";
+import { BenchmarkComponent } from "./benchmarks/benchmarks.component"
 import { EditAgentComponent } from "./edit-agent/edit-agent.component";
 import { NewAgentComponent } from "./new-agent/new-agent.component";
 import { AgentGuard } from "../core/_guards/agent.guard";
@@ -41,6 +42,13 @@ const routes: Routes = [
             breadcrumb: 'Edit Agent'
         },
         canActivate: [AuthGuard,AgentGuard]},
+      {
+        path: 'benchmarks', component: BenchmarkComponent,
+        data: {
+          kind: 'edit-agent',
+          breadcrumb: 'Edit Agent'
+      },
+      canActivate: [AuthGuard,AgentGuard]},     
       ]
     },
 ];

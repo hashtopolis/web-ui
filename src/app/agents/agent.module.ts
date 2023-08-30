@@ -14,13 +14,15 @@ import { DirectivesModule } from "../shared/directives.module";
 import { ComponentsModule } from "../shared/components.module";
 import { AgentsRoutingModule } from "./agents-routing.module";
 import { PipesModule } from "../shared/pipes.module";
+import { BenchmarkComponent } from './benchmarks/benchmarks.component';
 
 @NgModule({
   declarations:[
     AgentStatusComponent,
     ShowAgentsComponent,
     EditAgentComponent,
-    NewAgentComponent
+    NewAgentComponent,
+    BenchmarkComponent
   ],
   imports:[
     ReactiveFormsModule,

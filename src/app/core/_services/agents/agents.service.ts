@@ -36,7 +36,7 @@ export class AgentsService {
  * @returns  Object
 **/
   getAgent(id: number):Observable<any> {
-    return this.http.get(`${this.endpoint}/${id}`)
+    return this.http.get(`${this.endpoint}/${id}?expand=hardwareGroup`)
   }
 
 /**

@@ -55,7 +55,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
 
     this.setAccessPermissions();
 
-    let params = {'maxResults': this.maxResults}
+    let params = {'maxResults': this.maxResults, 'expand': 'hardwareGroup'}
 
     this.agentsService.getAgents(params).subscribe((agents: any) => {
       this.showagents = agents.values;
