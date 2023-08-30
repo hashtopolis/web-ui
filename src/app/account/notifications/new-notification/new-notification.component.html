@@ -3,18 +3,36 @@
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
       <div class="row">
         <grid-form-input [name]="'Trigger Action'" [labelclass]="'requiredak'">
-          <select name="action" class='form-select' title="action" formControlName="action">
-            <option *ngFor="let alla of allowedActions">{{ alla }}</option>
+          <select
+                type='string'
+                class="form-select"
+                (change)="onQueryp(trigger.value)"
+                formControlName="action"
+                #trigger
+                >
+            <option value="" disabled="true">--<option>
+            <option *ngFor="let action of allowedActions" [value]="action">{{ action }}</option>
           </select>
         </grid-form-input>
-        <grid-form-input [name]="'Agent'" [labelclass]="'requiredak'">
-          <select name="hashtypeId" class='form-select' title="hashtypeId" formControlName="actionFilter">
-            <option *ngFor="let a of showagents" [value]="a.agentId">{{ a.agentName }}</option>
+        <grid-form-input [name]="'Value'" [labelclass]="'requiredak'" *ngIf="active">
+          <select
+                 name="hashtypeId"
+                 class='form-select'
+                 title="hashtypeId"
+                 formControlName="actionFilter"
+                 >
+            <option value="" disabled="true">--<option>
+            <option *ngFor="let val of value" [value]="val.id">{{ val.name }}</option>
           </select>
         </grid-form-input>
         <grid-form-input [name]="'Notification'" [labelclass]="'requiredak'">
-          <select name="notification" class='form-select' title="notification">
-            <!-- <option *ngFor="let b of binaries" >{{ b.type }}</option> -->
+          <select
+                 name="notification"
+                 class='form-select'
+                 title="notification"
+                 formControlName="notification"
+                 >
+            <option *ngFor="let notif of notifications" [value]="notif">{{ notif }}</option>
           </select>
         </grid-form-input>
         <grid-form-input [name]="'Receiver'" [labelclass]="'requiredak'">
