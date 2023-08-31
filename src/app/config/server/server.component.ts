@@ -45,7 +45,8 @@ export class ServerComponent implements OnInit {
   hchForm: FormGroup;
   notifForm: FormGroup;
   gsForm: FormGroup;
-  taskcookieForm: FormGroup
+  taskcookieForm: FormGroup;
+  temptimeForm: FormGroup;
   cookieForm: FormGroup;
 
   serverlog = serverlog;
@@ -153,6 +154,9 @@ export class ServerComponent implements OnInit {
             'baseHost': new FormControl(),
             'contactEmail': new FormControl(),
             'serverLogLevel': new FormControl(),
+          });
+          this.temptimeForm = new FormGroup({
+            'temptime': new FormControl(),
           });
           this.cookieForm = new FormGroup({
             'cookieTooltip': new FormControl(),
@@ -290,7 +294,7 @@ export class ServerComponent implements OnInit {
   }
 
   private initGSForm() {
-    const params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults};
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.gsForm = new FormGroup({
         'hashcatBrainEnable': new FormControl(result.values.find(obj => obj.item === 'hashcatBrainEnable').value === '0' ? false: true),
@@ -304,6 +308,9 @@ export class ServerComponent implements OnInit {
         'baseHost': new FormControl(result.values.find(obj => obj.item === 'baseHost').value),
         'contactEmail': new FormControl(result.values.find(obj => obj.item === 'contactEmail').value),
         'serverLogLevel': new FormControl(result.values.find(obj => obj.item === 'serverLogLevel').value),
+      });
+      this.temptimeForm = new FormGroup({
+        'temptime': new FormControl(this.uicService.getUIsettings('temptime').value),
       });
       this.cookieForm = new FormGroup({
         'cookieTooltip': new FormControl(this.getTooltipLevel()),
@@ -320,18 +327,22 @@ export class ServerComponent implements OnInit {
     clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
       const params = {'filter=item': key};
+      if(key === 'temptime'){
+        this.uicService.onUpdatingCheck(key, value);
+      }else{
       this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
         const indexUpdate = result.values.find(obj => obj.item === key).configId;
         const valueUpdate = result.values.find(obj => obj.item === key).value;
         const arr = {'item': key, 'value':  this.checkSwitch(value, valueUpdate, sw)};
-        this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
-          this.uicService.onUpdatingCheck(key);
-          if(collap !== true){
-            this.savedAlert();
-            this.ngOnInit();
-          }
-        });
+          this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
+            this.uicService.onUpdatingCheck(key);
+            if(collap !== true){
+              this.savedAlert();
+              this.ngOnInit();
+            }
+          });
       });
+    }
    }, 1500);
   }
 

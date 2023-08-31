@@ -609,18 +609,30 @@
                         (change)="autoSave('numLogEntries',numLogEntries.value)"
                   >
               </grid-form-input>
-              <grid-form-input [name]="'Set the time format'">
-                <select
+              <grid-form-input [name]="'Set the time format (Changes apply to the old UI)'">
+                <input
                       type='text'
                       id="timefmt"
-                      class='form-select'
+                      class='form-control'
                       formControlName="timefmt"
                       #timefmt
                       (change)="autoSave('timefmt',timefmt.value)"
                 >
-                <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
-                </select>
               </grid-form-input>
+              <form [formGroup]="temptimeForm">
+                <grid-form-input [name]="'Set the time format (Changes apply to the New UI)'">
+                  <select
+                        type='text'
+                        id="temptime"
+                        class='form-select'
+                        formControlName="temptime"
+                        #temptime
+                        (change)="autoSave('temptime',temptime.value)"
+                  >
+                  <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
+                  </select>
+                </grid-form-input>
+              </form>
               <grid-form-input [name]="'Max session length users can configure (in hours)'">
                 <td>
                   <input
