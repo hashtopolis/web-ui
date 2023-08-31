@@ -33,6 +33,13 @@ const routes: Routes = [
           },
           canActivate: [IsAuth]},
         {
+          path: 'notifications/:id/edit', component: NewNotificationComponent,
+          data: {
+              kind: 'notifications-edit',
+              breadcrumb: 'Edit Notification'
+          },
+          canActivate: [IsAuth]},
+        {
           path: 'notifications/new-notification', component: NewNotificationComponent,
           data: {
               kind: 'new-notifications',
