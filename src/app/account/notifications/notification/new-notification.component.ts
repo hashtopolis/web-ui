@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { ACTIONARRAY, ACTION, NOTIFARRAY } from '../../../core/_constants/notifications.config';
-import { environment } from './../../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
@@ -25,6 +25,7 @@ export class NewNotificationComponent implements OnInit {
   createForm: FormGroup;
   Allnotif: any;
   value: any;
+  editView = false;
   active = true;
 
   allowedActions = ACTIONARRAY;

@@ -17,7 +17,7 @@
       <tr *ngFor="let n of Allnotif">
           <td class="text-align:center">{{ n.notificationSettingId }}</td>
           <td>
-            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{n.isActive === true ? 'background-color:green' : 'background-color:yellow'}}">
+            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{n.isActive === true ? 'background-color:green' : 'background-color:orange'}}">
               {{  n.isActive === true ? "Active" : "Invalid/Not activated" }}
             </span>
           </td>

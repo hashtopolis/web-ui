@@ -38,6 +38,16 @@
         <grid-form-input [name]="'Receiver'" [labelclass]="'requiredak'">
           <input type='text' id="receiver" class="form-control" formControlName="receiver"/>
         </grid-form-input>
+        <grid-form-input [name]="'Status'" [labelclass]="'display-col'" *ngIf="editView">
+          <div class="form-check form-switch">
+            <input
+                  type="checkbox"
+                  id="isActive"
+                  class="form-check-input"
+                  formControlName="isActive"
+            >
+          </div>
+        </grid-form-input>
         <button-submit [name]="'Create'"></button-submit>
       </div>
   </form>

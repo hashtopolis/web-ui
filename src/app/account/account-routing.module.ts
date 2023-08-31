@@ -2,7 +2,8 @@ import { IsAuth } from "../core/_guards/auth.guard";
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
-import { NewNotificationComponent } from "./notifications/new-notification/new-notification.component";
+import { EditNotificationComponent } from "./notifications/notification/edit-notification.component";
+import { NewNotificationComponent } from "./notifications/notification/new-notification.component";
 import { NotificationsComponent } from "./notifications/notifications.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { AccountComponent } from "./account.component";
@@ -33,7 +34,7 @@ const routes: Routes = [
           },
           canActivate: [IsAuth]},
         {
-          path: 'notifications/:id/edit', component: NewNotificationComponent,
+          path: 'notifications/:id/edit', component: EditNotificationComponent,
           data: {
               kind: 'notifications-edit',
               breadcrumb: 'Edit Notification'
