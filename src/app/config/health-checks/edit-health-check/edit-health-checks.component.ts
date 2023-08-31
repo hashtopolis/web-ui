@@ -64,7 +64,7 @@ export class EditHealthChecksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.editedHealthCIndex = +this.route.snapshot.params['id'];
 

@@ -75,7 +75,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   ngOnInit() {
 
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.route.params
     .subscribe(
@@ -544,8 +544,8 @@ initTaskSpeed(obj: object){
   const data:any = obj;
   const arr = [];
   const max = [];
-
   const result = [];
+
   data.reduce(function(res, value) {
     if (!res[value.time]) {
       res[value.time] = { time: value.time, speed: 0 };
@@ -555,6 +555,8 @@ initTaskSpeed(obj: object){
     return res;
   }, {});
 
+  console.log(result)
+
   for(let i=0; i < result.length; i++){
 
     const iso = this.transDate(result[i]['time']);
@@ -563,9 +565,11 @@ initTaskSpeed(obj: object){
     max.push(result[i]['time']);
   }
 
-  const startdate =  Math.max(...max);
-  const datelabel = this.transDate(startdate);
-  const xAxis = this.generateIntervalsOf(5,+startdate-3000,+startdate);
+  const startdate =  max.slice(0)[0];
+  const enddate = max.slice(-1)[0];
+  console.log(enddate);
+  const datelabel = this.transDate(enddate);
+  const xAxis = this.generateIntervalsOf(1,+startdate,+enddate);
 
   const chartDom = document.getElementById('tspeed');
   const myChart = echarts.init(chartDom);
@@ -617,13 +621,13 @@ initTaskSpeed(obj: object){
         {
           type: 'slider',
           show: true,
-          start: 94,
+          start: 70,
           end: 100,
           handleSize: 8
         },
         {
           type: 'inside',
-          start: 94,
+          start: 70,
           end: 100
         },
       ],

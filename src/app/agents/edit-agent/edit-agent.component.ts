@@ -67,7 +67,7 @@ export class EditAgentComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.route.params
     .subscribe(

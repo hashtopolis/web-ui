@@ -88,7 +88,7 @@ export class AgentStatusComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+    this.uidateformat = this.uiService.getUIsettings('temptime').value;
     this.view = this.getView() || 0;
     this.getAgentsPage(1);
     this.getAgentStats();

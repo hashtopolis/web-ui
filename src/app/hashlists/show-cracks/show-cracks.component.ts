@@ -36,7 +36,7 @@ export class ShowCracksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     const params = {'maxResults': this.maxResults, 'filter': 'isCracked=1', 'expand':'hashlist,chunk'}
 

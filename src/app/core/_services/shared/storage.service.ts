@@ -37,7 +37,7 @@ export class UIConfigService {
     {name:'maxSessionLength'}
   ];
 
-  cexprity: number = 24*60*60; // Hours*minutes*Seconds
+  cexprity: number = 730*60*60; // Hours*minutes*Seconds
 
   public checkStorage() {
     const defaults =  JSON.parse(localStorage.getItem('uis'));

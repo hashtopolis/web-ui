@@ -76,7 +76,7 @@ export class HealthChecksComponent implements OnInit {
     });
   });
 
-  this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+  this.uidateformat = this.uiService.getUIsettings('temptime').value;
   const self = this;
   this.dtOptions = {
     dom: 'Bfrtip',

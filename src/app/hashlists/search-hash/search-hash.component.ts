@@ -32,7 +32,7 @@ export class SearchHashComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
+    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.createForm = new FormGroup({
       hashes: new FormControl('', [Validators.required]),
