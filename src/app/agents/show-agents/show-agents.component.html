@@ -53,7 +53,7 @@
             <fa-icon *ngIf="agent.cpuOnly" [icon]="faMicrochip" aria-hidden="true" ngbTooltip="CPU Only"></fa-icon>
           <td>
               <code>{{ agent.lastAct }}</code> at <br>
-              {{ agent.lastTime *1000 | date: uidateformat }}<br>
+              {{ agent.lastTime | uiDate }}<br>
               IP:
               <code>{{ agent.lastIp }}</code>
           </td>

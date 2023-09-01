@@ -52,7 +52,6 @@ export class AgentStatusComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
@@ -88,7 +87,6 @@ export class AgentStatusComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
     this.view = this.getView() || 0;
     this.getAgentsPage(1);
     this.getAgentStats();

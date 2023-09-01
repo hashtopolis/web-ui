@@ -24,7 +24,6 @@ export class ShowCracksComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
 
   constructor(
     private uiService: UIConfigService,
@@ -35,8 +34,6 @@ export class ShowCracksComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     const params = {'maxResults': this.maxResults, 'filter': 'isCracked=1', 'expand':'hashlist,chunk'}
 

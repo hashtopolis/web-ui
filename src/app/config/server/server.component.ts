@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { dateFormat, serverlog, proxytype } from '../../core/_constants/settings.config';
+import { serverlog, proxytype } from '../../core/_constants/settings.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
 import { CookieService } from '../../core/_services/shared/cookies.service';
@@ -46,12 +46,9 @@ export class ServerComponent implements OnInit {
   notifForm: FormGroup;
   gsForm: FormGroup;
   taskcookieForm: FormGroup;
-  temptimeForm: FormGroup;
   cookieForm: FormGroup;
-
   serverlog = serverlog;
   proxytype = proxytype;
-  dateFormat = dateFormat;
 
   // Tooltips
   atip: any =[]
@@ -154,9 +151,6 @@ export class ServerComponent implements OnInit {
             'baseHost': new FormControl(),
             'contactEmail': new FormControl(),
             'serverLogLevel': new FormControl(),
-          });
-          this.temptimeForm = new FormGroup({
-            'temptime': new FormControl(),
           });
           this.cookieForm = new FormGroup({
             'cookieTooltip': new FormControl(),
@@ -309,9 +303,6 @@ export class ServerComponent implements OnInit {
         'contactEmail': new FormControl(result.values.find(obj => obj.item === 'contactEmail').value),
         'serverLogLevel': new FormControl(result.values.find(obj => obj.item === 'serverLogLevel').value),
       });
-      this.temptimeForm = new FormGroup({
-        'temptime': new FormControl(this.uicService.getUIsettings('temptime').value),
-      });
       this.cookieForm = new FormGroup({
         'cookieTooltip': new FormControl(this.getTooltipLevel()),
       });
@@ -327,9 +318,6 @@ export class ServerComponent implements OnInit {
     clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
       const params = {'filter=item': key};
-      if(key === 'temptime'){
-        this.uicService.onUpdatingCheck(key, value);
-      }else{
       this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
         const indexUpdate = result.values.find(obj => obj.item === key).configId;
         const valueUpdate = result.values.find(obj => obj.item === key).value;
@@ -342,7 +330,6 @@ export class ServerComponent implements OnInit {
             }
           });
       });
-    }
    }, 1500);
   }
 

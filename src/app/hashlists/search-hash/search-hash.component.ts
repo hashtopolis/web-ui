@@ -25,14 +25,11 @@ export class SearchHashComponent implements OnInit {
   ) { }
 
   createForm: FormGroup;
-  uidateformat:any;
   searh: any;
 
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.createForm = new FormGroup({
       hashes: new FormControl('', [Validators.required]),

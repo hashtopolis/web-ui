@@ -63,11 +63,8 @@ export class EditAgentComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
 
   ngOnInit(): void {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.route.params
     .subscribe(

@@ -25,7 +25,6 @@ export class LogComponent implements OnInit {
   dtElement: DataTableDirective;
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
   localStable = 'DataTables_DataTables_Table_0_/config/log';
   localStablepage = 'DataTables_DataTables_Table_0_/config/log_lastpage';
 
@@ -46,7 +45,6 @@ export class LogComponent implements OnInit {
   ngOnInit(): void {
 
     this.loadLogs(this.geStartPage());
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
   }
 

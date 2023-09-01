@@ -32,7 +32,6 @@ export class HealthChecksComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
 
   constructor(
     private uiService: UIConfigService,
@@ -76,7 +75,6 @@ export class HealthChecksComponent implements OnInit {
     });
   });
 
-  this.uidateformat = this.uiService.getUIsettings('temptime').value;
   const self = this;
   this.dtOptions = {
     dom: 'Bfrtip',

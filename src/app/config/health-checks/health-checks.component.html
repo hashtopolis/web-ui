@@ -14,7 +14,7 @@
       <tbody>
       <tr *ngFor="let h of mergedObjects">
           <td class="text-align:center">{{ h.healthCheckId }}</td>
-          <td>{{ h.time*1000 | date: uidateformat }}</td>
+          <td>{{ h.time | uiDate }}</td>
           <td>Brute-Force ({{ h.description }})</td>
           <td>{{ h.status | HCstatus | lowercase | titlecase }}</td>
           <td class="overflow-hidden">

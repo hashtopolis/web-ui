@@ -3,8 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 
 import { NewNotificationComponent } from "./notifications/new-notification/new-notification.component";
+import { AccountSettingsComponent } from "./settings/acc-settings/acc-settings.component";
+import { UiSettingsComponent } from "./settings/ui-settings/ui-settings.component";
 import { NotificationsComponent } from "./notifications/notifications.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { AccountComponent } from "./account.component";
 
 const routes: Routes = [
@@ -19,10 +20,17 @@ const routes: Routes = [
           },
           canActivate: [IsAuth]},
         {
-          path: 'settings', component: SettingsComponent,
+          path: 'acc-settings', component: AccountSettingsComponent,
           data: {
-              kind: 'settings',
-              breadcrumb: 'Settings'
+              kind: 'acc-settings',
+              breadcrumb: 'Account Settings'
+          },
+          canActivate: [IsAuth]},
+        {
+          path: 'ui-settings', component: UiSettingsComponent,
+          data: {
+              kind: 'ui-settings',
+              breadcrumb: 'UI Settings'
           },
           canActivate: [IsAuth]},
         {

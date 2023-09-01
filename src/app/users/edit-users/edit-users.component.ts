@@ -3,20 +3,20 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
 
 import { ValidationService } from '../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
+import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { SERV } from '../../core/_services/main.config';
 import { User } from '../user.model';
 
 @Component({
   selector: 'app-edit-users',
   templateUrl: './edit-users.component.html',
-  providers: [DatePipe]
+  providers: [uiDatePipe]
 })
 @PageTitle(['Edit User'])
 export class EditUsersComponent implements OnInit {
@@ -29,7 +29,6 @@ export class EditUsersComponent implements OnInit {
   faLock=faLock;
   faUser=faUser;
 
-  uidateformat:any;
   user: any[];
   agp:any;
 
@@ -38,8 +37,8 @@ export class EditUsersComponent implements OnInit {
   constructor(
     private uiService: UIConfigService,
     private route:ActivatedRoute,
+    private datePipe:uiDatePipe,
     private gs: GlobalService,
-    private datePipe:DatePipe,
     private router: Router
     ) { }
 
@@ -63,8 +62,6 @@ export class EditUsersComponent implements OnInit {
   })
 
   ngOnInit(): void {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.route.params
     .subscribe(
@@ -165,8 +162,8 @@ export class EditUsersComponent implements OnInit {
         'id': new FormControl({value: result['id'], disabled: true}),
         'name': new FormControl({value: result['name'], disabled: true}),
         'email': new FormControl({value: result['email'], disabled: true}),
-        'registered': new FormControl({value: this.datePipe.transform(result['registeredSince'],this.uidateformat), disabled: true}),
-        'lastLogin': new FormControl({value: this.datePipe.transform(result['lastLoginDate'],this.uidateformat), disabled: true} ),
+        'registered': new FormControl({value: this.datePipe.transform(result['registeredSince']), disabled: true}),
+        'lastLogin': new FormControl({value: this.datePipe.transform(result['lastLoginDate']), disabled: true} ),
         'globalPermissionGroup': new FormControl({value: result['globalPermissionGroup'], disabled: true}) ,
         'updateData': new FormGroup({
           'globalPermissionGroupId': new FormControl(result['globalPermissionGroupId']),

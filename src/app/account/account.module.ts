@@ -10,24 +10,26 @@ import { RouterModule } from "@angular/router";
 import { NgModule } from "@angular/core";
 
 import { NotificationsComponent } from "./notifications/notifications.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { AccountComponent } from "./account.component";
 import { NewNotificationComponent } from './notifications/new-notification/new-notification.component';
+import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
+import { AccountSettingsComponent } from "./settings/acc-settings/acc-settings.component";
 
 
 @NgModule({
   declarations:[
-    NotificationsComponent,
-    SettingsComponent,
-    AccountComponent,
     NewNotificationComponent,
+    AccountSettingsComponent,
+    NotificationsComponent,
+    UiSettingsComponent,
+    AccountComponent,
   ],
   imports:[
     AccountRoutingModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    ComponentsModule,
     DataTablesModule,
+    ComponentsModule,
     RouterModule,
     CommonModule,
     PipesModule,

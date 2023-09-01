@@ -37,7 +37,6 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
   isChecked =false;
 
   ngOnDestroy(): void {
@@ -63,8 +62,6 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       // this.showagents.forEach(f => (f.checked = false));
       this.dtTrigger.next(void 0);
     });
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     const self = this;
     this.dtOptions = {

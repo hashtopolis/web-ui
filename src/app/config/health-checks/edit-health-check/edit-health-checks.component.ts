@@ -25,7 +25,6 @@ export class EditHealthChecksComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
 
   constructor(
     private uiService: UIConfigService,
@@ -63,8 +62,6 @@ export class EditHealthChecksComponent implements OnInit {
   // healthca: []
 
   ngOnInit(): void {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.editedHealthCIndex = +this.route.snapshot.params['id'];
 

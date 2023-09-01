@@ -15,7 +15,7 @@
         <ng-container>
           <tr *ngFor="let l of logs" [ngStyle]="{'background-color':l.level | warningColor }">
               <td class="display-col">{{ l.logEntryId }}</td>
-              <td class="display-col">{{ l.time*1000 | date: uidateformat }}</td>
+              <td class="display-col">{{ l.time | uiDate }}</td>
               <td class="display-col">{{ l.level | lowercase | titlecase }}</td>
               <td class="display-col">{{ l.issuer }}-ID-{{ l.issuerId }}</td>
               <td class="display-col">{{ l.message }}</td>

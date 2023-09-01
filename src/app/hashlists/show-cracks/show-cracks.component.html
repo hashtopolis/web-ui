@@ -17,7 +17,7 @@
     </thead>
     <tbody>
     <tr *ngFor="let hash of allhashes">
-        <td>{{ hash.timeCracked*1000 | date: uidateformat  }}</td>
+        <td>{{ hash.timeCracked | uiDate }}</td>
         <td>{{ hash.plaintext }}</td>
         <td>{{ hash.hash }}</td>
         <td>

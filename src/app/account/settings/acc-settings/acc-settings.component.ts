@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 
-import { ValidationService } from '../../core/_services/shared/validation.service';
+import { ValidationService } from '../../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../core/_services/main.config';
+import { SERV } from '../../../core/_services/main.config';
+import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
 function passwordMatchValidator(password: string): ValidatorFn {
   return (control: FormControl) => {
@@ -20,19 +20,18 @@ function passwordMatchValidator(password: string): ValidatorFn {
 }
 
 @Component({
-  selector: 'app-settings',
-  templateUrl: './settings.component.html',
-  providers: [DatePipe]
+  selector: 'app-acc-settings',
+  templateUrl: './acc-settings.component.html',
+  providers: [uiDatePipe]
 })
 @PageTitle(['Account Settings'])
-export class SettingsComponent implements OnInit {
+export class AccountSettingsComponent implements OnInit {
 
-  uidateformat:any;
   updateForm: FormGroup;
 
   constructor(
     private uiService: UIConfigService,
-    private datePipe:DatePipe,
+    private datePipe:uiDatePipe,
     private gs: GlobalService,
     private router: Router
   ) {
@@ -40,8 +39,6 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.initForm();
 
@@ -86,7 +83,7 @@ export class SettingsComponent implements OnInit {
     this.gs.get(SERV.USERS,this.gs.userId, {'expand':'globalPermissionGroup'}).subscribe((result)=>{
     this.updateForm = new FormGroup({
       'name': new FormControl({value: result.globalPermissionGroup['name'], disabled: true} ),
-      'registeredSince': new FormControl({value: this.datePipe.transform(result['registeredSince'],this.uidateformat), disabled: true} ),
+      'registeredSince': new FormControl({value: this.datePipe.transform(result['registeredSince']), disabled: true} ),
       'email': new FormControl(result['email']),
       'oldpassword': new FormControl(),
       'newpassword': new FormControl(),

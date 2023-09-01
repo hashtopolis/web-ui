@@ -66,7 +66,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   hashlistDescrip:any;
   hashlistinform:any;
   assigAgents: any;
-  uidateformat:any;
   availAgents:any;
   crackerinfo:any;
   tkeyspace: any;
@@ -74,8 +73,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   getFiles: any;
 
   ngOnInit() {
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.route.params
     .subscribe(
@@ -555,8 +552,6 @@ initTaskSpeed(obj: object){
     return res;
   }, {});
 
-  console.log(result)
-
   for(let i=0; i < result.length; i++){
 
     const iso = this.transDate(result[i]['time']);
@@ -621,7 +616,7 @@ initTaskSpeed(obj: object){
         {
           type: 'slider',
           show: true,
-          start: 70,
+          start: 94,
           end: 100,
           handleSize: 8
         },

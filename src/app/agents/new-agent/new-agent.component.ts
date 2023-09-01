@@ -29,7 +29,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  uidateformat:any;
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
@@ -71,8 +70,6 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
     });
-
-    this.uidateformat = this.uiService.getUIsettings('temptime').value;
 
     this.dtOptions = {
       dom: 'Bfrtip',
