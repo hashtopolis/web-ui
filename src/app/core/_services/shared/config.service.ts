@@ -32,7 +32,12 @@ export class ConfigService {
           ApiEndPoint = environment.config.prodApiEndpoint;
           localStorage.setItem('prodApiEndpoint', ApiEndPoint);
         }
-      });
+      },
+      error => {
+        ApiEndPoint = environment.config.prodApiEndpoint;
+        localStorage.setItem('prodApiEndpoint', ApiEndPoint);
+      }
+      );
     }
     return ApiEndPoint;
   }
