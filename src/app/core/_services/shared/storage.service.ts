@@ -53,7 +53,7 @@ export class UIConfigService {
   public checkExpiry(){
     const timestamp =  this.getUIsettings('_timestamp').value || 0;
     const expires =  this.getUIsettings('_expiresin').value || 0;
-    if((Date.now() > timestamp + expires)){
+    if((Date.now() - timestamp) < expires){
       this.storeDefault();
     }
   }
