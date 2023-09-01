@@ -9,18 +9,19 @@ import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { NgModule } from "@angular/core";
 
+import { EditNotificationComponent } from "./notifications/notification/edit-notification.component";
+import { NewNotificationComponent } from './notifications/notification/new-notification.component';
 import { NotificationsComponent } from "./notifications/notifications.component";
 import { SettingsComponent } from "./settings/settings.component";
 import { AccountComponent } from "./account.component";
-import { NewNotificationComponent } from './notifications/new-notification/new-notification.component';
-
 
 @NgModule({
   declarations:[
+    EditNotificationComponent,
+    NewNotificationComponent,
     NotificationsComponent,
     SettingsComponent,
-    AccountComponent,
-    NewNotificationComponent,
+    AccountComponent
   ],
   imports:[
     AccountRoutingModule,

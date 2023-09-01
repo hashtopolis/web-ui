@@ -23,7 +23,7 @@
           <td>{{ user.lastLoginDate*1000 | date: uidateformat }}</td>
           <td>{{ user.email }}</td>
           <td>
-            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:yellow'}}">
+            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:orange'}}">
               {{ user.isValid === true ? "Valid" : "Invalid/Not activated" }}
             </span>
           </td>
