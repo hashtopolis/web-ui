@@ -21,6 +21,10 @@ export class ConfigService {
       if (config && config.hashtopolis_backend_url) {
         // If we get a config from the backend, we set the config property
         ApiEndPoint = config.hashtopolis_backend_url;
+        // Remove trailing slash, because this causing invalid URLs
+        if (ApiEndPoint.endsWith('/')) {
+          ApiEndPoint = ApiEndPoint.slice(0, -1);
+        }
         localStorage.setItem('prodApiEndpoint', ApiEndPoint);
       } else if (config && !config.hashtopolis_backend_url) {
         console.error('Invalid configuration file. Please check your config.json. Using defaults.');
