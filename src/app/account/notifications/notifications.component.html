@@ -5,7 +5,7 @@
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>
-          <th>Active</th>
+          <th>Status</th>
           <th>Trigger action</th>
           <th>Applied To</th>
           <th>Called Notification</th>
@@ -16,20 +16,28 @@
       <tbody>
       <tr *ngFor="let n of Allnotif">
           <td class="text-align:center">{{ n.notificationSettingId }}</td>
-          <td>{{ n.isActive == true ? "Yes" : "No" }}</td>
+          <td>
+            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{n.isActive === true ? 'background-color:green' : 'background-color:orange'}}">
+              {{  n.isActive === true ? "Active" : "Invalid/Not activated" }}
+            </span>
+          </td>
           <td>{{ n.action }}</td>
           <td>
-            {{ n.objectId }}
-            <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',n.objectId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Agent">
-              <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
-            </a>
+            <a [routerLink]="[checkPath(n.action,true),n.objectId,'edit']">{{checkPath(n.action, false)}} {{ n.objectId }} </a>
+            <a *ngIf="!n.objectId" [routerLink]="[checkPath(n.action,true),n.objectId,'edit']">{{checkPath(n.action, false)}} {{ n.objectId }} </a>
           </td>
           <td>{{ n.notification }}</td>
           <td><code>{{ n.receiver }}</code></td>
-          <td>
-            <a class='btn-outline-gray-600 float-right' (click)="onDelete(n.notificationSettingId)" data-toggle="tooltip" data-placement="top" title="Delete">
-            <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
-            </a>
+          <td class="overflow-hidden">
+            <app-button-actions>
+              <button ngbDropdownItem [routerLink]="['/account/notifications',n.notificationSettingId,'edit']" data-placement="top" title="Edit">
+                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+              </button>
+              <div class="dropdown-divider"></div>
+              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(n.notificationSettingId)">
+                <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+              </button>
+            </app-button-actions>
           </td>
       </tr>
       </tbody>

@@ -1,10 +1,11 @@
-import { faTrash, faPlus, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
+import { ACTION } from '../../core/_constants/notifications.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -16,9 +17,9 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['Notifications'])
 export class NotificationsComponent implements OnInit {
 
-  // Form attributtes
   faTrash=faTrash;
-  faPlus=faPlus
+  faPlus=faPlus;
+  faEdit=faEdit;
   faEye=faEye;
 
   @ViewChild(DataTableDirective, {static: false})
@@ -29,7 +30,7 @@ export class NotificationsComponent implements OnInit {
 
   constructor(
     private gs: GlobalService,
-  ) { }
+  ) {  }
 
   Allnotif: any;
 
@@ -173,6 +174,49 @@ export class NotificationsComponent implements OnInit {
         })
       }
     });
+  }
+
+checkPath(filter: string, type?: boolean){
+
+    let path;
+    let title;
+    switch (filter) {
+
+      case ACTION.AGENT_ERROR:
+      case ACTION.OWN_AGENT_ERROR:
+      case ACTION.DELETE_AGENT:
+        title = 'Agent:'
+        path = '/agents/show-agents/';
+      break;
+
+      case ACTION.NEW_TASK:
+      case ACTION.TASK_COMPLETE:
+      case ACTION.DELETE_TASK:
+        title = 'Task:'
+        path = '/tasks/show-tasks/';
+      break;
+
+      case ACTION.DELETE_HASHLIST:
+      case ACTION.HASHLIST_ALL_CRACKED:
+      case ACTION.HASHLIST_CRACKED_HASH:
+        title = 'Hashlist:'
+        path = '/hashlists/hashlist/';
+      break;
+
+      case ACTION.USER_CREATED:
+      case ACTION.USER_DELETED:
+      case ACTION.USER_LOGIN_FAILED:
+        title = 'User:'
+        path = '/users/';
+      break;
+
+      default:
+        title = ''
+        path = 'none';
+
+    }
+    if(type){return path;}else{return title;}
+
   }
 
 }
