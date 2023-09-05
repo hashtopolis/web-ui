@@ -66,7 +66,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   hashlistDescrip:any;
   hashlistinform:any;
   assigAgents: any;
-  uidateformat:any;
   availAgents:any;
   crackerinfo:any;
   tkeyspace: any;
@@ -74,8 +73,6 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   getFiles: any;
 
   ngOnInit() {
-
-    this.uidateformat = this.uiService.getUIsettings('timefmt').value;
 
     this.route.params
     .subscribe(
@@ -544,8 +541,8 @@ initTaskSpeed(obj: object){
   const data:any = obj;
   const arr = [];
   const max = [];
-
   const result = [];
+
   data.reduce(function(res, value) {
     if (!res[value.time]) {
       res[value.time] = { time: value.time, speed: 0 };
@@ -563,9 +560,11 @@ initTaskSpeed(obj: object){
     max.push(result[i]['time']);
   }
 
-  const startdate =  Math.max(...max);
-  const datelabel = this.transDate(startdate);
-  const xAxis = this.generateIntervalsOf(5,+startdate-3000,+startdate);
+  const startdate =  max.slice(0)[0];
+  const enddate = max.slice(-1)[0];
+  console.log(enddate);
+  const datelabel = this.transDate(enddate);
+  const xAxis = this.generateIntervalsOf(1,+startdate,+enddate);
 
   const chartDom = document.getElementById('tspeed');
   const myChart = echarts.init(chartDom);
@@ -623,7 +622,7 @@ initTaskSpeed(obj: object){
         },
         {
           type: 'inside',
-          start: 94,
+          start: 70,
           end: 100
         },
       ],

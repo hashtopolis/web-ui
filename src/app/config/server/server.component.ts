@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { dateFormat, serverlog, proxytype } from '../../core/_constants/settings.config';
+import { serverlog, proxytype } from '../../core/_constants/settings.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
 import { CookieService } from '../../core/_services/shared/cookies.service';
@@ -45,12 +45,10 @@ export class ServerComponent implements OnInit {
   hchForm: FormGroup;
   notifForm: FormGroup;
   gsForm: FormGroup;
-  taskcookieForm: FormGroup
+  taskcookieForm: FormGroup;
   cookieForm: FormGroup;
-
   serverlog = serverlog;
   proxytype = proxytype;
-  dateFormat = dateFormat;
 
   // Tooltips
   atip: any =[]
@@ -290,7 +288,7 @@ export class ServerComponent implements OnInit {
   }
 
   private initGSForm() {
-    const params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults};
     this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
       this.gsForm = new FormGroup({
         'hashcatBrainEnable': new FormControl(result.values.find(obj => obj.item === 'hashcatBrainEnable').value === '0' ? false: true),
@@ -324,13 +322,13 @@ export class ServerComponent implements OnInit {
         const indexUpdate = result.values.find(obj => obj.item === key).configId;
         const valueUpdate = result.values.find(obj => obj.item === key).value;
         const arr = {'item': key, 'value':  this.checkSwitch(value, valueUpdate, sw)};
-        this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
-          this.uicService.onUpdatingCheck(key);
-          if(collap !== true){
-            this.savedAlert();
-            this.ngOnInit();
-          }
-        });
+          this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
+            this.uicService.onUpdatingCheck(key);
+            if(collap !== true){
+              this.savedAlert();
+              this.ngOnInit();
+            }
+          });
       });
    }, 1500);
   }

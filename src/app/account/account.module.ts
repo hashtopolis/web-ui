@@ -12,23 +12,26 @@ import { NgModule } from "@angular/core";
 import { EditNotificationComponent } from "./notifications/notification/edit-notification.component";
 import { NewNotificationComponent } from './notifications/notification/new-notification.component';
 import { NotificationsComponent } from "./notifications/notifications.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { AccountComponent } from "./account.component";
+import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
+import { AccountSettingsComponent } from "./settings/acc-settings/acc-settings.component";
+
 
 @NgModule({
   declarations:[
-    EditNotificationComponent,
     NewNotificationComponent,
+    AccountSettingsComponent,
     NotificationsComponent,
-    SettingsComponent,
-    AccountComponent
+    UiSettingsComponent,
+    AccountComponent,
+    EditNotificationComponent
   ],
   imports:[
     AccountRoutingModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    ComponentsModule,
     DataTablesModule,
+    ComponentsModule,
     RouterModule,
     CommonModule,
     PipesModule,

@@ -25,6 +25,7 @@ import { FileTypePipe } from "../core/_pipes/file-type.pipe";
 import { GroupByPipe } from "../core/_pipes/groupby.pipe";
 import { SumPipe } from "../core/_pipes/sum-object.pipe";
 import { SplitPipe } from "../core/_pipes/split.pipe";
+import { uiDatePipe } from "../core/_pipes/date.pipe";
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { SplitPipe } from "../core/_pipes/split.pipe";
     AveragePipe,
     GroupByPipe,
     SearchPipe,
+    uiDatePipe,
     SplitPipe,
     SumPipe
   ],
@@ -77,6 +79,7 @@ import { SplitPipe } from "../core/_pipes/split.pipe";
     AveragePipe,
     GroupByPipe,
     SearchPipe,
+    uiDatePipe,
     SplitPipe,
     SumPipe
   ]

@@ -610,16 +610,14 @@
                   >
               </grid-form-input>
               <grid-form-input [name]="'Set the time format'">
-                <select
+                <input
                       type='text'
                       id="timefmt"
-                      class='form-select'
+                      class='form-control'
                       formControlName="timefmt"
                       #timefmt
                       (change)="autoSave('timefmt',timefmt.value)"
                 >
-                <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
-                </select>
               </grid-form-input>
               <grid-form-input [name]="'Max session length users can configure (in hours)'">
                 <td>

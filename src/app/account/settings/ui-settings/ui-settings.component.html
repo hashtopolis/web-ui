@@ -1,0 +1,21 @@
+<app-page-subtitle [subtitle]="'UI Settings'"></app-page-subtitle>
+<!-- body -->
+<grid-main [class]="'fmxw-500'" [centered]="true">
+  <form [formGroup]="uiForm">
+    <div class="row">
+      <grid-form-input [name]="'Set the time format'">
+        <select
+              type='text'
+              id="localtimefmt"
+              class='form-select'
+              formControlName="localtimefmt"
+              #localtimefmt
+              (change)="setCookieValue('localtimefmt',localtimefmt.value)"
+        >
+        <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
+        </select>
+      </grid-form-input>
+      <button-submit [name]="'Create'"></button-submit>
+    </div>
+  </form>
+</grid-main>

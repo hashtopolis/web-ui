@@ -6,7 +6,7 @@
     <grid-form-input [name]="'Created'">
       <span class="pre input-group-text input-group-lg w-70 mx-auto">
         <td>
-          {{ healthc['time']*1000 | date: uidateformat }}
+          {{ healthc['time'] | uiDate }}
         </td>
       </span>
     </grid-form-input>

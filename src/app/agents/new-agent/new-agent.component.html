@@ -112,7 +112,7 @@
               >
               </fa-icon>
             </td>
-            <td>{{ v.time*1000 |  date: uidateformat }}</td>
+            <td>{{ v.time | uiDate }}</td>
             <td>
               <a class='btn-outline-gray-600 float-right' (click)="onDelete(v.regVoucherId)" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>

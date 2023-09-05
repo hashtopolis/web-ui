@@ -19,8 +19,8 @@
       <tr *ngFor="let user of allusers">
           <td class="text-align:center">{{ user.id }}</td>
           <td>{{ user.name }}</td>
-          <td>{{ user.registeredSince*1000 | date: uidateformat }}</td>
-          <td>{{ user.lastLoginDate*1000 | date: uidateformat }}</td>
+          <td>{{ user.registeredSince | uiDate }}</td>
+          <td>{{ user.lastLoginDate | uiDate }}</td>
           <td>{{ user.email }}</td>
           <td>
             <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:orange'}}">

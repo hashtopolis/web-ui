@@ -39,9 +39,9 @@
             <td>
               <a  [routerLink]="['/agents/show-agents',c.agentId,'edit']">{{ c.agentName | shortenString:15 | lowercase | titlecase }}</a>
             </td>
-            <td>{{ c.dispatchTime*1000 | date: uidateformat }}</td>
+            <td>{{ c.dispatchTime | uiDate }}</td>
             <td *ngIf="c.solveTime === 0">(No acitivity)</td>
-            <td *ngIf="c.solveTime > 0">{{ c.solveTime*1000 | date: uidateformat }}</td>
+            <td *ngIf="c.solveTime > 0">{{ c.solveTime | uiDate }}</td>
             <td>{{ (c.solveTime - c.dispatchTime) | sectotime }}</td>
             <td>
               <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{'background-color:'+(c.state | staticArray:'statescolor')}}">

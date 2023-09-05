@@ -20,7 +20,7 @@ export class UIConfigService {
   private maxResults = environment.config.prodApiMaxResults;
 
   cachevar= [
-    {name:'timefmt'},
+    // {name:'timefmt'},
     {name:'hashcatBrainEnable'},
     {name:'hashlistAlias'},
     {name:'blacklistChars'},
@@ -36,7 +36,7 @@ export class UIConfigService {
     {name:'maxSessionLength'}
   ];
 
-  cexprity: number = 24*60*60; // Hours*minutes*Seconds
+  cexprity: number = 72*60*60; // Hours*minutes*Seconds Default: 72 hours
 
   public checkStorage() {
     const defaults =  JSON.parse(localStorage.getItem('uis'));
@@ -53,7 +53,7 @@ export class UIConfigService {
   public checkExpiry(){
     const timestamp =  this.getUIsettings('_timestamp').value || 0;
     const expires =  this.getUIsettings('_expiresin').value || 0;
-    if(Date.now() - timestamp < expires){
+    if((Date.now() - timestamp) < expires){
       this.storeDefault();
     }
   }
@@ -67,10 +67,6 @@ export class UIConfigService {
       this.cachevar.forEach((data) => {
         const name = data.name;
         let value = result.values.find(obj => obj.item === data.name).value;
-        // Check date format is valid
-        if(name == 'timefmt'){
-          value = this.onDateCheck(value);
-        }
         value = {name:name, value: value}
         post_data.push(value);
       });
@@ -86,28 +82,7 @@ export class UIConfigService {
     }
   }
 
-  public onDateCheck(format: any){
-    let res; //Default date format
-    for(let i=0; i < dateFormat.length; i++){
-      if(dateFormat[i]['format']== format){
-        res = format;
-      }
-    }
-    if(!res){
-      res = 'dd/MM/yyyy h:mm:ss';
-      this.updateDate(res);
-    }
-    return res;
-  }
 
-  public updateDate(val){
-    const keyn = 'timefmt';
-    const params = {'filter=item': keyn};
-    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
-      const indexUpdate = result.values.find(obj => obj.item === keyn).configId;
-      const arr = {'item': keyn, 'value':  val};
-      this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{ }) })
-  }
 
   public getUIsettings(name?: string){
     const uiconfig = JSON.parse(localStorage.getItem('uis'));
@@ -118,7 +93,6 @@ export class UIConfigService {
   }
 
 }
-
 
 
 
