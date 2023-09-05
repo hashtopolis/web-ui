@@ -33,7 +33,6 @@ export class AuthComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.configService.getEndpoint();
   }
 
   onSubmit(form: NgForm){
