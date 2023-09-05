@@ -67,10 +67,6 @@ export class UIConfigService {
       this.cachevar.forEach((data) => {
         const name = data.name;
         let value = result.values.find(obj => obj.item === data.name).value;
-        // Check date format is valid
-        if(name == 'timefmt'){
-          value = this.onDateCheck(value);
-        }
         value = {name:name, value: value}
         post_data.push(value);
       });
@@ -86,28 +82,7 @@ export class UIConfigService {
     }
   }
 
-  public onDateCheck(format: any){
-    let res; //Default date format
-    for(let i=0; i < dateFormat.length; i++){
-      if(dateFormat[i]['format']== format){
-        res = format;
-      }
-    }
-    if(!res){
-      res = 'dd/MM/yyyy h:mm:ss';
-      this.updateDate(res);
-    }
-    return res;
-  }
 
-  public updateDate(val){
-    const keyn = 'timefmt';
-    const params = {'filter=item': keyn};
-    this.gs.getAll(SERV.CONFIGS,params).subscribe((result)=>{
-      const indexUpdate = result.values.find(obj => obj.item === keyn).configId;
-      const arr = {'item': keyn, 'value':  val};
-      this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{ }) })
-  }
 
   public getUIsettings(name?: string){
     const uiconfig = JSON.parse(localStorage.getItem('uis'));
