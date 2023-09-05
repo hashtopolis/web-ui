@@ -114,6 +114,7 @@ export class AppComponent implements OnInit {
   isLogged: boolean;
 
   ngOnInit(): void {
+    this.configService.refreshEndpoint();
     this.authService.autoLogin();
     this.authService.isLogged.subscribe(logged => {
       this.isLogged = logged;
