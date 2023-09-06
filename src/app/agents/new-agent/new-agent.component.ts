@@ -7,6 +7,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ConfigService } from 'src/app/core/_services/shared/config.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -42,16 +43,21 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   constructor(
     private uiService: UIConfigService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    private cs:ConfigService
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
 
-  pathURL = location.protocol + '//' + location.hostname + ':' + environment.config.agentApiPort;
-  public agentdownloadURL = this.pathURL + environment.config.agentdownloadURL;
-  public agentURL = this.pathURL + environment.config.agentURL;
+  public agentdownloadURL: string;
+  public agentURL: string;
 
   ngOnInit(): void {
+
+    const path = this.cs.getEndpoint().replace('/api/v2', '');
+
+    this.agentdownloadURL = path + environment.config.agentdownloadURL;
+    this.agentURL = path + '/api' +environment.config.agentURL;
 
     // Generate Voucher
     this.randomstring = Math.random().toString(36).slice(-8);
