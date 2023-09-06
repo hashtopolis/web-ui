@@ -217,7 +217,6 @@ onRefresh(){
   this.ngOnInit();
   this.rerender();  // rerender datatables
 }
-
 //Get Tasks and SuperTasks combining the task API and the task wrapper
 getTasks():void {
   const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
@@ -229,8 +228,12 @@ getTasks():void {
         const matchObject = h.values.find(element => element.hashlistId === mainObject.hashlistId );
         return { ...mainObject, ...matchObject }
       }) //Join Supertasks from TaskWrapper with Hashlist info
+      const addSTinfo = []; //Ass tasktype in tasks
+      for(let i=0; i < tw.values.length; i++){
+        addSTinfo.push( {taskWrapperId: tw.values[i].taskWrapperId, taskType: tw.values[i].taskType});
+      }
       let mergeTasks = tasks.values.map(mainObject => {
-        const matchObject = tw.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
+        const matchObject = addSTinfo.find(element => element.taskWrapperId === mainObject.taskWrapperId );
         return { ...mainObject, ...matchObject }
       }) // Join Tasks with Taskwrapper information for filtering
       let filtertasks = mergeTasks.filter(u=> (u.taskType == 0 && u.isArchived === this.isArchived)); //Filter Active Tasks remove subtasks
