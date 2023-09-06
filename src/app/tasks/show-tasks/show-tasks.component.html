@@ -42,7 +42,7 @@
               <app-active-spinner></app-active-spinner>
             </div>
             <div class="col-md-4">
-              <span *ngIf="task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0" ngbTooltip="Completed"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
+              <span *ngIf="(task.keyspaceProgress >= task.keyspace) && task.keyspaceProgress > 0" ngbTooltip="Completed"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
             </div>
           </div>
         </td>
