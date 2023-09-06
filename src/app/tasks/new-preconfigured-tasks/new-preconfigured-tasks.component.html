@@ -185,12 +185,19 @@
                               <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
                               <fa-icon
                                       placement="bottom"
-                                      ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                                      [ngbTooltip]="wordlist"
                                       container="body"
                                       [icon]="faInfoCircle"
                                       aria-hidden="true"
                               >
                               </fa-icon>
+                              <ng-template #wordlist>
+                                <div class="d-flex flex-column">
+                                  <span>Full Name: {{f.filename}}</span>
+                                  <span>Line Count: {{f.lineCount}}</span>
+                                  <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
+                                </div>
+                              </ng-template>
                             </div>
                           </form>
                         </td>
@@ -222,12 +229,19 @@
                               <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
                               <fa-icon
                                       placement="bottom"
-                                      ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                                      [ngbTooltip]="rules"
                                       container="body"
                                       [icon]="faInfoCircle"
                                       aria-hidden="true"
                               >
                               </fa-icon>
+                              <ng-template #rules>
+                                <div class="d-flex flex-column">
+                                  <span>Full Name: {{f.filename}}</span>
+                                  <span>Line Count: {{f.lineCount}}</span>
+                                  <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
+                                </div>
+                              </ng-template>
                             </div>
                           </form>
                         </td>
@@ -259,12 +273,19 @@
                               <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
                               <fa-icon
                                       placement="bottom"
-                                      ngbTooltip='Full Name: {{f.filename}} / Line Count: {{f.lineCount}} / Size: {{ f.size | fileSize:false}}'
+                                      [ngbTooltip]="other"
                                       container="body"
                                       [icon]="faInfoCircle"
                                       aria-hidden="true"
                               >
                               </fa-icon>
+                              <ng-template #other>
+                                <div class="d-flex flex-column">
+                                  <span>Full Name: {{f.filename}}</span>
+                                  <span>Line Count: {{f.lineCount}}</span>
+                                  <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
+                                </div>
+                              </ng-template>
                             </div>
                           </form>
                         </td>
