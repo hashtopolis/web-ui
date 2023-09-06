@@ -49,6 +49,7 @@ export class WrbulkComponent implements OnInit {
 
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       scrollY: "700px",
       scrollCollapse: true,
       paging: false,

@@ -50,6 +50,7 @@ export class CrackersComponent implements OnInit, OnDestroy {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       pageLength: 10,
       stateSave: true,
       select: true,

@@ -45,6 +45,7 @@ export class AgentBinariesComponent implements OnInit {
     });
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       pageLength: 10,
       stateSave: true,
       select: true,

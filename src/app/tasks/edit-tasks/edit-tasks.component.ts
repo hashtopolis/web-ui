@@ -340,6 +340,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       scrollY: "700px",
       scrollCollapse: true,
       paging: false,

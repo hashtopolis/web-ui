@@ -66,6 +66,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       stateSave: true,
       destroy: true,
       select: {

@@ -47,6 +47,7 @@ export class ModalSubtasksComponent {
 
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       destroy: true,
       buttons:[]
     };

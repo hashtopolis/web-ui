@@ -44,6 +44,7 @@ export class ShowCracksComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       pageLength: 10,
       stateSave: true,
       select: true,

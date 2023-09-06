@@ -1,7 +1,7 @@
 <app-page-title [title]="'Show Agents'" [buttontitle]="'New Agent'" [buttonlink]="'/agents/new-agent'" [subbutton]="true"></app-page-title>
 <!-- Body -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" #agents datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agents">
+  <table style="width: 100%" class="table table-striped table-hover table-sm" #agents datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agents">
     <thead class="thead-light">
       <tr>
           <th class="rounded-start"><input type="checkbox" (click)="setCheckAll()"> ID</th>

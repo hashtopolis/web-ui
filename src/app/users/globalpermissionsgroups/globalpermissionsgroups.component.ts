@@ -50,6 +50,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
       const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
+        scrollX: true,
         pageLength: 10,
         select: true,
         processing: true,  // Error loading

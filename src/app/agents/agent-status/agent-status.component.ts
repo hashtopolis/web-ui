@@ -94,6 +94,7 @@ export class AgentStatusComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       scrollY: true,
       bDestroy: true,
       columnDefs: [

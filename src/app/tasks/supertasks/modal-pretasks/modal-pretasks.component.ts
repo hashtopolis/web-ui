@@ -42,6 +42,7 @@ export class ModalPretasksComponent implements OnInit {
 
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       destroy: true,
       buttons:[]
     };

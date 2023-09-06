@@ -98,6 +98,7 @@ export class LogComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       bStateSave:true,
       bPaginate: false,
       bLengthChange: false,

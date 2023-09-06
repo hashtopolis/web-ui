@@ -101,6 +101,7 @@ export class FilesComponent implements OnInit {
       const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
+        scrollX: true,
         scrollY: true,
         stateSave: true,
         destroy: true,

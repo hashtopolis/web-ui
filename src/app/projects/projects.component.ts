@@ -48,6 +48,7 @@ export class ProjectsComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       bStateSave:true,
       destroy: true,
       select: {

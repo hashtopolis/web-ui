@@ -89,6 +89,7 @@ export class ShowTasksComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
       bStateSave:true,
       destroy: true,
       order: [], // Removes the default order by id. We need it to sort by priority.

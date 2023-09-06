@@ -97,6 +97,7 @@ div.dt-button-collection button.dt-button, div.dt-button-collection div.dt-butto
   display: block !important;;
   padding: 0.5em 0 !important;
   margin: 4px 0 2px 0 !important;
+  overflow-x:visible !important;
 }
 
 div.dt-button-background:not(.disabled){
@@ -111,13 +112,35 @@ div.dt-button-background:not(.disabled){
 
 div.dt-button-collection {
   background-color: #dadada;
-  background-color: rgba(0, 0, 0, 0) !important;
-  color: #ffffff !important;
+  color: #c71919 !important;
   border-color: #4B5563 !important;
   padding: 4px 4px 2px !important;
   line-height: 1.6em !important;
+  overflow-x:visible !important;
+
   filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="#f0f0f0", EndColorStr="#dadada");
 }
+
+.btn-overflow {
+  overflow-x:visible !important;
+}
+
+.btn-actions{
+  margin-top: -3px !important;
+  margin-bottom: 0px !important;
+}
+
+.table.dataTable.table-hover>tbody>tr:hover>*{
+  background-color: rgb(249, 249, 167);
+}
+
+.btn-actions {
+  vertical-align: center;
+  font-size: .680rem;
+  font-weight: 400;
+  font-weight: normal;
+}
+
 
 div.dt-button-collection span {
   color: #ffffff;
