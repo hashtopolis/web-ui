@@ -339,7 +339,7 @@
                   </td>
                   <td class="width: 100px">
                     <label class="form-check-label" for="{{f.filename}}">
-                      {{f.filename | shortenString:25 }} {{f.fileId}}
+                      {{f.filename | shortenString:25 }}
                     </label>
                     <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
                     <fa-icon
