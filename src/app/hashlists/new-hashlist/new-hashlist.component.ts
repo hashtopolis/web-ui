@@ -10,16 +10,18 @@ import { Buffer } from 'buffer';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UploadTUSService } from '../../core/_services/files/files_tus.service';
-import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { ShowHideTypeFile } from '../../shared/utils/forms';
+import { validateFileExt } from '../../shared/utils/util';
 import { UploadFileTUS } from '../../core/_models/files';
 import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
+  providers: [FileSizePipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 @PageTitle(['New Hashlist'])
@@ -55,6 +57,7 @@ export class NewHashlistComponent implements OnInit {
      private uiService: UIConfigService,
      private modalService: NgbModal,
      private gs: GlobalService,
+     private fs:FileSizePipe,
      private router: Router,
      ) {
      }
@@ -176,8 +179,6 @@ export class NewHashlistComponent implements OnInit {
    * @param event
   */
 
-  fileSizeValue = fileSizeValue;
-
   validateFileExt = validateFileExt;
 
   fileGroup: number;
@@ -189,7 +190,7 @@ export class NewHashlistComponent implements OnInit {
     this.fileToUpload = event.target.files[0];
     this.fileSize = this.fileToUpload.size;
     this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text('Size: '+fileSizeValue(this.fileToUpload.size));
+    $('.fileuploadspan').text('Size: '+this.fs.transform(this.fileToUpload.size,false));
   }
 
   /**

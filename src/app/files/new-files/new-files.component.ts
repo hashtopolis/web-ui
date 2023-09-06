@@ -6,8 +6,9 @@ import { Observable } from 'rxjs';
 import { Buffer } from 'buffer';
 
 import { UploadTUSService } from 'src/app/core/_services/files/files_tus.service';
-import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
+import { validateFileExt } from '../../shared/utils/util';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { UploadFileTUS } from '../../core/_models/files';
@@ -16,7 +17,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-files',
-  templateUrl: './new-files.component.html'
+  templateUrl: './new-files.component.html',
+  providers: [FileSizePipe]
 })
 @PageTitle(['New File'])
 export class NewFilesComponent implements OnInit {
@@ -33,6 +35,7 @@ export class NewFilesComponent implements OnInit {
     private uploadService:UploadTUSService,
     private route:ActivatedRoute,
     private gs: GlobalService,
+    private fs:FileSizePipe,
     private router: Router
   ) { }
 
@@ -172,8 +175,6 @@ souceType(type: string, view: string){
     this.isHovering = event;
   }
 
-  fileSizeValue = fileSizeValue;
-
   validateFileExt = validateFileExt;
 
   selectedFile: '';
@@ -186,7 +187,7 @@ souceType(type: string, view: string){
     this.fileToUpload = event.target.files[0];
     this.fileSize = this.fileToUpload.size;
     this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text(fileSizeValue(this.fileToUpload.size));
+    $('.fileuploadspan').text(this.fs.transform(this.fileToUpload.size,false));
   }
 
   // To use as Button
