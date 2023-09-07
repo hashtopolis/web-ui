@@ -39,7 +39,6 @@
             <a *ngIf="agent.userId > 0"><a [routerLink]="['/users/',agent.userId,'edit']">{{ agent.userId}}</a></a>
           </td>
           <td>
-            {{agent.agentId}}
             <a *ngIf="!agent.agentId">---</a>
             <a *ngIf="agent.clientSignature.length > 0">{{ agent.clientSignature }}</a>
             <a *ngIf="agent.clientSignature.length === 0">Unknown</a>
