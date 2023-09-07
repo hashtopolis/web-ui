@@ -9,7 +9,6 @@ export const DEFAULT_CONFIG = {
   header: {
     brand: {
       logo: 'assets/img/logo.png',
-      logored_animated: 'assets/img/logo_red.png',
       logored: 'assets/img/logo_red.png',
       name: '',
       height: '60',
