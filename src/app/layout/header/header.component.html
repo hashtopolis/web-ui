@@ -149,7 +149,7 @@
 
       <!-- User Menu  -->
       <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)'  class="nav-item dropdown ms-3" *ngIf="isAuthentificated">
-        <a ngbDropdownToggle class="nav-link top-nav-cat" id="dropdownUsers" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{getUser() | shortenString:10 | lowercase | titlecase }}</a>
+        <a ngbDropdownToggle class="nav-link top-nav-cat" id="dropdownUsers" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{getUser() | shortenString:10 }}</a>
         <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu dashboard-dropdown dropdown-menu-end mt-0 py-1">
           <a class="dropdown-item align-items-center" routerLink="account/acc-settings" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">
             <fa-icon class="dropdown-icon" [icon]="faUserCircle" aria-hidden="true"></fa-icon>
