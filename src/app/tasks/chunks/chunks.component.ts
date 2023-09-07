@@ -99,7 +99,7 @@ export class ChunksComponent implements OnInit {
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollX: true,
-      pageLength: 10,
+      pageLength: 25,
       select: true,
       processing: true,
       deferRender: true,

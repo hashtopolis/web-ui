@@ -45,15 +45,15 @@ table.dataTable tbody tr.selected>* {
 
 table.dataTable {
   th {
-    padding: 16px 12px;
+    padding: 12px 8px;
     padding-right: 12px;
     text-align: left;
     vertical-align: bottom;
-    font-size: .875rem;
+    font-size: .975rem;
     font-weight: 400;
     font-weight: normal;
     color: #999;
-    text-transform: uppercase;
+    // text-transform: uppercase; //Chane table header to uppercase
   }
   td {
     padding: 10px 10px;

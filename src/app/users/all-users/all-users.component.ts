@@ -70,7 +70,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollX: true,
-      pageLength: 10,
+      pageLength: 25,
       stateSave: true,
       // "stateLoadParams": function (settings, data) {
       //   return false;

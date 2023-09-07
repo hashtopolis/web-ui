@@ -456,7 +456,7 @@
           <td>
             Action: {{ aa.lastAct }}<br>
             Time: {{ aa.lastTime | uiDate }}<br>
-            <div *ngIf="aa.lastIp">IP: <b>{{ aa.lastIp }}</b></div>
+            <div *ngIf="aa.lastIp">IP: {{ aa.lastIp }}</div>
           </td>
         </tr>
       </tbody>

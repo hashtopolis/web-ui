@@ -94,6 +94,7 @@ export class HashlistComponent implements OnInit, OnDestroy {
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollX: true,
+      pageLength: 25,
       stateSave: true,
       select: {
         style: 'multi',

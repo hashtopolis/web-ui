@@ -79,6 +79,7 @@ export class HealthChecksComponent implements OnInit {
   this.dtOptions = {
     dom: 'Bfrtip',
     scrollX: true,
+    pageLength: 25,
     stateSave: true,
     select: true,
     buttons: {

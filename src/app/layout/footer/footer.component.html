@@ -4,11 +4,16 @@
           <p class="text-center">
             ©2016-{{year}} {{ this.footerConfig.copyright }}
             <a
-              class="list-inline-item"
-              ngbTooltip="Last Commit: {{ gitInfo.lastCommitTime }}"
+              class="pointer"
+              [ngbTooltip]="commit"
               >
               {{ gitInfo.shortSHA }}
             </a>
+            <ng-template #commit>
+              <div class="d-flex flex-column">
+                <span> {{ gitInfo.lastCommitTime }}</span>
+              </div>
+            </ng-template>
           </p>
       </div>
       <div class="col-12 col-md-8 col-xl-6 text-center text-lg-start">

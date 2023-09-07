@@ -56,7 +56,7 @@ export class GroupsComponent implements OnInit {
       this.dtOptions = {
         dom: 'Bfrtip',
         scrollX: true,
-        pageLength: 10,
+        pageLength: 25,
         select: true,
         processing: true,  // Error loading
         deferRender: true,

@@ -198,6 +198,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollX: true,
+      pageLength: 25,
       scrollY: "1000px",
       scrollCollapse: true,
       paging: false,
