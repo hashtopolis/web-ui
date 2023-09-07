@@ -281,10 +281,9 @@
                   <div *ngIf="crackerinfo">
                     <h6>
                         Cracker Information
-                      <fa-icon [icon]="faEye" [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']" aria-hidden="true" class="gray-light-ico"></fa-icon>
                     </h6>
-                      <small>Name</small>: {{ crackerinfo['binaryName'] | lowercase | titlecase }}<br>
-                      <small>Version</small>: {{ crackerinfo['version'] }}
+                      Name: <a [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']">{{ crackerinfo['binaryName'] | lowercase | titlecase }}</a><br>
+                      Version: {{ crackerinfo['version'] }}
                     </div>
                 </grid-form-input>
               </div>
