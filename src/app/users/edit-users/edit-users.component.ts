@@ -4,7 +4,6 @@ import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 
-import { ValidationService } from '../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -20,8 +19,10 @@ import { User } from '../user.model';
 })
 @PageTitle(['Edit User'])
 export class EditUsersComponent implements OnInit {
+
   editMode = false;
   editedUserIndex: number;
+  strongPassword = false;
   editedUser: any // Change to Model
 
   faCalendar=faCalendar;
@@ -60,6 +61,10 @@ export class EditUsersComponent implements OnInit {
   updatePassForm = new FormGroup({
     'password': new FormControl(),
   })
+
+  onPasswordStrengthChanged(event: boolean) {
+    this.strongPassword = event;
+  }
 
   ngOnInit(): void {
 

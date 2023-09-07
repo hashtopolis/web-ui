@@ -48,17 +48,19 @@
               required
           >
       </grid-form-input>
-    <grid-form-input [name]="'Confirm Password'">
-      <input
-              type='password'
-              id="confirmpass"
-              class='form-control'
-              formControlName="confirmpass"
-              placeholder="Confirm Password"
-              required
-        >
-    </grid-form-input>
-    <!-- <span *ngIf="!createForm.valid && (createForm.touched || createForm.dirty)" class="help-block" >Please complete all the form!</span> -->
+      <app-pass-strenght [passwordToCheck]="updateForm.controls['newpassword'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
+      <grid-form-input [name]="'Confirm Password'">
+        <input
+                type='password'
+                id="confirmpass"
+                class='form-control'
+                formControlName="confirmpass"
+                placeholder="Confirm Password"
+                required
+          >
+      </grid-form-input>
+      <!-- Todo Erros here -->
+      <!-- <app-pass-match [newPassword]="updateForm.controls['newpassword'].value" [confirmPassword]="updateForm.controls['confirmpass'].value" ></app-pass-match> -->
     <button-submit [name]="'Update'"></button-submit>
     </div>
   </form>

@@ -91,13 +91,14 @@
                 <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
                 </span>
                 <input
-                      type='new-password'
+                      type='password'
                       id="setpassword"
                       class="form-control"
                       formControlName="password"
                 />
             </div>
             </grid-form-input>
+            <app-pass-strenght [passwordToCheck]="updatePassForm.controls['password'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
           </form>
           <grid-form-input [name]="''">
             <div class="form-check form-switch form-input-custom">
