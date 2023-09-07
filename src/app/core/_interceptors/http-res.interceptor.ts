@@ -40,7 +40,7 @@ export class HttpResInterceptor implements HttpInterceptor{
                 if(error.status === 403){
                   errmsg = `You don't have permissions. Please contact your Administrator.`;
                 }
-                if(error.status === 404){
+                if(error.status === 404 && !req.url.includes('config.json')){
                   errmsg = `The requested URL was not found.`;
                 }
                 // if(error.status !== 404 && error.status !== 403 && error.status !== 401 && error.status >= 300){
@@ -69,6 +69,7 @@ export class HttpResInterceptor implements HttpInterceptor{
           errorObject.message === "net::ERR_CONNECTION_CLOSE" ||
           errorObject.message === "net::ERR_UNKNOWN_PROTOCOL" ||
           errorObject.message === "net::ERR_SLOW_CONNECTION" ||
+          errorObject.message === "net::ERR_FAILED" ||
           errorObject.message === "net::ERR_NAME_NOT_RESOLVED" ;
     }
 }
