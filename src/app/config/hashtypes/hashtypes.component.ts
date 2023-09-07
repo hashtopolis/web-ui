@@ -51,10 +51,12 @@ export class HashtypesComponent implements OnInit {
       dom: 'Bfrtip',
       scrollX: true,
       pageLength: 25,
-      select: true,
       processing: true,  // Error loading
       deferRender: true,
       destroy:true,
+      select: {
+        style: 'multi',
+        },
       buttons: {
         dom: {
           button: {
