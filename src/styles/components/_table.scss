@@ -161,6 +161,11 @@ button.dt-button, div.dt-button, a.dt-button, input.dt-button {
   text-align: center !important;
 }
 
+// Remove Previous when is in first and next when in last
+.paginate_button.disabled, .paginate_button.disabled:hover, .paginate_button.disabled:active {
+  display:none
+}
+
 /*
   01- End
 */
