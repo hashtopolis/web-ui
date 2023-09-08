@@ -342,6 +342,10 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       dom: 'Bfrtip',
       scrollX: true,
       pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       scrollY: "700px",
       scrollCollapse: true,
       paging: false,

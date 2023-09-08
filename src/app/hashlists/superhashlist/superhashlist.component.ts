@@ -49,6 +49,10 @@ export class SuperhashlistComponent implements OnInit {
       dom: 'Bfrtip',
       scrollX: true,
       pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: true,
       buttons: {
