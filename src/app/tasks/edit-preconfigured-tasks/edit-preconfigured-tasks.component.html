@@ -159,7 +159,7 @@
             <td >{{ f.fileId }}</td>
             <td>
               <a [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
-                {{ f.filename | shortenString:35 | lowercase | titlecase }}
+                {{ f.filename | shortenString:35 }}
               </a>
               <span *ngIf="f.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
             </td>

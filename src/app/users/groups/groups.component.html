@@ -12,7 +12,7 @@
       <tbody>
         <tr *ngFor="let a of agroups; let i = index">
             <td>{{ a.accessGroupId }}</td>
-            <td>{{ a.groupName | lowercase | titlecase }}</td>
+            <td>{{ a.groupName }}</td>
             <td class="overflow-hidden">
               <app-button-actions>
                 <button ngbDropdownItem [routerLink]="['/users/access-groups/',a.accessGroupId,'edit']" data-placement="top" title="Edit">

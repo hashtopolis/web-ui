@@ -32,10 +32,10 @@
         <td *ngIf="task.taskType === 1" [ngStyle]="{'color': 'purple' }">{{ task.taskWrapperId }}</td>
         <td *ngIf="task.taskType === 0">
           <a [ngClass]="task.keyspaceProgress >= task.keyspace ? 'align-text' : ''" [routerLink]="[task.taskId,'edit']" ngbTooltip={{task.taskName}}>
-            {{ task.taskName | shortenString:40 | lowercase | titlecase }}
+            {{ task.taskName | shortenString:40 }}
           </a>
         </td>
-        <td *ngIf="task.taskType === 1"> {{ task.taskWrapperName | shortenString:40 | lowercase | titlecase }}</td>
+        <td *ngIf="task.taskType === 1"> {{ task.taskWrapperName | shortenString:40 }}</td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 0">
           <div class="row">
             <div class="col-md-4" *ngIf="(task.taskId | aspeed | async ) > 0">
@@ -61,12 +61,12 @@
         <td *ngIf="task.taskType === 0">{{ task.preprocessorId === 1 ? 'Prince':'-'}}</td>
         <td *ngIf="task.taskType === 1">-</td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 0">
-          <a [routerLink]="['/hashlists/hashlist',task.hashlist[0].hashlistId,'edit']" ngbTooltip={{task.hashlist[0].name}}>{{ task.hashlist[0].name | shortenString:30 | lowercase | titlecase}}</a>
+          <a [routerLink]="['/hashlists/hashlist',task.hashlist[0].hashlistId,'edit']" ngbTooltip={{task.hashlist[0].name}}>{{ task.hashlist[0].name | shortenString:30 }}</a>
           <span *ngIf="task.hashlist[0].hashCount === task.hashlist[0].cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
           <span *ngIf="task.hashlist[0].isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 1">
-          <a [routerLink]="['/hashlists/hashlist',task.hashlistId,'edit']">{{ task.name | shortenString:30 | lowercase | titlecase }}</a>
+          <a [routerLink]="['/hashlists/hashlist',task.hashlistId,'edit']">{{ task.name | shortenString:30 }}</a>
           <span *ngIf="task.hashCount === task.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
           <span *ngIf="task.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>

@@ -30,7 +30,7 @@
           </td>
           <td style="white-space: nowrap;">
             <a [routerLink]="[agent.agentId,'edit']" ngbTooltip={{agent.agentName}}>
-              {{ agent.agentName | shortenString:40 | lowercase | titlecase }}
+              {{ agent.agentName | shortenString:40 }}
             </a>
             <span *ngIf="agent.notes > 1" ><fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon></span>
             <span *ngIf="agent.isTrusted === true"><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>

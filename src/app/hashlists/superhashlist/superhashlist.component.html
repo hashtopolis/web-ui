@@ -19,7 +19,7 @@
       <tr *ngFor="let list of allsuperhashlisth">
         <td>{{ list.hashlistId }}</td>
         <td style="white-space: nowrap;">
-            <a [routerLink]="['/hashlists/superhashlist',list.hashlistId,'edit']" ngbTooltip={{list.name}}>{{ list.name | shortenString:35 | lowercase | titlecase }}</a>
+            <a [routerLink]="['/hashlists/superhashlist',list.hashlistId,'edit']" ngbTooltip={{list.name}}>{{ list.name | shortenString:35 }}</a>
             <span *ngIf="list.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></span>
         </td>
         <td>

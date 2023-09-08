@@ -136,7 +136,7 @@
             <span [ngClass]="!t.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': t.color }">{{ t.taskId }}</span>
           </td>
           <td>
-            <a [routerLink]="['/tasks/show-tasks',t.taskId,'edit']">{{ t.taskName | lowercase | titlecase }}</a>
+            <a [routerLink]="['/tasks/show-tasks',t.taskId,'edit']">{{ t.taskName }}</a>
           </td>
           <td>{{ t.taskId | tdispatched:t.keyspace | async | percent:'1.2-2'}}</td>
           <td>{{ t.taskId | tdsearched:t.keyspace | async | percent:'1.2-2'}}</td>

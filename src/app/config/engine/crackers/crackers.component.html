@@ -14,7 +14,7 @@
       <tbody>
         <tr *ngFor="let type of crackerType">
           <td>{{ type.crackerBinaryTypeId }}</td>
-          <td>{{ type.typeName | lowercase | titlecase }}</td>
+          <td>{{ type.typeName }}</td>
           <td>
             <div *ngFor="let ver of type.crackerVersions">
               <a [routerLink]="[ver.crackerBinaryId,'edit']">{{ ver.version }}</a>

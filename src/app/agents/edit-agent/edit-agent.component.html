@@ -272,7 +272,7 @@
           <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
           <td *ngIf="!gc.progress">N/A</td>
           <td>
-            <a [routerLink]="['/tasks/show-tasks',gc.taskId,'edit']">{{ gc.taskName | shortenString:15 | lowercase | titlecase}}</a>
+            <a [routerLink]="['/tasks/show-tasks',gc.taskId,'edit']">{{ gc.taskName | shortenString:15 }}</a>
           </td>
           <td>{{ gc.dispatchTime | uiDate }}</td>
           <td *ngIf="gc.solveTime === 0">(No activity)</td>

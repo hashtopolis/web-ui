@@ -38,7 +38,7 @@
         <tr  *ngFor="let ha of healthca">
           <td class="text-align:center">{{ ha.healthCheckAgentId }}</td>
           <td>
-            {{ ha.agentName | shortenString:15 | lowercase | titlecase }}
+            {{ ha.agentName | shortenString:15 }}
             <a class='btn-outline-gray-600 float-right' [routerLink]="['/agents/show-agents',ha.agentId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit Agent">
               <fa-icon [icon]="faEye" aria-hidden="true"></fa-icon>
             </a>

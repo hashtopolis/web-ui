@@ -282,7 +282,7 @@
                     <h6>
                         Cracker Information
                     </h6>
-                      Name: <a [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']">{{ crackerinfo['binaryName'] | lowercase | titlecase }}</a><br>
+                      Name: <a [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']">{{ crackerinfo['binaryName'] }}</a><br>
                       Version: {{ crackerinfo['version'] }}
                     </div>
                 </grid-form-input>
@@ -312,7 +312,7 @@
                 <tbody>
                   <tr *ngFor="let file of getFiles">
                     <td>{{ file.fileId }}</td>
-                    <td>{{ file.filename | shortenString:15 | lowercase | titlecase }}</td>
+                    <td>{{ file.filename | shortenString:15 }}</td>
                     <td>{{ file.fileType | fileType  }}</td>
                     <td>{{ file.size | fileSize:false }}</td>
                   </tr>
@@ -385,7 +385,7 @@
         </td>
         <td style="white-space: nowrap;">
           <a [routerLink]="['/agents/show-agents/',a.agentId,'edit']" ngbTooltip={{a.agentName}}>
-            {{ a.agentName | shortenString:30 | lowercase | titlecase }}
+            {{ a.agentName | shortenString:30 }}
           </a>
           <span *ngIf="a.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
         </td>
@@ -462,7 +462,7 @@
             <td *ngIf="gc.progress > 0">{{ gc.progress/100 }} %</td>
             <td *ngIf="!gc.progress">N/A</td>
             <td>
-              <a [routerLink]="['/agents/show-agents',gc.agentId,'edit']"> {{ gc.agentName | shortenString:15 | lowercase | titlecase }}</a>
+              <a [routerLink]="['/agents/show-agents',gc.agentId,'edit']"> {{ gc.agentName | shortenString:15 }}</a>
             </td>
             <td>{{ gc.dispatchTime | uiDate }}</td>
             <td *ngIf="gc.solveTime === 0">(No acitivity)</td>

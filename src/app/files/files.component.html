@@ -26,7 +26,7 @@
       <tbody>
       <tr *ngFor="let f of allfiles">
           <td>{{ f.fileId }}</td>
-          <td><a class="point" (click)="onEdit(f.fileId)" ngbTooltip={{f.filename}}>{{ f.filename | shortenString:35 | lowercase | titlecase }}</a></td>
+          <td><a class="point" (click)="onEdit(f.fileId)" ngbTooltip={{f.filename}}>{{ f.filename | shortenString:35 }}</a></td>
           <td><fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></td>
           <td>{{ f.size | fileSize:false }}</td>
           <td>{{ f.lineCount | number: '2.' }}</td>

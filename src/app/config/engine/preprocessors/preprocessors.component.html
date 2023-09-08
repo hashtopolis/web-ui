@@ -13,7 +13,7 @@
       <tbody>
       <tr *ngFor="let p of preproc">
           <td class="text-align:center">{{ p.preprocessorId }}</td>
-          <td>{{ p.name | lowercase | titlecase }}</td>
+          <td>{{ p.name }}</td>
           <td class="overflow-hidden">
             <app-button-actions>
               <button ngbDropdownItem [routerLink]="[p.preprocessorId,'edit']" data-placement="top" title="Edit">

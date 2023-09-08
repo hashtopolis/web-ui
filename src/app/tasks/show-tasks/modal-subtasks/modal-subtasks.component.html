@@ -25,7 +25,7 @@
                 <td [ngStyle]="{'background-color': st.color }">{{ st.taskId }}</td>
                 <td>
                   <a (click)="redirectTask(st.taskId)" ngbTooltip={{st.taskName}} class="color: blue;" style="cursor: pointer;">
-                    {{ st.taskName | shortenString:40 | lowercase | titlecase }}
+                    {{ st.taskName | shortenString:40 }}
                   </a>
                 </td>
                 <td>

@@ -125,7 +125,7 @@
         </td>
         <td>
           <a [routerLink]="['/tasks/preconfigured-tasks/', p.pretaskId, 'edit' ]">
-            {{ p.taskName | shortenString:35 | lowercase | titlecase }}
+            {{ p.taskName | shortenString:35 }}
           </a>
         </td>
         <td>{{ p.attackCmd }}</td>
