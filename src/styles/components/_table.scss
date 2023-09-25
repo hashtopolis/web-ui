@@ -81,6 +81,10 @@ table.dataTable {
   margin-bottom: 0px !important;
 }
 
+.remove-caret::after {
+  display: none !important;
+}
+
 .table.dataTable.table-hover>tbody>tr:hover>*{
   background-color: rgb(249, 249, 167);
 }
