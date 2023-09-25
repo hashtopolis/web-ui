@@ -1,6 +1,6 @@
 <app-page-subtitle [subtitle]="'Create Hashlist'"></app-page-subtitle>
 <!-- Body -->
-<grid-main [class]="'min-width: 450px;'" [centered]="true">
+<grid-main [class]="'width:100%;'" [centered]="true">
   <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
     <grid-autocol>
     <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
@@ -12,12 +12,13 @@
       >
     </grid-form-input>
     <grid-form-input [name]="'Notes'">
-      <input
+      <textarea
             type='text'
             id="notes"
             class='form-control'
             formControlName="notes"
       >
+      </textarea>
     </grid-form-input>
     <grid-form-input [name]="'Access group'" [labelclass]="'requiredak'">
       <select
