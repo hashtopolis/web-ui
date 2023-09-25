@@ -53,10 +53,7 @@
     <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
         <div class="card card-ag overflowAuto">
             <div class="card-header-ag">
-              <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">
-                <fa-icon [icon]="faEye" aria-hidden="true" class="white-ico"></fa-icon>
-              </a>
-              <a underline>{{ a.agentName | shortenString:15 }} </a>
+              <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | shortenString:15 }} </a>
             </div>
             <div class="card-body">
                 <div class="clearfix">
@@ -242,7 +239,7 @@
           <div class="card-body" *ngFor="let a of gname.value ; let last=last">
             <div class="row">
               <small><b>
-                <a class="display-col" [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | split:'-':1 | shortenString:15  }}</a>
+                <a class="display-col" [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | split:'-':1 | shortenString:15 }}</a>
               </b></small>
               <div class="col" *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result">
                 <fa-icon
@@ -426,7 +423,7 @@
             <app-active-spinner *ngIf="( aa.agentId | aspeed:true | async ) > 0"></app-active-spinner>
           </td>
           <td style="white-space: nowrap;">
-            <a [routerLink]="['/agents/show-agents',aa.agentId,'edit']">{{ aa.agentName | shortenString:15  }}</a>
+            <a [routerLink]="['/agents/show-agents',aa.agentId,'edit']">{{ aa.agentName | shortenString:15 }}</a>
             <span *ngIf="aa.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
           </td>
           <td>
@@ -440,7 +437,7 @@
           <td>
             <div *ngIf="( aa.agentId | aspeed:true | async ) > 0">
               <div *ngIf="aa.taskId">Task:
-                <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15  }}</a>,
+                <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15 }}</a>,
               </div>
               <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
               <div *ngIf="aa.chunkId" >working on chunk
@@ -450,7 +447,7 @@
           </td>
           <td>
             <a *ngIf="aa.taskId">
-              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']"> {{ aa.taskName | shortenString:15  }}</a>
+              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']"> {{ aa.taskName | shortenString:15 }}</a>
             </a>
           </td>
           <td>
