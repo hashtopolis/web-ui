@@ -1,32 +1,24 @@
 <app-page-title [title]="'New Agent'" [subbutton]="false"></app-page-title>
 <!-- Instructions -->
-<ngb-accordion #acc="ngbAccordion" >
-  <ngb-panel>
-    <ng-template ngbPanelTitle>
-      <span>Instructions</span>
-    </ng-template>
-    <ng-template ngbPanelContent>
-      <ol class="list-group list-group-numbered">
-        <li class="list-group-item">In clients, download the file and run it</li>
-        <li class="list-group-item">Generate voucher to link with agent (Used vouchers are automatically deleted)</li>
-        <li class="list-group-item">
-          Using the URL, link the agent with the app:
-          <code>{{ agentURL }}</code>
-          <fa-icon
-                  class='btn-outline-gray-600 float-right'
-                  placement="bottom"
-                  ngbTooltip="Copy Path: {{ agentURL }}"
-                  [copyButton]="agentURL"
-                  container="body"
-                  [icon]="faCopy"
-                  aria-hidden="true"
-          >
-          </fa-icon>
-        </li>
-      </ol>
-    </ng-template>
-  </ngb-panel>
-</ngb-accordion>
+<h5>Instructions</h5>
+<ol class="list-group list-group-numbered">
+  <li class="list-group-item">In clients, download the file and run it</li>
+  <li class="list-group-item">Generate voucher to link with agent (Used vouchers are automatically deleted)</li>
+  <li class="list-group-item">
+    Using the URL, link the agent with the app:
+    <code>{{ agentURL }}</code>
+    <fa-icon
+            class='btn-outline-gray-600 float-right'
+            placement="bottom"
+            ngbTooltip="Copy Path: {{ agentURL }}"
+            [copyButton]="agentURL"
+            container="body"
+            [icon]="faCopy"
+            aria-hidden="true"
+    >
+    </fa-icon>
+  </li>
+</ol>
 <!-- Clients section -->
 <app-table>
   <app-page-subtitle [subtitle]="'Clients'"></app-page-subtitle>
@@ -73,7 +65,7 @@
   </table>
 </app-table>
 <!-- Voucher Section -->
-<div class="row g-3">
+<!-- <div class="row g-3">
   <div class="col-md-3">
     <grid-main [class]="'py-2'">
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
@@ -90,9 +82,29 @@
       </form>
     </grid-main>
   </div>
-  <div class="col-md-9">
+  <div class="col-md-9"> -->
     <app-table>
       <app-page-subtitle [subtitle]="'Vouchers'"></app-page-subtitle>
+      <!-- Test Voucher here -->
+      <div class="align-inner-right">
+        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-xs-12 col-md-2">
+              <button-submit [name]="'Generate Voucher'"></button-submit>
+            </div>
+            <div class="col-xs-6 col-md-10">
+              <input
+                    type='text'
+                    id="voucher"
+                    [(ngModel)]="randomstring"
+                    class='form-control'
+                    formControlName="voucher"
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- Test Voucher here -->
       <table style="width: 100%" class="table table-striped table-hover table-sm" datatable>
         <thead class="thead-light">
           <tr>
@@ -122,6 +134,6 @@
         </tbody>
       </table>
     </app-table>
-  </div>
-</div>
+  <!-- </div>
+</div> -->
 
