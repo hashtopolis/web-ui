@@ -282,8 +282,7 @@
                     <h6>
                         Cracker Information
                     </h6>
-                      Name: <a [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']">{{ crackerinfo['binaryName'] }}</a><br>
-                      Version: {{ crackerinfo['version'] }}
+                      <a [routerLink]="['/config/engine/crackers/', crackerinfo['crackerBinaryId'],'edit']">{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}</a><br>
                     </div>
                 </grid-form-input>
               </div>
