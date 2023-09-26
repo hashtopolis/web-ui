@@ -99,8 +99,7 @@ export class EditUsersComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove from your users?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,

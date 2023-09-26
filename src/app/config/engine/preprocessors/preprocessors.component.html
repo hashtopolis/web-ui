@@ -20,7 +20,7 @@
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(p.preprocessorId)">
+              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(p.preprocessorId,p.name)">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>

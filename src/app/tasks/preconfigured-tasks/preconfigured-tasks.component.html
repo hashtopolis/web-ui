@@ -43,7 +43,7 @@
               <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
             </button>
             <div class="dropdown-divider"></div>
-            <button ngbDropdownItem (click)="onDelete(ptask.pretaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+            <button ngbDropdownItem (click)="onDelete(ptask.pretaskId,ptask.taskName)" data-toggle="tooltip" data-placement="top" title="Delete">
               <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
             </button>
           </app-button-actions>

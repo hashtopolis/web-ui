@@ -30,7 +30,7 @@
               <fa-icon [icon]="faAdd" aria-hidden="true"></fa-icon>Apply Hashlist
             </button>
             <div class="dropdown-divider"></div>
-            <button ngbDropdownItem (click)="onDelete(stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+            <button ngbDropdownItem (click)="onDelete(stask.supertaskId,stask.supertaskName)" data-toggle="tooltip" data-placement="top" title="Delete">
               <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
             </button>
           </app-button-actions>

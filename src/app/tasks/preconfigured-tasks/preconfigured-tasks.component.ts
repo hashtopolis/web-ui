@@ -150,7 +150,7 @@ export class PreconfiguredTasksComponent implements OnInit {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -159,8 +159,7 @@ export class PreconfiguredTasksComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your pretasks?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,

@@ -178,8 +178,7 @@ export class EditSupertasksComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove from your supertasks?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,

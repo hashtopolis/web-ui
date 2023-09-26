@@ -239,7 +239,7 @@ onArchive(id: number){
   });
 }
 
-onDelete(id: number){
+onDelete(id: number, name: string){
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: 'btn',
@@ -248,8 +248,7 @@ onDelete(id: number){
     buttonsStyling: false
   })
   Swal.fire({
-    title: "Are you sure?",
-    text: "Once deleted, it can not be recovered!",
+    title: 'Remove '+ name +' from your hashlists?',
     icon: "warning",
     reverseButtons: true,
     showCancelButton: true,

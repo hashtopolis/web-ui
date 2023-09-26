@@ -23,7 +23,7 @@
           <td>{{ user.lastLoginDate | uiDate }}</td>
           <td>{{ user.email }}</td>
           <td>
-            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:orange'}}">
+            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:yellow'}}">
               {{ user.isValid === true ? "Valid" : "Invalid/Not activated" }}
             </span>
           </td>
@@ -35,7 +35,7 @@
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(user.id)">
+              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(user.id,user.name)">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>

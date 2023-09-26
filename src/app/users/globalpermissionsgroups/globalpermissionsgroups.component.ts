@@ -134,7 +134,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -143,8 +143,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your global permissions?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,

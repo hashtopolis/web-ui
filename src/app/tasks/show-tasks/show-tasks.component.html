@@ -113,7 +113,7 @@
                 <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType,(task.taskType === 0 ? task.taskName:task.taskWrapperName))" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>
@@ -133,7 +133,7 @@
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit SubTasks
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType,(task.taskType === 0 ? task.taskName:task.taskWrapperName))" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>

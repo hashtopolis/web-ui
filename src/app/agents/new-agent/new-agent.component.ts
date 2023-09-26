@@ -102,7 +102,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string ){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -111,7 +111,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
+      title: 'Remove '+ name +' from your Vouchers?',
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
       reverseButtons: true,

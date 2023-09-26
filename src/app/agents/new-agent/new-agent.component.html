@@ -126,7 +126,7 @@
             </td>
             <td>{{ v.time | uiDate }}</td>
             <td>
-              <a class='btn-outline-gray-600 float-right' (click)="onDelete(v.regVoucherId)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <a class='btn-outline-gray-600 float-right' (click)="onDelete(v.regVoucherId,v.voucher)" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
               </a>
             </td>

@@ -30,7 +30,7 @@
                   <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
                 </button>
                 <div *ngIf="a.user.length === 0" class="dropdown-divider"></div>
-                <button *ngIf="a.user.length === 0" ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(a.id)">
+                <button *ngIf="a.user.length === 0" ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(a.id,a.name)">
                   <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
                 </button>
               </app-button-actions>

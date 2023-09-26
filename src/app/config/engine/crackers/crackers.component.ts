@@ -129,10 +129,9 @@ export class CrackersComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, you will not be able to recover this cracker!",
+      title: 'Remove '+ name +' from your crackers?',
       icon: "warning",
       buttons: true,
       dangerMode: true,
