@@ -91,12 +91,13 @@ export class NewFilesComponent implements OnInit {
 
     this.gs.create(SERV.FILES,form).subscribe(() => {
       Swal.fire({
-        title: "Success",
+        position: 'top-end',
+        icon: 'success',
+        title: "Success!",
         text: "New File created!",
-        icon: "success",
         showConfirmButton: false,
         timer: 1500
-      });
+      })
       this.router.navigate(['/files',this.redirect]);
     }
   );

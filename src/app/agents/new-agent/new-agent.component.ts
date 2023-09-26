@@ -124,11 +124,11 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
         this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -150,12 +150,13 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
       this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New Voucher created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         }

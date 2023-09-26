@@ -50,14 +50,14 @@ export class MasksComponent implements OnInit {
     if (this.createForm.valid) {
 
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
-
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New Supertask created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/show-tasks']);
         }

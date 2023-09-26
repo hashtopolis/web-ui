@@ -179,6 +179,7 @@ export class WrbulkComponent implements OnInit {
   validateFile(value){
     if(value.split('.').pop() == '7zip'){
       Swal.fire({
+        position: 'top-end',
         title: "Heads Up!",
         text: "Hashcat has some issues loading 7z files. Better convert it to a hash file ;)",
         icon: "warning",

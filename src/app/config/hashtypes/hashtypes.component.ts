@@ -157,11 +157,11 @@ export class HashtypesComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.HASHTYPES,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

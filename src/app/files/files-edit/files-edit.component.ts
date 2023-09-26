@@ -89,12 +89,12 @@ export class FilesEditComponent implements OnInit {
   onSubmit(): void{
     this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value['updateData']).subscribe(() => {
       Swal.fire({
-        title: "Great!",
-        text: "File updated!",
-        icon: "success",
+        position: 'top-end',
+        icon: 'success',
+        title: "Saved",
         showConfirmButton: false,
         timer: 1500
-      });
+      })
       this.route.data.subscribe(data => {
         switch (data['kind']) {
 
@@ -117,11 +117,13 @@ export class FilesEditComponent implements OnInit {
     errorMessage => {
       // check error status code is 500, if so, do some action
       Swal.fire({
+        position: 'top-end',
+        icon: "warning",
         title: "Oppss! Error",
         text: "File was not updated, please try again!",
-        icon: "warning",
-        showConfirmButton: true
-      });
+        showConfirmButton: false,
+        timer: 1500
+      })
       this.ngOnInit();
     }
   );

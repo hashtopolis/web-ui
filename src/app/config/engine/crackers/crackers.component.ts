@@ -142,11 +142,11 @@ export class CrackersComponent implements OnInit, OnDestroy {
       if (willDelete) {
         this.gs.delete(SERV.CRACKERS_TYPES,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
         });
       } else {
         Swal.fire("Your Cracker is safe!")

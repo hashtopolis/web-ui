@@ -82,12 +82,13 @@ export class HashtypeComponent implements OnInit {
       case 'create':
       this.gs.create(SERV.HASHTYPES,this.Form.value).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
             text: "New Hashtype created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/config/hashtypes']);
         }
       );
@@ -97,11 +98,12 @@ export class HashtypeComponent implements OnInit {
         const id = +this.route.snapshot.params['id'];
         this.gs.update(SERV.HASHTYPES,id,this.Form.value).subscribe(() => {
           Swal.fire({
-            title: "Updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/config/hashtypes']);
         });
       break;

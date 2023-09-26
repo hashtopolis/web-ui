@@ -172,11 +172,12 @@ export class PreconfiguredTasksComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.PRETASKS,id).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

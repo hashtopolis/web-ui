@@ -68,12 +68,12 @@ export class AccountSettingsComponent implements OnInit {
     if (this.updateForm.valid) {
       this.gs.create(SERV.USERS,this.updateForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: 'Saved',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['users/all-users']);
         }
       );

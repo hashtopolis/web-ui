@@ -267,12 +267,13 @@ onArchive(id: number, type: number){
   const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
   this.gs.archive(path,id).subscribe(() => {
     Swal.fire({
+      position: 'top-end',
+      icon: 'success',
       title: "Success",
       text: "Archived!",
-      icon: "success",
       showConfirmButton: false,
       timer: 1500
-    });
+    })
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
@@ -310,11 +311,12 @@ onDelete(id: number, type: number){
       const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
       this.gs.delete(path,id).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          icon: 'success',
           title: "Success",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.ngOnInit();
         this.rerender();  // rerender datatables
       });
@@ -337,6 +339,7 @@ onSelectedTasks(){
   const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
+      position: 'top-end',
       title: "You haven't selected any Task",
       type: 'success',
       timer: 1500,
@@ -394,10 +397,11 @@ onDone(value?: any){
     this.rerender();  // rerender datatables
     Swal.close();
     Swal.fire({
-      title: 'Done!',
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      position: 'top-end',
+      icon: 'success',
+      title: "Success",
+      showConfirmButton: false,
+      timer: 1500
     })
   },3000);
   }
@@ -409,6 +413,7 @@ onModalProject(title: string){
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
+        position: 'top-end',
         title: "You haven't selected any Task",
         type: 'success',
         timer: 1500,
@@ -468,11 +473,12 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, namere
         const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
         this.gs.update(path,id, update).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

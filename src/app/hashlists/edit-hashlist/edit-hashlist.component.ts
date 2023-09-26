@@ -95,12 +95,12 @@ export class EditHashlistComponent implements OnInit {
 
       this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "HashList updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           const path = this.type === 3 ? '/hashlists/superhashlist':'/hashlists/hashlist';
           this.router.navigate([path]);

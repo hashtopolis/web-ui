@@ -96,12 +96,13 @@ export class ModalSubtasksComponent {
     onArchive(id: number){
       this.gs.archive(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          icon: 'success',
           title: "Success",
           text: "Archived!",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.rerender();  // rerender datatables
       });
     }
@@ -109,11 +110,12 @@ export class ModalSubtasksComponent {
     onDelete(id: number){
       this.gs.delete(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          icon: 'success',
           title: "Success",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.rerender();  // rerender datatables
       });
     }

@@ -229,10 +229,10 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       this.rerender();  // rerender datatables
       Swal.close();
       Swal.fire({
-        title: 'Done!',
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
+        position: 'top-end',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
       })
     },3000);
   }
@@ -242,6 +242,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
+        position: 'top-end',
         title: "You haven't selected any Agent",
         type: 'success',
         timer: 1500,
@@ -300,6 +301,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
       if(selection.length == 0) {
         Swal.fire({
+          position: 'top-end',
           title: "You haven't selected any Agent",
           type: 'success',
           timer: 1500,
@@ -355,11 +357,11 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         if (result.isConfirmed) {
           this.gs.delete(SERV.AGENTS,id).subscribe(() => {
             Swal.fire({
-              title: "Success",
-              icon: "success",
+              position: 'top-end',
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });

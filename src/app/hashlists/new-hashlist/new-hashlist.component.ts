@@ -213,12 +213,13 @@ export class NewHashlistComponent implements OnInit {
 
       this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
         Swal.fire({
-          title: "Success",
+          position: 'top-end',
+          icon: 'success',
+          title: "Success!",
           text: "New HashList created!",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.router.navigate(['/hashlists/hashlist']);
       }
     );

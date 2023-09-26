@@ -249,11 +249,11 @@ export class FilesComponent implements OnInit {
         if (result.isConfirmed) {
           this.gs.delete(SERV.FILES,id).subscribe(() => {
             Swal.fire({
-              title: "Success",
-              icon: "success",
+              position: 'top-end',
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });
@@ -328,10 +328,11 @@ export class FilesComponent implements OnInit {
       this.rerender();  // rerender datatables
       Swal.close();
       Swal.fire({
-        title: 'Done!',
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
+        position: 'top-end',
+        icon: 'success',
+        title: "Success",
+        showConfirmButton: false,
+        timer: 1500
       })
     },3000);
   }

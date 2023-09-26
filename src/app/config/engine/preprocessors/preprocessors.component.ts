@@ -48,11 +48,11 @@ export class PreprocessorsComponent implements OnInit {
       this.dtOptions = {
         dom: 'Bfrtip',
         scrollX: true,
-        pageLength: 25,
         lengthMenu: [
           [10, 25, 50, 100, 250, -1],
           [10, 25, 50, 100, 250, 'All']
         ],
+        pageLength: 25,
         stateSave: true,
         select: true,
         buttons: {
@@ -151,11 +151,11 @@ export class PreprocessorsComponent implements OnInit {
         if (result.isConfirmed) {
           this.gs.delete(SERV.PREPROCESSORS,id).subscribe(() => {
             Swal.fire({
-              title: "Success",
-              icon: "success",
+              position: 'top-end',
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });

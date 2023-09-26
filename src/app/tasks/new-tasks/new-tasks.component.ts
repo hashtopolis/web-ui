@@ -410,12 +410,13 @@ export class NewTasksComponent implements OnInit {
     if (this.createForm.valid) {
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New Task created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset();
           this.router.navigate(['tasks/show-tasks']);
         }

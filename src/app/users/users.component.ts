@@ -56,12 +56,12 @@ export class UsersComponent implements OnInit {
 
       this.gs.create(SERV.USERS,this.createForm.value).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            text: "New User created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['users/all-users']);
         }
       );

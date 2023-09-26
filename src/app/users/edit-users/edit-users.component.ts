@@ -112,11 +112,12 @@ export class EditUsersComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.USERS,this.editedUserIndex).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/users/all-users']);
         });
       } else {
@@ -138,12 +139,12 @@ export class EditUsersComponent implements OnInit {
 
       this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "User updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['users/all-users']);
         }

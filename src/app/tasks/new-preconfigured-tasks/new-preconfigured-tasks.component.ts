@@ -260,12 +260,13 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
       this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New PreTask created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
         }

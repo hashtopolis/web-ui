@@ -165,15 +165,15 @@ export class NewNotificationComponent implements OnInit {
 
   onSubmit(){
     if (this.createForm.valid) {
-
       this.gs.create(SERV.NOTIFICATIONS,this.createForm.value).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success!",
             text: "New Notification created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.router.navigate(['/account/notifications']);
         }

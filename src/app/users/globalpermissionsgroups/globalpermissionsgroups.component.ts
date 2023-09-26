@@ -156,11 +156,13 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS,id).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            icon: "success",
+            text: "Archived!",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

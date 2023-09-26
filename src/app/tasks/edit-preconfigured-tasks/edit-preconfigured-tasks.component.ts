@@ -117,12 +117,12 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
       this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Pretask updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
         }

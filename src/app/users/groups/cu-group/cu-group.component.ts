@@ -74,12 +74,12 @@ export class CUGroupComponent implements OnInit {
       case 'create':
         this.gs.create(SERV.ACCESS_GROUPS,this.Form.value).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            text: "New Group created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/users/access-groups']);
         }
       );
@@ -88,11 +88,12 @@ export class CUGroupComponent implements OnInit {
       case 'edit':
         this.gs.update(SERV.ACCESS_GROUPS,this.editedIndex,this.Form.value).subscribe(() => {
           Swal.fire({
-            title: "Updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/users/access-groups']);
         });
       break;

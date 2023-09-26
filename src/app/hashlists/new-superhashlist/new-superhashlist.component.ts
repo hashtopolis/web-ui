@@ -90,12 +90,13 @@ export class NewSuperhashlistComponent implements OnInit {
       console.log(this.createForm.value);
       this.gs.chelper(SERV.HELPER,'createSuperHashlist',this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New SuperHashList created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['hashlists/superhashlist']);
         }

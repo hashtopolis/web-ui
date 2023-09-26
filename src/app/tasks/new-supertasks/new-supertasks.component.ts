@@ -92,12 +92,13 @@ export class NewSupertasksComponent implements OnInit {
 
       this.gs.create(SERV.SUPER_TASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New Supertask created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/supertasks']);
         }

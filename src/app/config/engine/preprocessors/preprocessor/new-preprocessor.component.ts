@@ -82,12 +82,13 @@ export class NewPreprocessorComponent implements OnInit {
           .subscribe((prep: any) => {
             const response = prep;
               Swal.fire({
-                title: "Success",
+                position: 'top-end',
+                icon: 'success',
+                title: "Success!",
                 text: "New Preprocessor created!",
-                icon: "success",
                 showConfirmButton: false,
                 timer: 1500
-              });
+              })
               this.router.navigate(['config/engine/preprocessors']);
             }
           );
@@ -99,12 +100,12 @@ export class NewPreprocessorComponent implements OnInit {
           .subscribe((prep: any) => {
             const response = prep;
               Swal.fire({
-                title: "Success",
-                text: "New Preprocessor created!",
-                icon: "success",
+                position: 'top-end',
+                icon: 'success',
+                title: "Saved",
                 showConfirmButton: false,
                 timer: 1500
-              });
+              })
               this.router.navigate(['config/engine/preprocessors']);
             }
           );

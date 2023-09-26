@@ -133,12 +133,12 @@ export class ApplyHashlistComponent  {
   onSubmit(){
     this.gs.chelper(SERV.HELPER,'createSupertask', this.createForm.value).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          icon: 'success',
           title: "Success",
-          text: "New Task created!",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.createForm.reset();
         this.router.navigate(['tasks/show-tasks']);
       }

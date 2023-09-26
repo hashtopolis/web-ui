@@ -94,12 +94,12 @@ export class EditSupertasksComponent implements OnInit {
 
       this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Pretask updated!",
-            icon: "success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.onRefresh();
           // this.router.navigate(['/tasks/supertasks']);
@@ -191,11 +191,12 @@ export class EditSupertasksComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
         });
       } else {
@@ -218,12 +219,12 @@ export class EditSupertasksComponent implements OnInit {
     }
     this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe((result)=>{
       Swal.fire({
+        position: 'top-end',
+        icon: 'success',
         title: "Success",
-        text: "Pretask deleted!",
-        icon: "success",
         showConfirmButton: false,
         timer: 1500
-      });
+      })
       this.updateForm.reset(); // success, we reset form
       this.onRefresh();
     })

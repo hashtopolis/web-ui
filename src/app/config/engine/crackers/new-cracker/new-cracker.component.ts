@@ -35,12 +35,13 @@ export class NewCrackerComponent implements OnInit {
 
       this.gs.create(SERV.CRACKERS_TYPES, this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            icon: 'success',
+            title: "Success!",
             text: "New Cracker created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset(); // success, we reset form
           this.router.navigate(['/config/engine/crackers']);
         }

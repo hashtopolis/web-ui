@@ -139,12 +139,13 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
     if (this.updateForm.valid) {
       this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            icon: 'success',
             title: "Success",
             text: "Permission Updated!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset();
           this.router.navigate(['/users/global-permissions-groups']);
         }

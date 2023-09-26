@@ -228,12 +228,12 @@ rerender(): void {
 onArchive(id: number){
   this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
     Swal.fire({
-      title: "Success",
-      text: "Archived!",
-      icon: "success",
+      position: 'top-end',
+      icon: 'success',
+      title: "Archived!",
       showConfirmButton: false,
       timer: 1500
-    });
+    })
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
@@ -261,11 +261,11 @@ onDelete(id: number){
     if (result.isConfirmed) {
       this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
         Swal.fire({
-          title: "Success",
-          icon: "success",
+          position: 'top-end',
+          icon: 'success',
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.ngOnInit();
         this.rerender();  // rerender datatables
       });
@@ -288,10 +288,11 @@ onSelectedHashlists(){
   const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
+      position: 'top-end',
+      icon: 'success',
       title: "You haven't selected any Hashlist",
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
+      timer: 1500
     })
     return;
   }
@@ -339,10 +340,10 @@ onDone(value?: any){
     this.rerender();  // rerender datatables
     Swal.close();
     Swal.fire({
-      title: 'Done!',
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      position: 'top-end',
+      icon: 'success',
+      showConfirmButton: false,
+      timer: 1500
     })
   },3000);
   }
