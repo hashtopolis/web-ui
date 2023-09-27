@@ -82,7 +82,10 @@
           {{ task.assignedAgents.length > 0 ? task.assignedAgents.length: 0 }}
         </td>
         <td *ngIf="task.taskType === 1">-</td>
-        <td style="white-space: nowrap;" *ngIf="task.taskType === 0">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s</td>
+        <td style="white-space: nowrap;" *ngIf="task.taskType === 0">
+          <a *ngIf="task.assignedAgents.length">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s</a>
+          <a *ngIf="!task.assignedAgents.length">-</a>
+        </td>
         <td *ngIf="task.taskType === 1">-</td>
         <td>
           {{ task.priority }}
