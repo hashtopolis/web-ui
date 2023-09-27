@@ -1,4 +1,4 @@
-<grid-main [class]="'width:auto'" [centered]="true">
+<grid-main [class]="'width:100%;'" [centered]="true">
   <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <grid-autocol>
@@ -73,7 +73,7 @@
         </grid-form-input>
         <app-page-subtitle [subtitle]="'Update Settings'"></app-page-subtitle>
         <div formGroupName="updateData">
-          <grid-form-input [name]="'Set users right group'">
+          <grid-form-input [name]="'Set user Global Permission Group:'">
             <select
                   type='number'
                   id="globalPermissionGroupId"

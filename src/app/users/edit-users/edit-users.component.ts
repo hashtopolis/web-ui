@@ -145,6 +145,7 @@ export class EditUsersComponent implements OnInit {
             timer: 1500
           })
           this.updateForm.reset(); // success, we reset form
+          this.updatePassForm.reset();
           this.router.navigate(['users/all-users']);
         }
       );
@@ -152,8 +153,8 @@ export class EditUsersComponent implements OnInit {
   }
 
   onUpdatePass(val: any){
-    let setpass = String(val['password']).length;
-    if(setpass > 0){
+    const setpass = String(val['password']).length;
+    if(val['password']){
       const payload = {"password": val['password'], "userId": this.editedUserIndex};
       this.gs.chelper(SERV.HELPER,'setUserPassword', payload).subscribe();
     }
