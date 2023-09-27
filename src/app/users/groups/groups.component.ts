@@ -9,6 +9,8 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
+declare let $:any;
+
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html'
@@ -116,6 +118,20 @@ export class GroupsComponent implements OnInit {
               },
                 'copy'
               ]
+            },
+            {
+              extend: 'collection',
+              text: 'Bulk Actions',
+              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+              buttons: [
+                    {
+                      text: 'Delete Groups',
+                      autoClose: true,
+                      action: function (e, dt, node, config) {
+                        self.onDeleteBulk();
+                      }
+                    }
+                 ]
             }
           ],
         }
@@ -179,6 +195,58 @@ export class GroupsComponent implements OnInit {
         })
       }
     });
+  }
+
+  onSelectedGroups(){
+    $(".dt-button-background").trigger("click");
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    if(selection.length == 0) {
+      Swal.fire({
+        position: 'top-end',
+        title: "You haven't selected any Group",
+        type: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      })
+      return;
+    }
+    const selectionnum = selection.map(i=>Number(i));
+
+    return selectionnum;
+  }
+
+  onDeleteBulk(){
+      const self = this;
+      const selectionnum = this.onSelectedGroups();
+      const sellen = selectionnum.length;
+      const errors = [];
+      selectionnum.forEach(function (value) {
+        Swal.fire('Deleting...'+sellen+' Group(s)...Please wait')
+        Swal.showLoading()
+      self.gs.delete(SERV.ACCESS_GROUPS,value)
+      .subscribe(
+        err => {
+          // console.log('HTTP Error', err)
+          err = 1;
+          errors.push(err);
+        },
+        );
+      });
+    self.onDone(sellen);
+  }
+
+  onDone(value?: any){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+      Swal.close();
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      })
+    },3000);
   }
 
   // Add unsubscribe to detect changes
