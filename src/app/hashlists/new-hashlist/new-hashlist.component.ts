@@ -76,7 +76,7 @@ export class NewHashlistComponent implements OnInit {
       'name': new FormControl('', [Validators.required]),
       'hashTypeId': new FormControl('', [Validators.required]),
       'format': new FormControl(null),
-      'separator': new FormControl(null || ';'),
+      'separator': new FormControl(null || ':'),
       'isSalted': new FormControl(false),
       'isHexSalt': new FormControl(false),
       'accessGroupId': new FormControl(null, [Validators.required]),
