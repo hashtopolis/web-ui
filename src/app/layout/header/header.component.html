@@ -86,13 +86,23 @@
           </div>
         </li>
         <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
+          <div ngbDropdownToggle id="dropdownConfig" routerLink="config/engine" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            <fa-icon class="dropdown-icon" [icon]="faFileCode" aria-hidden="true"></fa-icon>
+              Binaries
+          </div>
+          <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aaria-labelledby="dropdownConfig">
+          <a class="dropdown-item" routerLink="config/engine/crackers" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Crackers</a>
+          <a class="dropdown-item" routerLink="config/engine/preprocessors" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Preprocessors</a>
+          <a class="dropdown-item" routerLink="config/engine/agent-binaries" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Agent Binaries</a>
+          </div>
+        </li>
+        <li ngbDropdown #drop="ngbDropdown" (mouseover)='onMouseEnter(drop)' (mouseout)='onMouseLeave(drop)' class="top-cat nav-item dropdown show" routerLinkActive="active" *ngIf="isAuthentificated">
           <div ngbDropdownToggle id="dropdownConfig" routerLink="config/agent" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
             <fa-icon class="dropdown-icon" [icon]="faCogs" aria-hidden="true"></fa-icon>
               Config
           </div>
           <div ngbDropdownMenu (mouseout)='onMouseLeave(drop)' class="dropdown-menu top-cat-sub" aaria-labelledby="dropdownConfig">
           <a class="dropdown-item" routerLink="config/agent" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Settings</a>
-          <a class="dropdown-item" routerLink="config/engine/agent-binaries" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Engines</a>
           <a class="dropdown-item" routerLink="config/hashtypes" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Hashtypes</a>
           <a class="dropdown-item" routerLink="config/health-checks" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Health Checks</a>
           <a class="dropdown-item" routerLink="config/log" [routerLinkActiveOptions]="{exact: true}" [routerLinkActive]="['active']">Log</a>
