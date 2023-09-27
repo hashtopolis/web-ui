@@ -21,9 +21,13 @@
       </thead>
       <tbody>
         <tr *ngFor="let a of Allgpg; let i = index">
-            <td class="text-align:center">{{ a.id }}</td>
-            <td class="text-align:center">{{ a.name }}</td>
-            <td class="text-align:center">{{ a.user.length }}</td>
+            <td>{{ a.id }}</td>
+            <td>
+              <a [routerLink]="['/users/global-permissions-groups/',a.id,'edit']" ngbTooltip={{a.name}}>
+                {{ a.name| shortenString:40 }}
+              </a>
+            </td>
+            <td>{{ a.user.length }}</td>
             <td class="overflow-hidden">
               <app-button-actions>
                 <button ngbDropdownItem [routerLink]="['/users/global-permissions-groups/',a.id,'edit']" data-placement="top" title="Edit">

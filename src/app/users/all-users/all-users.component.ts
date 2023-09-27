@@ -205,7 +205,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     });
   }
 
-  onSelectedAgents(){
+  onSelectedUsers(){
     $(".dt-button-background").trigger("click");
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
@@ -225,7 +225,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
 
   onDeleteBulk(){
       const self = this;
-      const selectionnum = this.onSelectedAgents();
+      const selectionnum = this.onSelectedUsers();
       const sellen = selectionnum.length;
       const errors = [];
       selectionnum.forEach(function (value) {
