@@ -43,6 +43,7 @@ export class AgentBinariesComponent implements OnInit {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
     });
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollX: true,
@@ -59,10 +60,61 @@ export class AgentBinariesComponent implements OnInit {
             className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
           }
         },
-      buttons: [],
+      buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [
+            {
+              extend: 'excelHtml5',
+              exportOptions: {
+                columns: [0, 1]
+              },
+            },
+            {
+              extend: 'print',
+              exportOptions: {
+                columns: [0, 1]
+              },
+              customize: function ( win ) {
+                $(win.document.body)
+                    .css( 'font-size', '10pt' )
+                $(win.document.body).find( 'table' )
+                    .addClass( 'compact' )
+                    .css( 'font-size', 'inherit' );
+             }
+            },
+            {
+              extend: 'csvHtml5',
+              exportOptions: {modifier: {selected: true}},
+              select: true,
+              customize: function (dt, csv) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
+                  data = "Agent Binaries\n\n"+  dt;
+                }
+                return data;
+             }
+            },
+              'copy'
+            ]
+          }
+        ],
       }
     };
 
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   onSubmit(){
