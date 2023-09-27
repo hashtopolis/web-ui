@@ -12,6 +12,8 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { DataTableDirective } from 'angular-datatables';
 
+declare let $:any;
+
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html'
@@ -24,7 +26,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   faEdit=faEdit;
   faPlus=faPlus;
 
-  @ViewChild(DataTableDirective, {static: false})
+  @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
@@ -131,7 +133,21 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
             },
               'copy'
             ]
-          }
+          },
+          {
+            extend: 'collection',
+            text: 'Bulk Actions',
+            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+            buttons: [
+                  {
+                    text: 'Delete Users',
+                    autoClose: true,
+                    action: function (e, dt, node, config) {
+                      self.onDeleteBulk();
+                    }
+                  }
+               ]
+            },
         ],
       }
     };
@@ -187,6 +203,58 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
         })
       }
     });
+  }
+
+  onSelectedAgents(){
+    $(".dt-button-background").trigger("click");
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    if(selection.length == 0) {
+      Swal.fire({
+        position: 'top-end',
+        title: "You haven't selected any User",
+        type: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      })
+      return;
+    }
+    const selectionnum = selection.map(i=>Number(i));
+
+    return selectionnum;
+  }
+
+  onDeleteBulk(){
+      const self = this;
+      const selectionnum = this.onSelectedAgents();
+      const sellen = selectionnum.length;
+      const errors = [];
+      selectionnum.forEach(function (value) {
+        Swal.fire('Deleting...'+sellen+' User(s)...Please wait')
+        Swal.showLoading()
+      self.gs.delete(SERV.AGENTS,value)
+      .subscribe(
+        err => {
+          // console.log('HTTP Error', err)
+          err = 1;
+          errors.push(err);
+        },
+        );
+      });
+    self.onDone(sellen);
+  }
+
+  onDone(value?: any){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+      Swal.close();
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      })
+    },3000);
   }
 
   rerender(): void {

@@ -18,7 +18,11 @@
       <tbody>
       <tr *ngFor="let user of allusers">
           <td class="text-align:center">{{ user.id }}</td>
-          <td>{{ user.name }}</td>
+          <td>
+            <a [routerLink]="['/users',user.id,'edit']" ngbTooltip={{user.name}}>
+              {{ user.name | shortenString:40 }}
+            </a>
+          </td>
           <td>{{ user.registeredSince | uiDate }}</td>
           <td>{{ user.lastLoginDate | uiDate }}</td>
           <td>{{ user.email }}</td>
