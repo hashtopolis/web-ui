@@ -193,6 +193,7 @@ export class EditAgentComponent implements OnInit {
       this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

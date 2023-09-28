@@ -177,6 +177,7 @@ export class GroupsComponent implements OnInit {
         this.gs.delete(SERV.ACCESS_GROUPS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,
@@ -203,6 +204,7 @@ export class GroupsComponent implements OnInit {
     if(selection.length == 0) {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Group",
         type: 'success',
         timer: 1500,
@@ -242,6 +244,7 @@ export class GroupsComponent implements OnInit {
       Swal.close();
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         showConfirmButton: false,
         timer: 1500

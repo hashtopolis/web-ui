@@ -118,6 +118,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
       this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

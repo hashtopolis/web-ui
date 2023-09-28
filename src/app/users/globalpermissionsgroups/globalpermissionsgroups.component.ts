@@ -172,6 +172,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
         this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             text: "Archived!",
@@ -199,6 +200,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
     if(selection.length == 0) {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Global Permission Group",
         type: 'success',
         timer: 1500,
@@ -238,6 +240,7 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
       Swal.close();
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         showConfirmButton: false,
         timer: 1500

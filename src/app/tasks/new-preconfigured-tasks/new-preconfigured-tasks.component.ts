@@ -261,6 +261,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
       this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success!",
             text: "New PreTask created!",

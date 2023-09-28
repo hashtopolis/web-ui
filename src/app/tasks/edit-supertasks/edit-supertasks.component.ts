@@ -95,6 +95,7 @@ export class EditSupertasksComponent implements OnInit {
       this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,
@@ -191,6 +192,7 @@ export class EditSupertasksComponent implements OnInit {
         this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,
@@ -219,6 +221,7 @@ export class EditSupertasksComponent implements OnInit {
     this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe((result)=>{
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: "Success",
         showConfirmButton: false,

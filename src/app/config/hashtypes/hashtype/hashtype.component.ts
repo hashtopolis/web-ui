@@ -83,6 +83,7 @@ export class HashtypeComponent implements OnInit {
       this.gs.create(SERV.HASHTYPES,this.Form.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             text: "New Hashtype created!",
@@ -99,6 +100,7 @@ export class HashtypeComponent implements OnInit {
         this.gs.update(SERV.HASHTYPES,id,this.Form.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

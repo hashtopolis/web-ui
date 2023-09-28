@@ -161,6 +161,7 @@ export class NotificationsComponent implements OnInit {
         this.gs.delete(SERV.NOTIFICATIONS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500

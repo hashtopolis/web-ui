@@ -134,6 +134,7 @@ export class ApplyHashlistComponent  {
     this.gs.chelper(SERV.HELPER,'createSupertask', this.createForm.value).subscribe(() => {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           icon: 'success',
           title: "Success",
           showConfirmButton: false,

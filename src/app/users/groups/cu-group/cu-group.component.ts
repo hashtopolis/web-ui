@@ -75,6 +75,7 @@ export class CUGroupComponent implements OnInit {
         this.gs.create(SERV.ACCESS_GROUPS,this.Form.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,
@@ -89,6 +90,7 @@ export class CUGroupComponent implements OnInit {
         this.gs.update(SERV.ACCESS_GROUPS,this.editedIndex,this.Form.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

@@ -91,6 +91,7 @@ export class NewSuperhashlistComponent implements OnInit {
       this.gs.chelper(SERV.HELPER,'createSuperHashlist',this.createForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success!",
             text: "New SuperHashList created!",

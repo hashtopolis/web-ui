@@ -151,6 +151,7 @@ export class SuperhashlistComponent implements OnInit {
         this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500

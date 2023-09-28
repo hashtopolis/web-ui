@@ -214,6 +214,7 @@ export class NewHashlistComponent implements OnInit {
       this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           icon: 'success',
           title: "Success!",
           text: "New HashList created!",

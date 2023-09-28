@@ -229,6 +229,7 @@ onArchive(id: number){
   this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       icon: 'success',
       title: "Archived!",
       showConfirmButton: false,
@@ -261,6 +262,7 @@ onDelete(id: number, name: string){
       this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           icon: 'success',
           showConfirmButton: false,
           timer: 1500
@@ -288,6 +290,7 @@ onSelectedHashlists(){
   if(selection.length == 0) {
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       icon: 'success',
       title: "You haven't selected any Hashlist",
       showConfirmButton: false,
@@ -340,6 +343,7 @@ onDone(value?: any){
     Swal.close();
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       icon: 'success',
       showConfirmButton: false,
       timer: 1500

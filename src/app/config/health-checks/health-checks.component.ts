@@ -182,6 +182,7 @@ export class HealthChecksComponent implements OnInit {
         this.gs.delete(SERV.HEALTH_CHECKS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500

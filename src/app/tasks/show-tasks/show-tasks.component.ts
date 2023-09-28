@@ -268,6 +268,7 @@ onArchive(id: number, type: number){
   this.gs.archive(path,id).subscribe(() => {
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       icon: 'success',
       title: "Success",
       text: "Archived!",
@@ -311,6 +312,7 @@ onDelete(id: number, type: number, name: string){
       this.gs.delete(path,id).subscribe(() => {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           icon: 'success',
           title: "Success",
           showConfirmButton: false,
@@ -339,6 +341,7 @@ onSelectedTasks(){
   if(selection.length == 0) {
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       title: "You haven't selected any Task",
       type: 'success',
       timer: 1500,
@@ -397,6 +400,7 @@ onDone(value?: any){
     Swal.close();
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       icon: 'success',
       title: "Success",
       showConfirmButton: false,
@@ -413,6 +417,7 @@ onModalProject(title: string){
     if(selection.length == 0) {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Task",
         type: 'success',
         timer: 1500,
@@ -473,6 +478,7 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, namere
         this.gs.update(path,id, update).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,

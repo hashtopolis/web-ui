@@ -78,6 +78,7 @@ export class EditNotificationComponent implements OnInit {
       this.gs.update(SERV.NOTIFICATIONS,this.editedIndex,{'isActive':this.createForm.value['isActive']}).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

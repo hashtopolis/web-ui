@@ -123,6 +123,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,
@@ -218,6 +219,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             text: "Agent Assigned!",
@@ -235,6 +237,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     this.gs.delete(SERV.AGENT_ASSIGN,id).subscribe(() => {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: "Success",
         showConfirmButton: false,
@@ -269,6 +272,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
           this.gs.update(SERV.AGENT_ASSIGN,id, {benchmark: +formValues}).subscribe(() => {
             Swal.fire({
               position: 'top-end',
+              backdrop: false,
               icon: 'success',
               title: "Success",
               showConfirmButton: false,
@@ -481,6 +485,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
         this.gs.chelper(SERV.HELPER,'purgeTask',payload).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,
@@ -509,6 +514,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     this.gs.chelper(SERV.HELPER,path,payload).subscribe(() => {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: title,
         showConfirmButton: false,

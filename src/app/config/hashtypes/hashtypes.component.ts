@@ -157,6 +157,7 @@ export class HashtypesComponent implements OnInit {
       Swal.close();
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         showConfirmButton: false,
         timer: 1500
@@ -186,6 +187,7 @@ export class HashtypesComponent implements OnInit {
         this.gs.delete(SERV.HASHTYPES,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500
@@ -211,6 +213,7 @@ export class HashtypesComponent implements OnInit {
     if(selection.length == 0) {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Hashtype",
         type: 'success',
         timer: 1500,

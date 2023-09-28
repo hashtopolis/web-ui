@@ -36,6 +36,7 @@ export class NewCrackerComponent implements OnInit {
       this.gs.create(SERV.CRACKERS_TYPES, this.createForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success!",
             text: "New Cracker created!",

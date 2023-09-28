@@ -171,6 +171,7 @@ export class SupertasksComponent implements OnInit {
         this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,

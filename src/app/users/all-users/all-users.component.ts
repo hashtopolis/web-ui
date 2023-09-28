@@ -185,6 +185,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
         this.gs.delete(SERV.USERS,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,
@@ -211,6 +212,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     if(selection.length == 0) {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any User",
         type: 'success',
         timer: 1500,
@@ -250,6 +252,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
       Swal.close();
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         showConfirmButton: false,
         timer: 1500

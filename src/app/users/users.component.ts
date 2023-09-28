@@ -57,6 +57,7 @@ export class UsersComponent implements OnInit {
       this.gs.create(SERV.USERS,this.createForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,

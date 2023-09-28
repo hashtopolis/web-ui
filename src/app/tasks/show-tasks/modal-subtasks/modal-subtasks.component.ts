@@ -97,6 +97,7 @@ export class ModalSubtasksComponent {
       this.gs.archive(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           icon: 'success',
           title: "Success",
           text: "Archived!",
@@ -111,6 +112,7 @@ export class ModalSubtasksComponent {
       this.gs.delete(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           icon: 'success',
           title: "Success",
           showConfirmButton: false,

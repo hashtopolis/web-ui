@@ -51,6 +51,7 @@ export class UiSettingsComponent implements OnInit {
   savedAlert(){
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       icon: 'success',
       title: 'Saved',
       showConfirmButton: false,

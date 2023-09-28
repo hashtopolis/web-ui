@@ -112,6 +112,7 @@ export class EditUsersComponent implements OnInit {
         this.gs.delete(SERV.USERS,this.editedUserIndex).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success",
             showConfirmButton: false,
@@ -139,6 +140,7 @@ export class EditUsersComponent implements OnInit {
       this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

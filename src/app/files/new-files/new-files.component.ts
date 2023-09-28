@@ -92,6 +92,7 @@ export class NewFilesComponent implements OnInit {
     this.gs.create(SERV.FILES,form).subscribe(() => {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: "Success!",
         text: "New File created!",

@@ -230,6 +230,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       Swal.close();
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         showConfirmButton: false,
         timer: 1500
@@ -243,6 +244,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     if(selection.length == 0) {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Agent",
         type: 'success',
         timer: 1500,
@@ -302,6 +304,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       if(selection.length == 0) {
         Swal.fire({
           position: 'top-end',
+          backdrop: false,
           title: "You haven't selected any Agent",
           type: 'success',
           timer: 1500,
@@ -357,6 +360,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
           this.gs.delete(SERV.AGENTS,id).subscribe(() => {
             Swal.fire({
               position: 'top-end',
+              backdrop: false,
               icon: 'success',
               showConfirmButton: false,
               timer: 1500

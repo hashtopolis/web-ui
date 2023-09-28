@@ -96,6 +96,7 @@ export class EditHashlistComponent implements OnInit {
       this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,

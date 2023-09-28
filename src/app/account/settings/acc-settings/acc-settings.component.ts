@@ -69,6 +69,7 @@ export class AccountSettingsComponent implements OnInit {
       this.gs.create(SERV.USERS,this.updateForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: 'Saved',
             showConfirmButton: false,

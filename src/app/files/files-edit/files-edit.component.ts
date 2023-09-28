@@ -90,6 +90,7 @@ export class FilesEditComponent implements OnInit {
     this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value['updateData']).subscribe(() => {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: "Saved",
         showConfirmButton: false,
@@ -118,6 +119,7 @@ export class FilesEditComponent implements OnInit {
       // check error status code is 500, if so, do some action
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: "warning",
         title: "Oppss! Error",
         text: "File was not updated, please try again!",

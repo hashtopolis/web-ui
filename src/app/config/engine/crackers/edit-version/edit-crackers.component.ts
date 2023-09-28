@@ -52,6 +52,7 @@ export class EditCrackersComponent implements OnInit {
       this.gs.update(SERV.CRACKERS,this.editedCrackervIndex,this.updateForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Saved",
             showConfirmButton: false,
@@ -86,6 +87,7 @@ export class EditCrackersComponent implements OnInit {
         this.gs.delete(SERV.CRACKERS,this.editedCrackervIndex).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500

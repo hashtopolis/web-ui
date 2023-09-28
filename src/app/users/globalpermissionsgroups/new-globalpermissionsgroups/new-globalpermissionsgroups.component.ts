@@ -37,6 +37,7 @@ export class NewGlobalpermissionsgroupsComponent implements OnInit {
     this.gs.create(SERV.ACCESS_PERMISSIONS_GROUPS,this.createForm.value).subscribe(() => {
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: "Success",
         text: "Global Permission Group created!",

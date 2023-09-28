@@ -86,6 +86,7 @@ export class NewAgentBinariesComponent implements OnInit {
             const response = prep;
               Swal.fire({
                 position: 'top-end',
+                backdrop: false,
                 icon: 'success',
                 title: "Success!",
                 text: "New Agent Binary created!",
@@ -104,6 +105,7 @@ export class NewAgentBinariesComponent implements OnInit {
             const response = prep;
               Swal.fire({
                 position: 'top-end',
+                backdrop: false,
                 icon: 'success',
                 title: "Saved",
                 showConfirmButton: false,

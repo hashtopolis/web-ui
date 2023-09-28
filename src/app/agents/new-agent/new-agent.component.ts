@@ -125,6 +125,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
         this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             showConfirmButton: false,
             timer: 1500
@@ -151,6 +152,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success!",
             text: "New Voucher created!",

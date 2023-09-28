@@ -168,6 +168,7 @@ export class NewNotificationComponent implements OnInit {
       this.gs.create(SERV.NOTIFICATIONS,this.createForm.value).subscribe(() => {
           Swal.fire({
             position: 'top-end',
+            backdrop: false,
             icon: 'success',
             title: "Success!",
             text: "New Notification created!",

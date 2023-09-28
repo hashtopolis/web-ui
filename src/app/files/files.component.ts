@@ -249,6 +249,7 @@ export class FilesComponent implements OnInit {
           this.gs.delete(SERV.FILES,id).subscribe(() => {
             Swal.fire({
               position: 'top-end',
+              backdrop: false,
               icon: 'success',
               showConfirmButton: false,
               timer: 1500
@@ -328,6 +329,7 @@ export class FilesComponent implements OnInit {
       Swal.close();
       Swal.fire({
         position: 'top-end',
+        backdrop: false,
         icon: 'success',
         title: "Success",
         showConfirmButton: false,

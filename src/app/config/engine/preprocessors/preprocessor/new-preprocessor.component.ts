@@ -83,6 +83,7 @@ export class NewPreprocessorComponent implements OnInit {
             const response = prep;
               Swal.fire({
                 position: 'top-end',
+                backdrop: false,
                 icon: 'success',
                 title: "Success!",
                 text: "New Preprocessor created!",
@@ -101,6 +102,7 @@ export class NewPreprocessorComponent implements OnInit {
             const response = prep;
               Swal.fire({
                 position: 'top-end',
+                backdrop: false,
                 icon: 'success',
                 title: "Saved",
                 showConfirmButton: false,
