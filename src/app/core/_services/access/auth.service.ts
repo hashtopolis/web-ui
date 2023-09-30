@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
-import { BehaviorSubject, throwError, Observable, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, throwError, Observable, ReplaySubject, Subject } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Injectable, Output, EventEmitter } from "@angular/core";
 import { User } from '../../_models/auth-user.model';
@@ -23,6 +23,7 @@ export class AuthService {
     private logged = new ReplaySubject<boolean>(1);
     isLogged = this.logged.asObservable();
     redirectUrl = '';
+    private userLoggedIn = new Subject<boolean>();
     private tokenExpiration: any;
     private endpoint = '/auth';
 
@@ -31,6 +32,7 @@ export class AuthService {
       private router: Router,
       private cs: ConfigService,
       ){
+        this.userLoggedIn.next(false);
         if(this.logged){
           this.userId = this.getUserId(this.token);
         }
@@ -84,6 +86,14 @@ export class AuthService {
       }
     }
 
+    setUserLoggedIn(userLoggedIn: boolean) {
+      this.userLoggedIn.next(userLoggedIn);
+    }
+
+    getUserLoggedIn(): Observable<boolean> {
+      return this.userLoggedIn.asObservable();
+    }
+
     // With autologOut we use only the expiration date of the bearer token, approx. 2 hours
     autologOut(expirationDuration: number){
         this.tokenExpiration = setTimeout(() => {
@@ -99,6 +109,14 @@ export class AuthService {
                  this.handleAuthentication(resData.token, +resData.expires, userData._username);
           }));
       }, expirationDuration);
+    }
+
+    refreshToken() {
+      const userData: {_token: string, _expires: string, _username: string} = JSON.parse(localStorage.getItem('userData'));
+      return this.http.post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
+             .pipe(catchError(this.handleError), tap(resData => {
+             this.handleAuthentication(resData.token, +resData.expires, userData._username);
+      }));
     }
 
     logOut(){

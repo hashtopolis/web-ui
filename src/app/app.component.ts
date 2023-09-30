@@ -84,21 +84,30 @@ export class AppComponent implements OnInit {
       idle.setTimeout(this.timeoutMax);
       idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
 
+      idle.onIdleStart.subscribe(() => {
+        idle.clearInterrupts();
+        this.checkLogin();
+        this.idleState = 'You\'ll be logged out in 15 seconds!'
+      });
+
       idle.onIdleEnd.subscribe(() => {
-        this.idleState = 'No longer idle.';
+        this.idleState = "NOT_IDLE.";
         this.modalRef.componentInstance.timedOut = false;
         this.timeoutCountdown = null;
+        console.log(this.idleState);
+        this.reset();
         this.closeModal();
       });
 
       idle.onTimeout.subscribe(() => {
-        this.idleState = 'Timed out!';
+        this.idleState = 'TIMED_OUT';
         this.timedOut = true;
         this.timeoutCountdown = null;
+        console.log(this.idleState);
         this.modalRef.componentInstance.timedOut = true;
         this.onLogOut();
       });
-      idle.onIdleStart.subscribe(() => this.idleState = 'You\'ll be logged out in 15 seconds!');
+
       idle.onTimeoutWarning.subscribe((countdown) => {
           if(!this.showingModal && this.idleTime > 1){
             this.openModal();
@@ -107,14 +116,26 @@ export class AppComponent implements OnInit {
           this.modalRef.componentInstance.timeoutCountdown = this.timeoutCountdown;
       });
 
-      this.reset();
+      keepalive.interval(15);
+
+      keepalive.onPing.subscribe(() => this.lastPing = new Date());
+
+      this.authService.getUserLoggedIn().subscribe(userLoggedIn => {
+        if (userLoggedIn) {
+          idle.watch()
+          this.timedOut = false;
+        } else {
+          idle.stop();
+        }
+      })
+
+      // this.reset();
 
     }
 
   isLogged: boolean;
 
   ngOnInit(): void {
-    this.configService.refreshEndpoint();
     this.authService.autoLogin();
     this.authService.isLogged.subscribe(logged => {
       this.isLogged = logged;
@@ -131,12 +152,25 @@ export class AppComponent implements OnInit {
     this.currentStep = currentRoute.split('/')[length - 1];
   }
 
-  // ToDo request refresh token
+  checkLogin() {
+    const userData: { _token: string, _expires: string} = JSON.parse(localStorage.getItem('userData'));
+    if(!userData){
+        return;
+    }
+    if(new Date(userData._expires) <  new Date()){
+      this.idle.stop();
+      window.location.reload();
+    }
+  }
+
   reset(){
+    this.idle.setTimeout(false);
     this.idle.watch();
-    this.idleState = 'Started';
+    this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
+    this.idleState = "NOT_IDLE.";
     this.timedOut = false;
     this.timeoutCountdown = 0;
+    this.lastPing = null;
     this.closeModal();
   }
 

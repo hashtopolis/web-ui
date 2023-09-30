@@ -11,6 +11,7 @@ import { ConfigService } from './shared/config.service';
   providedIn: 'root'
 })
 export class GlobalService {
+
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
