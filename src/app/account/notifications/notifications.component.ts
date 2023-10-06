@@ -17,12 +17,12 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['Notifications'])
 export class NotificationsComponent implements OnInit {
 
-  faTrash=faTrash;
-  faPlus=faPlus;
-  faEdit=faEdit;
-  faEye=faEye;
+  faTrash = faTrash;
+  faPlus = faPlus;
+  faEdit = faEdit;
+  faEye = faEye;
 
-  @ViewChild(DataTableDirective, {static: false})
+  @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
@@ -30,24 +30,29 @@ export class NotificationsComponent implements OnInit {
 
   constructor(
     private gs: GlobalService,
-  ) {  }
+  ) { }
 
-  Allnotif: any;
+  allNotIf: any;
 
   private maxResults = environment.config.prodApiMaxResults;
 
   ngOnInit(): void {
 
-    const params = {'maxResults': this.maxResults};
+    const params = { 'maxResults': this.maxResults };
 
-    this.gs.getAll(SERV.NOTIFICATIONS,params).subscribe((notf: any) => {
-      this.Allnotif = notf.values;
+    this.gs.getAll(SERV.NOTIFICATIONS, params).subscribe((notf: any) => {
+      this.allNotIf = notf.values;
       this.dtTrigger.next(void 0);
     });
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+        [10, 25, 50, 100, 250, -1],
+        [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: true,
       buttons: {
@@ -56,52 +61,52 @@ export class NotificationsComponent implements OnInit {
             className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
           }
         },
-      buttons: [
-        {
-          text: '↻',
-          autoClose: true,
-          action: function (e, dt, node, config) {
-            self.onRefresh();
-          }
-        },
-        {
-          extend: 'collection',
-          text: 'Export',
-          buttons: [
-            {
-              extend: 'excelHtml5',
-              exportOptions: {
-                columns: [0, 1, 2, 3, 4]
-              },
-            },
-            {
-              extend: 'print',
-              exportOptions: {
-                columns: [0, 1, 2, 3, 4]
-              },
-              customize: function ( win ) {
-                $(win.document.body)
-                    .css( 'font-size', '10pt' )
-                $(win.document.body).find( 'table' )
-                    .addClass( 'compact' )
-                    .css( 'font-size', 'inherit' );
-             }
-            },
-            {
-              extend: 'csvHtml5',
-              exportOptions: {modifier: {selected: true}},
-              select: true,
-              customize: function (dt, csv) {
-                let data = "";
-                for (let i = 0; i < dt.length; i++) {
-                  data = "Notifications\n\n"+  dt;
-                }
-                return data;
-             }
-            },
-            {
-              extend: 'copy',
+        buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
             }
+          },
+          {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+              {
+                extend: 'excelHtml5',
+                exportOptions: {
+                  columns: [0, 1, 2, 3, 4]
+                },
+              },
+              {
+                extend: 'print',
+                exportOptions: {
+                  columns: [0, 1, 2, 3, 4]
+                },
+                customize: function (win) {
+                  $(win.document.body)
+                    .css('font-size', '10pt')
+                  $(win.document.body).find('table')
+                    .addClass('compact')
+                    .css('font-size', 'inherit');
+                }
+              },
+              {
+                extend: 'csvHtml5',
+                exportOptions: { modifier: { selected: true } },
+                select: true,
+                customize: function (dt, csv) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
+                    data = "Notifications\n\n" + dt;
+                  }
+                  return data;
+                }
+              },
+              {
+                extend: 'copy',
+              }
             ]
           },
           {
@@ -114,7 +119,7 @@ export class NotificationsComponent implements OnInit {
 
   }
 
-  onRefresh(){
+  onRefresh() {
     this.rerender();
     this.ngOnInit();
   }
@@ -134,7 +139,7 @@ export class NotificationsComponent implements OnInit {
     this.dtTrigger.unsubscribe();
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string) {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -143,8 +148,7 @@ export class NotificationsComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove ' + name + ' from your notifications?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -152,31 +156,32 @@ export class NotificationsComponent implements OnInit {
       confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
     })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.NOTIFICATIONS,id).subscribe(() => {
-          Swal.fire({
-            title: "Success",
-            icon: "success",
+      .then((result) => {
+        if (result.isConfirmed) {
+          this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
+            Swal.fire({
+              position: 'top-end',
+              backdrop: false,
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500
+            })
+            this.ngOnInit();
+            this.rerender();  // rerender datatables
+          });
+        } else {
+          swalWithBootstrapButtons.fire({
+            title: "Cancelled",
+            text: "Your Notification is safe!",
+            icon: "error",
             showConfirmButton: false,
             timer: 1500
-          });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        });
-      } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Notification is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
-      }
-    });
+          })
+        }
+      });
   }
 
-checkPath(filter: string, type?: boolean){
+  checkPath(filter: string, type?: boolean) {
 
     let path;
     let title;
@@ -187,35 +192,35 @@ checkPath(filter: string, type?: boolean){
       case ACTION.DELETE_AGENT:
         title = 'Agent:'
         path = '/agents/show-agents/';
-      break;
+        break;
 
       case ACTION.NEW_TASK:
       case ACTION.TASK_COMPLETE:
       case ACTION.DELETE_TASK:
         title = 'Task:'
         path = '/tasks/show-tasks/';
-      break;
+        break;
 
       case ACTION.DELETE_HASHLIST:
       case ACTION.HASHLIST_ALL_CRACKED:
       case ACTION.HASHLIST_CRACKED_HASH:
         title = 'Hashlist:'
         path = '/hashlists/hashlist/';
-      break;
+        break;
 
       case ACTION.USER_CREATED:
       case ACTION.USER_DELETED:
       case ACTION.USER_LOGIN_FAILED:
         title = 'User:'
         path = '/users/';
-      break;
+        break;
 
       default:
         title = ''
         path = 'none';
 
     }
-    if(type){return path;}else{return title;}
+    if (type) { return path; } else { return title; }
 
   }
 
