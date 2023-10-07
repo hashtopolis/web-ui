@@ -21,6 +21,7 @@ describe('NewNotificationComponent', () => {
   let component: NewNotificationComponent;
   let fixture: ComponentFixture<NewNotificationComponent>;
 
+  // Define sample data for agent, task, hashlist, and user values.
   const agentValues = [
     { _id: '1', agentName: 'Agent 1' },
     { _id: '2', agentName: 'Agent 2' },
@@ -28,7 +29,6 @@ describe('NewNotificationComponent', () => {
     { _id: '4', agentName: 'Agent 4' },
     { _id: '5', agentName: 'Agent 5' },
   ]
-
   const taskValues = [
     { _id: '1', taskName: 'Task 1' },
     { _id: '2', taskName: 'Task 2' },
@@ -36,7 +36,6 @@ describe('NewNotificationComponent', () => {
     { _id: '4', taskName: 'Task 4' },
     { _id: '5', taskName: 'Task 5' },
   ]
-
   const hashlistValues = [
     { _id: '1', name: 'Hashlist 1' },
     { _id: '2', name: 'Hashlist 2' },
@@ -44,7 +43,6 @@ describe('NewNotificationComponent', () => {
     { _id: '4', name: 'Hashlist 4' },
     { _id: '5', name: 'Hashlist 5' },
   ]
-
   const userValues = [
     { _id: '1', name: 'User 1' },
     { _id: '2', name: 'User 2' },
@@ -53,9 +51,17 @@ describe('NewNotificationComponent', () => {
     { _id: '5', name: 'User 5' },
   ]
 
+  // Define a partial mock service to simulate service calls.
   const mockService: Partial<GlobalService> = {
+    // Simulate the 'getAll' method to return an empty observable.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     getAll(_methodUrl: string, _routerParams?: Params): Observable<any> {
-      return of([])
+      return of([]);
+    },
+    // Simulate the 'create' method to return an empty observable.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    create(_methodUrl: string, _object: any): Observable<any> {
+      return of({});
     }
   }
 
@@ -89,27 +95,33 @@ describe('NewNotificationComponent', () => {
     fixture.detectChanges();
   });
 
+  // --- Test Methods ---
+
+  // Test for Empty Form Submission
   it('shold not be possible to submit the form when form is empty', () => {
-    expectButtonToBeDisabled()
+    expectButtonToBeDisabled();
   });
 
+  // Test for Form Submission Without Trigger Action
   it('shold not be possible to submit the form when trigger action is not selected', () => {
     setFieldValue(fixture, 'select-notification', NOTIF.TELEGRAM)
     setFieldValue(fixture, 'input-receiver', 'test-receiver')
-    expectButtonToBeDisabled()
+    expectButtonToBeDisabled();
   });
 
+  // Test for Form Submission Without Notification Selection
   it('shold not be possible to submit the form when notification is not selected', () => {
     spyOn(mockService, 'getAll')
       .withArgs(SERV.TASKS, { 'maxResults': component.maxResults })
-      .and.returnValue(of({ values: taskValues }))
+      .and.returnValue(of({ values: taskValues }));
 
-    setAction(ACTION.NEW_TASK)
-    setFieldValue(fixture, 'select-action-filter', '1')
-    setFieldValue(fixture, 'input-receiver', 'test-receiver')
-    expectButtonToBeDisabled()
+    setAction(ACTION.NEW_TASK);
+    setFieldValue(fixture, 'select-action-filter', '1');
+    setFieldValue(fixture, 'input-receiver', 'test-receiver');
+    expectButtonToBeDisabled();
   });
 
+  // Test for Form Submission Without Receiver Selection
   it('shold not be possible to submit the form when receiver is not selected', () => {
     spyOn(mockService, 'getAll')
       .withArgs(SERV.TASKS, { 'maxResults': component.maxResults })
@@ -121,7 +133,8 @@ describe('NewNotificationComponent', () => {
     expectButtonToBeDisabled()
   });
 
-  it('shold not possible to submit the form when all fields have data', () => {
+  // Test for Form Submission with All Required Data
+  it('should be possible to submit the form when all fields have data', () => {
     spyOn(mockService, 'getAll')
       .withArgs(SERV.TASKS, { 'maxResults': component.maxResults })
       .and.returnValue(of({ values: taskValues }))
@@ -135,6 +148,7 @@ describe('NewNotificationComponent', () => {
     expectButtonToBeEnabled()
   });
 
+  // Tests for Filter Display
   it('should display agent filters when action is AGENT_ERROR', () => {
     expectAgentOptionsOnAction(ACTION.AGENT_ERROR)
   });
@@ -198,6 +212,32 @@ describe('NewNotificationComponent', () => {
   it('should display no filters when action is LOG_ERROR ', () => {
     expectHiddenOnAction(ACTION.LOG_ERROR)
   });
+
+  // Test for Form Submission When It Is Valid
+  it('should submit the form when it is valid', () => {
+    const serviceSpy = spyOn(mockService, 'create')
+      .withArgs(SERV.NOTIFICATIONS, jasmine.any(Object))
+      .and.returnValue(of({}));
+
+    setValidFormValues();
+    fixture.detectChanges();
+
+    const submitButton: DebugElement = findEl(fixture, 'button-create');
+    submitButton.nativeElement.querySelector('button').click();
+
+    expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, jasmine.any(Object));
+  });
+
+
+  // --- Helper functions ---
+
+  const setValidFormValues = (): void => {
+    setAction(ACTION.NEW_TASK);
+    setFieldValue(fixture, 'select-action-filter', '1');
+    setFieldValue(fixture, 'select-notification', NOTIF.EMAIL);
+    setFieldValue(fixture, 'input-receiver', 'test@mail.com');
+    fixture.detectChanges();
+  };
 
   const expectButtonToBeDisabled = (): void => {
     const btn: DebugElement = findEl(fixture, 'button-create')

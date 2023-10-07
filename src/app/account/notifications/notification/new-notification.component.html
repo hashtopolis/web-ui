@@ -15,7 +15,7 @@
           data-testid="select-action-filter">
           <option value="" disabled="true">--
           </option>
-          <option *ngFor="let val of value" [value]="val.id">{{ val.name }}</option>
+          <option *ngFor="let val of filters" [value]="val.id">{{ val.name }}</option>
         </select>
       </grid-form-input>
       <grid-form-input [name]="'Notification'" [labelclass]="'requiredak'">
