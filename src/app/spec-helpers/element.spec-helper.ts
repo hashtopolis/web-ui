@@ -121,7 +121,7 @@ export function expectContent<T>(fixture: ComponentFixture<T>, text: string): vo
 export function dispatchFakeEvent(
     element: EventTarget,
     type: string,
-    bubbles: boolean = false,
+    bubbles = false,
 ): void {
     const event = document.createEvent('Event');
     event.initEvent(type, bubbles, false);
