@@ -3,12 +3,19 @@ import { environment } from './../../../environments/environment';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Subject } from 'rxjs';
-
+import { Subject, Subscription } from 'rxjs';
 import { ACTION } from '../../core/_constants/notifications.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { NotificationListResponse } from 'src/app/core/_models/notifications';
+import { Notification } from 'src/app/core/_models/notifications';
+
+
+export interface Filter {
+  id: number,
+  name: string
+}
 
 @Component({
   selector: 'app-notifications',
@@ -22,26 +29,86 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   faEdit = faEdit;
   faEye = faEye;
 
-  @ViewChild(DataTableDirective, { static: false })
+  // DataTable properties
   dtElement: DataTableDirective;
-
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-  constructor(private gs: GlobalService) { }
+  // List of notifications
+  notifications: Notification[];
 
-  allNotIf: any;
+  // Subscriptions to unsubscribe on component destruction
+  subscriptions: Subscription[] = []
+
+  @ViewChild(DataTableDirective, { static: false })
 
   private maxResults = environment.config.prodApiMaxResults;
 
-  ngOnInit(): void {
+  constructor(private gs: GlobalService) { }
 
+  /**
+   * Initializes DataTable and retrieves notifications.
+   */
+  ngOnInit(): void {
+    this.getNotifications();
+    this.setupTable();
+  }
+
+  /**
+   * Unsubscribes from active subscriptions.
+   */
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  /**
+   * Refreshes the data table by re-rendering it.
+   * Fetches notifications and sets up the table again.
+   */
+  onRefresh() {
+    this.rerender();
+    this.getNotifications();
+    this.setupTable();
+  }
+
+  /**
+   * Rerenders the DataTable instance.
+   * Destroys and recreates the DataTable to reflect changes.
+   */
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        if (this.dtTrigger['new']) {
+          this.dtTrigger['new'].next();
+        }
+      });
+    });
+  }
+
+  /**
+   * Fetches notifications from the server.
+   * Subscribes to the API response and updates the notifications list.
+   */
+  getNotifications(): void {
     const params = { 'maxResults': this.maxResults };
 
-    this.gs.getAll(SERV.NOTIFICATIONS, params).subscribe((notf: any) => {
-      this.allNotIf = notf.values;
+    this.subscriptions.push(this.gs.getAll(SERV.NOTIFICATIONS, params).subscribe((response: NotificationListResponse) => {
+      this.notifications = response.values;
       this.dtTrigger.next(void 0);
-    });
+    }));
+  }
+
+  /**
+   * Sets up the DataTable options and buttons.
+   * Customizes DataTable appearance and behavior.
+   */
+  setupTable(): void {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
@@ -95,9 +162,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
                 exportOptions: { modifier: { selected: true } },
                 select: true,
                 customize: function (dt, csv) {
-                  let data = "";
+                  let data = '';
                   for (let i = 0; i < dt.length; i++) {
-                    data = "Notifications\n\n" + dt;
+                    data = 'Notifications\n\n' + dt;
                   }
                   return data;
                 }
@@ -108,37 +175,21 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             ]
           },
           {
-            extend: "pageLength",
-            className: "btn-sm"
+            extend: 'pageLength',
+            className: 'btn-sm'
           }
         ],
       }
     }
-
   }
 
-  onRefresh() {
-    this.rerender();
-    this.ngOnInit();
-  }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        if (this.dtTrigger['new']) {
-          this.dtTrigger['new'].next();
-        }
-      });
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
-  }
-
+  /**
+   * Handles notification deletion.
+   * Displays a confirmation dialog and deletes the notification if confirmed.
+   *
+   * @param {number} id - The ID of the notification to delete.
+   * @param {string} name - The name of the notification.
+   */
   onDelete(id: number, name: string) {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
@@ -149,8 +200,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     })
     Swal
       .fire({
-        title: 'Remove ' + name + ' from your notifications?',
-        icon: "warning",
+        title: `Remove ${name} from your notifications?`,
+        icon: 'warning',
         reverseButtons: true,
         showCancelButton: true,
         cancelButtonColor: '#8A8584',
@@ -172,9 +223,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
           });
         } else {
           swalWithBootstrapButtons.fire({
-            title: "Cancelled",
-            text: "Your Notification is safe!",
-            icon: "error",
+            title: 'Cancelled',
+            text: 'Your Notification is safe!',
+            icon: 'error',
             showConfirmButton: false,
             timer: 1500
           })
@@ -182,7 +233,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       });
   }
 
-  checkPath(filter: string, type?: boolean) {
+  /**
+   * Determines the path or title based on the provided filter.
+   *
+   * @param {string} filter - The filter used to determine the path or title.
+   * @param {boolean} [type] - If true, returns the path; otherwise, returns the title.
+   * @returns {string} The path or title based on the filter.
+   */
+  checkPath(filter: string, type?: boolean): string {
     let path: string;
     let title: string;
 
