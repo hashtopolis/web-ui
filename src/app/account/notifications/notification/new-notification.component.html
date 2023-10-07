@@ -1,5 +1,5 @@
 <grid-main [class]="'width:100%;'" [centered]="true">
-  <app-page-subtitle [subtitle]="'Create Notification'"></app-page-subtitle>
+  <app-page-subtitle [subtitle]="subTitle"></app-page-subtitle>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="row">
       <grid-form-input [name]="'Trigger Action'" [labelclass]="'requiredak'">
@@ -33,7 +33,7 @@
             data-testid="input-is-active">
         </div>
       </grid-form-input>
-      <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="button-create"></button-submit>
+      <button-submit [name]="submitLabel" [disabled]="!formIsValid()" data-testid="button-create"></button-submit>
     </div>
   </form>
 </grid-main>

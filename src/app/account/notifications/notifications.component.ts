@@ -1,6 +1,6 @@
 import { faTrash, faPlus, faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
@@ -15,7 +15,7 @@ import { SERV } from '../../core/_services/main.config';
   templateUrl: './notifications.component.html'
 })
 @PageTitle(['Notifications'])
-export class NotificationsComponent implements OnInit {
+export class NotificationsComponent implements OnInit, OnDestroy {
 
   faTrash = faTrash;
   faPlus = faPlus;
@@ -28,9 +28,7 @@ export class NotificationsComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-  constructor(
-    private gs: GlobalService,
-  ) { }
+  constructor(private gs: GlobalService) { }
 
   allNotIf: any;
 
@@ -130,7 +128,9 @@ export class NotificationsComponent implements OnInit {
       dtInstance.destroy();
       // Call the dtTrigger to rerender again
       setTimeout(() => {
-        this.dtTrigger['new'].next();
+        if (this.dtTrigger['new']) {
+          this.dtTrigger['new'].next();
+        }
       });
     });
   }
@@ -147,15 +147,16 @@ export class NotificationsComponent implements OnInit {
       },
       buttonsStyling: false
     })
-    Swal.fire({
-      title: 'Remove ' + name + ' from your notifications?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
-    })
+    Swal
+      .fire({
+        title: 'Remove ' + name + ' from your notifications?',
+        icon: "warning",
+        reverseButtons: true,
+        showCancelButton: true,
+        cancelButtonColor: '#8A8584',
+        confirmButtonColor: '#C53819',
+        confirmButtonText: 'Yes, delete it!'
+      })
       .then((result) => {
         if (result.isConfirmed) {
           this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
@@ -182,11 +183,10 @@ export class NotificationsComponent implements OnInit {
   }
 
   checkPath(filter: string, type?: boolean) {
+    let path: string;
+    let title: string;
 
-    let path;
-    let title;
     switch (filter) {
-
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
       case ACTION.DELETE_AGENT:
@@ -221,7 +221,5 @@ export class NotificationsComponent implements OnInit {
 
     }
     if (type) { return path; } else { return title; }
-
   }
-
 }

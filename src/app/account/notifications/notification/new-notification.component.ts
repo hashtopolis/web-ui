@@ -24,13 +24,16 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   allowedActions = ACTIONARRAY;
   notifications = NOTIFARRAY;
   subscriptions: Subscription[] = []
+  submitLabel = 'Save Notification'
+  subTitle = 'Create Notification'
 
   maxResults = environment.config.prodApiMaxResults;
 
   constructor(
     private gs: GlobalService,
     private titleService: AutoTitleService,
-    private router: Router) {
+    private router: Router
+  ) {
     titleService.set(['New Notification'])
   }
 
@@ -84,6 +87,11 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.active = false;
     }
 
+  }
+
+
+  formIsValid(): boolean {
+    return this.form.valid
   }
 
   checkPath(filter: string) {
@@ -171,5 +179,3 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     }
   }
 }
-
-
