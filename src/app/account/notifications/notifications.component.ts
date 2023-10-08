@@ -6,10 +6,10 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject, Subscription } from 'rxjs';
 import { ACTION } from '../../core/_constants/notifications.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { NotificationListResponse } from 'src/app/core/_models/notifications';
 import { Notification } from 'src/app/core/_models/notifications';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 
 export interface Filter {
@@ -21,13 +21,14 @@ export interface Filter {
   selector: 'app-notifications',
   templateUrl: './notifications.component.html'
 })
-@PageTitle(['Notifications'])
 export class NotificationsComponent implements OnInit, OnDestroy {
 
   faTrash = faTrash;
   faPlus = faPlus;
   faEdit = faEdit;
   faEye = faEye;
+
+  @ViewChild(DataTableDirective, { static: false })
 
   // DataTable properties
   dtElement: DataTableDirective;
@@ -40,11 +41,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   // Subscriptions to unsubscribe on component destruction
   subscriptions: Subscription[] = []
 
-  @ViewChild(DataTableDirective, { static: false })
-
   private maxResults = environment.config.prodApiMaxResults;
 
-  constructor(private gs: GlobalService) { }
+  constructor(
+    private gs: GlobalService,
+    private titleService: AutoTitleService,
+  ) {
+    titleService.set(['Notifications'])
+  }
 
   /**
    * Initializes DataTable and retrieves notifications.
@@ -210,17 +214,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
-            Swal.fire({
-              position: 'top-end',
-              backdrop: false,
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500
-            })
-            this.ngOnInit();
-            this.rerender();  // rerender datatables
-          });
+          this.deleteNotification(id)
         } else {
           swalWithBootstrapButtons.fire({
             title: 'Cancelled',
@@ -231,6 +225,28 @@ export class NotificationsComponent implements OnInit, OnDestroy {
           })
         }
       });
+  }
+
+  /**
+   * Handles the deletion of a notification.
+   * Sends an delete request to the backend and displays a success alert and rebuilds 
+   * the datatable on success.
+   * 
+   * @param {number} id - The ID of the notification to delete.
+   */
+  deleteNotification(id: number): void {
+    this.subscriptions.push(this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
+      Swal.fire({
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      this.getNotifications();
+      this.rerender();
+      this.setupTable();
+    }));
   }
 
   /**
