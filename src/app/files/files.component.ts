@@ -101,6 +101,12 @@ export class FilesComponent implements OnInit {
       const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
+        scrollX: true,
+        pageLength: 25,
+        lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+        ],
         scrollY: true,
         stateSave: true,
         destroy: true,
@@ -221,7 +227,7 @@ export class FilesComponent implements OnInit {
     });
   }
 
-  deleteFile(id: number){
+  deleteFile(id: number, name: string){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: 'btn',
@@ -230,8 +236,7 @@ export class FilesComponent implements OnInit {
         buttonsStyling: false
       })
       Swal.fire({
-        title: "Are you sure?",
-        text: "Once deleted, it can not be recovered!",
+        title: 'Remove '+ name +' from your files?',
         icon: "warning",
         reverseButtons: true,
         showCancelButton: true,
@@ -243,11 +248,12 @@ export class FilesComponent implements OnInit {
         if (result.isConfirmed) {
           this.gs.delete(SERV.FILES,id).subscribe(() => {
             Swal.fire({
-              title: "Success",
-              icon: "success",
+              position: 'top-end',
+              backdrop: false,
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });
@@ -322,10 +328,12 @@ export class FilesComponent implements OnInit {
       this.rerender();  // rerender datatables
       Swal.close();
       Swal.fire({
-        title: 'Done!',
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
+        title: "Success",
+        showConfirmButton: false,
+        timer: 1500
       })
     },3000);
   }

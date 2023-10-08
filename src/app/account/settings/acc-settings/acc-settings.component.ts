@@ -3,7 +3,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 
-import { ValidationService } from '../../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -28,6 +27,8 @@ function passwordMatchValidator(password: string): ValidatorFn {
 export class AccountSettingsComponent implements OnInit {
 
   updateForm: FormGroup;
+  strongPassword = false;
+  passMatch = false;
 
   constructor(
     private uiService: UIConfigService,
@@ -35,7 +36,7 @@ export class AccountSettingsComponent implements OnInit {
     private gs: GlobalService,
     private router: Router
   ) {
-    this.formInit();
+    this.formInit()
   }
 
   ngOnInit(): void {
@@ -67,16 +68,25 @@ export class AccountSettingsComponent implements OnInit {
     if (this.updateForm.valid) {
       this.gs.create(SERV.USERS,this.updateForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: 'Saved',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['users/all-users']);
         }
       );
     }
+  }
+
+  onPasswordStrengthChanged(event: boolean) {
+    this.strongPassword = event;
+  }
+
+  onPasswordMatchChanged(event: boolean) {
+    this.strongPassword = event;
   }
 
   private initForm() {

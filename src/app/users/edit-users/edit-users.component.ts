@@ -4,7 +4,6 @@ import { FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 
-import { ValidationService } from '../../core/_services/shared/validation.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -20,8 +19,10 @@ import { User } from '../user.model';
 })
 @PageTitle(['Edit User'])
 export class EditUsersComponent implements OnInit {
+
   editMode = false;
   editedUserIndex: number;
+  strongPassword = false;
   editedUser: any // Change to Model
 
   faCalendar=faCalendar;
@@ -61,6 +62,10 @@ export class EditUsersComponent implements OnInit {
     'password': new FormControl(),
   })
 
+  onPasswordStrengthChanged(event: boolean) {
+    this.strongPassword = event;
+  }
+
   ngOnInit(): void {
 
     this.route.params
@@ -94,8 +99,7 @@ export class EditUsersComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove from your users?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -107,11 +111,13 @@ export class EditUsersComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.USERS,this.editedUserIndex).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/users/all-users']);
         });
       } else {
@@ -133,13 +139,15 @@ export class EditUsersComponent implements OnInit {
 
       this.gs.update(SERV.USERS,this.editedUserIndex, this.updateForm.value.updateData).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "User updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
+          this.updatePassForm.reset();
           this.router.navigate(['users/all-users']);
         }
       );
@@ -147,8 +155,8 @@ export class EditUsersComponent implements OnInit {
   }
 
   onUpdatePass(val: any){
-    let setpass = String(val['password']).length;
-    if(setpass > 0){
+    const setpass = String(val['password']).length;
+    if(val['password']){
       const payload = {"password": val['password'], "userId": this.editedUserIndex};
       this.gs.chelper(SERV.HELPER,'setUserPassword', payload).subscribe();
     }

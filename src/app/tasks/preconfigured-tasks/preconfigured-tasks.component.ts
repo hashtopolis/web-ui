@@ -52,7 +52,12 @@ export class PreconfiguredTasksComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: true,
       buttons: {
@@ -145,7 +150,7 @@ export class PreconfiguredTasksComponent implements OnInit {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -154,8 +159,7 @@ export class PreconfiguredTasksComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your pretasks?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -167,11 +171,13 @@ export class PreconfiguredTasksComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.PRETASKS,id).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

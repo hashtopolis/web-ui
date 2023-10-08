@@ -1,6 +1,6 @@
 <app-page-subtitle [subtitle]="title"></app-page-subtitle>
 <!-- Body -->
-<grid-main [class]="'fmxw-800'" [centered]="true">
+<grid-main [class]="'width:100%'" [centered]="true">
   <div class="container">
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
@@ -24,47 +24,43 @@
             </div>
           </div>&nbsp;
 
-            <tr id="uploadLine">
-              <div class="row">
-                <div class="col-md-8">
+            <div class="row" id="uploadLine">
+                <div class="col-8">
                 <input
                       type="file"
                       accept="/*"
+                      (click)="file.value = null"
                       class="form-control fileuploadspan"
-                      formControlName="sourceData"
                       (change)="handleFileInput($event)"
-                      fileSelect directory #file
+                      multiple #file
                 >
                 </div>
-                <div class="col-md-4">
+                <div class="col-4">
                   <span class="fileuploadspan custom-file-upload-size"></span>
                 </div>
-                <!-- Alternative use button to upload first -->
-                <!-- <div class="col-md-1">
-                  <span style="width: 50%;text-align: center"><fa-icon [icon]="faFileUpload" class="btn btn-gray-800" title="Upload file" (click)="onuploadFile(file.files);" aria-hidden="true"></fa-icon></span>
-                </div> -->
               </div>
               <div *ngFor="let fileStatus of uploadProgress | async">
-                  &nbsp;
-                <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
-                <ngb-progressbar
-                                type="success"
-                                textType="white"
-                                [striped]="true"
-                                [value]="fileStatus.progress"
-                                [showValue]="true"
-                ></ngb-progressbar>
+                &nbsp;
+                <div>
+                  <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
+                  <ngb-progressbar
+                                  type="success"
+                                  textType="white"
+                                  [striped]="true"
+                                  [value]="fileStatus.progress"
+                                  [showValue]="true"
+                  ></ngb-progressbar>
+                </div>
                 <div *ngIf="fileStatus.progress === 100">
                   <p><b>Upload completed!</b></p>
-                  <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
                 </div>
-              </div>
-            </tr>&nbsp;
+            </div>&nbsp;
             <div class="col-sm">
               <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
             </div>
+            <!-- check text to be changed -->
             <div class='alert alert-dark row justify-content-center closesys'>
-              Files are uploaded to the server in small chunks. Once uploading do not refresh the page.
+              Do not refresh the page while uploading
             </div>
         </form>
       </div>

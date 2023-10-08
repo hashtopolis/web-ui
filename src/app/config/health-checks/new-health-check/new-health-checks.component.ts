@@ -51,12 +51,14 @@ export class NewHealthChecksComponent implements OnInit {
 
       this.gs.create(SERV.HEALTH_CHECKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Success!",
             text: "New Health Check created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['/config/health-checks']);
         }
       );

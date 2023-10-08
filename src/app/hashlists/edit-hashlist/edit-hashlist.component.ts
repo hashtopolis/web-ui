@@ -34,7 +34,9 @@ export class EditHashlistComponent implements OnInit {
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
+  dtTrigger1: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  dtOptions1: any = {};
 
   constructor(
     private format: StaticArrayPipe,
@@ -93,12 +95,13 @@ export class EditHashlistComponent implements OnInit {
 
       this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "HashList updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           const path = this.type === 3 ? '/hashlists/superhashlist':'/hashlists/hashlist';
           this.router.navigate([path]);
@@ -142,8 +145,19 @@ export class EditHashlistComponent implements OnInit {
           }),
        });
 
+      this.dtTrigger1.next(null);
+
+      // Display Tasks Expand tasks
+
     });
    }
+    this.dtOptions1 = {
+      dom: 'Bfrtip',
+      scrollX: true,
+      bStateSave:true,
+      destroy: true,
+      buttons:[]
+    }
   }
 
   // Remove when expand task is working
@@ -151,9 +165,7 @@ export class EditHashlistComponent implements OnInit {
     const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist', 'filter': 'isArchived=false'}
     const taskh = []
     this.gs.getAll(SERV.TASKS,params).subscribe((tasks: any) => {
-      console.log(tasks)
       for(let i=0; i < tasks.values.length; i++){
-        console.log( tasks.values[i].hashlist)
         let firtprep = tasks.values[i].hashlist;
         for(let i=0; i < firtprep.length; i++){
           const match = firtprep[i].hashlistId == this.editedHashlistIndex;
@@ -163,27 +175,22 @@ export class EditHashlistComponent implements OnInit {
         }
       }
       this.alltasks = taskh;
-
-      this.dtOptions[0] = {
-        dom: 'Bfrtip',
-        scrollY: "700px",
-        scrollCollapse: true,
-        paging: false,
-        autoWidth: false,
-        // destroy: true,
-        buttons: {
-            dom: {
-              button: {
-                className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-              }
-            },
-         buttons:[]
-        }
-      }
-
       this.dtTrigger.next(null);
-
     });
+
+    this.dtOptions = {
+      dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
+      bStateSave:true,
+      destroy: true,
+      buttons:[]
+    }
+
   }
 
   // @HostListener allows us to also guard against browser refresh, close, etc.

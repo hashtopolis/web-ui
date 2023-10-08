@@ -78,6 +78,8 @@ export class HealthChecksComponent implements OnInit {
   const self = this;
   this.dtOptions = {
     dom: 'Bfrtip',
+    scrollX: true,
+    pageLength: 25,
     stateSave: true,
     select: true,
     buttons: {
@@ -158,7 +160,7 @@ export class HealthChecksComponent implements OnInit {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -167,8 +169,7 @@ export class HealthChecksComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your health checks?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -180,11 +181,12 @@ export class HealthChecksComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.HEALTH_CHECKS,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

@@ -93,6 +93,12 @@ export class HashlistComponent implements OnInit, OnDestroy {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: {
         style: 'multi',
@@ -222,18 +228,19 @@ rerender(): void {
 onArchive(id: number){
   this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
     Swal.fire({
-      title: "Success",
-      text: "Archived!",
-      icon: "success",
+      position: 'top-end',
+      backdrop: false,
+      icon: 'success',
+      title: "Archived!",
       showConfirmButton: false,
       timer: 1500
-    });
+    })
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
 }
 
-onDelete(id: number){
+onDelete(id: number, name: string){
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: 'btn',
@@ -242,8 +249,7 @@ onDelete(id: number){
     buttonsStyling: false
   })
   Swal.fire({
-    title: "Are you sure?",
-    text: "Once deleted, it can not be recovered!",
+    title: 'Remove '+ name +' from your hashlists?',
     icon: "warning",
     reverseButtons: true,
     showCancelButton: true,
@@ -255,11 +261,12 @@ onDelete(id: number){
     if (result.isConfirmed) {
       this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
         Swal.fire({
-          title: "Success",
-          icon: "success",
+          position: 'top-end',
+          backdrop: false,
+          icon: 'success',
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.ngOnInit();
         this.rerender();  // rerender datatables
       });
@@ -282,10 +289,12 @@ onSelectedHashlists(){
   const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
+      position: 'top-end',
+      backdrop: false,
+      icon: 'success',
       title: "You haven't selected any Hashlist",
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
+      timer: 1500
     })
     return;
   }
@@ -333,10 +342,11 @@ onDone(value?: any){
     this.rerender();  // rerender datatables
     Swal.close();
     Swal.fire({
-      title: 'Done!',
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      position: 'top-end',
+      backdrop: false,
+      icon: 'success',
+      showConfirmButton: false,
+      timer: 1500
     })
   },3000);
   }

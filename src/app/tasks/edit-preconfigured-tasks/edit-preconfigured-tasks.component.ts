@@ -93,7 +93,12 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: true,
       buttons: [ ]
@@ -112,12 +117,13 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
       this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Pretask updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
         }

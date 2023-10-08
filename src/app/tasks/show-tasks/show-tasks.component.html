@@ -8,7 +8,7 @@
 </div>
 <!-- Table -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" #tasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tasks">
+  <table style="width: 100%" class="table table-striped table-hover table-sm" #tasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="tasks">
     <thead class="thead-light">
       <tr>
         <th class="rounded-start">ID</th>
@@ -32,17 +32,17 @@
         <td *ngIf="task.taskType === 1" [ngStyle]="{'color': 'purple' }">{{ task.taskWrapperId }}</td>
         <td *ngIf="task.taskType === 0">
           <a [ngClass]="task.keyspaceProgress >= task.keyspace ? 'align-text' : ''" [routerLink]="[task.taskId,'edit']" ngbTooltip={{task.taskName}}>
-            {{ task.taskName | shortenString:40 | lowercase | titlecase }}
+            {{ task.taskName | shortenString:40 }}
           </a>
         </td>
-        <td *ngIf="task.taskType === 1"> {{ task.taskWrapperName | shortenString:40 | lowercase | titlecase }}</td>
+        <td *ngIf="task.taskType === 1"> {{ task.taskWrapperName | shortenString:40 }}</td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 0">
           <div class="row">
             <div class="col-md-4" *ngIf="(task.taskId | aspeed | async ) > 0">
               <app-active-spinner></app-active-spinner>
             </div>
             <div class="col-md-4">
-              <span *ngIf="task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0" ngbTooltip="Completed"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
+              <span *ngIf="(task.keyspaceProgress >= task.keyspace) && task.keyspaceProgress > 0" ngbTooltip="Completed"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
             </div>
           </div>
         </td>
@@ -61,12 +61,12 @@
         <td *ngIf="task.taskType === 0">{{ task.preprocessorId === 1 ? 'Prince':'-'}}</td>
         <td *ngIf="task.taskType === 1">-</td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 0">
-          <a [routerLink]="['/hashlists/hashlist',task.hashlist[0].hashlistId,'edit']" ngbTooltip={{task.hashlist[0].name}}>{{ task.hashlist[0].name | shortenString:30 | lowercase | titlecase}}</a>
+          <a [routerLink]="['/hashlists/hashlist',task.hashlist[0].hashlistId,'edit']" ngbTooltip={{task.hashlist[0].name}}>{{ task.hashlist[0].name | shortenString:30 }}</a>
           <span *ngIf="task.hashlist[0].hashCount === task.hashlist[0].cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
           <span *ngIf="task.hashlist[0].isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
         <td style="white-space: nowrap;" *ngIf="task.taskType === 1">
-          <a [routerLink]="['/hashlists/hashlist',task.hashlistId,'edit']">{{ task.name | shortenString:30 | lowercase | titlecase }}</a>
+          <a [routerLink]="['/hashlists/hashlist',task.hashlistId,'edit']">{{ task.name | shortenString:30 }}</a>
           <span *ngIf="task.hashCount === task.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true"></fa-icon></span>
           <span *ngIf="task.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
         </td>
@@ -82,7 +82,10 @@
           {{ task.assignedAgents.length > 0 ? task.assignedAgents.length: 0 }}
         </td>
         <td *ngIf="task.taskType === 1">-</td>
-        <td style="white-space: nowrap;" *ngIf="task.taskType === 0">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s</td>
+        <td style="white-space: nowrap;" *ngIf="task.taskType === 0">
+          <a *ngIf="task.assignedAgents.length">{{ task.taskId | aspeed | async | fileSize:false:1000 }} H/s</a>
+          <a *ngIf="!task.assignedAgents.length">-</a>
+        </td>
         <td *ngIf="task.taskType === 1">-</td>
         <td>
           {{ task.priority }}
@@ -113,7 +116,7 @@
                 <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType,(task.taskType === 0 ? task.taskName:task.taskWrapperName))" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>
@@ -133,7 +136,7 @@
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit SubTasks
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType)" data-toggle="tooltip" data-placement="top" title="Delete">
+              <button ngbDropdownItem (click)="onDelete((task.taskType === 0 ? task.taskId: task.taskWrapperId ),task.taskType,(task.taskType === 0 ? task.taskName:task.taskWrapperName))" data-toggle="tooltip" data-placement="top" title="Delete">
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>

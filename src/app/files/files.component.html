@@ -1,6 +1,6 @@
 <div [ngSwitch]="whichView">
   <div *ngSwitchCase="'wordlist'">
-    <app-page-title [title]="'WordLists'" [buttontitle]="'New WordList'" [buttonlink]="'/files/wordlist/new-wordlist'" [subbutton]="true"></app-page-title>
+    <app-page-title [title]="'Wordlists'" [buttontitle]="'New WordList'" [buttonlink]="'/files/wordlist/new-wordlist'" [subbutton]="true"></app-page-title>
   </div>
   <div *ngSwitchCase="'rules'">
     <app-page-title [title]="'Rules'" [buttontitle]="'New Rule'" [buttonlink]="'/files/rules/new-rule'" [subbutton]="true"></app-page-title>
@@ -11,7 +11,7 @@
 </div>
 <!-- Files Table -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>
@@ -26,10 +26,10 @@
       <tbody>
       <tr *ngFor="let f of allfiles">
           <td>{{ f.fileId }}</td>
-          <td><a class="point" (click)="onEdit(f.fileId)" ngbTooltip={{f.filename}}>{{ f.filename | shortenString:35 | lowercase | titlecase }}</a></td>
+          <td><a class="point" (click)="onEdit(f.fileId)" ngbTooltip={{f.filename}}>{{ f.filename | shortenString:35 }}</a></td>
           <td><fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></td>
           <td>{{ f.size | fileSize:false }}</td>
-          <td>{{ f.lineCount }}</td>
+          <td>{{ f.lineCount | number: '2.' }}</td>
           <td>{{ f.accessGroup.groupName }}</td>
           <td>
             <app-button-actions>
@@ -37,7 +37,7 @@
                 <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
               </button>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="deleteFile(f.fileId)" >
+              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="deleteFile(f.fileId,f.filename)" >
                 <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
               </button>
             </app-button-actions>

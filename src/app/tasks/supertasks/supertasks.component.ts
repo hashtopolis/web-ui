@@ -149,7 +149,7 @@ export class SupertasksComponent implements OnInit {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -158,8 +158,7 @@ export class SupertasksComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your supertasks?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -171,11 +170,13 @@ export class SupertasksComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

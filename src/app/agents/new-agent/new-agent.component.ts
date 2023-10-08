@@ -7,6 +7,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ConfigService } from 'src/app/core/_services/shared/config.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -42,16 +43,21 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   constructor(
     private uiService: UIConfigService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    private cs:ConfigService
   ) { }
 
   private maxResults = environment.config.prodApiMaxResults;
 
-  pathURL = location.protocol + '//' + location.hostname + ':' + environment.config.agentApiPort;
-  public agentdownloadURL = this.pathURL + environment.config.agentdownloadURL;
-  public agentURL = this.pathURL + environment.config.agentURL;
+  public agentdownloadURL: string;
+  public agentURL: string;
 
   ngOnInit(): void {
+
+    const path = this.cs.getEndpoint().replace('/api/v2', '');
+
+    this.agentdownloadURL = path + environment.config.agentdownloadURL;
+    this.agentURL = path + '/api' +environment.config.agentURL;
 
     // Generate Voucher
     this.randomstring = Math.random().toString(36).slice(-8);
@@ -73,7 +79,12 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: true,
     };
@@ -91,7 +102,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string ){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -100,7 +111,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
+      title: 'Remove '+ name +' from your Vouchers?',
       text: "Once deleted, it can not be recovered!",
       icon: "warning",
       reverseButtons: true,
@@ -113,11 +124,12 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
         this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -139,12 +151,14 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
       this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Success!",
             text: "New Voucher created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         }

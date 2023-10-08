@@ -66,7 +66,12 @@ export class HashesComponent implements OnInit {
 
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       searching: false,
       buttons: {
         dom: {

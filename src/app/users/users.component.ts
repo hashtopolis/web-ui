@@ -3,7 +3,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 
-import { ValidationService } from '../core/_services/shared/validation.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
@@ -57,12 +56,13 @@ export class UsersComponent implements OnInit {
 
       this.gs.create(SERV.USERS,this.createForm.value).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
-            text: "New User created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['users/all-users']);
         }
       );

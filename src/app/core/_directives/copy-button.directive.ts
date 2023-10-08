@@ -52,6 +52,7 @@ export class CopyButtonDirective {
   savedAlert(){
     Swal.fire({
       position: 'top-end',
+      backdrop: false,
       toast: true,
       icon: 'success',
       title: 'Copied',

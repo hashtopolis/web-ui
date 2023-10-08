@@ -89,6 +89,12 @@ export class ShowTasksComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       bStateSave:true,
       destroy: true,
       order: [], // Removes the default order by id. We need it to sort by priority.
@@ -217,7 +223,6 @@ onRefresh(){
   this.ngOnInit();
   this.rerender();  // rerender datatables
 }
-
 //Get Tasks and SuperTasks combining the task API and the task wrapper
 getTasks():void {
   const params = {'maxResults': this.maxResults, 'expand': 'crackerBinary,crackerBinaryType,hashlist,assignedAgents', 'filter': 'isArchived='+this.isArchived+''};
@@ -229,8 +234,12 @@ getTasks():void {
         const matchObject = h.values.find(element => element.hashlistId === mainObject.hashlistId );
         return { ...mainObject, ...matchObject }
       }) //Join Supertasks from TaskWrapper with Hashlist info
+      const addSTinfo = []; //Ass tasktype in tasks
+      for(let i=0; i < tw.values.length; i++){
+        addSTinfo.push( {taskWrapperId: tw.values[i].taskWrapperId, taskType: tw.values[i].taskType});
+      }
       let mergeTasks = tasks.values.map(mainObject => {
-        const matchObject = tw.values.find(element => element.taskWrapperId === mainObject.taskWrapperId );
+        const matchObject = addSTinfo.find(element => element.taskWrapperId === mainObject.taskWrapperId );
         return { ...mainObject, ...matchObject }
       }) // Join Tasks with Taskwrapper information for filtering
       let filtertasks = mergeTasks.filter(u=> (u.taskType == 0 && u.isArchived === this.isArchived)); //Filter Active Tasks remove subtasks
@@ -258,12 +267,14 @@ onArchive(id: number, type: number){
   const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
   this.gs.archive(path,id).subscribe(() => {
     Swal.fire({
+      position: 'top-end',
+      backdrop: false,
+      icon: 'success',
       title: "Success",
       text: "Archived!",
-      icon: "success",
       showConfirmButton: false,
       timer: 1500
-    });
+    })
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
@@ -278,7 +289,7 @@ getSubtasks(name: string, id: number){
   })
 }
 
-onDelete(id: number, type: number){
+onDelete(id: number, type: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -287,8 +298,7 @@ onDelete(id: number, type: number){
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your tasks?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -301,11 +311,13 @@ onDelete(id: number, type: number){
       const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
       this.gs.delete(path,id).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          backdrop: false,
+          icon: 'success',
           title: "Success",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.ngOnInit();
         this.rerender();  // rerender datatables
       });
@@ -328,6 +340,8 @@ onSelectedTasks(){
   const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
     Swal.fire({
+      position: 'top-end',
+      backdrop: false,
       title: "You haven't selected any Task",
       type: 'success',
       timer: 1500,
@@ -385,10 +399,12 @@ onDone(value?: any){
     this.rerender();  // rerender datatables
     Swal.close();
     Swal.fire({
-      title: 'Done!',
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
+      position: 'top-end',
+      backdrop: false,
+      icon: 'success',
+      title: "Success",
+      showConfirmButton: false,
+      timer: 1500
     })
   },3000);
   }
@@ -400,6 +416,8 @@ onModalProject(title: string){
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
+        position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Task",
         type: 'success',
         timer: 1500,
@@ -459,11 +477,13 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, namere
         const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
         this.gs.update(path,id, update).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

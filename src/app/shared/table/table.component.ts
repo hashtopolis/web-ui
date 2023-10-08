@@ -5,8 +5,8 @@ import { Router } from '@angular/router';
   selector: 'app-table',
   template: `
 <div class="card shadow">
-  <div [ngClass]="getResizeTable()">
-      <div #content><ng-content></ng-content></div>
+  <div [ngClass]="getResizeTable()" class="btn-overflow">
+      <div #content><ng-content ></ng-content></div>
   </div>
 </div>
 `,

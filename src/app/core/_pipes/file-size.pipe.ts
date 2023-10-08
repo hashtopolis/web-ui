@@ -25,7 +25,7 @@ const FILE_SIZE_UNITS_LONG = ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'P
 })
 export class FileSizePipe implements PipeTransform {
 
-  transform(sizeB: number, longForm: boolean, BASE_SIZE = 1024): string {
+  transform(sizeB: number, longForm: boolean, BASE_SIZE = 1024, THRESHOLD = 1024): string {
     const units = longForm
       ? FILE_SIZE_UNITS_LONG
       : FILE_SIZE_UNITS;
@@ -33,10 +33,12 @@ export class FileSizePipe implements PipeTransform {
 
     if (sizeB < 1 ) { return result = '0 B'; }
 
-    let power = Math.round(Math.log(sizeB) / Math.log(BASE_SIZE));
+    const scale = sizeB > THRESHOLD ? (sizeB / THRESHOLD):sizeB; //Change scale. ie. 113.44MB instead of 0.13GB
+
+    let power = (Math.round(Math.log(scale) / Math.log(BASE_SIZE)));
     power = Math.min(power, units.length - 1);
 
-    const size = sizeB / Math.pow(BASE_SIZE, power); // size in new units
+    const size = (sizeB) / Math.pow(BASE_SIZE, power); // size in new units
     const formattedSize = Math.round(size * 100) / 100; // keep up to 2 decimals
     const unit = units[power];
 

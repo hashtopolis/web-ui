@@ -51,12 +51,13 @@ export class EditCrackersComponent implements OnInit {
 
       this.gs.update(SERV.CRACKERS,this.editedCrackervIndex,this.updateForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Agent updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['config/engine/crackers']);
         }
@@ -73,8 +74,7 @@ export class EditCrackersComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove from your crackers?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -86,11 +86,12 @@ export class EditCrackersComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.CRACKERS,this.editedCrackervIndex).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.router.navigate(['config/engine/crackers']);
         });
       } else {

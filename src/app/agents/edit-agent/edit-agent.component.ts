@@ -138,6 +138,12 @@ export class EditAgentComponent implements OnInit {
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollY: "700px",
+      scrollX: true,
+      lengthMenu: [
+        [10, 25, 50, 100, 250, -1],
+        [10, 25, 50, 100, 250, 'All']
+      ],
+      pageLength: 25,
       scrollCollapse: true,
       paging: false,
       destroy: true,
@@ -186,12 +192,13 @@ export class EditAgentComponent implements OnInit {
       this.onUpdateAssign(this.updateAssignForm.value);
       this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Agent updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['agents/show-agents']);
       });

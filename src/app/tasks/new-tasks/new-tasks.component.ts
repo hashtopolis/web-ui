@@ -227,6 +227,12 @@ export class NewTasksComponent implements OnInit {
 
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       scrollY: "700px",
       scrollCollapse: true,
       paging: false,
@@ -404,12 +410,14 @@ export class NewTasksComponent implements OnInit {
     if (this.createForm.valid) {
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
           Swal.fire({
-            title: "Success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Success!",
             text: "New Task created!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.createForm.reset();
           this.router.navigate(['tasks/show-tasks']);
         }

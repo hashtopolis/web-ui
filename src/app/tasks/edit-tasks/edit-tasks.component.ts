@@ -122,12 +122,13 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     if (this.updateForm.valid) {
       this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            text: "Task updated!",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
+            title: "Saved",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/show-tasks']);
         }
@@ -217,12 +218,14 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       const payload = {"taskId": this.editedTaskIndex, "agentId":this.createForm.value['agentId']};
       this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
             text: "Agent Assigned!",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.rerender();  // rerender datatables
           this.ngOnInit();
         }
@@ -233,11 +236,13 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   onDelete(id: number){
     this.gs.delete(SERV.AGENT_ASSIGN,id).subscribe(() => {
       Swal.fire({
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
         title: "Success",
-        icon: "success",
         showConfirmButton: false,
         timer: 1500
-      });
+      })
       this.rerender();  // rerender datatables
       this.ngOnInit();
     });
@@ -266,11 +271,13 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
         if(cvalue !== Number(formValues[0])){
           this.gs.update(SERV.AGENT_ASSIGN,id, {benchmark: +formValues}).subscribe(() => {
             Swal.fire({
+              position: 'top-end',
+              backdrop: false,
+              icon: 'success',
               title: "Success",
-              icon: "success",
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });
@@ -340,6 +347,12 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       scrollY: "700px",
       scrollCollapse: true,
       paging: false,
@@ -471,11 +484,13 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
         let payload = {"taskId":this.editedTaskIndex};
         this.gs.chelper(SERV.HELPER,'purgeTask',payload).subscribe(() => {
           Swal.fire({
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             title: "Success",
-            icon: "success",
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -498,11 +513,13 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     let payload = {'chunkId': id};
     this.gs.chelper(SERV.HELPER,path,payload).subscribe(() => {
       Swal.fire({
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
         title: title,
-        icon: "success",
         showConfirmButton: false,
         timer: 1500
-      });
+      })
       this.ngOnInit();
       this.rerender();
     });

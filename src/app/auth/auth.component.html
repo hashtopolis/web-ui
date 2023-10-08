@@ -1,4 +1,4 @@
-<section class="bg-soft d-flex align-items-center">
+<section class="bg-soft d-flex align-items-center mt-1">
   <div class="container">
     <grid-main [class]="'fmxw-500'" [centered]="true">
       <div class="text-center text-md-center mb-0 mt-md-0">
@@ -31,8 +31,8 @@
                         (mousedown)="showPasswordOnPress = !showPasswordOnPress"
                         (mouseup)="showPasswordOnPress = !showPasswordOnPress"
                         >
-                        <fa-icon alt="show" [icon]="faEye" aria-hidden="true" *ngIf="showPasswordOnPress"></fa-icon>
-                        <fa-icon alt="hide" [icon]="faEyeSlash" aria-hidden="true" *ngIf="!showPasswordOnPress"></fa-icon>
+                        <fa-icon alt="show" [icon]="faEye" aria-hidden="true" *ngIf="showPasswordOnPress" class="layout-col"></fa-icon>
+                        <fa-icon alt="hide" [icon]="faEyeSlash" aria-hidden="true" *ngIf="!showPasswordOnPress" class="layout-col"></fa-icon>
                       </div>
                   </div>
               </div>

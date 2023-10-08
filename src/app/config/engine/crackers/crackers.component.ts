@@ -50,7 +50,12 @@ export class CrackersComponent implements OnInit, OnDestroy {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       select: true,
       buttons: {
@@ -124,10 +129,9 @@ export class CrackersComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, you will not be able to recover this cracker!",
+      title: 'Remove '+ name +' from your crackers?',
       icon: "warning",
       buttons: true,
       dangerMode: true,
@@ -137,11 +141,12 @@ export class CrackersComponent implements OnInit, OnDestroy {
       if (willDelete) {
         this.gs.delete(SERV.CRACKERS_TYPES,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
         });
       } else {
         Swal.fire("Your Cracker is safe!")

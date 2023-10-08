@@ -66,6 +66,12 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       stateSave: true,
       destroy: true,
       select: {
@@ -223,10 +229,11 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       this.rerender();  // rerender datatables
       Swal.close();
       Swal.fire({
-        title: 'Done!',
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
       })
     },3000);
   }
@@ -236,6 +243,8 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
       Swal.fire({
+        position: 'top-end',
+        backdrop: false,
         title: "You haven't selected any Agent",
         type: 'success',
         timer: 1500,
@@ -294,6 +303,8 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
       if(selection.length == 0) {
         Swal.fire({
+          position: 'top-end',
+          backdrop: false,
           title: "You haven't selected any Agent",
           type: 'success',
           timer: 1500,
@@ -327,7 +338,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
       })()
   }
 
-  onDelete(id: number){
+  onDelete(id: number, name: string){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: 'btn',
@@ -336,8 +347,7 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         buttonsStyling: false
       })
       Swal.fire({
-        title: "Are you sure?",
-        text: "Once deleted, it can not be recovered!",
+        title: 'Remove '+ name +' from your Agents?',
         icon: "warning",
         reverseButtons: true,
         showCancelButton: true,
@@ -349,11 +359,12 @@ export class ShowAgentsComponent implements OnInit, OnDestroy {
         if (result.isConfirmed) {
           this.gs.delete(SERV.AGENTS,id).subscribe(() => {
             Swal.fire({
-              title: "Success",
-              icon: "success",
+              position: 'top-end',
+              backdrop: false,
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });

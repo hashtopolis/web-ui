@@ -20,6 +20,8 @@ import { LottiesModule } from './lottie/lottie.module';
 import { GraphsModule } from "./graphs/graphs.module";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormsModule } from "@angular/forms";
+import { PassStrenghtComponent } from './password/pass-strenght/pass-strenght.component';
+import { PassMatchComponent } from './password/pass-match/pass-match.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +29,9 @@ import { FormsModule } from "@angular/forms";
     LoadingSpinnerComponent,
     ActiveSpinnerComponent,
     HexconvertorComponent,
+    PassStrenghtComponent,
     CheatsheetComponent,
+    PassMatchComponent,
     TimeoutComponent,
     AlertComponent
   ],
@@ -51,8 +55,10 @@ import { FormsModule } from "@angular/forms";
     LoadingSpinnerComponent,
     ActiveSpinnerComponent,
     HexconvertorComponent,
+    PassStrenghtComponent,
     FilterTextboxModule,
     CheatsheetComponent,
+    PassMatchComponent,
     SwitchThemeModule,
     ColorPickerModule,
     PaginationModule,

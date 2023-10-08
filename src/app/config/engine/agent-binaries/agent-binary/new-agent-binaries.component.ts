@@ -85,12 +85,14 @@ export class NewAgentBinariesComponent implements OnInit {
           .subscribe((prep: any) => {
             const response = prep;
               Swal.fire({
-                title: "Success",
+                position: 'top-end',
+                backdrop: false,
+                icon: 'success',
+                title: "Success!",
                 text: "New Agent Binary created!",
-                icon: "success",
                 showConfirmButton: false,
                 timer: 1500
-              });
+              })
               this.router.navigate(['config/engine/agent-binaries']);
             }
           );
@@ -102,12 +104,13 @@ export class NewAgentBinariesComponent implements OnInit {
           .subscribe((prep: any) => {
             const response = prep;
               Swal.fire({
-                title: "Success",
-                text: "Agent Binary updated!",
-                icon: "success",
+                position: 'top-end',
+                backdrop: false,
+                icon: 'success',
+                title: "Saved",
                 showConfirmButton: false,
                 timer: 1500
-              });
+              })
               this.router.navigate(['config/engine/agent-binaries']);
             }
           );

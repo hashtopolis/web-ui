@@ -18,13 +18,13 @@
       </div>
     </grid-form-input>
     <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Minimum 1 hash required!</span><br>
-    <button-submit [name]="'Create'"></button-submit>
+    <button-submit [name]="'Search'"></button-submit>
     </div>
   </form>
 </grid-main>
 <!-- Table -->
 <app-table *ngIf="searh">
-  <table class="table table-striped table-hover table-sm">
+  <table style="width: 100%" class="table table-striped table-hover table-sm">
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">Hash</th>

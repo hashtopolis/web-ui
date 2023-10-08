@@ -8,7 +8,7 @@
 </div>
 <!-- Body -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
     <thead class="thead-light">
       <tr>
           <th class="rounded-start">ID</th>
@@ -34,10 +34,10 @@
             <td *ngIf="c.progress > 0">{{ c.progress/100 }} %</td>
             <td *ngIf="!c.progress">N/A</td>
             <td>
-              <a [routerLink]="['/tasks/show-tasks',c.taskId,'edit']">{{ c.taskName | shortenString:15 | lowercase | titlecase}}</a>
+              <a [routerLink]="['/tasks/show-tasks',c.taskId,'edit']">{{ c.taskName | shortenString:15 }}</a>
             </td>
             <td>
-              <a  [routerLink]="['/agents/show-agents',c.agentId,'edit']">{{ c.agentName | shortenString:15 | lowercase | titlecase }}</a>
+              <a  [routerLink]="['/agents/show-agents',c.agentId,'edit']">{{ c.agentName | shortenString:15  }}</a>
             </td>
             <td>{{ c.dispatchTime | uiDate }}</td>
             <td *ngIf="c.solveTime === 0">(No acitivity)</td>

@@ -47,6 +47,12 @@ export class ModalSubtasksComponent {
 
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       destroy: true,
       buttons:[]
     };
@@ -90,12 +96,14 @@ export class ModalSubtasksComponent {
     onArchive(id: number){
       this.gs.archive(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          backdrop: false,
+          icon: 'success',
           title: "Success",
           text: "Archived!",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.rerender();  // rerender datatables
       });
     }
@@ -103,11 +111,13 @@ export class ModalSubtasksComponent {
     onDelete(id: number){
       this.gs.delete(SERV.TASKS,id).subscribe(() => {
         Swal.fire({
+          position: 'top-end',
+          backdrop: false,
+          icon: 'success',
           title: "Success",
-          icon: "success",
           showConfirmButton: false,
           timer: 1500
-        });
+        })
         this.rerender();  // rerender datatables
       });
     }

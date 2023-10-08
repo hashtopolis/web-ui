@@ -14,11 +14,17 @@
   background-color: #bebaba;
 }
 
+// Auth Login
+.input-icon-container{
+  background-color: rgb(45, 47, 49);
+  background : rgb(45, 47, 49);
+}
+
 // Table
 
 .table .thead-light th {
-  background-color: #bebaba;
-  color: #1F2937;
+  background-color: #272525;
+  color: #f2f4f7;
 }
 
 .table.dataTable.table-hover>tbody>tr:hover>*{
@@ -27,6 +33,14 @@
 
 .table>:not(caption)>*>* {
   padding: 0.5rem 0.5rem;
+  color: white;
+}
+
+div.dataTables_wrapper div.dataTables_filter label {
+  color: white;
+}
+
+div.dataTables_wrapper div.dataTables_info {
   color: white;
 }
 

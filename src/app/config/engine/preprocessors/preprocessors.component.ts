@@ -47,7 +47,12 @@ export class PreprocessorsComponent implements OnInit {
       const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
-        pageLength: 10,
+        scrollX: true,
+        lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+        ],
+        pageLength: 25,
         stateSave: true,
         select: true,
         buttons: {
@@ -124,7 +129,7 @@ export class PreprocessorsComponent implements OnInit {
       });
     }
 
-    onDelete(id: number){
+    onDelete(id: number, name: string){
       const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
           confirmButton: 'btn',
@@ -133,8 +138,7 @@ export class PreprocessorsComponent implements OnInit {
         buttonsStyling: false
       })
       Swal.fire({
-        title: "Are you sure?",
-        text: "Once deleted, it can not be recovered!",
+        title: 'Remove '+ name +' from your preprocessors?',
         icon: "warning",
         reverseButtons: true,
         showCancelButton: true,
@@ -146,11 +150,12 @@ export class PreprocessorsComponent implements OnInit {
         if (result.isConfirmed) {
           this.gs.delete(SERV.PREPROCESSORS,id).subscribe(() => {
             Swal.fire({
-              title: "Success",
-              icon: "success",
+              position: 'top-end',
+              backdrop: false,
+              icon: 'success',
               showConfirmButton: false,
               timer: 1500
-            });
+            })
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });

@@ -1,7 +1,7 @@
 <app-page-title [title]="'Preconfigured Tasks'" [buttontitle]="'New'" [buttonlink]="'/tasks/new-preconfigured-tasks'" [subbutton]="true"></app-page-title>
 <!-- Body -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" #ptasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="ptasks">
+  <table style="width: 100%" class="table table-striped table-hover table-sm" #ptasks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="ptasks">
     <thead class="thead-light">
       <tr>
         <th class="rounded-start">ID</th>
@@ -20,7 +20,7 @@
         </td>
         <td>
           <a [routerLink]="[ptask.pretaskId,'edit']">
-            {{ ptask.taskName | shortenString:20 | lowercase | titlecase }}
+            {{ ptask.taskName | shortenString:20 }}
           </a>
         </td>
         <td>{{ ptask.attackCmd | shortenString:25 }}</td>
@@ -43,7 +43,7 @@
               <fa-icon [icon]="faCopy" aria-hidden="true"></fa-icon> Copy to task
             </button>
             <div class="dropdown-divider"></div>
-            <button ngbDropdownItem (click)="onDelete(ptask.pretaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+            <button ngbDropdownItem (click)="onDelete(ptask.pretaskId,ptask.taskName)" data-toggle="tooltip" data-placement="top" title="Delete">
               <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
             </button>
           </app-button-actions>

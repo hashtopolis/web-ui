@@ -13,7 +13,7 @@ export class AutoTitleService {
  * @param title - inject title and join in array
  * @returns Nav Location
 **/
-  appTitle = ' - Hashtopolis';
+  appTitle = 'Hashtopolis - ';
 
   set(title: string | string[]){
 
@@ -21,7 +21,7 @@ export class AutoTitleService {
       title = title.join(' ');
     }
 
-    title = title.concat(this.appTitle);
+    title = this.appTitle.concat(title);
 
     this.titleService.setTitle(title);
 

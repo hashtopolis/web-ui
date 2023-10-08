@@ -49,6 +49,12 @@ export class WrbulkComponent implements OnInit {
 
     this.dtOptions = {
       dom: 'Bfrtip',
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       scrollY: "700px",
       scrollCollapse: true,
       paging: false,
@@ -173,6 +179,8 @@ export class WrbulkComponent implements OnInit {
   validateFile(value){
     if(value.split('.').pop() == '7zip'){
       Swal.fire({
+        position: 'top-end',
+        backdrop: false,
         title: "Heads Up!",
         text: "Hashcat has some issues loading 7z files. Better convert it to a hash file ;)",
         icon: "warning",

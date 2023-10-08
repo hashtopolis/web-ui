@@ -1,4 +1,4 @@
-import { faServer, faTasks, faDatabase, faFileArchive, faCogs, faUserGroup,faPowerOff, faSun, faMoon, faUserCircle, faInbox, faQuestionCircle, faBell, faEye, faExchange, faArrowsH, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faTasks, faDatabase, faFileArchive, faCogs, faUserGroup,faPowerOff, faSun, faMoon, faUserCircle, faInbox, faQuestionCircle, faBell, faEye, faExchange, faArrowsH, faCog, faFileCode } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
@@ -26,6 +26,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   faFileArchive=faFileArchive;
   faUserGroup=faUserGroup;
   faDatabase=faDatabase;
+  faFileCode=faFileCode;
   faServer=faServer;
   faTasks=faTasks;
   faCogs=faCogs;

@@ -9,6 +9,7 @@ import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
+declare let $:any;
 @Component({
   selector: 'app-hashtypes',
   templateUrl: './hashtypes.component.html'
@@ -16,17 +17,17 @@ import { SERV } from '../../core/_services/main.config';
 @PageTitle(['Show Hashtypes'])
 export class HashtypesComponent implements OnInit {
 
+  faInfoCircle=faInfoCircle;
+  faCancel=faCancel;
   faHome=faHomeAlt;
-  faPlus=faPlus;
   faTrash=faTrash;
+  faPlus=faPlus;
   faEdit=faEdit;
   faSave=faSave;
-  faCancel=faCancel;
-  faInfoCircle=faInfoCircle;
 
   private maxResults = environment.config.prodApiMaxResults;
 
-  @ViewChild(DataTableDirective, {static: false})
+  @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
@@ -36,7 +37,7 @@ export class HashtypesComponent implements OnInit {
     private gs: GlobalService,
   ) { }
 
-  public htypes: {hashTypeId: number, description: string, isSalted: number, isSlowHash: number}[] = [];
+  public htypes: any;
 
   ngOnInit(): void {
 
@@ -49,11 +50,18 @@ export class HashtypesComponent implements OnInit {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
-      pageLength: 10,
-      select: true,
+      scrollX: true,
+      pageLength: 25,
+      lengthMenu: [
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
+      ],
       processing: true,  // Error loading
       deferRender: true,
       destroy:true,
+      select: {
+        style: 'multi',
+        },
       buttons: {
         dom: {
           button: {
@@ -105,7 +113,21 @@ export class HashtypesComponent implements OnInit {
             },
               'copy'
             ]
-          }
+          },
+          {
+            extend: 'collection',
+            text: 'Bulk Actions',
+            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+            buttons: [
+                  {
+                    text: 'Delete Hashtypes',
+                    autoClose: true,
+                    action: function (e, dt, node, config) {
+                      self.onDeleteBulk();
+                    }
+                  }
+               ]
+            },
         ],
       }
     };
@@ -128,7 +150,22 @@ export class HashtypesComponent implements OnInit {
     });
   }
 
-  onDelete(id: number){
+  onDone(value?: any){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+      Swal.close();
+      Swal.fire({
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      })
+    },3000);
+  }
+
+  onDelete(id: number, name: string){
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -137,8 +174,7 @@ export class HashtypesComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
+      title: 'Remove '+ name +' from your hashtypes?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
@@ -150,11 +186,12 @@ export class HashtypesComponent implements OnInit {
       if (result.isConfirmed) {
         this.gs.delete(SERV.HASHTYPES,id).subscribe(() => {
           Swal.fire({
-            title: "Success",
-            icon: "success",
+            position: 'top-end',
+            backdrop: false,
+            icon: 'success',
             showConfirmButton: false,
             timer: 1500
-          });
+          })
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -169,6 +206,46 @@ export class HashtypesComponent implements OnInit {
       }
     });
   }
+
+  onSelectedHashtypes(){
+    $(".dt-button-background").trigger("click");
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    if(selection.length == 0) {
+      Swal.fire({
+        position: 'top-end',
+        backdrop: false,
+        title: "You haven't selected any Hashtype",
+        type: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      })
+      return;
+    }
+    const selectionnum = selection.map(i=>Number(i));
+
+    return selectionnum;
+  }
+
+  onDeleteBulk(){
+    const self = this;
+    const selectionnum = this.onSelectedHashtypes();
+    const sellen = selectionnum.length;
+    const errors = [];
+    selectionnum.forEach(function (value) {
+      Swal.fire('Deleting...'+sellen+' Hashtype(s)...Please wait')
+      Swal.showLoading()
+    self.gs.delete(SERV.HASHTYPES,value)
+    .subscribe(
+      err => {
+        // console.log('HTTP Error', err)
+        err = 1;
+        errors.push(err);
+      },
+      );
+    });
+    self.onDone(sellen);
+  }
+
   // Add unsubscribe to detect changes
   ngOnDestroy(){
     this.dtTrigger.unsubscribe();
