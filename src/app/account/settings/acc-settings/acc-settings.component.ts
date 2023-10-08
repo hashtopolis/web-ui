@@ -1,13 +1,12 @@
-import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
-
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 function passwordMatchValidator(password: string): ValidatorFn {
   return (control: FormControl) => {
@@ -23,7 +22,6 @@ function passwordMatchValidator(password: string): ValidatorFn {
   templateUrl: './acc-settings.component.html',
   providers: [uiDatePipe]
 })
-@PageTitle(['Account Settings'])
 export class AccountSettingsComponent implements OnInit {
 
   updateForm: FormGroup;
@@ -32,23 +30,24 @@ export class AccountSettingsComponent implements OnInit {
 
   constructor(
     private uiService: UIConfigService,
-    private datePipe:uiDatePipe,
+    private titleService: AutoTitleService,
+    private datePipe: uiDatePipe,
     private gs: GlobalService,
     private router: Router
   ) {
+    this.titleService.set(['Account Settings'])
     this.formInit()
   }
 
   ngOnInit(): void {
-
     this.initForm();
 
   }
 
   private formInit() {
     this.updateForm = new FormGroup({
-      'name': new FormControl({value: '', disabled: true} ),
-      'registeredSince': new FormControl({value: '', disabled: true} ),
+      'name': new FormControl({ value: '', disabled: true }),
+      'registeredSince': new FormControl({ value: '', disabled: true }),
       'email': new FormControl(null, [Validators.required, Validators.email]),
       'oldpassword': new FormControl(),
       'newpassword': new FormControl([
@@ -64,19 +63,19 @@ export class AccountSettingsComponent implements OnInit {
     });
   }
 
-  onSubmit(){
+  onSubmit() {
     if (this.updateForm.valid) {
-      this.gs.create(SERV.USERS,this.updateForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: 'Saved',
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.router.navigate(['users/all-users']);
-        }
+      this.gs.create(SERV.USERS, this.updateForm.value).subscribe(() => {
+        Swal.fire({
+          position: 'top-end',
+          backdrop: false,
+          icon: 'success',
+          title: 'Saved',
+          showConfirmButton: false,
+          timer: 1500
+        })
+        this.router.navigate(['users/all-users']);
+      }
       );
     }
   }
@@ -90,16 +89,16 @@ export class AccountSettingsComponent implements OnInit {
   }
 
   private initForm() {
-    this.gs.get(SERV.USERS,this.gs.userId, {'expand':'globalPermissionGroup'}).subscribe((result)=>{
-    this.updateForm = new FormGroup({
-      'name': new FormControl({value: result.globalPermissionGroup['name'], disabled: true} ),
-      'registeredSince': new FormControl({value: this.datePipe.transform(result['registeredSince']), disabled: true} ),
-      'email': new FormControl(result['email']),
-      'oldpassword': new FormControl(),
-      'newpassword': new FormControl(),
-      'confirmpass': new FormControl(),
+    this.gs.get(SERV.USERS, this.gs.userId, { 'expand': 'globalPermissionGroup' }).subscribe((result) => {
+      this.updateForm = new FormGroup({
+        'name': new FormControl({ value: result.globalPermissionGroup['name'], disabled: true }),
+        'registeredSince': new FormControl({ value: this.datePipe.transform(result['registeredSince']), disabled: true }),
+        'email': new FormControl(result['email']),
+        'oldpassword': new FormControl(),
+        'newpassword': new FormControl(),
+        'confirmpass': new FormControl(),
+      });
     });
-  });
   }
 
 }
