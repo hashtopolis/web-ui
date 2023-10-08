@@ -97,6 +97,10 @@ describe('NewNotificationComponent', () => {
 
   // --- Test Methods ---
 
+  it('should create the component', () => {
+    expect(component).toBeTruthy();
+  });
+
   // Test for Empty Form Submission
   it('shold not be possible to submit the form when form is empty', () => {
     expectButtonToBeDisabled();
