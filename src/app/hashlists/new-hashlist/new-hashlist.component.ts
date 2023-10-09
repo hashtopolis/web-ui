@@ -1,11 +1,11 @@
 import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus, faLink } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener  } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener, ViewChild, ElementRef  } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Observable, Subject, Subscription, takeUntil } from 'rxjs';
 import { environment } from './../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
-import { Observable, delay } from 'rxjs';
 import { Buffer } from 'buffer';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
@@ -21,8 +21,7 @@ import { SERV } from '../../core/_services/main.config';
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
-  providers: [FileSizePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [FileSizePipe]
 })
 @PageTitle(['New Hashlist'])
 export class NewHashlistComponent implements OnInit {
@@ -46,13 +45,13 @@ export class NewHashlistComponent implements OnInit {
   radio=true;
   brainenabled:any;
   hashcatbrain: string;
+  subscriptions: Subscription[] = []
 
   // accessgroup: AccessGroup; //Use models when data structure is reliable
   accessgroup: any[]
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-     private _changeDetectorRef: ChangeDetectorRef,
      private uploadService:UploadTUSService,
      private uiService: UIConfigService,
      private modalService: NgbModal,
@@ -64,13 +63,27 @@ export class NewHashlistComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.loadData();
+
+  }
+
+  ngOnDestroy() {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe()
+    }
+    this.ngUnsubscribe.next(false);
+    this.ngUnsubscribe.complete();
+  }
+
+  loadData(){
+
     this.brainenabled = this.uiService.getUIsettings('hashcatBrainEnable').value;
 
     const params = {'maxResults': this.maxResults};
 
-    this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
+    this.subscriptions.push(this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
-    });
+    }));
 
     this.signupForm = new FormGroup({
       'name': new FormControl('', [Validators.required]),
@@ -94,11 +107,9 @@ export class NewHashlistComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    this.uploadProgress = this.uploadService.uploadProgress; // TUS upload progress
-
     const params = {'maxResults': this.maxResults};
 
-    this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
+    this.subscriptions.push(this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
       const self = this;
       const prep = htypes.values;
       const response = [];
@@ -132,7 +143,7 @@ export class NewHashlistComponent implements OnInit {
             selectize.setValue(selected_items);
           }
           });
-      });
+      }));
 
     }
 
@@ -140,18 +151,29 @@ export class NewHashlistComponent implements OnInit {
     this.signupForm.patchValue({
       hashTypeId: Number(value)
     });
-    this._changeDetectorRef.detectChanges();
+    // this._changeDetectorRef.detectChanges();
   }
 
   // FILE UPLOAD: TUS File Uload
-  uploadProgress: Observable<UploadFileTUS[]>;
+  @ViewChild('file', {static: false}) file: ElementRef;
+  uploadProgress = 0;
   filenames: string[] = [];
+  private ngUnsubscribe = new Subject();
 
   onuploadFile(files: FileList) {
+    let form = this.handleUpload(this.signupForm.value);
+    const upload: Array<any> = [];
     for (let i = 0; i < files.length; i++) {
-      this.filenames.push(files[i].name);
-      console.log(`Uploading ${files[i].name} with size ${files[i].size} and type ${files[i].type}`);
-      this.uploadService.uploadFile(files[i], files[i].name);
+      upload.push(
+         this.uploadService.uploadFile(
+          files[i], files[i].name, SERV.HASHLISTS, form, ['/hashlists/hashlist']
+        ).pipe(takeUntil(this.ngUnsubscribe))
+         .subscribe(
+          (progress) => {
+            this.uploadProgress = progress;
+          }
+        )
+      )
     }
   }
 
@@ -181,6 +203,7 @@ export class NewHashlistComponent implements OnInit {
 
   validateFileExt = validateFileExt;
 
+  selectedFile: '';
   fileGroup: number;
   fileToUpload: File | null = null;
   fileSize: any;
@@ -190,7 +213,7 @@ export class NewHashlistComponent implements OnInit {
     this.fileToUpload = event.target.files[0];
     this.fileSize = this.fileToUpload.size;
     this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text('Size: '+this.fs.transform(this.fileToUpload.size,false));
+    $('.fileuploadspan').text( this.fs.transform(this.fileToUpload.size,false));
   }
 
   /**
@@ -198,20 +221,12 @@ export class NewHashlistComponent implements OnInit {
    *
   */
 
-  submitted = false;
-  onSubmitFile(): void{
-    setTimeout(() => {
-      this.onSubmit();
-      this.submitted = true;
-    },1000);
-  }
-
   onSubmit(): void{
       if (this.signupForm.valid) {
 
       const res = this.handleUpload(this.signupForm.value);
 
-      this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
+      this.subscriptions.push(this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
         Swal.fire({
           position: 'top-end',
           backdrop: false,
@@ -223,7 +238,7 @@ export class NewHashlistComponent implements OnInit {
         })
         this.router.navigate(['/hashlists/hashlist']);
       }
-    );
+    ));
     }
   }
 

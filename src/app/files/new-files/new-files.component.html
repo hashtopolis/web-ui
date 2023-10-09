@@ -39,19 +39,18 @@
                   <span class="fileuploadspan custom-file-upload-size"></span>
                 </div>
               </div>
-              <div *ngFor="let fileStatus of uploadProgress | async">
-                &nbsp;
-                <div>
-                  <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
+              <div>
+                <div *ngIf="uploadProgress > 0">
+                  <br>
                   <ngb-progressbar
                                   type="success"
                                   textType="white"
                                   [striped]="true"
-                                  [value]="fileStatus.progress"
+                                  [value]="uploadProgress"
                                   [showValue]="true"
                   ></ngb-progressbar>
                 </div>
-                <div *ngIf="fileStatus.progress === 100">
+                <div *ngIf="uploadProgress === 100">
                   <p><b>Upload completed!</b></p>
                 </div>
             </div>&nbsp;

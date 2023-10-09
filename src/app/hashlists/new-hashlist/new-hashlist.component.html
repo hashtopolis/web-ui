@@ -1,7 +1,7 @@
 <app-page-subtitle [subtitle]="'Create Hashlist'"></app-page-subtitle>
 <!-- Body -->
 <grid-main [class]="'width:100%;'" [centered]="true">
-  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="signupForm">
     <grid-autocol>
     <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
       <input
@@ -149,40 +149,39 @@
                 </textarea>
               </td>
               <br>
-              <button-submit [name]="'Create'"></button-submit>
+              <button-submit [name]="'Create'" (click)="onSubmit()"></button-submit>
             </div>  <!-- end paste Haslist -->
 
             <div id="uploadLine">  <!-- start Upload Haslist -->
 
               <div>
-                <input
-                      type="file"
-                      accept="/*"
-                      class="form-control fileuploadspan"
-                      formControlName="sourceData"
-                      (change)="handleFileInput($event)"
-                      fileSelect directory #file
-                >&nbsp;
-                <div class="col">
+                  <input
+                        type="file"
+                        accept="/*"
+                        (click)="file.value = null"
+                        class="form-control fileuploadspan"
+                        formControlName="sourceData"
+                        (change)="handleFileInput($event)"
+                        multiple #file
+                  >
+                <div class="mt-2">
                   <span class="fileuploadspan custom-file-upload-size"></span>
                 </div>
               </div>
-              <div *ngFor="let fileStatus of uploadProgress | async">&nbsp;
-
-                <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
-                <ngb-progressbar
-                                type="success"
-                                textType="white"
-                                [striped]="true"
-                                [value]="fileStatus.progress"
-                                [showValue]="true"
-                ></ngb-progressbar>
-                <div *ngIf="fileStatus.progress === 100">
-                  <p><b>Upload completed!</b></p>
-                  <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
+                <div *ngIf="uploadProgress > 0">
+                  <br>
+                  <ngb-progressbar
+                                  type="success"
+                                  textType="white"
+                                  [striped]="true"
+                                  [value]="uploadProgress"
+                                  [showValue]="true"
+                  ></ngb-progressbar>
                 </div>
-
-              </div>
+                <div *ngIf="uploadProgress === 100">
+                  <p><b>Upload completed!</b></p>
+                </div>
+                <br>
               <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
 
             </div>   <!-- end Upload -->
