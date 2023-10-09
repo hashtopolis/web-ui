@@ -6,7 +6,7 @@
     "start": "node git-version.js && ng serve --host 0.0.0.0 --poll 500 && node git-version.js",
     "build": "node git-version.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --karma-config=karma.conf.js --include=src/app",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "build:ci": "ng build --configuration production",
     "lint": "ng lint"
@@ -95,7 +95,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "nodemon": "^3.0.1",
-    "puppeteer": "^20.8.0",
+    "puppeteer": "^20.9.0",
     "typescript": "~5.1.6"
   }
 }

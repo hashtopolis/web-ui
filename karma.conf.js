@@ -1,5 +1,7 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/1.0/config/configuration-file.html
+process.env.CHROME_BIN = require('puppeteer').executablePath()
+
 
 module.exports = function (config) {
   config.set({
@@ -18,6 +20,7 @@ module.exports = function (config) {
         // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
         // for example, you can disable the random execution with `random: false`
         // or set a specific seed with `seed: 4321`
+        config: 'jasmine.conf.json'
       },
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
@@ -40,11 +43,5 @@ module.exports = function (config) {
     browsers: ['ChromeHeadless'],
     singleRun: false,
     restartOnFileChange: true,
-    customLaunchers: {
-      ChromeHeadlessCustom: {
-        base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-gpu']
-      }
-    },
   });
 };

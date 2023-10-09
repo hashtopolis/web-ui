@@ -21,6 +21,15 @@ export class ACTION {
   static readonly LOG_ERROR = 'logError';
 }
 
+export class NOTIF {
+  static readonly CHATBOT = 'ChatBot';
+  static readonly DISCORD = 'Discord Webhook';
+  static readonly EMAIL = 'Email';
+  static readonly EXAMPLE = 'Example';
+  static readonly SLACK = 'Slack';
+  static readonly TELEGRAM = 'Telegram';
+}
+
 export const ACTIONARRAY = [
   ACTION.AGENT_ERROR,
   ACTION.OWN_AGENT_ERROR,
@@ -41,10 +50,10 @@ export const ACTIONARRAY = [
 ]
 
 export const NOTIFARRAY = [
-  'ChatBot',
-  'Discord Webhook',
-  'Email',
-  'Example',
-  'Slack',
-  'Telegram'
+  NOTIF.CHATBOT,
+  NOTIF.DISCORD,
+  NOTIF.EMAIL,
+  NOTIF.EXAMPLE,
+  NOTIF.SLACK,
+  NOTIF.TELEGRAM,
 ]

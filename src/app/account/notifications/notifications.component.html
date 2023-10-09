@@ -1,45 +1,53 @@
-<app-page-title [title]="'Notifications'" [buttontitle]="'New Notification'" [buttonlink]="'/account/notifications/new-notification'" [subbutton]="true"></app-page-title>
+<app-page-title [title]="'Notifications'" [buttontitle]="'New Notification'"
+  [buttonlink]="'/account/notifications/new-notification'" [subbutton]="true"></app-page-title>
 <!-- Table Notifications -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
+  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions"
+    [dtTrigger]="dtTrigger">
     <thead class="thead-light">
       <tr>
-          <th class="rounded-start">ID</th>
-          <th>Status</th>
-          <th>Trigger action</th>
-          <th>Applied To</th>
-          <th>Called Notification</th>
-          <th>Receiver</th>
-          <th class="rounded-end">Action</th>
+        <th class="rounded-start">ID</th>
+        <th>Status</th>
+        <th>Trigger action</th>
+        <th>Applied To</th>
+        <th>Called Notification</th>
+        <th>Receiver</th>
+        <th class="rounded-end">Action</th>
       </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let n of Allnotif">
-          <td class="text-align:center">{{ n.notificationSettingId }}</td>
-          <td>
-            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{n.isActive === true ? 'background-color:green' : 'background-color:orange'}}">
-              {{  n.isActive === true ? "Active" : "Invalid/Not activated" }}
-            </span>
-          </td>
-          <td>{{ n.action }}</td>
-          <td>
-            <a [routerLink]="[checkPath(n.action,true),n.objectId,'edit']">{{checkPath(n.action, false)}} {{ n.objectId }} </a>
-            <a *ngIf="!n.objectId" [routerLink]="[checkPath(n.action,true),n.objectId,'edit']">{{checkPath(n.action, false)}} {{ n.objectId }} </a>
-          </td>
-          <td>{{ n.notification }}</td>
-          <td><code>{{ n.receiver }}</code></td>
-          <td class="overflow-hidden">
-            <app-button-actions>
-              <button ngbDropdownItem [routerLink]="['/account/notifications',n.notificationSettingId,'edit']" data-placement="top" title="Edit">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-              </button>
-              <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(n.notificationSettingId, n.notification)">
-                <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-              </button>
-            </app-button-actions>
-          </td>
+    </thead>
+    <tbody>
+      <tr *ngFor="let n of notifications">
+        <td class="text-align:center">{{ n.notificationSettingId }}</td>
+        <td>
+          <span
+            class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0"
+            style="{{n.isActive === true ? 'background-color:green' : 'background-color:orange'}}">
+            {{ n.isActive === true ? "Active" : "Invalid/Not activated" }}
+          </span>
+        </td>
+        <td>{{ n.action }}</td>
+        <td>
+          <a [routerLink]="[checkPath(n.action,true),n.objectId,'edit']">{{checkPath(n.action, false)}} {{ n.objectId }}
+          </a>
+          <a *ngIf="!n.objectId" [routerLink]="[checkPath(n.action,true),n.objectId,'edit']">{{checkPath(n.action,
+            false)}} {{ n.objectId }} </a>
+        </td>
+        <td>{{ n.notification }}</td>
+        <td><code>{{ n.receiver }}</code></td>
+        <td class="overflow-hidden">
+          <app-button-actions>
+            <button ngbDropdownItem [routerLink]="['/account/notifications',n.notificationSettingId,'edit']"
+              data-placement="top" title="Edit">
+              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
+            </button>
+            <div class="dropdown-divider"></div>
+            <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete"
+              (click)="onDelete(n.notificationSettingId, n.notification)">
+              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
+            </button>
+          </app-button-actions>
+        </td>
       </tr>
-      </tbody>
+    </tbody>
   </table>
 </app-table>
