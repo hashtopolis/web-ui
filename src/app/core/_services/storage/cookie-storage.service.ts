@@ -3,13 +3,6 @@ import { BaseStorageService } from "./base-storage.service";
 
 export type SameSite = 'Lax' | 'None' | 'Strict';
 
-export interface CookieOptions {
-  expires?: number | Date;
-  path?: string;
-  domain?: string;
-  secure?: boolean;
-  sameSite?: SameSite;
-}
 
 /**
  * A storage service implementation that uses browser cookies to store and retrieve data
