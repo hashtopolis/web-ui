@@ -401,9 +401,35 @@ export class NewTasksComponent implements OnInit {
     const params = {'filter': 'crackerBinaryTypeId='+id+''};
     this.gs.getAll(SERV.CRACKERS,params).subscribe((crackers: any) => {
       this.crackerversions = crackers.values;
+      crackers.values.sort(this.compareVersions);
       const lastItem = this.crackerversions.slice(-1)[0]['crackerBinaryId'];
       this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
     });
+  }
+
+  /**
+   * Compare software versions instead of using id
+  */
+
+  compareVersions(a, b): number {
+    // Split the version strings into arrays of integers
+    const versionA = a.version.split('.').map(Number);
+    const versionB = b.version.split('.').map(Number);
+
+    // Compare each segment of the version numbers
+    for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+      const partA = versionA[i] || 0;
+      const partB = versionB[i] || 0;
+
+      if (partA < partB) {
+        return -1;
+      } else if (partA > partB) {
+        return 1;
+      }
+    }
+
+    // If all segments are equal, return 0
+    return 0;
   }
 
   onSubmit(){
