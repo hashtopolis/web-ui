@@ -1,67 +1,36 @@
 <app-page-subtitle [subtitle]="'Account Settings'"></app-page-subtitle>
 <grid-main [class]="'width:100%;'" [centered]="true">
-  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="row">
-      <grid-form-input [name]="'Account Type'">
-        <input
-              type='text'
-              id="name"
-              class='form-control'
-              formControlName="name"
-        >
+      <grid-form-input [name]="'Account Type'" [formGroup]="form">
+        <input type='text' id="name" class='form-control' formControlName="name" data-testid="input-name">
       </grid-form-input>
       <grid-form-input [name]="'Creation date'">
         <div class="input-group">
-          <input
-                type="text"
-                id="registeredSince"
-                class='form-control'
-                formControlName="registeredSince"
-          />
+          <input type="text" id="registeredSince" class='form-control' formControlName="registeredSince"
+            data-testid="input-registered-since" />
         </div>
       </grid-form-input>
       <grid-form-input [name]="'Email'">
-        <input
-                type='email'
-                id="email"
-                class='form-control'
-                formControlName="email"
-          >
+        <input type='email' id="email" class='form-control' formControlName="email" data-testid="input-email">
       </grid-form-input>
       <grid-form-input [name]="'Old Password'">
-        <input
-              type='password'
-              id="oldpassword"
-              class='form-control'
-              formControlName="oldpassword"
-              placeholder="Enter Old Password"
-              required
-          >
+        <input type='password' id="oldpassword" class='form-control' formControlName="oldpassword"
+          placeholder="Enter Old Password" data-testid="input-password" required>
       </grid-form-input>
       <grid-form-input [name]="'New Password'">
-        <input
-              type='password'
-              id="newpassword"
-              class='form-control'
-              formControlName="newpassword"
-              placeholder="Enter New Password"
-              required
-          >
+        <input type='password' id="newpassword" class='form-control' formControlName="newpassword"
+          placeholder="Enter New Password" data-testid="input-newpassword">
       </grid-form-input>
-      <app-pass-strenght [passwordToCheck]="updateForm.controls['newpassword'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
+      <app-pass-strenght [passwordToCheck]="form.controls['newpassword'].value"
+        (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
       <grid-form-input [name]="'Confirm Password'">
-        <input
-                type='password'
-                id="confirmpass"
-                class='form-control'
-                formControlName="confirmpass"
-                placeholder="Confirm Password"
-                required
-          >
+        <input type='password' id="confirmpass" class='form-control' formControlName="confirmpass"
+          placeholder="Confirm Password" data-testid="input-confirmpass" required>
       </grid-form-input>
       <!-- Todo Erros here -->
-      <!-- <app-pass-match [newPassword]="updateForm.controls['newpassword'].value" [confirmPassword]="updateForm.controls['confirmpass'].value" ></app-pass-match> -->
-    <button-submit [name]="'Update'"></button-submit>
+      <!-- <app-pass-match [newPassword]="form.controls['newpassword'].value" [confirmPassword]="form.controls['confirmpass'].value" ></app-pass-match> -->
+      <button-submit [name]="'Update'" [disabled]="!form.valid" data-testid="button-submit"></button-submit>
     </div>
   </form>
 </grid-main>
