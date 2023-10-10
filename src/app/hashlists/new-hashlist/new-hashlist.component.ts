@@ -48,7 +48,8 @@ export class NewHashlistComponent implements OnInit {
   subscriptions: Subscription[] = []
 
   // accessgroup: AccessGroup; //Use models when data structure is reliable
-  accessgroup: any[]
+  accessgroup: any[];
+  hashtypes: any[];
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
@@ -111,6 +112,7 @@ export class NewHashlistComponent implements OnInit {
 
     this.subscriptions.push(this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
       const self = this;
+      this.hashtypes = htypes.values;
       const prep = htypes.values;
       const response = [];
       for(let i=0; i < prep.length; i++){
@@ -148,10 +150,22 @@ export class NewHashlistComponent implements OnInit {
     }
 
   OnChangeValue(value){
-    this.signupForm.patchValue({
-      hashTypeId: Number(value)
-    });
-    // this._changeDetectorRef.detectChanges();
+    const id = Number(value);
+    // Map with hashtype and get if its salted or not
+    const filter = this.hashtypes.filter(u=> u._id === id);
+    const salted = filter[0]['isSalted'];
+    if(id === 2500 || id === 16800 || id === 16801){
+      this.signupForm.patchValue({
+        hashTypeId: id,
+        format: Number(1),
+        isSalted: salted
+      });
+    }else{
+      this.signupForm.patchValue({
+        hashTypeId: id,
+        isSalted: salted
+      });
+    }
   }
 
   // FILE UPLOAD: TUS File Uload
