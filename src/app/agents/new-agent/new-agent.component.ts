@@ -1,5 +1,5 @@
 import { faTrash, faDownload, faInfoCircle, faCopy } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from './../../../environments/environment';
 import { DataTableDirective } from 'angular-datatables';
@@ -25,15 +25,12 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   faTrash=faTrash;
   faCopy=faCopy;
 
-  @ViewChild(DataTableDirective, {static: false})
-  dtElement: DataTableDirective;
+  @ViewChild(DataTableDirective, { static: false }) dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
+  dtTrigger1: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-
-  ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
-  }
+  dtOptions1: any = {};
 
   createForm: FormGroup
   binaries: any = [];
@@ -66,29 +63,66 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       'voucher': new FormControl(''),
     });
 
-    const params = {'maxResults': this.maxResults}
+    const params = {'maxResults': this.maxResults};
 
-    this.gs.getAll(SERV.VOUCHER,params).subscribe((vouchers: any) => {
-      this.vouchers = vouchers.values;
-    });
-
-    this.gs.getAll(SERV.AGENT_BINARY).subscribe((bin: any) => {
-      this.binaries = bin.values;
-      this.dtTrigger.next(void 0);
-    });
-
+    const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
+      destroy: true,
       scrollX: true,
+      searching: false,
+      paging: false,
+      info: false,
       pageLength: 25,
+      processing: true,
       lengthMenu: [
           [10, 25, 50, 100, 250, -1],
           [10, 25, 50, 100, 250, 'All']
       ],
       stateSave: true,
       select: true,
+      buttons: {
+        dom: {
+          button: {
+            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+          }
+        },
+      buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        }
+        ],
+      }
     };
 
+    this.gs.getAll(SERV.AGENT_BINARY).subscribe((bin: any) => {
+      this.binaries = bin.values;
+      this.dtTrigger.next(void 0);
+    });
+
+    this.gs.getAll(SERV.VOUCHER,params).subscribe((vouchers: any) => {
+      this.vouchers = vouchers.values;
+      this.dtTrigger1.next(void 0);
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    if (this.dtElement.dtInstance) {
+      this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+        // Destroy DataTable when the component is destroyed to avoid memory leaks
+        dtInstance.destroy();
+      });
+    }
+  }
+
+  onRefresh(){
+    this.rerender();
+    this.ngOnInit();
   }
 
   rerender(): void {
@@ -98,6 +132,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       // Call the dtTrigger to rerender again
       setTimeout(() => {
         this.dtTrigger['new'].next();
+        // this.dtTrigger1['new'].next();
       });
     });
   }
@@ -144,6 +179,10 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       }
     });
 
+  }
+
+  downloadClient(id) {
+    window.location.href= this.agentdownloadURL+id;
   }
 
   onSubmit(){
