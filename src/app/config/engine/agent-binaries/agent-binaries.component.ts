@@ -1,56 +1,101 @@
 import { faHomeAlt, faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Subject } from 'rxjs';
-
+import { Subject, Subscription } from 'rxjs';
 import { environment } from './../../../../environments/environment';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
+import { AgentBinary } from 'src/app/core/_models/agent-binary';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-agent-binaries',
   templateUrl: './agent-binaries.component.html'
 })
-@PageTitle(['Show Agent Binaries'])
-export class AgentBinariesComponent implements OnInit {
+export class AgentBinariesComponent implements OnInit, OnDestroy {
 
-  public isCollapsed = true;
-  faHome=faHomeAlt;
-  faPlus=faPlus;
-  faTrash=faTrash;
-  faEdit=faEdit;
+  private subscriptions: Subscription[] = []
+  private maxResults = environment.config.prodApiMaxResults;
 
-  @ViewChild(DataTableDirective, {static: false})
+  faHome = faHomeAlt;
+  faPlus = faPlus;
+  faTrash = faTrash;
+  faEdit = faEdit;
+
+  @ViewChild(DataTableDirective, { static: false })
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+  binaries: AgentBinary[] = [];
 
-  public binaries: {agentBinaryId: number, type: string, version: string, operatingSystems: string, filename: string, updateTrack: string, updateAvailable: string}[] = [];
 
-  private maxResults = environment.config.prodApiMaxResults;
+  constructor(private gs: GlobalService, titleService: AutoTitleService) {
+    titleService.set(['Show Agent Binaries'])
+  }
 
-  constructor(
-    private gs: GlobalService,
-  ) { }
-
+  /**
+   * Initialize the table and load binaries.
+   */
   ngOnInit(): void {
+    this.setupTable();
+    this.loadBinaries();
+  }
 
-    const params = {'maxResults': this.maxResults}
-    this.gs.getAll(SERV.AGENT_BINARY,params).subscribe((bin: any) => {
+  /**
+   * Unsubscribe from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+    this.dtTrigger.unsubscribe()
+  }
+
+  /**
+   * Load agent binary data from the server and trigger a change
+   */
+  loadBinaries(): void {
+    const params = { 'maxResults': this.maxResults }
+    this.subscriptions.push(this.gs.getAll(SERV.AGENT_BINARY, params).subscribe((bin: any) => {
       this.binaries = bin.values;
       this.dtTrigger.next(void 0);
-    });
+    }));
+  }
+
+  /**
+   * Delete an agent binary entity by its unique identifier.
+   *
+   * @param {number} id - The unique identifier of the binary entity to be deleted.
+   */
+  deleteBinary(id: number): void {
+    this.subscriptions.push(this.gs.delete(SERV.AGENT_BINARY, id).subscribe(() => {
+      Swal.fire({
+        position: 'top-end',
+        backdrop: false,
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      this.loadBinaries();
+      this.setupTable();
+      this.rerender();
+    }))
+  }
+
+  /**
+   * Configure the DataTables options for the agent binary table.
+   */
+  setupTable(): void {
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
       scrollX: true,
       pageLength: 25,
       lengthMenu: [
-          [10, 25, 50, 100, 250, -1],
-          [10, 25, 50, 100, 250, 'All']
+        [10, 25, 50, 100, 250, -1],
+        [10, 25, 50, 100, 250, 'All']
       ],
       stateSave: true,
       select: true,
@@ -60,84 +105,89 @@ export class AgentBinariesComponent implements OnInit {
             className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
           }
         },
-      buttons: [
-        {
-          text: '↻',
-          autoClose: true,
-          action: function (e, dt, node, config) {
-            self.onRefresh();
-          }
-        },
-        {
-          extend: 'collection',
-          text: 'Export',
-          buttons: [
-            {
-              extend: 'excelHtml5',
-              exportOptions: {
-                columns: [0, 1]
+        buttons: [
+          {
+            text: '↻',
+            autoClose: true,
+            action: function (e, dt, node, config) {
+              self.onRefresh();
+            }
+          },
+          {
+            extend: 'collection',
+            text: 'Export',
+            buttons: [
+              {
+                extend: 'excelHtml5',
+                exportOptions: {
+                  columns: [0, 1]
+                },
               },
-            },
-            {
-              extend: 'print',
-              exportOptions: {
-                columns: [0, 1]
-              },
-              customize: function ( win ) {
-                $(win.document.body)
-                    .css( 'font-size', '10pt' )
-                $(win.document.body).find( 'table' )
-                    .addClass( 'compact' )
-                    .css( 'font-size', 'inherit' );
-             }
-            },
-            {
-              extend: 'csvHtml5',
-              exportOptions: {modifier: {selected: true}},
-              select: true,
-              customize: function (dt, csv) {
-                let data = "";
-                for (let i = 0; i < dt.length; i++) {
-                  data = "Agent Binaries\n\n"+  dt;
+              {
+                extend: 'print',
+                exportOptions: {
+                  columns: [0, 1]
+                },
+                customize: function (win) {
+                  $(win.document.body)
+                    .css('font-size', '10pt')
+                  $(win.document.body).find('table')
+                    .addClass('compact')
+                    .css('font-size', 'inherit');
                 }
-                return data;
-             }
-            },
+              },
+              {
+                extend: 'csvHtml5',
+                exportOptions: { modifier: { selected: true } },
+                select: true,
+                customize: function (dt, csv) {
+                  let data = "";
+                  for (let i = 0; i < dt.length; i++) {
+                    data = "Agent Binaries\n\n" + dt;
+                  }
+                  return data;
+                }
+              },
               'copy'
             ]
           }
         ],
       }
     };
-
   }
 
-  onRefresh(){
+  /**
+   * Handles the refresh action for the agent binary table.
+   */
+  onRefresh() {
     this.rerender();
-    this.ngOnInit();
+    this.loadBinaries();
+    this.setupTable();
   }
 
-  onSubmit(){
-    Swal.fire({
-      title: "Success",
-      text: "New Binary created!",
-      icon: "success",
-      button: "Close",
-    });
-  }
-
+  /**
+   * Rerender the DataTable instance to update the displayed data.
+   */
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
       dtInstance.destroy();
       // Call the dtTrigger to rerender again
       setTimeout(() => {
-        this.dtTrigger['new'].next();
+        if (this.dtTrigger['new']) {
+          this.dtTrigger['new'].next();
+        }
       });
     });
   }
 
-  onDelete(id: number, name: string){
+  /**
+   * Handles the deletion of a agent binary entity with user confirmation.
+   *
+   * @param {number} id - The unique identifier of the binary entity to be deleted.
+   * @param {string} name - The name or description of the binary entity.
+   */
+  onDelete(id: number, name: string) {
     const swalWithBootstrapButtons = Swal.mixin({
       customClass: {
         confirmButton: 'btn',
@@ -146,27 +196,16 @@ export class AgentBinariesComponent implements OnInit {
       buttonsStyling: false
     })
     Swal.fire({
-      title: 'Remove '+ name +' from your Binaries?',
+      title: 'Remove ' + name + ' from your Binaries?',
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
       cancelButtonColor: '#8A8584',
       confirmButtonColor: '#C53819',
       confirmButtonText: 'Yes, delete it!'
-    })
-    .then((result) => {
+    }).then((result) => {
       if (result.isConfirmed) {
-        this.gs.delete(SERV.AGENT_BINARY,id).subscribe(() => {
-          Swal.fire({
-                        position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        });
+        this.deleteBinary(id)
       } else {
         swalWithBootstrapButtons.fire({
           title: "Cancelled",
@@ -178,6 +217,4 @@ export class AgentBinariesComponent implements OnInit {
       }
     });
   }
-
-
 }
