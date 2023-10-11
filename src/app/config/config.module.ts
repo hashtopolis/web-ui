@@ -28,7 +28,7 @@ import { PipesModule } from "../shared/pipes.module";
 import { LogComponent } from "./log/log.component";
 
 @NgModule({
-  declarations:[
+  declarations: [
     NewAgentBinariesComponent,
     EditHealthChecksComponent,
     NewPreprocessorComponent,
@@ -47,7 +47,7 @@ import { LogComponent } from "./log/log.component";
     ServerComponent,
     LogComponent
   ],
-  imports:[
+  imports: [
     ReactiveFormsModule,
     ConfigRoutingModule,
     FontAwesomeModule,
@@ -60,4 +60,4 @@ import { LogComponent } from "./log/log.component";
     NgbModule
   ]
 })
-export class ConfigModule {}
+export class ConfigModule { }
