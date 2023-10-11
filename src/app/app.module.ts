@@ -3,6 +3,7 @@
  *
 */
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CheckTokenService } from './core/_services/access/checktoken.service';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppPreloadingStrategy } from './core/app_preloading_strategy';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -76,6 +77,7 @@ import { AuthModule } from './auth/auth.module';
   ],
   providers: [
     Title,
+    CheckTokenService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptorService,

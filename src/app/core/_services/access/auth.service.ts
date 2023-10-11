@@ -24,6 +24,7 @@ export class AuthService {
     isLogged = this.logged.asObservable();
     redirectUrl = '';
     private userLoggedIn = new Subject<boolean>();
+    private accessToken: string;
     private tokenExpiration: any;
     private endpoint = '/auth';
 
@@ -32,6 +33,7 @@ export class AuthService {
       private router: Router,
       private cs: ConfigService,
       ){
+        this.accessToken = localStorage.getItem('userData');
         this.userLoggedIn.next(false);
         if(this.logged){
           this.userId = this.getUserId(this.token);
@@ -105,18 +107,41 @@ export class AuthService {
         this.tokenExpiration = setTimeout(() => {
           const userData: {_token: string, _expires: string, _username: string} = JSON.parse(localStorage.getItem('userData'));
           return this.http.post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
-                 .pipe(catchError(this.handleError), tap(resData => {
-                 this.handleAuthentication(resData.token, +resData.expires, userData._username);
-          }));
+                .pipe(
+                  tap((response: any) => {
+                    if (response && response.token) {
+                      this.accessToken = response.token;
+                      const expirationDate = new Date(response.expires * 1000);
+                      const user = new User(response.token, expirationDate, userData._username);
+                      localStorage.setItem('userData', JSON.stringify(user));
+                    } else {
+                      this.logOut();
+                    }
+                  })
+              );
       }, expirationDuration);
     }
 
-    refreshToken() {
+    refreshToken(): Observable<any> {
       const userData: {_token: string, _expires: string, _username: string} = JSON.parse(localStorage.getItem('userData'));
-      return this.http.post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
-             .pipe(catchError(this.handleError), tap(resData => {
-             this.handleAuthentication(resData.token, +resData.expires, userData._username);
-      }));
+      return this.http.post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh ', {headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })})
+            .pipe(
+              tap((response: any) => {
+                if (response && response.token) {
+                  this.accessToken = response.token;
+                  const expirationDate = new Date(response.expires * 1000);
+                  const user = new User(response.token, expirationDate, userData._username);
+                  localStorage.setItem('userData', JSON.stringify(user));
+                } else {
+                  this.logOut();
+                }
+              }),
+              catchError((error) => {
+                // Handle the error here
+                console.error('An error occurred:', error);
+                return throwError(error); // Rethrow the error for further handling if needed
+              })
+          );
     }
 
     logOut(){
@@ -142,12 +167,13 @@ export class AuthService {
       this.authChanged.emit(status); // Raise changed event
     }
 
-    private handleAuthentication(token: string, expires: number, username: string) {
+    handleAuthentication(token: string, expires: number, username: string) {
+      console.log('handling auth')
         const expirationDate = new Date(expires * 1000); // expires, its epoch time in seconds and returns milliseconds sin Jan 1, 1970. We need to multiple by 1000
         const user = new User(token, expirationDate, username);
         this.user.next(user);
         this.logged.next(true);
-        this.autologOut(expires) // Epoch time
+        this.autologOut(expires); // Epoch time
         localStorage.setItem('userData', JSON.stringify(user));
         this.userId = this.getUserId(token);
       }

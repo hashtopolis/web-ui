@@ -15,6 +15,7 @@ import { AuthService } from './core/_services/access/auth.service';
  * Idle watching
  *
 **/
+import { CheckTokenService } from './core/_services/access/checktoken.service';
 import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeService } from './core/_services/shared/theme.service';
@@ -59,6 +60,7 @@ export class AppComponent implements OnInit {
     private configService: ConfigService,
     private cookieService: CookieService,
     private uicService:UIConfigService,
+    private checkt: CheckTokenService,
     private authService: AuthService,
     private modalService: NgbModal,
     private themes: ThemeService,
@@ -94,7 +96,6 @@ export class AppComponent implements OnInit {
         this.idleState = "NOT_IDLE.";
         this.modalRef.componentInstance.timedOut = false;
         this.timeoutCountdown = null;
-        console.log(this.idleState);
         this.reset();
         this.closeModal();
       });
@@ -103,7 +104,6 @@ export class AppComponent implements OnInit {
         this.idleState = 'TIMED_OUT';
         this.timedOut = true;
         this.timeoutCountdown = null;
-        console.log(this.idleState);
         this.modalRef.componentInstance.timedOut = true;
         this.onLogOut();
       });
