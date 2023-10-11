@@ -7,9 +7,9 @@ import { Subject, Subscription } from 'rxjs';
 import { ACTION } from '../../core/_constants/notifications.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../core/_services/main.config';
-import { NotificationListResponse } from 'src/app/core/_models/notifications';
 import { Notification } from 'src/app/core/_models/notifications';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { ResponseWrapper } from 'src/app/core/_models/response-wrapper';
 
 
 export interface Filter {
@@ -102,7 +102,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   getNotifications(): void {
     const params = { 'maxResults': this.maxResults };
 
-    this.subscriptions.push(this.gs.getAll(SERV.NOTIFICATIONS, params).subscribe((response: NotificationListResponse) => {
+    this.subscriptions.push(this.gs.getAll(SERV.NOTIFICATIONS, params).subscribe((response: ResponseWrapper<Notification>) => {
       this.notifications = response.values;
       this.dtTrigger.next(void 0);
     }));

@@ -6,7 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { Observable, of } from 'rxjs';
 import { SERV } from '../../core/_services/main.config';
-import { NotificationListResponse, Notification } from 'src/app/core/_models/notifications';
+import { Notification } from 'src/app/core/_models/notifications';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -16,6 +16,7 @@ import { RouterModule } from '@angular/router';
 import { ComponentsModule } from 'src/app/shared/components.module';
 import { PipesModule } from 'src/app/shared/pipes.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ResponseWrapper } from 'src/app/core/_models/response-wrapper';
 
 
 describe('NotificationsComponent', () => {
@@ -62,19 +63,17 @@ describe('NotificationsComponent', () => {
   // Mock GlobalService with required methods
   const mockService: Partial<GlobalService> = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    getAll(_methodUrl: string, params: any): Observable<NotificationListResponse> {
+    getAll(_methodUrl: string, params: any): Observable<ResponseWrapper<Notification>> {
       if (_methodUrl === SERV.NOTIFICATIONS) {
-        const response: NotificationListResponse = {
-          _expandable: '',
+        return of({
           startAt: 0,
           maxResults: notifications.length,
           total: notifications.length,
           isLast: true,
           values: notifications,
-        };
-        return of(response);
+        });
       }
-      return of({} as NotificationListResponse);
+      return of({} as ResponseWrapper<Notification>);
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete(_methodUrl: string, id: number): Observable<any> {
@@ -120,6 +119,10 @@ describe('NotificationsComponent', () => {
     fixture.detectChanges();
 
   });
+
+
+  // --- Test Methods ---
+
 
   // Check if the component is created successfully
   it('should create the component', () => {

@@ -1,12 +1,3 @@
-export interface NotificationListResponse {
-  _expandable: string,
-  startAt: number,
-  maxResults: number,
-  total: number,
-  isLast: boolean,
-  values: Notification[]
-}
-
 export interface Notification {
   _id: number,
   _self: string,
