@@ -5,10 +5,10 @@ import { faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { colorpicker } from '../../core/_constants/settings.config';
 import { FileTypePipe } from 'src/app/core/_pipes/file-type.pipe';
@@ -35,6 +35,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     private modalService: NgbModal,
     private fileType: FileTypePipe,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -123,11 +124,7 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
 
   validateFile(value){
     if(value.split('.').pop() == '7zip'){
-      Swal.fire({
-        title: "Heads Up!",
-        text: "Hashcat has some issues loading 7z files. Better convert it to a hash file ;)",
-        icon: "warning",
-      })
+      this.alert.okAlert('Hashcat has some issues loading 7z files. Better convert it to a hash file ;)','');
     }
   }
 
@@ -259,17 +256,9 @@ export class NewPreconfiguredTasksComponent implements OnInit,AfterViewInit {
     if (this.createForm.valid) {
 
       this.gs.create(SERV.PRETASKS,this.createForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success!",
-            text: "New PreTask created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.createForm.reset(); // success, we reset form
-          this.router.navigate(['tasks/preconfigured-tasks']);
+        this.alert.okAlert('New PreTask created!','');
+        this.createForm.reset(); // success, we reset form
+        this.router.navigate(['tasks/preconfigured-tasks']);
         }
       );
     }

@@ -1,8 +1,9 @@
 import { CookieService } from '../../../core/_services/shared/cookies.service';
 import { dateFormat } from '../../../core/_constants/settings.config';
 import { FormControl, FormGroup } from '@angular/forms';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
+
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 
 @Component({
   selector: 'app-ui-settings',
@@ -14,7 +15,8 @@ export class UiSettingsComponent implements OnInit {
   uiForm: FormGroup;
 
   constructor(
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    private alert: AlertService
   ) { }
 
 
@@ -40,24 +42,12 @@ export class UiSettingsComponent implements OnInit {
 
   setCookieValue(name: string, value: string){
     this.cookieService.setCookie(name, value, 365);
-    this.savedAlert();
+    this.alert.okAlert('UI Setting saved!','');
     this.ngOnInit();
   }
 
   getCookieValue(name: string){
     return this.cookieService.getCookie(name);
   }
-
-  savedAlert(){
-    Swal.fire({
-      position: 'top-end',
-      backdrop: false,
-      icon: 'success',
-      title: 'Saved',
-      showConfirmButton: false,
-      timer: 1500
-    })
-  }
-
 
 }

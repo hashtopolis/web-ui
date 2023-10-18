@@ -1,16 +1,17 @@
 import { faTrash, faPlus, faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
-import { environment } from './../../../environments/environment';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { environment } from './../../../environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject, Subscription } from 'rxjs';
+
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { NotificationListResponse } from 'src/app/core/_models/notifications';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { ACTION } from '../../core/_constants/notifications.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../core/_services/main.config';
-import { NotificationListResponse } from 'src/app/core/_models/notifications';
 import { Notification } from 'src/app/core/_models/notifications';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-
+import { SERV } from '../../core/_services/main.config';
 
 export interface Filter {
   id: number,
@@ -44,8 +45,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private gs: GlobalService,
     private titleService: AutoTitleService,
+    private alert: AlertService,
+    private gs: GlobalService
   ) {
     titleService.set(['Notifications'])
   }
@@ -208,13 +210,13 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         icon: 'warning',
         reverseButtons: true,
         showCancelButton: true,
-        cancelButtonColor: '#8A8584',
-        confirmButtonColor: '#C53819',
-        confirmButtonText: 'Yes, delete it!'
+        cancelButtonColor: this.alert.cancelButtonColor,
+        confirmButtonColor: this.alert.confirmButtonColor,
+        confirmButtonText: this.alert.delconfirmText
       })
       .then((result) => {
         if (result.isConfirmed) {
-          this.deleteNotification(id)
+          this.deleteNotification(id,name)
         } else {
           swalWithBootstrapButtons.fire({
             title: 'Cancelled',
@@ -229,20 +231,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   /**
    * Handles the deletion of a notification.
-   * Sends an delete request to the backend and displays a success alert and rebuilds 
+   * Sends an delete request to the backend and displays a success alert and rebuilds
    * the datatable on success.
-   * 
+   *
    * @param {number} id - The ID of the notification to delete.
    */
-  deleteNotification(id: number): void {
+  deleteNotification(id: number, name: string): void {
     this.subscriptions.push(this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('Deleted '+name+'','');
       this.getNotifications();
       this.rerender();
       this.setupTable();

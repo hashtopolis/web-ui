@@ -1,15 +1,15 @@
-import { Subscription } from 'rxjs';
-import { FormControl, FormGroup } from '@angular/forms';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Subscription } from 'rxjs';
+
 import { ACTIONARRAY, NOTIFARRAY } from '../../../core/_constants/notifications.config';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { SERV } from '../../../core/_services/main.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { Filter } from '../notifications.component';
 import { Notification } from 'src/app/core/_models/notifications';
-
+import { SERV } from '../../../core/_services/main.config';
+import { Filter } from '../notifications.component';
 
 @Component({
   selector: 'app-edit-notification',
@@ -40,9 +40,10 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   });
 
   constructor(
-    private route: ActivatedRoute,
-    private gs: GlobalService,
     private titleService: AutoTitleService,
+    private route: ActivatedRoute,
+    private alert: AlertService,
+    private gs: GlobalService,
     private router: Router
   ) {
     titleService.set(['Edit Notification'])
@@ -73,7 +74,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
 
   /**
    * Checks whether the form is valid for submission.
-   * 
+   *
    * @returns {boolean} True if there is a change in the 'isActive' value; otherwise, false.
    */
   formIsValid(): boolean {
@@ -105,14 +106,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.form.valid) {
       this.subscriptions.push(this.gs.update(SERV.NOTIFICATIONS, this.editedIndex, { 'isActive': this.form.value['isActive'] }).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: 'Saved',
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('Notification saved!','');
         this.router.navigate(['/account/notifications']);
       }));
     }

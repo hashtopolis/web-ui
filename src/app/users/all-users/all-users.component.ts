@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from '../../core/_services/shared/storage.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -54,6 +55,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
   constructor(
     private uiService: UIConfigService,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router:Router
   ) { }
@@ -176,21 +178,14 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.gs.delete(SERV.USERS,id).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted '+name+'','');
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -210,14 +205,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     $(".dt-button-background").trigger("click");
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        title: "You haven't selected any User",
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      })
+      this.alert.okAlert('You haven not selected any Group','');
       return;
     }
     const selectionnum = selection.map(i=>Number(i));
@@ -250,13 +238,7 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
       this.ngOnInit();
       this.rerender();  // rerender datatables
       Swal.close();
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('Completed','');
     },3000);
   }
 
@@ -268,9 +250,6 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
       });
     });
   }
-
-
-
 
 
 }

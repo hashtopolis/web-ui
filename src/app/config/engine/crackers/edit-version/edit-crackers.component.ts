@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnInit } from '@angular/core';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../../core/_services/main.config';
@@ -23,6 +24,7 @@ export class EditCrackersComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -50,16 +52,9 @@ export class EditCrackersComponent implements OnInit {
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.CRACKERS,this.editedCrackervIndex,this.updateForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['config/engine/crackers']);
+        this.alert.okAlert('Cracker saved!','');
+        this.updateForm.reset(); // success, we reset form
+        this.router.navigate(['config/engine/crackers']);
         }
       );
     }
@@ -78,20 +73,14 @@ export class EditCrackersComponent implements OnInit {
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.gs.delete(SERV.CRACKERS,this.editedCrackervIndex).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted ','');
           this.router.navigate(['config/engine/crackers']);
         });
       } else {

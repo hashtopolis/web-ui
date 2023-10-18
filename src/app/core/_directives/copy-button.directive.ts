@@ -1,11 +1,5 @@
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {
-  Directive,
-  HostListener,
-  Output,
-  Input,
-  EventEmitter
-} from '@angular/core';
+import { Directive,HostListener,Output,Input,EventEmitter } from '@angular/core';
+import { AlertService } from '../_services/shared/alert.service';
 
 /**
  * Returns copied clipboard string
@@ -20,6 +14,10 @@ import {
   selector: '[copyButton]'
 })
 export class CopyButtonDirective {
+
+  constructor(
+    private alert: AlertService
+  ) { }
 
   @Input("copyButton")
   public payload: string;
@@ -46,19 +44,7 @@ export class CopyButtonDirective {
     document.addEventListener("copy", listener, false);
     document.execCommand("copy");
     document.removeEventListener("copy", listener, false);
-    this.savedAlert();
-  }
-
-  savedAlert(){
-    Swal.fire({
-      position: 'top-end',
-      backdrop: false,
-      toast: true,
-      icon: 'success',
-      title: 'Copied',
-      showConfirmButton: false,
-      timer: 1500
-    })
+    this.alert.okAlert('Copied','');
   }
 
 }

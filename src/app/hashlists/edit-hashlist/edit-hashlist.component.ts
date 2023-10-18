@@ -4,13 +4,13 @@ import { Component, HostListener, OnInit, ViewChild} from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 
 @Component({
   selector: 'app-edit-hashlist',
@@ -41,6 +41,7 @@ export class EditHashlistComponent implements OnInit {
   constructor(
     private format: StaticArrayPipe,
     private route: ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -94,17 +95,10 @@ export class EditHashlistComponent implements OnInit {
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.HASHLISTS,this.editedHashlistIndex,this.updateForm.value['updateData']).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.updateForm.reset(); // success, we reset form
-          const path = this.type === 3 ? '/hashlists/superhashlist':'/hashlists/hashlist';
-          this.router.navigate([path]);
+        this.alert.okAlert('Hashlist saved!','');
+        this.updateForm.reset(); // success, we reset form
+        const path = this.type === 3 ? '/hashlists/superhashlist':'/hashlists/hashlist';
+        this.router.navigate([path]);
         }
       );
     }

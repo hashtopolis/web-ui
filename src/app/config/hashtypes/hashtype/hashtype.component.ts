@@ -1,8 +1,8 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
@@ -20,8 +20,9 @@ export class HashtypeComponent implements OnInit {
   editedIndex: number;
 
   constructor(
-    private gs: GlobalService,
     private route:ActivatedRoute,
+    private alert: AlertService,
+    private gs: GlobalService,
     private router:Router
   ) { }
 
@@ -81,15 +82,7 @@ export class HashtypeComponent implements OnInit {
 
       case 'create':
       this.gs.create(SERV.HASHTYPES,this.Form.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            text: "New Hashtype created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('New Hashtype created!','');
           this.router.navigate(['/config/hashtypes']);
         }
       );
@@ -98,14 +91,7 @@ export class HashtypeComponent implements OnInit {
       case 'edit':
         const id = +this.route.snapshot.params['id'];
         this.gs.update(SERV.HASHTYPES,id,this.Form.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Hashtype saved!','');
           this.router.navigate(['/config/hashtypes']);
         });
       break;

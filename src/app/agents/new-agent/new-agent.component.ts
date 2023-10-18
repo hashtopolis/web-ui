@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -40,6 +41,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   constructor(
     private uiService: UIConfigService,
+    private alert: AlertService,
     private gs: GlobalService,
     private cs:ConfigService
   ) { }
@@ -151,20 +153,14 @@ export class NewAgentComponent implements OnInit, OnDestroy {
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted '+name+'','');
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -189,17 +185,9 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     if (this.createForm.valid) {
 
       this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success!",
-            text: "New Voucher created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
+        this.alert.okAlert('New Voucher created!','');
+        this.ngOnInit();
+        this.rerender();  // rerender datatables
         }
       );
     }

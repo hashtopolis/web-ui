@@ -4,6 +4,7 @@ import { environment } from './../../../../environments/environment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
@@ -35,6 +36,7 @@ export class CrackersComponent implements OnInit, OnDestroy {
   crackerType: any = [];
 
   constructor(
+    private alert: AlertService,
     private gs: GlobalService,
     ) { }
 
@@ -140,13 +142,7 @@ export class CrackersComponent implements OnInit, OnDestroy {
     .then((willDelete) => {
       if (willDelete) {
         this.gs.delete(SERV.CRACKERS_TYPES,id).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted '+name+'','');
         });
       } else {
         Swal.fire("Your Cracker is safe!")

@@ -1,12 +1,12 @@
 import { faPlus, faUpload, faDownload, faLink, faFileUpload} from '@fortawesome/free-solid-svg-icons';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injectable, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Observable, ReplaySubject, Subject, Subscription, map, of, pairwise, startWith, switchMap, take, takeUntil, tap } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 // import { takeUntil } from 'rxjs/operators';
 import { Buffer } from 'buffer';
 
 import { UploadTUSService } from 'src/app/core/_services/files/files_tus.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { environment } from './../../../environments/environment';
@@ -37,6 +37,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   constructor(
     private uploadService:UploadTUSService,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private fs:FileSizePipe,
     private router: Router
@@ -100,15 +101,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     if(form.status === false){
       this.subscriptions.push(this.gs.create(SERV.FILES,form.update).subscribe(() => {
         form = this.onPrep(this.createForm.value, true);
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: "Success!",
-          text: "New File created!",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('New File created!','');
         this.submitted = false;
         this.router.navigate(['/files',this.redirect]);
       }));

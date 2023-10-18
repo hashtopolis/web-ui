@@ -1,13 +1,13 @@
 import { faHomeAlt, faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../../core/_services/main.config';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 
 @Component({
   selector: 'app-agent-binaries',
@@ -29,6 +29,7 @@ export class NewAgentBinariesComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router:Router
   ) { }
@@ -84,16 +85,8 @@ export class NewAgentBinariesComponent implements OnInit {
           this.gs.create(SERV.AGENT_BINARY,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-              Swal.fire({
-                position: 'top-end',
-                backdrop: false,
-                icon: 'success',
-                title: "Success!",
-                text: "New Agent Binary created!",
-                showConfirmButton: false,
-                timer: 1500
-              })
-              this.router.navigate(['config/engine/agent-binaries']);
+            this.alert.okAlert('New Agent Binary created!','');
+            this.router.navigate(['config/engine/agent-binaries']);
             }
           );
         break;
@@ -103,15 +96,8 @@ export class NewAgentBinariesComponent implements OnInit {
           this.gs.update(SERV.AGENT_BINARY,id,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-              Swal.fire({
-                position: 'top-end',
-                backdrop: false,
-                icon: 'success',
-                title: "Saved",
-                showConfirmButton: false,
-                timer: 1500
-              })
-              this.router.navigate(['config/engine/agent-binaries']);
+            this.alert.okAlert('Agent Binary saved!','');
+            this.router.navigate(['config/engine/agent-binaries']);
             }
           );
         break;

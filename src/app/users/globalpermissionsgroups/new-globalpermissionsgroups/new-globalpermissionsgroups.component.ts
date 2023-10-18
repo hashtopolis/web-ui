@@ -1,8 +1,8 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
@@ -19,6 +19,7 @@ export class NewGlobalpermissionsgroupsComponent implements OnInit {
   public isCollapsed = true;
 
   constructor(
+    private alert: AlertService,
     private gs: GlobalService,
     private router:Router
   ) { }
@@ -35,15 +36,7 @@ export class NewGlobalpermissionsgroupsComponent implements OnInit {
     if (this.createForm.valid) {
 
     this.gs.create(SERV.ACCESS_PERMISSIONS_GROUPS,this.createForm.value).subscribe(() => {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        title: "Success",
-        text: "Global Permission Group created!",
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('New Global Permission Group created!','');
       this.router.navigate(['/users/global-permissions-groups']);
     }
   );

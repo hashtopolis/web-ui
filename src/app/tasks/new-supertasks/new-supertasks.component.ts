@@ -1,9 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
 import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -22,6 +22,7 @@ export class NewSupertasksComponent implements OnInit {
 
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -91,17 +92,9 @@ export class NewSupertasksComponent implements OnInit {
     if (this.createForm.valid) {
 
       this.gs.create(SERV.SUPER_TASKS,this.createForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success!",
-            text: "New Supertask created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.createForm.reset(); // success, we reset form
-          this.router.navigate(['tasks/supertasks']);
+        this.alert.okAlert('New SuperTask created!','');
+        this.createForm.reset(); // success, we reset form
+        this.router.navigate(['tasks/supertasks']);
         }
       );
     }

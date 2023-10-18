@@ -3,9 +3,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
@@ -25,6 +25,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -138,17 +139,9 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
   onSubmit(){
     if (this.updateForm.valid) {
       this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            text: "Permission Updated!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.updateForm.reset();
-          this.router.navigate(['/users/global-permissions-groups']);
+        this.alert.okAlert('Global Permission Group saved!','');
+        this.updateForm.reset();
+        this.router.navigate(['/users/global-permissions-groups']);
         }
       );
     }

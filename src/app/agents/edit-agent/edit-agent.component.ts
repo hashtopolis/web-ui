@@ -7,7 +7,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ASC } from '../../core/_constants/agentsc.config';
 import { UniversalTransition } from 'echarts/features';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import * as echarts from 'echarts/core';
@@ -18,6 +17,7 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 
 @Component({
   selector: 'app-edit-agent',
@@ -45,6 +45,7 @@ export class EditAgentComponent implements OnInit {
   constructor(
     private uiService: UIConfigService,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -191,16 +192,9 @@ export class EditAgentComponent implements OnInit {
     if (this.updateForm.valid) {
       this.onUpdateAssign(this.updateAssignForm.value);
       this.gs.update(SERV.AGENTS,this.editedAgentIndex,this.updateForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['agents/show-agents']);
+        this.alert.okAlert('Agent saved!','');
+        this.updateForm.reset(); // success, we reset form
+        this.router.navigate(['agents/show-agents']);
       });
     }
   }

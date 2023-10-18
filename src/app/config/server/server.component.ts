@@ -6,10 +6,11 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 
-import { serverlog, proxytype } from '../../core/_constants/settings.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
+import { serverlog, proxytype } from '../../core/_constants/settings.config';
 import { CookieService } from '../../core/_services/shared/cookies.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -32,6 +33,7 @@ export class ServerComponent implements OnInit {
     private cookieService: CookieService,
     private uicService: UIConfigService,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private store: Store<{configList: {}}>
   ) { }
@@ -325,7 +327,7 @@ export class ServerComponent implements OnInit {
           this.gs.update(SERV.CONFIGS,indexUpdate, arr).subscribe((result)=>{
             this.uicService.onUpdatingCheck(key);
             if(collap !== true){
-              this.savedAlert();
+              this.alert.okAlert('Saved','');
               this.ngOnInit();
             }
           });
@@ -349,7 +351,7 @@ export class ServerComponent implements OnInit {
 
   setAutorefresh(value: string){
       this.cookieService.setCookie('autorefresh', JSON.stringify({active:true, value: value}), 365);
-      this.savedAlert();
+      this.alert.okAlert('Saved','');
       this.ngOnInit();
   }
 
@@ -359,19 +361,9 @@ export class ServerComponent implements OnInit {
 
   setTooltipLevel(value: string){
     this.cookieService.setCookie('tooltip', value, 365);
-    this.savedAlert();
+    this.alert.okAlert('Saved','');
     this.ngOnInit();
   }
 
-  savedAlert(){
-    Swal.fire({
-      position: 'top-end',
-      backdrop: false,
-      icon: 'success',
-      title: 'Saved',
-      showConfirmButton: false,
-      timer: 1500
-    })
-  }
-
 }
+

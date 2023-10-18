@@ -1,15 +1,15 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subscription } from 'rxjs';
+
 import { ACTIONARRAY, ACTION, NOTIFARRAY } from '../../../core/_constants/notifications.config';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { environment } from '../../../../environments/environment';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { Filter } from '../notifications.component';
-
 
 @Component({
   selector: 'app-new-notification',
@@ -51,8 +51,9 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private gs: GlobalService,
     private titleService: AutoTitleService,
+    private alert: AlertService,
+    private gs: GlobalService,
     private router: Router
   ) {
     titleService.set(['New Notification'])
@@ -91,7 +92,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   /**
    * Handles the change of action for creating a new notification.
    * Updates the available filters based on the selected action.
-   * 
+   *
    * @param {string} action - The selected action.
    */
   changeAction(action: string): void {
@@ -122,7 +123,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
 
   /**
    * Checks if the form for creating a new notification is valid.
-   * 
+   *
    * @returns {boolean} True if the form is valid; otherwise, false.
    */
   formIsValid(): boolean {
@@ -136,15 +137,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.form.valid) {
       this.subscriptions.push(this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: 'Success!',
-          text: 'New Notification created!',
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('New Notification created!','');
         this.router.navigate(['/account/notifications']);
       }));
     }

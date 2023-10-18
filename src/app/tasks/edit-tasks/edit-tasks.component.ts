@@ -14,6 +14,7 @@ import * as echarts from 'echarts/core';
 
 import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { colorpicker } from '../../core/_constants/settings.config';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
@@ -45,6 +46,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   constructor(
     private uiService:UIConfigService,
     private route: ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private fs:FileSizePipe,
     private router: Router
@@ -121,14 +123,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
   onSubmit(){
     if (this.updateForm.valid) {
       this.gs.update(SERV.TASKS,this.editedTaskIndex,this.updateForm.value['updateData']).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Task saved!','');
           this.updateForm.reset(); // success, we reset form
           this.router.navigate(['tasks/show-tasks']);
         }
@@ -217,15 +212,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     if (this.createForm.valid) {
       const payload = {"taskId": this.editedTaskIndex, "agentId":this.createForm.value['agentId']};
       this.gs.create(SERV.AGENT_ASSIGN,payload).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            text: "Agent Assigned!",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Agent assigned!','');
           this.rerender();  // rerender datatables
           this.ngOnInit();
         }
@@ -235,14 +222,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
 
   onDelete(id: number){
     this.gs.delete(SERV.AGENT_ASSIGN,id).subscribe(() => {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        title: "Success",
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('Deleted','');
       this.rerender();  // rerender datatables
       this.ngOnInit();
     });
@@ -257,8 +237,8 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
           '<input id="project-input" class="swal2-input" type="number" placeholder="'+cvalue+'">',
         focusConfirm: false,
         showCancelButton: true,
-        cancelButtonColor: '#C53819',
-        confirmButtonColor: '#8A8584',
+        cancelButtonColor: this.alert.cancelButtonColor,
+        confirmButtonColor: this.alert.confirmButtonColor,
         cancelButton: true,
         preConfirm: () => {
           return [
@@ -270,14 +250,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       if (formValues) {
         if(cvalue !== Number(formValues[0])){
           this.gs.update(SERV.AGENT_ASSIGN,id, {benchmark: +formValues}).subscribe(() => {
-            Swal.fire({
-              position: 'top-end',
-              backdrop: false,
-              icon: 'success',
-              title: "Success",
-              showConfirmButton: false,
-              timer: 1500
-            })
+            this.alert.okAlert('Task saved!','');
             this.ngOnInit();
             this.rerender();  // rerender datatables
           });
@@ -475,22 +448,15 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
     .then((result) => {
       if (result.isConfirmed) {
         let payload = {"taskId":this.editedTaskIndex};
         this.gs.chelper(SERV.HELPER,'purgeTask',payload).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted '+name+'','');
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });
@@ -512,14 +478,7 @@ export class EditTasksComponent implements OnInit,PendingChangesGuard {
     const title = state === 2 ? 'Chunk Abort!' :'Chunk Reset!' ;
     let payload = {'chunkId': id};
     this.gs.chelper(SERV.HELPER,path,payload).subscribe(() => {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        title: title,
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('Resetted!','');
       this.ngOnInit();
       this.rerender();
     });

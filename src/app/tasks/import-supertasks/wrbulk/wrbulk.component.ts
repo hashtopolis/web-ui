@@ -3,11 +3,11 @@ import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@
 import { environment } from './../../../../environments/environment';
 import { faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import {  Observable, Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../../core/_services/shared/tooltip.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
@@ -37,6 +37,7 @@ export class WrbulkComponent implements OnInit {
     private _changeDetectorRef: ChangeDetectorRef,
     private tooltipService: TooltipService,
     private uiService: UIConfigService,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
   ) { }
@@ -178,13 +179,7 @@ export class WrbulkComponent implements OnInit {
 
   validateFile(value){
     if(value.split('.').pop() == '7zip'){
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        title: "Heads Up!",
-        text: "Hashcat has some issues loading 7z files. Better convert it to a hash file ;)",
-        icon: "warning",
-      })
+      this.alert.okAlert('"Hashcat has some issues loading 7z files. Better convert it to a hash file ;)','');
     }
   }
 

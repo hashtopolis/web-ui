@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -35,6 +36,7 @@ export class HealthChecksComponent implements OnInit {
 
   constructor(
     private uiService: UIConfigService,
+    private alert: AlertService,
     private gs: GlobalService,
   ) { }
 
@@ -173,20 +175,14 @@ export class HealthChecksComponent implements OnInit {
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.gs.delete(SERV.HEALTH_CHECKS,id).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted '+name+'','');
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

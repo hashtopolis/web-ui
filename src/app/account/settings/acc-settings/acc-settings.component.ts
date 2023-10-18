@@ -1,14 +1,14 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
+import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { Subscription } from 'rxjs';
-import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
-
 
 @Component({
   selector: 'app-acc-settings',
@@ -27,6 +27,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   constructor(
     private titleService: AutoTitleService,
     private datePipe: uiDatePipe,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) {
@@ -52,7 +53,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   /**
    * Creates and configures the Angular FormGroup for managing form controls.
-   * 
+   *
    * @param {string} name - Account type name.
    * @param {string} registeredSince - Account registration date.
    * @param {string} email - The user's email.
@@ -91,14 +92,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.form.valid) {
       this.subscriptions.push(this.gs.create(SERV.USERS, this.form.value).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: 'Saved',
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('User saved!','');
         this.router.navigate(['users/all-users']);
       }));
     }

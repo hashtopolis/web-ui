@@ -6,6 +6,7 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -34,6 +35,7 @@ export class EditSupertasksComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
   ) { }
@@ -93,14 +95,7 @@ export class EditSupertasksComponent implements OnInit {
       let payload = concat.concat(this.updateForm.value['pretasks']);
 
       this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('SuperTask saved!','');
           this.updateForm.reset(); // success, we reset form
           this.onRefresh();
           // this.router.navigate(['/tasks/supertasks']);
@@ -183,21 +178,14 @@ export class EditSupertasksComponent implements OnInit {
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
     .then((result) => {
       if (result.isConfirmed) {
         this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Deleted','');
           this.ngOnInit();
         });
       } else {

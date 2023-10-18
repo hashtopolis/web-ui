@@ -5,12 +5,12 @@ import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { colorpicker } from '../../core/_constants/settings.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -75,6 +75,7 @@ export class NewTasksComponent implements OnInit {
     private uiService: UIConfigService,
     private modalService: NgbModal,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -161,11 +162,7 @@ export class NewTasksComponent implements OnInit {
 
   validateFile(value){
     if(value.split('.').pop() == '7zip'){
-      Swal.fire({
-        title: "Heads Up!",
-        text: "Hashcat has some issues loading 7z files. Better convert it to a hash file ;)",
-        icon: "warning",
-      })
+      this.alert.okAlert('Hashcat has some issues loading 7z files. Better convert it to a hash file ;)','');
     }
   }
 
@@ -435,17 +432,9 @@ export class NewTasksComponent implements OnInit {
   onSubmit(){
     if (this.createForm.valid) {
       this.gs.create(SERV.TASKS,this.createForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success!",
-            text: "New Task created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.createForm.reset();
-          this.router.navigate(['tasks/show-tasks']);
+        this.alert.okAlert('New Task created!','');
+        this.createForm.reset();
+        this.router.navigate(['tasks/show-tasks']);
         }
       );
     }

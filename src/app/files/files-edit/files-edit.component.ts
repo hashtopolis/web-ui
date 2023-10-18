@@ -1,9 +1,9 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -31,6 +31,7 @@ export class FilesEditComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
     ) { }
@@ -88,14 +89,7 @@ export class FilesEditComponent implements OnInit {
 
   onSubmit(): void{
     this.gs.update(SERV.FILES,this.editedFileIndex,this.updateForm.value['updateData']).subscribe(() => {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        title: "Saved",
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('File saved!','');
       this.route.data.subscribe(data => {
         switch (data['kind']) {
 
@@ -117,15 +111,7 @@ export class FilesEditComponent implements OnInit {
     },
     errorMessage => {
       // check error status code is 500, if so, do some action
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: "warning",
-        title: "Oppss! Error",
-        text: "File was not updated, please try again!",
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('File was not updated, please try again!','','warning');
       this.ngOnInit();
     }
   );

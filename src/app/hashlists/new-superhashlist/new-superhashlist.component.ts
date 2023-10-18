@@ -1,9 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef  } from '@angular/core';
 import { faFile, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators, FormArray } from '@angular/forms';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment'
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -22,6 +22,7 @@ export class NewSuperhashlistComponent implements OnInit {
 
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -89,17 +90,9 @@ export class NewSuperhashlistComponent implements OnInit {
     if (this.createForm.valid) {
       console.log(this.createForm.value);
       this.gs.chelper(SERV.HELPER,'createSuperHashlist',this.createForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success!",
-            text: "New SuperHashList created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.createForm.reset(); // success, we reset form
-          this.router.navigate(['hashlists/superhashlist']);
+        this.alert.okAlert('New SuperHashList created!','');
+        this.createForm.reset(); // success, we reset form
+        this.router.navigate(['hashlists/superhashlist']);
         }
       );
     }

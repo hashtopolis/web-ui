@@ -1,12 +1,13 @@
+import { faTrash, faEdit, faCopy, faBookmark, faArchive } from '@fortawesome/free-solid-svg-icons';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { faTrash, faEdit, faCopy, faBookmark, faArchive } from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
 
@@ -35,6 +36,7 @@ export class ModalSubtasksComponent {
 
   constructor(
     public modal: NgbActiveModal,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
     private fb: FormBuilder
@@ -95,29 +97,14 @@ export class ModalSubtasksComponent {
 
     onArchive(id: number){
       this.gs.archive(SERV.TASKS,id).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: "Success",
-          text: "Archived!",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('Archived!','');
         this.rerender();  // rerender datatables
       });
     }
 
     onDelete(id: number){
       this.gs.delete(SERV.TASKS,id).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: "Success",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('Deleted ','');
         this.rerender();  // rerender datatables
       });
     }

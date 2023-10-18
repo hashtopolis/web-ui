@@ -7,10 +7,11 @@ import { DataTableDirective } from 'angular-datatables';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject, Subscription } from 'rxjs';
 
+import { ModalSubtasksComponent } from './modal-subtasks/modal-subtasks.component';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from '../../core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
-import { ModalSubtasksComponent } from './modal-subtasks/modal-subtasks.component';
 
 declare let $:any;
 
@@ -63,6 +64,7 @@ export class ShowTasksComponent implements OnInit {
   constructor(
     private modalService: NgbModal,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
     ) { }
@@ -266,15 +268,7 @@ rerender(): void {
 onArchive(id: number, type: number){
   const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
   this.gs.archive(path,id).subscribe(() => {
-    Swal.fire({
-      position: 'top-end',
-      backdrop: false,
-      icon: 'success',
-      title: "Success",
-      text: "Archived!",
-      showConfirmButton: false,
-      timer: 1500
-    })
+    this.alert.okAlert('Archived!','');
     this.ngOnInit();
     this.rerender();  // rerender datatables
   });
@@ -302,22 +296,15 @@ onDelete(id: number, type: number, name: string){
       icon: "warning",
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
+      cancelButtonColor: this.alert.cancelButtonColor,
+      confirmButtonColor: this.alert.confirmButtonColor,
+      confirmButtonText: this.alert.delconfirmText
     })
   .then((result) => {
     if (result.isConfirmed) {
       const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
       this.gs.delete(path,id).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: "Success",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        this.alert.okAlert('Deleted '+name+'','');
         this.ngOnInit();
         this.rerender();  // rerender datatables
       });
@@ -339,14 +326,7 @@ onSelectedTasks(){
   $(".dt-button-background").trigger("click");
   const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   if(selection.length == 0) {
-    Swal.fire({
-      position: 'top-end',
-      backdrop: false,
-      title: "You haven't selected any Task",
-      type: 'success',
-      timer: 1500,
-      showConfirmButton: false
-    })
+    this.alert.okAlert('You haven not selected any Group','');
     return;
   }
   const selectionnum = selection.map(i=>Number(i));
@@ -398,14 +378,7 @@ onDone(value?: any){
     this.ngOnInit();
     this.rerender();  // rerender datatables
     Swal.close();
-    Swal.fire({
-      position: 'top-end',
-      backdrop: false,
-      icon: 'success',
-      title: "Success",
-      showConfirmButton: false,
-      timer: 1500
-    })
+    this.alert.okAlert('Completed','');
   },3000);
   }
 
@@ -415,14 +388,7 @@ onModalProject(title: string){
     $(".dt-button-background").trigger("click");
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
     if(selection.length == 0) {
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        title: "You haven't selected any Task",
-        type: 'success',
-        timer: 1500,
-        showConfirmButton: false
-      })
+      this.alert.okAlert('You haven not selected any Group','');
       return;
     }
 
@@ -476,14 +442,7 @@ onModalUpdate(title: string, id: number, cvalue: any, formlabel: boolean, namere
         }
         const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
         this.gs.update(path,id, update).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success",
-            showConfirmButton: false,
-            timer: 1500
-          })
+          this.alert.okAlert('Task saved!','');
           this.ngOnInit();
           this.rerender();  // rerender datatables
         });

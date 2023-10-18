@@ -1,8 +1,8 @@
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../../core/_services/main.config';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -17,6 +17,7 @@ export class NewCrackerComponent implements OnInit {
   createForm: FormGroup;
 
   constructor(
+    private alert: AlertService,
     private gs: GlobalService,
     private router:Router
   ) { }
@@ -34,17 +35,9 @@ export class NewCrackerComponent implements OnInit {
     if (this.createForm.valid) {
 
       this.gs.create(SERV.CRACKERS_TYPES, this.createForm.value).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Success!",
-            text: "New Cracker created!",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.createForm.reset(); // success, we reset form
-          this.router.navigate(['/config/engine/crackers']);
+        this.alert.okAlert('New Cracker created!','');
+        this.createForm.reset(); // success, we reset form
+        this.router.navigate(['/config/engine/crackers']);
         }
       );
     }

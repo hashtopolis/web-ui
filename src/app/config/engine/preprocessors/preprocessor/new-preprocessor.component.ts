@@ -1,8 +1,8 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../../core/_services/main.config';
@@ -20,6 +20,7 @@ export class NewPreprocessorComponent implements OnInit {
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
   ) { }
@@ -81,16 +82,8 @@ export class NewPreprocessorComponent implements OnInit {
           this.gs.create(SERV.PREPROCESSORS,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-              Swal.fire({
-                position: 'top-end',
-                backdrop: false,
-                icon: 'success',
-                title: "Success!",
-                text: "New Preprocessor created!",
-                showConfirmButton: false,
-                timer: 1500
-              })
-              this.router.navigate(['config/engine/preprocessors']);
+            this.alert.okAlert('New Preprocessor created!','');
+            this.router.navigate(['config/engine/preprocessors']);
             }
           );
         break;
@@ -100,15 +93,8 @@ export class NewPreprocessorComponent implements OnInit {
           this.gs.update(SERV.PREPROCESSORS,id,this.updateForm.value)
           .subscribe((prep: any) => {
             const response = prep;
-              Swal.fire({
-                position: 'top-end',
-                backdrop: false,
-                icon: 'success',
-                title: "Saved",
-                showConfirmButton: false,
-                timer: 1500
-              })
-              this.router.navigate(['config/engine/preprocessors']);
+            this.alert.okAlert('Preprocessor saved!','');
+            this.router.navigate(['config/engine/preprocessors']);
             }
           );
         break;

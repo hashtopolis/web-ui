@@ -2,10 +2,10 @@ import { faHomeAlt, faPlus, faTrash, faInfoCircle, faEye, faLock} from '@fortawe
 import { Component, OnInit, ViewChild, HostListener   } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Observable, Subject } from 'rxjs';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { colorpicker } from '../../core/_constants/settings.config';
 import { environment } from './../../../environments/environment';
@@ -32,6 +32,7 @@ export class EditPreconfiguredTasksComponent implements OnInit{
 
   constructor(
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -116,16 +117,9 @@ export class EditPreconfiguredTasksComponent implements OnInit{
     if (this.updateForm.valid) {
 
       this.gs.update(SERV.PRETASKS,this.editedPretaskIndex,this.updateForm.value['updateData']).subscribe(() => {
-          Swal.fire({
-            position: 'top-end',
-            backdrop: false,
-            icon: 'success',
-            title: "Saved",
-            showConfirmButton: false,
-            timer: 1500
-          })
-          this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['tasks/preconfigured-tasks']);
+        this.alert.okAlert('PreTask saved!','');
+        this.updateForm.reset(); // success, we reset form
+        this.router.navigate(['tasks/preconfigured-tasks']);
         }
       );
     }

@@ -1,8 +1,8 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from '../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -26,6 +26,7 @@ export class ApplyHashlistComponent  {
   constructor(
     private _changeDetectorRef: ChangeDetectorRef,
     private route:ActivatedRoute,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) { }
@@ -132,16 +133,9 @@ export class ApplyHashlistComponent  {
 
   onSubmit(){
     this.gs.chelper(SERV.HELPER,'createSupertask', this.createForm.value).subscribe(() => {
-        Swal.fire({
-          position: 'top-end',
-          backdrop: false,
-          icon: 'success',
-          title: "Success",
-          showConfirmButton: false,
-          timer: 1500
-        })
-        this.createForm.reset();
-        this.router.navigate(['tasks/show-tasks']);
+      this.alert.okAlert('New SuperTask created!','');
+      this.createForm.reset();
+      this.router.navigate(['tasks/show-tasks']);
       }
     );
   }
