@@ -284,40 +284,27 @@ getSubtasks(name: string, id: number){
 }
 
 onDelete(id: number, type: number, name: string){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove '+ name +' from your tasks?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-  .then((result) => {
-    if (result.isConfirmed) {
-      const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER;
-      this.gs.delete(path,id).subscribe(() => {
-        this.alert.okAlert('Deleted '+name+'','');
-        this.ngOnInit();
-        this.rerender();  // rerender datatables
-      });
-    } else {
-      swalWithBootstrapButtons.fire({
-        title: "Cancelled",
-        text: "Your Task is safe!",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 1500
-      })
-    }
-  });
+    this.alert.deleteConfirmation(name,'Task').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        const path = type === 0 ? SERV.TASKS : SERV.TASKS_WRAPPER; //Task or supertask
+        this.gs.delete(path, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Task ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
+        });
+      } else {
+        // Handle cancellation
+        this.alert.okAlert(`Task ${name} is safe!`,'');
+      }
+    });
+}
+
+onRefreshTable(){
+  setTimeout(() => {
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+  },2000);
 }
 
 // Bulk actions
@@ -334,53 +321,23 @@ onSelectedTasks(){
   return selectionnum;
 }
 
-onDeleteBulk(){
-  const self = this;
-  const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+async onDeleteBulk() {
+  const TasksIds = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
   const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
   const search = type.includes("SuperTask");
-  const sellen = selectionnum.length;
-  const errors = [];
-  selectionnum.forEach(function (value) {
-    Swal.fire('Deleting...'+sellen+' Task(s)...Please wait')
-    Swal.showLoading()
-    let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
-    self.gs.delete(SERV.TASKS,value)
-    .subscribe(
-      err => {
-        console.log('HTTP Error', err)
-        err = 1;
-        errors.push(err);
-      },
-    );
-  });
-  self.onDone(sellen);
+  let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
+  this.alert.bulkDeleteAlert(TasksIds,'Hashtypes',path);
+  this.onRefreshTable();
 }
 
-onUpdateBulk(value: any){
-    const self = this;
-    const selectionnum = this.onSelectedTasks();
-    const sellen = selectionnum.length;
-    const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
-    const search = type.includes("SuperTask");
-    selectionnum.forEach(function (id) {
-      Swal.fire('Updating...'+sellen+' Task(s)...Please wait')
-      Swal.showLoading()
-      let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
-    self.gs.update(path, id, value).subscribe(
-    );
-  });
-  self.onDone(sellen);
+async onUpdateBulk(value: any) {
+  const FilesIds = this.onSelectedTasks();
+  const type = String($($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(3).toArray());
+  const search = type.includes("SuperTask");
+  let path = !search ? SERV.TASKS: SERV.TASKS_WRAPPER;
+  this.alert.bulkUpdateAlert(FilesIds,value,'Files',path);
+  this.onRefreshTable();
 }
-
-onDone(value?: any){
-  setTimeout(() => {
-    this.ngOnInit();
-    this.rerender();  // rerender datatables
-    Swal.close();
-    this.alert.okAlert('Completed','');
-  },3000);
-  }
 
 onModalProject(title: string){
   (async () => {

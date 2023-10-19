@@ -60,10 +60,13 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
           [10, 25, 50, 100, 250, -1],
           [10, 25, 50, 100, 250, 'All']
         ],
-        select: true,
         processing: true,  // Error loading
         deferRender: true,
         destroy:true,
+        select: {
+          style: 'multi',
+          // selector: 'tr>td:nth-child(1)' //This only allows select the first row
+          },
         buttons: {
           dom: {
             button: {
@@ -153,39 +156,26 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
   }
 
   onDelete(id: number, name: string){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove '+ name +' from your global permissions?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS,id).subscribe(() => {
-          this.alert.okAlert('Deleted '+name+'','');
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
+    this.alert.deleteConfirmation(name,'Global permissions').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Global permission ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Global Permission is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`Global permission ${name} is safe!`,'');
       }
     });
+  }
+
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
   onSelectedGroups(){
@@ -200,33 +190,10 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
     return selectionnum;
   }
 
-  onDeleteBulk(){
-      const self = this;
-      const selectionnum = this.onSelectedGroups();
-      const sellen = selectionnum.length;
-      const errors = [];
-      selectionnum.forEach(function (value) {
-        Swal.fire('Deleting...'+sellen+' Global Group Permission(s)...Please wait')
-        Swal.showLoading()
-      self.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS,value)
-      .subscribe(
-        err => {
-          // console.log('HTTP Error', err)
-          err = 1;
-          errors.push(err);
-        },
-        );
-      });
-    self.onDone(sellen);
-  }
-
-  onDone(value?: any){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-      Swal.close();
-      this.alert.okAlert('Completed','');
-    },3000);
+  async onDeleteBulk() {
+    const GlobalIds = this.onSelectedGroups();
+    this.alert.bulkDeleteAlert(GlobalIds,'Global Group Permissions',SERV.ACCESS_PERMISSIONS_GROUPS);
+    this.onRefreshTable();
   }
 
   // Add unsubscribe to detect changes

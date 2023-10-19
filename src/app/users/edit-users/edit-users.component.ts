@@ -90,39 +90,20 @@ export class EditUsersComponent implements OnInit {
       this.agp = agp.values;
     });
 
-}
+ }
 
   onDelete(){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove from your users?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.USERS,this.editedUserIndex).subscribe(() => {
-          this.alert.okAlert('Deleted','');
+    this.alert.deleteConfirmation('','Hashtypes').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted User`, '');
           this.router.navigate(['/users/all-users']);
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your User is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`User is safe!`,'');
       }
     });
   }

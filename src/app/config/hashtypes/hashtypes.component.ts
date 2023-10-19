@@ -5,6 +5,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject } from 'rxjs';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { BulkService } from 'src/app/core/_services/shared/bulk.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -36,7 +37,8 @@ export class HashtypesComponent implements OnInit {
 
   constructor(
     private alert: AlertService,
-    private gs: GlobalService,
+    private bulk: BulkService,
+    private gs: GlobalService
   ) { }
 
   public htypes: any;
@@ -152,47 +154,18 @@ export class HashtypesComponent implements OnInit {
     });
   }
 
-  onDone(value?: any){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-      Swal.close();
-      this.alert.okAlert('Completed','');
-    },3000);
-  }
-
   onDelete(id: number, name: string){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove '+ name +' from your hashtypes?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.HASHTYPES,id).subscribe(() => {
-          this.alert.okAlert('Deleted '+name+'','');
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
+    this.alert.deleteConfirmation(name,'Hashtypes').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.HASHTYPES, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Hashtype ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Hashtype is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`Hashtype ${name} is safe!`,'');
       }
     });
   }
@@ -209,24 +182,17 @@ export class HashtypesComponent implements OnInit {
     return selectionnum;
   }
 
-  onDeleteBulk(){
-    const self = this;
-    const selectionnum = this.onSelectedHashtypes();
-    const sellen = selectionnum.length;
-    const errors = [];
-    selectionnum.forEach(function (value) {
-      Swal.fire('Deleting...'+sellen+' Hashtype(s)...Please wait')
-      Swal.showLoading()
-    self.gs.delete(SERV.HASHTYPES,value)
-    .subscribe(
-      err => {
-        // console.log('HTTP Error', err)
-        err = 1;
-        errors.push(err);
-      },
-      );
-    });
-    self.onDone(sellen);
+  async onDeleteBulk() {
+    const HashtypesIds = this.onSelectedHashtypes();
+    this.alert.bulkDeleteAlert(HashtypesIds,'Hashtypes',SERV.HASHTYPES);
+    this.onRefreshTable();
+  }
+
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
   // Add unsubscribe to detect changes

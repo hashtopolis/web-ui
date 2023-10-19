@@ -236,39 +236,26 @@ onArchive(id: number){
 }
 
 onDelete(id: number, name: string){
-  const swalWithBootstrapButtons = Swal.mixin({
-    customClass: {
-      confirmButton: 'btn',
-      cancelButton: 'btn'
-    },
-    buttonsStyling: false
-  })
-  Swal.fire({
-    title: 'Remove '+ name +' from your hashlists?',
-    icon: "warning",
-    reverseButtons: true,
-    showCancelButton: true,
-    cancelButtonColor: this.alert.cancelButtonColor,
-    confirmButtonColor: this.alert.confirmButtonColor,
-    confirmButtonText: this.alert.delconfirmText
-  })
-  .then((result) => {
-    if (result.isConfirmed) {
-      this.gs.delete(SERV.HASHLISTS,id).subscribe(() => {
-        this.alert.okAlert('Deleted '+name+'','');
-        this.ngOnInit();
-        this.rerender();  // rerender datatables
+  this.alert.deleteConfirmation(name,'Hashlists').then((confirmed) => {
+    if (confirmed) {
+      // Deletion
+      this.gs.delete(SERV.HASHLISTS, id).subscribe(() => {
+        // Successful deletion
+        this.alert.okAlert(`Deleted Hashlist ${name}`, '');
+        this.onRefreshTable(); // Refresh the table
       });
     } else {
-      swalWithBootstrapButtons.fire({
-        title: "Cancelled",
-        text: "Your Hashlist is safe!",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 1500
-      })
+      // Handle cancellation
+      this.alert.okAlert(`Hashlist ${name} is safe!`,'');
     }
   });
+}
+
+onRefreshTable(){
+  setTimeout(() => {
+    this.ngOnInit();
+    this.rerender();  // rerender datatables
+  },2000);
 }
 
 // Bulk actions
@@ -285,47 +272,17 @@ onSelectedHashlists(){
   return selectionnum;
 }
 
-onDeleteBulk(){
-  const self = this;
-  const selectionnum = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-  const sellen = selectionnum.length;
-  const errors = [];
-  selectionnum.forEach(function (value) {
-    Swal.fire('Deleting...'+sellen+' Hashlist(s)...Please wait')
-    Swal.showLoading()
-  self.gs.delete(SERV.HASHLISTS,value)
-  .subscribe(
-    err => {
-      console.log('HTTP Error', err)
-      err = 1;
-      errors.push(err);
-    },
-    );
-  });
-  self.onDone(sellen);
+async onDeleteBulk() {
+  const HashlistIds = this.onSelectedHashlists();
+  this.alert.bulkDeleteAlert(HashlistIds,'Hashlists',SERV.HASHLISTS);
+  this.onRefreshTable();
 }
 
-onUpdateBulk(value: any){
-    const self = this;
-    const selectionnum = this.onSelectedHashlists();
-    const sellen = selectionnum.length;
-    selectionnum.forEach(function (id) {
-      Swal.fire('Updating...'+sellen+' Hashlist(s)...Please wait')
-      Swal.showLoading()
-    self.gs.update(SERV.HASHLISTS,id, value).subscribe(
-    );
-  });
-  self.onDone(sellen);
+async onUpdateBulk(value: any) {
+  const HashlistIds = this.onSelectedHashlists();
+  this.alert.bulkUpdateAlert(HashlistIds,value,'Hashlists',SERV.HASHLISTS);
+  this.onRefreshTable();
 }
-
-onDone(value?: any){
-  setTimeout(() => {
-    this.ngOnInit();
-    this.rerender();  // rerender datatables
-    Swal.close();
-    this.alert.okAlert('Completed','');
-  },3000);
-  }
 
 // Add unsubscribe to detect changes
 ngOnDestroy(){

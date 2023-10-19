@@ -65,10 +65,13 @@ export class GroupsComponent implements OnInit {
           [10, 25, 50, 100, 250, -1],
           [10, 25, 50, 100, 250, 'All']
         ],
-        select: true,
         processing: true,  // Error loading
         deferRender: true,
         destroy:true,
+        select: {
+          style: 'multi',
+          // selector: 'tr>td:nth-child(1)' //This only allows select the first row
+          },
         buttons: {
           dom: {
             button: {
@@ -158,39 +161,26 @@ export class GroupsComponent implements OnInit {
   }
 
   onDelete(id: number, name: string){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove '+ name +' from your groups?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.ACCESS_GROUPS,id).subscribe(() => {
-          this.alert.okAlert('Deleted '+name+'','');
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
+    this.alert.deleteConfirmation(name,'Groups').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.ACCESS_GROUPS, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Group ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Access Group is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`Group ${name} is safe!`,'');
       }
     });
+  }
+
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
   onSelectedGroups(){
@@ -205,33 +195,10 @@ export class GroupsComponent implements OnInit {
     return selectionnum;
   }
 
-  onDeleteBulk(){
-      const self = this;
-      const selectionnum = this.onSelectedGroups();
-      const sellen = selectionnum.length;
-      const errors = [];
-      selectionnum.forEach(function (value) {
-        Swal.fire('Deleting...'+sellen+' Group(s)...Please wait')
-        Swal.showLoading()
-      self.gs.delete(SERV.ACCESS_GROUPS,value)
-      .subscribe(
-        err => {
-          // console.log('HTTP Error', err)
-          err = 1;
-          errors.push(err);
-        },
-        );
-      });
-    self.onDone(sellen);
-  }
-
-  onDone(value?: any){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-      Swal.close();
-      this.alert.okAlert('Completed','');
-    },3000);
+  async onDeleteBulk() {
+    const GroupsIds = this.onSelectedGroups();
+    this.alert.bulkDeleteAlert(GroupsIds,'Groups',SERV.ACCESS_GROUPS);
+    this.onRefreshTable();
   }
 
   // Add unsubscribe to detect changes

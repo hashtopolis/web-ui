@@ -132,22 +132,26 @@ export class CrackersComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: number, name: string){
-    Swal.fire({
-      title: 'Remove '+ name +' from your crackers?',
-      icon: "warning",
-      buttons: true,
-      dangerMode: true,
-      showCancelButton: true,
-    })
-    .then((willDelete) => {
-      if (willDelete) {
-        this.gs.delete(SERV.CRACKERS_TYPES,id).subscribe(() => {
-          this.alert.okAlert('Deleted '+name+'','');
+    this.alert.deleteConfirmation(name,'Crackers').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.CRACKERS_TYPES, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Cracker ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
         });
       } else {
-        Swal.fire("Your Cracker is safe!")
+        // Handle cancellation
+        this.alert.okAlert(`Cracker ${name} is safe!`,'');
       }
     });
+  }
+
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
 }

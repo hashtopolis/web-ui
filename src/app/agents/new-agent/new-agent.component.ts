@@ -140,41 +140,26 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: number, name: string ){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove '+ name +' from your Vouchers?',
-      text: "Once deleted, it can not be recovered!",
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
-          this.alert.okAlert('Deleted '+name+'','');
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
+    this.alert.deleteConfirmation(name,'Vouchers').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.VOUCHER, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Voucher ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Voucher is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`Your Voucher ${name} is safe!`,'');
       }
     });
+  }
 
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
   downloadClient(id) {

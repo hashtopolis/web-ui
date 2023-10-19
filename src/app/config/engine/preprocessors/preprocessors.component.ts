@@ -132,37 +132,26 @@ export class PreprocessorsComponent implements OnInit {
     }
 
     onDelete(id: number, name: string){
-      const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: 'btn',
-          cancelButton: 'btn'
-        },
-        buttonsStyling: false
-      })
-      Swal.fire({
-        title: 'Remove '+ name +' from your preprocessors?',
-        icon: "warning",
-        reverseButtons: true,
-        showCancelButton: true,
-        cancelButtonColor: this.alert.cancelButtonColor,
-        confirmButtonColor: this.alert.confirmButtonColor,
-        confirmButtonText: this.alert.delconfirmText
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          this.gs.delete(SERV.PREPROCESSORS,id).subscribe(() => {
-            this.alert.okAlert('Deleted '+name+'','');
-            this.ngOnInit();
-            this.rerender();  // rerender datatables
+      this.alert.deleteConfirmation(name,'Preprocessors').then((confirmed) => {
+        if (confirmed) {
+          // Deletion
+          this.gs.delete(SERV.PREPROCESSORS, id).subscribe(() => {
+            // Successful deletion
+            this.alert.okAlert(`Deleted Preprocessor ${name}`, '');
+            this.onRefreshTable(); // Refresh the table
           });
         } else {
-          swalWithBootstrapButtons.fire(
-            'Cancelled',
-            'No worries, your Preprocessor is safe!',
-            'error'
-          )
+          // Handle cancellation
+          this.alert.okAlert(`Preprocessor ${name} is safe!`,'');
         }
       });
+    }
+
+    onRefreshTable(){
+      setTimeout(() => {
+        this.ngOnInit();
+        this.rerender();  // rerender datatables
+      },2000);
     }
 
 }

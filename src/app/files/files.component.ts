@@ -230,39 +230,26 @@ export class FilesComponent implements OnInit {
   }
 
   deleteFile(id: number, name: string){
-      const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: 'btn',
-          cancelButton: 'btn'
-        },
-        buttonsStyling: false
-      })
-      Swal.fire({
-        title: 'Remove '+ name +' from your files?',
-        icon: "warning",
-        reverseButtons: true,
-        showCancelButton: true,
-        cancelButtonColor: this.alert.cancelButtonColor,
-        confirmButtonColor: this.alert.confirmButtonColor,
-        confirmButtonText: this.alert.delconfirmText
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          this.gs.delete(SERV.FILES,id).subscribe(() => {
-            this.alert.okAlert('Deleted '+name+'','');
-            this.ngOnInit();
-            this.rerender();  // rerender datatables
-          });
-        } else {
-          swalWithBootstrapButtons.fire({
-            title: "Cancelled",
-            text: "Your File is safe!",
-            icon: "error",
-            showConfirmButton: false,
-            timer: 1500
-          })
-        }
-      });
+    this.alert.deleteConfirmation(name,'Files').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.FILES, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted File ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
+        });
+      } else {
+        // Handle cancellation
+        this.alert.okAlert(`File ${name} is safe!`,'');
+      }
+    });
+  }
+
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
 // Bulk Actions
@@ -279,47 +266,16 @@ export class FilesComponent implements OnInit {
     return selectionnum;
   }
 
-  onDeleteBulk(){
-    const self = this;
-    const selectionnum = this.onSelectedFiles();
-    const sellen = selectionnum.length;
-    const errors = [];
-    selectionnum.forEach(function (value) {
-      Swal.fire('Deleting...'+sellen+' File(s)...Please wait')
-      Swal.showLoading()
-    self.gs.delete(SERV.FILES,value)
-    .subscribe(
-      err => {
-        console.log('HTTP Error', err)
-        err = 1;
-        errors.push(err);
-      },
-      );
-      });
-    self.onDone(sellen);
+  async onDeleteBulk() {
+    const FilesIds = this.onSelectedFiles();
+    this.alert.bulkDeleteAlert(FilesIds,'Files',SERV.FILES);
+    this.onRefreshTable();
   }
 
-  onUpdateBulk(value: any){
-      const self = this;
-      const selectionnum = this.onSelectedFiles();
-      const sellen = selectionnum.length;
-      // let edit = {fileType: value};
-      selectionnum.forEach(function (id) {
-        Swal.fire('Updating...'+sellen+' File(s)...Please wait')
-        Swal.showLoading()
-      self.gs.update(SERV.FILES, id, value).subscribe(
-      );
-    });
-    self.onDone(sellen);
-  }
-
-  onDone(value?: any){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-      Swal.close();
-      this.alert.okAlert('Completed','');
-    },3000);
+  async onUpdateBulk(value: any) {
+    const FilesIds = this.onSelectedFiles();
+    this.alert.bulkUpdateAlert(FilesIds,value,'Files',SERV.FILES);
+    this.onRefreshTable();
   }
 
   onEdit(id: number){

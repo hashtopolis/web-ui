@@ -5,6 +5,7 @@ import { Injectable, inject } from "@angular/core";
 import { map, Observable, take } from "rxjs";
 
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { AlertService } from "../_services/shared/alert.service";
 import { SERV } from '../_services/main.config';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class PermissionGuard {
     isAuthenticated: boolean;
 
     constructor(
+      private alert: AlertService,
       private gs: GlobalService
     ){}
 
@@ -27,13 +29,7 @@ export class PermissionGuard {
             if(hasAccess || typeof hasAccess == 'undefined'){
                 return true;
             }
-            Swal.fire({
-              title: "ACCESS DENIED",
-              text: "Please contact your Administrator.",
-              icon: "error",
-              showConfirmButton: false,
-              timer: 2000
-            })
+            this.alert.okAlert('ACCESS DENIED','Please contact your Administrator.','error');
             return false;
         }));
     }

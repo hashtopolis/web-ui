@@ -166,36 +166,17 @@ export class EditSupertasksComponent implements OnInit {
 
   onDelete(){
     const id = +this.route.snapshot.params['id'];
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove from your supertasks?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.SUPER_TASKS,id).subscribe(() => {
-          this.alert.okAlert('Deleted','');
-          this.ngOnInit();
+    this.alert.deleteConfirmation('','Supertasks').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.SUPER_TASKS, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Supertask`, '');
+          this.router.navigate(['/tasks/supertasks']);
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your SuperTask is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`Supertask is safe!`,'');
       }
     });
   }
@@ -207,14 +188,7 @@ export class EditSupertasksComponent implements OnInit {
       payload.push(filter[i].pretaskId);
     }
     this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe((result)=>{
-      Swal.fire({
-        position: 'top-end',
-        backdrop: false,
-        icon: 'success',
-        title: "Success",
-        showConfirmButton: false,
-        timer: 1500
-      })
+      this.alert.okAlert('Deleted supertask','');
       this.updateForm.reset(); // success, we reset form
       this.onRefresh();
     })

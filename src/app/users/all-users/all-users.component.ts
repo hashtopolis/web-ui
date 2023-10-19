@@ -164,41 +164,27 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     this.router.navigate(['edit'], {relativeTo: this.route});
   }
 
-  //ToDo
   onDelete(id: number, name: string){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove '+ name +' from your users?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.USERS,id).subscribe(() => {
-          this.alert.okAlert('Deleted '+name+'','');
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
+    this.alert.deleteConfirmation(name,'Users').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.USERS, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted User ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Hashtype is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`User ${name} is safe!`,'');
       }
     });
+  }
+
+  onRefreshTable(){
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    },2000);
   }
 
   onSelectedUsers(){
@@ -213,33 +199,10 @@ export class AllUsersComponent  implements OnInit, OnDestroy {
     return selectionnum;
   }
 
-  onDeleteBulk(){
-      const self = this;
-      const selectionnum = this.onSelectedUsers();
-      const sellen = selectionnum.length;
-      const errors = [];
-      selectionnum.forEach(function (value) {
-        Swal.fire('Deleting...'+sellen+' User(s)...Please wait')
-        Swal.showLoading()
-      self.gs.delete(SERV.AGENTS,value)
-      .subscribe(
-        err => {
-          // console.log('HTTP Error', err)
-          err = 1;
-          errors.push(err);
-        },
-        );
-      });
-    self.onDone(sellen);
-  }
-
-  onDone(value?: any){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-      Swal.close();
-      this.alert.okAlert('Completed','');
-    },3000);
+  async onDeleteBulk() {
+    const UserIds = this.onSelectedUsers();
+    this.alert.bulkDeleteAlert(UserIds,'Users',SERV.USERS);
+    this.onRefreshTable();
   }
 
   rerender(): void {

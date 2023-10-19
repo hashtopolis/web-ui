@@ -61,36 +61,17 @@ export class EditCrackersComponent implements OnInit {
   }
 
   onDelete(){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: 'Remove from your crackers?',
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.CRACKERS,this.editedCrackervIndex).subscribe(() => {
-          this.alert.okAlert('Deleted ','');
+    this.alert.deleteConfirmation('','Crackers').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.CRACKERS, this.editedCrackervIndex).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted cracker`, '');
           this.router.navigate(['config/engine/crackers']);
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Cracker is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
+        // Handle cancellation
+        this.alert.okAlert(`Cracker is safe!`,'');
       }
     });
   }
