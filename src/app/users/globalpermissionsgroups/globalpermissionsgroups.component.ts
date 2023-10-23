@@ -4,12 +4,11 @@ import { DataTableDirective } from 'angular-datatables';
 import { Subject, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
 import { SERV } from '../../core/_services/main.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 declare let $:any;
 
