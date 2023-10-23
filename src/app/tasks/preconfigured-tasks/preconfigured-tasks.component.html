@@ -15,9 +15,7 @@
     </thead>
     <tbody>
     <tr *ngFor="let ptask of allpretasks">
-        <td>
-          <span [ngClass]="!ptask.color ? 'pill-ebidem' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': ptask.color }">{{ ptask.pretaskId }}</span>
-        </td>
+        <td [ngStyle]="{'background-color': ptask.color }">{{ ptask.pretaskId }}</td>
         <td>
           <a [routerLink]="[ptask.pretaskId,'edit']">
             {{ ptask.taskName | shortenString:20 }}
