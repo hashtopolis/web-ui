@@ -1,6 +1,6 @@
 import { faEdit, faTrash, faLock, faFileImport, faFileExport, faPlus, faHomeAlt, faArchive, faCopy, faBookmark } from '@fortawesome/free-solid-svg-icons';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject, Subscription } from 'rxjs';
 
@@ -21,7 +21,7 @@ declare let $:any;
  * It uses DataTables to display and interact with the preconfigured tasks data, including exporting, deleting, bulk actions
  * and refreshing the table.
  */
-export class PreconfiguredTasksComponent implements OnInit {
+export class PreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   // Font Awesome icons
   faFileImport = faFileImport;
