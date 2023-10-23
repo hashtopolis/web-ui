@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Renderer2, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'grid-autocol',
@@ -9,22 +9,32 @@ import { Component, Input, OnInit } from '@angular/core';
 `,
 host: {
   "(window:resize)":"onWindowResize($event)"
+},
+styles: [`
+.vertical-line {
+  position: absolute;
+  top: 200px;
+  bottom: 0;
+  left: 0;
+  width: 1px; /* Width of the vertical line */
+  background-color: gray; /* Line color, you can customize this */
 }
+`]
 })
 export class GridAutoColComponent implements OnInit {
 
   @Input() centered?: boolean;
+  @Input() verticalLine?: boolean = false;
 
   isMobile = false;
   width:number = window.innerWidth;
   height:number = window.innerHeight;
   mobileWidth  = 760;
-  size1920_1080 = false;
-  size1366_768 = false;
-  size1280_720 = false;
-  size1536_864 = false;
+  gutterSize = 50; // Separation between columns (adjust as needed)
+  cardWidth = 300; // Width of each card (adjust as needed)
+  cardHeight = 80; //We take the full height minus the header and footer (adjust as needed)
 
-  constructor() {}
+  constructor(private renderer: Renderer2, private el: ElementRef) {}
 
   ngOnInit() : void {
     this.isMobile = this.width < this.mobileWidth;
@@ -36,28 +46,65 @@ export class GridAutoColComponent implements OnInit {
     this.isMobile = this.width < this.mobileWidth;
   }
 
+  getCols() {
+    return Math.floor((this.width + this.gutterSize) / (this.cardWidth + this.gutterSize));
+  }
+
+  getRows(){
+    return  Math.floor((this.height + this.gutterSize) / (this.cardHeight + this.gutterSize));
+  }
+
   public getStyles() {
 
-    // If screen is Tablet or Phone, use only one column
-    if(this.width < 767 || this.height < 721){
-      return {
-        '': '',
-      };
+    // If the screen is smaller than a specific threshold, return an empty object
+    if (this.width < 767 || this.height < 721) {
+      return {};
     }
-    if(this.width > 767 || this.height > 721){
-      const gutterSize = 50; //Separation between columns
-      const cardWidth = 100; //Padding left and right
-      const cardHeight = 80;  //We take the full height minus the header and footer
-      var cols = Math.floor((this.width + gutterSize) / (cardWidth + gutterSize));
-      var rows = Math.floor((this.height + gutterSize) / (cardHeight + gutterSize));
-    }
-    return {
+
+    // Calculate the number of columns based on available space
+    const cols = this.getCols();
+    // Calculate the number of rows based on available space
+    const rows = this.getRows();
+    // Calculate the width of the division lines
+    const divisionLineWidth = (this.width - (cols * this.cardWidth)) / (cols - 1);
+
+    const styles = {
       'display': 'grid',
-      'grid-template-columns': `repeat(${cols}, auto)`,
+      'grid-template-columns': `repeat(2, ${this.cardWidth}px))`,
       'grid-template-rows': `repeat(${rows}, auto)`,
-      'grid-gap': '1px',
+      'grid-gap': '10px', // Adjust the gap as needed
       'grid-auto-flow': 'column',
+      'position': 'relative',
     };
+
+    // Set the division line width
+    if (cols >= 2 && cols < 4) {
+      styles['grid-column-gap'] = `${divisionLineWidth}px`; // Add division lines
+    }
+
+    //ToDo use render2 to split columns, complete this
+    // Remove previously added vertical lines
+    this.removeVerticalLines();
+
+    // Dynamically add vertical lines for columns using render2
+    if (cols > 2 && this.verticalLine) {
+      for (let i = 1; i < cols; i++) {
+        const lineElement = this.renderer.createElement('div');
+        this.renderer.addClass(lineElement, 'vertical-line');
+        this.renderer.setStyle(lineElement, 'left', `${(i * this.cardWidth + (i - 1)  )}px`);
+        this.renderer.appendChild(this.el.nativeElement, lineElement);
+      }
+    }
+
+    return styles;
+  }
+
+  private removeVerticalLines() {
+    const existingLines = this.el.nativeElement.querySelectorAll('.vertical-line');
+    existingLines.forEach(line => {
+      this.renderer.removeChild(this.el.nativeElement, line);
+    });
   }
 
 }
+
