@@ -107,10 +107,10 @@ export class PreconfiguredTasksComponent implements OnInit {
   getPretasks(): void {
     // Fetch preconfigured tasks data from the API
     const params = { 'maxResults': this.maxResults, 'expand': 'pretaskFiles' };
-    this.gs.getAll(SERV.PRETASKS, params).subscribe((response: any) => {
+    this.subscriptions.push(this.gs.getAll(SERV.PRETASKS, params).subscribe((response: any) => {
       this.allpretasks = response.values;
       this.dtTrigger.next(void 0);
-    });
+    }));
   }
 
   /**
@@ -230,11 +230,11 @@ export class PreconfiguredTasksComponent implements OnInit {
     this.alert.deleteConfirmation(name, 'Pretasks').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        this.gs.delete(SERV.PRETASKS, id).subscribe(() => {
-          // Successful deletion
-          this.alert.okAlert(`Deleted Pretask ${name}`, '');
-          this.onRefreshTable(); // Refresh the table
-        });
+        this.subscriptions.push(this.gs.delete(SERV.PRETASKS, id).subscribe(() => {
+        // Successful deletion
+        this.alert.okAlert(`Deleted Pretask ${name}`, '');
+        this.onRefreshTable(); // Refresh the table
+        }));
       } else {
         // Handle cancellation
         this.alert.okAlert(`Pretask ${name} is safe!`, '');
