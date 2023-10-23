@@ -1,15 +1,15 @@
 import { faHomeAlt, faPlus, faTrash, faEdit, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subject, Subscription } from 'rxjs';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
 import { SERV } from '../../core/_services/main.config';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 declare let $:any;
 
@@ -17,40 +17,106 @@ declare let $:any;
   selector: 'app-globalpermissionsgroups',
   templateUrl: './globalpermissionsgroups.component.html'
 })
-@PageTitle(['Show Global Permissions'])
-export class GlobalpermissionsgroupsComponent implements OnInit {
+/**
+ * GlobalpermissionsgroupsComponent is a component that manages and displays Global Permissions data.
+ *
+ * It uses DataTables to display and interact with the Global Permissions data, including exporting, deleting, bulk actions
+ * and refreshing the table.
+ */
+export class GlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
 
-    // Form attributtes
-    faInfoCircle=faInfoCircle;
-    faHome=faHomeAlt;
-    faPlus=faPlus;
-    faEdit=faEdit;
-    faTrash=faTrash;
+  // Font Awesome icons
+  faInfoCircle=faInfoCircle;
+  faHome=faHomeAlt;
+  faPlus=faPlus;
+  faEdit=faEdit;
+  faTrash=faTrash;
 
-    private maxResults = environment.config.prodApiMaxResults;
+  // ViewChild reference to the DataTableDirective
+  @ViewChild(DataTableDirective, {static: false})
+  dtElement: DataTableDirective;
 
-    // Datatable
-    @ViewChild(DataTableDirective, {static: false})
-    dtElement: DataTableDirective;
+  dtTrigger: Subject<any> = new Subject<any>();
+  dtOptions: any = {};
 
-    dtTrigger: Subject<any> = new Subject<any>();
-    dtOptions: any = {};
+  // List of global permission groups
+  public Allgpg:any = [];
 
-    public Allgpg: {id: number, name: string , user:[]}[] = [];
+  // Subscriptions to unsubscribe on component destruction
+  subscriptions: Subscription[] = []
 
-    constructor(
-      private alert: AlertService,
-      private gs: GlobalService,
-      private router: Router
-    ) { }
+  private maxResults = environment.config.prodApiMaxResults;
 
-    ngOnInit(): void {
+  constructor(
+    private titleService: AutoTitleService,
+    private alert: AlertService,
+    private gs: GlobalService,
+    private router: Router
+  ) {
+    titleService.set(['Show Global Permissions'])
+  }
 
-      const params = {'maxResults': this.maxResults , 'expand': 'user'}
-      this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((gpg: any) => {
-        this.Allgpg = gpg.values;
-        this.dtTrigger.next(void 0);
+  /**
+ * Initializes DataTable and retrieves pretasks.
+ */
+  ngOnInit(): void {
+    this.getGlobalPermissions();
+    this.setupTable();
+  }
+
+  /**
+   * Unsubscribes from active subscriptions.
+   */
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  // Refresh the data and the DataTable
+  onRefresh() {
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  /**
+   * Rerenders the DataTable instance.
+   * Destroys and recreates the DataTable to reflect changes.
+   */
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        if (this.dtTrigger['new']) {
+          this.dtTrigger['new'].next();
+        }
       });
+    });
+  }
+
+  /**
+   * Fetches Global Permissions Groups from the server.
+   * Subscribes to the API response and updates the Global Permissions Groups list.
+   */
+  getGlobalPermissions(): void {
+    // Set parameters for the API request
+    const params = {'maxResults': this.maxResults , 'expand': 'user'};
+    // Make an API call to get permissions data
+    this.subscriptions.push(this.gs.getAll(SERV.ACCESS_PERMISSIONS_GROUPS,params).subscribe((response: any) => {
+      this.Allgpg = response.values;
+      this.dtTrigger.next(void 0);
+    }));
+  }
+
+  /**
+   * Sets up the DataTable options and buttons.
+   * Customizes DataTable appearance and behavior.
+   */
+  setupTable(): void {
+    // DataTables options
       const self = this;
       this.dtOptions = {
         dom: 'Bfrtip',
@@ -65,7 +131,6 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
         destroy:true,
         select: {
           style: 'multi',
-          // selector: 'tr>td:nth-child(1)' //This only allows select the first row
           },
         buttons: {
           dom: {
@@ -139,31 +204,30 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
 
     }
 
-  onRefresh(){
-    this.rerender();
-    this.ngOnInit();
+  // Refresh the table after a delete operation
+  onRefreshTable() {
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // Rerender the DataTable
+    }, 2000);
   }
 
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
-  }
-
+  /**
+   * Handles Global Permission Group deletion.
+   * Displays a confirmation dialog and deletes the Global Permission Group if confirmed.
+   *
+   * @param {number} id - The ID of the Global Permission Group to delete.
+   * @param {string} name - The name of the Global Permission Group.
+  */
   onDelete(id: number, name: string){
     this.alert.deleteConfirmation(name,'Global permissions').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS, id).subscribe(() => {
+        this.subscriptions.push(this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS, id).subscribe(() => {
           // Successful deletion
           this.alert.okAlert(`Deleted Global permission ${name}`, '');
           this.onRefreshTable(); // Refresh the table
-        });
+        }));
       } else {
         // Handle cancellation
         this.alert.okAlert(`Global permission ${name} is safe!`,'');
@@ -171,13 +235,16 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
     });
   }
 
-  onRefreshTable(){
-    setTimeout(() => {
-      this.ngOnInit();
-      this.rerender();  // rerender datatables
-    },2000);
-  }
+  /**
+   * BULK ACTIONS
+   *
+  */
 
+  /**
+   * Handles Global Permission Group selection.
+   * On multi select grabs the ids to be used for bulk action
+   *
+  */
   onSelectedGroups(){
     $(".dt-button-background").trigger("click");
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
@@ -190,15 +257,15 @@ export class GlobalpermissionsgroupsComponent implements OnInit {
     return selectionnum;
   }
 
+  /**
+   * Handles bulk deletion
+   * Delete the Global Permission Group showing a progress bar
+   *
+  */
   async onDeleteBulk() {
     const GlobalIds = this.onSelectedGroups();
     this.alert.bulkDeleteAlert(GlobalIds,'Global Group Permissions',SERV.ACCESS_PERMISSIONS_GROUPS);
     this.onRefreshTable();
-  }
-
-  // Add unsubscribe to detect changes
-  ngOnDestroy(){
-    this.dtTrigger.unsubscribe();
   }
 
 }
