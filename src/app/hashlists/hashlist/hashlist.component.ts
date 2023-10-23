@@ -141,10 +141,10 @@ export class HashlistComponent implements OnInit, OnDestroy {
 
     const params = {'maxResults': this.maxResults, 'expand': 'hashType,accessGroup', 'filter': 'isArchived='+this.isArchived+''}
 
-    this.gs.getAll(SERV.HASHLISTS,params).subscribe((list: any) => {
+    this.subscriptions.push(this.gs.getAll(SERV.HASHLISTS,params).subscribe((list: any) => {
       this.allhashlists = list.values.filter(u=> u.format != 3); // Exclude superhashlists
       this.dtTrigger.next(void 0);
-    });
+    }));
    })
   }
 
@@ -302,11 +302,11 @@ export class HashlistComponent implements OnInit, OnDestroy {
     this.alert.deleteConfirmation(name,'Hashlists').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        this.gs.delete(SERV.HASHLISTS, id).subscribe(() => {
+        this.subscriptions.push(this.gs.delete(SERV.HASHLISTS, id).subscribe(() => {
           // Successful deletion
           this.alert.okAlert(`Deleted Hashlist ${name}`, '');
           this.onRefreshTable(); // Refresh the table
-        });
+        }));
       } else {
         // Handle cancellation
         this.alert.okAlert(`Hashlist ${name} is safe!`,'');
