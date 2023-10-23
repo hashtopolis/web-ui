@@ -1,10 +1,11 @@
+import { Component, OnInit,OnDestroy, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
 import { FormControl, FormGroup } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject,Subscription } from 'rxjs';
 
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -13,29 +14,45 @@ import { SERV } from '../../core/_services/main.config';
   selector: 'app-hashes',
   templateUrl: './hashes.component.html'
 })
-@PageTitle(['Show Hashes'])
-export class HashesComponent implements OnInit {
+/**
+* The `HashesComponent` is an Angular component responsible for managing and displaying a list of hashes
+* with various filtering and display options using the DataTables library. This documentation provides
+* an overview of the component's structure and functionality.
+*/
+export class HashesComponent implements OnInit,OnDestroy {
+
+  // Component Properties
   editMode = false;
   editedIndex: number;
   edited: any // Change to Model
 
+  // Font Awesome icons
   faCopy=faCopy;
 
-  whichView: string;
-  titleName: any;
-
+  // ViewChild reference to the DataTableDirective
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
+  // Subscriptions to unsubscribe on component destruction
+  subscriptions: Subscription[] = []
+
+  // View type and filter options
+  whichView: string;
+  titleName: any;
+
   constructor(
+    private titleService: AutoTitleService,
     private route:ActivatedRoute,
     private gs: GlobalService,
     private router:Router
-  ) { }
+  ) {
+    titleService.set(['Show Hashes'])
+  }
 
+  // Filtering and Display Properties
   crackPos: any = true;
   cracked:any;
   filtering = "";
@@ -43,6 +60,7 @@ export class HashesComponent implements OnInit {
   displaying = "";
   displayingDescr = "";
 
+  // Filter and Display Options
   filters: any = [{"name":"cracked", "description":"Cracked"},{"name":"uncracked", "description": "Uncracked"},{"name":"", "description": "All"}];
   displays: any = [
     {"name":"", "description": "Hashes + Plaintexts"},
@@ -55,8 +73,48 @@ export class HashesComponent implements OnInit {
 
   matchHashes:any;
 
-  ngOnInit(): void {
+  /**
+   * Initializes DataTable and retrieves hashes..
+  */
 
+  ngOnInit(): void {
+    this.loadHashes();
+    this.setupTable();
+  }
+
+  /**
+   * Unsubscribes from active subscriptions.
+   */
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  // Refresh the data and the DataTable
+  onRefresh() {
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  /**
+   * Rerender the DataTable.
+  */
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.destroy();
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
+  /**
+   * Fetches Hashes from the server
+   * Subscribes to the API response and updates the hashes list.
+  */
+  loadHashes(): void {
     this.route.params
     .subscribe(
       (params: Params) => {
@@ -64,74 +122,24 @@ export class HashesComponent implements OnInit {
       }
     );
 
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-          [10, 25, 50, 100, 250, -1],
-          [10, 25, 50, 100, 250, 'All']
-      ],
-      searching: false,
-      buttons: {
-        dom: {
-          button: {
-            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-          }
-        },
-        buttons: [
-          {
-            extend: 'collection',
-            text: 'Export',
-            buttons: [
-              {
-                extend: 'print',
-                customize: function ( win ) {
-                  $(win.document.title)
-                      .css( 'font-size', '14pt' )
-                  $(win.document.body)
-                      .css( 'font-size', '10pt' )
-                  $(win.document.body).find( 'table' )
-                      .addClass( 'compact' )
-                      .css( 'font-size', 'inherit' );
-               }
-              },
-              {
-                extend: 'csvHtml5',
-                exportOptions: {modifier: {selected: true}},
-                select: true,
-                customize: function (dt, csv) {
-                  let data = "";
-                  for (let i = 0; i < dt.length; i++) {
-                    data = "Hashes Information\n\n"+  dt;
-                  }
-                  return data;
-               }
-              }
-              ]
-            },
-          ],
-        }
-      }
-
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
         case 'chunkshash':
           this.whichView = 'chunks';
-          this.gs.get(SERV.CHUNKS,this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']});
+          this.subscriptions.push(this.gs.get(SERV.CHUNKS,this.editedIndex).subscribe((result)=>{this.titleName = result['chunkId']}));
           this.initChashes();
         break;
 
         case 'taskhas':
           this.whichView = 'tasks';
-          this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']});
+          this.subscriptions.push(this.gs.get(SERV.TASKS,this.editedIndex).subscribe((result)=>{this.titleName = result['taskName']}));
           this.initThashes();
         break;
 
         case 'hashlisthash':
           this.whichView = 'hashlists';
-          this.gs.get(SERV.HASHLISTS,this.editedIndex).subscribe((result)=>{this.titleName = result['name']});
+          this.subscriptions.push(this.gs.get(SERV.HASHLISTS,this.editedIndex).subscribe((result)=>{this.titleName = result['name']}));
           this.initHhashes();
         break;
 
@@ -140,29 +148,102 @@ export class HashesComponent implements OnInit {
     });
   }
 
+  /**
+   * Sets up the DataTable options and buttons.
+   * Customizes DataTable appearance and behavior.
+   */
+  setupTable(): void {
+    // DataTables options
+  this.dtOptions = {
+    dom: 'Bfrtip',
+    scrollX: true,
+    pageLength: 25,
+    lengthMenu: [
+        [10, 25, 50, 100, 250, -1],
+        [10, 25, 50, 100, 250, 'All']
+    ],
+    searching: false,
+    buttons: {
+      dom: {
+        button: {
+          className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+        }
+      },
+      buttons: [
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [
+            {
+              extend: 'print',
+              customize: function ( win ) {
+                $(win.document.title)
+                    .css( 'font-size', '14pt' )
+                $(win.document.body)
+                    .css( 'font-size', '10pt' )
+                $(win.document.body).find( 'table' )
+                    .addClass( 'compact' )
+                    .css( 'font-size', 'inherit' );
+             }
+            },
+            {
+              extend: 'csvHtml5',
+              exportOptions: {modifier: {selected: true}},
+              select: true,
+              customize: function (dt, csv) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
+                  data = "Hashes Information\n\n"+  dt;
+                }
+                return data;
+             }
+            }
+            ]
+          },
+        ],
+      }
+    }
+  }
+
+  /**
+   * Initialize based on Chunk hashes
+   *
+  */
   private initChashes() {
     const param = {'filter': 'chunkId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
+  /**
+   * Initialize based on Tasks hashes
+   *
+  */
   private initThashes() {
     // This should enough to filter by id
     // let param = {'filter': 'taskId='+this.editedIndex+''};
     this.getHashes();
   }
 
+  /**
+   * Initialize based on Hashlists hashes
+   *
+  */
   private initHhashes() {
     const param = {'filter': 'hashlistId='+this.editedIndex+''};
     this.getHashes(param);
   }
 
+  /**
+   * Fetch hashes from the server
+   *
+  */
   async getHashes(param?: any){
 
     const params = {'maxResults': 90000, 'expand':'hashlist,chunk'};
 
     const nwparams = {...params, ...param};
 
-    this.gs.getAll(SERV.HASHES,nwparams).subscribe((hashes: any) => {
+    this.subscriptions.push(this.gs.getAll(SERV.HASHES,nwparams).subscribe((hashes: any) => {
       let res = hashes.values;
       console.log(this.whichView);
       if(this.whichView === 'tasks'){
@@ -178,9 +259,11 @@ export class HashesComponent implements OnInit {
         this.matchHashes = res;
       }
       this.dtTrigger.next(null);
-    });
+    }));
 
   }
+
+  // Initialize the form for display and filter options
 
   viewForm: FormGroup;
 
@@ -203,6 +286,7 @@ export class HashesComponent implements OnInit {
     });
   }
 
+  // Update query parameters and trigger updates
   onQueryp(name: any, type: number){
     let query = {}
     if(type == 0){
@@ -216,6 +300,7 @@ export class HashesComponent implements OnInit {
     this.ngOnInit();
   }
 
+  // Update display or filter options
   onDisplaying(name: string, type:number){
     if(type == 0){
       this.displaying = name;
@@ -232,11 +317,7 @@ export class HashesComponent implements OnInit {
     }
   }
 
-  onOK(){
-    this.rerender();
-    this.ngOnInit();
-  }
-
+  // Get the description for filter and display options
   getDescrip(item: string, type:number){
     if(type == 0){
       this.displayingDescr = this.displays.find(obj => obj.name === item).description;
@@ -248,17 +329,5 @@ export class HashesComponent implements OnInit {
       return this.displays.find(obj => obj.name === item).description;
     }
   }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next(null);
-      });
-    });
-  }
-
 
 }
