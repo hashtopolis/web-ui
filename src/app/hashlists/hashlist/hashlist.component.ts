@@ -1,14 +1,13 @@
 import { faEdit, faTrash, faLock, faFileImport, faFileExport, faArchive, faPlus, faHomeAlt, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { DataTableDirective } from 'angular-datatables';
+import { Subject, Subscription } from 'rxjs';
 
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
 declare let $:any;
@@ -17,9 +16,15 @@ declare let $:any;
   selector: 'app-hashlist',
   templateUrl: './hashlist.component.html'
 })
-@PageTitle(['Show Hashlists'])
+/**
+ * HashlistComponent is a component that manages and displays all hashlist data.
+ *
+ * It uses DataTables to display and interact with the users hashlist data, including exporting, deleting, bulk actions
+ * and refreshing the table.
+ */
 export class HashlistComponent implements OnInit, OnDestroy {
 
+  // Font Awesome icons
   faCheckCircle=faCheckCircle;
   faFileImport=faFileImport;
   faFileExport=faFileExport;
@@ -30,12 +35,14 @@ export class HashlistComponent implements OnInit, OnDestroy {
   faPlus=faPlus;
   faEdit=faEdit;
 
+  // ViewChild reference to the DataTableDirective
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
+  // List of hashlists ToDo. Change to interface
   public allhashlists: {
     hashlistId: number,
     name: string,
@@ -54,22 +61,69 @@ export class HashlistComponent implements OnInit, OnDestroy {
     isArchived: string,
     accessGroup: {accessGroupId: number, groupName: string}
     hashType: {description: string, hashTypeId: number, isSalted: string, isSlowHash: string}
-  }[] = []; // Should be in models, Todo when data structure is confirmed
+  }[] = [];
+
+  // Subscriptions to unsubscribe on component destruction
+  subscriptions: Subscription[] = []
+
+  private maxResults = environment.config.prodApiMaxResults;
+
+  // View type and filter options
+  isArchived: boolean;
+  whichView: string;
 
   constructor(
+    private titleService: AutoTitleService,
     private route:ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router
-    ) { }
+    ) {
+      titleService.set(['Show Hashlists'])
+    }
 
-  isArchived: boolean;
-  whichView: string;
-
-  private maxResults = environment.config.prodApiMaxResults
+  /**
+   * Initializes DataTable and retrieves pretasks.
+  */
 
   ngOnInit(): void {
+    this.getHashlists();
+    this.setupTable();
+  }
 
+  /**
+   * Unsubscribes from active subscriptions.
+   */
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  // Refresh the data and the DataTable
+  onRefresh() {
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  /**
+   * Rerender the DataTable.
+  */
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      dtInstance.destroy();
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
+  /**
+   * Fetches Hashlists from the server filtering by live or archived
+   * Subscribes to the API response and updates the Users list.
+  */
+  getHashlists(): void {
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
@@ -91,7 +145,15 @@ export class HashlistComponent implements OnInit, OnDestroy {
       this.allhashlists = list.values.filter(u=> u.format != 3); // Exclude superhashlists
       this.dtTrigger.next(void 0);
     });
+   })
+  }
 
+  /**
+   * Sets up the DataTable options and buttons.
+   * Customizes DataTable appearance and behavior.
+   */
+  setupTable(): void {
+    // DataTables options
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
@@ -205,88 +267,92 @@ export class HashlistComponent implements OnInit, OnDestroy {
           },
         ],
       }
-    };
-
-  });
-
-}
-
-onRefresh(){
-  this.ngOnInit();
-  this.rerender();  // rerender datatables
-}
-
-rerender(): void {
-  this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-    // Destroy the table first
-    dtInstance.destroy();
-    // Call the dtTrigger to rerender again
-    setTimeout(() => {
-      this.dtTrigger['new'].next();
-    });
-  });
-}
-
-onArchive(id: number){
-  this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
-    this.alert.okAlert('Archived!','');
-    this.ngOnInit();
-    this.rerender();  // rerender datatables
-  });
-}
-
-onDelete(id: number, name: string){
-  this.alert.deleteConfirmation(name,'Hashlists').then((confirmed) => {
-    if (confirmed) {
-      // Deletion
-      this.gs.delete(SERV.HASHLISTS, id).subscribe(() => {
-        // Successful deletion
-        this.alert.okAlert(`Deleted Hashlist ${name}`, '');
-        this.onRefreshTable(); // Refresh the table
-      });
-    } else {
-      // Handle cancellation
-      this.alert.okAlert(`Hashlist ${name} is safe!`,'');
     }
-  });
-}
-
-onRefreshTable(){
-  setTimeout(() => {
-    this.ngOnInit();
-    this.rerender();  // rerender datatables
-  },2000);
-}
-
-// Bulk actions
-
-onSelectedHashlists(){
-  $(".dt-button-background").trigger("click");
-  const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-  if(selection.length == 0) {
-    this.alert.okAlert('You haven not selected any Group','');
-    return;
   }
-  const selectionnum = selection.map(i=>Number(i));
 
-  return selectionnum;
-}
+  // Refresh the table after a delete operation
+  onRefreshTable() {
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // Rerender the DataTable
+    }, 2000);
+  }
 
-async onDeleteBulk() {
-  const HashlistIds = this.onSelectedHashlists();
-  this.alert.bulkDeleteAlert(HashlistIds,'Hashlists',SERV.HASHLISTS);
-  this.onRefreshTable();
-}
+  /**
+   * Archives a hashlist with the given ID.
+   *
+   * @param {number} id - The ID of the hashlist to archive.
+  */
+  onArchive(id: number){
+    this.gs.archive(SERV.HASHLISTS,id).subscribe((list: any) => {
+      this.alert.okAlert('Archived!','');
+      this.ngOnInit();
+      this.rerender();  // rerender datatables
+    });
+  }
 
-async onUpdateBulk(value: any) {
-  const HashlistIds = this.onSelectedHashlists();
-  this.alert.bulkUpdateAlert(HashlistIds,value,'Hashlists',SERV.HASHLISTS);
-  this.onRefreshTable();
-}
+  /**
+   * Handles the deletion of a hashlist.
+   * Displays a confirmation dialog and deletes the hashlist if confirmed.
+   *
+   * @param {number} id - The ID of the hashlist to delete.
+   * @param {string} name - The name of the hashlist.
+  */
+  onDelete(id: number, name: string){
+    this.alert.deleteConfirmation(name,'Hashlists').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.gs.delete(SERV.HASHLISTS, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Hashlist ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
+        });
+      } else {
+        // Handle cancellation
+        this.alert.okAlert(`Hashlist ${name} is safe!`,'');
+      }
+    });
+  }
 
-// Add unsubscribe to detect changes
-ngOnDestroy(){
-  this.dtTrigger.unsubscribe();
-}
+  // Bulk actions
+
+  /**
+   * Handles hashlist selection for bulk actions.
+   *
+   * @returns {number[]} - An array of selected hashlist IDs.
+   */
+  onSelectedHashlists(){
+    $(".dt-button-background").trigger("click");
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    if(selection.length == 0) {
+      this.alert.okAlert('You haven not selected any Group','');
+      return;
+    }
+    const selectionnum = selection.map(i=>Number(i));
+
+    return selectionnum;
+  }
+
+  /**
+   * Handles bulk deletion
+   * Delete the hashlists showing a progress bar
+   *
+  */
+  async onDeleteBulk() {
+    const HashlistIds = this.onSelectedHashlists();
+    this.alert.bulkDeleteAlert(HashlistIds,'Hashlists',SERV.HASHLISTS);
+    this.onRefreshTable();
+  }
+
+  /**
+   * Updates the selected hashlists with the given value.
+   *
+   * @param {any} value - The value to update the selected hashlists with.
+  */
+  async onUpdateBulk(value: any) {
+    const HashlistIds = this.onSelectedHashlists();
+    this.alert.bulkUpdateAlert(HashlistIds,value,'Hashlists',SERV.HASHLISTS);
+    this.onRefreshTable();
+  }
 
 }
