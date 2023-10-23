@@ -2,7 +2,6 @@ import { faTrash, faPlus, faEye, faEdit } from '@fortawesome/free-solid-svg-icon
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Subject, Subscription } from 'rxjs';
 
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
@@ -17,6 +16,8 @@ export interface Filter {
   id: number,
   name: string
 }
+
+declare let $:any;
 
 @Component({
   selector: 'app-notifications',
@@ -181,12 +182,33 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             ]
           },
           {
+            extend: 'collection',
+            text: 'Bulk Actions',
+            buttons: [
+                  {
+                    text: 'Delete Notification(s)',
+                    autoClose: true,
+                    action: function (e, dt, node, config) {
+                      self.onDeleteBulk();
+                    }
+                  }
+               ]
+          },
+          {
             extend: 'pageLength',
             className: 'btn-sm'
           }
         ],
       }
     }
+  }
+
+  // Refresh the table after a delete operation
+  onRefreshTable() {
+    setTimeout(() => {
+      this.ngOnInit();
+      this.rerender();  // Rerender the DataTable
+    }, 2000);
   }
 
   /**
@@ -197,52 +219,49 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * @param {string} name - The name of the notification.
    */
   onDelete(id: number, name: string) {
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal
-      .fire({
-        title: `Remove ${name} from your notifications?`,
-        icon: 'warning',
-        reverseButtons: true,
-        showCancelButton: true,
-        cancelButtonColor: this.alert.cancelButtonColor,
-        confirmButtonColor: this.alert.confirmButtonColor,
-        confirmButtonText: this.alert.delconfirmText
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          this.deleteNotification(id,name)
-        } else {
-          swalWithBootstrapButtons.fire({
-            title: 'Cancelled',
-            text: 'Your Notification is safe!',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 1500
-          })
-        }
-      });
+    this.alert.deleteConfirmation(name,'Notifications').then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        this.subscriptions.push(this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted notification ${name}`, '');
+          this.onRefreshTable(); // Refresh the table
+        }));
+      } else {
+        // Handle cancellation
+        this.alert.okAlert(`Notification ${name} is safe!`,'');
+      }
+    });
+  }
+
+  // Bulk actions
+
+  /**
+   * Handles Notifications selection for bulk actions.
+   *
+   * @returns {number[]} - An array of selected hashlist IDs.
+   */
+  onSelectedNotifications(){
+    $(".dt-button-background").trigger("click");
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
+    if(selection.length == 0) {
+      this.alert.okAlert('You haven not selected any Notification','');
+      return;
+    }
+    const selectionnum = selection.map(i=>Number(i));
+
+    return selectionnum;
   }
 
   /**
-   * Handles the deletion of a notification.
-   * Sends an delete request to the backend and displays a success alert and rebuilds
-   * the datatable on success.
+   * Handles bulk deletion
+   * Delete the Notifications showing a progress bar
    *
-   * @param {number} id - The ID of the notification to delete.
-   */
-  deleteNotification(id: number, name: string): void {
-    this.subscriptions.push(this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
-      this.alert.okAlert('Deleted '+name+'','');
-      this.getNotifications();
-      this.rerender();
-      this.setupTable();
-    }));
+  */
+  async onDeleteBulk() {
+    const NotifIds = this.onSelectedNotifications();
+    this.alert.bulkDeleteAlert(NotifIds,'Notifications',SERV.NOTIFICATIONS);
+    this.onRefreshTable();
   }
 
   /**
