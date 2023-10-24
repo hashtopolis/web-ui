@@ -21,6 +21,10 @@ input.ng-invalid.ng-touched {
   width: auto;
 }
 
+select, input {
+  max-width: 500px !important;
+}
+
 /*
   01- End
 */

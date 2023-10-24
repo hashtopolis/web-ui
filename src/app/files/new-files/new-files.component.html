@@ -1,7 +1,7 @@
 <app-page-subtitle [subtitle]="title"></app-page-subtitle>
 <!-- Body -->
 <grid-main [class]="'width:100%'" [centered]="true">
-  <div class="container">
+  <!-- <div class="container"> -->
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
         <li class="files-theme" [class.active]="viewMode == 'tab1'" rel="tab1" (click)="souceType('import', 'tab1')"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon></li>
@@ -117,5 +117,5 @@
         </div>
       </div>
     </div>
-  </div>
+  <!-- </div> -->
 </grid-main>
