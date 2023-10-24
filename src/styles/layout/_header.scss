@@ -540,6 +540,15 @@ svg {
   }
 }
 
+.account-active {
+  border: 1px solid #ccc; /* Set a gray border */
+  background-color: #fff; /* Set the background color to white */
+  color: #333; /* Set the text color to a darker shade of gray */
+  padding: 8px 12px; /* Add padding for spacing */
+  margin-top: 2px !important; /* Set the top margin to match the text height */
+  border-radius: 10px; /* Set a more rounded border */
+}
+
 /*
   01- End
 */

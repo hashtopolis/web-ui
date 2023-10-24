@@ -12,6 +12,7 @@ import { NewAgentComponent } from "./new-agent/new-agent.component";
 const routes: Routes = [
   {
     path: '',
+    canActivate: [IsAuth],
     children: [
       {
         path: 'agent-status', component: AgentStatusComponent,
@@ -20,7 +21,7 @@ const routes: Routes = [
             breadcrumb: 'Agent Status',
             permission: 'Agent' //ToDo this one has Agent read and Agent Stats read
         },
-        canActivate: [IsAuth,CheckPerm]
+        canActivate: [CheckPerm]
       },
       {
         path: 'new-agent', component: NewAgentComponent,
@@ -29,7 +30,7 @@ const routes: Routes = [
             breadcrumb: 'New Agent',
             permission: 'Agent'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]},
       {
         path: 'show-agents', component: ShowAgentsComponent,
         data: {
@@ -37,7 +38,7 @@ const routes: Routes = [
             breadcrumb: 'Show Agent',
             permission: 'Agent'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]},
       {
         path: 'show-agents/:id/edit', component: EditAgentComponent,
         data: {
@@ -45,7 +46,7 @@ const routes: Routes = [
             breadcrumb: 'Edit Agent',
             permission: 'Agent'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]},
       ]
     },
 ];
