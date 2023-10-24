@@ -35,7 +35,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
-  updateForm: FormGroup
+  updateForm: FormGroup;
 
   ngOnInit(): void {
 
