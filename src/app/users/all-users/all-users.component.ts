@@ -261,7 +261,7 @@ export class AllUsersComponent implements OnInit, OnDestroy {
     $(".dt-button-background").trigger("click");
     const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true }).data().pluck(0).toArray();
     if (selection.length == 0) {
-      this.alert.okAlert('You have not selected any Group', '');
+      this.alert.okAlert('You have not selected any User', '');
       return;
     }
     const selectionnum = selection.map(i => Number(i));
