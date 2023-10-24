@@ -44,6 +44,15 @@ div.dataTables_wrapper div.dataTables_info {
   color: white;
 }
 
+//Error Message
+
+.err-msg {
+  background: #060606;
+  padding: 1rem;
+  font-family: monospace;
+  word-break: break-all;
+}
+
 // Dashboard
 
 .card-category {
