@@ -294,7 +294,10 @@
               </ngb-panel>
             </ngb-accordion>
           <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
-          <button-submit [name]="'Create'"></button-submit>
+          <grid-buttons>
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'"></button-submit>
+          </grid-buttons>
       </form>
     </grid-main>
   </div>

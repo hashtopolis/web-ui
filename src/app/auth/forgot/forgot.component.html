@@ -25,7 +25,10 @@
               required
         >
       </grid-form-input>
-      <button-submit [name]="'Reset'"></button-submit>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Reset'"></button-submit>
+      </grid-buttons>
     </div>
   </form>
 </grid-main>

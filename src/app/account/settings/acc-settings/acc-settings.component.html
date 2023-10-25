@@ -30,7 +30,9 @@
       </grid-form-input>
       <!-- Todo Erros here -->
       <!-- <app-pass-match [newPassword]="form.controls['newpassword'].value" [confirmPassword]="form.controls['confirmpass'].value" ></app-pass-match> -->
-      <button-submit [name]="'Update'" [disabled]="!form.valid" data-testid="button-submit"></button-submit>
+      <grid-buttons>
+        <button-submit [name]="'Update'" [disabled]="!form.valid" data-testid="button-submit"></button-submit>
+      </grid-buttons>
     </div>
   </form>
 </grid-main>

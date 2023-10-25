@@ -33,8 +33,10 @@
       </div>
     </grid-form-input>
     <div>
-      <button-submit [name]="'Update'" (click)="onSubmit()"></button-submit>
-      <button class="btn btn-danger" (click)="onDelete()">Delete</button>
+      <grid-buttons>
+        <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+        <button-submit [name]="'Update'" (click)="onSubmit()"></button-submit>
+      </grid-buttons>
     </div>
    </div>
   </form>

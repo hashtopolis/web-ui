@@ -33,7 +33,10 @@
             data-testid="input-is-active">
         </div>
       </grid-form-input>
-      <button-submit [name]="submitLabel" [disabled]="!formIsValid()" data-testid="button-create"></button-submit>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="submitLabel" [disabled]="!formIsValid()" data-testid="button-create"></button-submit>
+      </grid-buttons>
     </div>
   </form>
 </grid-main>

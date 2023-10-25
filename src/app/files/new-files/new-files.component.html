@@ -54,9 +54,10 @@
                   <p><b>Upload completed!</b></p>
                 </div>
             </div>&nbsp;
-            <div class="col-sm">
+            <grid-buttons>
+              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
               <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
-            </div>
+            </grid-buttons>
             <!-- check text to be changed -->
             <div class='alert alert-dark row justify-content-center closesys'>
               Do not refresh the page while uploading
@@ -108,9 +109,10 @@
                 </div>
             </div>
           </div>
-          <div class="col-sm">
+          <grid-buttons>
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
             <button-submit [name]="'Create'"></button-submit>
-          </div>
+          </grid-buttons>
         </form>
         <div class='alert alert-dark row justify-content-center closesys'>
           Files are uploaded to the server using a public/private link (URL).

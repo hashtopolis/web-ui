@@ -28,8 +28,8 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-gray-800" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" >Apply to Hashlist</button>
-        <button class="btn btn-danger" (ngSubmit)="onDelete()">Delete</button>
+          <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+          <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" (click)="onSubmit()"></button-submit>
         </form>
         <hr>
         <h5>Add Pretask</h5>
@@ -51,7 +51,7 @@
               </div>
             </grid-form-input>
           </div>
-          <button-submit [name]="'Add'"></button-submit>
+            <button-submit [name]="'Add'"></button-submit>
         </form>
   </grid-main>
 </div>

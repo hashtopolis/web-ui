@@ -149,7 +149,10 @@
                 </textarea>
               </td>
               <br>
-              <button-submit [name]="'Create'" (click)="onSubmit()"></button-submit>
+              <grid-buttons>
+                <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+                <button-submit [name]="'Create'" (click)="onSubmit()"></button-submit>
+              </grid-buttons>
             </div>  <!-- end paste Haslist -->
 
             <div id="uploadLine">  <!-- start Upload Haslist -->
@@ -182,7 +185,10 @@
                   <p><b>Upload completed!</b></p>
                 </div>
                 <br>
-              <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+                <grid-buttons>
+                  <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+                  <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+                </grid-buttons>
 
             </div>   <!-- end Upload -->
 

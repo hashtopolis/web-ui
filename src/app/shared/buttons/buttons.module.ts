@@ -1,4 +1,5 @@
 import { ButtonSubmitComponent } from './button-submit';
+import { GridButtonsComponent } from './grid-cancel';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
@@ -9,10 +10,12 @@ import { NgModule } from '@angular/core';
     CommonModule
   ],
   exports: [
-    ButtonSubmitComponent
+    ButtonSubmitComponent,
+    GridButtonsComponent
   ],
   declarations: [
-    ButtonSubmitComponent
+    ButtonSubmitComponent,
+    GridButtonsComponent
   ]
 })
 export class ButtonsModule { }

@@ -15,7 +15,10 @@
         <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
         </select>
       </grid-form-input>
-      <button-submit [name]="'Create'"></button-submit>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'"></button-submit>
+      </grid-buttons>
     </div>
   </form>
 </grid-main>

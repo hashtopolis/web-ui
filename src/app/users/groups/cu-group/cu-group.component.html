@@ -12,10 +12,15 @@
           </grid-form-input>
           <div [ngSwitch]="whichView">
             <div *ngSwitchCase="'create'">
-              <button-submit [name]="'Create'"></button-submit>
+              <grid-buttons>
+                <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+                <button-submit [name]="'Create'"></button-submit>
+              </grid-buttons>
             </div>
             <div *ngSwitchCase="'edit'">
-              <button-submit [name]="'Update'"></button-submit>
+              <grid-buttons>
+                <button-submit [name]="'Update'"></button-submit>
+              </grid-buttons>
             </div>
           </div>
       </div>
