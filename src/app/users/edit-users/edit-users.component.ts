@@ -93,7 +93,7 @@ export class EditUsersComponent implements OnInit {
  }
 
   onDelete(){
-    this.alert.deleteConfirmation('','Hashtypes').then((confirmed) => {
+    this.alert.deleteConfirmation('','Users').then((confirmed) => {
       if (confirmed) {
         // Deletion
         this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
