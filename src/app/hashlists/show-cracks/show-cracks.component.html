@@ -19,7 +19,9 @@
     <tr *ngFor="let hash of allhashes">
         <td>{{ hash.timeCracked | uiDate }}</td>
         <td>{{ hash.plaintext }}</td>
-        <td>{{ hash.hash }}</td>
+        <td>
+          <btn-truncate-text [text]="hash.hash"></btn-truncate-text>
+        </td>
         <td>
           <a [routerLink]="['/hashlists/hashlist/',hash.hashlist.hashlistId,'edit']" ngbTooltip={{hash.hashlist.name}}>{{ hash.hashlist.name | shortenString:30 }}</a>
         </td>

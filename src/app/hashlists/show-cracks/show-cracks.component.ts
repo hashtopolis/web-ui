@@ -1,46 +1,112 @@
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
-import { Component, OnInit, ViewChild } from '@angular/core';
 import { faPlus} from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 
 @Component({
   selector: 'app-show-cracks',
   templateUrl: './show-cracks.component.html'
 })
-@PageTitle(['Show Cracks'])
-export class ShowCracksComponent implements OnInit {
+/**
+ * ShowCracksComponent is a component that manages and displays all groups data.
+ *
+ * It uses DataTables to display and interact with the groups data, including exporting, deleting, bulk actions
+ * and refreshing the table.
+*/
+export class ShowCracksComponent implements OnInit, OnDestroy {
 
+  // Font Awesome icons
   faPlus=faPlus;
 
+  // ViewChild reference to the DataTableDirective
   @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-  constructor(
-    private uiService: UIConfigService,
-    private gs: GlobalService,
-  ) { }
-
+  // List of hashes ToDo. Change Interface
   allhashes: any = [];
+
+  // Subscriptions to unsubscribe on component destruction
+  subscriptions: Subscription[] = []
+
   private maxResults = environment.config.prodApiMaxResults;
 
+  constructor(
+    private titleService: AutoTitleService,
+    private gs: GlobalService,
+  ) {
+    titleService.set(['Show Cracks'])
+  }
+
+  /**
+   * Initializes DataTable and retrieves groups.
+  */
   ngOnInit(): void {
+    this.loadCracks();
+    this.setupTable();
+  }
+
+  /**
+   * Unsubscribes from active subscriptions and DataTable.
+  */
+  ngOnDestroy(): void {
+    this.dtTrigger.unsubscribe();
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  /**
+   * Refreshes the data and the DataTable.
+  */
+  onRefresh() {
+    this.rerender();
+    this.ngOnInit();
+  }
+
+  /**
+   * Rerenders the DataTable instance.
+   * Destroys and recreates the DataTable to reflect changes.
+  */
+  rerender(): void {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the table first
+      dtInstance.destroy();
+      // Call the dtTrigger to rerender again
+      setTimeout(() => {
+        this.dtTrigger['new'].next();
+      });
+    });
+  }
+
+  /**
+   * Fetches Hashes from the server.
+   * Subscribes to the API response and updates the Groups list.
+  */
+  loadCracks() {
 
     const params = {'maxResults': this.maxResults, 'filter': 'isCracked=1', 'expand':'hashlist,chunk'}
 
-    this.gs.getAll(SERV.HASHES,params).subscribe((hashes: any) => {
-      this.allhashes = hashes.values;
+    this.gs.getAll(SERV.HASHES,params).subscribe((response: any) => {
+      this.allhashes = response.values;
       this.dtTrigger.next(void 0);
     });
+
+  }
+
+  /**
+   * Sets up the DataTable options and buttons.
+   * Customizes DataTable appearance and behavior.
+  */
+  setupTable(): void {
+    // DataTables options
     const self = this;
     this.dtOptions = {
       dom: 'Bfrtip',
@@ -88,7 +154,7 @@ export class ShowCracksComponent implements OnInit {
                 $(win.document.body).find( 'table' )
                     .addClass( 'compact' )
                     .css( 'font-size', 'inherit' );
-             }
+            }
             },
             {
               extend: 'csvHtml5',
@@ -100,7 +166,7 @@ export class ShowCracksComponent implements OnInit {
                   data = "Logs\n\n"+  dt;
                 }
                 return data;
-             }
+            }
             },
               'copy'
             ]
@@ -117,27 +183,5 @@ export class ShowCracksComponent implements OnInit {
         ],
       }
     };
-
   }
-
-  onRefresh(){
-    this.rerender();
-    this.ngOnInit();
-  }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      dtInstance.destroy();
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
-  }
-
-
-  ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
-  }
-
-
 }

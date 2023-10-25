@@ -5,7 +5,10 @@ import { NgModule } from "@angular/core";
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 import { HashtypeDetectorComponent } from "./hashtype-detector/hashtype-detector.component";
 import { ActiveSpinnerComponent } from './loading-spinner/loading-spinner-active.component';
+import { PassStrenghtComponent } from './password/pass-strenght/pass-strenght.component';
+import { ButtonTruncateTextComponent } from './table/button-truncate-text.component';
 import { HexconvertorComponent } from "./utils/hexconvertor/hexconvertor.component";
+import { PassMatchComponent } from './password/pass-match/pass-match.component';
 import { CheatsheetComponent } from "./alert/cheatsheet/cheatsheet.component";
 import { FilterTextboxModule } from "./filter-textbox/filter-textbox.module";
 import { SwitchThemeModule } from "./switch-theme/switch-theme.module";
@@ -20,11 +23,10 @@ import { LottiesModule } from './lottie/lottie.module';
 import { GraphsModule } from "./graphs/graphs.module";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormsModule } from "@angular/forms";
-import { PassStrenghtComponent } from './password/pass-strenght/pass-strenght.component';
-import { PassMatchComponent } from './password/pass-match/pass-match.component';
 
 @NgModule({
   declarations: [
+    ButtonTruncateTextComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     ActiveSpinnerComponent,
@@ -51,6 +53,7 @@ import { PassMatchComponent } from './password/pass-match/pass-match.component';
     NgbModule
   ],
   exports: [
+    ButtonTruncateTextComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     ActiveSpinnerComponent,
