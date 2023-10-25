@@ -2,31 +2,33 @@
 <!-- Table current members -->
 <div class="row g-3">
   <div class="col-md-5" *ngIf="editedGPG">
-    <app-page-subtitle [subtitle]="'Members'"></app-page-subtitle>
-    <div class="table-responsive">
-      &nbsp;
-        <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
-          <thead class="thead-light">
-            <tr>
-              <th class="rounded-start">ID</th>
-              <th class="rounded-end">Username</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let g of editedGPG.user">
-              <td>
-              {{ g.id }}
-              </td>
-              <td>
-                <a [routerLink]="['/users/',g.id,'edit']">{{ g.name }}</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-    </div>
+    <grid-main [class]="'width:100%'" [centered]="true">
+      <app-page-subtitle [subtitle]="'Members'"></app-page-subtitle>
+      <div class="table-responsive">
+          <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
+            <thead class="thead-light">
+              <tr>
+                <th class="rounded-start">ID</th>
+                <th class="rounded-end">Username</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let g of editedGPG.user">
+                <td>
+                {{ g.id }}
+                </td>
+                <td>
+                  <a [routerLink]="['/users/',g.id,'edit']">{{ g.name }}</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+   </grid-main>
   </div>
 <!-- Set permissions -->
   <div [ngClass]="editedGPG ? 'col-md-7':'' ">
+    <grid-main [class]="'width:100%'" [centered]="true">
     <app-page-subtitle [subtitle]="'Set Permissions'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <grid-form-input [name]="'Permission Group Name'" [labelclass]="'requiredak'">
@@ -811,5 +813,6 @@
       <button-submit [name]="'Update'"></button-submit>
     </grid-buttons>
     </form>
+  </grid-main>
   </div>
 </div>

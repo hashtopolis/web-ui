@@ -1,41 +1,54 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
 
 @Component({
   selector: 'app-edit-globalpermissionsgroups',
   templateUrl: './edit-globalpermissionsgroups.component.html'
 })
-@PageTitle(['Edit Global Permissions'])
-export class EditGlobalpermissionsgroupsComponent implements OnInit {
-  editMode = false;
-  editedGPGIndex: number;
-  editedGPG: any // Change to Model
-  active= 1;
+/**
+ * EditGlobalpermissionsgroupsComponent is a component that manages and edit Global Permissions data.
+ *
+*/
+export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
 
+  // Font Awesome icons
   faEye=faEye;
 
-  constructor(
-    private route:ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) { }
-
+  // ViewChild reference to the DataTableDirective
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
+
+  // Subscriptions to unsubscribe on component destruction
+  subscriptions: Subscription[] = []
+
+  // Filters and forms
+  editMode = false;
+  editedGPGIndex: number;
   updateForm: FormGroup;
+  editedGPG: any // Change to Model
+  active= 1;
+
+  constructor(
+    private titleService: AutoTitleService,
+    private route:ActivatedRoute,
+    private alert: AlertService,
+    private gs: GlobalService,
+    private router: Router
+  ) {
+    titleService.set(['Edit Global Permissions'])
+   }
 
   ngOnInit(): void {
 
@@ -136,14 +149,26 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit {
 
   }
 
+  /**
+   * Unsubscribes from active subscriptions.
+  */
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
+  /**
+   * OnSubmit save changes
+  */
   onSubmit(){
     if (this.updateForm.valid) {
-      this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe(() => {
+      this.subscriptions.push(this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe(() => {
         this.alert.okAlert('Global Permission Group saved!','');
         this.updateForm.reset();
         this.router.navigate(['/users/global-permissions-groups']);
         }
-      );
+      ));
     }
   }
 
