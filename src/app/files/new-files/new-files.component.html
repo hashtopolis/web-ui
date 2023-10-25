@@ -4,13 +4,14 @@
   <!-- <div class="container"> -->
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
-        <li class="files-theme" [class.active]="viewMode == 'tab1'" rel="tab1" (click)="souceType('import', 'tab1')"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon></li>
+        <li class="files-theme" [class.active]="viewMode == 'tab1'" rel="tab1" (click)="souceType('import', 'tab1')"><fa-icon [icon]="faUpload"  aria-hidden="true"></fa-icon></li>
         <li class="files-theme" [class.active]="viewMode == 'tab2'" rel="tab2" (click)="souceType('inline', 'tab2')"><fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon></li>
       </ul>
     </div>
     <div class="tab-slider--container" [ngSwitch]="viewMode">
       <div id="tab1" class="tab-slider--body" *ngSwitchCase="'tab1'">
         <form [formGroup]="createForm">
+          <h3>Upload from your computer</h3>
           <div class="col-sm">
             <div class="form-group">
               <label class="form-label display-col requiredak" for="Associatedg">Associated Access Group</label>
@@ -53,7 +54,7 @@
                 <div *ngIf="uploadProgress === 100">
                   <p><b>Upload completed!</b></p>
                 </div>
-            </div>&nbsp;
+            </div>
             <grid-buttons>
               <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
               <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
@@ -65,6 +66,7 @@
         </form>
       </div>
       <div id="tab2" class="tab-slider--body" *ngSwitchCase="'tab2'">
+        <h3>Download via URL</h3>
         <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
             <div class="col-md-6">
