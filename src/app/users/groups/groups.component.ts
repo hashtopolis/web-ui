@@ -16,7 +16,6 @@ declare let $:any;
   selector: 'app-groups',
   templateUrl: './groups.component.html'
 })
-@PageTitle(['Show Groups'])
 /**
  * GroupsComponent is a component that manages and displays all groups data.
  *
