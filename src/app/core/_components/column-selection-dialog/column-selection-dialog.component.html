@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>Select Columns</h2>
+
+<mat-dialog-content>
+  <mat-selection-list [(ngModel)]="selectedColumns">
+    <mat-list-option *ngFor="let column of data.availableColumns" [value]="column">{{ column }}</mat-list-option>
+  </mat-selection-list>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-flat-button [mat-dialog-close]="selectedColumns">OK</button>
+  <button mat-flat-button (click)="closeDialog()">Cancel</button>
+</mat-dialog-actions>
