@@ -1,0 +1,16 @@
+<h2 mat-dialog-title [ngClass]="data.warn ? 'text-critical' : 'text-primary'">
+  <mat-icon *ngIf="data.icon">{{ data.icon }}</mat-icon>
+  {{ data.title }}
+</h2>
+<div mat-dialog-content>
+  <ul *ngIf="data.listAttribute && data.rows.length > 0">
+    <li *ngFor="let row of data.rows">{{ row[data.listAttribute] }}</li>
+  </ul>
+  <p *ngIf="data.body">{{ data.body }}</p>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-flat-button (click)="onNoClick()">{{ data.cancelLabel ? data.cancelLabel : 'Cancel' }}</button>
+  <button mat-flat-button cdkFocusInitial [mat-dialog-close]="{ data: data.rows, action: data.action }"
+    [color]="data.warn ? 'warn' : 'primary'">{{ data.okLabel ?
+    data.okLabel : 'Continue' }}</button>
+</div>
