@@ -6,7 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { Observable, of } from 'rxjs';
 import { SERV } from '../../core/_services/main.config';
-import { NotificationListResponse, Notification } from 'src/app/core/_models/notifications';
+import { NotificationListResponse, Notification } from 'src/app/core/_models/notification.model';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
