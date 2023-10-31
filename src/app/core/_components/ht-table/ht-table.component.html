@@ -10,41 +10,29 @@
     </div>
     <!-- bulk actions -->
     <div class="table-action-wrapper" *ngIf="isSelectable">
-      <div *ngIf="dataSource.loading$ | async; else dataLoaded">
+      <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
         <button mat-button [disabled]="true">
           <mat-icon>adjust</mat-icon>
           Bulk Actions
         </button>
-      </div>
-      <ng-template #dataLoaded>
+      </ng-container>
+      <ng-template #bulkActionMenu>
         <bulk-action-menu [dataType]="dataType" [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
           (menuItemClicked)="bulkAction($event)" />
       </ng-template>
     </div>
     <!-- export -->
     <div class="table-action-wrapper" *ngIf="isSelectable">
-      <button mat-button [matMenuTriggerFor]="exportMenu" [disabled]="!hasSelected()">
-        <mat-icon>file_download</mat-icon>
-        Export
-      </button>
-      <mat-menu #exportMenu="matMenu">
-        <button mat-menu-item>
+      <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
+        <button mat-button [disabled]="true">
           <mat-icon>file_download</mat-icon>
-          Excel
+          Export
         </button>
-        <button mat-menu-item>
-          <mat-icon>file_download</mat-icon>
-          CSV
-        </button>
-        <button mat-menu-item>
-          <mat-icon>print</mat-icon>
-          Print
-        </button>
-        <button mat-menu-item>
-          <mat-icon>content_copy</mat-icon>
-          Copy
-        </button>
-      </mat-menu>
+      </ng-container>
+      <ng-template #exportMenu>
+        <export-menu [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
+          (menuItemClicked)="exportAction($event)" />
+      </ng-template>
     </div>
     <!-- columns -->
     <div class="table-action-wrapper">
