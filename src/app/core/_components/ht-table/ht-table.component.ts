@@ -50,6 +50,7 @@ import { ActionMenuEvent } from '../menus/action-menu/action-menu.model';
  * - `[filterFn]`: A custom filter function for advanced filtering.
  * - `(rowActionClicked)`: Emits an `ActionMenuEvent` when a row action is triggered.
  * - `(bulkActionClicked)`: Emits an `ActionMenuEvent` when a bulk action is triggered.
+ * - `(exportActionClicked)`: Emits an `ActionMenuEvent` when an export action is triggered.
  *
  * @see `BaseDataSource` for creating a data source.
  * @see `HTTableColumn` for defining column configurations.
