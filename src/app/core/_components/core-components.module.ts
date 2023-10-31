@@ -26,6 +26,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
+import { ExportMenuComponent } from "./menus/export-menu/export-menu.component";
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { MatDividerModule } from '@angular/material/divider';
     ActionMenuComponent,
     RowActionMenuComponent,
     BulkActionMenuComponent,
+    ExportMenuComponent,
     ColumnSelectionDialogComponent,
   ],
   imports: [
@@ -70,6 +72,7 @@ import { MatDividerModule } from '@angular/material/divider';
     ActionMenuComponent,
     RowActionMenuComponent,
     BulkActionMenuComponent,
+    ExportMenuComponent,
   ],
   providers: [
     { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }
