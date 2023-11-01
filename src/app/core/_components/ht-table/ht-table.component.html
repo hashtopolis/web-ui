@@ -1,0 +1,147 @@
+<ng-container>
+  <!-- table actions -->
+  <div class="table-actions">
+    <!-- refresh -->
+    <div class="table-action-wrapper">
+      <button mat-button (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Reload
+      </button>
+    </div>
+    <!-- bulk actions -->
+    <div class="table-action-wrapper" *ngIf="isSelectable">
+      <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
+        <button mat-button [disabled]="true">
+          <mat-icon>adjust</mat-icon>
+          Bulk Actions
+        </button>
+      </ng-container>
+      <ng-template #bulkActionMenu>
+        <bulk-action-menu [dataType]="dataType" [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
+          (menuItemClicked)="bulkAction($event)" />
+      </ng-template>
+    </div>
+    <!-- export -->
+    <div class="table-action-wrapper" *ngIf="isSelectable">
+      <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
+        <button mat-button [disabled]="true">
+          <mat-icon>file_download</mat-icon>
+          Export
+        </button>
+      </ng-container>
+      <ng-template #exportMenu>
+        <export-menu [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
+          (menuItemClicked)="exportAction($event)" />
+      </ng-template>
+    </div>
+    <!-- columns -->
+    <div class="table-action-wrapper">
+      <button mat-button (click)="openColumnSelectionDialog()">
+        <mat-icon>view_week</mat-icon>
+        Columns
+      </button>
+    </div>
+    <!-- filter -->
+    <div class="table-action-wrapper right-aligned">
+      <input *ngIf="isFilterable" class="mat-input" (keyup)="applyFilter()" [(ngModel)]="dataSource.filter"
+        placeholder="filter">
+    </div>
+  </div>
+
+  <!-- Table -->
+  <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
+
+    <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+      <mat-spinner></mat-spinner>
+    </div>
+
+
+    <!-- select column -->
+    <ng-container *ngIf="isSelectable" matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()" [checked]="isAllSelected()"
+          [indeterminate]="indeterminate()" />
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleSelect(row)" [checked]="isSelected(row)" />
+      </td>
+    </ng-container>
+
+    <!-- action column -->
+    <ng-container *ngIf="hasRowAction" matColumnDef="rowAction">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element" id="rowAction">
+        <row-action-menu [data]="element" (menuItemClicked)="rowAction($event)"></row-action-menu>
+      </td>
+    </ng-container>
+
+    <ng-container *ngFor="let tableColumn of tableColumns" [matColumnDef]="tableColumn.name">
+      <!-- if sortable column header -->
+      <ng-container *ngIf="tableColumn.isSortable; else notSortable">
+        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="tableColumn.name"
+          [arrowPosition]="tableColumn.position === 'right' ? 'before' : 'after'">
+          {{tableColumn.name}}
+        </th>
+      </ng-container>
+      <!-- else not sortable -->
+      <ng-template #notSortable>
+        <th mat-header-cell *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'">
+          {{tableColumn.name}}
+        </th>
+      </ng-template>
+      <!-- column data -->
+      <td mat-cell *matCellDef="let element" [class.text-right]="tableColumn.position === 'right'">
+        <div class="flex-container" [class.truncate]="tableColumn.routerLink">
+          <!-- Check if icon function is defined -->
+          <ng-container *ngIf="tableColumn.icons">
+            <ng-container *ngFor="let icon of tableColumn.icons(element) | async">
+              <mat-icon *ngIf="icon.tooltip; else iconTmpl" [matTooltip]="icon.tooltip"
+                [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+              <ng-template #iconTmpl>
+                <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+              </ng-template>
+            </ng-container>
+          </ng-container>
+          <a *ngIf="tableColumn.routerLink" [routerLink]="tableColumn.routerLink(element)">
+            <!-- Check if a async function is defined for the column -->
+            <ng-container *ngIf="tableColumn.async">
+              <span [innerHtml]="(tableColumn.async(element) | async) || '-'"></span>
+            </ng-container>
+            <!-- Check if a render function is defined for the column -->
+            <ng-container *ngIf="!tableColumn.async && tableColumn.render">
+              <span [innerHtml]="tableColumn.render(element)"></span>
+            </ng-container>
+            <!-- Default rendering if no render function is defined -->
+            <ng-container *ngIf="!tableColumn.async && !tableColumn.render">
+              {{ element[tableColumn.dataKey] }}
+            </ng-container>
+          </a>
+          <ng-container *ngIf="!tableColumn.routerLink">
+            <!-- Check if a async function is defined for the column -->
+            <ng-container *ngIf="tableColumn.async">
+              <div [innerHtml]="(tableColumn.async(element) | async) || '-'"></div>
+            </ng-container>
+            <!-- Check if a render function is defined for the column -->
+            <ng-container *ngIf="!tableColumn.async && tableColumn.render">
+              <div [innerHtml]="tableColumn.render(element)"></div>
+            </ng-container>
+            <!-- Default rendering if no render function is defined -->
+            <ng-container *ngIf="!tableColumn.async && !tableColumn.render && !tableColumn.icons">
+              {{ element[tableColumn.dataKey] }}
+            </ng-container>
+          </ng-container>
+        </div>
+      </td>
+
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="toggleSelect(row)"></tr>
+  </table>
+
+  <!-- Pagination -->
+  <ng-container *ngIf="isPageable">
+    <hr />
+    <mat-paginator [length]="dataSource.totalItems" [pageSize]="dataSource.pageSize" [pageSizeOptions]="paginationSizes"
+      (page)="onPageChange($event)"></mat-paginator>
+  </ng-container>
+</ng-container>
