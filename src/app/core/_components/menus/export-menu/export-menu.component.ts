@@ -21,11 +21,12 @@ export class ExportMenuComponent extends BaseMenuComponent implements OnInit {
         action: ExportMenuAction.CSV,
         icon: 'file_download',
       },
-      {
-        label: ExportMenuLabel.PRINT,
-        action: ExportMenuAction.PRINT,
-        icon: 'print',
-      },
+      // Not yet implemented
+      //{
+      //  label: ExportMenuLabel.PRINT,
+      //  action: ExportMenuAction.PRINT,
+      //  icon: 'print',
+      //},
       {
         label: ExportMenuLabel.COPY,
         action: ExportMenuAction.COPY,
