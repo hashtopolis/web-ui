@@ -8,14 +8,26 @@ export class IStorage {
     private _statimer: string,
     private _timestamp: number,
     private _expiresin: number,
-  ) {}
-
+  ) { }
 }
 
-export class UIGConfig {
-  constructor(
+export type Layout = 'full' | 'fixed'
+export type Theme = 'light' | 'dark'
 
-  ) {}
-
+export interface TableSettings {
+  [key: string]: string[]
 }
 
+export interface UIConfig {
+  layout: Layout
+  theme: Theme
+  tableSettings: TableSettings,
+  timefmt: string,
+}
+
+export const uiConfigDefault: UIConfig = {
+  layout: 'fixed',
+  theme: 'light',
+  timefmt: 'dd/MM/yyyy h:mm:ss',
+  tableSettings: {}
+}

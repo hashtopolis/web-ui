@@ -1,0 +1,17 @@
+<button mat-button [ngClass]="cls" [matMenuTriggerFor]="actionMenu" (click)="$event.stopPropagation()"
+  [disabled]="disabled">
+  <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+  <ng-container *ngIf="label">
+    {{ label }}
+  </ng-container>
+</button>
+<mat-menu #actionMenu="matMenu">
+  <ng-container *ngFor="let section of actionMenuItems; let last = last">
+    <button mat-menu-item *ngFor="let item of section" (click)="onMenuItemClick(item)"
+      [ngClass]="item.red ? 'text-critical' : ''">
+      <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>
+      {{ item.label }}
+    </button>
+    <mat-divider *ngIf="!last" />
+  </ng-container>
+</mat-menu>
