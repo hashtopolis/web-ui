@@ -17,4 +17,5 @@ export interface HTTableColumn {
   render?: (data: any) => SafeHtml
   async?: (data: any) => Promise<SafeHtml>
   routerLink?: (data: any) => any[],
+  export?: (data: any) => Promise<string>
 }

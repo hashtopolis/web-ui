@@ -5,11 +5,11 @@ import { DataTableDirective } from 'angular-datatables';
 import { Subject, Subscription } from 'rxjs';
 
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { NotificationListResponse } from 'src/app/core/_models/notifications';
+import { NotificationListResponse } from 'src/app/core/_models/notification.model';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { ACTION } from '../../core/_constants/notifications.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { Notification } from 'src/app/core/_models/notifications';
+import { Notification } from 'src/app/core/_models/notification.model';
 import { SERV } from '../../core/_services/main.config';
 
 export interface Filter {
@@ -17,7 +17,7 @@ export interface Filter {
   name: string
 }
 
-declare let $:any;
+declare let $: any;
 
 @Component({
   selector: 'app-notifications',
@@ -185,14 +185,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             extend: 'collection',
             text: 'Bulk Actions',
             buttons: [
-                  {
-                    text: 'Delete Notification(s)',
-                    autoClose: true,
-                    action: function (e, dt, node, config) {
-                      self.onDeleteBulk();
-                    }
-                  }
-               ]
+              {
+                text: 'Delete Notification(s)',
+                autoClose: true,
+                action: function (e, dt, node, config) {
+                  self.onDeleteBulk();
+                }
+              }
+            ]
           },
           {
             extend: 'pageLength',
@@ -219,7 +219,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * @param {string} name - The name of the notification.
    */
   onDelete(id: number, name: string) {
-    this.alert.deleteConfirmation(name,'Notifications').then((confirmed) => {
+    this.alert.deleteConfirmation(name, 'Notifications').then((confirmed) => {
       if (confirmed) {
         // Deletion
         this.subscriptions.push(this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
@@ -229,7 +229,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         }));
       } else {
         // Handle cancellation
-        this.alert.okAlert(`Notification ${name} is safe!`,'');
+        this.alert.okAlert(`Notification ${name} is safe!`, '');
       }
     });
   }
@@ -241,14 +241,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    *
    * @returns {number[]} - An array of selected hashlist IDs.
    */
-  onSelectedNotifications(){
+  onSelectedNotifications() {
     $(".dt-button-background").trigger("click");
-    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-    if(selection.length == 0) {
-      this.alert.okAlert('You have not selected any Notification','');
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true }).data().pluck(0).toArray();
+    if (selection.length == 0) {
+      this.alert.okAlert('You have not selected any Notification', '');
       return;
     }
-    const selectionnum = selection.map(i=>Number(i));
+    const selectionnum = selection.map(i => Number(i));
 
     return selectionnum;
   }
@@ -260,7 +260,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   */
   async onDeleteBulk() {
     const NotifIds = this.onSelectedNotifications();
-    this.alert.bulkDeleteAlert(NotifIds,'Notifications',SERV.NOTIFICATIONS);
+    this.alert.bulkDeleteAlert(NotifIds, 'Notifications', SERV.NOTIFICATIONS);
     this.onRefreshTable();
   }
 

@@ -1,4 +1,4 @@
-import { faPlus, faUpload, faDownload, faLink, faFileUpload} from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faUpload, faDownload, faLink, faFileUpload } from '@fortawesome/free-solid-svg-icons';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject, Subscription, takeUntil } from 'rxjs';
@@ -13,7 +13,7 @@ import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { validateFileExt } from '../../shared/utils/util';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UploadFileTUS } from '../../core/_models/files';
+import { UploadFileTUS } from '../../core/_models/file.model';
 import { SERV } from '../../core/_services/main.config';
 import { subscribe } from 'diagnostics_channel';
 
@@ -25,25 +25,25 @@ import { subscribe } from 'diagnostics_channel';
 // @PageTitle(['New File'])
 export class NewFilesComponent implements OnInit, OnDestroy {
 
-  faFileUpload=faFileUpload;
-  faDownload=faDownload;
-  faUpload=faUpload;
-  faLink=faLink;
-  faPlus=faPlus;
+  faFileUpload = faFileUpload;
+  faDownload = faDownload;
+  faUpload = faUpload;
+  faLink = faLink;
+  faPlus = faPlus;
 
   private maxResults = environment.config.prodApiMaxResults;
   subscriptions: Subscription[] = []
 
   constructor(
-    private uploadService:UploadTUSService,
-    private route:ActivatedRoute,
+    private uploadService: UploadTUSService,
+    private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private fs:FileSizePipe,
+    private fs: FileSizePipe,
     private router: Router
   ) {
 
-   }
+  }
 
   accessgroup: any[]
   filterType: number;
@@ -68,11 +68,11 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  loadData(){
+  loadData() {
 
-    const params = {'maxResults': this.maxResults};
+    const params = { 'maxResults': this.maxResults };
 
-    this.gs.getAll(SERV.ACCESS_GROUPS,params).subscribe((agroups: any) => {
+    this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
     });
 
@@ -91,61 +91,61 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * Create File
    *
   */
-  onSubmit(): void{
+  onSubmit(): void {
     if (this.createForm.valid && this.submitted === false) {
 
-    let form = this.onPrep(this.createForm.value, false);
+      let form = this.onPrep(this.createForm.value, false);
 
-    this.submitted =true;
+      this.submitted = true;
 
-    if(form.status === false){
-      this.subscriptions.push(this.gs.create(SERV.FILES,form.update).subscribe(() => {
-        form = this.onPrep(this.createForm.value, true);
-        this.alert.okAlert('New File created!','');
-        this.submitted = false;
-        this.router.navigate(['/files',this.redirect]);
-      }));
+      if (form.status === false) {
+        this.subscriptions.push(this.gs.create(SERV.FILES, form.update).subscribe(() => {
+          form = this.onPrep(this.createForm.value, true);
+          this.alert.okAlert('New File created!', '');
+          this.submitted = false;
+          this.router.navigate(['/files', this.redirect]);
+        }));
+      }
     }
   }
-}
 
-onPrep(obj: any, status: boolean){
-  let sourcadata;
-  let fname;
-  if(obj.sourceType == 'inline'){
-    fname = obj.filename;
-    sourcadata = Buffer.from(obj.sourceData).toString('base64');
-  }else{
-    sourcadata = this.fileName;
-    fname = this.fileName;
-  }
-  const res = {
-    "update":{
-      "filename": fname,
-      "isSecret": obj.isSecret,
-      "fileType": this.filterType,
-      "accessGroupId": obj.accessGroupId,
-      "sourceType": obj.sourceType,
-      "sourceData": sourcadata
-    },"status": status
+  onPrep(obj: any, status: boolean) {
+    let sourcadata;
+    let fname;
+    if (obj.sourceType == 'inline') {
+      fname = obj.filename;
+      sourcadata = Buffer.from(obj.sourceData).toString('base64');
+    } else {
+      sourcadata = this.fileName;
+      fname = this.fileName;
+    }
+    const res = {
+      "update": {
+        "filename": fname,
+        "isSecret": obj.isSecret,
+        "fileType": this.filterType,
+        "accessGroupId": obj.accessGroupId,
+        "sourceType": obj.sourceType,
+        "sourceData": sourcadata
+      }, "status": status
     }
     return res;
-}
+  }
 
-souceType(type: string, view: string){
-  this.viewMode = view;
-  this.createForm.patchValue({
-    filename: '',
-    accessGroupId: 1,
-    sourceType:type,
-    sourceData:''
-  });
-}
+  souceType(type: string, view: string) {
+    this.viewMode = view;
+    this.createForm.patchValue({
+      filename: '',
+      accessGroupId: 1,
+      sourceType: type,
+      sourceData: ''
+    });
+  }
 
-// Get Title
+  // Get Title
   public title: string;
   public redirect: string;
-  getLocation(){
+  getLocation() {
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
@@ -153,26 +153,26 @@ souceType(type: string, view: string){
           this.filterType = 0;
           this.title = 'New Wordlist';
           this.redirect = 'wordlist';
-        break;
+          break;
 
         case 'rule-new':
           this.filterType = 1;
           this.title = 'New Rule';
           this.redirect = 'rules';
-        break;
+          break;
 
         case 'other-new':
           this.filterType = 2;
           this.title = 'New Other';
           this.redirect = 'other';
-        break;
+          break;
 
       }
     })
   }
 
-// Uploading file
-  @ViewChild('file', {static: false}) file: ElementRef;
+  // Uploading file
+  @ViewChild('file', { static: false }) file: ElementRef;
   name = '!!!';
   viewMode = 'tab1';
   uploadProgress = 0;
@@ -196,26 +196,26 @@ souceType(type: string, view: string){
     this.fileToUpload = event.target.files[0];
     this.fileSize = this.fileToUpload.size;
     this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text( this.fs.transform(this.fileToUpload.size,false));
+    $('.fileuploadspan').text(this.fs.transform(this.fileToUpload.size, false));
   }
 
- private subs: Subscription[] = [];
- private ngUnsubscribe = new Subject();
+  private subs: Subscription[] = [];
+  private ngUnsubscribe = new Subject();
 
- onuploadFile(files: FileList) {
+  onuploadFile(files: FileList) {
     let form = this.onPrep(this.createForm.value, false);
     const upload: Array<any> = [];
     for (let i = 0; i < files.length; i++) {
       upload.push(
-         this.uploadService.uploadFile(
-          files[i], files[i].name, SERV.FILES, form.update, ['/files',this.redirect]
+        this.uploadService.uploadFile(
+          files[i], files[i].name, SERV.FILES, form.update, ['/files', this.redirect]
         ).pipe(takeUntil(this.ngUnsubscribe))
-         .subscribe(
-          (progress) => {
-            this.uploadProgress = progress;
-            // console.log(`Upload progress: ${progress}%`);
-          }
-        )
+          .subscribe(
+            (progress) => {
+              this.uploadProgress = progress;
+              // console.log(`Upload progress: ${progress}%`);
+            }
+          )
       )
     }
     // this.reset();

@@ -1,5 +1,5 @@
 import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus, faLink } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener, ViewChild, ElementRef  } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject, Subscription, takeUntil } from 'rxjs';
@@ -16,7 +16,7 @@ import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { ShowHideTypeFile } from '../../shared/utils/forms';
 import { validateFileExt } from '../../shared/utils/util';
-import { UploadFileTUS } from '../../core/_models/files';
+import { UploadFileTUS } from '../../core/_models/file.model';
 import { SERV } from '../../core/_services/main.config';
 
 @Component({
@@ -30,12 +30,12 @@ export class NewHashlistComponent implements OnInit {
    * Fa Icons
    *
   */
-  faMagnifyingGlass=faMagnifyingGlass;
-  faFileUpload=faFileUpload;
-  faInfoCircle=faInfoCircle;
-  faSearchPlus=faSearchPlus;
-  faUpload=faUpload;
-  faLink=faLink;
+  faMagnifyingGlass = faMagnifyingGlass;
+  faFileUpload = faFileUpload;
+  faInfoCircle = faInfoCircle;
+  faSearchPlus = faSearchPlus;
+  faUpload = faUpload;
+  faLink = faLink;
 
   /**
    * Form Settings
@@ -43,8 +43,8 @@ export class NewHashlistComponent implements OnInit {
   */
   signupForm: FormGroup;
   ShowHideTypeFile = ShowHideTypeFile;
-  radio=true;
-  brainenabled:any;
+  radio = true;
+  brainenabled: any;
   hashcatbrain: string;
   subscriptions: Subscription[] = []
 
@@ -54,15 +54,15 @@ export class NewHashlistComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-     private uploadService:UploadTUSService,
-     private uiService: UIConfigService,
-     private modalService: NgbModal,
-     private alert: AlertService,
-     private gs: GlobalService,
-     private fs:FileSizePipe,
-     private router: Router,
-     ) {
-     }
+    private uploadService: UploadTUSService,
+    private uiService: UIConfigService,
+    private modalService: NgbModal,
+    private alert: AlertService,
+    private gs: GlobalService,
+    private fs: FileSizePipe,
+    private router: Router,
+  ) {
+  }
 
   ngOnInit(): void {
 
@@ -78,11 +78,11 @@ export class NewHashlistComponent implements OnInit {
     this.ngUnsubscribe.complete();
   }
 
-  loadData(){
+  loadData() {
 
     this.brainenabled = this.uiService.getUIsettings('hashcatBrainEnable').value;
 
-    const params = {'maxResults': this.maxResults};
+    const params = { 'maxResults': this.maxResults };
 
     this.subscriptions.push(this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
       this.accessgroup = agroups.values;
@@ -96,7 +96,7 @@ export class NewHashlistComponent implements OnInit {
       'isSalted': new FormControl(false),
       'isHexSalt': new FormControl(false),
       'accessGroupId': new FormControl(null, [Validators.required]),
-      'useBrain': new FormControl(+this.brainenabled=== 1? true:false),
+      'useBrain': new FormControl(+this.brainenabled === 1 ? true : false),
       'brainFeatures': new FormControl(null || 3),
       'notes': new FormControl(''),
       "sourceType": new FormControl('import' || null),
@@ -110,15 +110,15 @@ export class NewHashlistComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    const params = {'maxResults': this.maxResults};
+    const params = { 'maxResults': this.maxResults };
 
-    this.subscriptions.push(this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
+    this.subscriptions.push(this.gs.getAll(SERV.HASHTYPES, params).subscribe((htypes: any) => {
       const self = this;
       this.hashtypes = htypes.values;
       const prep = htypes.values;
       const response = [];
-      for(let i=0; i < prep.length; i++){
-        const obj = { hashTypeId: prep[i].hashTypeId, descrId: prep[i].hashTypeId +' '+prep[i].description };
+      for (let i = 0; i < prep.length; i++) {
+        const obj = { hashTypeId: prep[i].hashTypeId, descrId: prep[i].hashTypeId + ' ' + prep[i].description };
         response.push(obj)
       }
       ($("#hashtype") as any).selectize({
@@ -130,39 +130,39 @@ export class NewHashlistComponent implements OnInit {
         loadingClass: 'Loading..',
         highlight: true,
         onChange: function (value) {
-            self.OnChangeValue(value);
+          self.OnChangeValue(value);
         },
         render: {
           option: function (item, escape) {
             return '<div  class="style_selectize">' + escape(item.descrId) + '</div>';
           },
         },
-        onInitialize: function(){
+        onInitialize: function () {
           const selectize = this;
-            selectize.addOption(response);
-            const selected_items = [];
-            $.each(response, function( i, obj) {
-                selected_items.push(obj.id);
-            });
-            selectize.setValue(selected_items);
-          }
+          selectize.addOption(response);
+          const selected_items = [];
+          $.each(response, function (i, obj) {
+            selected_items.push(obj.id);
           });
-      }));
+          selectize.setValue(selected_items);
+        }
+      });
+    }));
 
-    }
+  }
 
-  OnChangeValue(value){
+  OnChangeValue(value) {
     const id = Number(value);
     // Map with hashtype and get if its salted or not
-    const filter = this.hashtypes.filter(u=> u._id === id);
+    const filter = this.hashtypes.filter(u => u._id === id);
     const salted = filter[0]['isSalted'];
-    if(id === 2500 || id === 16800 || id === 16801){
+    if (id === 2500 || id === 16800 || id === 16801) {
       this.signupForm.patchValue({
         hashTypeId: id,
         format: Number(1),
         isSalted: salted
       });
-    }else{
+    } else {
       this.signupForm.patchValue({
         hashTypeId: id,
         isSalted: salted
@@ -171,7 +171,7 @@ export class NewHashlistComponent implements OnInit {
   }
 
   // FILE UPLOAD: TUS File Uload
-  @ViewChild('file', {static: false}) file: ElementRef;
+  @ViewChild('file', { static: false }) file: ElementRef;
   uploadProgress = 0;
   filenames: string[] = [];
   private ngUnsubscribe = new Subject();
@@ -181,14 +181,14 @@ export class NewHashlistComponent implements OnInit {
     const upload: Array<any> = [];
     for (let i = 0; i < files.length; i++) {
       upload.push(
-         this.uploadService.uploadFile(
+        this.uploadService.uploadFile(
           files[i], files[i].name, SERV.HASHLISTS, form, ['/hashlists/hashlist']
         ).pipe(takeUntil(this.ngUnsubscribe))
-         .subscribe(
-          (progress) => {
-            this.uploadProgress = progress;
-          }
-        )
+          .subscribe(
+            (progress) => {
+              this.uploadProgress = progress;
+            }
+          )
       )
     }
   }
@@ -201,14 +201,14 @@ export class NewHashlistComponent implements OnInit {
    * Drop Zone Area
    *
   */
-  fileList : any = [];
-  invalidFiles : any = [];
+  fileList: any = [];
+  invalidFiles: any = [];
 
-  onFilesChange(fileList : Array<File> | DragEvent){
+  onFilesChange(fileList: Array<File> | DragEvent) {
     this.fileList = fileList;
   }
 
-  onFileInvalids(fileList : Array<File> | DragEvent){
+  onFileInvalids(fileList: Array<File> | DragEvent) {
     this.invalidFiles = fileList;
   }
 
@@ -229,7 +229,7 @@ export class NewHashlistComponent implements OnInit {
     this.fileToUpload = event.target.files[0];
     this.fileSize = this.fileToUpload.size;
     this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text( this.fs.transform(this.fileToUpload.size,false));
+    $('.fileuploadspan').text(this.fs.transform(this.fileToUpload.size, false));
   }
 
   /**
@@ -237,24 +237,24 @@ export class NewHashlistComponent implements OnInit {
    *
   */
 
-  onSubmit(): void{
-      if (this.signupForm.valid) {
+  onSubmit(): void {
+    if (this.signupForm.valid) {
 
       const res = this.handleUpload(this.signupForm.value);
 
-      this.subscriptions.push(this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
-        this.alert.okAlert('New HashList created!','');
+      this.subscriptions.push(this.gs.create(SERV.HASHLISTS, res).subscribe(() => {
+        this.alert.okAlert('New HashList created!', '');
         this.router.navigate(['/hashlists/hashlist']);
       }
-    ));
+      ));
     }
   }
 
-  handleUpload(arr: any){
+  handleUpload(arr: any) {
     const str = arr.sourceData;
     const filereplace = str.replace("C:\\fakepath\\", "");
     let filename = filereplace;
-    if(arr.sourceType === 'paste'){
+    if (arr.sourceType === 'paste') {
       filename = Buffer.from(filereplace).toString('base64');
     }
 
@@ -274,8 +274,8 @@ export class NewHashlistComponent implements OnInit {
       'hashCount': arr.hashCount,
       'isArchived': arr.isArchived,
       'isSecret': arr.isSecret,
-     }
-     return res;
+    }
+    return res;
   }
 
   // @HostListener allows us to also guard against browser refresh, close, etc.
@@ -288,7 +288,7 @@ export class NewHashlistComponent implements OnInit {
 
   canDeactivate(): Observable<boolean> | boolean {
     if (this.signupForm.valid) {
-    return false;
+      return false;
     }
     return true;
   }
