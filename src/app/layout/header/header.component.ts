@@ -1,115 +1,266 @@
-import { faServer, faTasks, faDatabase, faFileArchive, faCogs, faUserGroup,faPowerOff, faSun, faMoon, faUserCircle, faInbox, faQuestionCircle, faBell, faEye, faExchange, faArrowsH, faCog, faFileCode } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { environment } from './../../../environments/environment';
-import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
-
-import { ThemeService } from 'src/app/core/_services/shared/theme.service';
 import { AuthService } from '../../core/_services/access/auth.service';
+import { MainMenuItem } from './header.model';
+import { ActionMenuItem } from 'src/app/core/_components/menus/action-menu/action-menu.model';
+
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html'
 })
-
 export class HeaderComponent implements OnInit, OnDestroy {
+  private subscriptions: Subscription[] = []
+
   headerConfig = environment.config.header;
-
   isAuthentificated = false;
-  isMobile = false;
-  private userSub: Subscription;
-  public dropdown: NgbDropdown;
-  storedToggletheme:string = localStorage.getItem('toggledarkmode');
-  storedWidthScreentheme:string = localStorage.getItem('screenmode') || 'true';
+  mainMenu: MainMenuItem[] = [
+    this.getAgentsMenu(),
+    this.getTasksMenu(),
+    this.getHashlistsMenu(),
+    this.getFilesMenu(),
+    this.getBinariesMenu(),
+    this.getConfigMenu(),
+    this.getUsersMenu(),
+    this.getAdminMenu()
+  ]
 
-  // Icons User Menu
-  faFileArchive=faFileArchive;
-  faUserGroup=faUserGroup;
-  faDatabase=faDatabase;
-  faFileCode=faFileCode;
-  faServer=faServer;
-  faTasks=faTasks;
-  faCogs=faCogs;
-  // SubMenu User
-  faQuestionCircle=faQuestionCircle;
-  faUserCircle=faUserCircle;
-  faPowerOff=faPowerOff;
-  faExchange=faExchange;
-  faArrowsH=faArrowsH;
-  faInbox=faInbox;
-  faMoon=faMoon;
-  faBell=faBell;
-  faCog=faCog;
-  faSun=faSun;
-  faEye=faEye;
-
-  public notifbell: {title: string, description: string, datetime: string}[] = [];
-
-  constructor(
-    private authService: AuthService,
-    private theme: ThemeService,
-    private ren: Renderer2,
-    ) { }
-
-  collapsed = true;
-  public toggleCollapsed(): void {
-    this.collapsed = !this.collapsed;
-  }
-
-  public currentTheme(): string {
-    return this.theme.current;
-  }
-
-  public getUser(){
-    const userData: { _username: string} = JSON.parse(localStorage.getItem('userData'));
-    return userData._username;
-  }
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.userSub = this.authService.user
-        .subscribe(user => {
-          this.isAuthentificated = !!user;
-     });
+    this.subscriptions.push(this.authService.user
+      .subscribe(user => {
+        this.isAuthentificated = !!user;
+      })
+    )
   }
 
   ngOnDestroy(): void {
-    this.userSub.unsubscribe();
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
   }
 
-  onLogOut(){
+  onLogOut(): void {
     this.authService.logOut();
   }
 
-  switchMode(){
-    if(this.storedToggletheme === 'dark'){
-      localStorage.setItem('toggledarkmode','light')
-      this.storedToggletheme = localStorage.getItem('toggledarkmode');
-    }else{
-      localStorage.setItem('toggledarkmode','dark')
-      this.storedToggletheme = localStorage.getItem('toggledarkmode');
+  /**
+   * Retrieves the 'Agents' menu item.
+   * @returns A MainMenuItem for the 'Agents' menu.
+   */
+  getAgentsMenu(): MainMenuItem {
+    return {
+      label: 'Agents',
+      actions: [[
+        {
+          label: 'Show Agents',
+          routerLink: ['agents', 'show-agents']
+        },
+        {
+          label: 'Agent Status',
+          routerLink: ['agents', 'agent-status']
+        }
+      ]]
     }
   }
 
-  switchScreen(){
-    if(this.storedWidthScreentheme === 'true'){
-      localStorage.setItem('screenmode','false')
-      this.storedWidthScreentheme = localStorage.getItem('screenmode');
-    }else{
-      localStorage.setItem('screenmode','true')
-      this.storedWidthScreentheme = localStorage.getItem('screenmode');
+  /**
+   * Retrieves the 'Tasks' menu item.
+   * @returns A MainMenuItem for the 'Tasks' menu.
+   */
+  getTasksMenu(): MainMenuItem {
+    return {
+      label: 'Tasks',
+      actions: [[
+        {
+          label: 'Show Tasks',
+          routerLink: ['tasks', 'show-tasks']
+        },
+        {
+          label: 'Preconfigured Tasks',
+          routerLink: ['tasks', 'preconfigured-tasks']
+        },
+        {
+          label: 'Supertasks',
+          routerLink: ['tasks', 'supertasks']
+        },
+        {
+          label: 'Import Supertask',
+          routerLink: ['tasks', 'import-supertasks', 'masks']
+        },
+        {
+          label: 'Chunk activity',
+          routerLink: ['tasks', 'chunks']
+        },
+      ]]
     }
-    location.reload();
   }
 
-
-  onMouseEnter(drop:NgbDropdown){
-    drop.open()
+  /**
+   * Retrieves the 'Hashlists' menu item.
+   * @returns A MainMenuItem for the 'Hashlists' menu.
+   */
+  getHashlistsMenu(): MainMenuItem {
+    return {
+      label: 'Hashlists',
+      actions: [[
+        {
+          label: 'Hashlists',
+          routerLink: ['hashlists', 'hashlist']
+        },
+        {
+          label: 'Superhashlists',
+          routerLink: ['hashlists', 'superhashlist']
+        },
+        {
+          label: 'Search Hash',
+          routerLink: ['hashlists', 'search-hash']
+        },
+        {
+          label: 'Show cracks',
+          routerLink: ['hashlists', 'show-cracks']
+        }
+      ]]
+    }
   }
 
-  onMouseLeave(drop:NgbDropdown){
-    drop.close()
+  /**
+   * Retrieves the 'Files' menu item.
+   * @returns A MainMenuItem for the 'Files' menu.
+   */
+  getFilesMenu(): MainMenuItem {
+    return {
+      label: 'Files',
+      actions: [[
+        {
+          label: 'Wordlists',
+          routerLink: ['files', 'wordlist']
+        },
+        {
+          label: 'Rules',
+          routerLink: ['files', 'rules']
+        },
+        {
+          label: 'Other',
+          routerLink: ['files', 'other']
+        },
+      ]]
+    }
   }
 
+  /**
+   * Retrieves the 'Admin' menu item.
+   * @returns A MainMenuItem for the 'Admin' menu.
+   */
+  getAdminMenu(): MainMenuItem {
+    return {
+      label: 'Admin',
+      actions: [
+        [
+          {
+            label: 'Account Settings',
+            routerLink: ['account', 'acc-settings']
+          },
+          {
+            label: 'UI Settings',
+            routerLink: ['account', 'ui-settings']
+          },
+          {
+            label: 'Notifications',
+            routerLink: ['account', 'notifications']
+          },
+          {
+            label: 'Support',
+            routerLink: ['https://discord.com/channels/419123475538509844/419123475538509846']
+          },
+        ]
+      ]
+    };
+  }
+
+  /**
+   * Retrieves the 'Users' menu item.
+   * @returns A MainMenuItem for the 'Users' menu.
+   */
+  getUsersMenu(): MainMenuItem {
+    return {
+      label: 'Users',
+      actions: [
+        [
+          {
+            label: 'All users',
+            routerLink: ['users', 'all-users']
+          },
+          {
+            label: 'Global Permissions',
+            routerLink: ['users', 'global-permissions-groups']
+          },
+          {
+            label: 'Access Groups',
+            routerLink: ['users', 'access-groups']
+          },
+        ]
+      ]
+    };
+  }
+
+  /**
+ * Retrieves the 'Config' menu item.
+ * @returns A MainMenuItem for the 'Config' menu.
+ */
+  getConfigMenu(): MainMenuItem {
+    return {
+      label: 'Config',
+      actions: [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent']
+          },
+          {
+            label: 'Hashtypes',
+            routerLink: ['config', 'hashtypes']
+          },
+          {
+            label: 'Health Checks',
+            routerLink: ['config', 'health-checks']
+          },
+          {
+            label: 'Log',
+            routerLink: ['config', 'log']
+          },
+        ]
+      ]
+    };
+  }
+
+  /**
+   * Retrieves the 'Binaries' menu item.
+   * @returns A MainMenuItem for the 'Binaries' menu.
+   */
+  getBinariesMenu(): MainMenuItem {
+    return {
+      label: 'Binaries',
+      actions: [
+        [
+          {
+            label: 'Crackers',
+            routerLink: ['config', 'engine', 'crackers']
+          },
+          {
+            label: 'Preprocessors',
+            routerLink: ['config', 'engine', 'preprocessors']
+          },
+          {
+            label: 'Agent Binaries',
+            routerLink: ['config', 'engine', 'agent-binaries']
+          },
+        ]
+      ]
+    };
+  }
 }
 
 
