@@ -5,7 +5,8 @@ export interface ActionMenuEvent<T> {
 
 export interface ActionMenuItem {
   label: string
-  action: string
+  action?: string
   icon?: string
   red?: boolean
-}
+  routerLink?: any[]
+} 
