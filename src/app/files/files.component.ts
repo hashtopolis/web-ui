@@ -1,4 +1,4 @@
-import { faEdit, faTrash, faPlus, faLock} from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faPlus, faLock } from '@fortawesome/free-solid-svg-icons';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
@@ -11,9 +11,9 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../environments/environment';
 import { PageTitle } from '../core/_decorators/autotitle';
 import { SERV } from '../core/_services/main.config';
-import { Filetype } from '../core/_models/files';
+import { Filetype } from '../core/_models/file.model';
 
-declare let $:any;
+declare let $: any;
 
 @Component({
   selector: 'app-files',
@@ -22,10 +22,10 @@ declare let $:any;
 @PageTitle(['Show Files'])
 export class FilesComponent implements OnInit {
 
-  faTrash=faTrash;
-  faPlus=faPlus;
-  faLock=faLock;
-  faEdit=faEdit;
+  faTrash = faTrash;
+  faPlus = faPlus;
+  faLock = faLock;
+  faEdit = faEdit;
 
   public allfiles: {
     fileId: number,
@@ -34,7 +34,7 @@ export class FilesComponent implements OnInit {
     isSecret: boolean,
     fileType: number,
     accessGroupId: number,
-    lineCount:number
+    lineCount: number
     accessGroup: {
       accessGroupId: number,
       groupName: string
@@ -44,11 +44,11 @@ export class FilesComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private route:ActivatedRoute,
+    private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router:Router
-    ) { }
+    private router: Router
+  ) { }
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -56,7 +56,7 @@ export class FilesComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.dtTrigger.unsubscribe();
   }
 
@@ -70,7 +70,7 @@ export class FilesComponent implements OnInit {
 
   }
 
-  loadFiles(){
+  loadFiles() {
     this.route.data.subscribe(data => {
       switch (data['kind']) {
 
@@ -78,24 +78,24 @@ export class FilesComponent implements OnInit {
           this.filterType = 0;
           this.whichView = 'wordlist';
           this.navEdit = 'wordlist-edit';
-        break;
+          break;
 
         case 'rules':
           this.filterType = 1;
           this.whichView = 'rules';
           this.navEdit = 'rules-edit';
-        break;
+          break;
 
         case 'other':
           this.filterType = 2;
           this.whichView = 'other';
           this.navEdit = 'rules-edit';
-        break;
+          break;
 
       }
-      const params = {'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType='+this.filterType+''};
+      const params = { 'maxResults': this.maxResults, 'expand': 'accessGroup', 'filter': 'fileType=' + this.filterType + '' };
 
-      this.gs.getAll(SERV.FILES,params).subscribe((files: any) => {
+      this.gs.getAll(SERV.FILES, params).subscribe((files: any) => {
         this.allfiles = files.values;
         this.dtTrigger.next(void 0);
       });
@@ -114,98 +114,98 @@ export class FilesComponent implements OnInit {
         destroy: true,
         select: {
           style: 'multi',
-          },
+        },
         order: [[0, 'desc']],
         buttons: {
-            dom: {
-              button: {
-                className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-              }
-            },
-        buttons: [
-          {
-            text: '↻',
-            autoClose: true,
-            action: function (e, dt, node, config) {
-              self.onRefresh();
+          dom: {
+            button: {
+              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
             }
           },
-          {
-            extend: 'collection',
-            text: 'Export',
-            buttons: [
-              {
-                extend: 'excelHtml5',
-                exportOptions: {
-                  columns: [0, 1, 2, 3, 4, 5]
-                },
-              },
-              {
-                extend: 'print',
-                exportOptions: {
-                  columns: [0, 1, 2, 3, 4, 5]
-                },
-                customize: function ( win ) {
-                  $(win.document.body)
-                      .css( 'font-size', '10pt' )
-                  $(win.document.body).find( 'table' )
-                      .addClass( 'compact' )
-                      .css( 'font-size', 'inherit' );
-               }
-              },
-              {
-                extend: 'csvHtml5',
-                exportOptions: {modifier: {selected: true}},
-                select: true,
-                customize: function (dt, csv) {
-                  let data = "";
-                  for (let i = 0; i < dt.length; i++) {
-                    data = "Agents\n\n"+  dt;
-                  }
-                  return data;
-               }
-              },
-              {
-                extend: 'copy',
+          buttons: [
+            {
+              text: '↻',
+              autoClose: true,
+              action: function (e, dt, node, config) {
+                self.onRefresh();
               }
+            },
+            {
+              extend: 'collection',
+              text: 'Export',
+              buttons: [
+                {
+                  extend: 'excelHtml5',
+                  exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5]
+                  },
+                },
+                {
+                  extend: 'print',
+                  exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5]
+                  },
+                  customize: function (win) {
+                    $(win.document.body)
+                      .css('font-size', '10pt')
+                    $(win.document.body).find('table')
+                      .addClass('compact')
+                      .css('font-size', 'inherit');
+                  }
+                },
+                {
+                  extend: 'csvHtml5',
+                  exportOptions: { modifier: { selected: true } },
+                  select: true,
+                  customize: function (dt, csv) {
+                    let data = "";
+                    for (let i = 0; i < dt.length; i++) {
+                      data = "Agents\n\n" + dt;
+                    }
+                    return data;
+                  }
+                },
+                {
+                  extend: 'copy',
+                }
               ]
             },
             {
               extend: 'collection',
               text: 'Bulk Actions',
               buttons: [
-                    {
-                      text: 'Delete Files',
-                      autoClose: true,
-                      action: function (e, dt, node, config) {
-                        self.onDeleteBulk();
-                      }
-                    },
-                    {
-                      text: 'Change Type',
-                      autoClose: true,
-                      action: function ( e, dt, node, config ) {
-                        const title = 'Edit File Type'
-                        self.onModalEditType(title)
-                      }
-                    },
-                    {
-                      text: 'Line Count (Missing API Call)',
-                      autoClose: true,
-                      action: function ( e, dt, node, config ) {
-                      }
-                    }
-                ]
-             },
-             {
+                {
+                  text: 'Delete Files',
+                  autoClose: true,
+                  action: function (e, dt, node, config) {
+                    self.onDeleteBulk();
+                  }
+                },
+                {
+                  text: 'Change Type',
+                  autoClose: true,
+                  action: function (e, dt, node, config) {
+                    const title = 'Edit File Type'
+                    self.onModalEditType(title)
+                  }
+                },
+                {
+                  text: 'Line Count (Missing API Call)',
+                  autoClose: true,
+                  action: function (e, dt, node, config) {
+                  }
+                }
+              ]
+            },
+            {
               extend: 'colvis',
               text: 'Column View',
               columns: [0, 1, 2, 3, 4, 5],
             },
-             {
+            {
               extend: "pageLength",
               className: "btn-sm"
-             }
+            }
           ],
         }
       };
@@ -213,7 +213,7 @@ export class FilesComponent implements OnInit {
     });
   }
 
-  onRefresh(){
+  onRefresh() {
     this.rerender();
     this.ngOnInit();
   }
@@ -229,8 +229,8 @@ export class FilesComponent implements OnInit {
     });
   }
 
-  deleteFile(id: number, name: string){
-    this.alert.deleteConfirmation(name,'Files').then((confirmed) => {
+  deleteFile(id: number, name: string) {
+    this.alert.deleteConfirmation(name, 'Files').then((confirmed) => {
       if (confirmed) {
         // Deletion
         this.gs.delete(SERV.FILES, id).subscribe(() => {
@@ -240,55 +240,55 @@ export class FilesComponent implements OnInit {
         });
       } else {
         // Handle cancellation
-        this.alert.okAlert(`File ${name} is safe!`,'');
+        this.alert.okAlert(`File ${name} is safe!`, '');
       }
     });
   }
 
-  onRefreshTable(){
+  onRefreshTable() {
     setTimeout(() => {
       this.ngOnInit();
       this.rerender();  // rerender datatables
-    },2000);
+    }, 2000);
   }
 
-// Bulk Actions
+  // Bulk Actions
 
-  onSelectedFiles(){
+  onSelectedFiles() {
     $(".dt-button-background").trigger("click");
-    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-    if(selection.length == 0) {
-      this.alert.okAlert('You have not selected any File','');
+    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true }).data().pluck(0).toArray();
+    if (selection.length == 0) {
+      this.alert.okAlert('You have not selected any File', '');
       return;
     }
-    const selectionnum = selection.map(i=>Number(i));
+    const selectionnum = selection.map(i => Number(i));
 
     return selectionnum;
   }
 
   async onDeleteBulk() {
     const FilesIds = this.onSelectedFiles();
-    this.alert.bulkDeleteAlert(FilesIds,'Files',SERV.FILES);
+    this.alert.bulkDeleteAlert(FilesIds, 'Files', SERV.FILES);
     this.onRefreshTable();
   }
 
   async onUpdateBulk(value: any) {
     const FilesIds = this.onSelectedFiles();
-    this.alert.bulkUpdateAlert(FilesIds,value,'Files',SERV.FILES);
+    this.alert.bulkUpdateAlert(FilesIds, value, 'Files', SERV.FILES);
     this.onRefreshTable();
   }
 
-  onEdit(id: number){
-    this.router.navigate(['/files',id,this.navEdit]);
+  onEdit(id: number) {
+    this.router.navigate(['/files', id, this.navEdit]);
   }
 
-  onModalEditType(title: string){
+  onModalEditType(title: string) {
     (async () => {
 
       $(".dt-button-background").trigger("click");
-      const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true } ).data().pluck(0).toArray();
-      if(selection.length == 0) {
-        this.alert.okAlert('You have not selected any Group','');
+      const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true }).data().pluck(0).toArray();
+      if (selection.length == 0) {
+        this.alert.okAlert('You have not selected any Group', '');
         return;
       }
 
@@ -306,11 +306,11 @@ export class FilesComponent implements OnInit {
       })
 
       if (formValues) {
-        const edit = {fileType: +formValues};
+        const edit = { fileType: +formValues };
         this.onUpdateBulk(edit);
       }
 
-      })()
+    })()
   }
 
 

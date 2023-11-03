@@ -7,7 +7,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Notification } from 'src/app/core/_models/notifications';
+import { Notification } from 'src/app/core/_models/notification.model';
 import { SERV } from '../../../core/_services/main.config';
 import { Filter } from '../notifications.component';
 
@@ -106,7 +106,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.form.valid) {
       this.subscriptions.push(this.gs.update(SERV.NOTIFICATIONS, this.editedIndex, { 'isActive': this.form.value['isActive'] }).subscribe(() => {
-        this.alert.okAlert('Notification saved!','');
+        this.alert.okAlert('Notification saved!', '');
         this.router.navigate(['/account/notifications']);
       }));
     }
