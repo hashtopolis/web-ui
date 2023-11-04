@@ -1,0 +1,58 @@
+.ro-1 {
+  box-sizing: border-box;
+
+  .co {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 8px;
+
+    &.co-25 {
+      width: 100%;
+    }
+  }
+
+  &.ro-s {
+    .co-25 {
+      width: 50%;
+    }
+  }
+
+  &.ro-m,
+  &.ro-l,
+  &.ro-xl {
+    .co-25 {
+      width: 25%;
+    }
+  }
+}
+
+.ro-2 {
+  box-sizing: border-box;
+
+  .co {
+    display: inline-block;
+    box-sizing: border-box;
+    padding: 8px;
+
+    &.co-100 {
+      width: 100%;
+    }
+  }
+
+  &.ro-m,
+  &.ro-l,
+  &.ro-xl {
+    .co-100 {
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+
+      .app-echarts {
+        margin: 0;
+        margin-top: -30px !important;
+        padding: 0;
+        height: 250px;
+      }
+    }
+  }
+}

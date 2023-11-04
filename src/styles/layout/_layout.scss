@@ -1,0 +1,22 @@
+body.full-width-layout {
+
+  .large,
+  .xlarge,
+  .small,
+  .xsmall,
+  .medium {
+    width: 100%
+  }
+}
+
+body.fixed-width-layout {
+
+  .large,
+  .xlarge,
+  .small,
+  .xsmall,
+  .medium {
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+}

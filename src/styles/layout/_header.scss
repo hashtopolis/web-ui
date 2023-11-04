@@ -22,6 +22,11 @@
   .mdc-button {
     margin-left: 8px;
 
+    &>.mat-icon {
+      margin-left: 0;
+      margin-right: 4px;
+    }
+
     .mdc-button__label {
       font-weight: 400;
     }
@@ -34,8 +39,14 @@
         color: #ffffff !important;
       }
 
+      .mat-icon {
+        color: #ffffff !important;
+      }
+
     }
   }
+
+
 }
 
 .light-theme {
