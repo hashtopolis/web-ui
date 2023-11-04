@@ -1,6 +1,8 @@
 import { ActionMenuItem } from "src/app/core/_components/menus/action-menu/action-menu.model"
 
 export interface MainMenuItem {
-  label: string
+  label?: string
+  icon?: string
   actions: ActionMenuItem[][]
+  display: boolean
 }

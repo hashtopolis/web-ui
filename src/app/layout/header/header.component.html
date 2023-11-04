@@ -4,6 +4,7 @@
   {{ this.headerConfig.brand.name }}
   <span class="menu-spacer"></span>
   <ng-container *ngFor="let menuItem of mainMenu">
-    <action-menu [label]="menuItem.label" [actionMenuItems]="menuItem.actions"></action-menu>
+    <action-menu *ngIf="menuItem.display" [label]="menuItem.label" [icon]="menuItem.icon"
+      [actionMenuItems]="menuItem.actions" (menuItemClicked)="menuItemClicked($event)"></action-menu>
   </ng-container>
 </mat-toolbar>
