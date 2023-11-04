@@ -5,12 +5,12 @@ import { catchError, tap } from 'rxjs/operators';
 import { Buffer } from 'buffer';
 
 import { ConfigService } from "../shared/config.service";
-import { User, UserData } from '../../_models/auth-user.model';
+import { UserData } from '../../_models/auth-user.model';
 import { LocalStorageService } from "../storage/local-storage.service";
 
 export interface AuthResponseData {
   token: string;
-  expires: string;
+  expires: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,15 +18,16 @@ export class AuthService {
 
   static readonly STORAGE_KEY = 'userData'
 
-  private tokenExpiration: any;
+  private tokenExpirationTimout: any;
   private endpoint = '/auth';
 
   userId!: number
   redirectUrl = ''
   isAuthenticated = false;
-  authenticationStatus = new ReplaySubject<boolean>(1);
-  userLoggedIn = new Subject<boolean>();
-  user = new BehaviorSubject<User | null>(null);
+
+  authenticationStatus$ = new ReplaySubject<boolean>(1);
+  userLoggedIn$ = new Subject<boolean>();
+  user$ = new BehaviorSubject<UserData | null>(null);
 
   constructor(
     private http: HttpClient,
@@ -37,8 +38,9 @@ export class AuthService {
   }
 
   private initUser() {
-    this.userLoggedIn.next(false);
-    if (this.authenticationStatus) {
+    console.log('initUser')
+    this.userLoggedIn$.next(false);
+    if (this.authenticationStatus$) {
       this.checkAuthenticationStatus();
     }
   }
@@ -48,10 +50,11 @@ export class AuthService {
       return;
     }
 
-    const loadedUser = new User(this.userData._token, new Date(this.userData._expires), '-');
+    const now = new Date().getTime()
+    const exp = new Date(this.userData._expires).getTime()
 
-    if (loadedUser.token) {
-      this.user.next(loadedUser);
+    if (this.userData._expires && now < exp) {
+      this.user$.next(this.userData);
       const expirationDuration = new Date(this.userData._expires).getTime() - new Date().getTime();
       this.getRefreshToken(expirationDuration);
     }
@@ -69,7 +72,7 @@ export class AuthService {
     ).pipe(
       catchError(this.handleError),
       tap(response => {
-        this.handleAuthentication(response.token, +response.expires, username);
+        this.setAuthenticationData(response.token, +response.expires, username);
         this.isAuthenticated = true;
       })
     );
@@ -89,84 +92,76 @@ export class AuthService {
   }
 
   public setUserLoggedIn(userLoggedIn: boolean): void {
-    this.userLoggedIn.next(userLoggedIn);
+    this.userLoggedIn$.next(userLoggedIn);
   }
 
   public getUserLoggedIn(): Observable<boolean> {
-    return this.userLoggedIn.asObservable();
+    return this.userLoggedIn$.asObservable();
   }
 
-  public autologOut(expirationDuration: number): void {
-    this.tokenExpiration = setTimeout(() => {
-      this.logOut();
-    }, expirationDuration);
+  public autologOut(timeoutMs: number): void {
+    this.tokenExpirationTimout = setTimeout(() => {
+      this.clearAuthenticationData();
+    }, timeoutMs);
   }
 
-  public getRefreshToken(expirationDuration: number): void {
-    this.tokenExpiration = setTimeout(() => {
+  public getRefreshToken(timeoutMs: number): void {
+    this.tokenExpirationTimout = setTimeout(() => {
       if (this.userData) {
-        this.http.post<AuthResponseData>(
-          this.configService.getEndpoint() + this.endpoint + '/refresh',
-          {},
-          {
-            headers: new HttpHeaders({ Authorization: `Bearer ${this.userData._token}` })
+        this.requestRefreshToken().subscribe((response: AuthResponseData) => {
+          if (response && response.token) {
+            const expirationMs = new Date(response.expires * 1000);
+            this.storage.setItem('userData', {
+              _token: response.token,
+              _expires: expirationMs,
+              _username: this.userData._username
+            }, 0)
+          } else {
+            this.clearAuthenticationData();
           }
-        ).pipe(
-          tap((response: any) => {
-            if (response && response.token) {
-              const expirationDate = new Date(response.expires * 1000);
-              this.storage.setItem('userData', {
-                _token: response.token,
-                _expires: expirationDate,
-                _username: this.userData._username
-              }, 0)
-
-            } else {
-              this.logOut();
-            }
-          })
-        ).subscribe();
+        })
       }
-    }, expirationDuration);
+    }, timeoutMs);
+  }
+
+  private requestRefreshToken(): Observable<AuthResponseData> {
+    const httpHeaders = { headers: new HttpHeaders({ Authorization: `Bearer ${this.userData ? this.userData._token : ''}` }) }
+    const apiUrl = `${this.configService.getEndpoint()}${this.endpoint}/refresh`
+
+    return this.http.post<AuthResponseData>(apiUrl, {}, httpHeaders)
   }
 
   public refreshToken(): Observable<any> {
-    return this.http.post<any>(
-      this.configService.getEndpoint() + this.endpoint + '/refresh ',
-      {},
-      {
-        headers: new HttpHeaders({ Authorization: `Bearer ${this.userData ? this.userData._token : ''}` })
-      }
-    ).pipe(
-      tap((response: any) => {
-        if (response && response.token) {
-          const expirationDate = new Date(response.expires * 1000);
-
-          this.storage.setItem('userData', {
-            _token: response.token,
-            _expires: expirationDate,
-            _username: this.userData._username
-          }, 0)
-        } else {
-          this.logOut();
-        }
-      }),
-      catchError((error) => {
-        // Handle the error here
-        console.error('An error occurred:', error);
-        return throwError(() => error); // Rethrow the error for further handling if needed
-      })
-    );
+    return this.requestRefreshToken()
+      .pipe(
+        tap((response: AuthResponseData) => {
+          if (response && response.token) {
+            const expirationDate = new Date(response.expires * 1000);
+            this.storage.setItem('userData', {
+              _token: response.token,
+              _expires: expirationDate,
+              _username: this.userData._username
+            }, 0)
+          } else {
+            this.clearAuthenticationData();
+          }
+        }),
+        catchError((error) => {
+          // Handle the error here
+          console.error('An error occurred:', error);
+          return throwError(() => error); // Rethrow the error for further handling if needed
+        })
+      );
   }
 
-  public logOut(): void {
-    this.user.next(null);
+  public clearAuthenticationData(): void {
+    this.user$.next(null);
     this.isAuthenticated = false;
     this.storage.removeItem('userData');
-    if (this.tokenExpiration) {
-      clearTimeout(this.tokenExpiration);
+    if (this.tokenExpirationTimout) {
+      clearTimeout(this.tokenExpirationTimout);
     }
-    this.tokenExpiration = null;
+    this.tokenExpirationTimout = null;
   }
 
   get userData(): UserData {
@@ -174,24 +169,24 @@ export class AuthService {
   }
 
   checkAuthenticationStatus(): void {
+    console.log()
     if (this.userData) {
-      this.authenticationStatus.next(true);
+      this.authenticationStatus$.next(true);
       this.userId = this.getUserId(this.userData._token)
     } else {
-      this.authenticationStatus.next(false);
+      this.authenticationStatus$.next(false);
     }
   }
 
-  private handleAuthentication(token: string, expires: number, username: string): void {
-    const expirationDate = new Date(expires * 1000);
-    const user = new User(token, expirationDate, username);
-    this.user.next(user);
-    this.isAuthenticated = true;
-    this.storage.setItem('userData', {
+  private setAuthenticationData(token: string, expires: number, username: string): void {
+    const userData = {
       _token: token,
-      _expires: expirationDate,
+      _expires: new Date(expires * 1000),
       _username: username
-    }, 0)
+    };
+    this.user$.next(userData);
+    this.isAuthenticated = true;
+    this.storage.setItem('userData', userData, 0)
     this.userId = this.getUserId(token);
   }
 
@@ -204,7 +199,6 @@ export class AuthService {
           break;
       }
     }
-    console.error(errorMessage);
     return throwError(() => errorMessage);
   }
 }

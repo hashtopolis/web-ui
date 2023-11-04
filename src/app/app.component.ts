@@ -2,17 +2,9 @@ import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID } fro
 import { NavigationEnd, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { filter } from 'rxjs';
-/**
- * Authentification Service, Cookies and Local Storage
- *
-**/
 import { UIConfigService } from './core/_services/shared/storage.service';
 import { CookieService } from './core/_services/shared/cookies.service';
 import { AuthService } from './core/_services/access/auth.service';
-/**
- * Idle watching
- *
-**/
 import { TimeoutComponent } from './shared/alert/timeout/timeout.component';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Idle, DEFAULT_INTERRUPTSOURCES } from '@ng-idle/core';
@@ -114,13 +106,13 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.authService.autoLogin();
-    this.authService.isLogged.subscribe(logged => {
-      this.isLogged = logged;
-      if (logged) {
+    this.authService.authenticationStatus$.subscribe(status => {
+      this.isLogged = status;
+      if (status) {
         this.storageInit();
       }
     });
-    this.authService.checkStatus();
+    this.authService.checkAuthenticationStatus();
     this.uiSettings = new UISettingsUtilityClass(this.storage)
   }
 
@@ -190,7 +182,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onLogOut() {
-    this.authService.logOut();
+    this.authService.clearAuthenticationData();
     this.closeModal();
   }
 
