@@ -7,6 +7,8 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { interval, Subscription } from 'rxjs';
 import { HeatmapChart } from 'echarts/charts';
 import * as echarts from 'echarts/core';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+
 
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -15,29 +17,37 @@ import { CookieService } from '../core/_services/shared/cookies.service';
 
 @Component({
   selector: 'app-home',
-  templateUrl: './home.component.html'
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
 })
 @PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit {
 
+
+
   username = 'Admin';
 
-  faCalendarWeek=faCalendarWeek;
-  faChainBroken=faChainBroken;
-  faCheckCircle=faCheckCircle;
-  faCalendarDay=faCalendarDay;
-  faPauseCircle=faPauseCircle;
-  faInfoCircle=faInfoCircle;
-  faUserSecret=faUserSecret;
-  faTasksAlt=faTasksAlt;
-  faRefresh=faRefresh;
-  faTasks=faTasks;
+  faCalendarWeek = faCalendarWeek;
+  faChainBroken = faChainBroken;
+  faCheckCircle = faCheckCircle;
+  faCalendarDay = faCalendarDay;
+  faPauseCircle = faPauseCircle;
+  faInfoCircle = faInfoCircle;
+  faUserSecret = faUserSecret;
+  faTasksAlt = faTasksAlt;
+  faRefresh = faRefresh;
+  faTasks = faTasks;
 
-  faGithub=faGithub;
+  faGithub = faGithub;
 
-  getUsername(){
-    return this.username;
-  }
+  isMediumScreen = false;
+
+  screenXS = false
+  screenS = false
+  screenM = false
+  screenL = false
+  screenXL = false
+
 
   // Dashboard variables
   activeAgents = 0;
@@ -47,15 +57,50 @@ export class HomeComponent implements OnInit {
   allsupertasks = 0;
 
   private maxResults = environment.config.prodApiMaxResults;
-  storedAutorefresh: any =[]
+  storedAutorefresh: any = []
   private updateSubscription: Subscription;
   public punchCardOpts = {}
   public punchCardOptss = {}
 
   constructor(
     private gs: GlobalService,
-    private cs: CookieService
-  ) { }
+    private cs: CookieService,
+    private breakpointObserver: BreakpointObserver
+  ) {
+    this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large, Breakpoints.XLarge])
+      .subscribe(result => {
+        this.isMediumScreen = result.matches;
+
+        const breakpoints = result.breakpoints;
+
+        this.screenXS = false
+        this.screenS = false
+        this.screenM = false
+        this.screenL = false
+        this.screenXL = false
+
+        if (breakpoints[Breakpoints.XSmall]) {
+          this.screenXS = true
+        }
+        else if (breakpoints[Breakpoints.Small]) {
+          this.screenS = true
+        }
+        else if (breakpoints[Breakpoints.Medium]) {
+          this.screenM = true
+        }
+        else if (breakpoints[Breakpoints.Large]) {
+          this.screenL = true
+        }
+        else if (breakpoints[Breakpoints.XLarge]) {
+          this.screenXL = true
+        }
+
+      });
+  }
+
+  getUsername() {
+    return this.username;
+  }
 
   async ngOnInit(): Promise<void> {
 
@@ -65,61 +110,61 @@ export class HomeComponent implements OnInit {
 
   }
 
-  onAutorefresh(){
-    if(this.storedAutorefresh.active == true){
+  onAutorefresh() {
+    if (this.storedAutorefresh.active == true) {
       setTimeout(() => {
         window.location.reload()
-      },this.storedAutorefresh.value*1000);
+      }, this.storedAutorefresh.value * 1000);
     }
   }
 
   // Manage Auto reload
-  setAutoreload(value: any){
+  setAutoreload(value: any) {
     const set = Number(this.storedAutorefresh.value);
     let val;
-    if(value == false){
+    if (value == false) {
       val = true;
-    }if(value == true){
+    } if (value == true) {
       val = false;
     }
-    this.cs.setCookie('autorefresh', JSON.stringify({active:val, value: set}), 365);
+    this.cs.setCookie('autorefresh', JSON.stringify({ active: val, value: set }), 365);
     this.ngOnInit();
   }
 
-  getAutoreload(){
+  getAutoreload() {
     return JSON.parse(this.cs.getCookie('autorefresh'));
   }
 
   async initData() {
 
     // Agents
-    const params = {'maxResults': this.maxResults}
+    const params = { 'maxResults': this.maxResults }
 
-    this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
+    this.gs.getAll(SERV.AGENTS, params).subscribe((agents: any) => {
       this.totalAgents = agents.total | 0;
-      this.activeAgents = agents.values.filter(u=> u.isActive == true).length | 0;
+      this.activeAgents = agents.values.filter(u => u.isActive == true).length | 0;
     });
 
     //  Tasks
-    const paramst = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
+    const paramst = { 'maxResults': this.maxResults, 'filter': 'isArchived=false' }
 
-    this.gs.getAll(SERV.TASKS,paramst).subscribe((tasks: any) => {
-      this.totalTasks = tasks.values.filter(u=> u.isArchived != true).length | 0;
+    this.gs.getAll(SERV.TASKS, paramst).subscribe((tasks: any) => {
+      this.totalTasks = tasks.values.filter(u => u.isArchived != true).length | 0;
     });
 
     // SuperTasks
-    this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((stasks: any) => {
+    this.gs.getAll(SERV.SUPER_TASKS, params).subscribe((stasks: any) => {
       this.allsupertasks = stasks.total | 0;
     });
 
     // Cracks
     // let paramsc = {'maxResults': this.maxResults, 'filter': 'isCracked='+true+''}
-    const paramsc = {'maxResults': this.maxResults }
+    const paramsc = { 'maxResults': this.maxResults }
 
-    this.gs.getAll(SERV.HASHES,paramsc).subscribe((hashes: any) => {
-      let lastseven:any = new Date() ;
-      lastseven = lastseven.setDate(lastseven.getDate() - 7).valueOf()/1000;
-      const lastsevenObject = hashes.values.filter(u=> (u.isCracked == true && u.timeCracked > lastseven ));
+    this.gs.getAll(SERV.HASHES, paramsc).subscribe((hashes: any) => {
+      let lastseven: any = new Date();
+      lastseven = lastseven.setDate(lastseven.getDate() - 7).valueOf() / 1000;
+      const lastsevenObject = hashes.values.filter(u => (u.isCracked == true && u.timeCracked > lastseven));
       this.totalCracks = lastsevenObject.length | 0;
       this.initCrackCard(hashes.values);
     });
@@ -128,19 +173,19 @@ export class HomeComponent implements OnInit {
 
   // Graphs Section
 
-  initCrackCard(obj: any){
+  initCrackCard(obj: any) {
 
     const date_today = new Date();
     const year = (new Date()).getFullYear();
-    const first_day_of_the_week = new Date(date_today.setDate(date_today.getDate() - date_today.getDay() ));
-    const epochtime = Math.round(first_day_of_the_week.setDate(first_day_of_the_week.getDate()).valueOf()/1000);
+    const first_day_of_the_week = new Date(date_today.setDate(date_today.getDate() - date_today.getDay()));
+    const epochtime = Math.round(first_day_of_the_week.setDate(first_day_of_the_week.getDate()).valueOf() / 1000);
 
-    const filterdate = obj.filter(u=> (u.isCracked == true ));
+    const filterdate = obj.filter(u => (u.isCracked == true));
 
     const arr = [];
-    for(let i=0; i < filterdate.length; i++){
-      const date:any = new Date(filterdate[i]['timeCracked']* 1000);
-      const iso = date.getUTCFullYear()+'-'+(date.getUTCMonth() + 1)+'-'+date.getUTCDate();
+    for (let i = 0; i < filterdate.length; i++) {
+      const date: any = new Date(filterdate[i]['timeCracked'] * 1000);
+      const iso = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
       arr.push([iso]);
     }
 
@@ -205,10 +250,10 @@ export class HomeComponent implements OnInit {
         label: {
           show: true,
           formatter: function (p) {
-            if(date_today.getDate() == p.data[0]){
+            if (date_today.getDate() == p.data[0]) {
               return 'X';
             }
-            else{
+            else {
               return '';
             }
           }

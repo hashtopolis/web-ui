@@ -1,16 +1,9 @@
-
-<!-- <app-loading-spinner></app-loading-spinner>  -->
-<!-- <app-screen-size-detector></app-screen-size-detector> -->
-<div [ngClass]="{'container':screenmode === 'true','full-container-app':screenmode === 'false'}">
-  <app-header></app-header>
-<!-- Breadcrum -->
-<!-- <app-breadcrumb [deliminator]="''"></app-breadcrumb> -->
-  <router-outlet></router-outlet>
-<!-- Button that appers when we scrolling down to go to top -->
-  <!-- <app-scroll-top></app-scroll-top> -->
-  <app-footer></app-footer>
+<div *ngIf="uiSettings.uiConfig" [class.xsmall]="screen.isXSmall() | async" [class.small]="screen.isSmall() | async"
+  [class.medium]="screen.isMedium() | async" [class.large]="screen.isLarge() | async"
+  [class.xlarge]="screen.isXLarge() | async">
+  <app-header />
+  <main>
+    <router-outlet />
+  </main>
+  <app-footer />
 </div>
-
-
-
-

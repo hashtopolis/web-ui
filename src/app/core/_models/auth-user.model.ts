@@ -1,3 +1,9 @@
+export interface UserData {
+  _expires: Date
+  _token: string
+  _username: string
+}
+
 export class User {
   constructor(
     private _token: string,

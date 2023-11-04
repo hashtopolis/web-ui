@@ -1,222 +1,104 @@
-<!-- Body -->
-<main>
-  <div class="row">
-    <div class="col-lg-3 col-md-6 col-sm-6 mt-1">
-      <div class="card card-dash">
-        <div class="card-body card-body-d">
-          <div class="row">
-            <div class="col-5 col-md-4">
-              <div class="text-center">
-                <fa-icon
-                        placement="bottom"
-                        container="body"
-                        type="button"
-                        [icon]="faUserSecret"
-                        aria-hidden="true"
-                        [routerLink]="['/agents/show-agents']"
-                        class="gray-light-ico fa-2x"
-                ></fa-icon>
-              </div>
-            </div>
-            <div class="col-7 col-md-8">
-              <div class="numbers">
-                <div class="card-category" type="button" [routerLink]="['/agents/show-agents']" >Agents</div>
-                <p class="card-title">{{ activeAgents }}/{{totalAgents}}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer">
-          <hr>
-          <div class="stats">
-            <fa-icon
-                    placement="bottom"
-                    container="body"
-                    [icon]="faCheckCircle"
-                    aria-hidden="true"
-             ></fa-icon>
-             <i>Active Agents/Total Agents</i>
-          </div>
-        </div>
-      </div>
+<div class="home-grid">
+  <div
+    [ngClass]="{'ro-1': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
+    <div class="co co-25">
+      <mat-card>
+        <mat-card-content>
+          <h3>
+            <mat-icon>dns</mat-icon>
+            Agents
+          </h3>
+          <span class="value">{{ activeAgents }} / {{ totalAgents }}</span>
+          <hr />
+          <span class="label">
+            <mat-icon>check_circle</mat-icon>
+            Active Agents / Total Agents
+          </span>
+        </mat-card-content>
+      </mat-card>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-6 mt-1">
-      <div class="card card-dash">
-        <div class="card-body card-body-d">
-          <div class="row">
-            <div class="col-5 col-md-4">
-              <div class="text-center">
-                <fa-icon
-                        placement="bottom"
-                        container="body"
-                        [icon]="faTasks"
-                        aria-hidden="true"
-                        [routerLink]="['/tasks/show-tasks']"
-                        class="gray-light-ico fa-2x"
-                ></fa-icon>
-              </div>
-            </div>
-            <div class="col-7 col-md-8">
-              <div class="numbers">
-                <p class="card-category" type="button" [routerLink]="['/tasks/show-tasks']">Tasks</p>
-                <p class="card-title">{{ totalTasks }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer">
-          <hr>
-          <div class="stats">
-            <fa-icon
-                    placement="bottom"
-                    container="body"
-                    [icon]="faCheckCircle"
-                    aria-hidden="true"
-             ></fa-icon>
-             <i>Total Live Tasks</i>
-          </div>
-        </div>
-      </div>
+    <div class="co co-25">
+      <mat-card>
+        <mat-card-content>
+          <h3>
+            <mat-icon>checklist</mat-icon>
+            Tasks
+          </h3>
+          <span class="value">{{ totalTasks }}</span>
+          <hr />
+          <span class="label">
+            <mat-icon>check_circle</mat-icon>
+            Total Live Tasks
+          </span>
+        </mat-card-content>
+      </mat-card>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-6 mt-1">
-      <div class="card card-dash">
-        <div class="card-body card-body-d">
-          <div class="row">
-            <div class="col-5 col-md-4">
-              <div class="text-center">
-                <fa-icon
-                        placement="bottom"
-                        container="body"
-                        [icon]="faTasksAlt"
-                        aria-hidden="true"
-                        [routerLink]="['/tasks/supertasks']"
-                        class="gray-light-ico fa-2x"
-                ></fa-icon>
-              </div>
-            </div>
-            <div class="col-7 col-md-8">
-              <div class="numbers">
-                <p class="card-category" type="button" [routerLink]="['/tasks/supertasks']">SuperTasks</p>
-                <p class="card-title">{{ allsupertasks }}</p>
-                  <p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer ">
-          <hr>
-          <div class="stats">
-            <fa-icon
-                    placement="bottom"
-                    container="body"
-                    [icon]="faCheckCircle"
-                    aria-hidden="true"
-             ></fa-icon>
-             <i>Total SuperTasks</i>
-          </div>
-        </div>
-      </div>
+    <div class="co co-25">
+      <mat-card>
+        <mat-card-content>
+          <h3>
+            <mat-icon>checklist</mat-icon>
+            Supertasks
+          </h3>
+          <span class="value">{{ allsupertasks }}</span>
+          <hr />
+          <span class="label">
+            <mat-icon>check_circle</mat-icon>
+            Total Supertasks
+          </span>
+        </mat-card-content>
+      </mat-card>
     </div>
-    <div class="col-lg-3 col-md-6 col-sm-6 mt-1">
-      <div class="card card-dash">
-        <div class="card-body card-body-d">
-          <div class="row">
-            <div class="col-5 col-md-4">
-              <div class="text-center">
-                <fa-icon
-                        placement="bottom"
-                        container="body"
-                        [icon]="faChainBroken"
-                        aria-hidden="true"
-                        [routerLink]="['/hashlists/show-cracks']"
-                        class="gray-light-ico fa-2x"
-                ></fa-icon>
-              </div>
-            </div>
-            <div class="col-7 col-md-8">
-              <div class="numbers">
-                <p class="card-category" type="button" [routerLink]="['/hashlists/show-cracks']">Total Cracks</p>
-                <p class="card-title">{{ totalCracks }}</p>
-                  <p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer ">
-          <hr>
-          <div class="stats">
-            <fa-icon
-                    placement="bottom"
-                    container="body"
-                    [icon]="faCalendarWeek"
-                    aria-hidden="true"
-             ></fa-icon>
-             <i>Last 7 days</i>
-          </div>
-        </div>
-      </div>
+    <div class="co co-25">
+      <mat-card>
+        <mat-card-content>
+          <h3>
+            <mat-icon>lock_open</mat-icon>
+            Cracks
+          </h3>
+          <span class="value">{{ totalCracks }}</span>
+          <hr />
+          <span class="label">
+            <mat-icon>event_available</mat-icon>
+            Last 7 days
+          </span>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-title">Project Information</h5>
-        </div>
-        <div class="card-body card-body-d">
-            Hashtopolis is available in:&nbsp;&nbsp;
-            <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">
-              <fa-icon
-                      placement="bottom"
-                      ngbTooltip="Github Repository"
-                      container="body"
-                      [icon]="faGithub"
-                      aria-hidden="true"
-                      class="gray-light-ico fa-2x"
-              ></fa-icon>
-            </a>&nbsp;&nbsp;
-            <hr>
-            To get more information about how to use it, please visit the
-            <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">
-              Wiki
-            </a> or
-            <a href="https://discord.com/channels/419123475538509844/419123475538509846" target="_blank" rel="noopener">
-              Discord
-            </a>
-        </div>
-      </div>
+  <div
+    [ngClass]="{'ro-2': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
+    <div class="co co-100">
+      <div id="pcard" class="app-echarts" style="height: 250px;"></div>
     </div>
-      <div class="col-md-8">
-        <div class="card ">
-          <div class="card-header ">
-            <h5 class="card-title">Cracked</h5>
-          </div>
-          <div class="card-body card-body-d">
-            <div id="pcard" class="app-echarts" style="height: 310px;"></div>
-          </div>
-        </div>
-      </div>
+  </div>
+  <div
+    [ngClass]="{'ro-3': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
+    <div class="co co-100">
+      <mat-card class="project-info">
+        <mat-card-content>
+          Hashtopolis is available on <a href="https://github.com/hashtopolis" target="_blank"
+            rel="noopener">Github</a>.
+          To get information about how to use it, please visit the <a href="https://github.com/hashtopolis/server/wiki"
+            target="_blank" rel="noopener">Wiki</a> or <a
+            href="https://discord.com/channels/419123475538509844/419123475538509846" target="_blank"
+            rel="noopener">Discord</a>.
+        </mat-card-content>
+      </mat-card>
     </div>
 
-</main>
+  </div>
+</div>
+
+
+
 
 <!-- Refresh Button -->
-<fa-icon
-        class="point fa-2xl md-ico-bottom-right"
-        style="color:rgba(82, 207, 44, 0.459)"
-        ngbTooltip='Disable Auto-reload page. Edit interval time in Config/Settings/Task.'
-        *ngIf="storedAutorefresh.active === true"
-        (click)="setAutoreload(true)"
-        [icon]="faRefresh"
-        aria-hidden="true"
-  ></fa-icon>
-<fa-icon
-        class="point fa-2xl md-ico-bottom-right"
-        style="color:rgba(231, 155, 41, 0.459)"
-        ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
-        *ngIf="storedAutorefresh.active === false"
-        (click)="setAutoreload(false)"
-        [icon]="faPauseCircle"
-        aria-hidden="true"
-  ></fa-icon>
+<fa-icon class="point fa-2xl md-ico-bottom-right" style="color:rgba(82, 207, 44, 0.459)"
+  ngbTooltip='Disable Auto-reload page. Edit interval time in Config/Settings/Task.'
+  *ngIf="storedAutorefresh.active === true" (click)="setAutoreload(true)" [icon]="faRefresh"
+  aria-hidden="true"></fa-icon>
+<fa-icon class="point fa-2xl md-ico-bottom-right" style="color:rgba(231, 155, 41, 0.459)"
+  ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
+  *ngIf="storedAutorefresh.active === false" (click)="setAutoreload(false)" [icon]="faPauseCircle"
+  aria-hidden="true"></fa-icon>

@@ -44,6 +44,12 @@ import { DirectivesModule } from './shared/directives.module';
 import { configReducer } from './core/_store/config.reducer';
 import { PipesModule } from './shared/pipes.module';
 import { AuthModule } from './auth/auth.module';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { CoreComponentsModule } from './core/_components/core-components.module';
 
 @NgModule({
   declarations: [
@@ -70,10 +76,16 @@ import { AuthModule } from './auth/auth.module';
     PipesModule,
     FormsModule,
     AuthModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatMenuModule,
+    MatTooltipModule,
+    CoreComponentsModule,
     NgbModule,
     AppRoutingModule,  // Main routes for the App
     NgIdleKeepaliveModule.forRoot(),
-    StoreModule.forRoot({configList: configReducer})
+    StoreModule.forRoot({ configList: configReducer })
   ],
   providers: [
     Title,
@@ -98,7 +110,7 @@ export class AppModule {
   static injector: Injector;
   constructor(
     injector: Injector
-  ){
+  ) {
     AppModule.injector = injector;
   }
 }

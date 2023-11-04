@@ -10,12 +10,16 @@ import { ComponentsModule } from "../shared/components.module";
 import { PipesModule } from "../shared/pipes.module";
 import { HomeComponent } from "./home.component";
 import { HomeRoutingModule } from "./home-routing.module";
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from "@angular/material/icon";
+import { MatCardModule } from "@angular/material/card";
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
-  declarations:[
+  declarations: [
     HomeComponent,
   ],
-  imports:[
+  imports: [
     ReactiveFormsModule,
     HomeRoutingModule,
     FontAwesomeModule,
@@ -25,8 +29,12 @@ import { HomeRoutingModule } from "./home-routing.module";
     RouterModule,
     PipesModule,
     FormsModule,
+    MatGridListModule,
+    FlexLayoutModule,
+    MatIconModule,
+    MatCardModule,
     NgbModule
- ]
+  ]
 })
-export class HomeModule {}
+export class HomeModule { }
 
