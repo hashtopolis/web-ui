@@ -12,9 +12,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class UiSettingsComponent implements OnInit {
 
-  form!: FormGroup;
+  form!: FormGroup
   util: UISettingsUtilityClass
-  dateFormats: Setting[] = dateFormats
+
+  formats: Setting[] = dateFormats
   layouts: Setting[] = layouts
   themes: Setting[] = themes
 
