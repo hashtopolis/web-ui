@@ -29,7 +29,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles/styles.scss"
+              "src/styles/styles.scss",
+              "sweetalert2/src/sweetalert2.scss"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
