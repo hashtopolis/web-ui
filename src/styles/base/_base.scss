@@ -1,5 +1,9 @@
 @import './colors';
 
+body {
+  font-family: var(--mdc-typography-button-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+}
+
 a {
   color: $accent-800 !important;
 }
@@ -78,12 +82,39 @@ h2 {
   }
 }
 
+.xsmall,
+.small,
+.medium,
+.large,
+.xlarge {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 81px);
+  margin: 0;
+
+  main {
+    flex: 1;
+  }
+
+  footer {
+    margin-top: -52px;
+    padding: 0;
+    width: 100%;
+    margin-bottom: 0;
+  }
+}
+
+.mat-card-box {
+  border: 1px solid $primary-700 !important;
+}
+
 .home-grid {
   margin-top: 50px;
 
   .project-info {
-    background-color: $primary-900;
-    color: #ffffff;
+    text-align: center;
+    border-radius: 0;
+    border: 3px solid $primary-900
   }
 
   .mat-mdc-card {
@@ -103,6 +134,11 @@ h2 {
       }
     }
 
+    hr {
+      border-width: 1px;
+      border-style: solid;
+    }
+
     span {
       display: inline-block;
       width: 100%;
@@ -114,11 +150,15 @@ h2 {
       }
 
       &.label {
-        color: $primary-400;
+        color: $primary-900;
+        font-size: .8em;
 
         .mat-icon {
+          font-size: 16px;
+          height: 16px;
+          width: 16px;
           position: relative;
-          top: 6px;
+          top: 3px;
         }
       }
     }

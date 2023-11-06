@@ -56,3 +56,20 @@
     }
   }
 }
+
+.chart-controls {
+  color: #666;
+  font-size: 0.8em;
+  text-align: right;
+
+  .mdc-button {
+    padding: 0;
+    min-width: 32px;
+    margin-left: 4px;
+    margin-bottom: 3px;
+
+    .mat-icon {
+      margin-right: 0;
+    }
+  }
+}

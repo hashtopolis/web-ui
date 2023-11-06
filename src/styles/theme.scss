@@ -93,6 +93,6 @@ $hashtopolis-dark-theme: mat.define-dark-theme((color: (primary: $primary,
 @include mat.all-component-themes($hashtopolis-light-theme);
 
 .dark-theme {
-  @include mat.all-component-themes($hashtopolis-dark-theme);
+  @include mat.all-component-colors($hashtopolis-dark-theme);
   background-color: var(--mat-toolbar-container-background-color);
 }
