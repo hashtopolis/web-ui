@@ -48,7 +48,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from "@angular/material/card";
 import { CoreComponentsModule } from './core/_components/core-components.module';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -79,7 +82,9 @@ import { CoreComponentsModule } from './core/_components/core-components.module'
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
+    MatCardModule,
     MatTooltipModule,
+    MatSnackBarModule,
     CoreComponentsModule,
     NgbModule,
     AppRoutingModule,  // Main routes for the App
@@ -100,7 +105,10 @@ import { CoreComponentsModule } from './core/_components/core-components.module'
     },
     ThemeService,
     AppPreloadingStrategy,
-    ConfigService
+    ConfigService,
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500, verticalPosition: 'top' } }
+
   ],
   bootstrap: [AppComponent]
 })
