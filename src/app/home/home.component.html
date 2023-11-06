@@ -2,7 +2,7 @@
   <div
     [ngClass]="{'ro-1': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
     <div class="co co-25">
-      <mat-card>
+      <mat-card class="mat-card-box">
         <mat-card-content>
           <h3>
             <mat-icon>dns</mat-icon>
@@ -12,13 +12,13 @@
           <hr />
           <span class="label">
             <mat-icon>check_circle</mat-icon>
-            Active Agents / Total Agents
+            Active / Total Agents
           </span>
         </mat-card-content>
       </mat-card>
     </div>
     <div class="co co-25">
-      <mat-card>
+      <mat-card class="mat-card-box">
         <mat-card-content>
           <h3>
             <mat-icon>checklist</mat-icon>
@@ -34,13 +34,13 @@
       </mat-card>
     </div>
     <div class="co co-25">
-      <mat-card>
+      <mat-card class="mat-card-box">
         <mat-card-content>
           <h3>
             <mat-icon>checklist</mat-icon>
             Supertasks
           </h3>
-          <span class="value">{{ allsupertasks }}</span>
+          <span class="value">{{ totalSupertasks }}</span>
           <hr />
           <span class="label">
             <mat-icon>check_circle</mat-icon>
@@ -50,7 +50,7 @@
       </mat-card>
     </div>
     <div class="co co-25">
-      <mat-card>
+      <mat-card class="mat-card-box">
         <mat-card-content>
           <h3>
             <mat-icon>lock_open</mat-icon>
@@ -70,6 +70,20 @@
     [ngClass]="{'ro-2': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
     <div class="co co-100">
       <div id="pcard" class="app-echarts" style="height: 250px;"></div>
+
+      <div class="chart-controls">
+        <span *ngIf="lastUpdated">Last updated: {{ lastUpdated }}</span>
+        <ng-container *ngIf="!refreshPage">
+          <button mat-button (click)="setAutoreload(true)" matTooltip="Enable Auto Reload">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngIf="refreshPage">
+          <button mat-button (click)="setAutoreload(false)" matTooltip="Pause Auto Reload">
+            <mat-icon>pause_circle_outline</mat-icon>
+          </button>
+        </ng-container>
+      </div>
     </div>
   </div>
   <div
@@ -88,17 +102,5 @@
     </div>
 
   </div>
+
 </div>
-
-
-
-
-<!-- Refresh Button -->
-<fa-icon class="point fa-2xl md-ico-bottom-right" style="color:rgba(82, 207, 44, 0.459)"
-  ngbTooltip='Disable Auto-reload page. Edit interval time in Config/Settings/Task.'
-  *ngIf="storedAutorefresh.active === true" (click)="setAutoreload(true)" [icon]="faRefresh"
-  aria-hidden="true"></fa-icon>
-<fa-icon class="point fa-2xl md-ico-bottom-right" style="color:rgba(231, 155, 41, 0.459)"
-  ngbTooltip='Enable Auto-reload page. Edit interval time in Config/Settings/Task.'
-  *ngIf="storedAutorefresh.active === false" (click)="setAutoreload(false)" [icon]="faPauseCircle"
-  aria-hidden="true"></fa-icon>

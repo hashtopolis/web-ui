@@ -13,7 +13,8 @@ import { HomeRoutingModule } from "./home-routing.module";
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from "@angular/material/icon";
 import { MatCardModule } from "@angular/material/card";
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatButtonModule } from "@angular/material/button";
+import { MatTooltipModule } from "@angular/material/tooltip";
 
 @NgModule({
   declarations: [
@@ -30,9 +31,10 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     PipesModule,
     FormsModule,
     MatGridListModule,
-    FlexLayoutModule,
     MatIconModule,
     MatCardModule,
+    MatButtonModule,
+    MatTooltipModule,
     NgbModule
   ]
 })
