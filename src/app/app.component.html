@@ -1,9 +1,9 @@
 <div *ngIf="uiSettings.uiConfig" [class.xsmall]="screen.isXSmall() | async" [class.small]="screen.isSmall() | async"
   [class.medium]="screen.isMedium() | async" [class.large]="screen.isLarge() | async"
   [class.xlarge]="screen.isXLarge() | async">
-  <app-header />
   <main>
+    <app-header />
     <router-outlet />
   </main>
-  <app-footer />
 </div>
+<app-footer />
