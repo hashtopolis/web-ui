@@ -8,13 +8,17 @@ export interface TableSettings {
 export interface UIConfig {
   layout: Layout
   theme: Theme
-  tableSettings: TableSettings,
-  timefmt: string,
+  tableSettings: TableSettings
+  timefmt: string
+  refreshPage: boolean
+  refreshInterval: number
 }
 
 export const uiConfigDefault: UIConfig = {
   layout: 'fixed',
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
-  tableSettings: {}
+  tableSettings: {},
+  refreshPage: false,
+  refreshInterval: 10
 }
