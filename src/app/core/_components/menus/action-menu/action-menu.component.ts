@@ -87,9 +87,8 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
       }
 
       for (const item of section) {
-        const copy = this.currentUrl.slice(0, item.routerLink.length);
-        if (item.routerLink &&
-          item.routerLink.every((value, index) => value === copy[index])) {
+        const partial = this.currentUrl.slice(0, item.routerLink.length);
+        if (item.routerLink && item.routerLink.every((value, index) => value === partial[index])) {
           this.isActive = true
           break;
         }
