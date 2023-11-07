@@ -71,7 +71,13 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Checks if a menu item should be marked as active based on the current URL.
+   * Checks if a menu item should be considered active based on the current URL.
+   * It sets the 'isActive' property to true if the menu item's 'routerLink' matches
+   * or partially matches the beginning of the current URL.
+   * 
+   * The 'actionMenuItems' array should contain sections of menu items, where each
+   * section is an array of menu items with 'routerLink' properties.
+   * 
    */
   checkIsActive(): void {
     this.isActive = false
@@ -79,9 +85,11 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
       if (this.isActive) {
         break;
       }
+
       for (const item of section) {
-        if (item.routerLink && item.routerLink.length === this.currentUrl.length &&
-          item.routerLink.every((value, index) => value === this.currentUrl[index])) {
+        const copy = this.currentUrl.slice(0, item.routerLink.length);
+        if (item.routerLink &&
+          item.routerLink.every((value, index) => value === copy[index])) {
           this.isActive = true
           break;
         }
