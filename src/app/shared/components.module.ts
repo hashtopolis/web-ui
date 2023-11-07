@@ -23,10 +23,16 @@ import { LottiesModule } from './lottie/lottie.module';
 import { GraphsModule } from "./graphs/graphs.module";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { FormsModule } from "@angular/forms";
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { TimeoutDialogComponent } from './dialog/timeout/timeout-dialog.component';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
     ButtonTruncateTextComponent,
+    TimeoutDialogComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     ActiveSpinnerComponent,
@@ -47,6 +53,11 @@ import { FormsModule } from "@angular/forms";
     LottiesModule,
     GraphsModule,
     CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatProgressBarModule,
+    MatIconModule,
     FormsModule,
     TableModule,
     GridModule,
@@ -54,6 +65,7 @@ import { FormsModule } from "@angular/forms";
   ],
   exports: [
     ButtonTruncateTextComponent,
+    TimeoutDialogComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     ActiveSpinnerComponent,
@@ -76,4 +88,4 @@ import { FormsModule } from "@angular/forms";
     GridModule
   ],
 })
-export class ComponentsModule {}
+export class ComponentsModule { }

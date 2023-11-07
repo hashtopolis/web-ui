@@ -6,9 +6,9 @@ export interface UserData {
 
 export class User {
   constructor(
-    private _token: string,
-    private _expires: Date,
-    private _username: string
+    public _token: string,
+    public _expires: Date,
+    public _username: string
   ) { }
 
   get token() {

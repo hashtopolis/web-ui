@@ -3,7 +3,7 @@ import { environment } from './../../../environments/environment';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/_services/access/auth.service';
 import { MainMenuItem } from './header.model';
-import { UserData } from 'src/app/core/_models/auth-user.model';
+import { User, UserData } from 'src/app/core/_models/auth-user.model';
 import { ActionMenuEvent } from 'src/app/core/_components/menus/action-menu/action-menu.model';
 import { HeaderMenuAction, HeaderMenuLabel } from './header.constants';
 
@@ -24,7 +24,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscriptions.push(this.authService.user$.subscribe((user: UserData) => {
+    this.subscriptions.push(this.authService.user.subscribe((user: User) => {
       if (user) {
         this.username = user._username
       }
@@ -40,7 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   menuItemClicked(event: ActionMenuEvent<any>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
-      this.authService.clearAuthenticationData();
+      this.authService.logOut();
       this.rebuildMenu()
       window.location.reload();
     }

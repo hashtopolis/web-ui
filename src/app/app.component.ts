@@ -13,6 +13,7 @@ import { UISettingsUtilityClass } from './shared/utils/config';
 import { LocalStorageService } from './core/_services/storage/local-storage.service';
 import { UIConfig } from './core/_models/config-ui.model';
 import { BreakpointService } from './core/_services/shared/breakpoint.service';
+import { CheckTokenService } from './core/_services/access/checktoken.service';
 
 @Component({
   selector: 'app-root',
@@ -40,6 +41,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private modalService: NgbModal,
     private keepalive: Keepalive,
+    private checkt: CheckTokenService,
     private router: Router,
     private idle: Idle,
     private storage: LocalStorageService<UIConfig>,
@@ -106,13 +108,13 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.authService.autoLogin();
-    this.authService.authenticationStatus$.subscribe(status => {
+    this.authService.isLogged.subscribe(status => {
       this.isLogged = status;
       if (status) {
         this.storageInit();
       }
     });
-    this.authService.checkAuthenticationStatus();
+    this.authService.checkStatus();
     this.uiSettings = new UISettingsUtilityClass(this.storage)
   }
 
@@ -182,7 +184,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   onLogOut() {
-    this.authService.clearAuthenticationData();
+    this.authService.logOut();
     this.closeModal();
   }
 

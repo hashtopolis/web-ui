@@ -3,15 +3,15 @@ import { Injectable } from '@angular/core';
 import { take, exhaustMap } from 'rxjs';
 
 import { AuthService } from '../_services/access/auth.service';
-import { UserData } from '../_models/auth-user.model';
+import { User, UserData } from '../_models/auth-user.model';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
   constructor(private authService: AuthService) { }
   intercept(req: HttpRequest<any>, next: HttpHandler) {
-    return this.authService.user$.pipe(
+    return this.authService.user.pipe(
       take(1),
-      exhaustMap((user: UserData) => {
+      exhaustMap((user: User) => {
         if (!user) {
           return next.handle(req);
         }
