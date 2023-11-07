@@ -7,6 +7,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { Router } from "@angular/router";
 import { Buffer } from 'buffer';
 import { ConfigService } from "../shared/config.service";
+import { LocalStorageService } from "../storage/local-storage.service";
 
 export interface AuthResponseData {
   token: string,
@@ -16,15 +17,17 @@ export interface AuthResponseData {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  user = new BehaviorSubject<User>(null);
+  static readonly STORAGE_KEY = 'userData'
+
+  user = new BehaviorSubject<UserData>(null);
   userId!: any;
+
   @Output() authChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   isAuthenticated = false;
   private logged = new ReplaySubject<boolean>(1);
   isLogged = this.logged.asObservable();
   redirectUrl = '';
   private userLoggedIn = new Subject<boolean>();
-  private accessToken: string;
   private tokenExpiration: any;
   private endpoint = '/auth';
 
@@ -32,8 +35,9 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private cs: ConfigService,
+    private storage: LocalStorageService<UserData>,
   ) {
-    this.accessToken = localStorage.getItem('userData');
+    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
     this.userLoggedIn.next(false);
     if (this.logged) {
       this.userId = this.getUserId(this.token);
@@ -41,13 +45,12 @@ export class AuthService {
   }
 
   autoLogin() {
-    const userData: { _token: string, _expires: string } = JSON.parse(localStorage.getItem('userData'));
+    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
       return;
     }
 
-    const loadedUser = new User(userData._token, new Date(userData._expires), '-');
-
+    const loadedUser = new User(userData._token, new Date(userData._expires), userData._username);
     if (loadedUser.token) {
       this.user.next(loadedUser);
       const tokenExpiration = new Date(userData._expires).getTime() - new Date().getTime();
@@ -68,15 +71,9 @@ export class AuthService {
         }));
   }
 
-  get token(): any {
-    let res;
-    const token = localStorage.getItem('userData');
-    if (token) {
-      res = JSON?.parse(token)._token
-    } else {
-      res = 'notoken'
-    }
-    return res;
+  get token(): string {
+    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+    return userData ? userData._token : 'notoken'
   }
 
   private getUserId(token: any) {
@@ -105,15 +102,15 @@ export class AuthService {
 
   getRefreshToken(expirationDuration: number) {
     this.tokenExpiration = setTimeout(() => {
-      const userData: { _token: string, _expires: string, _username: string } = JSON.parse(localStorage.getItem('userData'));
+      const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
       return this.http.post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', { headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` }) })
         .pipe(
           tap((response: any) => {
             if (response && response.token) {
-              this.accessToken = response.token;
-              const expirationDate = new Date(response.expires * 1000);
-              const user = new User(response.token, expirationDate, userData._username);
-              localStorage.setItem('userData', JSON.stringify(user));
+              userData._token = response.token
+              userData._expires = new Date(response.expires * 1000);
+
+              this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
             } else {
               this.logOut();
             }
@@ -123,15 +120,15 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    const userData: { _token: string, _expires: string, _username: string } = JSON.parse(localStorage.getItem('userData'));
+    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
     return this.http.post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh ', { headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` }) })
       .pipe(
         tap((response: any) => {
           if (response && response.token) {
-            this.accessToken = response.token;
-            const expirationDate = new Date(response.expires * 1000);
-            const user = new User(response.token, expirationDate, userData._username);
-            localStorage.setItem('userData', JSON.stringify(user));
+            userData._token = response.token
+            userData._expires = new Date(response.expires * 1000);
+
+            this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
           } else {
             this.logOut();
           }
@@ -147,7 +144,7 @@ export class AuthService {
   logOut() {
     this.user.next(null);
     this.router.navigate(['/auth']);
-    localStorage.removeItem('userData');
+    this.storage.removeItem(AuthService.STORAGE_KEY);
     if (this.tokenExpiration) {
       clearTimeout(this.tokenExpiration)
     }
@@ -155,7 +152,7 @@ export class AuthService {
   }
 
   checkStatus() {
-    const userData = JSON.parse(localStorage.getItem('userData'));
+    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (userData) {
       this.logged.next(true);
     } else {
@@ -168,13 +165,23 @@ export class AuthService {
   }
 
   handleAuthentication(token: string, expires: number, username: string) {
-    console.log('handling auth')
-    const expirationDate = new Date(expires * 1000); // expires, its epoch time in seconds and returns milliseconds sin Jan 1, 1970. We need to multiple by 1000
-    const user = new User(token, expirationDate, username);
-    this.user.next(user);
+    const userData = {
+      _token: token,
+      _expires: new Date(expires * 1000),
+      _username: username
+    };
+
+    this.user.next(userData);
     this.logged.next(true);
+    this.isAuthenticated = true;
+
+    this.storage.setItem(AuthService.STORAGE_KEY, userData, 0)
+    this.userId = this.getUserId(token);
+
+
     this.autologOut(expires); // Epoch time
-    localStorage.setItem('userData', JSON.stringify(user));
+
+    this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
     this.userId = this.getUserId(token);
   }
 
