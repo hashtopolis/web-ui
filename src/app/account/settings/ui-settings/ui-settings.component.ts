@@ -48,11 +48,16 @@ export class UiSettingsComponent implements OnInit {
   }
 
   onSubmit(): void {
+    setTimeout(() => {
+      window.location.reload()
+    }, 800)
+
     const changedValues = this.util.updateSettings(this.form.value)
     const message = changedValues > 0
-      ? `Successfully updated ${changedValues} settings!`
+      ? 'Reloading settings ...'
       : 'No changes were saved'
 
-    this.snackBar.open(message, 'Close');
+
+    this.snackBar.open(message, 'Close')
   }
 }
