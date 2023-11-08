@@ -1,29 +1,24 @@
-import { faPlus }  from '@fortawesome/free-solid-svg-icons';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-page-title',
   template: `
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">{{ title }}</h2>
-  </div>
-  <div *ngIf="subbutton" class="btn-toolbar mb-2 mb-md-0">
-      <a (click)="redirect()" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
-        <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-          {{ buttontitle }}
-      </a>
+<div class="page-title-wrapper">
+    <h2 class="h4">{{ title }}</h2>
+    <ng-container *ngIf="subbutton">
+      <button mat-flat-button color="primary" (click)="navigate()">
+        <mat-icon>add</mat-icon>
+        {{ buttontitle }}
+      </button>
+    </ng-container>
   </div>
   <div *ngIf="usetoggle" class="btn-toolbar mb-2 mb-md-0">
      <div #content><ng-content></ng-content></div>
   </div>
-</div>
   `
 })
-export class PageTitleComponent  {
-
-  faPlus=faPlus;
+export class PageTitleComponent {
 
   @Input() title: any;
   @Input() buttontitle?: any;
@@ -31,11 +26,9 @@ export class PageTitleComponent  {
   @Input() subbutton?: boolean;
   @Input() usetoggle?: boolean;
 
-  constructor(
-    private router: Router
-  ) { }
+  constructor(private router: Router) { }
 
-  redirect(){
+  navigate() {
     this.router.navigate([this.buttonlink]);
   }
 

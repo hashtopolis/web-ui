@@ -4,12 +4,16 @@ import { PageTitleComponent } from './page-title.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @NgModule({
   imports: [
     FormsModule,
     CommonModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   exports: [
     PageTitleComponent,
