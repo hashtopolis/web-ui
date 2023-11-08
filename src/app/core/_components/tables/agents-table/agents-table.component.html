@@ -1,0 +1,4 @@
+<ht-table name="agentTable" dataType="agents" [dataSource]="dataSource" [tableColumns]="tableColumns"
+  [isSelectable]="true" [hasRowAction]="true" [isFilterable]="true" [filterFn]="filter" [isPageable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)" (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)" />

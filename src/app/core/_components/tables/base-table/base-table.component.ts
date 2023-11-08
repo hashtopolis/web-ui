@@ -1,15 +1,16 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Renderer2 } from '@angular/core';
-import { GlobalService } from '../../_services/main.service';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { LocalStorageService } from '../../_services/storage/local-storage.service';
-import { UIConfig, uiConfigDefault } from '../../_models/config-ui.model';
-import { UIConfigService } from '../../_services/shared/storage.service';
 import { Subscription } from 'rxjs';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ExportService } from 'src/app/core/_services/export/export.service';
 
 @Component({
   selector: 'base-table',
@@ -29,6 +30,7 @@ export class BaseTableComponent {
     protected sanitizer: DomSanitizer,
     protected snackBar: MatSnackBar,
     protected uiService: UIConfigService,
+    protected exportService: ExportService,
     public dialog: MatDialog,
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService)
@@ -37,7 +39,6 @@ export class BaseTableComponent {
 
   /**
    * Retrieves the date format for rendering timestamps.
-   * @todo Change to localstorage
    * @returns The date format string.
    */
   private getDateFormat(): string {
