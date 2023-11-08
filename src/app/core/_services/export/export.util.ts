@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { HTTableColumn } from "../../_components/ht-table/ht-table.models";
 import { ExcelColumn } from "./export.model";
+import { HTTableColumn } from "../../_components/tables/ht-table/ht-table.models";
 
 
 @Injectable({
