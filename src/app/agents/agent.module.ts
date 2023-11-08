@@ -14,15 +14,17 @@ import { DirectivesModule } from "../shared/directives.module";
 import { ComponentsModule } from "../shared/components.module";
 import { AgentsRoutingModule } from "./agents-routing.module";
 import { PipesModule } from "../shared/pipes.module";
+import { CoreComponentsModule } from '../core/_components/core-components.module';
 
 @NgModule({
-  declarations:[
+  declarations: [
     AgentStatusComponent,
     ShowAgentsComponent,
     EditAgentComponent,
     NewAgentComponent
   ],
-  imports:[
+  imports: [
+    CoreComponentsModule,
     ReactiveFormsModule,
     AgentsRoutingModule,
     FontAwesomeModule,
@@ -36,4 +38,4 @@ import { PipesModule } from "../shared/pipes.module";
     NgbModule
   ]
 })
-export class AgentsModule {}
+export class AgentsModule { }
