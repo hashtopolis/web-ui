@@ -2,7 +2,7 @@
 import { Component, Input, OnInit, } from '@angular/core';
 import { BaseMenuComponent } from '../base-menu/base-menu.component';
 import { BulkActionMenuAction, BulkActionMenuLabel } from './bulk-action-menu.constants';
-import { DataType } from '../../ht-table/ht-table.models';
+import { DataType } from '../../tables/ht-table/ht-table.models';
 
 @Component({
   selector: 'bulk-action-menu',
