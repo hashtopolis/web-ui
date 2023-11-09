@@ -1,6 +1,6 @@
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from "@angular/router";
 import { Injectable, inject } from "@angular/core";
-import { map, take, of, Observable } from "rxjs";
+import { map, take, Observable } from "rxjs";
 
 import { AuthService } from "../_services/access/auth.service";
 
@@ -8,27 +8,28 @@ import { AuthService } from "../_services/access/auth.service";
   providedIn: 'root'
 })
 class AuthGuard {
-    isAuthenticated: boolean;
+  isAuthenticated: boolean;
 
-    constructor(
-      private authService: AuthService,
-      private router: Router
-    ){}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean>  {
-        return this.authService.user.pipe(
-            take(1),
-            map(user =>{
-            const isAuth = !!user;
-            if(isAuth){
-                return true; // user authorised then return
-            }
-            this.authService.redirectUrl = state.url;
-            this.router.navigate(['/auth']);
-            return false;
-        }));
-    }
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    return this.authService.user.pipe(
+      take(1),
+      map(user => {
+        const isAuth = !!user;
+        if (isAuth) {
+          return true;
+        }
+        this.authService.redirectUrl = state.url;
+        this.router.navigate(['/auth']);
+        return false;
+      }));
+  }
 }
-export const IsAuth: CanActivateFn = (route:ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
-  return inject(AuthGuard).canActivate(route,state);
+
+export const IsAuth: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> => {
+  return inject(AuthGuard).canActivate(route, state);
 }

@@ -1,0 +1,9 @@
+<h2 mat-dialog-title class='text-critical'>
+  <mat-icon>warning</mat-icon>
+  Timeout
+</h2>
+<div mat-dialog-content>
+  <p>{{ data.message }}</p>
+  <mat-progress-bar color="warn" mode="determinate" [value]="data.value" [bufferValue]="data.bufferValue" />
+  <p *ngIf="data.timedOut">Logging out...</p>
+</div>

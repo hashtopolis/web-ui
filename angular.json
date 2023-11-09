@@ -29,32 +29,14 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
-              "node_modules/bootstrap-darkmode/css/darktheme.css",
-              "node_modules/sweetalert2/src/sweetalert2.scss",
-              {
-                "input": "src/styles/styles.scss",
-                "bundleName": "default",
-                "inject": true
-              },
-              {
-                "input": "src/styles/dark.scss",
-                "bundleName": "dark",
-                "inject": false
-              },
-              {
-                "input": "src/styles/light.scss",
-                "bundleName": "light",
-                "inject": false
-              },
-              "node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css",
-              "node_modules/datatables.net-buttons-dt/css/buttons.dataTables.css",
-              "node_modules/datatables.net-select-dt/css/select.dataTables.css",
-              "node_modules/datatables.net-responsive-dt/css/responsive.dataTables.css",
-              "node_modules/@selectize/selectize/dist/css/selectize.css",
-              "node_modules/@selectize/selectize/dist/css/selectize.bootstrap5.css",
-              "node_modules/jquery-ui/themes/base/selectable.css"
+              "src/styles/styles.scss",
+              "sweetalert2/src/sweetalert2.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules"
+              ]
+            },
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/jquery-ui/dist/jquery-ui.js",

@@ -1,162 +1,231 @@
-import { faRefresh, faPauseCircle, faInfoCircle, faUserSecret, faTasks, faTasksAlt, faChainBroken, faCalendarWeek, faCalendarDay, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { TitleComponent, CalendarComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
-import { Component, ElementRef, OnInit } from '@angular/core';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { CanvasRenderer } from 'echarts/renderers';
-import { interval, Subscription } from 'rxjs';
 import { HeatmapChart } from 'echarts/charts';
 import * as echarts from 'echarts/core';
-
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../core/_services/main.config';
-import { CookieService } from '../core/_services/shared/cookies.service';
+import { LocalStorageService } from '../core/_services/storage/local-storage.service';
+import { UIConfig } from '../core/_models/config-ui.model';
+import { UISettingsUtilityClass } from '../shared/utils/config';
+import { Subscription } from 'rxjs';
+import { ListResponseWrapper } from '../core/_models/response.model';
+import { Agent } from '../core/_models/agent.model';
+import { Task } from '../core/_models/task.model';
+import { SuperTask } from '../core/_models/supertask.model';
+import { Hash } from '../core/_models/hash.model';
+import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '../shared/utils/datetime';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-home',
-  templateUrl: './home.component.html'
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss']
 })
 @PageTitle(['Dashboard'])
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
-  username = 'Admin';
+  util: UISettingsUtilityClass
 
-  faCalendarWeek=faCalendarWeek;
-  faChainBroken=faChainBroken;
-  faCheckCircle=faCheckCircle;
-  faCalendarDay=faCalendarDay;
-  faPauseCircle=faPauseCircle;
-  faInfoCircle=faInfoCircle;
-  faUserSecret=faUserSecret;
-  faTasksAlt=faTasksAlt;
-  faRefresh=faRefresh;
-  faTasks=faTasks;
+  /** Flags for responsive design */
+  screenXS = false
+  screenS = false
+  screenM = false
+  screenL = false
+  screenXL = false
 
-  faGithub=faGithub;
+  /** Counters for dashboard statistics */
+  activeAgents = 0
+  totalAgents = 0
+  totalTasks = 0
+  totalCracks = 0
+  totalSupertasks = 0
 
-  getUsername(){
-    return this.username;
-  }
-
-  // Dashboard variables
-  activeAgents = 0;
-  totalAgents = 0;
-  totalTasks = 0;
-  totalCracks = 0;
-  allsupertasks = 0;
+  lastUpdated: string
 
   private maxResults = environment.config.prodApiMaxResults;
-  storedAutorefresh: any =[]
-  private updateSubscription: Subscription;
-  public punchCardOpts = {}
-  public punchCardOptss = {}
+  private subscriptions: Subscription[] = []
+  private pageReloadTimeout: NodeJS.Timeout
+  private crackedChart: echarts.ECharts
 
   constructor(
     private gs: GlobalService,
-    private cs: CookieService
-  ) { }
+    private service: LocalStorageService<UIConfig>,
+    private snackBar: MatSnackBar,
+    private breakpointObserver: BreakpointObserver
+  ) {
+    // Observe screen breakpoints for responsive design
+    this.breakpointObserver.observe([Breakpoints.XSmall, Breakpoints.Small, Breakpoints.Medium, Breakpoints.Large, Breakpoints.XLarge])
+      .subscribe(result => {
+        const breakpoints = result.breakpoints;
 
-  async ngOnInit(): Promise<void> {
+        this.screenXS = false
+        this.screenS = false
+        this.screenM = false
+        this.screenL = false
+        this.screenXL = false
 
+        if (breakpoints[Breakpoints.XSmall]) {
+          this.screenXS = true
+        }
+        else if (breakpoints[Breakpoints.Small]) {
+          this.screenS = true
+        }
+        else if (breakpoints[Breakpoints.Medium]) {
+          this.screenM = true
+        }
+        else if (breakpoints[Breakpoints.Large]) {
+          this.screenL = true
+        }
+        else if (breakpoints[Breakpoints.XLarge]) {
+          this.screenXL = true
+        }
+      });
+  }
+
+  ngOnInit(): void {
+    this.util = new UISettingsUtilityClass(this.service)
+    this.initChart();
     this.initData();
-    this.storedAutorefresh = this.getAutoreload();
     this.onAutorefresh();
-
   }
 
-  onAutorefresh(){
-    if(this.storedAutorefresh.active == true){
-      setTimeout(() => {
-        window.location.reload()
-      },this.storedAutorefresh.value*1000);
+
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe()
     }
   }
 
-  // Manage Auto reload
-  setAutoreload(value: any){
-    const set = Number(this.storedAutorefresh.value);
-    let val;
-    if(value == false){
-      val = true;
-    }if(value == true){
-      val = false;
+  /**
+   * Get the autorefresh interval setting.
+   */
+  get refreshInterval(): number {
+    return this.util.getSetting<number>('refreshInterval')
+  }
+
+  /**
+   * Check if autorefresh of the page is enabled.
+   */
+  get refreshPage(): boolean {
+    return this.util.getSetting<boolean>('refreshPage')
+  }
+
+  /**
+   * Automatically refresh the page based on the configured interval.
+   */
+  onAutorefresh() {
+    const timeout = this.refreshInterval
+    if (this.refreshPage) {
+      this.pageReloadTimeout = setTimeout(() => {
+        this.initData()
+        this.onAutorefresh()
+      }, timeout * 1000);
     }
-    this.cs.setCookie('autorefresh', JSON.stringify({active:val, value: set}), 365);
-    this.ngOnInit();
   }
 
-  getAutoreload(){
-    return JSON.parse(this.cs.getCookie('autorefresh'));
-  }
+  /**
+   * Toggle the autoreload setting and refresh the data.
+   * 
+   * @param flag - New autoreload flag.
+   */
+  setAutoreload(flag: boolean) {
+    const updatedSettings = this.util.updateSettings({ refreshPage: flag })
+    let message = ''
 
-  async initData() {
-
-    // Agents
-    const params = {'maxResults': this.maxResults}
-
-    this.gs.getAll(SERV.AGENTS,params).subscribe((agents: any) => {
-      this.totalAgents = agents.total | 0;
-      this.activeAgents = agents.values.filter(u=> u.isActive == true).length | 0;
-    });
-
-    //  Tasks
-    const paramst = {'maxResults': this.maxResults, 'filter': 'isArchived=false'}
-
-    this.gs.getAll(SERV.TASKS,paramst).subscribe((tasks: any) => {
-      this.totalTasks = tasks.values.filter(u=> u.isArchived != true).length | 0;
-    });
-
-    // SuperTasks
-    this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((stasks: any) => {
-      this.allsupertasks = stasks.total | 0;
-    });
-
-    // Cracks
-    // let paramsc = {'maxResults': this.maxResults, 'filter': 'isCracked='+true+''}
-    const paramsc = {'maxResults': this.maxResults }
-
-    this.gs.getAll(SERV.HASHES,paramsc).subscribe((hashes: any) => {
-      let lastseven:any = new Date() ;
-      lastseven = lastseven.setDate(lastseven.getDate() - 7).valueOf()/1000;
-      const lastsevenObject = hashes.values.filter(u=> (u.isCracked == true && u.timeCracked > lastseven ));
-      this.totalCracks = lastsevenObject.length | 0;
-      this.initCrackCard(hashes.values);
-    });
-
-  }
-
-  // Graphs Section
-
-  initCrackCard(obj: any){
-
-    const date_today = new Date();
-    const year = (new Date()).getFullYear();
-    const first_day_of_the_week = new Date(date_today.setDate(date_today.getDate() - date_today.getDay() ));
-    const epochtime = Math.round(first_day_of_the_week.setDate(first_day_of_the_week.getDate()).valueOf()/1000);
-
-    const filterdate = obj.filter(u=> (u.isCracked == true ));
-
-    const arr = [];
-    for(let i=0; i < filterdate.length; i++){
-      const date:any = new Date(filterdate[i]['timeCracked']* 1000);
-      const iso = date.getUTCFullYear()+'-'+(date.getUTCMonth() + 1)+'-'+date.getUTCDate();
-      arr.push([iso]);
-    }
-
-    const counts = arr.reduce((p, c) => {
-      const weekd = c[0];
-      if (!p.hasOwnProperty(weekd)) {
-        p[weekd] = 0;
+    if (updatedSettings) {
+      if (flag) {
+        message = 'Autoreload is enabled'
+      } else {
+        message = 'Autoreload is paused'
+        clearTimeout(this.pageReloadTimeout)
       }
-      p[weekd]++;
-      return p;
-    }, {});
+      this.snackBar.open(message, 'Close');
+    }
+    this.initData();
+    this.onAutorefresh();
+  }
 
-    const countsExtended = Object.keys(counts).map(k => {
-      return [k, counts[k]]
-    }, {});
+  /**
+   * Initialize dashboard data.
+   */
+  initData(): void {
+    this.getAgents()
+    this.getTasks()
+    this.getSuperTasks()
+    this.getCracks()
+  }
 
+  /**
+   * Get the list of active agents.
+   */
+  private getAgents(): void {
+    const params = { maxResults: this.maxResults, filter: 'isActive=true' }
+    this.subscriptions.push(this.gs.getAll(SERV.AGENTS, params).subscribe((response: ListResponseWrapper<Agent>) => {
+      this.totalAgents = response.total | 0;
+      this.activeAgents = response.values.length | 0;
+    }))
+  }
+
+  /**
+   * Get the list of tasks.
+   */
+  private getTasks(): void {
+    const params = { 'maxResults': this.maxResults, filter: 'isArchived=false' }
+
+    this.subscriptions.push(this.gs.getAll(SERV.TASKS, params).subscribe((response: ListResponseWrapper<Task>) => {
+      this.totalTasks = response.values.length | 0;
+    }));
+  }
+
+  /**
+   * Get the list of supertasks.
+   */
+  private getSuperTasks(): void {
+    const params = { 'maxResults': this.maxResults }
+
+    this.subscriptions.push(this.gs.getAll(SERV.SUPER_TASKS, params).subscribe((response: ListResponseWrapper<SuperTask>) => {
+      this.totalSupertasks = response.total | 0;
+    }));
+  }
+
+  /**
+   * Get the list of cracked hashes from the last seven days.
+   */
+  private getCracks(): void {
+    const timestampInPast = unixTimestampInPast(7)
+    const params = {
+      maxResults: this.maxResults,
+      filter: 'isCracked=true'
+    }
+
+    this.subscriptions.push(this.gs.getAll(SERV.HASHES, params).subscribe((response: ListResponseWrapper<Hash>) => {
+      const lastsevenObject = response.values.filter(u => (u.isCracked == true && u.timeCracked > timestampInPast));
+      this.totalCracks = lastsevenObject.length | 0;
+      this.updateChart(response.values);
+    }));
+  }
+
+  /**
+   * Count the occurrences of items in an array.
+   * 
+   * @param arr - The array to count occurrences in.
+   * @returns An object with the occurrences of each item.
+   */
+  countOccurrences(arr: string[]): { [key: string]: number } {
+    return arr.reduce((counts, date) => {
+      counts[date] = (counts[date] || 0) + 1;
+      return counts;
+    }, {});
+  }
+
+  /**
+   * Initialize the heatmap chart.
+   */
+  initChart(): void {
     echarts.use([
       TitleComponent,
       CalendarComponent,
@@ -167,10 +236,29 @@ export class HomeComponent implements OnInit {
     ]);
 
     const chartDom = document.getElementById('pcard');
-    const myChart = echarts.init(chartDom);
-    let option;
+    this.crackedChart = echarts.init(chartDom);
+  }
 
-    option = {
+  /**
+   * Update the heatmap chart.
+   * 
+   * @param data - Hash data used for the chart.
+   */
+  updateChart(data: Hash[]): void {
+
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+
+    // Extract and format cracked dates
+    const formattedDates: string[] = data.map(item => formatUnixTimestamp(item.timeCracked, 'yyyy-MM-dd'));
+
+    // Count occurrences of each date
+    const dateCounts: { [key: string]: number } = this.countOccurrences(formattedDates);
+
+    // Convert date counts to the required format
+    const countsExtended = Object.keys(dateCounts).map(date => [date, dateCounts[date]]);
+
+    const option = {
       title: {},
       tooltip: {
         position: 'top',
@@ -192,7 +280,7 @@ export class HomeComponent implements OnInit {
         left: 30,
         right: 30,
         cellSize: ['auto', 13],
-        range: year,
+        range: currentYear,
         itemStyle: {
           borderWidth: 0.5
         },
@@ -204,18 +292,14 @@ export class HomeComponent implements OnInit {
         data: countsExtended,
         label: {
           show: true,
-          formatter: function (p) {
-            if(date_today.getDate() == p.data[0]){
-              return 'X';
-            }
-            else{
-              return '';
-            }
+          formatter: function (params) {
+            return currentDate.getDate() === params.data[0] ? 'X' : '';
           }
         },
       }
     };
-    option && myChart.setOption(option);
+
+    this.crackedChart.setOption(option);
+    this.lastUpdated = formatDate(new Date(), this.util.getSetting('timefmt'))
   }
 }
-

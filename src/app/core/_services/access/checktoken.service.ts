@@ -1,12 +1,12 @@
 import { AuthService } from "./auth.service";
-import { Injectable,} from "@angular/core";
+import { Injectable, } from "@angular/core";
 
 export interface AuthResponseData {
   token: string,
   expires: string,
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class CheckTokenService {
   constructor(
     private authService: AuthService,
@@ -21,11 +21,11 @@ export class CheckTokenService {
   }
 
   checkTokenValidity() {
-    const userData: { _token: string, _expires: string} = JSON.parse(localStorage.getItem('userData'));
-    if(!userData){
-        return;
+    const userData: { _token: string, _expires: string } = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) {
+      return;
     }
-    let tokendate  = new Date(userData._expires).getTime();
+    let tokendate = new Date(userData._expires).getTime();
     let currentDate = new Date().getTime();
     let timeDifference = tokendate - currentDate;
     // We should be refreshing but when using refresh token, we get an error "Signature verification failure"
@@ -37,7 +37,7 @@ export class CheckTokenService {
     //     }
     //   );
     // }
-    if(timeDifference < 15){
+    if (timeDifference < 15) {
       this.authService.logOut();
     }
   }

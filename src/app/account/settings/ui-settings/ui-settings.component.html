@@ -1,24 +1,29 @@
-<app-page-subtitle [subtitle]="'UI Settings'"></app-page-subtitle>
-<!-- body -->
-<grid-main [class]="'width:100%;'" [centered]="true">
-  <form [formGroup]="uiForm">
-    <div class="row">
-      <grid-form-input [name]="'Set the time format'">
-        <select
-              type='text'
-              id="localtimefmt"
-              class='form-select'
-              formControlName="localtimefmt"
-              #localtimefmt
-              (change)="setCookieValue('localtimefmt',localtimefmt.value)"
-        >
-        <option *ngFor="let d of dateFormat" [value]="d.format">{{ d.description }}</option>
-        </select>
-      </grid-form-input>
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
-      </grid-buttons>
-    </div>
-  </form>
-</grid-main>
+<app-page-subtitle subtitle="UI Settings"></app-page-subtitle>
+
+<form [formGroup]="form" (submit)="onSubmit()">
+  <div class="form-field m-field">
+    <label for="timeFormat">Time Format</label>
+    <mat-form-field>
+      <mat-select formControlName="timefmt" id="timeFormat">
+        <mat-option *ngFor="let d of formats" [value]="d.value">{{ d.description }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="form-field m-field">
+    <label for="layout">Layout</label>
+    <mat-form-field>
+      <mat-select formControlName="layout" id="layout">
+        <mat-option *ngFor="let d of layouts" [value]="d.value">{{ d.description }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="form-field m-field">
+    <label for="theme">Theme</label>
+    <mat-form-field>
+      <mat-select formControlName="theme" id="theme">
+        <mat-option *ngFor="let t of themes" [value]="t.value">{{ t.description }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <button mat-flat-button color="primary">Save Settings</button>
+</form>

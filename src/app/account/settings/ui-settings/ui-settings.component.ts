@@ -1,9 +1,10 @@
-import { CookieService } from '../../../core/_services/shared/cookies.service';
-import { dateFormat } from '../../../core/_constants/settings.config';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
-
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { Setting, dateFormats, layouts, themes } from 'src/app/core/_constants/settings.config';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-ui-settings',
@@ -11,43 +12,47 @@ import { AlertService } from 'src/app/core/_services/shared/alert.service';
 })
 export class UiSettingsComponent implements OnInit {
 
-  dateFormat = dateFormat;
-  uiForm: FormGroup;
+  form!: FormGroup
+  util: UISettingsUtilityClass
+
+  formats: Setting[] = dateFormats
+  layouts: Setting[] = layouts
+  themes: Setting[] = themes
 
   constructor(
-    private cookieService: CookieService,
-    private alert: AlertService
-  ) { }
-
+    private service: LocalStorageService<UIConfig>,
+    private snackBar: MatSnackBar,
+  ) {
+    this.initForm();
+  }
 
   ngOnInit(): void {
+    this.util = new UISettingsUtilityClass(this.service)
+    this.updateForm();
+  }
 
-    this.uiForm = new FormGroup({
-      'localtimefmt': new FormControl(),
+  private initForm(): void {
+    this.form = new FormGroup({
+      'timefmt': new FormControl(''),
+      'layout': new FormControl(''),
+      'theme': new FormControl('')
     });
-
-    this.initForm();
-
   }
 
-  private initForm() {
-
-    const localtimefmt = this.getCookieValue('localtimefmt');
-
-    this.uiForm = new FormGroup({
-      'localtimefmt': new FormControl(localtimefmt),
-    });
-
+  private updateForm(): void {
+    this.form.patchValue({
+      'timefmt': this.util.uiConfig.timefmt,
+      'layout': this.util.uiConfig.layout,
+      'theme': this.util.uiConfig.theme
+    })
   }
 
-  setCookieValue(name: string, value: string){
-    this.cookieService.setCookie(name, value, 365);
-    this.alert.okAlert('UI Setting saved!','');
-    this.ngOnInit();
-  }
+  onSubmit(): void {
+    const changedValues = this.util.updateSettings(this.form.value)
+    const message = changedValues > 0
+      ? `Successfully updated ${changedValues} settings!`
+      : 'No changes were saved'
 
-  getCookieValue(name: string){
-    return this.cookieService.getCookie(name);
+    this.snackBar.open(message, 'Close');
   }
-
 }

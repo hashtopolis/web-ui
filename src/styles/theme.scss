@@ -1,0 +1,98 @@
+@use '@angular/material' as mat;
+@import "@angular/material/theming";
+@include mat.core();
+
+$hashtopolis-primary-palette: (
+  50: #eceff1,
+  100: #cfd8dc,
+  200: #b0bec5,
+  300: #90a4ae,
+  400: #78909c,
+  500: #607d8b,
+  600: #546e7a,
+  700: #455a64,
+  800: #37474f,
+  900: #263238,
+  contrast: (50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff)
+);
+
+$hashtopolis-accent-palette: (
+  50: #e0f7fa,
+  100: #b2ebf2,
+  200: #80deea,
+  300: #4dcfe1,
+  400: #26c5da,
+  500: #00bbd4,
+  600: #00abc1,
+  700: #0096a7,
+  800: #00828f,
+  900: #005f64,
+  contrast: (50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff)
+);
+
+$hashtopolis-warn-palette: (
+  50: #f3e4e8,
+  100: #e3bbc8,
+  200: #d191a5,
+  300: #c06c84,
+  400: #b3566d,
+  500: #af4159,
+  600: #9f3e55,
+  700: #8b384e,
+  800: #773348,
+  900: #56283a,
+  contrast: (50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff)
+);
+
+$primary: mat.define-palette($hashtopolis-primary-palette);
+$accent: mat.define-palette($hashtopolis-accent-palette);
+$warn: mat.define-palette($hashtopolis-warn-palette);
+
+// Include custom palettes in the theme
+$hashtopolis-light-theme: mat.define-light-theme((color: (primary: $primary,
+        accent: $accent,
+        warn: $warn ),
+      typography: mat.define-typography-config(),
+      density: 0,
+    ));
+
+$hashtopolis-dark-theme: mat.define-dark-theme((color: (primary: $primary,
+        accent: $accent,
+        warn: $warn ),
+      typography: mat.define-typography-config(),
+      density: 0,
+    ));
+
+@include mat.all-component-themes($hashtopolis-light-theme);
+
+.dark-theme {
+  @include mat.all-component-colors($hashtopolis-dark-theme);
+  background-color: var(--mat-toolbar-container-background-color);
+}
