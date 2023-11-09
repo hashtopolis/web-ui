@@ -9,6 +9,7 @@
     "test": "ng test --karma-config=karma.conf.js --include=src/app",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "build:ci": "ng build --configuration production",
+    "format": "npx prettier 'src/**/*.{js,jsx,ts,tsx,html,css,scss}' --write",
     "lint": "ng lint"
   },
   "private": true,
@@ -92,6 +93,8 @@
     "@typescript-eslint/eslint-plugin": "5.59.7",
     "@typescript-eslint/parser": "5.59.7",
     "eslint": "^8.40.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
     "jasmine-core": "~5.0.1",
     "karma": "~6.4.2",
     "karma-chrome-launcher": "~3.2.0",
@@ -99,6 +102,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
     "puppeteer": "^20.9.0",
     "typescript": "~5.1.6"
   }
