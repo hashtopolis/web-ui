@@ -20,9 +20,9 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'grid-buttons',
   template: `
-    <mat-card-content>
+    <mat-card-actions>
       <ng-content></ng-content>
-    </mat-card-content>
+    </mat-card-actions>
   `
 })
 export class GridButtonsComponent {}

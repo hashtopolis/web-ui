@@ -13,8 +13,8 @@ import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-dynamic-form',
   template: `
-<app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
 <grid-main>
+<app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
    <grid-autocol [itemCount]="formMetadata.length">
       <div *ngFor="let field of formMetadata">

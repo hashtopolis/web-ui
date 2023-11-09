@@ -1,54 +1,54 @@
-<section class="bg-soft d-flex align-items-center mt-1">
-  <div class="container">
-    <grid-main [class]="'fmxw-500'" [centered]="true">
-      <div class="text-center text-md-center mb-0 mt-md-0">
-          <h2>Log In</h2>
-          <h6>Enter your credentials to access.</h6>
+<mat-card>
+  <mat-card-title>Login</mat-card-title>
+  <h6>Enter your credentials to access.</h6>
+  <mat-card-content>
+    <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" class="mt-5">
+      <p>
+        <mat-form-field class="form-group mb-0">
+          <mat-label>User Name</mat-label>
+          <mat-icon matSuffix aria-hidden="true" class="input-icon">
+            <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
+          </mat-icon>
+          <input type="text" matInput id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
+        </mat-form-field>
+      </p>
+
+      <p>
+        <mat-form-field class="form-group">
+          <mat-label>Password</mat-label>
+          <mat-icon matSuffix aria-hidden="true" class="input-icon">
+            <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
+          </mat-icon>
+          <input [type]="showPasswordOnPress ? 'text' : 'password'" matInput class="pwd-control" id="inputPassword" placeholder="Enter Password" ngModel name="password" autocomplete="on" required>
+          <div
+            (mousedown)="showPasswordOnPress = !showPasswordOnPress"
+            (mouseup)="showPasswordOnPress = !showPasswordOnPress"
+          >
+            <fa-icon alt="show" [icon]="faEye" aria-hidden="true" *ngIf="showPasswordOnPress" class="layout-col"></fa-icon>
+            <fa-icon alt="hide" [icon]="faEyeSlash" aria-hidden="true" *ngIf="!showPasswordOnPress" class="layout-col"></fa-icon>
+          </div>
+        </mat-form-field>
+      </p>
+
+      <button-submit name="Sign in"></button-submit>
+      <div class="d-flex justify-content-between align-items-top mb-0">
+        <div></div>
+        <div><a routerLink="forgot" class="small text-right">Forgot your password?</a></div>
       </div>
-      <!-- Handle authentification Error -->
-      <!-- <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert> -->
-      <!-- End of Handle authentification Error -->
-      <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" class="mt-5">
-          <div class="form-group mb-0">
-              <label for="inputUsername">User Name</label>
-              <div class="input-group">
-                  <span class="input-group-text" >
-                    <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
-                  </span>
-                  <input type="text" class="form-control" id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
-              </div>
+
+      <mat-card class="mat-card-alert">
+        <mat-card-content>
+          <div class="row justify-content-center">
+            <div class="alert alert-secondary alert-dismissible col-md-8 text-center">
+              This is a private closed system. If you need access, you need to contact an admin.
+            </div>
           </div>
-          &nbsp;
-          <div class="form-group">
-              <div class="form-group mb-0">
-                  <label for="password">Password</label>
-                  <div class="input-group input-icon-container">
-                      <span class="input-group-text">
-                        <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                      </span>
-                      <input [type]="showPasswordOnPress ? 'text' : 'password'" class="form-control pwd-control" id="inputPassword" placeholder="Enter Password" ngModel name="password" autocomplete="on" passToggle required>
-                      <div
-                        (mousedown)="showPasswordOnPress = !showPasswordOnPress"
-                        (mouseup)="showPasswordOnPress = !showPasswordOnPress"
-                        >
-                        <fa-icon alt="show" [icon]="faEye" aria-hidden="true" *ngIf="showPasswordOnPress" class="layout-col"></fa-icon>
-                        <fa-icon alt="hide" [icon]="faEyeSlash" aria-hidden="true" *ngIf="!showPasswordOnPress" class="layout-col"></fa-icon>
-                      </div>
-                  </div>
-              </div>
-              &nbsp;
-          <div class="d-flex justify-content-between align-items-top mb-0">
-              <div></div>
-              <div><a routerLink="forgot" class="small text-right">Forgot your password?</a></div>
-          </div>
-          </div>
-          <div class="d-grid">
-              <button type="submit" class="btn btn-gray-800">Sign in</button>
-          </div>
-      </form>
-      <div class='alert alert-secondary alert-dismissible row justify-content-center closesys'>
-        This is a private closed system. If you need access you need to contact an admin.
-      </div>
-    </grid-main>
-  </div>
-</section>
+        </mat-card-content>
+      </mat-card>
+
+    </form>
+  </mat-card-content>
+
+</mat-card>
+
+

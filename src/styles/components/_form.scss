@@ -433,3 +433,27 @@ progress::-webkit-progress-value {
   07- End
 */
 
+//Angular Material
+
+// Card alert Login
+.mat-card-alert {
+  width: 100%;
+  margin: 16px;
+  background-color: #f0f0f0;
+}
+
+.alert {
+  background-color: #c0c0c0;
+  padding: 16px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  text-align: center;
+}
+
+.alert.alert-dismissible {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
