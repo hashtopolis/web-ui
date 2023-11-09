@@ -20,22 +20,66 @@ This document outlines the coding and documentation conventions for our project.
 
 ## 2. Naming Conventions
 
-### Variables and Constants
+### Variable Names:
 
-- Use descriptive names.
-- Avoid overly abbreviated or cryptic names.
-- Prefer camelCase for variables and constants.
-- Constants should be in UPPERCASE_SNAKE_CASE.
+Choose variable names that are descriptive, clear, and contextually relevant, avoiding ambiguity, generic terms, and "magic" values, and strive for consistency and single responsibility to enhance code readability and maintainability.
 
-```typescript
-// Good
-const maxItemCount = 10;
-let userName = 'JohnDoe';
+### Constants:
 
-// Bad
-const mxItmCnt = 10;
-let x = 'JohnDoe';
-```
+- Use uppercase letters and underscores to separate words (e.g., MAX_ATTEMPTS, API_URL).
+- Group related constants with a common prefix (e.g., APP_CONSTANTS_MAX_ATTEMPTS).
+
+### Classes:
+
+- Use PascalCase for class names (e.g., AppComponent, UserService).
+- Suffix services with "Service" (e.g., DataService).
+- Use descriptive names that convey the purpose of the class.
+
+### Components:
+
+- Use kebab-case for component selectors (e.g., <app-my-component>).
+- Use PascalCase for component class names (e.g., MyComponent).
+- Suffix components with "Component" (e.g., UserListComponent).
+- Choose clear and concise names that reflect the component's role.
+
+### Files:
+
+- Use kebab-case for file names (e.g., user-list.component.ts, data-service.service.ts).
+- Match the file name with the primary class or component it contains.
+- Include the file extension (e.g., .ts, .html, .scss).
+
+### Interfaces:
+
+- Use PascalCase for interface names (e.g., User, ApiResponse).
+- Prefix interfaces with "I" (e.g., IUser, IApiResponse), although this is optional.
+
+### Modules:
+
+- Use PascalCase for module names (e.g., AppModule, UserModule).
+- Choose names that represent the feature or functionality encapsulated by the module.
+
+### Directives:
+
+- Use camelCase for directive selectors (e.g., appMyDirective).
+- Use PascalCase for directive class names (e.g., MyDirective).
+- Suffix directives with "Directive" (e.g., HighlightDirective).
+
+### Services:
+
+- Use camelCase for service instances (e.g., dataService, authService).
+- Use PascalCase for service class names (e.g., DataService, AuthService).
+- Suffix services with "Service" (e.g., DataService).
+
+### Enums:
+
+- Use PascalCase for enum names (e.g., Color, UserRole).
+- Use uppercase letters for enum values (e.g., RED, ADMIN).
+
+### Routes:
+
+- Use kebab-case for route paths (e.g., /user-profile, /dashboard).
+- Use PascalCase for route components (e.g., UserProfileComponent, DashboardComponent).
+
 
 ## 3. Comments
 

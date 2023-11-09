@@ -18,7 +18,7 @@ For new features or improvements, open an issue with your proposal. Discuss the 
 
 ### Pull Requests
 
-1. Fork the repository and create your branch from `main`.
+1. Fork the repository and create your branch from `master`.
 2. If you've added code that should be tested, add tests.
 3. Ensure the test suite passes (`npm test`).
 4. Make sure your code lints (`npm run lint`).
