@@ -4,13 +4,13 @@ import { ChangeDetectionStrategy, AfterViewInit, Component, EventEmitter, Input,
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { DataType, HTTableColumn } from './ht-table.models';
-import { BaseDataSource } from '../../_datasources/base.datasource';
 import { MatDialog } from '@angular/material/dialog';
 import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
-import { LocalStorageService } from '../../_services/storage/local-storage.service';
-import { UIConfig } from '../../_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { ActionMenuEvent } from '../menus/action-menu/action-menu.model';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with

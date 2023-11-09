@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Workbook } from 'exceljs';
 import { unparse } from 'papaparse';
-import { HTTableColumn } from '../../_components/ht-table/ht-table.models';
 import { ExportUtil } from './export.util';
 import { ExcelColumn } from './export.model';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { HTTableColumn } from '../../_components/tables/ht-table/ht-table.models';
 
 /**
  * Service for exporting data to Excel, CSV formats and to the clipboard.

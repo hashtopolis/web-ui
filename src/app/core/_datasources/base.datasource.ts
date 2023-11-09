@@ -2,10 +2,10 @@ import { CollectionViewer, DataSource } from "@angular/cdk/collections";
 import { BehaviorSubject, Observable } from "rxjs";
 import { GlobalService } from "../_services/main.service";
 import { MatTableDataSourcePaginator } from "@angular/material/table";
-import { HTTableColumn } from "../_components/ht-table/ht-table.models";
 import { MatSort } from "@angular/material/sort";
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from "../_services/shared/storage.service";
+import { HTTableColumn } from "../_components/tables/ht-table/ht-table.models";
 
 /**
  * BaseDataSource is an abstract class for implementing data sources

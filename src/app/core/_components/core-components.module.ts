@@ -2,14 +2,12 @@ import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { HTTableComponent } from "./ht-table/ht-table.component";
 import { ActionMenuComponent } from "./menus/action-menu/action-menu.component";
 import { BaseMenuComponent } from "./menus/base-menu/base-menu.component";
 import { BulkActionMenuComponent } from "./menus/bulk-action-menu/bulk-action-menu.component";
 import { RowActionMenuComponent } from "./menus/row-action-menu/row-action-menu.component";
-import { TableDialogComponent } from "./table-dialog/table-dialog.component";
-import { BaseTableComponent } from "./base-table/base-table.component";
-import { ColumnSelectionDialogComponent } from "./column-selection-dialog/column-selection-dialog.component";
+import { TableDialogComponent } from "./tables/table-dialog/table-dialog.component";
+import { ColumnSelectionDialogComponent } from "./tables/column-selection-dialog/column-selection-dialog.component";
 import { MatButtonModule } from "@angular/material/button";
 import { MatDialogModule } from "@angular/material/dialog";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -27,6 +25,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { ExportMenuComponent } from "./menus/export-menu/export-menu.component";
+import { BaseTableComponent } from "./tables/base-table/base-table.component";
+import { HTTableComponent } from "./tables/ht-table/ht-table.component";
+import { AgentsTableComponent } from "./tables/agents-table/agents-table.component";
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { ExportMenuComponent } from "./menus/export-menu/export-menu.component";
     BulkActionMenuComponent,
     ExportMenuComponent,
     ColumnSelectionDialogComponent,
+    AgentsTableComponent,
   ],
   imports: [
     ReactiveFormsModule,
@@ -73,6 +75,7 @@ import { ExportMenuComponent } from "./menus/export-menu/export-menu.component";
     RowActionMenuComponent,
     BulkActionMenuComponent,
     ExportMenuComponent,
+    AgentsTableComponent,
   ],
   providers: [
     { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }
