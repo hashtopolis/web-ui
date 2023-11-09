@@ -16,7 +16,6 @@ import { EditUsersComponent } from "./edit-users/edit-users.component";
 import { AllUsersComponent } from "./all-users/all-users.component";
 import { GroupsComponent } from "./groups/groups.component";
 import { UsersRoutingModule } from "./users-routing.module";
-import { UsersComponent } from "./users.component";
 
 @NgModule({
   declarations:[
@@ -26,7 +25,6 @@ import { UsersComponent } from "./users.component";
     EditUsersComponent,
     AllUsersComponent,
     GroupsComponent,
-    UsersComponent,
     CUGroupComponent
   ],
   imports:[

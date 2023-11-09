@@ -33,7 +33,8 @@ export class AlertService {
       backdrop: false,
       toast: true,
       showConfirmButton: false,
-      timer: 2000
+      timer: 2000,
+      timerProgressBar: true,
     });
   }
 

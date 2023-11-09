@@ -660,7 +660,7 @@
                         #serverLogLevel
                         (change)="autoSave('serverLogLevel',serverLogLevel.value)"
                     >
-                      <option *ngFor="let sl of serverlog" [ngValue]="sl.id">{{ sl.value }}</option>
+                      <option *ngFor="let sl of serverlog" [ngValue]="sl.value">{{ sl.label }}</option>
                   </select>
               </grid-form-input>
             </grid-autocol>
