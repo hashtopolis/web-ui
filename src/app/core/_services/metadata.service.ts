@@ -76,6 +76,38 @@ export class MetadataService {
   // Create title between fields. use  { label: 'More settings', isTitle: true }
 
   // // // // // // // //
+  // AUTH SECTION      //
+  // // // // // // // //
+
+  // //
+  // Forgot Password
+  // //
+  authforgotInfo = [
+    {
+      title: 'Forgot Password',
+      customform: false,
+      subtitle: false,
+      submitok: 'Requesting..',
+      submitokredirect: '/auth'
+    }
+  ];
+
+  authforgot = [
+    {
+      name: 'User Name',
+      label: 'User Name',
+      type: 'text',
+      validators: [Validators.required]
+    },
+    {
+      name: 'email',
+      label: 'Email',
+      type: 'email',
+      validators: [Validators.required]
+    }
+  ];
+
+  // // // // // // // //
   // ACCOUNT SECTION   //
   // // // // // // // //
 
@@ -1308,7 +1340,9 @@ export class MetadataService {
    * @returns An array of form metadata.editnotifInfo
    */
   getFormMetadata(formName: string): any[] {
-    if (
+    if (formName === 'authforgot') {
+      return this.authforgot;
+    } else if (
       formName === 'editwordlist' ||
       formName === 'editrule' ||
       formName === 'editother'
@@ -1368,7 +1402,9 @@ export class MetadataService {
    * @returns An array of info metadata.
    */
   getInfoMetadata(formName: string): any[] {
-    if (formName === 'editwordlistInfo') {
+    if (formName === 'authforgotInfo') {
+      return this.authforgotInfo;
+    } else if (formName === 'editwordlistInfo') {
       return this.editwordlistInfo;
     } else if (formName === 'editruleInfo') {
       return this.editruleInfo;
