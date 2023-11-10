@@ -4,10 +4,12 @@ import { NgModule } from "@angular/core";
 
 import { AccountSettingsComponent } from "./settings/acc-settings/acc-settings.component";
 import { UiSettingsComponent } from "./settings/ui-settings/ui-settings.component";
-import { EditNotificationComponent } from "./notifications/notification/edit-notification.component";
 import { NewNotificationComponent } from "./notifications/notification/new-notification.component";
+import { FormUIsettingsComponent } from "../shared/form/formuisettings.component";
 import { NotificationsComponent } from "./notifications/notifications.component";
 import { AccountComponent } from "./account.component";
+import { SERV } from '../core/_services/main.config';
+import { FormComponent } from "../shared/form/form.component";
 
 const routes: Routes = [
   {
@@ -30,7 +32,9 @@ const routes: Routes = [
         {
           path: 'ui-settings', component: UiSettingsComponent,
           data: {
-              kind: 'ui-settings',
+              kind: 'uisettings',
+              type: 'edit',
+              path: SERV.CONFIGS,
               breadcrumb: 'UI Settings'
           },
           canActivate: [IsAuth]},
@@ -42,9 +46,11 @@ const routes: Routes = [
           },
           canActivate: [IsAuth]},
         {
-          path: 'notifications/:id/edit', component: EditNotificationComponent,
+          path: 'notifications/:id/edit', component: FormComponent,
           data: {
-              kind: 'notifications-edit',
+              kind: 'editnotif',
+              type: 'edit',
+              path: SERV.NOTIFICATIONS,
               breadcrumb: 'Edit Notification'
           },
           canActivate: [IsAuth]},

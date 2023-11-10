@@ -1,8 +1,31 @@
-import { FormBuilder, FormGroup, FormControl, ValidatorFn, Validators } from '@angular/forms';
-import { Component, Input, OnInit, Output, EventEmitter, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output
+} from '@angular/core';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
-import { Observable, Subject, Subscription, combineLatest, forkJoin, map, switchMap, takeUntil } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  combineLatest,
+  forkJoin,
+  map,
+  switchMap,
+  takeUntil
+} from 'rxjs';
 import { MetadataService } from 'src/app/core/_services/metadata.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ChangeDetectorRef } from '@angular/core';
@@ -13,73 +36,120 @@ import { ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-dynamic-form',
   template: `
-<grid-main>
-<app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-   <grid-autocol [itemCount]="formMetadata.length">
-      <div *ngFor="let field of formMetadata">
-        <div *ngIf="field.type !== 'hidden'">
-          <ng-container *ngIf="field.isTitle">
-            <h5>{{ field.label }}</h5>
-          </ng-container>
-          <ng-container *ngIf="!field.isTitle">
-          <p>
-              <mat-form-field appearance="fill">
-                <mat-label [ngClass]="{'requiredak': field.requiredasterisk}">{{ field.label }}</mat-label>
-                <fa-icon
-                      placement="bottom"
-                      ngbTooltip="{{field.tooltip}}"
-                      container="body"
-                      [icon]="faInfoCircle"
-                      aria-hidden="true"
-                      class="gray-light-ico display-col"
-                      *ngIf="field.tooltip"
-                ></fa-icon>
-                <ng-container [ngSwitch]="field.type">
-                <ng-container *ngSwitchCase="'number'">
-                  <input matInput type="number" [formControlName]="field.name">
-                </ng-container>
-                <ng-container *ngSwitchCase="'text'">
-                  <input matInput [type]="field.type" [formControlName]="field.name">
-                </ng-container>
-                <ng-container *ngSwitchCase="'password'">
-                  <input matInput type="password" [formControlName]="field.name">
-                </ng-container>
-                <ng-container *ngSwitchCase="'textarea'">
-                  <textarea matInput [formControlName]="field.name"></textarea>
-                </ng-container>
-                <ng-container *ngSwitchCase="'email'">
-                  <input matInput [type]="field.type" [formControlName]="field.name">
-                </ng-container>
-                <ng-container *ngSwitchCase="'select'">
-                  <mat-select [formControlName]="field.name">
-                    <mat-option *ngFor="let option of field.selectOptions" [value]="option.value">{{ option.label }}</mat-option>
-                  </mat-select>
-                </ng-container>
-                <ng-container *ngSwitchCase="'selectd'">
-                  <mat-select [formControlName]="field.name">
-                    <mat-option [value]="null">Please Select an Option</mat-option>
-                    <mat-option *ngFor="let option of field.selectOptions$" [value]="option.id">{{ option.name }}</mat-option>
-                  </mat-select>
-                </ng-container>
-                <ng-container *ngSwitchCase="'checkbox'">
-                  <mat-checkbox [formControlName]="field.name">{{ field.label }}</mat-checkbox>
-                </ng-container>
-                </ng-container>
-              </mat-form-field>
-          </p>
-          </ng-container>
-        </div>
-      </div>
-     <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel" *ngIf="isCreateMode"></button-submit>
-        <button-submit name="Delete" [disabled]="false" type="delete" *ngIf="!isCreateMode && showDeleteButton" (click)="onDelete()">Delete</button-submit>
-        <button-submit [name]="buttonText" [disabled]="!formIsValid()"></button-submit>
-      </grid-buttons>
-   </grid-autocol>
-  </form>
-</grid-main>
-  `,
+    <grid-main>
+      <app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
+        <grid-autocol [itemCount]="formMetadata.length">
+          <div *ngFor="let field of formMetadata">
+            <div *ngIf="field.type !== 'hidden'">
+              <ng-container *ngIf="field.isTitle">
+                <h5>{{ field.label }}</h5>
+              </ng-container>
+              <ng-container *ngIf="!field.isTitle">
+                <div *ngIf="field.type !== 'checkbox'">
+                  <mat-form-field class="matfield-full-width">
+                    <mat-label>
+                      {{ field.label }}
+                      <mat-icon
+                        matTooltip="{{ field.tooltip }}"
+                        matTooltipPosition="below"
+                        matTooltipClass="tooltip-custom-style"
+                        container="body"
+                        aria-hidden="true"
+                        *ngIf="field.tooltip"
+                      >
+                        info
+                      </mat-icon>
+                    </mat-label>
+                    <ng-container [ngSwitch]="field.type">
+                      <ng-container *ngSwitchCase="'number'">
+                        <input
+                          matInput
+                          type="number"
+                          [formControlName]="field.name"
+                        />
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'text'">
+                        <input
+                          matInput
+                          [type]="field.type"
+                          [formControlName]="field.name"
+                        />
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'password'">
+                        <input
+                          matInput
+                          type="password"
+                          [formControlName]="field.name"
+                        />
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'textarea'">
+                        <textarea
+                          matInput
+                          [formControlName]="field.name"
+                        ></textarea>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'email'">
+                        <input
+                          matInput
+                          [type]="field.type"
+                          [formControlName]="field.name"
+                        />
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'select'">
+                        <mat-select [formControlName]="field.name">
+                          <mat-option
+                            *ngFor="let option of field.selectOptions"
+                            [value]="option.value"
+                            >{{ option.label }}</mat-option
+                          >
+                        </mat-select>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'selectd'">
+                        <mat-select [formControlName]="field.name">
+                          <mat-option [value]="null"
+                            >Please Select an Option</mat-option
+                          >
+                          <mat-option
+                            *ngFor="let option of field.selectOptions$"
+                            [value]="option.id"
+                            >{{ option.name }}</mat-option
+                          >
+                        </mat-select>
+                      </ng-container>
+                    </ng-container>
+                  </mat-form-field>
+                </div>
+                <div *ngIf="field.type === 'checkbox'">
+                  <mat-checkbox [formControlName]="field.name">{{
+                    field.label
+                  }}</mat-checkbox>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+          <button-submit
+            name="Cancel"
+            [disabled]="false"
+            type="cancel"
+            *ngIf="isCreateMode"
+          ></button-submit>
+          <button-submit
+            name="Delete"
+            [disabled]="false"
+            type="delete"
+            *ngIf="!isCreateMode && showDeleteButton"
+            (click)="onDelete()"
+            >Delete</button-submit
+          >
+          <button-submit
+            [name]="buttonText"
+            [disabled]="!formIsValid()"
+          ></button-submit>
+        </grid-autocol>
+      </form>
+    </grid-main>
+  `
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
@@ -116,7 +186,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Indicates whether the form is in "create" mode or "update" mode.
    * When true, it's in "create" mode, and when false, it's in "update" mode.
-  */
+   */
   @Input() isCreateMode: boolean;
 
   /**
@@ -124,7 +194,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * Set it to `true` to display the "Delete" button, and `false` to hide it.
    * By default, the "Delete" button is displayed (set to `true`).
    */
-  @Input() showDeleteButton: boolean = true;
+  @Input() showDeleteButton = true;
 
   /**
    * The text to display on the "Create" or "Update" button.
@@ -143,6 +213,11 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   @Output() deleteAction: EventEmitter<void> = new EventEmitter();
 
+  /**
+   * Event emitter for notifying when the selection type changes.
+   * Emits a number representing the selected type.
+   */
+
   @Output() selectTypeChange: EventEmitter<number> = new EventEmitter<number>();
 
   /**
@@ -157,56 +232,68 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param gs - The GlobalService for handling global operations and API requests.
    * @param cd - The Angular ChangeDetectorRef for triggering change detection manually.
    */
-  constructor(private fb: FormBuilder, private gs: GlobalService, private cd: ChangeDetectorRef) {}
+  constructor(
+    private fb: FormBuilder,
+    private gs: GlobalService,
+    private cd: ChangeDetectorRef
+  ) {}
 
   /**
    * Initializes the dynamic form by creating form controls and setting their initial values.
    * This method is called when the dynamic form component is initialized.
    */
   ngOnInit() {
-  // Initialize an object to store the configuration of form controls.
-  const controlsConfig = {};
+    // Initialize an object to store the configuration of form controls.
+    const controlsConfig = {};
 
-  // Iterate through the form metadata to create and configure form controls.
-  for (const field of this.formMetadata) {
-    // Exclude fields marked as titles from form control creation.
-    if (!field.isTitle) {
-      // Get the name of the field.
-      const fieldName = field.name;
+    // Iterate through the form metadata to create and configure form controls.
+    for (const field of this.formMetadata) {
+      // Exclude fields marked as titles from form control creation.
+      if (!field.isTitle) {
+        // Get the name of the field.
+        const fieldName = field.name;
 
-      // Determine the validators for the field, defaulting to an empty array if none are provided.
-      const validators: ValidatorFn[] = field.validators ? field.validators : [];
+        // Determine the validators for the field, defaulting to an empty array if none are provided.
+        const validators: ValidatorFn[] = field.validators
+          ? field.validators
+          : [];
 
-      // Initialize the initial value for the form control.
-      let initialValue;
+        // Initialize the initial value for the form control.
+        let initialValue;
 
-      // Set the initial value for the form control based on the field's type.
-      if (field.type === 'checkbox') {
-        // For checkboxes, use the value directly from formValues.
-        initialValue = this.formValues[fieldName];
-      } if (!this.isCreateMode) {
-        // For other field types, use formValues[fieldName] or 0 as a default value if not provided.
-        initialValue = fieldName in this.formValues ? this.formValues[fieldName] : 0;
-      }
+        // Set the initial value for the form control based on the field's type.
+        if (field.type === 'checkbox') {
+          // For checkboxes, use the value directly from formValues.
+          initialValue = this.formValues[fieldName];
+        } else {
+          // For other field types, use formValues[fieldName] or a default value if not provided.
+          initialValue =
+            fieldName in this.formValues ? this.formValues[fieldName] : null;
+        }
+        if (!this.isCreateMode) {
+          // For other field types, use formValues[fieldName] or 0 as a default value if not provided.
+          initialValue =
+            fieldName in this.formValues ? this.formValues[fieldName] : 0;
+        }
 
-      // In 'create' mode, override the initial value if a default value is specified in the field's metadata.
-      if (this.isCreateMode && field.defaultValue !== undefined) {
-        initialValue = field.defaultValue;
-      }
+        // In 'create' mode, override the initial value if a default value is specified in the field's metadata.
+        if (this.isCreateMode && field.defaultValue !== undefined) {
+          initialValue = field.defaultValue;
+        }
 
-      // Create a form control with the initial value and any specified validators.
-      if (!this.isCreateMode && field.disabled) {
-        // If in 'update' mode and the field is disabled, create a disabled form control.
-        controlsConfig[fieldName] = { value: initialValue, disabled: true };
-      } else {
-        // Create a form control with the initial value and optional validators.
-        controlsConfig[fieldName] = new FormControl(initialValue, validators);
+        // Create a form control with the initial value and any specified validators.
+        if (!this.isCreateMode && field.disabled) {
+          // If in 'update' mode and the field is disabled, create a disabled form control.
+          controlsConfig[fieldName] = { value: initialValue, disabled: true };
+        } else {
+          // Create a form control with the initial value and optional validators.
+          controlsConfig[fieldName] = new FormControl(initialValue, validators);
+        }
       }
     }
-  }
 
-  // Create the Angular FormGroup with the configured controls.
-  this.form = this.fb.group(controlsConfig);
+    // Create the Angular FormGroup with the configured controls.
+    this.form = this.fb.group(controlsConfig);
   }
 
   /**
@@ -219,7 +306,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * Indicates whether the dynamic select options are currently being loaded.
    * When true, it represents that options are being fetched; when false, loading is complete.
    */
-  isLoadingSelect: boolean = true;
+  isLoadingSelect = true;
 
   /**
    * Angular lifecycle hook: ngAfterViewInit
@@ -235,37 +322,93 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       // Handle logic for select fields with selectOptions$ after the view is initialized
       selectFields.forEach((field) => {
         // Fetch the select options dynamically here
-        this.selectOptionsSubscription = this.gs.getAll(field.selectEndpoint$,{'maxResults': 5000})
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((options) => {
+        this.selectOptionsSubscription = this.gs
+          .getAll(field.selectEndpoint$, { maxResults: 5000 })
+          .pipe(takeUntil(this.destroy$))
+          .subscribe((options) => {
+            // Sometimes fields need to be mapped
+            const transformedOptions = this.transformSelectOptions(
+              options.values,
+              field
+            );
 
-          // Sometimes fields need to be mapped
-          const transformedOptions = this.transformSelectOptions(options.values, field);
+            // Assign the fetched options to the field's selectOptions$
+            field.selectOptions$ = transformedOptions;
 
-          // Assign the fetched options to the field's selectOptions$
-          field.selectOptions$ = transformedOptions;
+            // Update isLoadingSelect to indicate that loading is complete
+            this.isLoadingSelect = false;
 
-          // Update isLoadingSelect to indicate that loading is complete
-          this.isLoadingSelect = false;
+            // Optionally, update the form control value if needed
+            const control = this.form.get(field.name);
 
-          // Optionally, update the form control value if needed
-          const control = this.form.get(field.name);
+            // Check if there are options available
+            if (
+              control &&
+              options.values &&
+              options.values.length > 0 &&
+              !this.isCreateMode
+            ) {
+              // Ensure that options.values[0] and options.values[0].value exist before setting the value
+              const initialSelectedValue = options.values[0]?.value;
 
-          // Check if there are options available
-          if (control && options.values && options.values.length > 0 && !this.isCreateMode) {
-            // Ensure that options.values[0] and options.values[0].value exist before setting the value
-            const initialSelectedValue = options.values[0]?.value;
-
-            if (initialSelectedValue !== undefined) {
-              control.setValue(initialSelectedValue);
+              if (initialSelectedValue !== undefined) {
+                control.setValue(initialSelectedValue);
+              }
             }
-          }
 
-          // Trigger change detection to prevent ExpressionChangedAfterItHasBeenCheckedError
-          this.cd.detectChanges();
-        });
+            // Trigger change detection to prevent ExpressionChangedAfterItHasBeenCheckedError
+            this.cd.detectChanges();
+          });
       });
     }
+  }
+
+  /**
+   * Checks if the form is valid.
+   * @returns {boolean} True if the form is valid, false otherwise.
+   */
+  formIsValid(): boolean {
+    return this.form.valid;
+  }
+
+  /**
+   * Handles the form submission.
+   * Emits the form values to the parent component if the form is valid.
+   */
+  onSubmit() {
+    if (this.form.valid) {
+      // Emit the form values to the parent component
+      this.formSubmit.emit(this.form.value);
+    }
+  }
+
+  /**
+   * Handles the delete action.
+   * Emits the delete action to the parent component when the "Delete" button is clicked.
+   */
+  onDelete() {
+    this.deleteAction.emit();
+  }
+
+  /**
+   * Handles the onchange action.
+   * Emits the change action to the parent component when the select option is selected.
+   */
+  onChange(value: any) {
+    this.selectTypeChange.emit(value);
+  }
+
+  /**
+   * Angular lifecycle hook: ngOnDestroy
+   * Unsubscribes from all relevant subscriptions and cleans up resources
+   */
+  ngOnDestroy() {
+    // Unsubscribe from the selectOptionsSubscription
+    // this.selectOptionsSubscription.unsubscribe();
+
+    // Complete and close the destroy$ subject to prevent memory leaks
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**
@@ -294,53 +437,4 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       return transformedOption;
     });
   }
-
-  /**
-   * Checks if the form is valid.
-   * @returns {boolean} True if the form is valid, false otherwise.
-  */
-  formIsValid(): boolean {
-    return this.form.valid;
-  }
-
-  /**
-   * Handles the form submission.
-   * Emits the form values to the parent component if the form is valid.
-   */
-  onSubmit() {
-    if (this.form.valid) {
-      // Emit the form values to the parent component
-      this.formSubmit.emit(this.form.value);
-    }
-  }
-
-  /**
-   * Handles the delete action.
-   * Emits the delete action to the parent component when the "Delete" button is clicked.
-  */
-  onDelete(){
-    this.deleteAction.emit();
-  }
-
-  /**
-   * Handles the onchange action.
-   * Emits the change action to the parent component when the select option is selected.
-  */
-  onChange(value: any) {
-    this.selectTypeChange.emit(value);
-  }
-
-  /**
-   * Angular lifecycle hook: ngOnDestroy
-   * Unsubscribes from all relevant subscriptions and cleans up resources
-   */
-  ngOnDestroy() {
-    // Unsubscribe from the selectOptionsSubscription
-    // this.selectOptionsSubscription.unsubscribe();
-
-    // Complete and close the destroy$ subject to prevent memory leaks
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
 }

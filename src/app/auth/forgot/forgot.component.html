@@ -1,34 +1,39 @@
-<grid-main [class]="'width:100%;'" [centered]="true">
-  <h1 class="h3 mb-4">Forgot password</h1>
-  <form #authForm="ngForm" >
-    <div class="row">
-      <grid-form-input [name]="'User Name'" [labelclass]="'requiredak'">
+<mat-card class="width-100" fxLayout="column" fxLayoutAlign="center center">
+  <h1 class="mat-h3 mb-4">Forgot Password</h1>
+  <form #authForm="ngForm" fxLayout="column" fxLayoutGap="20px">
+    <p>
+      <mat-form-field appearance="fill">
+        <mat-label>User Name</mat-label>
         <input
-              type="text"
-              class="form-control"
-              id="inputUsername"
-              placeholder="User Name"
-              ngModel
-              name="username"
-              autocomplete="on"
-              required
+          matInput
+          type="text"
+          placeholder="User Name"
+          ngModel
+          name="username"
+          autocomplete="on"
+          required
         >
-      </grid-form-input>
-      <grid-form-input [name]="'Email'" [labelclass]="'requiredak'">
-        <input
-              type="email"
-              class="form-control"
-              id="inputEmail"
-              placeholder="example@domain.com"
-              ngModel name="email"
-              autocomplete="on"
-              required
-        >
-      </grid-form-input>
+      </mat-form-field>
+    </p>
+
+   <p>
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        type="email"
+        placeholder="example@domain.com"
+        ngModel
+        name="email"
+        autocomplete="on"
+        required
+      >
+    </mat-form-field>
+  </p>
+
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Reset'"></button-submit>
       </grid-buttons>
-    </div>
   </form>
-</grid-main>
+</mat-card>

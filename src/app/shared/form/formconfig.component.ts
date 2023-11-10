@@ -16,14 +16,22 @@ import { Subscription } from 'rxjs';
   selector: 'app-form',
   template: `
     <horizontalnav [menuItems]="menuItems"></horizontalnav>
-    <app-dynamic-form [subtitle]='title' *ngIf="isloaded" [formMetadata]="formMetadata" [formValues]="formValues" [form]="form"  [buttonText]="'Update'" [showDeleteButton]="false" (formSubmit)="onFormSubmit($event)"></app-dynamic-form>
-  `,
+    <app-dynamic-form
+      [subtitle]="title"
+      *ngIf="isloaded"
+      [formMetadata]="formMetadata"
+      [formValues]="formValues"
+      [form]="form"
+      [buttonText]="'Update'"
+      [showDeleteButton]="false"
+      (formSubmit)="onFormSubmit($event)"
+    ></app-dynamic-form>
+  `
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
  */
 export class FormConfigComponent implements OnInit, OnDestroy {
-
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: any[] = [];
   apiPath: string;
@@ -58,7 +66,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
    * @type {any[]}
-  */
+   */
   formValues: any[] = [];
 
   /**
@@ -80,7 +88,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
    * @param router - The Angular Router for navigation.
-  */
+   */
   constructor(
     private unsubscribeService: UnsubscribeService,
     private metadataService: MetadataService,
@@ -92,15 +100,19 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe((data: { kind: string, path: string, type: string }) => {
-      const formKind = data.kind;
-      this.apiPath = data.path; // Get the API path from route data
-      // Load metadata and form information
-      this.globalMetadata = this.metadataService.getInfoMetadata(formKind+'Info')[0];
-      this.formMetadata = this.metadataService.getFormMetadata(formKind);
-      this.title = this.globalMetadata['title'];
-      titleService.set([this.title]);
-    });
+    this.route.data.subscribe(
+      (data: { kind: string; path: string; type: string }) => {
+        const formKind = data.kind;
+        this.apiPath = data.path; // Get the API path from route data
+        // Load metadata and form information
+        this.globalMetadata = this.metadataService.getInfoMetadata(
+          formKind + 'Info'
+        )[0];
+        this.formMetadata = this.metadataService.getFormMetadata(formKind);
+        this.title = this.globalMetadata['title'];
+        titleService.set([this.title]);
+      }
+    );
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.mySubscription);
   }
@@ -113,7 +125,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     { label: 'Task/Chunk', routeName: 'config/task-chunk' },
     { label: 'Hashes/Cracks/Hashlist', routeName: 'config/hch' },
     { label: 'Notifications', routeName: 'config/notifications' },
-    { label: 'General', routeName: 'config/general-settings' },
+    { label: 'General', routeName: 'config/general-settings' }
   ];
 
   /**
@@ -129,20 +141,22 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    */
   loadEdit() {
     // Fetch data from the API for editing
-    this.mySubscription = this.gs.getAll(this.apiPath, { 'maxResults': 500 }).subscribe((result) => {
-      // Transform the retrieved array of objects into the desired structure for form rendering
-      this.formValues = result.values.reduce((result, item) => {
-        result[item.item] = item.value;
-        return result;
-      }, {});
-      // Maps the item with the id, so can be used for update
-      this.formIds = result.values.reduce((result, item) => {
-        result[item.item] = item._id;
-        return result;
-      }, {});
+    this.mySubscription = this.gs
+      .getAll(this.apiPath, { maxResults: 500 })
+      .subscribe((result) => {
+        // Transform the retrieved array of objects into the desired structure for form rendering
+        this.formValues = result.values.reduce((result, item) => {
+          result[item.item] = item.value;
+          return result;
+        }, {});
+        // Maps the item with the id, so can be used for update
+        this.formIds = result.values.reduce((result, item) => {
+          result[item.item] = item._id;
+          return result;
+        }, {});
 
-      this.isloaded = true; // Data is loaded and ready for form rendering
-    });
+        this.isloaded = true; // Data is loaded and ready for form rendering
+      });
   }
 
   /**
@@ -180,26 +194,23 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         const key = fieldKeys[index];
         const id = this.formIds[key];
         const valueUpdate = changedFields[key];
-        const arr = { 'item': key, 'value': String(valueUpdate) };
+        const arr = { item: key, value: String(valueUpdate) };
 
-        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe((result) => {
-          this.uicService.onUpdatingCheck(key);
-          this.alert.okAlert('Saved', key);
+        this.mySubscription = this.gs
+          .update(SERV.CONFIGS, id, arr)
+          .subscribe((result) => {
+            this.uicService.onUpdatingCheck(key);
+            this.alert.okAlert('Saved', key);
 
-          // Delay showing the next alert by 2000 milliseconds (2 seconds)
-          setTimeout(() => {
-            index++;
-            showAlertsSequentially();
-          }, 2000);
-        });
+            // Delay showing the next alert by 2000 milliseconds (2 seconds)
+            setTimeout(() => {
+              index++;
+              showAlertsSequentially();
+            }, 2000);
+          });
       }
     };
 
     showAlertsSequentially();
   }
-
-
 }
-
-
-

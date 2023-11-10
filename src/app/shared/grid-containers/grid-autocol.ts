@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Renderer2, ElementRef } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'grid-autocol',
@@ -8,21 +8,22 @@ import { Component, Input, OnInit, Renderer2, ElementRef } from '@angular/core';
     </div>
   `,
   host: {
-    "(window:resize)": "onWindowResize($event)",
+    '(window:resize)': 'onWindowResize($event)'
   },
-  styles: [`
-    .vertical-line {
-      position: absolute;
-      top: 200px;
-      bottom: 0;
-      left: 0;
-      width: 1px; /* Width of the vertical line */
-      background-color: gray; /* Line color, you can customize this */
-    }
-  `]
+  styles: [
+    `
+      .vertical-line {
+        position: absolute;
+        top: 200px;
+        bottom: 0;
+        left: 0;
+        width: 1px; /* Width of the vertical line */
+        background-color: gray; /* Line color, you can customize this */
+      }
+    `
+  ]
 })
 export class GridAutoColComponent implements OnInit {
-
   // Input properties that can be set from the parent component
   @Input() itemCount: number; // Number of items to determine if the component should be enabled
   @Input() centered?: boolean; // Whether to center the content
@@ -36,7 +37,10 @@ export class GridAutoColComponent implements OnInit {
   cardWidth = 300; // Width of each card (adjust as needed)
   cardHeight = 80; // Height of each card (adjust as needed)
 
-  constructor(private renderer: Renderer2, private el: ElementRef) {}
+  constructor(
+    private renderer: Renderer2,
+    private el: ElementRef
+  ) {}
 
   ngOnInit(): void {
     this.isMobile = this.width < this.mobileWidth;
@@ -51,12 +55,16 @@ export class GridAutoColComponent implements OnInit {
 
   // Calculate the number of columns based on available space
   getCols() {
-    return Math.floor((this.width + this.gutterSize) / (this.cardWidth + this.gutterSize));
+    return Math.floor(
+      (this.width + this.gutterSize) / (this.cardWidth + this.gutterSize)
+    );
   }
 
   // Calculate the number of rows based on available space
   getRows() {
-    return Math.floor((this.height + this.gutterSize) / (this.cardHeight + this.gutterSize));
+    return Math.floor(
+      (this.height + this.gutterSize) / (this.cardHeight + this.gutterSize)
+    );
   }
 
   // Calculate and return the CSS styles for the grid layout
@@ -76,16 +84,16 @@ export class GridAutoColComponent implements OnInit {
     const rows = this.getRows();
 
     // Calculate the width of division lines between columns
-    const divisionLineWidth = (this.width - (cols * this.cardWidth)) / (cols - 1);
+    const divisionLineWidth = (this.width - cols * this.cardWidth) / (cols - 1);
 
     // Define the CSS styles for the grid
     const styles = {
-      'display': 'grid',
+      display: 'grid',
       'grid-template-columns': `repeat(2, ${this.cardWidth}px))`,
       'grid-template-rows': `repeat(${rows}, auto)`,
       'grid-gap': '10px', // Adjust the gap as needed
       'grid-auto-flow': 'column',
-      'position': 'relative',
+      position: 'relative'
     };
 
     // Set the division line width if necessary
@@ -101,7 +109,11 @@ export class GridAutoColComponent implements OnInit {
       for (let i = 1; i < cols; i++) {
         const lineElement = this.renderer.createElement('div');
         this.renderer.addClass(lineElement, 'vertical-line');
-        this.renderer.setStyle(lineElement, 'left', `${(i * this.cardWidth + (i - 1))}px`);
+        this.renderer.setStyle(
+          lineElement,
+          'left',
+          `${i * this.cardWidth + (i - 1)}px`
+        );
         this.renderer.appendChild(this.el.nativeElement, lineElement);
       }
     }
@@ -111,8 +123,9 @@ export class GridAutoColComponent implements OnInit {
 
   // Remove previously added vertical lines
   private removeVerticalLines() {
-    const existingLines = this.el.nativeElement.querySelectorAll('.vertical-line');
-    existingLines.forEach(line => {
+    const existingLines =
+      this.el.nativeElement.querySelectorAll('.vertical-line');
+    existingLines.forEach((line) => {
       this.renderer.removeChild(this.el.nativeElement, line);
     });
   }
