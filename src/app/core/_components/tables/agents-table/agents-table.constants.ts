@@ -9,5 +9,5 @@ export const AgentsTableColumnLabel = {
   ACCESS_GROUP: 'Access Group',
   CURRENT_TASK: 'Task',
   CURRENT_CHUNK: 'Chunk',
-  TASK_SPEED: 'Speed',
-}
+  TASK_SPEED: 'Speed'
+};
