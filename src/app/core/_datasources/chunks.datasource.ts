@@ -25,8 +25,8 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
           const assignedChunks: Chunk[] = c.values;
 
           assignedChunks.map((chunk: Chunk) => {
-            console.log(chunk._id);
             chunk.agent = a.values.find((e: Agent) => e._id === chunk.agentId);
+            // Flatten row so that we can access agent name and task name by key when rendering the table.
             if (chunk.agent) {
               chunk.agentName = chunk.agent.agentName;
             }
