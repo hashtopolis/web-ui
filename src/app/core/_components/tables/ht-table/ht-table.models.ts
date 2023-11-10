@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SafeHtml } from '@angular/platform-browser';
 
 export type DataType = 'agents' | 'tasks' | 'chunks';
