@@ -1,5 +1,6 @@
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
+import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -42,6 +43,14 @@ export const uiConfigDefault: UIConfig = {
       ChunksTableColumnLabel.TIME_SPENT,
       ChunksTableColumnLabel.STATE,
       ChunksTableColumnLabel.CRACKED
+    ],
+    hashlistsTable: [
+      HashlistsTableColumnLabel.ID,
+      HashlistsTableColumnLabel.NAME,
+      HashlistsTableColumnLabel.HASHTYPE,
+      HashlistsTableColumnLabel.FORMAT,
+      HashlistsTableColumnLabel.CRACKED,
+      HashlistsTableColumnLabel.PRE_CRACKED
     ]
   },
   refreshPage: false,

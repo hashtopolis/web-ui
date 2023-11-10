@@ -14,6 +14,7 @@ import { ColumnSelectionDialogComponent } from './tables/column-selection-dialog
 import { CommonModule } from '@angular/common';
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
+import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -46,7 +47,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     ExportMenuComponent,
     ColumnSelectionDialogComponent,
     AgentsTableComponent,
-    ChunksTableComponent
+    ChunksTableComponent,
+    HashlistsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -81,7 +83,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     BulkActionMenuComponent,
     ExportMenuComponent,
     AgentsTableComponent,
-    ChunksTableComponent
+    ChunksTableComponent,
+    HashlistsTableComponent
   ],
   providers: [
     { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }

@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 
 import { GlobalService } from '../_services/main.service';
@@ -7,6 +7,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
+import { environment } from './../../../environments/environment';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -31,6 +32,11 @@ export abstract class BaseDataSource<
   private originalData: T[] = [];
 
   /**
+   * Array of subscriptions that will be unsubscribed on disconnect.
+   */
+  protected subscriptions: Subscription[] = [];
+
+  /**
    * BehaviorSubject to track the loading state.
    */
   protected loadingSubject = new BehaviorSubject<boolean>(false);
@@ -44,6 +50,11 @@ export abstract class BaseDataSource<
    * An array of table columns.
    */
   protected columns: HTTableColumn[] = [];
+
+  /**
+   * Max rows in API response
+   */
+  protected maxResults = environment.config.prodApiMaxResults;
 
   /**
    * Selection model for row selection in the table.
@@ -87,7 +98,7 @@ export abstract class BaseDataSource<
   }
 
   /**
-   * Disconnect the data source from a collection viewer.
+   * Disconnect the data source from a collection viewer and unsubscribe.
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
@@ -95,6 +106,10 @@ export abstract class BaseDataSource<
   disconnect(_collectionViewer: CollectionViewer): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();
+
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
   }
 
   /**
