@@ -1,11 +1,12 @@
-import { CollectionViewer, DataSource } from "@angular/cdk/collections";
-import { BehaviorSubject, Observable } from "rxjs";
-import { GlobalService } from "../_services/main.service";
-import { MatTableDataSourcePaginator } from "@angular/material/table";
-import { MatSort } from "@angular/material/sort";
+import { BehaviorSubject, Observable } from 'rxjs';
+import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+
+import { GlobalService } from '../_services/main.service';
+import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
-import { UIConfigService } from "../_services/shared/storage.service";
-import { HTTableColumn } from "../_components/tables/ht-table/ht-table.models";
+import { UIConfigService } from '../_services/shared/storage.service';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -15,15 +16,17 @@ import { HTTableColumn } from "../_components/tables/ht-table/ht-table.models";
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
-export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = MatTableDataSourcePaginator> implements DataSource<T> {
-
-
+export abstract class BaseDataSource<
+  T,
+  P extends MatTableDataSourcePaginator = MatTableDataSourcePaginator
+> implements DataSource<T>
+{
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
 
   /**
-   * Copy of the original dataSubject data used for filtering 
+   * Copy of the original dataSubject data used for filtering
    */
   private originalData: T[] = [];
 
@@ -55,20 +58,22 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
   /**
    * Reference to the paginator, if pagination is enabled.
    */
-  public paginator: P | null
+  public paginator: P | null;
 
   /**
    * The filter string to be applied to the table data.
    */
-  public filter: string
+  public filter: string;
 
   /**
    * Reference to MatSort for sorting support.
    */
-  public sort: MatSort
+  public sort: MatSort;
 
-  constructor(protected service: GlobalService, protected uiService: UIConfigService) {
-  }
+  constructor(
+    protected service: GlobalService,
+    protected uiService: UIConfigService
+  ) {}
 
   /**
    * Connect the data source to a collection viewer.
@@ -118,9 +123,11 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
     if (!this.sort || !this.sort.active || this.sort.direction === '') {
       return;
     }
-    const sortDirection = this.sort.direction
+    const sortDirection = this.sort.direction;
     const data = this.dataSubject.value.slice();
-    const columnMapping = this.columns.find(mapping => mapping.name === this.sort.active);
+    const columnMapping = this.columns.find(
+      (mapping) => mapping.name === this.sort.active
+    );
 
     if (!columnMapping) {
       console.error('Column mapping not found for label: ' + this.sort.active);
@@ -132,7 +139,7 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
 
     const sortedData = data.sort((a, b) => {
       return this.compare(a[property], b[property], isAsc);
-    })
+    });
 
     this.dataSubject.next(sortedData);
   }
@@ -147,7 +154,9 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
     if (!filterValue) {
       this.dataSubject.next(this.originalData);
     } else {
-      const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
+      const filteredData = this.originalData.filter((item) =>
+        filterFn(item, filterValue)
+      );
 
       this.dataSubject.next(filteredData);
     }
@@ -156,7 +165,11 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
   /**
    * Compare function used for sorting.
    */
-  private compare(a: number | string, b: number | string, isAsc: boolean): number {
+  private compare(
+    a: number | string,
+    b: number | string,
+    isAsc: boolean
+  ): number {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
@@ -175,7 +188,7 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
 
   /**
    * Checks whether all rows are selected.
-   * 
+   *
    * @returns True if all rows are selected
    */
   isAllSelected(): boolean {
@@ -220,7 +233,7 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
    * @returns True if the selection is in an indeterminate state; otherwise, false.
    */
   indeterminate() {
-    return !!(this.selection.hasValue() && !this.isAllSelected())
+    return !!(this.selection.hasValue() && !this.isAllSelected());
   }
 
   /**
@@ -229,7 +242,7 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
    * @returns True if at least one row is selected; otherwise, false.
    */
   hasSelected(): boolean {
-    return this.selection.hasValue()
+    return this.selection.hasValue();
   }
 
   /**
@@ -239,7 +252,11 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
    * @param currentPage - The index of the current page.
    * @param totalItems - The total number of items in the data source.
    */
-  setPaginationConfig(pageSize: number, currentPage: number, totalItems: number): void {
+  setPaginationConfig(
+    pageSize: number,
+    currentPage: number,
+    totalItems: number
+  ): void {
     this.pageSize = pageSize;
     this.currentPage = currentPage;
     this.totalItems = totalItems;
@@ -272,5 +289,5 @@ export abstract class BaseDataSource<T, P extends MatTableDataSourcePaginator = 
     }
   }
 
-  abstract reload(): void
+  abstract reload(): void;
 }
