@@ -102,20 +102,16 @@
               </ng-template>
             </ng-container>
           </ng-container>
-          <a *ngIf="tableColumn.routerLink" [routerLink]="tableColumn.routerLink(element)">
-            <!-- Check if a async function is defined for the column -->
-            <ng-container *ngIf="tableColumn.async">
-              <span [innerHtml]="(tableColumn.async(element) | async) || '-'"></span>
-            </ng-container>
-            <!-- Check if a render function is defined for the column -->
-            <ng-container *ngIf="!tableColumn.async && tableColumn.render">
-              <span [innerHtml]="tableColumn.render(element)"></span>
-            </ng-container>
-            <!-- Default rendering if no render function is defined -->
-            <ng-container *ngIf="!tableColumn.async && !tableColumn.render">
-              {{ element[tableColumn.dataKey] }}
-            </ng-container>
-          </a>
+          <ng-container *ngIf="tableColumn.routerLink">
+            <a *ngFor="let link of tableColumn.routerLink(element)" [routerLink]="link.routerLink">
+              <ng-container *ngIf="link.label">
+                {{ link.label }}
+              </ng-container>
+              <ng-container *ngIf="!link.label">
+                {{ element[tableColumn.dataKey] }}
+              </ng-container>
+            </a>
+          </ng-container>
           <ng-container *ngIf="!tableColumn.routerLink">
             <!-- Check if a async function is defined for the column -->
             <ng-container *ngIf="tableColumn.async">
