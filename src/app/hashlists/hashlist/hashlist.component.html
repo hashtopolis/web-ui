@@ -1,69 +1,9 @@
-<app-page-title [title]="'Hashlists'" [buttontitle]="'New Hashlist'" [buttonlink]="'/hashlists/new-hashlist'" [subbutton]="true"></app-page-title>
-<!-- Body -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" #hashlists datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="hashlists">
-    <thead class="thead-light">
-      <tr>
-        <th class="rounded-start">ID</th>
-        <th>Name</th>
-        <th>Status</th>
-        <th>Hash type</th>
-        <th>Format</th>
-        <th>Cracked</th>
-        <th>Pre-cracked</th>
-        <th class="rounded-end">Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let list of allhashlists">
-        <td>{{ list.hashlistId }}</td>
-        <td style="white-space: nowrap;">
-            <a [routerLink]="[list.hashlistId,'edit']" ngbTooltip={{list.name}}>{{ list.name | shortenString:35 }}</a>
-            <span *ngIf="list.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></span>
-        </td>
-        <td>
-          <span *ngIf="list.hashCount === list.cracked"><fa-icon [icon]="faCheckCircle" aria-hidden="true" ngbTooltip='Cracked'></fa-icon></span>
-        </td>
-        <td>{{ list.hashType.description }}</td>
-        <td>{{ list.format | staticArray:'formats' }}</td>
-        <td>
-          <div>
-            <span [ngClass]="list.cracked / list.hashCount ? 'ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0' : ''" style="{{list.cracked / list.hashCount ? 'background-color: rgb(16, 185, 129);' : ''}}">
-              {{ list.cracked / list.hashCount | percent:'1.2-2' }}
-            </span>
-              (
-                <a
-                  [routerLink]="['/hashlists/hashes/','hashlists',list.hashlistId]"
-                  [queryParams]="{filter: 'cracked'}"
-                  >{{ list.cracked }}</a>
-              /
-              <a [routerLink]="['/hashlists/hashes/','hashlists',list.hashlistId]">{{ list.hashCount }}</a>
-              )
-          </div>
-        </td>
-        <td>
-          <a class='btn-outline-gray-600 float-right' [routerLink]="['/hashlists',list.hashlistId,'copy']" data-toggle="tooltip" data-placement="top" ngbTooltip="Import Hashlist">
-            <fa-icon [icon]="faFileExport" aria-hidden="true"></fa-icon>
-          </a>
-          <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" ngbTooltip="Export Hashlist">
-            <fa-icon [icon]="faFileImport" aria-hidden="true"></fa-icon>
-          </a>
-        </td>
-        <td>
-          <app-button-actions>
-            <button ngbDropdownItem [routerLink]="[list.hashlistId,'edit']" data-placement="top">
-              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-            </button>
-            <button ngbDropdownItem (click)="onArchive(list.hashlistId)" data-placement="top">
-              <fa-icon [icon]="faArchive" aria-hidden="true"></fa-icon> Archive
-            </button>
-            <div class="dropdown-divider"></div>
-            <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(list.hashlistId,list.name)">
-              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-            </button>
-          </app-button-actions>
-        </td>
-    </tr>
-    </tbody>
-  </table>
+  <app-page-title
+    title="Hashlists"
+    buttontitle="New Hashlist"
+    buttonlink="/hashlists/new-hashlist"
+    [subbutton]="true"
+  ></app-page-title>
+  <hashlists-table></hashlists-table>
 </app-table>
