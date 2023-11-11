@@ -5,6 +5,7 @@ import {
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
+import { ActionMenuItem } from '../action-menu/action-menu.model';
 import { BaseMenuComponent } from '../base-menu/base-menu.component';
 import { DataType } from '../../tables/ht-table/ht-table.models';
 
@@ -17,8 +18,13 @@ export class BulkActionMenuComponent
   implements OnInit
 {
   @Input() dataType: DataType;
+  @Input() isArchived: boolean;
 
   ngOnInit(): void {
+    this.loadMenu();
+  }
+
+  private loadMenu(): void {
     if (this.dataType === 'agents') {
       this.getAgentMenu();
     } else if (this.dataType === 'hashlists') {
@@ -27,22 +33,25 @@ export class BulkActionMenuComponent
   }
 
   private getHashlistMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: BulkActionMenuLabel.ARCHIVE_TASKS,
-        action: BulkActionMenuAction.ARCHIVE,
-        icon: 'archive'
-      }
-    ];
+    const deleteMenuAction: ActionMenuItem = {
+      label: BulkActionMenuLabel.DELETE_HASHLISTS,
+      action: BulkActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
 
-    this.actionMenuItems[1] = [
-      {
-        label: BulkActionMenuLabel.DELETE_TASKS,
-        action: BulkActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
+    if (this.isArchived) {
+      this.actionMenuItems[0] = [deleteMenuAction];
+    } else {
+      this.actionMenuItems[0] = [
+        {
+          label: BulkActionMenuLabel.ARCHIVE_HASHLISTS,
+          action: BulkActionMenuAction.ARCHIVE,
+          icon: 'archive'
+        }
+      ];
+      this.actionMenuItems[1] = [deleteMenuAction];
+    }
   }
 
   private getTaskMenu(): void {
@@ -86,5 +95,9 @@ export class BulkActionMenuComponent
         red: true
       }
     ];
+  }
+
+  reload(): void {
+    this.loadMenu();
   }
 }
