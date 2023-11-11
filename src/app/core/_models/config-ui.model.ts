@@ -50,7 +50,7 @@ export const uiConfigDefault: UIConfig = {
       HashlistsTableColumnLabel.HASHTYPE,
       HashlistsTableColumnLabel.FORMAT,
       HashlistsTableColumnLabel.CRACKED,
-      HashlistsTableColumnLabel.PRE_CRACKED
+      HashlistsTableColumnLabel.HASH_COUNT
     ]
   },
   refreshPage: false,
