@@ -1,3 +1,5 @@
+import { Hashtype } from './hashtype.model';
+
 export interface BaseHashlist {
   accessGroupId: number;
   brainFeatures: string;
@@ -35,6 +37,8 @@ export interface Hashlist {
   format: number;
   name: string;
   hashTypeId: number;
+  hashType?: Hashtype;
+  hashTypeDescription?: string;
   isHexSalt: boolean;
   isSecret: boolean;
   isSalted: boolean;
