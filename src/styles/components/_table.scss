@@ -227,21 +227,49 @@ table.hashtopolis-table {
     background-color: $primary-100;
   }
 
-  .flex-container {
-    display: flex;
-    justify-content: flex-start;
+  .mat-mdc-cell {
+    .row-action {
+      .mat-icon {
+        margin-right: 0;
+      }
+    }
+    .flex-container {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
 
-    .mat-icon {
-      margin-top: -3px;
+      .mat-icon {
+        margin-top: -3px;
+        margin-right: 2px;
+      }
+
+      a {
+        display: inline;
+        border-bottom: 1px dotted $primary-300;
+        &:last-child {
+          border-bottom: none;
+        }
+        &::after {
+          content: '\a';
+          white-space: pre;
+        }
+      }
+      &.icons {
+        flex-direction: row;
+      }
+    }
+    .tructate {
+      a {
+        display: inline-block;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
 
-    a {
-      display: block;
-      width: 100%;
-      border-bottom: 1px dotted $primary-300;
-      &:last-child {
-        border-bottom: none;
-      }
+    &.text-right {
+      text-align: right;
     }
   }
 }

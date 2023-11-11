@@ -1,7 +1,10 @@
 @import './colors';
 
 body {
-  font-family: var(--mdc-typography-button-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+  font-family: var(
+    --mdc-typography-button-font-family,
+    var(--mdc-typography-font-family, Roboto, sans-serif)
+  );
 }
 
 a {
@@ -52,14 +55,6 @@ a {
   color: $primary-300 !important;
 }
 
-.truncate {
-  display: inline-block !important;
-  max-width: 150px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .page-title-wrapper {
   display: flex;
   justify-content: space-between;
@@ -103,7 +98,6 @@ h2 {
     margin-bottom: 0;
   }
 }
-
 
 .dark-theme {
   hr {
