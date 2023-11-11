@@ -11,16 +11,32 @@ a {
   color: $accent-800 !important;
 }
 
-.text-ok {
-  color: $color-green !important;
+.light-theme {
+  .text-ok {
+    color: $color-green !important;
+  }
+}
+
+.dark-theme {
+  .text-ok {
+    color: $color-green-dark !important;
+  }
 }
 
 .text-warning {
   color: $color-orange !important;
 }
 
-.text-critical {
-  color: $warn-600 !important;
+.light-theme {
+  .text-critical {
+    color: $warn-600 !important;
+  }
+}
+
+.dark-theme {
+  .text-critical {
+    color: $warn-300 !important;
+  }
 }
 
 .text-inactive {
