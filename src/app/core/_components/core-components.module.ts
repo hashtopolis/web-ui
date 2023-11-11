@@ -27,6 +27,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -70,6 +71,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     MatDialogModule,
     MatTooltipModule,
     MatDividerModule,
+    MatSlideToggleModule,
+    MatInputModule,
     RouterModule,
     FormsModule
   ],
@@ -87,7 +90,10 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     HashlistsTableComponent
   ],
   providers: [
-    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }
+    {
+      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+      useValue: { duration: 2500, verticalPosition: 'top' }
+    }
   ]
 })
 export class CoreComponentsModule {}
