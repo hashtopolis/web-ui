@@ -1,18 +1,20 @@
+import {
+  ActionMenuEvent,
+  ActionMenuItem
+} from '../action-menu/action-menu.model';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActionMenuEvent, ActionMenuItem } from '../action-menu/action-menu.model';
 
 @Component({
   selector: 'base-menu',
   template: ''
 })
 export class BaseMenuComponent {
-
   @Input() disabled = false;
   @Input() data: any;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
-
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> =
+    new EventEmitter<ActionMenuEvent<any>>();
 
   actionMenuItems: ActionMenuItem[][] = [];
 
@@ -40,8 +42,19 @@ export class BaseMenuComponent {
     }
   }
 
+  /**
+   * Check if the data row is of type "Hashlist."
+   * @returns `true` if the data row is a hashlist; otherwise, `false`.
+   */
+  protected isHashlist(): boolean {
+    try {
+      return this.data['_id'] === this.data['hashlistId'];
+    } catch (error) {
+      return false;
+    }
+  }
+
   onMenuItemClick(event: ActionMenuEvent<any>): void {
     this.menuItemClicked.emit(event);
   }
-
 }
