@@ -277,10 +277,26 @@ table.hashtopolis-table {
 div.table-actions {
   display: flex;
   justify-content: space-between;
+  align-items: flex-end;
   margin-bottom: 0.5rem;
+  font-size: 12px;
 
   .right-aligned {
     margin-left: auto;
+
+    .mdc-notched-outline {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .mat-icon {
+      padding-right: 0;
+      color: $primary-100;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
   }
 }
 
