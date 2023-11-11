@@ -18,7 +18,9 @@
       </ng-container>
       <ng-template #bulkActionMenu>
         <bulk-action-menu
+          #bulkMenu
           [dataType]="dataType"
+          [isArchived]="isArchived"
           [data]="dataSource.selection.selected"
           [disabled]="!hasSelected()"
           (menuItemClicked)="bulkAction($event)"
@@ -50,13 +52,17 @@
     </div>
     <!-- filter -->
     <div class="table-action-wrapper right-aligned">
-      <input
-        *ngIf="isFilterable"
-        class="mat-input"
-        (keyup)="applyFilter()"
-        [(ngModel)]="dataSource.filter"
-        placeholder="filter"
-      />
+      <mat-form-field>
+        <mat-icon matPrefix>filter_list</mat-icon>
+        <input
+          matInput
+          placeholder="Ex. Pizza"
+          *ngIf="isFilterable"
+          (keyup)="applyFilter()"
+          [(ngModel)]="dataSource.filter"
+          placeholder="Filter data"
+        />
+      </mat-form-field>
     </div>
   </div>
 
