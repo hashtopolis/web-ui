@@ -7,13 +7,19 @@ import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
 export class HashlistsDataSource extends BaseDataSource<Hashlist> {
-  loadAll(isArchived: boolean): void {
+  private isArchived = false;
+
+  setIsArchived(isArchived: boolean): void {
+    this.isArchived = isArchived;
+  }
+
+  loadAll(): void {
     this.loadingSubject.next(true);
 
     const params = {
       maxResults: this.maxResults,
       expand: 'hashType,accessGroup',
-      filter: `isArchived=${isArchived}`
+      filter: `isArchived=${this.isArchived}`
     };
 
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
@@ -48,6 +54,6 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
 
   reload(): void {
     this.reset();
-    //this.loadAll();
+    this.loadAll();
   }
 }
