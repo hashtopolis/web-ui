@@ -11,6 +11,8 @@ import { EditSupertasksComponent } from './edit-supertasks/edit-supertasks.compo
 import { EditTasksComponent } from './edit-tasks/edit-tasks.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MasksComponent } from './import-supertasks/masks/masks.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ModalPretasksComponent } from './supertasks/modal-pretasks/modal-pretasks.component';
 import { ModalSubtasksComponent } from './show-tasks/modal-subtasks/modal-subtasks.component';
 import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-preconfigured-tasks.component';
@@ -51,6 +53,8 @@ import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
     DataTablesModule,
     ComponentsModule,
     CoreComponentsModule,
+    MatFormFieldModule,
+    MatInputModule,
     CommonModule,
     RouterModule,
     PipesModule,

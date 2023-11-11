@@ -52,12 +52,11 @@
     </div>
     <!-- filter -->
     <div class="table-action-wrapper right-aligned">
-      <mat-form-field>
+      <mat-form-field *ngIf="isFilterable">
         <mat-icon matPrefix>filter_list</mat-icon>
         <input
           matInput
           placeholder="Ex. Pizza"
-          *ngIf="isFilterable"
           (keyup)="applyFilter()"
           [(ngModel)]="dataSource.filter"
           placeholder="Filter data"

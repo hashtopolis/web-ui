@@ -72,7 +72,6 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     MatTooltipModule,
     MatDividerModule,
     MatSlideToggleModule,
-    MatInputModule,
     RouterModule,
     FormsModule
   ],
