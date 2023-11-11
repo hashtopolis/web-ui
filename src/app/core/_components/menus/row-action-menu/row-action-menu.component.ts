@@ -5,6 +5,7 @@ import {
   RowActionMenuLabel
 } from './row-action-menu.constants';
 
+import { ActionMenuItem } from '../action-menu/action-menu.model';
 import { BaseMenuComponent } from '../base-menu/base-menu.component';
 
 @Component({
@@ -50,33 +51,38 @@ export class RowActionMenuComponent
    * Get the context menu items for an agent data row.
    */
   private getHashlistMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: RowActionMenuLabel.EDIT_HASHLIST,
-        action: RowActionMenuAction.EDIT,
-        icon: 'edit'
-      },
-      {
-        label: RowActionMenuLabel.IMPORT_HASHLIST,
-        action: RowActionMenuAction.IMPORT,
-        icon: 'arrow_upwards'
-      },
-      {
-        label: RowActionMenuLabel.EXPORT_HASHLIST,
-        action: RowActionMenuAction.EXPORT,
-        icon: 'arrow_downward'
-      }
-    ];
-    this.actionMenuItems[1] = [
-      {
-        label: RowActionMenuLabel.DELETE_HASHLIST,
-        action: RowActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
-  }
+    this.actionMenuItems[0] = [];
 
+    const deleteMenuItem: ActionMenuItem = {
+      label: RowActionMenuLabel.DELETE_HASHLIST,
+      action: RowActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
+
+    if (this.data['isArchived']) {
+      this.actionMenuItems[0].push(deleteMenuItem);
+    } else {
+      this.actionMenuItems[0] = [
+        {
+          label: RowActionMenuLabel.EDIT_HASHLIST,
+          action: RowActionMenuAction.EDIT,
+          icon: 'edit'
+        },
+        {
+          label: RowActionMenuLabel.IMPORT_HASHLIST,
+          action: RowActionMenuAction.IMPORT,
+          icon: 'arrow_upwards'
+        },
+        {
+          label: RowActionMenuLabel.EXPORT_HASHLIST,
+          action: RowActionMenuAction.EXPORT,
+          icon: 'arrow_downward'
+        }
+      ];
+      this.actionMenuItems[1] = [deleteMenuItem];
+    }
+  }
   /**
    * Get the context menu items for a task data row.
    */
