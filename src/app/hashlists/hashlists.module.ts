@@ -10,6 +10,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HashesComponent } from './hashes/hashes.component';
 import { HashlistComponent } from './hashlist/hashlist.component';
 import { HashlistRoutingModule } from './hashlists-routing.module';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
 import { NewSuperhashlistComponent } from './new-superhashlist/new-superhashlist.component';
 import { NgModule } from '@angular/core';
@@ -37,6 +38,7 @@ import { SuperhashlistComponent } from './superhashlist/superhashlist.component'
     CoreComponentsModule,
     FontAwesomeModule,
     DataTablesModule,
+    MatSlideToggleModule,
     DirectivesModule,
     ComponentsModule,
     CommonModule,
