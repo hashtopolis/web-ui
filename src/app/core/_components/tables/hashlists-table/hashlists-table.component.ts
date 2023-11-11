@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
@@ -28,12 +28,14 @@ export class HashlistsTableComponent
 {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
+  isArchived = false;
 
   ngOnInit(): void {
     this.tableColumns = this.getColumns();
     this.dataSource = new HashlistsDataSource(this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.loadAll(false);
+    this.dataSource.setIsArchived(this.isArchived);
+    this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {
@@ -127,11 +129,8 @@ export class HashlistsTableComponent
             case RowActionMenuAction.DELETE:
               this.rowActionDelete(result.data);
               break;
-            case BulkActionMenuAction.ACTIVATE:
-              this.bulkActionActivate(result.data, true);
-              break;
-            case BulkActionMenuAction.DEACTIVATE:
-              this.bulkActionActivate(result.data, false);
+            case BulkActionMenuAction.ARCHIVE:
+              this.bulkActionArchive(result.data, true);
               break;
             case BulkActionMenuAction.DELETE:
               this.bulkActionDelete(result.data);
@@ -228,21 +227,12 @@ export class HashlistsTableComponent
 
   bulkActionClicked(event: ActionMenuEvent<Hashlist[]>): void {
     switch (event.menuItem.action) {
-      case BulkActionMenuAction.ACTIVATE:
+      case BulkActionMenuAction.ARCHIVE:
         this.openDialog({
           rows: event.data,
-          title: `Activating ${event.data.length} hashlists ...`,
+          title: `Archiving ${event.data.length} hashlists ...`,
           icon: 'info',
-          listAttribute: 'hashlistName',
-          action: event.menuItem.action
-        });
-        break;
-      case BulkActionMenuAction.DEACTIVATE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deactivating ${event.data.length} hashlists ...`,
-          icon: 'info',
-          listAttribute: 'hashlistName',
+          listAttribute: 'name',
           action: event.menuItem.action
         });
         break;
@@ -253,7 +243,7 @@ export class HashlistsTableComponent
           icon: 'warning',
           body: `Are you sure you want to delete the above hashlists? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'hashlistName',
+          listAttribute: 'name',
           action: event.menuItem.action
         });
         break;
@@ -263,18 +253,20 @@ export class HashlistsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionActivate(hashlists: Hashlist[], isActive: boolean): void {
+  private bulkActionArchive(hashlists: Hashlist[], isArchived: boolean): void {
     const requests = hashlists.map((hashlist: Hashlist) => {
-      return this.gs.update(SERV.AGENTS, hashlist._id, { isActive: isActive });
+      return this.gs.update(SERV.HASHLISTS, hashlist._id, {
+        isArchived: isArchived
+      });
     });
 
-    const action = isActive ? 'activated' : 'deactivated';
+    const action = isArchived ? 'archived' : 'unarchived';
 
     this.subscriptions.push(
       forkJoin(requests)
         .pipe(
           catchError((error) => {
-            console.error('Error during activation:', error);
+            console.error('Error during archiving:', error);
             return [];
           })
         )
@@ -283,7 +275,7 @@ export class HashlistsTableComponent
             `Successfully ${action} ${results.length} hashlists!`,
             'Close'
           );
-          this.dataSource.reload();
+          this.reload();
         })
     );
   }
@@ -293,7 +285,7 @@ export class HashlistsTableComponent
    */
   private bulkActionDelete(hashlists: Hashlist[]): void {
     const requests = hashlists.map((hashlist: Hashlist) => {
-      return this.gs.delete(SERV.AGENTS, hashlist._id);
+      return this.gs.delete(SERV.HASHLISTS, hashlist._id);
     });
 
     this.subscriptions.push(
@@ -309,7 +301,7 @@ export class HashlistsTableComponent
             `Successfully deleted ${results.length} hashlists!`,
             'Close'
           );
-          this.dataSource.reload();
+          this.reload();
         })
     );
   }
@@ -317,12 +309,20 @@ export class HashlistsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(hashlist: Hashlist): void {
+  private rowActionDelete(hashlists: Hashlist[]): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.HASHLISTS, hashlist._id).subscribe(() => {
-        this.snackBar.open('Successfully deleted hashlist!', 'Close');
-        this.dataSource.reload();
-      })
+      this.gs
+        .delete(SERV.HASHLISTS, hashlists[0]._id)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open('Successfully deleted hashlist!', 'Close');
+          this.reload();
+        })
     );
   }
 
@@ -342,5 +342,10 @@ export class HashlistsTableComponent
    */
   private rowActionImport(hashlist: Hashlist): void {
     this.router.navigate(['/hashlists', hashlist._id, 'copy']);
+  }
+
+  setIsArchived(isArchived: boolean): void {
+    this.isArchived = isArchived;
+    this.dataSource.setIsArchived(isArchived);
   }
 }
