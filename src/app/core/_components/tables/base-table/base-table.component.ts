@@ -1,5 +1,11 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, Renderer2, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   UIConfig,
@@ -37,6 +43,7 @@ export class BaseTableComponent {
     protected snackBar: MatSnackBar,
     protected uiService: UIConfigService,
     protected exportService: ExportService,
+    protected cdr: ChangeDetectorRef,
     public dialog: MatDialog
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);

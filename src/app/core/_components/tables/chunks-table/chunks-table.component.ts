@@ -33,7 +33,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   ngOnInit(): void {
     this.tableColumns = this.getColumns();
-    this.dataSource = new ChunksDataSource(this.gs, this.uiService);
+    this.dataSource = new ChunksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }

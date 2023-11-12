@@ -70,7 +70,6 @@
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
       <mat-spinner></mat-spinner>
     </div>
-
     <!-- select column -->
     <ng-container *ngIf="isSelectable" matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>
@@ -192,7 +191,7 @@
         </div>
       </td>
     </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr
       mat-row
       *matRowDef="let row; columns: displayedColumns"

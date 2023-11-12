@@ -7,16 +7,16 @@ import { SERV } from '../_services/main.config';
 
 export class HashtypesDataSource extends BaseDataSource<Hashtype> {
   loadAll(): void {
-    this.loadingSubject.next(true);
+    this.loading = true;
 
-    const params = { maxResults: this.maxResults };
+    const params = { maxResults: this.paginator.pageSize };
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
 
     this.subscriptions.push(
       hashtypes$
         .pipe(
           catchError(() => of([])),
-          finalize(() => this.loadingSubject.next(false))
+          finalize(() => (this.loading = false))
         )
         .subscribe((response: ListResponseWrapper<Hashtype>) => {
           this.setPaginationConfig(

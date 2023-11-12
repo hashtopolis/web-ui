@@ -40,7 +40,7 @@ export class AgentsTableComponent
 
   ngOnInit(): void {
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsDataSource(this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }

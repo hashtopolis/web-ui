@@ -8,7 +8,7 @@ import { SERV } from '../_services/main.config';
 
 export class ChunksDataSource extends BaseDataSource<Chunk> {
   loadAll(): void {
-    this.loadingSubject.next(true);
+    this.loading = true;
 
     const agentParams = { maxResults: 999999 };
     const chunkParams = { maxResults: 1000, expand: 'task' };
@@ -18,7 +18,7 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
     forkJoin([chunks$, agents$])
       .pipe(
         catchError(() => of([])),
-        finalize(() => this.loadingSubject.next(false))
+        finalize(() => (this.loading = false))
       )
       .subscribe(
         ([c, a]: [ListResponseWrapper<Chunk>, ListResponseWrapper<Agent>]) => {

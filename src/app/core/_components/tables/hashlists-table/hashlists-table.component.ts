@@ -32,7 +32,11 @@ export class HashlistsTableComponent
 
   ngOnInit(): void {
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashlistsDataSource(this.gs, this.uiService);
+    this.dataSource = new HashlistsDataSource(
+      this.cdr,
+      this.gs,
+      this.uiService
+    );
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     this.dataSource.loadAll();

@@ -1,8 +1,10 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 
+import { ChangeDetectorRef } from '@angular/core';
 import { GlobalService } from '../_services/main.service';
 import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -62,11 +64,6 @@ export abstract class BaseDataSource<
   public selection = new SelectionModel<T>(true, []);
 
   /**
-   * Observable to track the loading state.
-   */
-  public loading$ = this.loadingSubject.asObservable();
-
-  /**
    * Reference to the paginator, if pagination is enabled.
    */
   public paginator: P | null;
@@ -82,9 +79,27 @@ export abstract class BaseDataSource<
   public sort: MatSort;
 
   constructor(
+    protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
     protected uiService: UIConfigService
   ) {}
+
+  /**
+   * Gets the observable for the loading state.
+   * @return An observable that emits boolean values representing the loading state.
+   */
+  get loading$(): Observable<boolean> {
+    return this.loadingSubject.asObservable();
+  }
+
+  /**
+   * Sets the loading state and triggers change detection.
+   * @param value - The boolean value representing the loading state to be set.
+   */
+  set loading(value: boolean) {
+    this.loadingSubject.next(value);
+    this.cdr.detectChanges();
+  }
 
   /**
    * Connect the data source to a collection viewer.

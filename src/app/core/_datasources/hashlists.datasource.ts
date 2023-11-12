@@ -14,7 +14,7 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   }
 
   loadAll(): void {
-    this.loadingSubject.next(true);
+    this.loading = true;
 
     const params = {
       maxResults: this.maxResults,
@@ -28,7 +28,7 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
       hashLists$
         .pipe(
           catchError(() => of([])),
-          finalize(() => this.loadingSubject.next(false))
+          finalize(() => (this.loading = false))
         )
         .subscribe((response: ListResponseWrapper<Hashlist>) => {
           const rows: Hashlist[] = [];

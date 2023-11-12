@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
+import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -49,6 +50,7 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     ColumnSelectionDialogComponent,
     AgentsTableComponent,
     ChunksTableComponent,
+    HashtypesTableComponent,
     HashlistsTableComponent
   ],
   imports: [
@@ -86,7 +88,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     ExportMenuComponent,
     AgentsTableComponent,
     ChunksTableComponent,
-    HashlistsTableComponent
+    HashlistsTableComponent,
+    HashtypesTableComponent
   ],
   providers: [
     {

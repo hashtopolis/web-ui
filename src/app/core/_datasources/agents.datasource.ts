@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 
 export class AgentsDataSource extends BaseDataSource<Agent> {
   loadAll(): void {
-    this.loadingSubject.next(true);
+    this.loading = true;
 
     const agentParams = { maxResults: 999999, expand: 'accessGroups' };
     const params = { maxResults: 999999 };
@@ -24,7 +24,7 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     forkJoin([agents$, users$, agentAssign$, tasks$, chunks$])
       .pipe(
         catchError(() => of([])),
-        finalize(() => this.loadingSubject.next(false))
+        finalize(() => (this.loading = false))
       )
       .subscribe(
         ([a, u, aa, t, c]: [

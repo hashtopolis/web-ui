@@ -148,6 +148,8 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     private storage: LocalStorageService<UIConfig>
   ) {}
 
+  // @todo: fix ExpressionChangedAfterItHasBeenCheckedError. loading is causing trouble...
+
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.columnNames = this.tableColumns.map(
@@ -285,7 +287,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    */
   reload(): void {
     this.dataSource.reload();
-    this.bulkMenu.reload();
+    if (this.bulkMenu) {
+      this.bulkMenu.reload();
+    }
   }
 
   /**
