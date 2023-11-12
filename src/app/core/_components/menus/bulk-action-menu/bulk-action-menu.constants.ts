@@ -5,7 +5,8 @@ export const BulkActionMenuLabel = {
   ARCHIVE_TASKS: 'Archive Tasks',
   DELETE_TASKS: 'Delete Tasks',
   DELETE_HASHLISTS: 'Delete Hashlists',
-  ARCHIVE_HASHLISTS: 'Archive Hashlists'
+  ARCHIVE_HASHLISTS: 'Archive Hashlists',
+  DELETE_HASHTYPES: 'Delete Hashtypes'
 };
 
 export const BulkActionMenuAction = {

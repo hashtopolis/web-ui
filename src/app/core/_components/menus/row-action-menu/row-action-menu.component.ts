@@ -23,6 +23,8 @@ export class RowActionMenuComponent
       this.getTaskMenu();
     } else if (this.isHashlist()) {
       this.getHashlistMenu();
+    } else if (this.isHashtype()) {
+      this.getHashtypeMenu();
     }
   }
 
@@ -83,6 +85,7 @@ export class RowActionMenuComponent
       this.actionMenuItems[1] = [deleteMenuItem];
     }
   }
+
   /**
    * Get the context menu items for a task data row.
    */
@@ -128,5 +131,18 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.ARCHIVE,
       icon: 'archive'
     });
+  }
+
+  private getHashtypeMenu(): void {
+    this.actionMenuItems[0] = [];
+
+    const deleteMenuItem: ActionMenuItem = {
+      label: RowActionMenuLabel.DELETE_HASHTYPE,
+      action: RowActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
+
+    this.actionMenuItems[0].push(deleteMenuItem);
   }
 }

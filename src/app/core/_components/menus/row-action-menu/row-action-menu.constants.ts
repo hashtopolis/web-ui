@@ -10,7 +10,8 @@ export const RowActionMenuLabel = {
   EDIT_HASHLIST: 'Edit',
   DELETE_HASHLIST: 'Delete',
   IMPORT_HASHLIST: 'Import Hashlist',
-  EXPORT_HASHLIST: 'Export Hashlist'
+  EXPORT_HASHLIST: 'Export Hashlist',
+  DELETE_HASHTYPE: 'Delete'
 };
 
 export const RowActionMenuAction = {

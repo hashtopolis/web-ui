@@ -145,7 +145,7 @@ export class HashtypesTableComponent
           icon: 'warning',
           body: `Are you sure you want to delete the above hashtypes? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'name',
+          listAttribute: 'description',
           action: event.menuItem.action
         });
         break;

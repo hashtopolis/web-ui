@@ -29,6 +29,8 @@ export class BulkActionMenuComponent
       this.getAgentMenu();
     } else if (this.dataType === 'hashlists') {
       this.getHashlistMenu();
+    } else if (this.dataType === 'hashtypes') {
+      this.getHashtypesMenu();
     }
   }
 
@@ -52,6 +54,17 @@ export class BulkActionMenuComponent
       ];
       this.actionMenuItems[1] = [deleteMenuAction];
     }
+  }
+
+  private getHashtypesMenu(): void {
+    const deleteMenuAction: ActionMenuItem = {
+      label: BulkActionMenuLabel.DELETE_HASHTYPES,
+      action: BulkActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
+
+    this.actionMenuItems[0] = [deleteMenuAction];
   }
 
   private getTaskMenu(): void {

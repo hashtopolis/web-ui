@@ -54,6 +54,10 @@ export class BaseMenuComponent {
     }
   }
 
+  protected isHashtype(): boolean {
+    return 'hashTypeId' in this.data;
+  }
+
   onMenuItemClick(event: ActionMenuEvent<any>): void {
     this.menuItemClicked.emit(event);
   }
