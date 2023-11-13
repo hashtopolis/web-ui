@@ -85,7 +85,7 @@ export class UploadTUSService {
     redirect = null
   ): Observable<number> {
     return new Observable<number>((observer) => {
-      // Chunksize config default
+      // Get Chunksize config default
       let chunkSize = this.chunked;
       if (Number.isNaN(chunkSize)) {
         chunkSize = Infinity;
