@@ -119,6 +119,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Flag to enable row action menu */
   @Input() hasRowAction = false;
 
+  /** Flag to enable bulk action menu */
+  @Input() hasBulkActions = true;
+
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [3, 25, 50, 100, 250];
 

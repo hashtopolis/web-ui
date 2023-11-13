@@ -35,6 +35,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
+import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
 
 @NgModule({
@@ -51,7 +52,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     AgentsTableComponent,
     ChunksTableComponent,
     HashtypesTableComponent,
-    HashlistsTableComponent
+    HashlistsTableComponent,
+    SuperHashlistsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -89,7 +91,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     AgentsTableComponent,
     ChunksTableComponent,
     HashlistsTableComponent,
-    HashtypesTableComponent
+    HashtypesTableComponent,
+    SuperHashlistsTableComponent
   ],
   providers: [
     {

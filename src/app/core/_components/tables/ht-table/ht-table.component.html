@@ -9,7 +9,7 @@
       </button>
     </div>
     <!-- bulk actions -->
-    <div class="table-action-wrapper" *ngIf="isSelectable">
+    <div class="table-action-wrapper" *ngIf="isSelectable && hasBulkActions">
       <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
         <button mat-button [disabled]="true">
           <mat-icon>adjust</mat-icon>

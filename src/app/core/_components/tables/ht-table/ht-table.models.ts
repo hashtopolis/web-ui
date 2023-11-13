@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { SafeHtml } from '@angular/platform-browser';
 
-export type DataType = 'agents' | 'hashlists' | 'chunks' | 'hashtypes';
+export type DataType =
+  | 'agents'
+  | 'hashlists'
+  | 'chunks'
+  | 'hashtypes'
+  | 'superhashlists';
 
 export interface HTTableIcon {
   name: string;

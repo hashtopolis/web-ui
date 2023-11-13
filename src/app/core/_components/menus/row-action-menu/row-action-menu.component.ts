@@ -23,6 +23,8 @@ export class RowActionMenuComponent
       this.getTaskMenu();
     } else if (this.isHashlist()) {
       this.getHashlistMenu();
+    } else if (this.isSuperHashlist()) {
+      this.getSuperHashlistMenu();
     } else if (this.isHashtype()) {
       this.getHashtypeMenu();
     }
@@ -84,6 +86,27 @@ export class RowActionMenuComponent
       ];
       this.actionMenuItems[1] = [deleteMenuItem];
     }
+  }
+
+  /**
+   * Get the context menu items for an agent data row.
+   */
+  private getSuperHashlistMenu(): void {
+    this.actionMenuItems[0] = [
+      {
+        label: RowActionMenuLabel.EDIT_SUPERHASHLIST,
+        action: RowActionMenuAction.EDIT,
+        icon: 'edit'
+      }
+    ];
+    this.actionMenuItems[1] = [
+      {
+        label: RowActionMenuLabel.DELETE_SUPERHASHLIST,
+        action: RowActionMenuAction.DELETE,
+        icon: 'delete',
+        red: true
+      }
+    ];
   }
 
   /**

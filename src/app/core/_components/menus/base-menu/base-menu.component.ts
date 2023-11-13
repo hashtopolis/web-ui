@@ -5,6 +5,8 @@ import {
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
+import { HashListFormat } from 'src/app/core/_constants/hashlist.config';
+
 @Component({
   selector: 'base-menu',
   template: ''
@@ -48,7 +50,25 @@ export class BaseMenuComponent {
    */
   protected isHashlist(): boolean {
     try {
-      return this.data['_id'] === this.data['hashlistId'];
+      return (
+        this.data['_id'] === this.data['hashlistId'] &&
+        this.data['format'] !== HashListFormat.SUPERHASHLIST
+      );
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Check if the data row is of type "Hashlist" with format "Superhashlist"
+   * @returns `true` if the data row is a superhashlist; otherwise, `false`.
+   */
+  protected isSuperHashlist(): boolean {
+    try {
+      return (
+        this.data['_id'] === this.data['hashlistId'] &&
+        this.data['format'] === HashListFormat.SUPERHASHLIST
+      );
     } catch (error) {
       return false;
     }

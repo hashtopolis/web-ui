@@ -50,4 +50,5 @@ export interface Hashlist {
   isArchived: boolean;
   sourceType: string;
   sourceData: string;
+  hashlists?: Hashlist[];
 }

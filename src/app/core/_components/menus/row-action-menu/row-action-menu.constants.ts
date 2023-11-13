@@ -11,7 +11,9 @@ export const RowActionMenuLabel = {
   DELETE_HASHLIST: 'Delete',
   IMPORT_HASHLIST: 'Import Hashlist',
   EXPORT_HASHLIST: 'Export Hashlist',
-  DELETE_HASHTYPE: 'Delete'
+  DELETE_HASHTYPE: 'Delete',
+  EDIT_SUPERHASHLIST: 'Edit',
+  DELETE_SUPERHASHLIST: 'Delete'
 };
 
 export const RowActionMenuAction = {
