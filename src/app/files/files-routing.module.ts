@@ -6,6 +6,8 @@ import { NgModule } from '@angular/core';
 import { FilesEditComponent } from './files-edit/files-edit.component';
 import { NewFilesComponent } from './new-files/new-files.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
+import { FormComponent } from '../shared/form/form.component';
+import { SERV } from '../core/_services/main.config';
 import { FilesComponent } from './files.component';
 
 const routes: MyRoute[] = [
@@ -35,9 +37,11 @@ const routes: MyRoute[] = [
       },
       {
         path: ':id/wordlist-edit',
-        component: FilesEditComponent,
+        component: FormComponent,
         data: {
-          kind: 'wordlist-edit',
+          kind: 'editwordlist',
+          type: 'edit',
+          path: SERV.FILES,
           breadcrumb: 'Wordlist Edit',
           permission: 'File'
         },
@@ -65,9 +69,11 @@ const routes: MyRoute[] = [
       },
       {
         path: ':id/rules-edit',
-        component: FilesEditComponent,
+        component: FormComponent,
         data: {
-          kind: 'rules-edit',
+          kind: 'editrule',
+          type: 'edit',
+          path: SERV.FILES,
           breadcrumb: 'Rules Edit',
           permission: 'File'
         },
@@ -95,9 +101,11 @@ const routes: MyRoute[] = [
       },
       {
         path: ':id/other-edit',
-        component: FilesEditComponent,
+        component: FormComponent,
         data: {
-          kind: 'other-edit',
+          kind: 'editother',
+          type: 'edit',
+          path: SERV.FILES,
           breadcrumb: 'Other Edit',
           permission: 'File'
         },
