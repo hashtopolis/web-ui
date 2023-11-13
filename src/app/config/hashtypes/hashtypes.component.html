@@ -1,36 +1,9 @@
-<app-page-title [title]="'Hashtypes'" [buttontitle]="'New Hashtype'" [buttonlink]="'/config/hashtypes/new'" [subbutton]="true"></app-page-title>
-<!-- Table -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">Hashtype (Hashcat -m)</th>
-          <th>Description</th>
-          <th>Salted</th>
-          <th>Slow Hash</th>
-          <th class="rounded-end">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let h of htypes; let i = index">
-            <td class="text-align:center">{{ h.hashTypeId }}</td>
-            <td>{{ h.description }}</td>
-            <td>{{ h.isSalted === 0 ? "Yes" : "No" }}</td>
-            <td>{{ h.isSlowHash === 0 ? "Yes" : "No" }}</td>
-            <td class="overflow-hidden">
-              <div>
-                <app-button-actions>
-                  <button ngbDropdownItem [routerLink]="[h.hashTypeId,'edit']" data-placement="top" title="Edit">
-                    <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-                  </button>
-                  <div class="dropdown-divider"></div>
-                  <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(h.hashTypeId,h.description)">
-                    <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-                  </button>
-                </app-button-actions>
-              </div>
-            </td>
-        </tr>
-      </tbody>
-  </table>
+  <app-page-title
+    [title]="'Hashtypes'"
+    [buttontitle]="'New Hashtype'"
+    [buttonlink]="'/config/hashtypes/new'"
+    [subbutton]="true"
+  ></app-page-title>
+  <hashtypes-table></hashtypes-table>
 </app-table>

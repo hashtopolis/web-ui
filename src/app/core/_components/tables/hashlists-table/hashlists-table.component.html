@@ -1,12 +1,13 @@
 <ht-table
   #table
-  name="agentTable"
-  dataType="agents"
+  name="hashlistsTable"
+  dataType="hashlists"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
   [hasRowAction]="true"
   [isFilterable]="true"
+  [isArchived]="isArchived"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

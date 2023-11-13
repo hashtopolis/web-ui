@@ -40,7 +40,7 @@ export class AgentsTableComponent
 
   ngOnInit(): void {
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsDataSource(this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -368,6 +368,9 @@ export class AgentsTableComponent
     }
   }
 
+  /**
+   * @todo Implement error handling.
+   */
   private bulkActionActivate(agents: Agent[], isActive: boolean): void {
     const requests = agents.map((agent: Agent) => {
       return this.gs.update(SERV.AGENTS, agent._id, { isActive: isActive });
@@ -393,6 +396,9 @@ export class AgentsTableComponent
     );
   }
 
+  /**
+   * @todo Implement error handling.
+   */
   private bulkActionDelete(agents: Agent[]): void {
     const requests = agents.map((agent: Agent) => {
       return this.gs.delete(SERV.AGENTS, agent._id);
@@ -416,6 +422,9 @@ export class AgentsTableComponent
     );
   }
 
+  /**
+   * @todo Implement error handling.
+   */
   private rowActionDelete(agent: Agent): void {
     this.subscriptions.push(
       this.gs.delete(SERV.AGENTS, agent._id).subscribe(() => {

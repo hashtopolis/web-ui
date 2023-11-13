@@ -1,36 +1,37 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { environment } from './../../../environments/environment';
-import { Subscription } from 'rxjs';
-import { AuthService } from '../../core/_services/access/auth.service';
-import { MainMenuItem } from './header.model';
-import { User, UserData } from 'src/app/core/_models/auth-user.model';
-import { ActionMenuEvent } from 'src/app/core/_components/menus/action-menu/action-menu.model';
 import { HeaderMenuAction, HeaderMenuLabel } from './header.constants';
 
+import { ActionMenuEvent } from 'src/app/core/_components/menus/action-menu/action-menu.model';
+import { AuthService } from '../../core/_services/access/auth.service';
+import { MainMenuItem } from './header.model';
+import { Subscription } from 'rxjs';
+import { User } from 'src/app/core/_models/auth-user.model';
+import { environment } from './../../../environments/environment';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  private subscriptions: Subscription[] = []
-  private username = ''
+  private subscriptions: Subscription[] = [];
+  private username = '';
 
   headerConfig = environment.config.header;
-  mainMenu: MainMenuItem[] = []
+  mainMenu: MainMenuItem[] = [];
 
   constructor(private authService: AuthService) {
-    this.rebuildMenu()
+    this.rebuildMenu();
   }
 
   ngOnInit(): void {
-    this.subscriptions.push(this.authService.user.subscribe((user: User) => {
-      console.log(user)
-      if (user) {
-        this.username = user._username
-      }
-      this.rebuildMenu()
-    }))
+    this.subscriptions.push(
+      this.authService.user.subscribe((user: User) => {
+        if (user) {
+          this.username = user._username;
+        }
+        this.rebuildMenu();
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -42,7 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   menuItemClicked(event: ActionMenuEvent<any>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
       this.authService.logOut();
-      this.rebuildMenu()
+      this.rebuildMenu();
       window.location.reload();
     }
   }
@@ -57,7 +58,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.getConfigMenu(),
       this.getUsersMenu(),
       this.getAdminMenu()
-    ]
+    ];
   }
 
   /**
@@ -68,17 +69,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return {
       display: true,
       label: HeaderMenuLabel.AGENTS,
-      actions: [[
-        {
-          label: HeaderMenuLabel.SHOW_AGENTS,
-          routerLink: ['agents', 'show-agents']
-        },
-        {
-          label: HeaderMenuLabel.AGENT_STATUS,
-          routerLink: ['agents', 'agent-status']
-        }
-      ]]
-    }
+      actions: [
+        [
+          {
+            label: HeaderMenuLabel.SHOW_AGENTS,
+            routerLink: ['agents', 'show-agents']
+          },
+          {
+            label: HeaderMenuLabel.AGENT_STATUS,
+            routerLink: ['agents', 'agent-status']
+          }
+        ]
+      ]
+    };
   }
 
   /**
@@ -89,29 +92,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return {
       display: true,
       label: HeaderMenuLabel.TASKS,
-      actions: [[
-        {
-          label: HeaderMenuLabel.SHOW_TASKS,
-          routerLink: ['tasks', 'show-tasks']
-        },
-        {
-          label: HeaderMenuLabel.PRECONFIGURED_TASKS,
-          routerLink: ['tasks', 'preconfigured-tasks']
-        },
-        {
-          label: HeaderMenuLabel.SUPERTASKS,
-          routerLink: ['tasks', 'supertasks']
-        },
-        {
-          label: HeaderMenuLabel.IMPORT_SUPERTASK,
-          routerLink: ['tasks', 'import-supertasks', 'masks']
-        },
-        {
-          label: HeaderMenuLabel.CHUNK_ACTIVITY,
-          routerLink: ['tasks', 'chunks']
-        },
-      ]]
-    }
+      actions: [
+        [
+          {
+            label: HeaderMenuLabel.SHOW_TASKS,
+            routerLink: ['tasks', 'show-tasks']
+          },
+          {
+            label: HeaderMenuLabel.PRECONFIGURED_TASKS,
+            routerLink: ['tasks', 'preconfigured-tasks']
+          },
+          {
+            label: HeaderMenuLabel.SUPERTASKS,
+            routerLink: ['tasks', 'supertasks']
+          },
+          {
+            label: HeaderMenuLabel.IMPORT_SUPERTASK,
+            routerLink: ['tasks', 'import-supertasks', 'masks']
+          },
+          {
+            label: HeaderMenuLabel.CHUNK_ACTIVITY,
+            routerLink: ['tasks', 'chunks']
+          }
+        ]
+      ]
+    };
   }
 
   /**
@@ -122,25 +127,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return {
       display: true,
       label: HeaderMenuLabel.HASHLISTS,
-      actions: [[
-        {
-          label: HeaderMenuLabel.SHOW_HASHLISTS,
-          routerLink: ['hashlists', 'hashlist']
-        },
-        {
-          label: HeaderMenuLabel.SUPERHASHLISTS,
-          routerLink: ['hashlists', 'superhashlist']
-        },
-        {
-          label: HeaderMenuLabel.SEARCH_HASH,
-          routerLink: ['hashlists', 'search-hash']
-        },
-        {
-          label: HeaderMenuLabel.SHOW_CRACKS,
-          routerLink: ['hashlists', 'show-cracks']
-        }
-      ]]
-    }
+      actions: [
+        [
+          {
+            label: HeaderMenuLabel.SHOW_HASHLISTS,
+            routerLink: ['hashlists', 'hashlist']
+          },
+          {
+            label: HeaderMenuLabel.SUPERHASHLISTS,
+            routerLink: ['hashlists', 'superhashlist']
+          },
+          {
+            label: HeaderMenuLabel.SEARCH_HASH,
+            routerLink: ['hashlists', 'search-hash']
+          },
+          {
+            label: HeaderMenuLabel.SHOW_CRACKS,
+            routerLink: ['hashlists', 'show-cracks']
+          }
+        ]
+      ]
+    };
   }
 
   /**
@@ -151,21 +158,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return {
       display: true,
       label: HeaderMenuLabel.FILES,
-      actions: [[
-        {
-          label: HeaderMenuLabel.WORDLISTS,
-          routerLink: ['files', 'wordlist']
-        },
-        {
-          label: HeaderMenuLabel.RULES,
-          routerLink: ['files', 'rules']
-        },
-        {
-          label: HeaderMenuLabel.OTHER,
-          routerLink: ['files', 'other']
-        },
-      ]]
-    }
+      actions: [
+        [
+          {
+            label: HeaderMenuLabel.WORDLISTS,
+            routerLink: ['files', 'wordlist']
+          },
+          {
+            label: HeaderMenuLabel.RULES,
+            routerLink: ['files', 'rules']
+          },
+          {
+            label: HeaderMenuLabel.OTHER,
+            routerLink: ['files', 'other']
+          }
+        ]
+      ]
+    };
   }
 
   /**
@@ -193,15 +202,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
           },
           {
             label: 'Support',
-            routerLink: ['https://discord.com/channels/419123475538509844/419123475538509846']
-          },
+            routerLink: [
+              'https://discord.com/channels/419123475538509844/419123475538509846'
+            ]
+          }
         ],
         [
           {
             label: 'Logout',
             action: HeaderMenuAction.LOGOUT,
             red: true
-          },
+          }
         ]
       ]
     };
@@ -228,16 +239,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: HeaderMenuLabel.ACCESS_GROUPS,
             routerLink: ['users', 'access-groups']
-          },
+          }
         ]
       ]
     };
   }
 
   /**
- * Retrieves the 'Config' menu item.
- * @returns A MainMenuItem for the 'Config' menu.
- */
+   * Retrieves the 'Config' menu item.
+   * @returns A MainMenuItem for the 'Config' menu.
+   */
   getConfigMenu(): MainMenuItem {
     return {
       display: true,
@@ -259,7 +270,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: HeaderMenuLabel.LOG,
             routerLink: ['config', 'log']
-          },
+          }
         ]
       ]
     };
@@ -286,13 +297,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: HeaderMenuLabel.AGENT_BINARIES,
             routerLink: ['config', 'engine', 'agent-binaries']
-          },
+          }
         ]
       ]
     };
   }
 }
-
-
-
-

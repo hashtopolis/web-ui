@@ -14,6 +14,8 @@ import { ColumnSelectionDialogComponent } from './tables/column-selection-dialog
 import { CommonModule } from '@angular/common';
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
+import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
+import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -26,12 +28,14 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
+import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
 
 @NgModule({
@@ -46,7 +50,10 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     ExportMenuComponent,
     ColumnSelectionDialogComponent,
     AgentsTableComponent,
-    ChunksTableComponent
+    ChunksTableComponent,
+    HashtypesTableComponent,
+    HashlistsTableComponent,
+    SuperHashlistsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -68,6 +75,7 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     MatDialogModule,
     MatTooltipModule,
     MatDividerModule,
+    MatSlideToggleModule,
     RouterModule,
     FormsModule
   ],
@@ -81,10 +89,16 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     BulkActionMenuComponent,
     ExportMenuComponent,
     AgentsTableComponent,
-    ChunksTableComponent
+    ChunksTableComponent,
+    HashlistsTableComponent,
+    HashtypesTableComponent,
+    SuperHashlistsTableComponent
   ],
   providers: [
-    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500 } }
+    {
+      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+      useValue: { duration: 2500, verticalPosition: 'top' }
+    }
   ]
 })
 export class CoreComponentsModule {}

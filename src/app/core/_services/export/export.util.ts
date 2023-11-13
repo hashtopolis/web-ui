@@ -1,16 +1,14 @@
-import { Injectable } from "@angular/core";
-import { ExcelColumn } from "./export.model";
-import { HTTableColumn } from "../../_components/tables/ht-table/ht-table.models";
-
+import { ExcelColumn } from './export.model';
+import { HTTableColumn } from '../../_components/tables/ht-table/ht-table.models';
+import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ExportUtil {
-
   /**
    * Converts table columns to Excel columns.
-   * 
+   *
    * @param tableColumns The table columns.
    * @returns Excel columns.
    */
@@ -18,52 +16,60 @@ export class ExportUtil {
     return tableColumns.map((col: HTTableColumn) => {
       return {
         key: col.dataKey,
-        header: col.name,
-      }
-    })
+        header: col.name
+      };
+    });
   }
 
   /**
    * Converts table columns to CSV columns.
-   * 
+   *
    * @param tableColumns The table columns.
    * @returns CSV columns.
    */
   toCsvColumns(tableColumns: HTTableColumn[]): string[] {
-    return tableColumns.map((col: HTTableColumn) => col.name)
+    return tableColumns.map((col: HTTableColumn) => col.name);
   }
 
   /**
    * Converts data to rows for Excel export.
-   * 
+   *
    * @param tableColumns The table columns.
    * @param rawData The data to be exported.
    * @returns Rows for Excel export.
    */
-  async toExcelRows<T>(tableColumns: HTTableColumn[], rawData: T[]): Promise<any> {
-    let rowNum = 0
-    const data: any[] = []
+  async toExcelRows<T>(
+    tableColumns: HTTableColumn[],
+    rawData: T[]
+  ): Promise<any> {
+    let rowNum = 0;
+    const data: any[] = [];
 
     for (const row of rawData) {
-      data[rowNum] = {}
+      data[rowNum] = {};
       for (const column of tableColumns) {
-        data[rowNum][column.dataKey] = column.export ? await column.export(row) : ''
+        data[rowNum][column.dataKey] = column.export
+          ? await column.export(row)
+          : '';
       }
-      rowNum += 1
+      rowNum += 1;
     }
 
-    return data
+    return data;
   }
 
   /**
    * Converts data to rows for CSV export.
-   * 
+   *
    * @param tableColumns The table columns.
    * @param rawData The data to be exported.
    * @returns Rows for CSV export.
    */
-  async toCsvRows<T>(tableColumns: HTTableColumn[], rawData: T[]): Promise<any> {
-    const data: string[][] = []
+  async toCsvRows<T>(
+    tableColumns: HTTableColumn[],
+    rawData: T[]
+  ): Promise<any> {
+    const data: string[][] = [];
 
     for (const row of rawData) {
       const rowData: string[] = [];
@@ -73,12 +79,12 @@ export class ExportUtil {
       data.push(rowData);
     }
 
-    return data
+    return data;
   }
 
   /**
    * Downloads data as a file.
-   * 
+   *
    * @param data The data to download.
    * @param fileName The name of the file.
    * @param fileType The type of the file (e.g., 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' for Excel).
@@ -92,6 +98,10 @@ export class ExportUtil {
     a.download = fileName;
     a.click();
     window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    try {
+      document.body.removeChild(a);
+    } catch (error) {
+      // Do nothing
+    }
   }
 }

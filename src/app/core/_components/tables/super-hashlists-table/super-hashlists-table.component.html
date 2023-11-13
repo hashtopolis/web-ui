@@ -1,12 +1,14 @@
 <ht-table
   #table
-  name="agentTable"
-  dataType="agents"
+  name="superHashlistsTable"
+  dataType="superhashlists"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
   [hasRowAction]="true"
+  [hasBulkActions]="false"
   [isFilterable]="true"
+  [isArchived]="isArchived"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
