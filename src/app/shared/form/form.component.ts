@@ -11,15 +11,12 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form',
-  template: `
-    <app-dynamic-form [subtitle]='title' *ngIf="isloaded" [formMetadata]="formMetadata" [formValues]="formValues" [form]="form" [isCreateMode]="isCreate" [buttonText]="isCreate ? 'Create' : 'Update'" (formSubmit)="onFormSubmit($event)" (deleteAction)="onDeleteAction()"></app-dynamic-form>
-  `,
+  templateUrl: 'form.component.html'
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
  */
 export class FormComponent implements OnInit, OnDestroy {
-
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: any[] = [];
   apiPath: string;
@@ -86,7 +83,10 @@ export class FormComponent implements OnInit, OnDestroy {
   formValues: any[] = [];
 
   // Subscription for managing asynchronous data retrieval
-  private mySubscription: Subscription;
+  private subscriptionService: Subscription;
+
+  // Subscription for managing router params
+  private routeParamsSubscription: Subscription;
 
   /**
    * Constructor for the FormComponent.
@@ -97,7 +97,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
    * @param router - The Angular Router for navigation.
-  */
+   */
   constructor(
     private unsubscribeService: UnsubscribeService,
     private metadataService: MetadataService,
@@ -108,36 +108,42 @@ export class FormComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe((data: { kind: string, path: string, type: string }) => {
-      const formKind = data.kind;
-      this.apiPath = data.path; // Get the API path from route data
-      this.type = data.type;
-      this.isCreate = (this.type === 'create'? true:false);
-      // Load metadata and form information
-      this.globalMetadata = this.metadataService.getInfoMetadata(formKind+'Info')[0];
-      this.formMetadata = this.metadataService.getFormMetadata(formKind);
-      this.title = this.globalMetadata['title'];
-      this.customform = this.globalMetadata['customform'];
-      titleService.set([this.title]);
-      // Load metadata and form information
-      if(this.type === 'edit'){
-        this.getIndex();
-        this.loadEdit(); // Load data for editing
-      }else{
-        this.isloaded = true
+    this.routeParamsSubscription = this.route.data.subscribe(
+      (data: { kind: string; path: string; type: string }) => {
+        const formKind = data.kind;
+        this.apiPath = data.path; // Get the API path from route data
+        this.type = data.type;
+        this.isCreate = this.type === 'create' ? true : false;
+        // Load metadata and form information
+        this.globalMetadata = this.metadataService.getInfoMetadata(
+          formKind + 'Info'
+        )[0];
+        this.formMetadata = this.metadataService.getFormMetadata(formKind);
+        this.title = this.globalMetadata['title'];
+        this.customform = this.globalMetadata['customform'];
+        titleService.set([this.title]);
+        // Load metadata and form information
+        if (this.type === 'edit') {
+          this.getIndex();
+          this.loadEdit(); // Load data for editing
+        } else {
+          this.isloaded = true;
+        }
       }
-    });
+    );
     // Add this.mySubscription to UnsubscribeService
-    this.unsubscribeService.add(this.mySubscription);
+    this.unsubscribeService.add(this.subscriptionService);
   }
 
   /**
    * Loads data for editing a form.
-  */
+   */
   getIndex() {
-    this.route.params.subscribe((params: Params) => {
-      this.editedIndex = +params['id'];
-    });
+    this.routeParamsSubscription = this.route.params.subscribe(
+      (params: Params) => {
+        this.editedIndex = +params['id'];
+      }
+    );
   }
 
   /**
@@ -149,10 +155,15 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     // Fetch data from the API for editing
-    this.gs.get(this.apiPath, this.editedIndex).subscribe((result) => {
-      this.formValues = result;
-      this.isloaded = true; // Data is loaded and ready for form rendering
-    });
+
+    const editSubscription = this.gs
+      .get(this.apiPath, this.editedIndex)
+      .subscribe((result) => {
+        this.formValues = result;
+        this.isloaded = true; // Data is loaded and ready for form rendering
+      });
+
+    this.unsubscribeService.add(editSubscription);
   }
 
   /**
@@ -170,30 +181,43 @@ export class FormComponent implements OnInit, OnDestroy {
    * Unsubscribe from all subscriptions to prevent memory leaks.
    */
   ngOnDestroy(): void {
+    // Unsubscribe from the route params subscription
+    if (this.routeParamsSubscription) {
+      this.routeParamsSubscription.unsubscribe();
+      this.routeParamsSubscription = null;
+    }
+
+    // Unsubscribe from other subscriptions
     this.unsubscribeService.unsubscribeAll();
   }
 
   /**
    * Handles the submission of the form.
    * @param formValues - The values submitted from the form.
-  */
+   */
   onFormSubmit(formValues: any) {
-    if(this.customform){
-      this.onCustomForm(formValues);
+    if (this.customform) {
+      this.modifyFormValues(formValues);
     }
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
-      console.log(formValues)
-      this.mySubscription = this.gs.create(this.apiPath, formValues).subscribe(() => {
-        this.alert.okAlert(this.globalMetadata['submitok'], '');
-        this.router.navigate([this.globalMetadata['submitokredirect']]);
-      });
+      const createSubscription = this.gs
+        .create(this.apiPath, formValues)
+        .subscribe(() => {
+          this.alert.okAlert(this.globalMetadata['submitok'], ''); // Display success alert first
+          this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+        });
+
+      this.unsubscribeService.add(createSubscription);
     } else {
       // Update mode: Submit form data for updating an existing item
-      this.mySubscription = this.gs.update(this.apiPath, this.editedIndex, formValues).subscribe(() => {
-        this.alert.okAlert(this.globalMetadata['submitok'], '');
-        this.router.navigate([this.globalMetadata['submitokredirect']]);
-      });
+      const updateSubscription = this.gs
+        .update(this.apiPath, this.editedIndex, formValues)
+        .subscribe(() => {
+          this.alert.okAlert(this.globalMetadata['submitok'], '');
+          this.router.navigate([this.globalMetadata['submitokredirect']]);
+        });
+      this.unsubscribeService.add(updateSubscription);
     }
   }
 
@@ -202,7 +226,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param formValues - The form values to be modified.
    * @returns The modified form values.
    */
-  onCustomForm(formValues: any) {
+  modifyFormValues(formValues: any) {
     // Check the formMetadata for fields with 'replacevalue' property
     this.getIndex();
     for (const field of this.formMetadata) {
@@ -226,19 +250,26 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.globalMetadata['deltitle']) {
       this.getIndex();
     }
-    this.alert.deleteConfirmation('', this.globalMetadata['deltitle']).then((confirmed) => {
-      if (confirmed) {
-        // Deletion
-        this.gs.delete(this.apiPath, this.editedIndex).subscribe(() => {
-          // Successful deletion
-          this.alert.okAlert(this.globalMetadata['delsubmitok'], '');
-          this.router.navigate([this.globalMetadata['delsubmitokredirect']]);
-        });
-      } else {
-        // Handle cancellation
-        this.alert.okAlert(this.globalMetadata['delsubmitcancel'], '');
-      }
-    });
-  }
+    this.alert
+      .deleteConfirmation('', this.globalMetadata['deltitle'])
+      .then((confirmed) => {
+        if (confirmed) {
+          // Deletion
+          const deleteSubscription = this.gs
+            .delete(this.apiPath, this.editedIndex)
+            .subscribe(() => {
+              // Successful deletion
+              this.alert.okAlert(this.globalMetadata['delsubmitok'], '');
+              this.router.navigate([
+                this.globalMetadata['delsubmitokredirect']
+              ]);
+            });
 
+          this.unsubscribeService.add(deleteSubscription);
+        } else {
+          // Handle cancellation
+          this.alert.okAlert(this.globalMetadata['delsubmitcancel'], '');
+        }
+      });
+  }
 }

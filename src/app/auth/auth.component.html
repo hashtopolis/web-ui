@@ -1,0 +1,50 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-content>
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" novalidate>
+
+        <!-- Username field -->
+        <mat-form-field appearance="fill" class="card-login-field">
+          <mat-label>Username</mat-label>
+          <input matInput type="text" ngModel name="username" required />
+        </mat-form-field>
+
+        <!-- Password field -->
+        <mat-form-field appearance="fill" class="card-login-field">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="{{ isVisible ? 'password' : 'text' }}"
+            ngModel
+            name="password"
+            required
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="isVisible = !isVisible"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="isVisible"
+          >
+            <mat-icon>{{
+              isVisible ? 'visibility_off' : 'visibility'
+            }}</mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- Login button -->
+        <button mat-raised-button color="primary" type="submit">
+          Login
+        </button>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Alert card -->
+  <mat-card class="mat-card-alert">
+    <mat-card-content>
+      This is a private closed system. If you need access, you need to contact an admin.
+    </mat-card-content>
+  </mat-card>
+</div>

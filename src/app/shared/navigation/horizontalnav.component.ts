@@ -6,41 +6,7 @@ import { Subject } from 'rxjs';
 
 @Component({
   selector: 'horizontalnav',
-  template: `
-    <mat-toolbar>
-      <div class="d-flex w-100">
-        <div class="d-block mb-4 mb-md-0">
-          <div #content><ng-content></ng-content></div>
-        </div>
-        <ng-container *ngIf="menuItems.length > 0; else noItems">
-          <div class="btn-toolbar mb-2 mb-md-0">
-            <div class="btn-group ms-2 ms-3">
-              <mat-button-toggle-group
-                appearance="legacy"
-                name="fontStyle"
-                aria-label="Font Style"
-              >
-                <ng-container *ngFor="let item of menuItems">
-                  <mat-button-toggle
-                    [ngClass]="getButtonClass(item.routeName)"
-                    (click)="navigateTo(item.routeName)"
-                    (keydown)="handleKeyDown($event, item.routeName)"
-                    tabindex="0"
-                    style="cursor: pointer;"
-                  >
-                    {{ item.label }}
-                  </mat-button-toggle>
-                </ng-container>
-              </mat-button-toggle-group>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-      <ng-template #noItems>
-        <!-- Handle case when menuItems is empty -->
-      </ng-template>
-    </mat-toolbar>
-  `
+  templateUrl: 'horizontalnav.component.html'
 })
 export class HorizontalNavComponent implements OnDestroy {
   @Input() menuItems: HorizontalNav[] = [];

@@ -14,7 +14,6 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 import {
   Observable,
@@ -35,128 +34,9 @@ import { ChangeDetectorRef } from '@angular/core';
  */
 @Component({
   selector: 'app-dynamic-form',
-  template: `
-    <grid-main>
-      <app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
-        <grid-autocol [itemCount]="formMetadata.length">
-          <div *ngFor="let field of formMetadata">
-            <div *ngIf="field.type !== 'hidden'">
-              <ng-container *ngIf="field.isTitle">
-                <h5>{{ field.label }}</h5>
-              </ng-container>
-              <ng-container *ngIf="!field.isTitle">
-                <div *ngIf="field.type !== 'checkbox'">
-                  <mat-form-field class="matfield-full-width">
-                    <mat-label>
-                      {{ field.label }}
-                      <mat-icon
-                        matTooltip="{{ field.tooltip }}"
-                        matTooltipPosition="below"
-                        matTooltipClass="tooltip-custom-style"
-                        container="body"
-                        aria-hidden="true"
-                        *ngIf="field.tooltip"
-                      >
-                        info
-                      </mat-icon>
-                    </mat-label>
-                    <ng-container [ngSwitch]="field.type">
-                      <ng-container *ngSwitchCase="'number'">
-                        <input
-                          matInput
-                          type="number"
-                          [formControlName]="field.name"
-                        />
-                      </ng-container>
-                      <ng-container *ngSwitchCase="'text'">
-                        <input
-                          matInput
-                          [type]="field.type"
-                          [formControlName]="field.name"
-                        />
-                      </ng-container>
-                      <ng-container *ngSwitchCase="'password'">
-                        <input
-                          matInput
-                          type="password"
-                          [formControlName]="field.name"
-                        />
-                      </ng-container>
-                      <ng-container *ngSwitchCase="'textarea'">
-                        <textarea
-                          matInput
-                          [formControlName]="field.name"
-                        ></textarea>
-                      </ng-container>
-                      <ng-container *ngSwitchCase="'email'">
-                        <input
-                          matInput
-                          [type]="field.type"
-                          [formControlName]="field.name"
-                        />
-                      </ng-container>
-                      <ng-container *ngSwitchCase="'select'">
-                        <mat-select [formControlName]="field.name">
-                          <mat-option
-                            *ngFor="let option of field.selectOptions"
-                            [value]="option.value"
-                            >{{ option.label }}</mat-option
-                          >
-                        </mat-select>
-                      </ng-container>
-                      <ng-container *ngSwitchCase="'selectd'">
-                        <mat-select [formControlName]="field.name">
-                          <mat-option [value]="null"
-                            >Please Select an Option</mat-option
-                          >
-                          <mat-option
-                            *ngFor="let option of field.selectOptions$"
-                            [value]="option.id"
-                            >{{ option.name }}</mat-option
-                          >
-                        </mat-select>
-                      </ng-container>
-                    </ng-container>
-                  </mat-form-field>
-                </div>
-                <div *ngIf="field.type === 'checkbox'">
-                  <mat-checkbox [formControlName]="field.name">{{
-                    field.label
-                  }}</mat-checkbox>
-                </div>
-              </ng-container>
-            </div>
-          </div>
-          <button-submit
-            name="Cancel"
-            [disabled]="false"
-            type="cancel"
-            *ngIf="isCreateMode"
-          ></button-submit>
-          <button-submit
-            name="Delete"
-            [disabled]="false"
-            type="delete"
-            *ngIf="!isCreateMode && showDeleteButton"
-            (click)="onDelete()"
-            >Delete</button-submit
-          >
-          <button-submit
-            [name]="buttonText"
-            [disabled]="!formIsValid()"
-          ></button-submit>
-        </grid-autocol>
-      </form>
-    </grid-main>
-  `
+  templateUrl: 'dynamicform.component.html'
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
-  /**
-   * FontAwesome icon for providing additional information in form fields.
-   */
-  faInfoCircle = faInfoCircle;
-
   /**
    * The subtitle to display.
    * @type {string}
@@ -167,11 +47,6 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * An array of form field metadata that describes the form structure.
    */
   @Input() formMetadata: any[] = [];
-
-  /**
-   * Additional CSS class for labels.
-   */
-  @Input() labelclass?: any;
 
   /**
    * Initial values for form fields (optional). If not provided, an empty object is used as the default.
@@ -225,6 +100,18 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * The `destroy$` subject is used to signal the component's destruction.
    */
   private destroy$: Subject<void> = new Subject<void>();
+
+  /**
+   * A subscription to handle dynamic select options data retrieval.
+   * This subscription is used to fetch and update select field options with dynamic data.
+   */
+  private selectOptionsSubscription: Subscription;
+
+  /**
+   * Indicates whether the dynamic select options are currently being loaded.
+   * When true, it represents that options are being fetched; when false, loading is complete.
+   */
+  isLoadingSelect = true;
 
   /**
    * Constructor for the DynamicFormComponent.
@@ -295,18 +182,6 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     // Create the Angular FormGroup with the configured controls.
     this.form = this.fb.group(controlsConfig);
   }
-
-  /**
-   * A subscription to handle dynamic select options data retrieval.
-   * This subscription is used to fetch and update select field options with dynamic data.
-   */
-  private selectOptionsSubscription: Subscription;
-
-  /**
-   * Indicates whether the dynamic select options are currently being loaded.
-   * When true, it represents that options are being fetched; when false, loading is complete.
-   */
-  isLoadingSelect = true;
 
   /**
    * Angular lifecycle hook: ngAfterViewInit
@@ -404,8 +279,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   ngOnDestroy() {
     // Unsubscribe from the selectOptionsSubscription
-    // this.selectOptionsSubscription.unsubscribe();
-
+    if (this.selectOptionsSubscription) {
+      this.selectOptionsSubscription.unsubscribe();
+    }
     // Complete and close the destroy$ subject to prevent memory leaks
     this.destroy$.next();
     this.destroy$.complete();

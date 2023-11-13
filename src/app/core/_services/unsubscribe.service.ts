@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
  * Service for managing and unsubscribing from subscriptions in Angular components.
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class UnsubscribeService {
   private subscriptions: Subscription[] = [];

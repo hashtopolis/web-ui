@@ -6,7 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormComponent } from './form.component';
 import { FormConfigComponent } from './formconfig.component';
-import { FormUIsettingsComponent } from './formuisettings.component';
 import { GridModule } from '../grid-containers/grid.module';
 import { HorizontalNavModule } from '../navigation/navigation.module';
 import { MatDividerModule } from '@angular/material/divider';
@@ -24,12 +23,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PageTitleModule } from '../page-headers/page-title.module';
 
 @NgModule({
-  declarations: [
-    FormUIsettingsComponent,
-    DynamicFormComponent,
-    FormConfigComponent,
-    FormComponent
-  ],
+  declarations: [DynamicFormComponent, FormConfigComponent, FormComponent],
   imports: [
     ReactiveFormsModule,
     HorizontalNavModule,
@@ -49,12 +43,7 @@ import { PageTitleModule } from '../page-headers/page-title.module';
     MatIconModule,
     MatDividerModule
   ],
-  exports: [
-    FormUIsettingsComponent,
-    DynamicFormComponent,
-    FormConfigComponent,
-    FormComponent
-  ],
+  exports: [DynamicFormComponent, FormConfigComponent, FormComponent],
   providers: [
     {
       provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
