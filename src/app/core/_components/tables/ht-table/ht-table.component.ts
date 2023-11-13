@@ -16,6 +16,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
+import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
 import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -109,11 +110,17 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
 
+  /** Flag show archived data. */
+  @Input() isArchived = false;
+
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
 
   /** Flag to enable row action menu */
   @Input() hasRowAction = false;
+
+  /** Flag to enable bulk action menu */
+  @Input() hasBulkActions = true;
 
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [3, 25, 50, 100, 250];
@@ -136,11 +143,15 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
+  @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
+
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
     private storage: LocalStorageService<UIConfig>
   ) {}
+
+  // @todo: fix ExpressionChangedAfterItHasBeenCheckedError. loading is causing trouble...
 
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
@@ -275,10 +286,13 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Reloads the data in the table.
+   * Reloads the data in the table and the bulk menu.
    */
   reload(): void {
     this.dataSource.reload();
+    if (this.bulkMenu) {
+      this.bulkMenu.reload();
+    }
   }
 
   /**

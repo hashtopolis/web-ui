@@ -1,4 +1,4 @@
-import { CacheService } from "../_services/shared/cache.service";
+import { CacheService } from '../_services/shared/cache.service';
 
 /**
  * A decorator for caching the results of a method based on its arguments.
@@ -7,7 +7,7 @@ import { CacheService } from "../_services/shared/cache.service";
  *                   If provided, the cache key will be constructed based on the values of these attributes.
  *                   If not provided, the cache key will be based on the stringified arguments.
  * @returns A decorator function.
-*
+ *
  * @example
  * ```typescript
  * class YourClass {
@@ -18,15 +18,23 @@ import { CacheService } from "../_services/shared/cache.service";
  * }
  * ```
  */
-export function Cacheable(property: string[] | undefined = undefined): MethodDecorator {
-  return function (target: object, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
+export function Cacheable(
+  property: string[] | undefined = undefined
+): MethodDecorator {
+  return function (
+    target: object,
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor
+  ) {
     const originalMethod = descriptor.value;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     descriptor.value = function (...args: any[]): any {
-      let cacheKey: string
+      let cacheKey: string;
       if (property) {
-        const attributeValues = property.map((key) => args[0][key] || '').join('_');
+        const attributeValues = property
+          .map((key) => args[0][key] || '')
+          .join('_');
         cacheKey = `${propertyKey.toString()}_${attributeValues}`;
       } else {
         cacheKey = `${propertyKey.toString()}_${JSON.stringify(args)}`;

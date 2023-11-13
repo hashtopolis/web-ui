@@ -1,5 +1,8 @@
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
+import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
+import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
+import { SuperHashlistsTableColumnLabel } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -42,6 +45,27 @@ export const uiConfigDefault: UIConfig = {
       ChunksTableColumnLabel.TIME_SPENT,
       ChunksTableColumnLabel.STATE,
       ChunksTableColumnLabel.CRACKED
+    ],
+    hashlistsTable: [
+      HashlistsTableColumnLabel.ID,
+      HashlistsTableColumnLabel.NAME,
+      HashlistsTableColumnLabel.HASHTYPE,
+      HashlistsTableColumnLabel.FORMAT,
+      HashlistsTableColumnLabel.CRACKED,
+      HashlistsTableColumnLabel.HASH_COUNT
+    ],
+    superHashlistsTable: [
+      SuperHashlistsTableColumnLabel.ID,
+      SuperHashlistsTableColumnLabel.NAME,
+      SuperHashlistsTableColumnLabel.HASHTYPE,
+      SuperHashlistsTableColumnLabel.CRACKED,
+      SuperHashlistsTableColumnLabel.HASHLISTS
+    ],
+    hashtypesTable: [
+      HashtypesTableColumnLabel.HASHTYPE,
+      HashtypesTableColumnLabel.DESCRIPTION,
+      HashtypesTableColumnLabel.SALTED,
+      HashtypesTableColumnLabel.SLOW_HASH
     ]
   },
   refreshPage: false,

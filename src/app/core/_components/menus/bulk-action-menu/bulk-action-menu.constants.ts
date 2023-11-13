@@ -1,14 +1,17 @@
-export class BulkActionMenuLabel {
-  static readonly DELETE_AGENTS = 'Delete Agents';
-  static readonly ACTIVATE_AGENTS = 'Activate Agents';
-  static readonly DEACTIVATE_AGENTS = 'Deactivate Agents';
-  static readonly ARCHIVE_TASKS = 'Archive Tasks';
-  static readonly DELETE_TASKS = 'Delete Tasks';
-}
+export const BulkActionMenuLabel = {
+  DELETE_AGENTS: 'Delete Agents',
+  ACTIVATE_AGENTS: 'Activate Agents',
+  DEACTIVATE_AGENTS: 'Deactivate Agents',
+  ARCHIVE_TASKS: 'Archive Tasks',
+  DELETE_TASKS: 'Delete Tasks',
+  DELETE_HASHLISTS: 'Delete Hashlists',
+  ARCHIVE_HASHLISTS: 'Archive Hashlists',
+  DELETE_HASHTYPES: 'Delete Hashtypes'
+};
 
-export class BulkActionMenuAction {
-  static readonly DELETE = 'bulk-delete';
-  static readonly ACTIVATE = 'bulk-activate';
-  static readonly DEACTIVATE = 'bulk-deactivate';
-  static readonly ARCHIVE = 'bulk-archive';
-}
+export const BulkActionMenuAction = {
+  DELETE: 'bulk-delete',
+  ACTIVATE: 'bulk-activate',
+  DEACTIVATE: 'bulk-deactivate',
+  ARCHIVE: 'bulk-archive'
+};

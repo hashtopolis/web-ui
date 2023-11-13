@@ -1,12 +1,15 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 
+import { ChangeDetectorRef } from '@angular/core';
 import { GlobalService } from '../_services/main.service';
 import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
+import { environment } from './../../../environments/environment';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -31,6 +34,11 @@ export abstract class BaseDataSource<
   private originalData: T[] = [];
 
   /**
+   * Array of subscriptions that will be unsubscribed on disconnect.
+   */
+  protected subscriptions: Subscription[] = [];
+
+  /**
    * BehaviorSubject to track the loading state.
    */
   protected loadingSubject = new BehaviorSubject<boolean>(false);
@@ -46,14 +54,14 @@ export abstract class BaseDataSource<
   protected columns: HTTableColumn[] = [];
 
   /**
+   * Max rows in API response
+   */
+  protected maxResults = environment.config.prodApiMaxResults;
+
+  /**
    * Selection model for row selection in the table.
    */
   public selection = new SelectionModel<T>(true, []);
-
-  /**
-   * Observable to track the loading state.
-   */
-  public loading$ = this.loadingSubject.asObservable();
 
   /**
    * Reference to the paginator, if pagination is enabled.
@@ -71,9 +79,27 @@ export abstract class BaseDataSource<
   public sort: MatSort;
 
   constructor(
+    protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
     protected uiService: UIConfigService
   ) {}
+
+  /**
+   * Gets the observable for the loading state.
+   * @return An observable that emits boolean values representing the loading state.
+   */
+  get loading$(): Observable<boolean> {
+    return this.loadingSubject.asObservable();
+  }
+
+  /**
+   * Sets the loading state and triggers change detection.
+   * @param value - The boolean value representing the loading state to be set.
+   */
+  set loading(value: boolean) {
+    this.loadingSubject.next(value);
+    this.cdr.detectChanges();
+  }
 
   /**
    * Connect the data source to a collection viewer.
@@ -87,7 +113,7 @@ export abstract class BaseDataSource<
   }
 
   /**
-   * Disconnect the data source from a collection viewer.
+   * Disconnect the data source from a collection viewer and unsubscribe.
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
@@ -95,6 +121,10 @@ export abstract class BaseDataSource<
   disconnect(_collectionViewer: CollectionViewer): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();
+
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
   }
 
   /**

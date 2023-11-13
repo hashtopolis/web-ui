@@ -1,20 +1,32 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnInit } from "@angular/core";
-import { RowActionMenuAction, RowActionMenuLabel } from "./row-action-menu.constants";
-import { BaseMenuComponent } from "../base-menu/base-menu.component";
+import { Component, OnInit } from '@angular/core';
+import {
+  RowActionMenuAction,
+  RowActionMenuLabel
+} from './row-action-menu.constants';
 
+import { ActionMenuItem } from '../action-menu/action-menu.model';
+import { BaseMenuComponent } from '../base-menu/base-menu.component';
 
 @Component({
   selector: 'row-action-menu',
   templateUrl: './row-action-menu.component.html'
 })
-export class RowActionMenuComponent extends BaseMenuComponent implements OnInit {
-
+export class RowActionMenuComponent
+  extends BaseMenuComponent
+  implements OnInit
+{
   ngOnInit(): void {
     if (this.isAgent()) {
       this.getAgentMenu();
     } else if (this.isTask()) {
       this.getTaskMenu();
+    } else if (this.isHashlist()) {
+      this.getHashlistMenu();
+    } else if (this.isSuperHashlist()) {
+      this.getSuperHashlistMenu();
+    } else if (this.isHashtype()) {
+      this.getHashtypeMenu();
     }
   }
 
@@ -40,6 +52,64 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
+   * Get the context menu items for an agent data row.
+   */
+  private getHashlistMenu(): void {
+    this.actionMenuItems[0] = [];
+
+    const deleteMenuItem: ActionMenuItem = {
+      label: RowActionMenuLabel.DELETE_HASHLIST,
+      action: RowActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
+
+    if (this.data['isArchived']) {
+      this.actionMenuItems[0].push(deleteMenuItem);
+    } else {
+      this.actionMenuItems[0] = [
+        {
+          label: RowActionMenuLabel.EDIT_HASHLIST,
+          action: RowActionMenuAction.EDIT,
+          icon: 'edit'
+        },
+        {
+          label: RowActionMenuLabel.IMPORT_HASHLIST,
+          action: RowActionMenuAction.IMPORT,
+          icon: 'arrow_upwards'
+        },
+        {
+          label: RowActionMenuLabel.EXPORT_HASHLIST,
+          action: RowActionMenuAction.EXPORT,
+          icon: 'arrow_downward'
+        }
+      ];
+      this.actionMenuItems[1] = [deleteMenuItem];
+    }
+  }
+
+  /**
+   * Get the context menu items for an agent data row.
+   */
+  private getSuperHashlistMenu(): void {
+    this.actionMenuItems[0] = [
+      {
+        label: RowActionMenuLabel.EDIT_SUPERHASHLIST,
+        action: RowActionMenuAction.EDIT,
+        icon: 'edit'
+      }
+    ];
+    this.actionMenuItems[1] = [
+      {
+        label: RowActionMenuLabel.DELETE_SUPERHASHLIST,
+        action: RowActionMenuAction.DELETE,
+        icon: 'delete',
+        red: true
+      }
+    ];
+  }
+
+  /**
    * Get the context menu items for a task data row.
    */
   private getTaskMenu(): void {
@@ -48,7 +118,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         label: RowActionMenuLabel.EDIT_TASK,
         action: RowActionMenuAction.EDIT,
         icon: 'edit'
-      },
+      }
     ];
 
     this.actionMenuItems[1] = [
@@ -56,7 +126,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         label: RowActionMenuLabel.DELETE_TASK,
         action: RowActionMenuAction.DELETE,
         icon: 'delete',
-        red: true,
+        red: true
       }
     ];
 
@@ -84,5 +154,18 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       action: RowActionMenuAction.ARCHIVE,
       icon: 'archive'
     });
+  }
+
+  private getHashtypeMenu(): void {
+    this.actionMenuItems[0] = [];
+
+    const deleteMenuItem: ActionMenuItem = {
+      label: RowActionMenuLabel.DELETE_HASHTYPE,
+      action: RowActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
+
+    this.actionMenuItems[0].push(deleteMenuItem);
   }
 }
