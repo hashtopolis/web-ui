@@ -1,15 +1,22 @@
 <div class="home-grid">
   <div
-    [ngClass]="{'ro-1': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
+    [ngClass]="{
+      'ro-1': true,
+      'ro-m': screenM,
+      'ro-l': screenL,
+      'ro-s': screenS,
+      'ro-xs': screenXS,
+      'ro-xl': screenXL
+    }"
+  >
     <div class="co co-25">
-      <mat-card class="mat-card-box">
+      <mat-card>
         <mat-card-content>
-          <h3>
+          <div class="icon-wrapper">
             <mat-icon>dns</mat-icon>
-            Agents
-          </h3>
+          </div>
+          <h3>Agents</h3>
           <span class="value">{{ activeAgents }} / {{ totalAgents }}</span>
-          <hr />
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Active / Total Agents
@@ -20,12 +27,11 @@
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
-          <h3>
+          <div class="icon-wrapper">
             <mat-icon>checklist</mat-icon>
-            Tasks
-          </h3>
+          </div>
+          <h3>Tasks</h3>
           <span class="value">{{ totalTasks }}</span>
-          <hr />
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Total Live Tasks
@@ -36,12 +42,11 @@
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
-          <h3>
+          <div class="icon-wrapper">
             <mat-icon>checklist</mat-icon>
-            Supertasks
-          </h3>
+          </div>
+          <h3>Supertasks</h3>
           <span class="value">{{ totalSupertasks }}</span>
-          <hr />
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Total Supertasks
@@ -52,12 +57,11 @@
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
-          <h3>
+          <div class="icon-wrapper">
             <mat-icon>lock_open</mat-icon>
-            Cracks
-          </h3>
+          </div>
+          <h3>Cracks</h3>
           <span class="value">{{ totalCracks }}</span>
-          <hr />
           <span class="label">
             <mat-icon>event_available</mat-icon>
             Last 7 days
@@ -67,40 +71,77 @@
     </div>
   </div>
   <div
-    [ngClass]="{'ro-2': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
+    [ngClass]="{
+      'ro-2': true,
+      'ro-m': screenM,
+      'ro-l': screenL,
+      'ro-s': screenS,
+      'ro-xs': screenXS,
+      'ro-xl': screenXL
+    }"
+  >
     <div class="co co-100">
-      <div id="pcard" class="app-echarts" style="height: 250px;"></div>
+      <div id="pcard" class="app-echarts" style="height: 250px"></div>
 
       <div class="chart-controls">
         <span *ngIf="lastUpdated">Last updated: {{ lastUpdated }}</span>
         <ng-container *ngIf="!refreshPage">
-          <button mat-button (click)="setAutoreload(true)" matTooltip="Enable Auto Reload">
+          <button
+            mat-button
+            (click)="setAutoreload(true)"
+            matTooltip="Enable Auto Reload"
+          >
             <mat-icon>refresh</mat-icon>
           </button>
         </ng-container>
         <ng-container *ngIf="refreshPage">
-          <button mat-button (click)="setAutoreload(false)" matTooltip="Pause Auto Reload">
+          <button
+            mat-button
+            (click)="setAutoreload(false)"
+            matTooltip="Pause Auto Reload"
+          >
             <mat-icon>pause_circle_outline</mat-icon>
           </button>
         </ng-container>
       </div>
     </div>
   </div>
+
   <div
-    [ngClass]="{'ro-3': true, 'ro-m': screenM, 'ro-l': screenL, 'ro-s': screenS, 'ro-xs': screenXS, 'ro-xl': screenXL}">
+    [ngClass]="{
+      'ro-3': true,
+      'ro-m': screenM,
+      'ro-l': screenL,
+      'ro-s': screenS,
+      'ro-xs': screenXS,
+      'ro-xl': screenXL
+    }"
+  >
     <div class="co co-100">
       <mat-card class="project-info">
         <mat-card-content>
-          Hashtopolis is available on <a href="https://github.com/hashtopolis" target="_blank"
-            rel="noopener">Github</a>.
-          To get information about how to use it, please visit the <a href="https://github.com/hashtopolis/server/wiki"
-            target="_blank" rel="noopener">Wiki</a> or <a
-            href="https://discord.com/channels/419123475538509844/419123475538509846" target="_blank"
-            rel="noopener">Discord</a>.
+          Hashtopolis is available on
+          <a
+            href="https://github.com/hashtopolis"
+            target="_blank"
+            rel="noopener"
+            >Github</a
+          >. To get information about how to use it, please visit the
+          <a
+            href="https://github.com/hashtopolis/server/wiki"
+            target="_blank"
+            rel="noopener"
+            >Wiki</a
+          >
+          or
+          <a
+            href="https://discord.com/channels/419123475538509844/419123475538509846"
+            target="_blank"
+            rel="noopener"
+            >Discord</a
+          >.
         </mat-card-content>
       </mat-card>
     </div>
-
   </div>
-
 </div>
