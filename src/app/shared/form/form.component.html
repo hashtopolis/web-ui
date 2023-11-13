@@ -1,0 +1,12 @@
+<app-dynamic-form
+                *ngIf="isloaded"
+                [subtitle]='title'
+                [formMetadata]="formMetadata"
+                [formValues]="formValues"
+                [form]="form"
+                [isCreateMode]="isCreate"
+                [buttonText]="isCreate ? 'Create' : 'Update'"
+                (formSubmit)="onFormSubmit($event)"
+                (deleteAction)="onDeleteAction()"
+                >
+</app-dynamic-form>

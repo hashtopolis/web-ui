@@ -34,25 +34,23 @@ export const themes: Setting[] = [
 /**
  * Logs, used in general settings
 **/
-
 export const serverlog = [
-  { id: 0, value: 'TRACE' },
-  { id: 10, value: 'DEBUG' },
-  { id: 20, value: 'INFO' },
-  { id: 30, value: 'WARNING' },
-  { id: 40, value: 'ERROR' },
-  { id: 50, value: 'FATAL' }
+  {value: 0, label: 'TRACE'},
+  {value: 10, label: 'DEBUG'},
+  {value: 20, label: 'INFO'},
+  {value: 30, label: 'WARNING'},
+  {value: 40, label: 'ERROR'},
+  {value: 50, label: 'FATAL'}
 ];
 
 /**
  * Proxy type, used in general settings
 **/
-
 export const proxytype = [
-  { value: 'HTTP' },
-  { value: 'HTTPS' },
-  { value: 'SOCKS4' },
-  { value: 'SOCKS5' }
+  {value:'HTTP', label:'HTTP'},
+  {value:'HTTP', label:'HTTPS'},
+  {value:'HTTP', label:'SOCKS4'},
+  {value:'HTTP',label:'SOCKS5'}
 ];
 
 /**
