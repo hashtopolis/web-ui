@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
 
-import { FilesEditComponent } from './files-edit/files-edit.component';
 import { NewFilesComponent } from './new-files/new-files.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
 import { FormComponent } from '../shared/form/form.component';
