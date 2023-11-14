@@ -29,6 +29,8 @@ export class RowActionMenuComponent
       this.getHashtypeMenu();
     } else if (this.isFile()) {
       this.getFileMenu();
+    } else if (this.isCrackerBinaryType()) {
+      this.getCrackerBinaryTypeMenu();
     }
   }
 
@@ -46,6 +48,27 @@ export class RowActionMenuComponent
     this.actionMenuItems[1] = [
       {
         label: RowActionMenuLabel.DELETE_AGENT,
+        action: RowActionMenuAction.DELETE,
+        icon: 'delete',
+        red: true
+      }
+    ];
+  }
+
+  /**
+   * Get the context menu items for a cracker data row.
+   */
+  private getCrackerBinaryTypeMenu(): void {
+    this.actionMenuItems[0] = [
+      {
+        label: RowActionMenuLabel.NEW_VERSION,
+        action: RowActionMenuAction.NEW,
+        icon: 'add'
+      }
+    ];
+    this.actionMenuItems[1] = [
+      {
+        label: RowActionMenuLabel.DELETE_CRACKER,
         action: RowActionMenuAction.DELETE,
         icon: 'delete',
         red: true

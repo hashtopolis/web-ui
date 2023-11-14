@@ -33,6 +33,18 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "CrackerBinaryType".
+   * @returns `true` if the data row is a cracker; otherwise, `false`.
+   */
+  protected isCrackerBinaryType(): boolean {
+    try {
+      return this.data['_id'] === this.data['crackerBinaryTypeId'];
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Check if the data row is of type "Task".
    * @returns `true` if the data row is a task; otherwise, `false`.
    */
@@ -46,7 +58,7 @@ export class BaseMenuComponent {
 
   /**
    * Check if the data row is of type "File".
-   * @returns `true` if the data row is a task; otherwise, `false`.
+   * @returns `true` if the data row is a file; otherwise, `false`.
    */
   protected isFile(): boolean {
     try {

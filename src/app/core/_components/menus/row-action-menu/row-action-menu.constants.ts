@@ -6,6 +6,7 @@ export const RowActionMenuLabel = {
   EDIT_SUPERHASHLIST: 'Edit Superhashlist',
   EDIT_FILE: 'Edit File',
   DELETE_AGENT: 'Delete Agent',
+  DELETE_CRACKER: 'Delete Cracker',
   DELETE_TASK: 'Delete Task',
   DELETE_HASHLIST: 'Delete Hashlist',
   DELETE_HASHTYPE: 'Delete Hashtype',
@@ -15,7 +16,8 @@ export const RowActionMenuLabel = {
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
-  EXPORT_HASHLIST: 'Export Hashlist'
+  EXPORT_HASHLIST: 'Export Hashlist',
+  NEW_VERSION: 'Add Version'
 };
 
 export const RowActionMenuAction = {
@@ -25,6 +27,7 @@ export const RowActionMenuAction = {
   COPY_TO_TASK: 'copy-to-task',
   COPY_TO_PRETASK: 'copy-to-pretask',
   EDIT_SUBTASKS: 'edit-subtasks',
+  NEW: 'new',
   IMPORT: 'import',
   EXPORT: 'export'
 };

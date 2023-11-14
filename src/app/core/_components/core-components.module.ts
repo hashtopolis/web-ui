@@ -12,6 +12,7 @@ import { BulkActionMenuComponent } from './menus/bulk-action-menu/bulk-action-me
 import { ChunksTableComponent } from './tables/chunks-table/chunks-table.component';
 import { ColumnSelectionDialogComponent } from './tables/column-selection-dialog/column-selection-dialog.component';
 import { CommonModule } from '@angular/common';
+import { CrackersTableComponent } from './tables/crackers-table/crackers-table.component';
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { FilesTableComponent } from './tables/files-table/files-table.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
@@ -55,7 +56,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     HashtypesTableComponent,
     HashlistsTableComponent,
     SuperHashlistsTableComponent,
-    FilesTableComponent
+    FilesTableComponent,
+    CrackersTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -95,7 +97,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     HashlistsTableComponent,
     HashtypesTableComponent,
     SuperHashlistsTableComponent,
-    FilesTableComponent
+    FilesTableComponent,
+    CrackersTableComponent
   ],
   providers: [
     {
