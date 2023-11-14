@@ -1,5 +1,6 @@
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
+import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/crackers-table.constants';
 import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
@@ -74,6 +75,11 @@ export const uiConfigDefault: UIConfig = {
       FilesTableColumnLabel.SIZE,
       FilesTableColumnLabel.LINE_COUNT,
       FilesTableColumnLabel.ACCESS_GROUP
+    ],
+    crackersTable: [
+      CrackersTableColumnLabel.ID,
+      CrackersTableColumnLabel.NAME,
+      CrackersTableColumnLabel.VERSIONS
     ]
   },
   refreshPage: false,

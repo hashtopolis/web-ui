@@ -30,9 +30,11 @@ export class BulkActionMenuComponent
     } else if (this.dataType === 'hashlists') {
       this.getHashlistMenu();
     } else if (this.dataType === 'hashtypes') {
-      this.getHashtypesMenu();
+      this.getDeleteMenu(BulkActionMenuLabel.DELETE_HASHTYPES);
     } else if (this.dataType === 'files') {
-      this.getFilesMenu();
+      this.getDeleteMenu(BulkActionMenuLabel.DELETE_FILES);
+    } else if (this.dataType === 'crackers') {
+      this.getDeleteMenu(BulkActionMenuLabel.DELETE_CRACKERS);
     }
   }
 
@@ -58,20 +60,13 @@ export class BulkActionMenuComponent
     }
   }
 
-  private getHashtypesMenu(): void {
+  /**
+   * Generates a bulk menu with only a delete option.
+   * @param label Delete action label
+   */
+  private getDeleteMenu(label: string): void {
     const deleteMenuAction: ActionMenuItem = {
-      label: BulkActionMenuLabel.DELETE_HASHTYPES,
-      action: BulkActionMenuAction.DELETE,
-      icon: 'delete',
-      red: true
-    };
-
-    this.actionMenuItems[0] = [deleteMenuAction];
-  }
-
-  private getFilesMenu(): void {
-    const deleteMenuAction: ActionMenuItem = {
-      label: BulkActionMenuLabel.DELETE_FILES,
+      label: label,
       action: BulkActionMenuAction.DELETE,
       icon: 'delete',
       red: true
