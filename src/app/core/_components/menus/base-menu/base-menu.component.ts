@@ -21,7 +21,7 @@ export class BaseMenuComponent {
   actionMenuItems: ActionMenuItem[][] = [];
 
   /**
-   * Check if the data row is of type "Agent."
+   * Check if the data row is of type "Agent".
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
@@ -33,7 +33,7 @@ export class BaseMenuComponent {
   }
 
   /**
-   * Check if the data row is of type "Task."
+   * Check if the data row is of type "Task".
    * @returns `true` if the data row is a task; otherwise, `false`.
    */
   protected isTask(): boolean {
@@ -45,7 +45,19 @@ export class BaseMenuComponent {
   }
 
   /**
-   * Check if the data row is of type "Hashlist."
+   * Check if the data row is of type "File".
+   * @returns `true` if the data row is a task; otherwise, `false`.
+   */
+  protected isFile(): boolean {
+    try {
+      return this.data['_id'] === this.data['fileId'];
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Check if the data row is of type "Hashlist".
    * @returns `true` if the data row is a hashlist; otherwise, `false`.
    */
   protected isHashlist(): boolean {

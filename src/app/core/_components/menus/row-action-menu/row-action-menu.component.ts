@@ -27,6 +27,8 @@ export class RowActionMenuComponent
       this.getSuperHashlistMenu();
     } else if (this.isHashtype()) {
       this.getHashtypeMenu();
+    } else if (this.isFile()) {
+      this.getFileMenu();
     }
   }
 
@@ -44,6 +46,27 @@ export class RowActionMenuComponent
     this.actionMenuItems[1] = [
       {
         label: RowActionMenuLabel.DELETE_AGENT,
+        action: RowActionMenuAction.DELETE,
+        icon: 'delete',
+        red: true
+      }
+    ];
+  }
+
+  /**
+   * Get the context menu items for a file data row.
+   */
+  private getFileMenu(): void {
+    this.actionMenuItems[0] = [
+      {
+        label: RowActionMenuLabel.EDIT_FILE,
+        action: RowActionMenuAction.EDIT,
+        icon: 'edit'
+      }
+    ];
+    this.actionMenuItems[1] = [
+      {
+        label: RowActionMenuLabel.DELETE_FILE,
         action: RowActionMenuAction.DELETE,
         icon: 'delete',
         red: true
