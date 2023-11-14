@@ -19,10 +19,23 @@
 .hashtopolis-toolbar {
   border-bottom: 5px solid $primary-900;
 
+  .logo-container {
+    position: relative;
+    display: inline-block;
+
+    a {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      height: auto;
+      z-index: 2 !important;
+    }
+  }
+
   .mdc-button {
     margin-left: 8px;
 
-    &>.mat-icon {
+    & > .mat-icon {
       margin-left: 0;
       margin-right: 4px;
     }
@@ -42,11 +55,8 @@
       .mat-icon {
         color: #ffffff !important;
       }
-
     }
   }
-
-
 }
 
 .light-theme {

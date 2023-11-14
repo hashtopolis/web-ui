@@ -3,8 +3,11 @@ import { HeaderMenuAction, HeaderMenuLabel } from './header.constants';
 
 import { ActionMenuEvent } from 'src/app/core/_components/menus/action-menu/action-menu.model';
 import { AuthService } from '../../core/_services/access/auth.service';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MainMenuItem } from './header.model';
 import { Subscription } from 'rxjs';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { User } from 'src/app/core/_models/auth-user.model';
 import { environment } from './../../../environments/environment';
 
@@ -14,13 +17,20 @@ import { environment } from './../../../environments/environment';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
+  protected uiSettings: UISettingsUtilityClass;
   private username = '';
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
+  isDarkMode = false;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private storage: LocalStorageService<UIConfig>
+  ) {
     this.rebuildMenu();
+    this.uiSettings = new UISettingsUtilityClass(this.storage);
+    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
   }
 
   ngOnInit(): void {
