@@ -138,24 +138,6 @@
           [class.truncate]="tableColumn.routerLink"
           [class.icons]="tableColumn.icons"
         >
-          <!-- Check if icon function is defined -->
-          <ng-container *ngIf="tableColumn.icons">
-            <ng-container
-              *ngFor="let icon of tableColumn.icons(element) | async"
-            >
-              <mat-icon
-                *ngIf="icon.tooltip; else iconTmpl"
-                [matTooltip]="icon.tooltip"
-                [ngClass]="icon.cls ? icon.cls : ''"
-                >{{ icon.name }}</mat-icon
-              >
-              <ng-template #iconTmpl>
-                <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
-                  icon.name
-                }}</mat-icon>
-              </ng-template>
-            </ng-container>
-          </ng-container>
           <ng-container *ngIf="tableColumn.routerLink">
             <span *ngFor="let link of tableColumn.routerLink(element)">
               <a [routerLink]="link.routerLink">
@@ -186,6 +168,25 @@
               "
             >
               {{ element[tableColumn.dataKey] }}
+            </ng-container>
+          </ng-container>
+
+          <!-- Check if icon function is defined -->
+          <ng-container *ngIf="tableColumn.icons">
+            <ng-container
+              *ngFor="let icon of tableColumn.icons(element) | async"
+            >
+              <mat-icon
+                *ngIf="icon.tooltip; else iconTmpl"
+                [matTooltip]="icon.tooltip"
+                [ngClass]="icon.cls ? icon.cls : ''"
+                >{{ icon.name }}</mat-icon
+              >
+              <ng-template #iconTmpl>
+                <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
+                  icon.name
+                }}</mat-icon>
+              </ng-template>
             </ng-container>
           </ng-container>
         </div>

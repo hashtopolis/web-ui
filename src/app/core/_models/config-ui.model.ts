@@ -1,5 +1,6 @@
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
+import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
 import { SuperHashlistsTableColumnLabel } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
@@ -66,6 +67,13 @@ export const uiConfigDefault: UIConfig = {
       HashtypesTableColumnLabel.DESCRIPTION,
       HashtypesTableColumnLabel.SALTED,
       HashtypesTableColumnLabel.SLOW_HASH
+    ],
+    filesTable: [
+      FilesTableColumnLabel.ID,
+      FilesTableColumnLabel.NAME,
+      FilesTableColumnLabel.SIZE,
+      FilesTableColumnLabel.LINE_COUNT,
+      FilesTableColumnLabel.ACCESS_GROUP
     ]
   },
   refreshPage: false,

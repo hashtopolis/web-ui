@@ -31,6 +31,8 @@ export class BulkActionMenuComponent
       this.getHashlistMenu();
     } else if (this.dataType === 'hashtypes') {
       this.getHashtypesMenu();
+    } else if (this.dataType === 'files') {
+      this.getFilesMenu();
     }
   }
 
@@ -59,6 +61,17 @@ export class BulkActionMenuComponent
   private getHashtypesMenu(): void {
     const deleteMenuAction: ActionMenuItem = {
       label: BulkActionMenuLabel.DELETE_HASHTYPES,
+      action: BulkActionMenuAction.DELETE,
+      icon: 'delete',
+      red: true
+    };
+
+    this.actionMenuItems[0] = [deleteMenuAction];
+  }
+
+  private getFilesMenu(): void {
+    const deleteMenuAction: ActionMenuItem = {
+      label: BulkActionMenuLabel.DELETE_FILES,
       action: BulkActionMenuAction.DELETE,
       icon: 'delete',
       red: true

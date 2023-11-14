@@ -1,19 +1,21 @@
 export const RowActionMenuLabel = {
-  EDIT_AGENT: 'Edit',
-  DELETE_AGENT: 'Delete',
-  EDIT_TASK: 'Edit',
+  EDIT_AGENT: 'Edit Agent',
+  EDIT_TASK: 'Edit Task',
+  EDIT_SUBTASKS: 'Edit Subtasks',
+  EDIT_HASHLIST: 'Edit Hashlist',
+  EDIT_SUPERHASHLIST: 'Edit Superhashlist',
+  EDIT_FILE: 'Edit File',
+  DELETE_AGENT: 'Delete Agent',
+  DELETE_TASK: 'Delete Task',
+  DELETE_HASHLIST: 'Delete Hashlist',
+  DELETE_HASHTYPE: 'Delete Hashtype',
+  DELETE_SUPERHASHLIST: 'Delete Superhashlist',
+  DELETE_FILE: 'Delete File',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
-  EDIT_SUBTASKS: 'Edit Subtasks',
-  ARCHIVE_TASK: 'Archive',
-  DELETE_TASK: 'Delete',
-  EDIT_HASHLIST: 'Edit',
-  DELETE_HASHLIST: 'Delete',
+  ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
-  EXPORT_HASHLIST: 'Export Hashlist',
-  DELETE_HASHTYPE: 'Delete',
-  EDIT_SUPERHASHLIST: 'Edit',
-  DELETE_SUPERHASHLIST: 'Delete'
+  EXPORT_HASHLIST: 'Export Hashlist'
 };
 
 export const RowActionMenuAction = {
