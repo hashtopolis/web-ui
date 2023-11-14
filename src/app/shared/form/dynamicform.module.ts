@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
   MatFormFieldModule
@@ -21,27 +22,35 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PageTitleModule } from '../page-headers/page-title.module';
+import { SelectFieldComponent } from './select-field/select-field.component';
 
 @NgModule({
-  declarations: [DynamicFormComponent, FormConfigComponent, FormComponent],
+  declarations: [
+    DynamicFormComponent,
+    FormConfigComponent,
+    FormComponent,
+    SelectFieldComponent
+  ],
   imports: [
-    ReactiveFormsModule,
-    HorizontalNavModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatSelectModule,
+    MatTooltipModule,
+    CommonModule,
     FontAwesomeModule,
-    PageTitleModule,
-    ButtonsModule,
     FormsModule,
     GridModule,
     NgbModule,
-    CommonModule,
-    MatCheckboxModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatInputModule,
-    MatIconModule,
-    MatDividerModule
+    PageTitleModule,
+    ReactiveFormsModule,
+
+    HorizontalNavModule,
+    ButtonsModule
   ],
   exports: [DynamicFormComponent, FormConfigComponent, FormComponent],
   providers: [

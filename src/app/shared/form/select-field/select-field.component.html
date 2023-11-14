@@ -1,0 +1,11 @@
+<mat-select [formControlName]="fieldName">
+  <mat-option
+    *ngFor="let option of selectOptions"
+    [value]="option.id"
+  >
+    {{ option.name }}
+  </mat-option>
+</mat-select>
+<mat-spinner *ngIf="isLoading" diameter="16"></mat-spinner>
+
+

@@ -20,6 +20,19 @@ import { RouterModule } from '@angular/router';
 import { SearchHashComponent } from './search-hash/search-hash.component';
 import { ShowCracksComponent } from './show-cracks/show-cracks.component';
 import { SuperhashlistComponent } from './superhashlist/superhashlist.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatOptionModule } from '@angular/material/core';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { MatChipsModule } from '@angular/material/chips';
 
 @NgModule({
   declarations: [
@@ -39,6 +52,18 @@ import { SuperhashlistComponent } from './superhashlist/superhashlist.component'
     FontAwesomeModule,
     DataTablesModule,
     MatSlideToggleModule,
+    MatAutocompleteModule,
+    MatOptionModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatDividerModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    MatChipsModule,
+    MatSelectModule,
+    MatTooltipModule,
+    MatFormFieldModule,
     DirectivesModule,
     ComponentsModule,
     CommonModule,

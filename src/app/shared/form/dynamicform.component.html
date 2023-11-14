@@ -69,15 +69,13 @@
                   </ng-container>
                   <ng-container *ngSwitchCase="'selectd'">
                     <mat-select [formControlName]="field.name">
-                      <mat-option [value]="null"
-                        >Please Select an Option</mat-option
-                      >
                       <mat-option
                         *ngFor="let option of field.selectOptions$"
                         [value]="option.id"
                         >{{ option.name }}</mat-option
                       >
                     </mat-select>
+                    <mat-spinner *ngIf="isLoadingSelect" diameter="16"></mat-spinner>
                   </ng-container>
                 </ng-container>
               </mat-form-field>
