@@ -6,6 +6,7 @@ export type DataType =
   | 'hashlists'
   | 'chunks'
   | 'hashtypes'
+  | 'files'
   | 'superhashlists';
 
 export interface HTTableIcon {
