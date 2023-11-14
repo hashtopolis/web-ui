@@ -73,3 +73,57 @@ export const formatPercentage = (value: number, total: number): string => {
 
   return `${formattedPercentage}%`;
 };
+
+/**
+ * Formats a file size in bytes into a human-readable string.
+ *
+ * @param sizeInBytes - The size in bytes to be formatted.
+ * @param useLongForm - If true, use long-form units (e.g., "Kilobytes" instead of "KB").
+ * @param baseSize - The base for size conversion (default is 1024).
+ * @param threshold - The threshold for switching to the next unit (default is 1024).
+ *
+ * @returns A human-readable string representing the file size.
+ */
+export const formatFileSize = (
+  sizeInBytes: number,
+  suffix: 'short' | 'long' | 'none',
+  baseSize = 1024,
+  threshold = 1024
+): string => {
+  const fileSizeUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const fileSizeUnitsLong = [
+    'Bytes',
+    'Kilobytes',
+    'Megabytes',
+    'Gigabytes',
+    'Pettabytes',
+    'Exabytes',
+    'Zettabytes',
+    'Yottabytes'
+  ];
+  let units: string[] = [];
+
+  if (suffix === 'short') {
+    units = fileSizeUnits;
+  } else if (suffix === 'long') {
+    units = fileSizeUnitsLong;
+  }
+
+  let formattedSize: number | string = 0;
+
+  if (sizeInBytes < 1) {
+    return '0';
+  }
+
+  const scale = sizeInBytes > threshold ? sizeInBytes / threshold : sizeInBytes;
+  const power = Math.min(
+    Math.round(Math.log(scale) / Math.log(baseSize)),
+    units.length - 1
+  );
+  const size = sizeInBytes / Math.pow(baseSize, power);
+  const unit = units ? units[power] : '';
+
+  formattedSize = Math.round(size * 100) / 100;
+
+  return `${formattedSize} ${unit}`;
+};
