@@ -20,16 +20,28 @@ export class BaseMenuComponent {
 
   actionMenuItems: ActionMenuItem[][] = [];
 
+  private checkId(attribute: string): boolean {
+    try {
+      return this.data['_id'] === this.data[attribute];
+    } catch (error) {
+      return false;
+    }
+  }
+
   /**
    * Check if the data row is of type "Agent".
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    try {
-      return this.data['_id'] === this.data['agentId'];
-    } catch (error) {
-      return false;
-    }
+    return this.checkId('agentId');
+  }
+
+  /**
+   * Check if the data row is of type "Preprocessor".
+   * @returns `true` if the data row is an preprocessor; otherwise, `false`.
+   */
+  protected isPreprocessor(): boolean {
+    return this.checkId('preprocessorId');
   }
 
   /**
@@ -37,11 +49,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    try {
-      return this.data['_id'] === this.data['crackerBinaryTypeId'];
-    } catch (error) {
-      return false;
-    }
+    return this.checkId('crackerBinaryTypeId');
   }
 
   /**
@@ -49,11 +57,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task; otherwise, `false`.
    */
   protected isTask(): boolean {
-    try {
-      return this.data['_id'] === this.data['taskId'];
-    } catch (error) {
-      return false;
-    }
+    return this.checkId('taskId');
   }
 
   /**
@@ -61,11 +65,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a file; otherwise, `false`.
    */
   protected isFile(): boolean {
-    try {
-      return this.data['_id'] === this.data['fileId'];
-    } catch (error) {
-      return false;
-    }
+    return this.checkId('fileId');
   }
 
   /**

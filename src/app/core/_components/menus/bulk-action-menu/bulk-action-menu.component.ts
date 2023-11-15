@@ -35,6 +35,8 @@ export class BulkActionMenuComponent
       this.getDeleteMenu(BulkActionMenuLabel.DELETE_FILES);
     } else if (this.dataType === 'crackers') {
       this.getDeleteMenu(BulkActionMenuLabel.DELETE_CRACKERS);
+    } else if (this.dataType === 'preprocessors') {
+      this.getDeleteMenu(BulkActionMenuLabel.DELETE_PREPROCESSORS);
     }
   }
 
@@ -73,25 +75,6 @@ export class BulkActionMenuComponent
     };
 
     this.actionMenuItems[0] = [deleteMenuAction];
-  }
-
-  private getTaskMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: BulkActionMenuLabel.ARCHIVE_TASKS,
-        action: BulkActionMenuAction.ARCHIVE,
-        icon: 'archive'
-      }
-    ];
-
-    this.actionMenuItems[1] = [
-      {
-        label: BulkActionMenuLabel.DELETE_TASKS,
-        action: BulkActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
   }
 
   private getAgentMenu(): void {

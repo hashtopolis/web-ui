@@ -8,6 +8,7 @@ export type DataType =
   | 'hashtypes'
   | 'files'
   | 'crackers'
+  | 'preprocessors'
   | 'superhashlists';
 
 export interface HTTableIcon {

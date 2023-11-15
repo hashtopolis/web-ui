@@ -4,6 +4,7 @@ import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/c
 import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
+import { PreprocessorsTableColumnLabel } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
 import { SuperHashlistsTableColumnLabel } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 
 export type Layout = 'full' | 'fixed';
@@ -80,6 +81,10 @@ export const uiConfigDefault: UIConfig = {
       CrackersTableColumnLabel.ID,
       CrackersTableColumnLabel.NAME,
       CrackersTableColumnLabel.VERSIONS
+    ],
+    preprocessorsTable: [
+      PreprocessorsTableColumnLabel.ID,
+      PreprocessorsTableColumnLabel.NAME
     ]
   },
   refreshPage: false,

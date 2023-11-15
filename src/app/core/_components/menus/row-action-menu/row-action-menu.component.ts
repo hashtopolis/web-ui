@@ -18,41 +18,34 @@ export class RowActionMenuComponent
 {
   ngOnInit(): void {
     if (this.isAgent()) {
-      this.getAgentMenu();
+      this.getEditDeleteMenu(
+        RowActionMenuLabel.EDIT_AGENT,
+        RowActionMenuLabel.DELETE_AGENT
+      );
+    } else if (this.isSuperHashlist()) {
+      this.getEditDeleteMenu(
+        RowActionMenuLabel.EDIT_SUPERHASHLIST,
+        RowActionMenuLabel.DELETE_SUPERHASHLIST
+      );
+    } else if (this.isFile()) {
+      this.getEditDeleteMenu(
+        RowActionMenuLabel.EDIT_FILE,
+        RowActionMenuLabel.DELETE_FILE
+      );
+    } else if (this.isPreprocessor()) {
+      this.getEditDeleteMenu(
+        RowActionMenuLabel.EDIT_PREPROCESSOR,
+        RowActionMenuLabel.DELETE_PREPROCESSOR
+      );
     } else if (this.isTask()) {
       this.getTaskMenu();
     } else if (this.isHashlist()) {
       this.getHashlistMenu();
-    } else if (this.isSuperHashlist()) {
-      this.getSuperHashlistMenu();
     } else if (this.isHashtype()) {
       this.getHashtypeMenu();
-    } else if (this.isFile()) {
-      this.getFileMenu();
     } else if (this.isCrackerBinaryType()) {
       this.getCrackerBinaryTypeMenu();
     }
-  }
-
-  /**
-   * Get the context menu items for an agent data row.
-   */
-  private getAgentMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: RowActionMenuLabel.EDIT_AGENT,
-        action: RowActionMenuAction.EDIT,
-        icon: 'edit'
-      }
-    ];
-    this.actionMenuItems[1] = [
-      {
-        label: RowActionMenuLabel.DELETE_AGENT,
-        action: RowActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
   }
 
   /**
@@ -77,19 +70,19 @@ export class RowActionMenuComponent
   }
 
   /**
-   * Get the context menu items for a file data row.
+   * Get context menu with edit and delete action.
    */
-  private getFileMenu(): void {
+  private getEditDeleteMenu(editLabel: string, deleteLabel: string): void {
     this.actionMenuItems[0] = [
       {
-        label: RowActionMenuLabel.EDIT_FILE,
+        label: editLabel,
         action: RowActionMenuAction.EDIT,
         icon: 'edit'
       }
     ];
     this.actionMenuItems[1] = [
       {
-        label: RowActionMenuLabel.DELETE_FILE,
+        label: deleteLabel,
         action: RowActionMenuAction.DELETE,
         icon: 'delete',
         red: true
@@ -132,27 +125,6 @@ export class RowActionMenuComponent
       ];
       this.actionMenuItems[1] = [deleteMenuItem];
     }
-  }
-
-  /**
-   * Get the context menu items for an agent data row.
-   */
-  private getSuperHashlistMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: RowActionMenuLabel.EDIT_SUPERHASHLIST,
-        action: RowActionMenuAction.EDIT,
-        icon: 'edit'
-      }
-    ];
-    this.actionMenuItems[1] = [
-      {
-        label: RowActionMenuLabel.DELETE_SUPERHASHLIST,
-        action: RowActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
   }
 
   /**
