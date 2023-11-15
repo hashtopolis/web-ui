@@ -31,6 +31,8 @@ export class BulkActionMenuComponent
       this.getHashlistMenu();
     } else if (this.dataType === 'hashtypes') {
       this.getDeleteMenu(BulkActionMenuLabel.DELETE_HASHTYPES);
+    } else if (this.dataType === 'agent-binaries') {
+      this.getDeleteMenu(BulkActionMenuLabel.DELETE_AGENTBINARIES);
     } else if (this.dataType === 'files') {
       this.getDeleteMenu(BulkActionMenuLabel.DELETE_FILES);
     } else if (this.dataType === 'crackers') {

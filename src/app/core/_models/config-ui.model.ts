@@ -1,3 +1,4 @@
+import { AgentBinariesTableColumnLabel } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/crackers-table.constants';
@@ -85,6 +86,14 @@ export const uiConfigDefault: UIConfig = {
     preprocessorsTable: [
       PreprocessorsTableColumnLabel.ID,
       PreprocessorsTableColumnLabel.NAME
+    ],
+    agentBinariesTable: [
+      AgentBinariesTableColumnLabel.ID,
+      AgentBinariesTableColumnLabel.FILENAME,
+      AgentBinariesTableColumnLabel.OS,
+      AgentBinariesTableColumnLabel.TYPE,
+      AgentBinariesTableColumnLabel.UPDATE_TRACK,
+      AgentBinariesTableColumnLabel.VERSION
     ]
   },
   refreshPage: false,

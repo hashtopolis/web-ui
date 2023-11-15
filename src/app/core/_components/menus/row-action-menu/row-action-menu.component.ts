@@ -27,6 +27,11 @@ export class RowActionMenuComponent
         RowActionMenuLabel.EDIT_SUPERHASHLIST,
         RowActionMenuLabel.DELETE_SUPERHASHLIST
       );
+    } else if (this.isAgentBinary()) {
+      this.getEditDeleteMenu(
+        RowActionMenuLabel.EDIT_AGENTBINARY,
+        RowActionMenuLabel.DELETE_AGENTBINARY
+      );
     } else if (this.isFile()) {
       this.getEditDeleteMenu(
         RowActionMenuLabel.EDIT_FILE,

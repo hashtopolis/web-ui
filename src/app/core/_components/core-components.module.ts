@@ -5,6 +5,7 @@ import {
 } from '@angular/material/snack-bar';
 
 import { ActionMenuComponent } from './menus/action-menu/action-menu.component';
+import { AgentBinariesTableComponent } from './tables/agent-binaries-table/agent-binaries-table.component';
 import { AgentsTableComponent } from './tables/agents-table/agents-table.component';
 import { BaseMenuComponent } from './menus/base-menu/base-menu.component';
 import { BaseTableComponent } from './tables/base-table/base-table.component';
@@ -59,7 +60,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     SuperHashlistsTableComponent,
     FilesTableComponent,
     CrackersTableComponent,
-    PreprocessorsTableComponent
+    PreprocessorsTableComponent,
+    AgentBinariesTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -101,7 +103,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     SuperHashlistsTableComponent,
     FilesTableComponent,
     CrackersTableComponent,
-    PreprocessorsTableComponent
+    PreprocessorsTableComponent,
+    AgentBinariesTableComponent
   ],
   providers: [
     {
