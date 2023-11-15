@@ -6,6 +6,7 @@ export const BulkActionMenuLabel = {
   DELETE_FILES: 'Delete Files',
   DELETE_CRACKERS: 'Delete Crackers',
   DELETE_PREPROCESSORS: 'Delete Preprocessors',
+  DELETE_AGENTBINARIES: 'Delete Agent Binaries',
   ACTIVATE_AGENTS: 'Activate Agents',
   DEACTIVATE_AGENTS: 'Deactivate Agents',
   ARCHIVE_TASKS: 'Archive Tasks',

@@ -37,6 +37,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "AgentBinary".
+   * @returns `true` if the data row is an agent binary; otherwise, `false`.
+   */
+  protected isAgentBinary(): boolean {
+    return this.checkId('agentBinaryId');
+  }
+
+  /**
    * Check if the data row is of type "Preprocessor".
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
