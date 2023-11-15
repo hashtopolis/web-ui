@@ -35,6 +35,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
+import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
@@ -57,7 +58,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     HashlistsTableComponent,
     SuperHashlistsTableComponent,
     FilesTableComponent,
-    CrackersTableComponent
+    CrackersTableComponent,
+    PreprocessorsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -98,7 +100,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     HashtypesTableComponent,
     SuperHashlistsTableComponent,
     FilesTableComponent,
-    CrackersTableComponent
+    CrackersTableComponent,
+    PreprocessorsTableComponent
   ],
   providers: [
     {

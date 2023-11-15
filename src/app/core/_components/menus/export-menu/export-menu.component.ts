@@ -1,8 +1,8 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnInit, } from '@angular/core';
-import { BaseMenuComponent } from '../base-menu/base-menu.component';
+import { Component, OnInit } from '@angular/core';
 import { ExportMenuAction, ExportMenuLabel } from './export-menu.constants';
 
+import { BaseMenuComponent } from '../base-menu/base-menu.component';
 
 @Component({
   selector: 'export-menu',
@@ -14,14 +14,14 @@ export class ExportMenuComponent extends BaseMenuComponent implements OnInit {
       {
         label: ExportMenuLabel.EXCEL,
         action: ExportMenuAction.EXCEL,
-        icon: 'file_download',
+        icon: 'file_download'
       },
       {
         label: ExportMenuLabel.CSV,
         action: ExportMenuAction.CSV,
-        icon: 'file_download',
+        icon: 'file_download'
       },
-      // Not yet implemented
+      // @todo implement print export
       //{
       //  label: ExportMenuLabel.PRINT,
       //  action: ExportMenuAction.PRINT,
@@ -30,8 +30,8 @@ export class ExportMenuComponent extends BaseMenuComponent implements OnInit {
       {
         label: ExportMenuLabel.COPY,
         action: ExportMenuAction.COPY,
-        icon: 'content_copy',
-      },
+        icon: 'content_copy'
+      }
     ];
   }
 }
