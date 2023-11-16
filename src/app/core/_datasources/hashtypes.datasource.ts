@@ -9,7 +9,12 @@ export class HashtypesDataSource extends BaseDataSource<Hashtype> {
   loadAll(): void {
     this.loading = true;
 
-    const params = { maxResults: this.paginator.pageSize };
+    const startAt = this.currentPage * this.pageSize;
+    const params = {
+      maxResults: this.pageSize,
+      startAt: startAt
+    };
+
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
 
     this.subscriptions.push(

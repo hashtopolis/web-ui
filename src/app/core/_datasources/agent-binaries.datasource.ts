@@ -9,8 +9,10 @@ export class AgentBinariesDataSource extends BaseDataSource<AgentBinary> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
     const params = {
-      maxResults: this.pageSize
+      maxResults: this.pageSize,
+      startAt: startAt
     };
 
     const agentBinaries$ = this.service.getAll(SERV.AGENT_BINARY, params);
