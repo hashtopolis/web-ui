@@ -7,6 +7,7 @@ export const RowActionMenuLabel = {
   EDIT_FILE: 'Edit File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
   EDIT_AGENTBINARY: 'Edit Agent Binary',
+  EDIT_HEALTHCHECK: 'Edit Health Check',
   DELETE_AGENT: 'Delete Agent',
   DELETE_CRACKER: 'Delete Cracker',
   DELETE_TASK: 'Delete Task',
@@ -16,6 +17,7 @@ export const RowActionMenuLabel = {
   DELETE_FILE: 'Delete File',
   DELETE_PREPROCESSOR: 'Delete Preprocessor',
   DELETE_AGENTBINARY: 'Delete Agent Binary',
+  DELETE_HEALTHCHECK: 'Delete Health Check',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
@@ -34,4 +36,14 @@ export const RowActionMenuAction = {
   NEW: 'new',
   IMPORT: 'import',
   EXPORT: 'export'
+};
+
+export const RowActionMenuIcon = {
+  EDIT: 'edit',
+  DELETE: 'delete',
+  NEW: 'add',
+  IMPORT: 'arrow_upwards',
+  EXPORT: 'arrow_downward',
+  COPY: 'content_copy',
+  ARCHIVE: 'archive'
 };

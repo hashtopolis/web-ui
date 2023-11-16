@@ -69,6 +69,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "HealthCheck".
+   * @returns `true` if the data row is a health check; otherwise, `false`.
+   */
+  protected isHealthCheck(): boolean {
+    return this.checkId('healthCheckId');
+  }
+
+  /**
    * Check if the data row is of type "File".
    * @returns `true` if the data row is a file; otherwise, `false`.
    */
@@ -108,6 +116,24 @@ export class BaseMenuComponent {
 
   protected isHashtype(): boolean {
     return 'hashTypeId' in this.data;
+  }
+
+  /**
+   * Sets action menu items at the specified index.
+   * @param index The index to set action menu items.
+   * @param items The array of ActionMenuItem to set.
+   */
+  protected setActionMenuItems(index: number, items: ActionMenuItem[]): void {
+    this.actionMenuItems[index] = items;
+  }
+
+  /**
+   * Adds an action menu item at the specified index.
+   * @param index The index to add the action menu item.
+   * @param item The ActionMenuItem to add.
+   */
+  protected addActionMenuItem(index: number, item: ActionMenuItem): void {
+    this.actionMenuItems[index].push(item);
   }
 
   onMenuItemClick(event: ActionMenuEvent<any>): void {

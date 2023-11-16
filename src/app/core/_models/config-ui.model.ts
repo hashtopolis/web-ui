@@ -5,6 +5,7 @@ import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/c
 import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
+import { HealthChecksTableColumnLabel } from '../_components/tables/health-checks-table/health-checks-table.constants';
 import { PreprocessorsTableColumnLabel } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
 import { SuperHashlistsTableColumnLabel } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 
@@ -94,6 +95,12 @@ export const uiConfigDefault: UIConfig = {
       AgentBinariesTableColumnLabel.TYPE,
       AgentBinariesTableColumnLabel.UPDATE_TRACK,
       AgentBinariesTableColumnLabel.VERSION
+    ],
+    healthChecksTable: [
+      HealthChecksTableColumnLabel.ID,
+      HealthChecksTableColumnLabel.CREATED,
+      HealthChecksTableColumnLabel.STATUS,
+      HealthChecksTableColumnLabel.TYPE
     ]
   },
   refreshPage: false,
