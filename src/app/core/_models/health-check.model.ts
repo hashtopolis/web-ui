@@ -1,9 +1,7 @@
 import { Hashtype } from './hashtype.model';
 
 export enum HealthCheckType {
-  ONE,
-  TWO,
-  THREE
+  BRUTE_FORCE
 }
 
 /**
