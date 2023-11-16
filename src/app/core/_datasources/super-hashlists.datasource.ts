@@ -49,7 +49,6 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

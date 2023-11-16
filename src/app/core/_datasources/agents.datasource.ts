@@ -103,7 +103,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

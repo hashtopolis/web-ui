@@ -43,7 +43,6 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

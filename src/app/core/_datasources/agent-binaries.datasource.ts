@@ -35,7 +35,6 @@ export class AgentBinariesDataSource extends BaseDataSource<AgentBinary> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

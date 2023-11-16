@@ -10,6 +10,7 @@ export type DataType =
   | 'crackers'
   | 'preprocessors'
   | 'agent-binaries'
+  | 'logs'
   | 'superhashlists';
 
 export interface HTTableIcon {

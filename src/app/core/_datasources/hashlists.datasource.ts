@@ -53,7 +53,6 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

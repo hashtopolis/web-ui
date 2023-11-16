@@ -1,30 +1,37 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hashtype } from '../_models/hashtype.model';
 import { ListResponseWrapper } from '../_models/response.model';
+import { Log } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
 
-export class HashtypesDataSource extends BaseDataSource<Hashtype> {
+export class LogsDataSource extends BaseDataSource<Log> {
   loadAll(): void {
     this.loading = true;
 
-    const params = { maxResults: this.paginator.pageSize };
-    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
+    const startAt = this.currentPage * this.pageSize;
+    const params = {
+      maxResults: this.pageSize,
+      startAt: startAt
+    };
+
+    const logs$ = this.service.getAll(SERV.LOGS, params);
 
     this.subscriptions.push(
-      hashtypes$
+      logs$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hashtype>) => {
+        .subscribe((response: ListResponseWrapper<Log>) => {
+          const logs: Log[] = response.values;
+
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
             response.total
           );
-          this.setData(response.values);
+          this.setData(logs);
         })
     );
   }

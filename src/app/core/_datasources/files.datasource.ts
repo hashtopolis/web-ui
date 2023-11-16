@@ -54,7 +54,6 @@ export class FilesDataSource extends BaseDataSource<File> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

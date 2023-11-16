@@ -36,7 +36,6 @@ export class CrackersDataSource extends BaseDataSource<CrackerBinaryType> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }
