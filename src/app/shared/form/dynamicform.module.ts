@@ -22,15 +22,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PageTitleModule } from '../page-headers/page-title.module';
-import { SelectFieldComponent } from './select-field/select-field.component';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatOptionModule } from '@angular/material/core';
+import { PipesModule } from '../pipes.module';
 
 @NgModule({
-  declarations: [
-    DynamicFormComponent,
-    FormConfigComponent,
-    FormComponent,
-    SelectFieldComponent
-  ],
+  declarations: [DynamicFormComponent, FormConfigComponent, FormComponent],
   imports: [
     MatButtonModule,
     MatCheckboxModule,
@@ -41,14 +39,17 @@ import { SelectFieldComponent } from './select-field/select-field.component';
     MatProgressSpinnerModule,
     MatSelectModule,
     MatTooltipModule,
+    MatChipsModule,
+    MatOptionModule,
     CommonModule,
+    MatAutocompleteModule,
     FontAwesomeModule,
     FormsModule,
+    PipesModule,
     GridModule,
     NgbModule,
     PageTitleModule,
     ReactiveFormsModule,
-
     HorizontalNavModule,
     ButtonsModule
   ],

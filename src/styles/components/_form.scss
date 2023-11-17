@@ -13,6 +13,8 @@ $btn-text-color: #ffffff;
 $btn-bg-color: #1986b1;
 $btn-border-color: #1986b1;
 
+$search-text-highlight-color: #96dcf7;
+
 /*
   01- Highlight validation in red
 */
@@ -272,6 +274,34 @@ progress::-webkit-progress-value {
 /*
   07- End
 */
+
+/*
+  08- Mat Autocomplete
+*/
+
+.custom-chip-grid {
+  width: 100%;
+}
+
+.highlight-text {
+  background-color: $search-text-highlight-color;
+}
+
+
+/*
+  08- End
+*/
+
+/*
+  09- Shared/Input
+*/
+
+
+/*
+  09
+*/
+
+
 
 $custom-form-min-width: 150px;
 $custom-form-max-width: 500px;

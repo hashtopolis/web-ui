@@ -1,0 +1,16 @@
+<mat-form-field>
+  <mat-label>{{ title }}</mat-label>
+  <input
+    matInput
+    [(colorPicker)]="defaultColor"
+    [cpAddColorButtonText]="defaultColor"
+    (colorPickerChange)="onChangeValue($event)"
+    [style.background]="defaultColor"
+    [value]="defaultColor"
+    [cpPresetColors]="presetColors"
+    [cpOKButton]="true"
+    [cpOKButtonText]="'Save'"
+    [cpSaveClickOutside]="false"
+  />
+</mat-form-field>
+

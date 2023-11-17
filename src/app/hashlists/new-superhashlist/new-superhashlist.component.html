@@ -1,48 +1,27 @@
 <app-page-subtitle [subtitle]="'Create Superhaslist'"></app-page-subtitle>
-<!-- Body -->
 <grid-main>
-  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-      <mat-form-field class="width-100">
-        <mat-label>Name</mat-label>
-        <input
-          matInput
-          id="name"
-          formControlName="name"
-          placeholder="Enter Name"
-        />
-      </mat-form-field>
+    <app-input-text title="Name" formControlName="name" [error]="error?.name"></app-input-text>
 
-      <!-- Angular Material Form Field for the Hashlist dropdown -->
-      <mat-form-field class="width-100">
-        <mat-label>Select or search Hashlists:</mat-label>
-        <mat-chip-listbox>
-          <mat-chip *ngFor="let selectedHashlist of selectedHashlistDisplay" [removable]="true" (removed)="removeItem(selectedHashlist)">
-            {{ selectedHashlist.name }}
-            <mat-icon matChipRemove>cancel</mat-icon>
-          </mat-chip>
-          <input
-            type="text"
-            placeholder="Select or search Hashlists"
-            matInput
-            formControlName="hashlistIds"
-            [matAutocomplete]="auto"
-            (matChipInputTokenEnd)="addItem($event)"
-          />
-        </mat-chip-listbox>
-        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedItem($event)">
-          <mat-option *ngFor="let hashlist of hashlists" [value]="hashlist">
-            {{ hashlist.name }}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
+    <app-input-multiselect
+      [isLoading]="isLoading"
+      [placeholder]="'Haslists...'"
+      [arrayOfObjects]="hashlists"
+      [mergeIdAndName]="true"
+      [label]="'Select or search Hashlists:'"
+      [externalControl]="form.get('hashlistIds')"
+      (selectionChanged)="handleSelectedItems($event)"
+    ></app-input-multiselect>
 
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
-      </grid-buttons>
+    <grid-buttons>
+      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+      <button-submit [name]="'Create'"></button-submit>
+    </grid-buttons>
+
   </form>
-  {{ createForm.value | json }}
+  {{ form.value | json }}
 </grid-main>
+
 
 

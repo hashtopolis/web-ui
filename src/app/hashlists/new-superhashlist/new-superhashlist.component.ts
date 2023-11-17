@@ -2,143 +2,162 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Input,
+  OnDestroy,
   OnInit
 } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { Hashlist } from 'src/app/core/_models/hashlist.model';
 import { SERV } from '../../core/_services/main.config';
+import { extractIds } from '../../shared/utils/forms';
 
+interface SelectField {
+  _id: string;
+  name: string;
+}
+
+/**
+ * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
+ */
 @Component({
   selector: 'app-new-superhashlist',
   templateUrl: './new-superhashlist.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-@PageTitle(['New SuperHashlist'])
-export class NewSuperhashlistComponent implements OnInit {
-  constructor(
-    private _changeDetectorRef: ChangeDetectorRef,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
-  ) {}
+export class NewSuperhashlistComponent implements OnInit, OnDestroy {
+  /** Flag indicating whether data is still loading. */
+  isLoading = true;
 
-  createForm: FormGroup;
+  /** Form group for the new SuperHashlist. */
+  form: FormGroup;
+
+  /** Maximum results for API requests. */
   private maxResults = environment.config.prodApiMaxResults;
-  formArr: FormArray;
+
+  /** List of hashlists. */
   hashlists: any;
 
-  ngOnInit(): void {
-    this.createForm = new FormGroup({
-      name: new FormControl(''),
-      hashlistIds: new FormControl('')
-    });
+  // Util functions
+  /** Utility function for extracting IDs from a list of items. */
+  extractIds = extractIds;
 
-    this.gs
+  /**
+   * Constructor of the NewSuperhashlistComponent.
+   *
+   * @param unsubscribeService - The service responsible for managing subscriptions.
+   * @param changeDetectorRef - Reference to the change detector to manually trigger change detection.
+   * @param titleService - Service for managing the title of the page.
+   * @param alert - Service for displaying alerts.
+   * @param globalService - Service for making global API requests.
+   * @param formBuilder - FormBuilder service for creating reactive forms.
+   * @param router - Angular Router service for navigation.
+   */
+  constructor(
+    private unsubscribeService: UnsubscribeService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private titleService: AutoTitleService,
+    private alert: AlertService,
+    private globalService: GlobalService,
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) {
+    this.buildForm();
+    titleService.set(['New SuperHashlist']);
+  }
+
+  @Input()
+  error;
+
+  /**
+   * Lifecycle hook called after component initialization.
+   */
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+  }
+
+  /**
+   * Builds the form for creating a new SuperHashlist.
+   */
+  buildForm(): void {
+    this.form = this.formBuilder.group({
+      name: ['', Validators.required],
+      hashlistIds: [null, Validators.required]
+    });
+  }
+
+  /**
+   * Loads data, specifically hashlists, for the component.
+   */
+  loadData(): void {
+    this.globalService
       .getAll(SERV.HASHLISTS, {
         maxResults: this.maxResults,
         filter: 'isArchived=false,format=0'
       })
-      .subscribe((tasks: any) => {
-        const self = this;
-        const response = tasks.values;
-        this.hashlists = response;
-        ($('#hashlistIds') as any).selectize({
-          maxItems: null,
-          plugins: ['restore_on_backspace'],
-          valueField: 'hashlistId',
-          placeholder: 'Search hashlist...',
-          labelField: 'name',
-          searchField: ['name'],
-          loadingClass: 'Loading..',
-          highlight: true,
-          onChange: function (value) {
-            self.OnChangeValue(value); // We need to overide DOM event, Angular vs Jquery
-          },
-          render: {
-            option: function (item, escape) {
-              return (
-                '<div  class="style_selectize">' +
-                escape(item.hashlistId) +
-                ' -  ' +
-                escape(item.name) +
-                '</div>'
-              );
-            }
-          },
-          onInitialize: function () {
-            const selectize = this;
-            selectize.addOption(response); // This is will add to option
-            const selected_items = [];
-            $.each(response, function (i, obj) {
-              selected_items.push(obj.id);
-            });
-            selectize.setValue(selected_items); //this will set option values as default
-          }
-        });
+      .subscribe((response: any) => {
+        this.hashlists = response.values;
+        this.isLoading = false;
+        this.changeDetectorRef.detectChanges();
       });
   }
 
-  OnChangeValue(value) {
-    const formArr = new FormArray([]);
-    for (const val of value) {
-      formArr.push(new FormControl(+val));
-    }
-    const cname = this.createForm.get('name').value;
-    this.createForm = new FormGroup({
-      name: new FormControl(cname),
-      hashlistIds: formArr
-    });
-    this._changeDetectorRef.detectChanges();
-  }
-
-  onSubmit() {
-    if (this.createForm.valid) {
-      console.log(this.createForm.value);
-      this.gs
-        .chelper(SERV.HELPER, 'createSuperHashlist', this.createForm.value)
+  /**
+   * Handles form submission, creating a new SuperHashlist.
+   * If the form is valid, it makes an API request and navigates to the SuperHashlist page.
+   */
+  onSubmit(): void {
+    if (this.form.valid) {
+      const createSubscription$ = this.globalService
+        .chelper(SERV.HELPER, 'createSuperHashlist', this.form.value)
         .subscribe(() => {
           this.alert.okAlert('New SuperHashList created!', '');
-          this.createForm.reset(); // success, we reset form
+          this.form.reset();
           this.router.navigate(['hashlists/superhashlist']);
         });
+
+      this.unsubscribeService.add(createSubscription$);
     }
   }
 
-  hashlistIds = new FormControl();
-  selectedHashlistDisplay: any[] = []; // Array for displaying selected hashlists
-  selectedHashlistValues: any[] = []; // Array for storing selected hashlist values
-
-  addItem(event: any): void {
-    const value = (event.value || '').trim();
-
-    if (value && !this.selectedHashlistValues.includes(value)) {
-      this.selectedHashlistValues.push(value);
-      this.selectedHashlistDisplay.push(value); // Add to display array
-      this.hashlistIds.setValue('');
-    }
+  /**
+   * Checks if a given control is an instance of FormControl.
+   *
+   * @param control - The control to check.
+   * @returns True if the control is a FormControl, false otherwise.
+   */
+  isFormControl(control: AbstractControl | null): control is FormControl {
+    return control instanceof FormControl;
   }
 
-  removeItem(hashlist: any): void {
-    const index = this.selectedHashlistValues.indexOf(hashlist);
-
-    if (index >= 0) {
-      this.selectedHashlistValues.splice(index, 1);
-      this.selectedHashlistDisplay.splice(index, 1); // Remove from display array
-    }
-  }
-
-  selectedItem(event: any): void {
-    const selectedValue = event.option.value;
-
-    if (!this.selectedHashlistValues.includes(selectedValue)) {
-      this.selectedHashlistValues.push(selectedValue);
-      this.selectedHashlistDisplay.push(selectedValue); // Add to display array
-      this.hashlistIds.setValue('');
-    }
+  /**
+   * Handles the selection of items in the UI.
+   * Extracts the IDs from the selected items and sets them in the form.
+   *
+   * @param selectedItems - The items that are selected.
+   */
+  handleSelectedItems(selectedItems: SelectField[]): void {
+    const extractedIds = this.extractIds(selectedItems, '_id');
+    this.form.get('hashlistIds').setValue(extractedIds);
   }
 }
