@@ -2,12 +2,16 @@
 import { Component, OnInit } from '@angular/core';
 import {
   RowActionMenuAction,
+  RowActionMenuIcon,
   RowActionMenuLabel
 } from './row-action-menu.constants';
 
 import { ActionMenuItem } from '../action-menu/action-menu.model';
 import { BaseMenuComponent } from '../base-menu/base-menu.component';
 
+/**
+ * Component representing the row action menu for various data types.
+ */
 @Component({
   selector: 'row-action-menu',
   templateUrl: './row-action-menu.component.html'
@@ -18,177 +22,212 @@ export class RowActionMenuComponent
 {
   ngOnInit(): void {
     if (this.isAgent()) {
-      this.getEditDeleteMenu(
+      this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_AGENT,
         RowActionMenuLabel.DELETE_AGENT
       );
     } else if (this.isSuperHashlist()) {
-      this.getEditDeleteMenu(
+      this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_SUPERHASHLIST,
         RowActionMenuLabel.DELETE_SUPERHASHLIST
       );
     } else if (this.isAgentBinary()) {
-      this.getEditDeleteMenu(
+      this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_AGENTBINARY,
         RowActionMenuLabel.DELETE_AGENTBINARY
       );
     } else if (this.isFile()) {
-      this.getEditDeleteMenu(
+      this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_FILE,
         RowActionMenuLabel.DELETE_FILE
       );
     } else if (this.isPreprocessor()) {
-      this.getEditDeleteMenu(
+      this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_PREPROCESSOR,
         RowActionMenuLabel.DELETE_PREPROCESSOR
       );
+    } else if (this.isHealthCheck()) {
+      this.setEditDeleteMenuItems(
+        RowActionMenuLabel.EDIT_HEALTHCHECK,
+        RowActionMenuLabel.DELETE_HEALTHCHECK
+      );
     } else if (this.isTask()) {
-      this.getTaskMenu();
+      this.setTaskMenu();
     } else if (this.isHashlist()) {
-      this.getHashlistMenu();
+      this.setHashlistMenu();
     } else if (this.isHashtype()) {
-      this.getHashtypeMenu();
+      this.setHashtypeMenu();
     } else if (this.isCrackerBinaryType()) {
-      this.getCrackerBinaryTypeMenu();
+      this.setCrackerBinaryTypeMenu();
     }
   }
 
   /**
-   * Get the context menu items for a cracker data row.
+   * Sets the context menu items for a cracker data row.
    */
-  private getCrackerBinaryTypeMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: RowActionMenuLabel.NEW_VERSION,
-        action: RowActionMenuAction.NEW,
-        icon: 'add'
-      }
-    ];
-    this.actionMenuItems[1] = [
-      {
-        label: RowActionMenuLabel.DELETE_CRACKER,
-        action: RowActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
+  private setCrackerBinaryTypeMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getNewMenuItem(RowActionMenuLabel.NEW_VERSION)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_CRACKER)
+    ]);
   }
 
   /**
-   * Get context menu with edit and delete action.
+   * Sets context menu with edit and delete action.
+   * @param editLabel The label for the edit action.
+   * @param deleteLabel The label for the delete action.
    */
-  private getEditDeleteMenu(editLabel: string, deleteLabel: string): void {
-    this.actionMenuItems[0] = [
-      {
-        label: editLabel,
-        action: RowActionMenuAction.EDIT,
-        icon: 'edit'
-      }
-    ];
-    this.actionMenuItems[1] = [
-      {
-        label: deleteLabel,
-        action: RowActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
+  private setEditDeleteMenuItems(editLabel: string, deleteLabel: string): void {
+    this.setActionMenuItems(0, [this.getEditMenuItem(editLabel)]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
   }
 
   /**
-   * Get the context menu items for an agent data row.
+   * Sets the context menu items for an agent data row.
    */
-  private getHashlistMenu(): void {
-    this.actionMenuItems[0] = [];
-
-    const deleteMenuItem: ActionMenuItem = {
-      label: RowActionMenuLabel.DELETE_HASHLIST,
-      action: RowActionMenuAction.DELETE,
-      icon: 'delete',
-      red: true
-    };
+  private setHashlistMenu(): void {
+    this.setActionMenuItems(0, []);
 
     if (this.data['isArchived']) {
-      this.actionMenuItems[0].push(deleteMenuItem);
+      this.setActionMenuItems(0, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)
+      ]);
     } else {
-      this.actionMenuItems[0] = [
-        {
-          label: RowActionMenuLabel.EDIT_HASHLIST,
-          action: RowActionMenuAction.EDIT,
-          icon: 'edit'
-        },
-        {
-          label: RowActionMenuLabel.IMPORT_HASHLIST,
-          action: RowActionMenuAction.IMPORT,
-          icon: 'arrow_upwards'
-        },
-        {
-          label: RowActionMenuLabel.EXPORT_HASHLIST,
-          action: RowActionMenuAction.EXPORT,
-          icon: 'arrow_downward'
-        }
-      ];
-      this.actionMenuItems[1] = [deleteMenuItem];
+      this.setActionMenuItems(0, [
+        this.getEditMenuItem(RowActionMenuLabel.EDIT_HASHLIST),
+        this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLIST),
+        this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLIST)
+      ]);
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)
+      ]);
     }
   }
 
   /**
-   * Get the context menu items for a task data row.
+   * Sets the context menu items for a task data row.
    */
-  private getTaskMenu(): void {
-    this.actionMenuItems[0] = [
-      {
-        label: RowActionMenuLabel.EDIT_TASK,
-        action: RowActionMenuAction.EDIT,
-        icon: 'edit'
-      }
-    ];
+  private setTaskMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
+    ]);
 
-    this.actionMenuItems[1] = [
-      {
-        label: RowActionMenuLabel.DELETE_TASK,
-        action: RowActionMenuAction.DELETE,
-        icon: 'delete',
-        red: true
-      }
-    ];
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)
+    ]);
 
     if (this.data.taskType === 0) {
-      this.actionMenuItems[0].push({
+      this.addActionMenuItem(0, {
         label: RowActionMenuLabel.COPY_TO_TASK,
         action: RowActionMenuAction.COPY_TO_TASK,
-        icon: 'content_copy'
+        icon: RowActionMenuIcon.COPY
       });
-      this.actionMenuItems[0].push({
+      this.addActionMenuItem(0, {
         label: RowActionMenuLabel.COPY_TO_PRETASK,
         action: RowActionMenuAction.COPY_TO_PRETASK,
-        icon: 'content_copy'
+        icon: RowActionMenuIcon.COPY
       });
     } else if (this.data.taskType === 1) {
-      this.actionMenuItems[0].push({
+      this.addActionMenuItem(0, {
         label: RowActionMenuLabel.EDIT_SUBTASKS,
         action: RowActionMenuAction.EDIT_SUBTASKS,
-        icon: 'edit'
+        icon: RowActionMenuIcon.EDIT
       });
     }
 
-    this.actionMenuItems[0].push({
-      label: RowActionMenuLabel.ARCHIVE_TASK,
-      action: RowActionMenuAction.ARCHIVE,
-      icon: 'archive'
-    });
+    this.addActionMenuItem(
+      0,
+      this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
+    );
   }
 
-  private getHashtypeMenu(): void {
-    this.actionMenuItems[0] = [];
+  /**
+   * Sets the context menu items for a hashtype data row.
+   */
+  private setHashtypeMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE)
+    ]);
+  }
 
-    const deleteMenuItem: ActionMenuItem = {
-      label: RowActionMenuLabel.DELETE_HASHTYPE,
+  /**
+   * Creates an ActionMenuItem with delete action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with delete action.
+   */
+  private getDeleteMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
       action: RowActionMenuAction.DELETE,
-      icon: 'delete',
+      icon: RowActionMenuIcon.DELETE,
       red: true
     };
+  }
 
-    this.actionMenuItems[0].push(deleteMenuItem);
+  /**
+   * Creates an ActionMenuItem with edit action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with edit action.
+   */
+  private getEditMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.EDIT,
+      icon: RowActionMenuIcon.EDIT
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with import action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with import action.
+   */
+  private getImportMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.IMPORT,
+      icon: RowActionMenuIcon.IMPORT
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with export action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with export action.
+   */
+  private getExportMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.EXPORT,
+      icon: RowActionMenuIcon.EXPORT
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with new action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with new action.
+   */
+  private getNewMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.NEW,
+      icon: RowActionMenuIcon.NEW
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with archive action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with archive action.
+   */
+  private getArchiveMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.ARCHIVE,
+      icon: RowActionMenuIcon.ARCHIVE
+    };
   }
 }

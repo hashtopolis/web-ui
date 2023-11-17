@@ -7,6 +7,7 @@ export const BulkActionMenuLabel = {
   DELETE_CRACKERS: 'Delete Crackers',
   DELETE_PREPROCESSORS: 'Delete Preprocessors',
   DELETE_AGENTBINARIES: 'Delete Agent Binaries',
+  DELETE_HEALTHCHECKS: 'Delete Health Checks',
   ACTIVATE_AGENTS: 'Activate Agents',
   DEACTIVATE_AGENTS: 'Deactivate Agents',
   ARCHIVE_TASKS: 'Archive Tasks',
@@ -18,4 +19,11 @@ export const BulkActionMenuAction = {
   ACTIVATE: 'bulk-activate',
   DEACTIVATE: 'bulk-deactivate',
   ARCHIVE: 'bulk-archive'
+};
+
+export const BulkActionMenuIcon = {
+  DELETE: 'delete',
+  ARCHIVE: 'archive',
+  ACTIVATE: 'radio_button_checked',
+  DEACTIVATE: 'radio_button_unchecked'
 };
