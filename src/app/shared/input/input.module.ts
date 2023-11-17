@@ -23,6 +23,7 @@ import { InputTextComponent } from './text/text.component';
 import { InputDateComponent } from './date/date.component';
 import { InputNumberComponent } from './number/number.component';
 import { InputTextAreaComponent } from './text-area/text-area.component';
+import { SelectComponent } from './select/select.component';
 
 @NgModule({
   imports: [
@@ -51,6 +52,7 @@ import { InputTextAreaComponent } from './text-area/text-area.component';
     InputDateComponent,
     InputMultiSelectComponent,
     InputNumberComponent,
+    SelectComponent,
     InputTextComponent,
     InputTextAreaComponent
   ],
@@ -60,6 +62,7 @@ import { InputTextAreaComponent } from './text-area/text-area.component';
     InputDateComponent,
     InputMultiSelectComponent,
     InputNumberComponent,
+    SelectComponent,
     InputTextComponent,
     InputTextAreaComponent
   ]
