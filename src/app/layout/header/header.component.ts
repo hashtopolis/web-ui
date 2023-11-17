@@ -23,6 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
   isDarkMode = false;
+  timedOutCloser: any;
 
   constructor(
     private authService: AuthService,
