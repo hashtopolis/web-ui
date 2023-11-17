@@ -1,16 +1,25 @@
-<mat-form-field>
-  <mat-label>{{ title }}</mat-label>
-  <input
-    matInput
-    [(colorPicker)]="defaultColor"
-    [cpAddColorButtonText]="defaultColor"
-    (colorPickerChange)="onChangeValue($event)"
-    [style.background]="defaultColor"
-    [value]="defaultColor"
-    [cpPresetColors]="presetColors"
-    [cpOKButton]="true"
-    [cpOKButtonText]="'Save'"
-    [cpSaveClickOutside]="false"
-  />
-</mat-form-field>
+<div class="color-picker-container">
+  <mat-form-field>
+    <mat-label>{{ title }}</mat-label>
+    <input
+    #colorInput
+          matInput
+          [id]="inputId"
+          [(ngModel)]="value"
+          (colorPickerChange)="onChangeValue($event)"
+          [style.background]="defaultColor"
+          [value]="defaultColor"
+          [(colorPicker)]="defaultColor"
+          [cpAddColorButtonText]="defaultColor"
+          [cpPresetColors]="presetColors"
+          [cpOKButton]="true"
+          [cpOKButtonText]="'Save'"
+          >
+  </mat-form-field>
 
+  <div>
+    <button mat-icon-button matTooltip="Randomize Color" (click)="generateRandomColor()">
+      <mat-icon>casino</mat-icon>
+    </button>
+  </div>
+</div>

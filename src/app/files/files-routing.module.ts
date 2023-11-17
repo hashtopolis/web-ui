@@ -2,10 +2,9 @@ import { CheckPerm } from '../core/_guards/permission.guard';
 import { RouterModule, Routes } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
-
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { NewFilesComponent } from './new-files/new-files.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { FormComponent } from '../shared/form/form.component';
 import { SERV } from '../core/_services/main.config';
 import { FilesComponent } from './files.component';
 

@@ -1,13 +1,14 @@
-import { AbstractControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
   Component,
-  EventEmitter,
+  ElementRef,
   Input,
-  OnInit,
-  Output,
+  ViewChild,
   forwardRef
 } from '@angular/core';
+import { randomColor } from '../../../shared/utils/forms';
 import { AbstractInputComponent } from '../abstract-input';
+import { ChangeDetectorRef } from '@angular/core';
 
 /**
  * Custom Input Color Picker Component.
@@ -17,12 +18,10 @@ import { AbstractInputComponent } from '../abstract-input';
  *
  * Usage Example:
  * ```html
- * <app-input-color
- *   [externalControl]="form.get('color')"
- *   [heading]="'Label Name'"
- *   [color]="'#FFFFFF'" //Default color
- *   (colorChange)="onColorChange($event)"
- * ></app-input-color>
+    <app-input-color
+      formControlName="name"
+      title="Label Name"
+    ></app-input-color>
  * ```
  */
 @Component({
@@ -37,11 +36,11 @@ import { AbstractInputComponent } from '../abstract-input';
   ]
 })
 export class InputColorComponent extends AbstractInputComponent<string> {
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     super();
   }
-
-  @Input() defaultColor = '#FFFFFF';
+  @ViewChild('colorInput') colorInput: ElementRef;
+  @Input() defaultColor = '';
 
   /**
    * List of preset colors for the color picker.
@@ -56,8 +55,16 @@ export class InputColorComponent extends AbstractInputComponent<string> {
     '#7ad54d' //Green
   ];
 
+  generateRandomColor() {
+    this.onChangeValue(randomColor());
+    this.cdr.detectChanges();
+  }
+
   onChangeValue(value) {
     this.value = value;
     this.onChange(value);
+    // When using generateRandomColor() dom needs to be update to reflect color change
+    const inputElement = this.colorInput.nativeElement;
+    inputElement.style.background = this.value;
   }
 }

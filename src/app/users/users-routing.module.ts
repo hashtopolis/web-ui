@@ -5,10 +5,10 @@ import { NgModule } from '@angular/core';
 
 import { EditGlobalpermissionsgroupsComponent } from './globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
 import { GlobalpermissionsgroupsComponent } from './globalpermissionsgroups/globalpermissionsgroups.component';
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { EditUsersComponent } from './edit-users/edit-users.component';
 import { AllUsersComponent } from './all-users/all-users.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { FormComponent } from '../shared/form/form.component';
 import { GroupsComponent } from './groups/groups.component';
 import { SERV } from '../core/_services/main.config';
 

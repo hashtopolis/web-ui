@@ -18,7 +18,7 @@ import { TimeoutComponent } from './alert/timeout/timeout.component';
 import { HorizontalNavModule } from './navigation/navigation.module';
 import { PageTitleModule } from './page-headers/page-title.module';
 import { PaginationModule } from './pagination/pagination.module';
-import { DynamicFormModule } from './form/dynamicform.module';
+import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { GridModule } from './grid-containers/grid.module';

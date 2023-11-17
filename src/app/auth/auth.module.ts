@@ -1,3 +1,4 @@
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { IsAuth } from '../core/_guards/auth.guard';
@@ -14,10 +15,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NgModule } from '@angular/core';
-
 import { ComponentsModule } from '../shared/components.module';
 import { AuthComponent } from './auth.component';
-import { FormComponent } from '../shared/form/form.component';
 
 @NgModule({
   declarations: [AuthComponent],

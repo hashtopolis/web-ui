@@ -6,9 +6,9 @@ import { AccountSettingsComponent } from './settings/acc-settings/acc-settings.c
 import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
 import { NewNotificationComponent } from './notifications/notification/new-notification.component';
 import { NotificationsComponent } from './notifications/notifications.component';
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { AccountComponent } from './account.component';
 import { SERV } from '../core/_services/main.config';
-import { FormComponent } from '../shared/form/form.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
 
 const routes: MyRoute[] = [

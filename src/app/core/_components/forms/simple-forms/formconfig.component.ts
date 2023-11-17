@@ -9,24 +9,12 @@ import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { MetadataService } from 'src/app/core/_services/metadata.service';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../core/_services/main.config';
+import { SERV } from '../../../_services/main.config';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-form',
-  template: `
-    <horizontalnav [menuItems]="menuItems"></horizontalnav>
-    <app-dynamic-form
-      [subtitle]="title"
-      *ngIf="isloaded"
-      [formMetadata]="formMetadata"
-      [formValues]="formValues"
-      [form]="form"
-      [buttonText]="'Update'"
-      [showDeleteButton]="false"
-      (formSubmit)="onFormSubmit($event)"
-    ></app-dynamic-form>
-  `
+  templateUrl: 'formconfig.component.html'
 })
 /**
  * Component for managing forms, supporting both create and edit modes.

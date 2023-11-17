@@ -296,12 +296,25 @@ progress::-webkit-progress-value {
   09- Shared/Input
 */
 
+.color-picker-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+}
+
+.color-picker-field {
+  flex: 1; /* Allow the mat-form-field to grow and take available space */
+  margin-right: 16px; /* Adjust the margin between the field and the button */
+}
+
+.custom-textarea {
+  width: 100%;
+  min-width: 300px; /* Set your desired minimum width */
+  max-width: 600px; /* Set your desired maximum width */
+}
 
 /*
   09
 */
-
-
 
 $custom-form-min-width: 150px;
 $custom-form-max-width: 500px;
