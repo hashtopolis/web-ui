@@ -11,6 +11,7 @@ export type DataType =
   | 'preprocessors'
   | 'agent-binaries'
   | 'health-checks'
+  | 'logs'
   | 'superhashlists';
 
 export interface HTTableIcon {

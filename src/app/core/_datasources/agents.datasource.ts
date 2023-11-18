@@ -13,8 +13,14 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
   loadAll(): void {
     this.loading = true;
 
-    const agentParams = { maxResults: 999999, expand: 'accessGroups' };
-    const params = { maxResults: 999999 };
+    const startAt = this.currentPage * this.pageSize;
+    const agentParams = {
+      maxResults: this.pageSize,
+      startAt: startAt,
+      expand: 'accessGroups'
+    };
+
+    const params = { maxResults: this.maxResults };
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);
@@ -103,7 +109,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

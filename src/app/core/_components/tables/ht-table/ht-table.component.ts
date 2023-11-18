@@ -289,6 +289,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    * Reloads the data in the table and the bulk menu.
    */
   reload(): void {
+    this.dataSource.reset(true);
     this.dataSource.reload();
     if (this.bulkMenu) {
       this.bulkMenu.reload();

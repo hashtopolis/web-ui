@@ -20,6 +20,7 @@ import { HTTableComponent } from './tables/ht-table/ht-table.component';
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
+import { LogsTableComponent } from './tables/logs-table/logs-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -63,7 +64,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     CrackersTableComponent,
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
-    HealthChecksTableComponent
+    HealthChecksTableComponent,
+    LogsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -107,7 +109,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     CrackersTableComponent,
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
-    HealthChecksTableComponent
+    HealthChecksTableComponent,
+    LogsTableComponent
   ],
   providers: [
     {

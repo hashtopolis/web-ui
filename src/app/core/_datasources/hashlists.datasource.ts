@@ -16,8 +16,10 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
     const params = {
-      maxResults: this.maxResults,
+      maxResults: this.pageSize,
+      startAt: startAt,
       expand: 'hashType,accessGroup',
       filter: `isArchived=${this.isArchived}`
     };
@@ -53,7 +55,6 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

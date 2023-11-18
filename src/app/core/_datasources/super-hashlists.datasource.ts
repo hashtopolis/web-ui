@@ -16,8 +16,10 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
+      startAt: startAt,
       expand: 'hashType,hashlists',
       filter: `format=${HashListFormat.SUPERHASHLIST}`
     };
@@ -49,7 +51,6 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }

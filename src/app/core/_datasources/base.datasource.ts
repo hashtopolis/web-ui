@@ -295,7 +295,7 @@ export abstract class BaseDataSource<
   /**
    * Resets the data source by clearing filters, deselecting all rows, and returning to page 1 (if using pagination).
    */
-  reset(): void {
+  reset(firstPage: boolean): void {
     // Clear any applied filters
     this.filter = '';
     this.dataSubject.next(this.originalData);
@@ -304,7 +304,7 @@ export abstract class BaseDataSource<
     this.selection.clear();
 
     // Return to page 1 if using pagination
-    if (this.paginator) {
+    if (firstPage && this.paginator) {
       this.paginator.firstPage();
     }
   }

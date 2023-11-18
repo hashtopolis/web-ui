@@ -10,8 +10,13 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
   loadAll(): void {
     this.loading = true;
 
-    const agentParams = { maxResults: 999999 };
-    const chunkParams = { maxResults: 1000, expand: 'task' };
+    const startAt = this.currentPage * this.pageSize;
+    const chunkParams = {
+      maxResults: this.pageSize,
+      startAt: startAt,
+      expand: 'task'
+    };
+    const agentParams = { maxResults: this.maxResults };
     const chunks$ = this.service.getAll(SERV.CHUNKS, chunkParams);
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
@@ -43,7 +48,6 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
   }
 
   reload(): void {
-    this.reset();
     this.loadAll();
   }
 }
