@@ -11,9 +11,21 @@
       info
     </mat-icon>
   </mat-label>
-  <mat-select>
-    <mat-option *ngFor="let option of sortedOptions()" [value]="option.id">
-      {{ option.name }}
+  <button mat-icon-button (click)="toggleSortOrder()">
+    <mat-icon>{{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+  </button>
+  <mat-select
+            name="{{ inputId }}"
+            [(ngModel)]="value"
+            [disabled]="disabled"
+            [placeholder]="hint"
+            [multiple]="false"
+            (selectionChange)="onChange(value)"
+            (closed)="clearLastSearchTerm()"
+            (opened)="clearLastSearchTerm()"
+            >
+    <mat-option *ngFor="let item of sortedOptions()" [value]="item.id">
+      {{ item.name }}
     </mat-option>
   </mat-select>
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>

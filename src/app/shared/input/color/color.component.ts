@@ -41,6 +41,7 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   }
   @ViewChild('colorInput') colorInput: ElementRef;
   @Input() defaultColor = '';
+  @Input() randomColor = true;
 
   /**
    * List of preset colors for the color picker.
