@@ -1,37 +1,42 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AgentBinary } from '../_models/agent-binary.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { User } from '../_models/user.model';
 
-export class AgentBinariesDataSource extends BaseDataSource<AgentBinary> {
+export class UsersDataSource extends BaseDataSource<User> {
   loadAll(): void {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt
+      startAt: startAt,
+      expand: 'globalPermissionGroup'
     };
 
-    const agentBinaries$ = this.service.getAll(SERV.AGENT_BINARY, params);
+    const users$ = this.service.getAll(SERV.USERS, params);
 
     this.subscriptions.push(
-      agentBinaries$
+      users$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AgentBinary>) => {
-          const agentBinaries: AgentBinary[] = response.values;
+        .subscribe((response: ListResponseWrapper<User>) => {
+          const users: User[] = response.values;
+
+          users.map((user: User) => {
+            user.globalPermissionGroupName = user.globalPermissionGroup.name;
+          });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
             response.total
           );
-          this.setData(agentBinaries);
+          this.setData(users);
         })
     );
   }

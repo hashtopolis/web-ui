@@ -44,8 +44,12 @@
       font-weight: 400;
     }
 
+    &.cdk-focused,
+    &.cdk-program-focused {
+      background-color: transparent !important;
+    }
     &.active {
-      background-color: $primary-900;
+      background-color: $primary-900 !important;
 
       .mdc-button__label {
         font-weight: 400;

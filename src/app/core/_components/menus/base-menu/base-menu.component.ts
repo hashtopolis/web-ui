@@ -69,6 +69,18 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "User".
+   * @returns `true` if the data row is a user; otherwise, `false`.
+   */
+  protected isUser(): boolean {
+    try {
+      return this.data['_id'] === this.data['id'] && 'email' in this.data;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Check if the data row is of type "HealthCheck".
    * @returns `true` if the data row is a health check; otherwise, `false`.
    */

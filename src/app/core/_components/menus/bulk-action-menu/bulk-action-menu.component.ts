@@ -35,7 +35,17 @@ export class BulkActionMenuComponent
    */
   private loadMenu(): void {
     if (this.dataType === 'agents') {
-      this.setAgentMenu();
+      this.setActivateDeleteMenu(
+        BulkActionMenuLabel.ACTIVATE_AGENTS,
+        BulkActionMenuLabel.DEACTIVATE_AGENTS,
+        BulkActionMenuLabel.DELETE_AGENTS
+      );
+    } else if (this.dataType === 'users') {
+      this.setActivateDeleteMenu(
+        BulkActionMenuLabel.ACTIVATE_USERS,
+        BulkActionMenuLabel.DEACTIVATE_USERS,
+        BulkActionMenuLabel.DELETE_USERS
+      );
     } else if (this.dataType === 'hashlists') {
       this.setHashlistMenu();
     } else if (this.dataType === 'hashtypes') {
@@ -80,16 +90,21 @@ export class BulkActionMenuComponent
   }
 
   /**
-   * Sets the bulk menu items for an agent data type.
+   * Sets the bulk menu items for a data type with activate, deactivate and delete options.
+   * @param activateLabel Activate action label.
+   * @param deactivateLabel Deactiviate action label.
+   * @param deleteLabel Delete action label.
    */
-  private setAgentMenu(): void {
+  private setActivateDeleteMenu(
+    activateLabel: string,
+    deactivateLabel: string,
+    deleteLabel: string
+  ): void {
     this.setActionMenuItems(0, [
-      this.getActivateMenuItem(BulkActionMenuLabel.ACTIVATE_AGENTS),
-      this.getDeactivateMenuItem(BulkActionMenuLabel.DEACTIVATE_AGENTS)
+      this.getActivateMenuItem(activateLabel),
+      this.getDeactivateMenuItem(deactivateLabel)
     ]);
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_AGENTS)
-    ]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
   }
 
   /**

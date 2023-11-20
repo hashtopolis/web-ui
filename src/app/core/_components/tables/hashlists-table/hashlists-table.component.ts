@@ -71,11 +71,7 @@ export class HashlistsTableComponent
         name: HashlistsTableColumnLabel.NAME,
         dataKey: 'name',
         icons: (hashlist: Hashlist) => this.renderSecretIcon(hashlist),
-        routerLink: (hashlist: Hashlist) => [
-          {
-            routerLink: ['/hashlists', 'hashlist', hashlist._id, 'edit']
-          }
-        ],
+        routerLink: (hashlist: Hashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
         export: async (hashlist: Hashlist) => hashlist.name
       },
@@ -83,11 +79,7 @@ export class HashlistsTableComponent
         name: HashlistsTableColumnLabel.HASH_COUNT,
         dataKey: 'hashCount',
         isSortable: true,
-        routerLink: (hashlist: Hashlist) => [
-          {
-            routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist._id]
-          }
-        ],
+        routerLink: (hashlist: Hashlist) => this.renderHashCountLink(hashlist),
         export: async (hashlist: Hashlist) => hashlist.hashCount + ''
       },
       {

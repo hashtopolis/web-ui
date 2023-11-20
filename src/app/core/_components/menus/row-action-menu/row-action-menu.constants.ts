@@ -1,4 +1,8 @@
 export const RowActionMenuLabel = {
+  ACTIVATE_USER: 'Activate User',
+  ACTIVATE_AGENT: 'Activate Agent',
+  DEACTIVATE_USER: 'Deactivate User',
+  DEACTIVATE_AGENT: 'Deactivate Agent',
   EDIT_AGENT: 'Edit Agent',
   EDIT_TASK: 'Edit Task',
   EDIT_SUBTASKS: 'Edit Subtasks',
@@ -8,6 +12,7 @@ export const RowActionMenuLabel = {
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
   EDIT_AGENTBINARY: 'Edit Agent Binary',
   EDIT_HEALTHCHECK: 'Edit Health Check',
+  EDIT_USER: 'Edit User',
   DELETE_AGENT: 'Delete Agent',
   DELETE_CRACKER: 'Delete Cracker',
   DELETE_TASK: 'Delete Task',
@@ -18,6 +23,7 @@ export const RowActionMenuLabel = {
   DELETE_PREPROCESSOR: 'Delete Preprocessor',
   DELETE_AGENTBINARY: 'Delete Agent Binary',
   DELETE_HEALTHCHECK: 'Delete Health Check',
+  DELETE_USER: 'Delete User',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
@@ -35,7 +41,9 @@ export const RowActionMenuAction = {
   EDIT_SUBTASKS: 'edit-subtasks',
   NEW: 'new',
   IMPORT: 'import',
-  EXPORT: 'export'
+  EXPORT: 'export',
+  ACTIVATE: 'activate',
+  DEACTIVATE: 'deactivate'
 };
 
 export const RowActionMenuIcon = {
@@ -45,5 +53,7 @@ export const RowActionMenuIcon = {
   IMPORT: 'arrow_upwards',
   EXPORT: 'arrow_downward',
   COPY: 'content_copy',
-  ARCHIVE: 'archive'
+  ARCHIVE: 'archive',
+  ACTIVATE: 'check_circle',
+  DEACTIVATE: 'remove_circle'
 };

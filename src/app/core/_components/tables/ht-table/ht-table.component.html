@@ -139,7 +139,7 @@
           [class.icons]="tableColumn.icons"
         >
           <ng-container *ngIf="tableColumn.routerLink">
-            <span *ngFor="let link of tableColumn.routerLink(element)">
+            <span *ngFor="let link of tableColumn.routerLink(element) | async">
               <a [routerLink]="link.routerLink">
                 <ng-container *ngIf="link.label">
                   {{ link.label }}

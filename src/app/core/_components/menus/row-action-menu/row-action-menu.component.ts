@@ -22,10 +22,7 @@ export class RowActionMenuComponent
 {
   ngOnInit(): void {
     if (this.isAgent()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_AGENT,
-        RowActionMenuLabel.DELETE_AGENT
-      );
+      this.setAgentMenu();
     } else if (this.isSuperHashlist()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_SUPERHASHLIST,
@@ -51,6 +48,8 @@ export class RowActionMenuComponent
         RowActionMenuLabel.EDIT_HEALTHCHECK,
         RowActionMenuLabel.DELETE_HEALTHCHECK
       );
+    } else if (this.isUser()) {
+      this.setUserMenu();
     } else if (this.isTask()) {
       this.setTaskMenu();
     } else if (this.isHashlist()) {
@@ -87,6 +86,29 @@ export class RowActionMenuComponent
   /**
    * Sets the context menu items for an agent data row.
    */
+  private setAgentMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)
+    ]);
+    if (this.data['isActive']) {
+      this.addActionMenuItem(
+        0,
+        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT)
+      );
+    } else {
+      this.addActionMenuItem(
+        0,
+        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT)
+      );
+    }
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)
+    ]);
+  }
+
+  /**
+   * Sets the context menu items for an hashlist data row.
+   */
   private setHashlistMenu(): void {
     this.setActionMenuItems(0, []);
 
@@ -104,6 +126,30 @@ export class RowActionMenuComponent
         this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)
       ]);
     }
+  }
+
+  /**
+   * Sets the context menu items for a user data row.
+   */
+  private setUserMenu(): void {
+    if (this.data['isValid']) {
+      this.setActionMenuItems(0, [
+        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_USER)
+      ]);
+    } else {
+      this.setActionMenuItems(0, [
+        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_USER)
+      ]);
+    }
+
+    this.addActionMenuItem(
+      0,
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_USER)
+    );
+
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)
+    ]);
   }
 
   /**
@@ -228,6 +274,32 @@ export class RowActionMenuComponent
       label: label,
       action: RowActionMenuAction.ARCHIVE,
       icon: RowActionMenuIcon.ARCHIVE
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with activate action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with activate action.
+   */
+  private getActivateMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.ACTIVATE,
+      icon: RowActionMenuIcon.ACTIVATE
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with deactivate action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with deactivate action.
+   */
+  private getDeactivateMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.DEACTIVATE,
+      icon: RowActionMenuIcon.DEACTIVATE
     };
   }
 }

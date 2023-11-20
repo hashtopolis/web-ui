@@ -295,18 +295,26 @@ export abstract class BaseDataSource<
   /**
    * Resets the data source by clearing filters, deselecting all rows, and returning to page 1 (if using pagination).
    */
-  reset(): void {
-    // Clear any applied filters
-    this.filter = '';
-    this.dataSubject.next(this.originalData);
-
-    // Deselect all selected rows
-    this.selection.clear();
-
+  reset(firstPage: boolean): void {
+    this.resetFilter();
+    this.resetData();
+    this.clearSelection();
     // Return to page 1 if using pagination
-    if (this.paginator) {
+    if (firstPage && this.paginator) {
       this.paginator.firstPage();
     }
+  }
+
+  clearSelection(): void {
+    this.selection.clear();
+  }
+
+  resetData(): void {
+    this.dataSubject.next(this.originalData);
+  }
+
+  resetFilter(): void {
+    this.filter = '';
   }
 
   getFirstRow(): T | undefined {

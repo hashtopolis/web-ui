@@ -9,8 +9,10 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
     const params = {
-      maxResults: this.pageSize
+      maxResults: this.pageSize,
+      startAt: startAt
     };
 
     const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params);
@@ -35,7 +37,7 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
   }
 
   reload(): void {
-    this.reset();
+    this.clearSelection();
     this.loadAll();
   }
 }

@@ -19,8 +19,10 @@ export class FilesDataSource extends BaseDataSource<File> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
+      startAt: startAt,
       expand: 'accessGroup',
       filter: `fileType=${this.fileType}`
     };
@@ -54,7 +56,7 @@ export class FilesDataSource extends BaseDataSource<File> {
   }
 
   reload(): void {
-    this.reset();
+    this.clearSelection();
     this.loadAll();
   }
 }

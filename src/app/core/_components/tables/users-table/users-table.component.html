@@ -1,14 +1,13 @@
 <ht-table
   #table
-  name="superHashlistsTable"
-  dataType="superhashlists"
+  name="usersTable"
+  dataType="users"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
   [hasBulkActions]="hasBulkActions"
   [hasRowAction]="hasRowAction"
   [isFilterable]="true"
-  [isArchived]="isArchived"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

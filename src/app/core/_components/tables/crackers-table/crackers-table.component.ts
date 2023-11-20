@@ -10,6 +10,7 @@ import { catchError, forkJoin } from 'rxjs';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
+import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { CrackersDataSource } from 'src/app/core/_datasources/crackers.datasource';
 import { CrackersTableColumnLabel } from './crackers-table.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
@@ -67,16 +68,8 @@ export class CrackersTableComponent
       {
         name: CrackersTableColumnLabel.VERSIONS,
         dataKey: 'crackerVersions',
-        routerLink: (cracker: CrackerBinaryType) => {
-          const links: HTTableRouterLink[] = [];
-          for (const link of cracker.crackerVersions) {
-            links.push({
-              label: link.version,
-              routerLink: ['/config', 'engine', 'crackers', link._id, 'edit']
-            });
-          }
-          return links;
-        },
+        routerLink: (cracker: CrackerBinaryType) =>
+          this.renderVersions(cracker),
         isSortable: false,
         export: async (cracker: CrackerBinaryType) =>
           cracker.crackerVersions
@@ -229,5 +222,20 @@ export class CrackersTableComponent
       cracker.crackerBinaryTypeId,
       'new'
     ]);
+  }
+
+  @Cacheable(['_id', 'crackerVersions'])
+  async renderVersions(
+    cracker: CrackerBinaryType
+  ): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    for (const link of cracker.crackerVersions) {
+      links.push({
+        label: link.version,
+        routerLink: ['/config', 'engine', 'crackers', link._id, 'edit']
+      });
+    }
+
+    return links;
   }
 }

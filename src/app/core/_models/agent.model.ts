@@ -40,6 +40,7 @@ export interface Agent {
   taskName?: string;
   chunk?: Chunk;
   chunkId?: number;
+  benchmark?: string;
 }
 
 export interface IAgents {
