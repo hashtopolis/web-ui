@@ -35,6 +35,7 @@ export class HashtypesDataSource extends BaseDataSource<Hashtype> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

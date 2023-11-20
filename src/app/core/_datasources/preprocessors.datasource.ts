@@ -37,6 +37,7 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

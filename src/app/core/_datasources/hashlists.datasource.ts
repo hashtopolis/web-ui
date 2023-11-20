@@ -55,6 +55,7 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

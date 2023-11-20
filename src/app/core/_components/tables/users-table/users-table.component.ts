@@ -66,11 +66,7 @@ export class UsersTableComponent
       {
         name: UsersTableColumnLabel.NAME,
         dataKey: 'name',
-        routerLink: (user: User) => [
-          {
-            routerLink: ['/users', user._id, 'edit']
-          }
-        ],
+        routerLink: (user: User) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: User) => user.name
       },

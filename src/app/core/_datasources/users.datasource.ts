@@ -42,7 +42,7 @@ export class UsersDataSource extends BaseDataSource<User> {
   }
 
   reload(): void {
-    this.reset();
+    this.clearSelection();
     this.loadAll();
   }
 }

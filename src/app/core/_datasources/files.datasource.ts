@@ -56,6 +56,7 @@ export class FilesDataSource extends BaseDataSource<File> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

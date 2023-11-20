@@ -1,7 +1,11 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { File, FileType } from 'src/app/core/_models/file.model';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -68,11 +72,7 @@ export class FilesTableComponent
         name: FilesTableColumnLabel.NAME,
         dataKey: 'filename',
         icons: (file: File) => this.renderSecretIcon(file),
-        routerLink: (file: File) => [
-          {
-            routerLink: ['/files', file._id, this.editPath]
-          }
-        ],
+        routerLink: (file: File) => this.renderFileLink(file),
         isSortable: true,
         export: async (file: File) => file.filename
       },
@@ -246,6 +246,15 @@ export class FilesTableComponent
           this.reload();
         })
     );
+  }
+
+  @Cacheable(['_id', 'fileType'])
+  async renderFileLink(file: File): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: ['/files', file._id, this.editPath]
+      }
+    ];
   }
 
   private rowActionEdit(file: File): void {

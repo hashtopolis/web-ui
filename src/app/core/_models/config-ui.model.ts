@@ -30,15 +30,26 @@ export const uiConfigDefault: UIConfig = {
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
-    agentTable: [
+    agentsTable: [
       AgentsTableColumnLabel.ID,
-      AgentsTableColumnLabel.STATUS,
       AgentsTableColumnLabel.NAME,
-      AgentsTableColumnLabel.USER,
+      AgentsTableColumnLabel.STATUS,
+      AgentsTableColumnLabel.TASK_SPEED,
+      AgentsTableColumnLabel.CURRENT_TASK,
       AgentsTableColumnLabel.CLIENT,
       AgentsTableColumnLabel.GPUS_CPUS,
+      AgentsTableColumnLabel.LAST_ACTIVITY
+    ],
+    assignedAgentsTable: [
+      AgentsTableColumnLabel.ID,
+      AgentsTableColumnLabel.NAME,
+      AgentsTableColumnLabel.STATUS,
+      AgentsTableColumnLabel.TASK_SPEED,
       AgentsTableColumnLabel.LAST_ACTIVITY,
-      AgentsTableColumnLabel.ACCESS_GROUP
+      AgentsTableColumnLabel.TIME_SPENT,
+      AgentsTableColumnLabel.BENCHMARK,
+      AgentsTableColumnLabel.CRACKED,
+      AgentsTableColumnLabel.SEARCHED
     ],
     chunksTable: [
       ChunksTableColumnLabel.ID,

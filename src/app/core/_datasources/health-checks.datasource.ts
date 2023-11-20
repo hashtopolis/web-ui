@@ -55,6 +55,7 @@ export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

@@ -48,6 +48,7 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

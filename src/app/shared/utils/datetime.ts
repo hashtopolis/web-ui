@@ -24,8 +24,8 @@ export const unixTimestampInPast = (days: number): number => {
  *   - M: Month (1-12)
  *   - dd: Zero-padded day of the month (01-31)
  *   - d: Day of the month (1-31)
- *   - HH: Zero-padded hours in 24-hour format (00-23)
- *   - H: Hours in 24-hour format (0-23)
+ *   - hh: Zero-padded hours in 24-hour format (00-23)
+ *   - h: Hours in 24-hour format (0-23)
  *   - mm: Zero-padded minutes (00-59)
  *   - m: Minutes (0-59)
  *   - ss: Zero-padded seconds (00-59)
@@ -91,7 +91,7 @@ export function formatDate(date: Date, fmt: string): string {
  */
 export const formatSeconds = (seconds: number) => {
   if (seconds < 1) {
-    return 'N/A';
+    return '-';
   }
 
   const secondsInDay = 60 * 60 * 24;

@@ -37,6 +37,7 @@ export class LogsDataSource extends BaseDataSource<Log> {
   }
 
   reload(): void {
+    this.clearSelection();
     this.loadAll();
   }
 }

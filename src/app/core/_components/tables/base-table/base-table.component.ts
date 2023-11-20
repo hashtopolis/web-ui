@@ -12,9 +12,12 @@ import {
   uiConfigDefault
 } from 'src/app/core/_models/config-ui.model';
 
+import { AccessGroup } from 'src/app/core/_models/access-group.model';
+import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { ExportService } from 'src/app/core/_services/export/export.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
+import { HTTableRouterLink } from '../ht-table/ht-table.models';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -33,6 +36,17 @@ export class BaseTableComponent {
   protected subscriptions: Subscription[] = [];
 
   @ViewChild('table') table: HTTableComponent;
+
+  /** Name of the table, used when storing user customizations */
+  @Input() name: string;
+  /** Flag to enable bulk action menu */
+  @Input() hasBulkActions = true;
+  /** Flag to enable row action menu */
+  @Input() hasRowAction = true;
+  /** Flag to enable or disable selectable rows. */
+  @Input() isSelectable = true;
+  /** Flag to enable or disable filtering. */
+  @Input() isFilterable = true;
 
   constructor(
     protected gs: GlobalService,
@@ -73,5 +87,117 @@ export class BaseTableComponent {
     if (this.table) {
       this.table.reload();
     }
+  }
+
+  @Cacheable(['taskId'])
+  async renderTaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['taskId']
+          ? ['/tasks', 'show-tasks', obj['taskId'], 'edit']
+          : []
+      }
+    ];
+  }
+
+  @Cacheable(['agentId'])
+  async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['agentId']
+          ? ['/agents', 'show-agents', obj['agentId'], 'edit']
+          : []
+      }
+    ];
+  }
+
+  @Cacheable(['taskId'])
+  async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['taskId']
+          ? ['/hashlists', 'hashes', 'tasks', obj['taskId']]
+          : []
+      }
+    ];
+  }
+
+  @Cacheable(['userId'])
+  async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['userId'] ? ['/users', obj['userId'], 'edit'] : []
+      }
+    ];
+  }
+
+  @Cacheable(['chunkId'])
+  async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['chunkId']
+          ? ['/tasks', 'chunks', obj['chunkId'], 'view']
+          : []
+      }
+    ];
+  }
+
+  @Cacheable(['hashlistId'])
+  async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['hashlistId']
+          ? ['/hashlists', 'hashlist', obj['hashlistId'], 'edit']
+          : []
+      }
+    ];
+  }
+
+  @Cacheable(['hashlists'])
+  async renderHashlistLinks(obj: unknown): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+
+    if (obj['hashlists'] && obj['hashlists'].length) {
+      for (const hashlist of obj['hashlists']) {
+        links.push({
+          label: hashlist.name,
+          routerLink: ['/hashlists', 'hashlist', hashlist._id, 'edit']
+        });
+      }
+    }
+
+    return links;
+  }
+
+  @Cacheable(['hashlistId'])
+  async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj['hashlistId']
+          ? ['/hashlists', 'hashes', 'hashlists', obj['hashlistId']]
+          : []
+      }
+    ];
+  }
+
+  @Cacheable(['accessGroups'])
+  async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
+    let links: HTTableRouterLink[] = [];
+
+    if (obj['accessGroups'] && obj['accessGroups'].length) {
+      links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
+        return {
+          routerLink: [
+            '/users',
+            'access-groups',
+            accessGroup.accessGroupId,
+            'edit'
+          ],
+          label: accessGroup.groupName
+        };
+      });
+    }
+
+    return links;
   }
 }

@@ -213,6 +213,18 @@ input.dt-button {
   02- End
 */
 
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 table.hashtopolis-table {
   .mat-mdc-header-cell {
     background-color: $primary-800;
@@ -228,6 +240,11 @@ table.hashtopolis-table {
   }
 
   .mat-mdc-cell {
+    .pulsing-progress {
+      color: $warn-900;
+      animation: pulse 1s infinite;
+    }
+
     .row-action {
       .mat-icon {
         margin-right: 0;
