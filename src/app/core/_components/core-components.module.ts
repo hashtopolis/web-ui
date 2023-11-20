@@ -43,6 +43,7 @@ import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
+import { UsersTableComponent } from './tables/users-table/users-table.component';
 
 @NgModule({
   declarations: [
@@ -65,7 +66,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
-    LogsTableComponent
+    LogsTableComponent,
+    UsersTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -110,7 +112,8 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
-    LogsTableComponent
+    LogsTableComponent,
+    UsersTableComponent
   ],
   providers: [
     {

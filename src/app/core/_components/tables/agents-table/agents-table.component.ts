@@ -1,6 +1,10 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
 import { AccessGroup } from 'src/app/core/_models/access-group.model';
@@ -68,6 +72,7 @@ export class AgentsTableComponent
       {
         name: AgentsTableColumnLabel.STATUS,
         dataKey: 'status',
+        icons: (agent: Agent) => this.renderStatusIcon(agent),
         render: (agent: Agent) => this.renderStatus(agent),
         isSortable: true,
         export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
@@ -285,6 +290,23 @@ export class AgentsTableComponent
     return this.sanitize(data);
   }
 
+  @Cacheable(['_id', 'isActive'])
+  async renderStatusIcon(agent: Agent): Promise<HTTableIcon[]> {
+    return agent.isActive
+      ? [
+          {
+            name: 'check_circle',
+            cls: 'text-ok'
+          }
+        ]
+      : [
+          {
+            name: 'remove_circle',
+            cls: 'text-critical'
+          }
+        ];
+  }
+
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<Agent[]>): void {
@@ -321,6 +343,13 @@ export class AgentsTableComponent
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
         break;
+      case RowActionMenuAction.ACTIVATE:
+        this.bulkActionActivate([event.data], true);
+        break;
+      case RowActionMenuAction.DEACTIVATE:
+        this.bulkActionActivate([event.data], false);
+        break;
+
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],

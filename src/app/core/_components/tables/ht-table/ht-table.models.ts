@@ -9,6 +9,7 @@ export type DataType =
   | 'files'
   | 'crackers'
   | 'preprocessors'
+  | 'users'
   | 'agent-binaries'
   | 'health-checks'
   | 'logs'
