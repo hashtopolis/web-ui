@@ -1,0 +1,17 @@
+<ht-table
+  #table
+  name="hashlistsTable"
+  dataType="hashlists"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isFilterable]="true"
+  [isArchived]="isArchived"
+  [filterFn]="filter"
+  [isPageable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

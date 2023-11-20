@@ -1,48 +1,29 @@
-<div [ngSwitch]="whichView">
-  <div *ngSwitchCase="'wordlist'">
-    <app-page-title [title]="'Wordlists'" [buttontitle]="'New WordList'" [buttonlink]="'/files/wordlist/new-wordlist'" [subbutton]="true"></app-page-title>
-  </div>
-  <div *ngSwitchCase="'rules'">
-    <app-page-title [title]="'Rules'" [buttontitle]="'New Rule'" [buttonlink]="'/files/rules/new-rule'" [subbutton]="true"></app-page-title>
-  </div>
-  <div *ngSwitchCase="'other'">
-    <app-page-title [title]="'Other'" [buttontitle]="'New Other'" [buttonlink]="'/files/other/new-other'" [subbutton]="true"></app-page-title>
-  </div>
-</div>
-<!-- Files Table -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Name</th>
-          <th>Status</th>
-          <th>Size</th>
-          <th>Line Count</th>
-          <th>Access Group</th>
-          <th class="rounded-end">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let f of allfiles">
-          <td>{{ f.fileId }}</td>
-          <td><a class="point" (click)="onEdit(f.fileId)" ngbTooltip={{f.filename}}>{{ f.filename | shortenString:35 }}</a></td>
-          <td><fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true" ngbTooltip='Secret'></fa-icon></td>
-          <td>{{ f.size | fileSize:false }}</td>
-          <td>{{ f.lineCount | number: '2.' }}</td>
-          <td>{{ f.accessGroup.groupName }}</td>
-          <td>
-            <app-button-actions>
-              <button ngbDropdownItem (click)="onEdit(f.fileId)" data-placement="top" title="Edit">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-              </button>
-              <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="deleteFile(f.fileId,f.filename)" >
-                <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-              </button>
-            </app-button-actions>
-          </td>
-      </tr>
-    </tbody>
-  </table>
+  <ng-container [ngSwitch]="fileType">
+    <ng-container *ngSwitchCase="FileType.WORDLIST">
+      <app-page-title
+        title="Wordlist Files"
+        buttontitle="New WordList"
+        buttonlink="/files/wordlist/new-wordlist"
+        [subbutton]="true"
+      ></app-page-title>
+    </ng-container>
+    <ng-container *ngSwitchCase="FileType.RULES">
+      <app-page-title
+        title="Rule Files"
+        buttontitle="New Rule"
+        buttonlink="/files/rules/new-rule"
+        [subbutton]="true"
+      ></app-page-title>
+    </ng-container>
+    <ng-container *ngSwitchCase="FileType.OTHER">
+      <app-page-title
+        title="Other Files"
+        buttontitle="New File"
+        buttonlink="/files/other/new-other"
+        [subbutton]="true"
+      ></app-page-title>
+    </ng-container>
+  </ng-container>
+  <files-table [fileType]="fileType"></files-table>
 </app-table>

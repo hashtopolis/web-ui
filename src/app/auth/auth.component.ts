@@ -1,5 +1,7 @@
-import { AuthService, AuthResponseData } from '../core/_services/access/auth.service';
-import { faLock, faUser, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import {
+  AuthResponseData,
+  AuthService
+} from '../core/_services/access/auth.service';
 import { environment } from './../../environments/environment';
 import { Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,20 +10,13 @@ import { Observable } from 'rxjs';
 import { ConfigService } from '../core/_services/shared/config.service';
 
 @Component({
-  selector: 'app-auth',
+  selector: 'app-login',
   templateUrl: './auth.component.html'
 })
 export class AuthComponent implements OnInit {
-
-  faEyeSlash=faEyeSlash;
-  faLock=faLock;
-  faUser=faUser;
-  faEye=faEye;
-
   errorRes: string | null;
 
-  public showPassword: boolean;
-  public showPasswordOnPress: boolean;
+  public isVisible = true;
   headerConfig: any;
 
   constructor(
@@ -36,8 +31,8 @@ export class AuthComponent implements OnInit {
     this.configService.getEndpoint();
   }
 
-  onSubmit(form: NgForm){
-    if(!form.valid){
+  onSubmit(form: NgForm) {
+    if (!form.valid) {
       return;
     }
     const username = form.value.username;
@@ -48,18 +43,20 @@ export class AuthComponent implements OnInit {
     authObs = this.authService.logIn(username, password);
 
     authObs.subscribe(
-      resData =>{
-      if (this.authService.redirectUrl) {
-        const redirectUrl = this.authService.redirectUrl;
-        this.authService.redirectUrl = '';
-        this.authService.setUserLoggedIn(true);
-        this.router.navigate([redirectUrl]);
-      } else {
+      (resData) => {
+        if (this.authService.redirectUrl) {
+          const redirectUrl = this.authService.redirectUrl;
+          this.authService.redirectUrl = '';
+          this.authService.setUserLoggedIn(true);
+          this.router.navigate([redirectUrl]);
+        } else {
           this.router.navigate(['/']);
+        }
+      },
+      (errorMessage) => {
+        this.errorRes = errorMessage;
       }
-    }, errorMessage => {
-      this.errorRes = errorMessage;
-    });
+    );
 
     form.reset();
   }
@@ -67,5 +64,4 @@ export class AuthComponent implements OnInit {
   onHandleError() {
     this.errorRes = null;
   }
-
 }

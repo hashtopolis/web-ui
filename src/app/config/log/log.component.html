@@ -1,31 +1,4 @@
-<app-page-title [title]="'Logs'" [subbutton]="false"></app-page-title>
-<!-- Body Log Entries -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Time</th>
-          <th>Level</th>
-          <th>Issuer</th>
-          <th class="rounded-end">Message</th>
-      </tr>
-      </thead>
-      <tbody>
-        <ng-container>
-          <tr *ngFor="let l of logs" [ngStyle]="{'background-color':l.level | warningColor }">
-              <td class="display-col">{{ l.logEntryId }}</td>
-              <td class="display-col">{{ l.time | uiDate }}</td>
-              <td class="display-col">{{ l.level | lowercase | titlecase }}</td>
-              <td class="display-col">{{ l.issuer }}-ID-{{ l.issuerId }}</td>
-              <td class="display-col">{{ l.message }}</td>
-          </tr>
-        </ng-container>
-      </tbody>
-  </table>
-  <cm-pagination
-                [totalItems]="totalRecords"
-                [pageSize]="pageSize"
-                (pageChanged)="pageChanged($event)"
-    ></cm-pagination>
+  <app-page-title title="Logs" [subbutton]="false"></app-page-title>
+  <logs-table [hasBulkActions]="false" [hasRowAction]="false"></logs-table>
 </app-table>

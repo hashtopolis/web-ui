@@ -85,6 +85,7 @@
     "@angular-eslint/template-parser": "16.0.3",
     "@angular/cli": "^16.1.4",
     "@angular/compiler-cli": "^16.1.4",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.1",
     "@types/datatables.net": "^1.10.24",
     "@types/datatables.net-select": "^1.2.7",
     "@types/jasmine": "~4.3.5",

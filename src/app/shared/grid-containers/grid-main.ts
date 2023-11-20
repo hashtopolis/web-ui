@@ -3,14 +3,9 @@ import { Component, Input, OnInit } from '@angular/core';
 @Component({
   selector: 'grid-main',
   template: `
-<div class="grid-container-main">
-  <div class="row justify-content-center">
-    <div [ngClass]="centered ? 'col-12 d-flex align-items-center justify-content-center':'col-12 d-flex' ">
-      <div class="layout-col shadow border-0 rounded p-4 p-lg-5 {{class}}" style="{{class}}">
-          <div #content><ng-content></ng-content></div>
-    </div>
-  </div>
-</div>
+  <mat-card  class="grid-card">
+    <ng-container #content><ng-content></ng-content></ng-container>
+  </mat-card>
 `,
 host: {
   "(window:resize)":"onWindowResize($event)"

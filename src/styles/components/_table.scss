@@ -7,12 +7,12 @@
   01- Main Style
 */
 .table .thead-light th {
-  background-color: #F2F4F6;
-  color: #1F2937;
+  background-color: #f2f4f6;
+  color: #1f2937;
 }
 
 .table .thead-light th a {
-  color: #1F2937;
+  color: #1f2937;
 }
 
 .th {
@@ -37,8 +37,7 @@
 }
 
 // Overrule datatables color setting
-table.dataTable tbody tr.selected>* {
-
+table.dataTable tbody tr.selected > * {
   // box-shadow: inset 0 0 0 9999px rgb(89, 143, 105) !important;
   a {
     color: rgb(246, 246, 246) !important;
@@ -51,7 +50,7 @@ table.dataTable {
     padding-right: 12px;
     text-align: left;
     vertical-align: bottom;
-    font-size: .975rem;
+    font-size: 0.975rem;
     font-weight: 400;
     font-weight: normal;
     color: #999;
@@ -62,7 +61,7 @@ table.dataTable {
     padding: 10px 10px;
     // vertical-align: top;
     text-align: left;
-    font-size: .930rem;
+    font-size: 0.93rem;
     font-weight: 400;
     font-weight: normal;
   }
@@ -72,8 +71,8 @@ table.dataTable {
   }
 
   .checkmark {
-    --bs-badge-padding-x: 0.0em !important;
-    --bs-badge-padding-y: 0.0em !important;
+    --bs-badge-padding-x: 0em !important;
+    --bs-badge-padding-y: 0em !important;
     line-height: 1 !important;
     white-space: normal !important;
   }
@@ -88,13 +87,13 @@ table.dataTable {
   display: none !important;
 }
 
-.table.dataTable.table-hover>tbody>tr:hover>* {
+.table.dataTable.table-hover > tbody > tr:hover > * {
   background-color: rgb(249, 249, 167);
 }
 
 .btn-actions {
   vertical-align: center;
-  font-size: .680rem;
+  font-size: 0.68rem;
   font-weight: 400;
   font-weight: normal;
 }
@@ -104,7 +103,6 @@ div.dt-button-collection div.dt-button,
 div.dt-button-collection a.dt-button {
   position: relative;
   display: block !important;
-  ;
   padding: 0.5em 0 !important;
   margin: 4px 0 2px 0 !important;
   overflow-x: visible !important;
@@ -123,7 +121,7 @@ div.dt-button-background:not(.disabled) {
 div.dt-button-collection {
   background-color: #dadada;
   color: #c71919 !important;
-  border-color: #4B5563 !important;
+  border-color: #4b5563 !important;
   padding: 4px 4px 2px !important;
   line-height: 1.6em !important;
   overflow-x: visible !important;
@@ -140,17 +138,16 @@ div.dt-button-collection {
   margin-bottom: 0px !important;
 }
 
-.table.dataTable.table-hover>tbody>tr:hover>* {
+.table.dataTable.table-hover > tbody > tr:hover > * {
   background-color: rgb(117, 117, 114);
 }
 
 .btn-actions {
   vertical-align: center;
-  font-size: .680rem;
+  font-size: 0.68rem;
   font-weight: 400;
   font-weight: normal;
 }
-
 
 div.dt-button-collection span {
   color: #ffffff;
@@ -161,11 +158,15 @@ div.dt-button,
 a.dt-button,
 input.dt-button {
   box-sizing: border-box;
-  border: 1px solid rgba(0, 0, 0, .3);
+  border: 1px solid rgba(0, 0, 0, 0.3);
   line-height: 1.6em;
   white-space: nowrap;
   overflow: hidden;
-  background: linear-gradient(to bottom, rgba(230, 230, 230, .1) 0%, rgba(0, 0, 0, .1) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(230, 230, 230, 0.1) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   user-select: none;
   text-decoration: none;
   outline: none;
@@ -178,7 +179,7 @@ input.dt-button {
 .paginate_button.disabled,
 .paginate_button.disabled:hover,
 .paginate_button.disabled:active {
-  display: none
+  display: none;
 }
 
 /*
@@ -189,14 +190,14 @@ input.dt-button {
   02- Pagination
 */
 
-.pagination>.active>a,
-.pagination>.active>a:focus,
-.pagination>.active>a:hover,
-.pagination>.active>span,
-.pagination>.active>span:focus,
-.pagination>.active>span:hover {
-  background-color: #4B5563;
-  border-color: #4B5563;
+.pagination > .active > a,
+.pagination > .active > a:focus,
+.pagination > .active > a:hover,
+.pagination > .active > span,
+.pagination > .active > span:focus,
+.pagination > .active > span:hover {
+  background-color: #4b5563;
+  border-color: #4b5563;
   color: #e0e4ea;
 }
 
@@ -212,6 +213,17 @@ input.dt-button {
   02- End
 */
 
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
 table.hashtopolis-table {
   .mat-mdc-header-cell {
@@ -227,24 +239,81 @@ table.hashtopolis-table {
     background-color: $primary-100;
   }
 
-  .flex-container {
-    display: flex;
-    justify-content: flex-start;
+  .mat-mdc-cell {
+    .pulsing-progress {
+      color: $warn-900;
+      animation: pulse 1s infinite;
+    }
 
-    .mat-icon {
-      margin-top: -3px;
+    .row-action {
+      .mat-icon {
+        margin-right: 0;
+      }
+    }
+    .flex-container {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+
+      .mat-icon {
+        margin-top: -3px;
+        margin-left: 3px;
+      }
+
+      a {
+        display: inline;
+        border-bottom: 1px dotted $primary-300;
+        &:last-child {
+          border-bottom: none;
+        }
+        &::after {
+          content: '\a';
+          white-space: pre;
+        }
+      }
+      &.icons {
+        flex-direction: row;
+      }
+    }
+    .tructate {
+      a {
+        display: inline-block;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &.text-right {
+      text-align: right;
     }
   }
-
 }
 
 div.table-actions {
   display: flex;
   justify-content: space-between;
-  margin-bottom: .5rem;
+  align-items: flex-end;
+  margin-bottom: 0.5rem;
+  font-size: 12px;
 
   .right-aligned {
     margin-left: auto;
+
+    .mdc-notched-outline {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .mat-icon {
+      padding-right: 0;
+      color: $primary-100;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
   }
 }
 

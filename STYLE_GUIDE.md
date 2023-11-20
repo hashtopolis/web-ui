@@ -22,7 +22,9 @@ This document outlines the coding and documentation conventions for our project.
 
 ### Variable Names:
 
-Choose variable names that are descriptive, clear, and contextually relevant, avoiding ambiguity, generic terms, and "magic" values, and strive for consistency and single responsibility to enhance code readability and maintainability.
+Choose variable names that are descriptive, clear, and contextually relevant, avoiding ambiguity, generic terms, and "magic" values, and strive for consistency and single responsibility to enhance code readability and maintainability. Below are some guidelines for variable naming.
+
+- Boolean Variables: consider using prefixes like is (e.g., isVisible, isFinished) or has (e.g., hasPermission, hasErrors)
 
 ### Constants:
 
@@ -79,7 +81,6 @@ Choose variable names that are descriptive, clear, and contextually relevant, av
 
 - Use kebab-case for route paths (e.g., /user-profile, /dashboard).
 - Use PascalCase for route components (e.g., UserProfileComponent, DashboardComponent).
-
 
 ## 3. Comments
 

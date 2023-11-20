@@ -10,4 +10,8 @@ export const AgentsTableColumnLabel = {
   CURRENT_TASK: 'Task',
   CURRENT_CHUNK: 'Chunk',
   TASK_SPEED: 'Speed',
-}
+  BENCHMARK: 'Benchmark',
+  TIME_SPENT: 'Time Spent',
+  SEARCHED: 'Keyspace Searched',
+  CRACKED: 'Cracked'
+};
