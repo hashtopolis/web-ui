@@ -15,19 +15,16 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { environment } from './../../../environments/environment';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { environment } from '../../../../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { Hashlist } from 'src/app/core/_models/hashlist.model';
-import { SERV } from '../../core/_services/main.config';
-import { extractIds } from '../../shared/utils/forms';
-
-interface SelectField {
-  _id: string;
-  name: string;
-}
+import { extractIds } from '../../../../../../shared/utils/forms';
+import { SelectField } from 'src/app/core/_models/input.model';
+import { SERV } from '../../../../../_services/main.config';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -48,7 +45,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   private maxResults = environment.config.prodApiMaxResults;
 
   /** List of hashlists. */
-  hashlists: any;
+  selectHashlists: any;
 
   // Util functions
   /** Utility function for extracting IDs from a list of items. */
@@ -115,8 +112,8 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         maxResults: this.maxResults,
         filter: 'isArchived=false,format=0'
       })
-      .subscribe((response: any) => {
-        this.hashlists = response.values;
+      .subscribe((response: ListResponseWrapper<Hashlist>) => {
+        this.selectHashlists = response.values;
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });

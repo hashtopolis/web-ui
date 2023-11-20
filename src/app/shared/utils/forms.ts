@@ -64,6 +64,33 @@ export function extractIds(dataArray: any[], idKey: string): number[] {
 }
 
 /**
+ * Transforms API response options based on a field mapping configuration.
+ *
+ * @param apiOptions - The options received from an API response.
+ * @param field - The field configuration that contains the mapping between form fields and API fields.
+ *
+ * @returns An array of transformed select options to be used in the form.
+ */
+export function transformSelectOptions(apiOptions: any[], field: any): any[] {
+  return apiOptions.map((apiOption: any) => {
+    const transformedOption: any = {};
+
+    for (const formField of Object.keys(field.fieldMapping)) {
+      const apiField = field.fieldMapping[formField];
+
+      if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
+        transformedOption[formField] = apiOption[apiField];
+      } else {
+        // Handle the case where the API field doesn't exist in the response
+        transformedOption[formField] = null; // or set a default value
+      }
+    }
+
+    return transformedOption;
+  });
+}
+
+/**
  * https://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
  *
  * Converts an HSL color value to RGB. Conversion formula

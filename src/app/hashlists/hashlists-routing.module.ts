@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
 
-import { NewSuperhashlistComponent } from './new-superhashlist/new-superhashlist.component';
+import { NewSuperhashlistComponent } from '../core/_components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 import { SuperhashlistComponent } from './superhashlist/superhashlist.component';
 import { EditHashlistComponent } from './edit-hashlist/edit-hashlist.component';
 import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';

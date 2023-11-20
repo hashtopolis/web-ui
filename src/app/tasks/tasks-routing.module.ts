@@ -7,7 +7,7 @@ import { EditPreconfiguredTasksComponent } from './edit-preconfigured-tasks/edit
 import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-preconfigured-tasks.component';
 import { PreconfiguredTasksComponent } from './preconfigured-tasks/preconfigured-tasks.component';
 import { EditSupertasksComponent } from './edit-supertasks/edit-supertasks.component';
-import { NewSupertasksComponent } from './new-supertasks/new-supertasks.component';
+import { NewSupertasksComponent } from '../core/_components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
 import { ApplyHashlistComponent } from './supertasks/applyhashlist.component';
 import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
 import { PendingChangesGuard } from '../core/_guards/pendingchanges.guard';

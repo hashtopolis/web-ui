@@ -12,7 +12,7 @@ import { HashlistComponent } from './hashlist/hashlist.component';
 import { HashlistRoutingModule } from './hashlists-routing.module';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
-import { NewSuperhashlistComponent } from './new-superhashlist/new-superhashlist.component';
+import { NewSuperhashlistComponent } from '../core/_components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';

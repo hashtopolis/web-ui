@@ -1,5 +1,7 @@
-<app-page-subtitle [subtitle]="'Create Superhaslist'"></app-page-subtitle>
 <grid-main>
+
+  <app-page-subtitle [subtitle]="'Create Superhaslist'"></app-page-subtitle>
+
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
     <app-input-text title="Name" formControlName="name" [error]="error?.name"></app-input-text>
@@ -7,7 +9,7 @@
     <app-input-multiselect
       [isLoading]="isLoading"
       [placeholder]="'Haslists...'"
-      [arrayOfObjects]="hashlists"
+      [arrayOfObjects]="selectHashlists"
       [mergeIdAndName]="true"
       [label]="'Select or search Hashlists:'"
       [externalControl]="form.get('hashlistIds')"
