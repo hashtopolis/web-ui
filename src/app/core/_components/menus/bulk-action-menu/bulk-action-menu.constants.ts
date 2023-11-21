@@ -11,6 +11,7 @@ export const BulkActionMenuLabel = {
   DELETE_HEALTHCHECKS: 'Delete Health Checks',
   DELETE_USERS: 'Delete Users',
   DELETE_ACCESSGROUPS: 'Delete Access Groups',
+  DELETE_PERMISSIONS: 'Delete Permission Groups',
   ACTIVATE_AGENTS: 'Activate Agents',
   ACTIVATE_USERS: 'Activate Users',
   ACTIVATE_NOTIFICATION: 'Activate Notification',

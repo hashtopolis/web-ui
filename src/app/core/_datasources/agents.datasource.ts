@@ -90,7 +90,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
     const users$ = this.service.getAll(SERV.USERS, params);
-    //const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS)
 
     forkJoin([users$, agentAssign$, chunks$])
       .pipe(
@@ -115,6 +114,7 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
             agent.task = task;
             agent.user = users.find((e: User) => e._id === agent.userId);
             agent.taskName = agent.task.taskName;
+            agent.taskId = agent.task._id;
             agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
             if (agent.chunk) {
               agent.chunkId = agent.chunk._id;

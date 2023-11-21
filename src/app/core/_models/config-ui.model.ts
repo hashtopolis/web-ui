@@ -2,11 +2,13 @@ import { AgentBinariesTableColumnLabel } from '../_components/tables/agent-binar
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/crackers-table.constants';
+import { CracksTableColumnLabel } from '../_components/tables/cracks-table/cracks-table.constants';
 import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
 import { HealthChecksTableColumnLabel } from '../_components/tables/health-checks-table/health-checks-table.constants';
 import { NotificationsTableColumnLabel } from '../_components/tables/notifications-table/notifications-table.constants';
+import { PermissionsTableColumnLabel } from '../_components/tables/permissions-table/permissions-table.constants';
 import { PreprocessorsTableColumnLabel } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
 import { SuperHashlistsTableColumnLabel } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 
@@ -38,6 +40,20 @@ export const uiConfigDefault: UIConfig = {
       NotificationsTableColumnLabel.ACTION,
       NotificationsTableColumnLabel.NOTIFICATION,
       NotificationsTableColumnLabel.RECEIVER
+    ],
+    permissionsTable: [
+      PermissionsTableColumnLabel.ID,
+      PermissionsTableColumnLabel.NAME,
+      PermissionsTableColumnLabel.MEMBERS
+    ],
+    cracksTable: [
+      CracksTableColumnLabel.FOUND,
+      CracksTableColumnLabel.PLAINTEXT,
+      CracksTableColumnLabel.HASH,
+      CracksTableColumnLabel.AGENT,
+      CracksTableColumnLabel.TASK,
+      CracksTableColumnLabel.CHUNK,
+      CracksTableColumnLabel.TYPE
     ],
     agentsTable: [
       AgentsTableColumnLabel.ID,

@@ -15,6 +15,8 @@ export type DataType =
   | 'agent-binaries'
   | 'health-checks'
   | 'logs'
+  | 'permissions'
+  | 'cracks'
   | 'superhashlists';
 
 export interface HTTableIcon {
@@ -38,4 +40,5 @@ export interface HTTableColumn {
   async?: (data: any) => Promise<SafeHtml>;
   routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
+  truncate?: boolean;
 }

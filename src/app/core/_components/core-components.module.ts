@@ -15,6 +15,7 @@ import { ChunksTableComponent } from './tables/chunks-table/chunks-table.compone
 import { ColumnSelectionDialogComponent } from './tables/column-selection-dialog/column-selection-dialog.component';
 import { CommonModule } from '@angular/common';
 import { CrackersTableComponent } from './tables/crackers-table/crackers-table.component';
+import { CracksTableComponent } from './tables/cracks-table/cracks-table.component';
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { FilesTableComponent } from './tables/files-table/files-table.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
@@ -40,16 +41,19 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
 import { NotificationsTableComponent } from './tables/notifications-table/notifications-table.component';
+import { PermissionsTableComponent } from './tables/permissions-table/permissions-table.component';
 import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
+import { TableTruncateComponent } from './tables/table-truncate/table-truncate.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 
 @NgModule({
   declarations: [
     TableDialogComponent,
+    TableTruncateComponent,
     BaseTableComponent,
     HTTableComponent,
     BaseMenuComponent,
@@ -71,7 +75,9 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
-    NotificationsTableComponent
+    NotificationsTableComponent,
+    PermissionsTableComponent,
+    CracksTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -99,6 +105,7 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
   ],
   exports: [
     BaseTableComponent,
+    TableTruncateComponent,
     HTTableComponent,
     ColumnSelectionDialogComponent,
     BaseMenuComponent,
@@ -119,7 +126,9 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
-    NotificationsTableComponent
+    NotificationsTableComponent,
+    PermissionsTableComponent,
+    CracksTableComponent
   ],
   providers: [
     {

@@ -46,6 +46,10 @@ import { MatChipsModule } from '@angular/material/chips';
     HashesComponent
   ],
   imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ComponentsModule,
     HashlistRoutingModule,
     ReactiveFormsModule,
     CoreComponentsModule,
@@ -65,10 +69,6 @@ import { MatChipsModule } from '@angular/material/chips';
     MatTooltipModule,
     MatFormFieldModule,
     DirectivesModule,
-    ComponentsModule,
-    CommonModule,
-    RouterModule,
-    FormsModule,
     PipesModule,
     NgbModule
   ]
