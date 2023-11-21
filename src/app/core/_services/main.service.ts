@@ -1,4 +1,3 @@
-
 import {
   Observable,
   catchError,
@@ -12,9 +11,8 @@ import {
   take,
   tap
 } from 'rxjs';
-import { Observable, debounceTime, delay, retryWhen, take, tap } from 'rxjs';
 import { environment } from './../../../environments/environment';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { AuthService } from './access/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { setParameter } from './buildparams';
@@ -52,7 +50,7 @@ export class GlobalService {
    * Service method to retrieve data from the API.
    * If a value is specified for maxResults, it will be utilized; otherwise, the system will default to the maxResults defined in the configuration and load the data in chunks of the specified maxResults.
    * @param methodUrl - The API endpoint URL.
-   * @param routerParams - Parameters for the API request, including options such as max number of results or filtering.
+   * @param routerParams - Parameters for the API request, including options such as Max number of results or filtering.
    * @returns An observable that emits the API response.
    */
   getAll(methodUrl: string, routerParams?: Params): Observable<any> {
@@ -105,11 +103,6 @@ export class GlobalService {
           return of({ values: [] });
         })
       );
-      queryParams = setParameter(routerParams);
-    }
-    return this.http.get(this.cs.getEndpoint() + methodUrl, {
-      params: queryParams
-    });
   }
 
   /**
