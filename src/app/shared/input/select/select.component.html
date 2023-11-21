@@ -1,0 +1,33 @@
+<mat-form-field>
+  <mat-label>{{ title }}
+    <mat-icon
+      matTooltip="{{ tooltip }}"
+      matTooltipPosition="below"
+      matTooltipClass="tooltip-custom-style"
+      container="body"
+      aria-hidden="true"
+      *ngIf="tooltip"
+    >
+      info
+    </mat-icon>
+  </mat-label>
+  <button mat-icon-button (click)="toggleSortOrder()">
+    <mat-icon>{{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+  </button>
+  <mat-select
+            name="{{ inputId }}"
+            [(ngModel)]="value"
+            [disabled]="disabled"
+            [placeholder]="hint"
+            [multiple]="false"
+            (selectionChange)="onChange(value)"
+            (closed)="clearLastSearchTerm()"
+            (opened)="clearLastSearchTerm()"
+            >
+    <mat-option *ngFor="let item of sortedOptions()" [value]="item.id">
+      {{ item.name }}
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+  <mat-error *ngIf="error">{{ error }}</mat-error>
+</mat-form-field>

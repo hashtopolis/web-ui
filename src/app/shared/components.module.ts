@@ -4,7 +4,7 @@ import { ButtonsModule } from './buttons/buttons.module';
 import { CheatsheetComponent } from './alert/cheatsheet/cheatsheet.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { CommonModule } from '@angular/common';
-import { DynamicFormModule } from './form/dynamicform.module';
+import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
 import { FilterTextboxModule } from './filter-textbox/filter-textbox.module';
 import { FormsModule } from '@angular/forms';
 import { GraphsModule } from './graphs/graphs.module';
@@ -12,6 +12,7 @@ import { GridModule } from './grid-containers/grid.module';
 import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
 import { HexconvertorComponent } from './utils/hexconvertor/hexconvertor.component';
 import { HorizontalNavModule } from './navigation/navigation.module';
+import { InputModule } from './input/input.module';
 import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
 import { LottiesModule } from './lottie/lottie.module';
 import { MatButtonModule } from '@angular/material/button';
@@ -62,7 +63,9 @@ import { TimeoutDialogComponent } from './dialog/timeout/timeout-dialog.componen
     MatIconModule,
     GraphsModule,
     TableModule,
-    GridModule
+    InputModule,
+    GridModule,
+    NgbModule
   ],
   exports: [
     HashtypeDetectorComponent,
@@ -86,6 +89,7 @@ import { TimeoutDialogComponent } from './dialog/timeout/timeout-dialog.componen
     LottiesModule,
     GraphsModule,
     CommonModule,
+    InputModule,
     TableModule,
     GridModule
   ]

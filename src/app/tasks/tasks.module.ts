@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ModalPretasksComponent } from './supertasks/modal-pretasks/modal-pretasks.component';
 import { ModalSubtasksComponent } from './show-tasks/modal-subtasks/modal-subtasks.component';
 import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-preconfigured-tasks.component';
-import { NewSupertasksComponent } from './new-supertasks/new-supertasks.component';
+import { NewSupertasksComponent } from '../core/_components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
 import { NewTasksComponent } from './new-tasks/new-tasks.component';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';

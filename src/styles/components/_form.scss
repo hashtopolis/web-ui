@@ -3,17 +3,6 @@
    ================================== */
 
 /*
-  00- Define SASS variables
-*/
-
-$hyperlink-color: #2196f3; // Adjust the color to your preference
-$alert-color: #ffebee; // Adjust the alert color to your preference
-
-$btn-text-color: #ffffff;
-$btn-bg-color: #1986b1;
-$btn-border-color: #1986b1;
-
-/*
   01- Highlight validation in red
 */
 
@@ -271,6 +260,47 @@ progress::-webkit-progress-value {
 
 /*
   07- End
+*/
+
+/*
+  08- Mat Autocomplete
+*/
+
+.custom-chip-grid {
+  width: 100%;
+}
+
+.highlight-text {
+  background-color: $search-text-highlight-color;
+}
+
+
+/*
+  08- End
+*/
+
+/*
+  09- Shared/Input
+*/
+
+.color-picker-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+}
+
+.color-picker-field {
+  flex: 1; /* Allow the mat-form-field to grow and take available space */
+  margin-right: 16px; /* Adjust the margin between the field and the button */
+}
+
+.custom-textarea {
+  width: 100%;
+  min-width: 300px; /* Set your desired minimum width */
+  max-width: 600px; /* Set your desired maximum width */
+}
+
+/*
+  09
 */
 
 $custom-form-min-width: 150px;

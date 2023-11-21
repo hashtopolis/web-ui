@@ -8,11 +8,11 @@ import { NewHealthChecksComponent } from './health-checks/new-health-check/new-h
 import { AgentBinariesComponent } from './engine/agent-binaries/agent-binaries.component';
 import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
 import { HealthChecksComponent } from './health-checks/health-checks.component';
-import { FormConfigComponent } from '../shared/form/formconfig.component';
+import { FormConfigComponent } from '../core/_components/forms/simple-forms/formconfig.component';
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { CrackersComponent } from './engine/crackers/crackers.component';
 import { HashtypesComponent } from './hashtypes/hashtypes.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { FormComponent } from '../shared/form/form.component';
 import { SERV } from '../core/_services/main.config';
 import { LogComponent } from './log/log.component';
 
