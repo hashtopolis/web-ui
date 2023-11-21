@@ -93,9 +93,10 @@ export class BaseTableComponent {
   async renderTaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['taskId']
-          ? ['/tasks', 'show-tasks', obj['taskId'], 'edit']
-          : []
+        routerLink:
+          obj && obj['taskId']
+            ? ['/tasks', 'show-tasks', obj['taskId'], 'edit']
+            : []
       }
     ];
   }
@@ -104,9 +105,10 @@ export class BaseTableComponent {
   async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['agentId']
-          ? ['/agents', 'show-agents', obj['agentId'], 'edit']
-          : []
+        routerLink:
+          obj && obj['agentId']
+            ? ['/agents', 'show-agents', obj['agentId'], 'edit']
+            : []
       }
     ];
   }
@@ -115,9 +117,10 @@ export class BaseTableComponent {
   async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['taskId']
-          ? ['/hashlists', 'hashes', 'tasks', obj['taskId']]
-          : []
+        routerLink:
+          obj && obj['taskId']
+            ? ['/hashlists', 'hashes', 'tasks', obj['taskId']]
+            : []
       }
     ];
   }
@@ -126,7 +129,8 @@ export class BaseTableComponent {
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['userId'] ? ['/users', obj['userId'], 'edit'] : []
+        routerLink:
+          obj && obj['userId'] ? ['/users', obj['userId'], 'edit'] : []
       }
     ];
   }
@@ -135,9 +139,10 @@ export class BaseTableComponent {
   async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['chunkId']
-          ? ['/tasks', 'chunks', obj['chunkId'], 'view']
-          : []
+        routerLink:
+          obj && obj['chunkId']
+            ? ['/tasks', 'chunks', obj['chunkId'], 'view']
+            : []
       }
     ];
   }
@@ -146,9 +151,10 @@ export class BaseTableComponent {
   async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['hashlistId']
-          ? ['/hashlists', 'hashlist', obj['hashlistId'], 'edit']
-          : []
+        routerLink:
+          obj && obj['hashlistId']
+            ? ['/hashlists', 'hashlist', obj['hashlistId'], 'edit']
+            : []
       }
     ];
   }
@@ -157,7 +163,7 @@ export class BaseTableComponent {
   async renderHashlistLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
-    if (obj['hashlists'] && obj['hashlists'].length) {
+    if (obj && obj['hashlists'] && obj['hashlists'].length) {
       for (const hashlist of obj['hashlists']) {
         links.push({
           label: hashlist.name,
@@ -173,9 +179,22 @@ export class BaseTableComponent {
   async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj['hashlistId']
-          ? ['/hashlists', 'hashes', 'hashlists', obj['hashlistId']]
-          : []
+        routerLink:
+          obj && obj['hashlistId']
+            ? ['/hashlists', 'hashes', 'hashlists', obj['hashlistId']]
+            : []
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderPermissionLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['id']
+            ? ['/users', 'global-permissions-groups', obj['id'], 'edit']
+            : []
       }
     ];
   }
@@ -196,7 +215,7 @@ export class BaseTableComponent {
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
 
-    if (obj['accessGroups'] && obj['accessGroups'].length) {
+    if (obj && obj['accessGroups'] && obj['accessGroups'].length) {
       links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
         return {
           routerLink: [

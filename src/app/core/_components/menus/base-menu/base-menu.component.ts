@@ -89,6 +89,18 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "GlobalPermissionGroup".
+   * @returns `true` if the data row is a permission; otherwise, `false`.
+   */
+  protected isPermission(): boolean {
+    try {
+      return this.data['_id'] === this.data['id'] && 'permissions' in this.data;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Check if the data row is of type "HealthCheck".
    * @returns `true` if the data row is a health check; otherwise, `false`.
    */

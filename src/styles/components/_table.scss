@@ -245,6 +245,10 @@ table.hashtopolis-table {
       animation: pulse 1s infinite;
     }
 
+    .text-container button {
+      color: $accent-900;
+    }
+
     .row-action {
       .mat-icon {
         margin-right: 0;
@@ -323,6 +327,15 @@ div.table-actions {
 
     .mat-mdc-row:hover {
       background-color: $primary-900;
+    }
+
+    .mat-mdc-cell {
+      .pulsing-progress {
+        color: $warn-300;
+      }
+      .text-container button {
+        color: $accent-600;
+      }
     }
   }
 

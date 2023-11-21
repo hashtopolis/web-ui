@@ -45,7 +45,6 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   currentUrl: any[];
   isActive = false;
-  isOpen = false;
 
   /** Icon to be displayed in the menu button. */
   @Input() icon: string;
