@@ -1,0 +1,17 @@
+.text-container {
+  display: inline-block;
+  position: relative;
+  max-width: 200px;
+  word-break: break-word;
+  margin: 0;
+  padding: 0;
+
+  button {
+    display: inline-block;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+  }
+}
