@@ -7,16 +7,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  *
  * Usage Example:
  * ```html
-    <app-input-date
+    input-date
     title="Date created"
     formControlName="name"
     [error]="error?.created"
     hint="DD/MM/YYYY" //Hint needs to be connected with localstorage and get date format from UISettings or Settings
-    ></app-input-date>
+    ></input-date>
  * ```
  */
 @Component({
-  selector: 'app-input-date',
+  selector: 'input-date',
   templateUrl: './date.component.html',
   providers: [
     {

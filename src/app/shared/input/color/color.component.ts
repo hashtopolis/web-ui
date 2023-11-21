@@ -18,14 +18,14 @@ import { ChangeDetectorRef } from '@angular/core';
  *
  * Usage Example:
  * ```html
-    <app-input-color
+    <input-color
       formControlName="name"
       title="Label Name"
-    ></app-input-color>
+    ></input-color>
  * ```
  */
 @Component({
-  selector: 'app-input-color',
+  selector: 'input-color',
   templateUrl: './color.component.html',
   providers: [
     {

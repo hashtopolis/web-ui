@@ -6,17 +6,17 @@ import { AbstractInputComponent } from '../abstract-input';
  *
  * Usage Example:
  * ```html
- * <app-input-select
+ * <input-select
  *   title="Name"
  *   [error]="error?.name"
  *   formControlName="name"
  *   tooltip='Description..'
  *   hint='Hint under field'
- * ></app-input-select>
+ * ></input-select>
  * ```
  */
 @Component({
-  selector: 'app-input-select',
+  selector: 'input-select',
   templateUrl: './select.component.html'
 })
 export class InputSelectComponent extends AbstractInputComponent<

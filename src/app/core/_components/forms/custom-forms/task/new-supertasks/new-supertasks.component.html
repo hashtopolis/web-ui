@@ -4,16 +4,16 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <app-input-text title="Name" formControlName="supertaskName" [error]="error?.name"></app-input-text>
+    <input-text title="Name" formControlName="supertaskName" [error]="error?.name"></input-text>
 
-    <app-input-multiselect
+    <input-multiselect
       [isLoading]="isLoading"
       [placeholder]="'Tasks...'"
       [arrayOfObjects]="selectPretasks"
       [mergeIdAndName]="true"
       [label]="'Select or search Tasks:'"
       (selectionChanged)="handleSelectedItems($event)"
-    ></app-input-multiselect>
+    ></input-multiselect>
 
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
