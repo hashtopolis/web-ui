@@ -20,32 +20,84 @@ export class BaseMenuComponent {
 
   actionMenuItems: ActionMenuItem[][] = [];
 
+  private checkId(attribute: string): boolean {
+    try {
+      return this.data['_id'] === this.data[attribute];
+    } catch (error) {
+      return false;
+    }
+  }
+
   /**
-   * Check if the data row is of type "Agent."
+   * Check if the data row is of type "Agent".
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    try {
-      return this.data['_id'] === this.data['agentId'];
-    } catch (error) {
-      return false;
-    }
+    return this.checkId('agentId');
   }
 
   /**
-   * Check if the data row is of type "Task."
+   * Check if the data row is of type "AgentBinary".
+   * @returns `true` if the data row is an agent binary; otherwise, `false`.
+   */
+  protected isAgentBinary(): boolean {
+    return this.checkId('agentBinaryId');
+  }
+
+  /**
+   * Check if the data row is of type "Preprocessor".
+   * @returns `true` if the data row is an preprocessor; otherwise, `false`.
+   */
+  protected isPreprocessor(): boolean {
+    return this.checkId('preprocessorId');
+  }
+
+  /**
+   * Check if the data row is of type "CrackerBinaryType".
+   * @returns `true` if the data row is a cracker; otherwise, `false`.
+   */
+  protected isCrackerBinaryType(): boolean {
+    return this.checkId('crackerBinaryTypeId');
+  }
+
+  /**
+   * Check if the data row is of type "Task".
    * @returns `true` if the data row is a task; otherwise, `false`.
    */
   protected isTask(): boolean {
+    return this.checkId('taskId');
+  }
+
+  /**
+   * Check if the data row is of type "User".
+   * @returns `true` if the data row is a user; otherwise, `false`.
+   */
+  protected isUser(): boolean {
     try {
-      return this.data['_id'] === this.data['taskId'];
+      return this.data['_id'] === this.data['id'] && 'email' in this.data;
     } catch (error) {
       return false;
     }
   }
 
   /**
-   * Check if the data row is of type "Hashlist."
+   * Check if the data row is of type "HealthCheck".
+   * @returns `true` if the data row is a health check; otherwise, `false`.
+   */
+  protected isHealthCheck(): boolean {
+    return this.checkId('healthCheckId');
+  }
+
+  /**
+   * Check if the data row is of type "File".
+   * @returns `true` if the data row is a file; otherwise, `false`.
+   */
+  protected isFile(): boolean {
+    return this.checkId('fileId');
+  }
+
+  /**
+   * Check if the data row is of type "Hashlist".
    * @returns `true` if the data row is a hashlist; otherwise, `false`.
    */
   protected isHashlist(): boolean {
@@ -76,6 +128,24 @@ export class BaseMenuComponent {
 
   protected isHashtype(): boolean {
     return 'hashTypeId' in this.data;
+  }
+
+  /**
+   * Sets action menu items at the specified index.
+   * @param index The index to set action menu items.
+   * @param items The array of ActionMenuItem to set.
+   */
+  protected setActionMenuItems(index: number, items: ActionMenuItem[]): void {
+    this.actionMenuItems[index] = items;
+  }
+
+  /**
+   * Adds an action menu item at the specified index.
+   * @param index The index to add the action menu item.
+   * @param item The ActionMenuItem to add.
+   */
+  protected addActionMenuItem(index: number, item: ActionMenuItem): void {
+    this.actionMenuItems[index].push(item);
   }
 
   onMenuItemClick(event: ActionMenuEvent<any>): void {

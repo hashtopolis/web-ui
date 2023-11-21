@@ -2,6 +2,7 @@ import { Chunk, ChunkData } from '../_models/chunk.model';
 import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
 
 import { Agent } from '../_models/agent.model';
+import { AgentAssignment } from '../_models/agent-assignment.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
@@ -10,11 +11,23 @@ import { User } from '../_models/user.model';
 import { environment } from 'src/environments/environment';
 
 export class AgentsDataSource extends BaseDataSource<Agent> {
+  private _taskId = 0;
+
+  setTaskId(taskId: number): void {
+    this._taskId = taskId;
+  }
+
   loadAll(): void {
     this.loading = true;
 
-    const agentParams = { maxResults: 999999, expand: 'accessGroups' };
-    const params = { maxResults: 999999 };
+    const startAt = this.currentPage * this.pageSize;
+    const agentParams = {
+      maxResults: this.pageSize,
+      startAt: startAt,
+      expand: 'accessGroups'
+    };
+
+    const params = { maxResults: this.maxResults };
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);
@@ -30,13 +43,13 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
         ([a, u, aa, t, c]: [
           ListResponseWrapper<Agent>,
           ListResponseWrapper<User>,
-          ListResponseWrapper<any>,
+          ListResponseWrapper<AgentAssignment>,
           ListResponseWrapper<Task>,
           ListResponseWrapper<Chunk>
         ]) => {
           const agents: Agent[] = a.values;
           const users: User[] = u.values;
-          const assignments: any[] = aa.values;
+          const assignments: AgentAssignment[] = aa.values;
           const tasks: Task[] = t.values;
           const chunks: Chunk[] = c.values;
 
@@ -48,7 +61,9 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
               agent.task = tasks.find((e) => e._id === agent.taskId);
               agent.taskName = agent.task.taskName;
               agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
-              agent.chunkId = agent.chunk._id;
+              if (agent.chunk) {
+                agent.chunkId = agent.chunk._id;
+              }
             }
 
             return agent;
@@ -60,18 +75,74 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
       );
   }
 
-  async getChunkData(id: number): Promise<ChunkData> {
-    const maxResults = environment.config.prodApiMaxResults;
+  loadAssignments(): void {
+    this.loading = true;
+
+    const params = { maxResults: this.maxResults };
+    const startAt = this.currentPage * this.pageSize;
+    const assignParams = {
+      maxResults: this.pageSize,
+      startAt: startAt,
+      expand: 'agent,task',
+      filter: `taskId=${this._taskId}`
+    };
+
+    const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);
+    const chunks$ = this.service.getAll(SERV.CHUNKS, params);
+    const users$ = this.service.getAll(SERV.USERS, params);
+    //const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS)
+
+    forkJoin([users$, agentAssign$, chunks$])
+      .pipe(
+        catchError(() => of([])),
+        finalize(() => (this.loading = false))
+      )
+      .subscribe(
+        ([u, aa, c]: [
+          ListResponseWrapper<User>,
+          ListResponseWrapper<AgentAssignment>,
+          ListResponseWrapper<Chunk>
+        ]) => {
+          const users: User[] = u.values;
+          const assignments: AgentAssignment[] = aa.values;
+          const chunks: Chunk[] = c.values;
+          const agents: Agent[] = [];
+
+          assignments.forEach((assignment: AgentAssignment) => {
+            const task: Task = assignment.task;
+            const agent: Agent = assignment.agent;
+
+            agent.task = task;
+            agent.user = users.find((e: User) => e._id === agent.userId);
+            agent.taskName = agent.task.taskName;
+            agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
+            if (agent.chunk) {
+              agent.chunkId = agent.chunk._id;
+            }
+            agent.benchmark = assignment.benchmark;
+
+            agents.push(agent);
+          });
+
+          this.setPaginationConfig(this.pageSize, this.currentPage, aa.total);
+          this.setData(agents);
+        }
+      );
+  }
+
+  async getChunkData(id: number, keyspace = 0): Promise<ChunkData> {
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];
     const searched: number[] = [];
     const cracked: number[] = [];
     const speed: number[] = [];
+    const timespent: number[] = [];
     const now = Date.now();
+    const current = 0;
 
     const params = {
-      maxResults: maxResults,
+      maxResults: this.maxResults,
       filter: `agentId=${id}`
     };
 
@@ -92,18 +163,35 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
       ) {
         speed.push(chunk.speed);
       }
+
+      if (chunk.dispatchTime > current) {
+        timespent.push(chunk.solveTime - chunk.dispatchTime);
+      } else if (chunk.solveTime > current) {
+        timespent.push(chunk.solveTime - current);
+      }
     }
 
     return {
-      dispatched: 0,
-      searched: 0,
-      cracked: cracked.reduce((a, i) => a + i, 0),
-      speed: speed.reduce((a, i) => a + i, 0)
+      dispatched:
+        keyspace && dispatched.length
+          ? dispatched.reduce((a, i) => a + i, 0) / keyspace
+          : 0,
+      searched:
+        keyspace && searched.length
+          ? searched.reduce((a, i) => a + i, 0) / keyspace
+          : 0,
+      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
+      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
+      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
     };
   }
 
   reload(): void {
-    this.reset();
-    this.loadAll();
+    this.clearSelection();
+    if (this._taskId) {
+      this.loadAssignments();
+    } else {
+      this.loadAll();
+    }
   }
 }

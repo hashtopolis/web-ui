@@ -5,6 +5,7 @@ import {
 } from '@angular/material/snack-bar';
 
 import { ActionMenuComponent } from './menus/action-menu/action-menu.component';
+import { AgentBinariesTableComponent } from './tables/agent-binaries-table/agent-binaries-table.component';
 import { AgentsTableComponent } from './tables/agents-table/agents-table.component';
 import { BaseMenuComponent } from './menus/base-menu/base-menu.component';
 import { BaseTableComponent } from './tables/base-table/base-table.component';
@@ -12,10 +13,14 @@ import { BulkActionMenuComponent } from './menus/bulk-action-menu/bulk-action-me
 import { ChunksTableComponent } from './tables/chunks-table/chunks-table.component';
 import { ColumnSelectionDialogComponent } from './tables/column-selection-dialog/column-selection-dialog.component';
 import { CommonModule } from '@angular/common';
+import { CrackersTableComponent } from './tables/crackers-table/crackers-table.component';
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
+import { FilesTableComponent } from './tables/files-table/files-table.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
+import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
+import { LogsTableComponent } from './tables/logs-table/logs-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -33,10 +38,12 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
+import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
+import { UsersTableComponent } from './tables/users-table/users-table.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +60,14 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
-    SuperHashlistsTableComponent
+    SuperHashlistsTableComponent,
+    FilesTableComponent,
+    CrackersTableComponent,
+    PreprocessorsTableComponent,
+    AgentBinariesTableComponent,
+    HealthChecksTableComponent,
+    LogsTableComponent,
+    UsersTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -92,7 +106,14 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
     ChunksTableComponent,
     HashlistsTableComponent,
     HashtypesTableComponent,
-    SuperHashlistsTableComponent
+    SuperHashlistsTableComponent,
+    FilesTableComponent,
+    CrackersTableComponent,
+    PreprocessorsTableComponent,
+    AgentBinariesTableComponent,
+    HealthChecksTableComponent,
+    LogsTableComponent,
+    UsersTableComponent
   ],
   providers: [
     {

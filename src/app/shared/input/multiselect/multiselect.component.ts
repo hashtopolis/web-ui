@@ -29,7 +29,7 @@ import { SelectField } from 'src/app/core/_models/input.model';
  * Supports dynamic filtering, highlighting, and emits selection changes.
  */
 @Component({
-  selector: 'app-input-multiselect',
+  selector: 'input-multiselect',
   templateUrl: 'multiselect.component.html',
   providers: [
     {

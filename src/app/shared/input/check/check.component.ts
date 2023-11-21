@@ -7,15 +7,15 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  *
  * Usage Example:
  * ```html
- * <app-input-check
+ * <input-check
  *   title="Name"
  *   [error]="error?.name"
  *   formControlName="name"
- * ></app-input-check>
+ * ></input-check>
  * ```
  */
 @Component({
-  selector: 'app-input-check',
+  selector: 'input-check',
   templateUrl: './check.component.html',
   providers: [
     {

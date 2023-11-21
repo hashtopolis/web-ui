@@ -1,19 +1,35 @@
 export const RowActionMenuLabel = {
-  EDIT_AGENT: 'Edit',
-  DELETE_AGENT: 'Delete',
-  EDIT_TASK: 'Edit',
+  ACTIVATE_USER: 'Activate User',
+  ACTIVATE_AGENT: 'Activate Agent',
+  DEACTIVATE_USER: 'Deactivate User',
+  DEACTIVATE_AGENT: 'Deactivate Agent',
+  EDIT_AGENT: 'Edit Agent',
+  EDIT_TASK: 'Edit Task',
+  EDIT_SUBTASKS: 'Edit Subtasks',
+  EDIT_HASHLIST: 'Edit Hashlist',
+  EDIT_SUPERHASHLIST: 'Edit Superhashlist',
+  EDIT_FILE: 'Edit File',
+  EDIT_PREPROCESSOR: 'Edit Preprocessor',
+  EDIT_AGENTBINARY: 'Edit Agent Binary',
+  EDIT_HEALTHCHECK: 'Edit Health Check',
+  EDIT_USER: 'Edit User',
+  DELETE_AGENT: 'Delete Agent',
+  DELETE_CRACKER: 'Delete Cracker',
+  DELETE_TASK: 'Delete Task',
+  DELETE_HASHLIST: 'Delete Hashlist',
+  DELETE_HASHTYPE: 'Delete Hashtype',
+  DELETE_SUPERHASHLIST: 'Delete Superhashlist',
+  DELETE_FILE: 'Delete File',
+  DELETE_PREPROCESSOR: 'Delete Preprocessor',
+  DELETE_AGENTBINARY: 'Delete Agent Binary',
+  DELETE_HEALTHCHECK: 'Delete Health Check',
+  DELETE_USER: 'Delete User',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
-  EDIT_SUBTASKS: 'Edit Subtasks',
-  ARCHIVE_TASK: 'Archive',
-  DELETE_TASK: 'Delete',
-  EDIT_HASHLIST: 'Edit',
-  DELETE_HASHLIST: 'Delete',
+  ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
   EXPORT_HASHLIST: 'Export Hashlist',
-  DELETE_HASHTYPE: 'Delete',
-  EDIT_SUPERHASHLIST: 'Edit',
-  DELETE_SUPERHASHLIST: 'Delete'
+  NEW_VERSION: 'Add Version'
 };
 
 export const RowActionMenuAction = {
@@ -23,6 +39,21 @@ export const RowActionMenuAction = {
   COPY_TO_TASK: 'copy-to-task',
   COPY_TO_PRETASK: 'copy-to-pretask',
   EDIT_SUBTASKS: 'edit-subtasks',
+  NEW: 'new',
   IMPORT: 'import',
-  EXPORT: 'export'
+  EXPORT: 'export',
+  ACTIVATE: 'activate',
+  DEACTIVATE: 'deactivate'
+};
+
+export const RowActionMenuIcon = {
+  EDIT: 'edit',
+  DELETE: 'delete',
+  NEW: 'add',
+  IMPORT: 'arrow_upwards',
+  EXPORT: 'arrow_downward',
+  COPY: 'content_copy',
+  ARCHIVE: 'archive',
+  ACTIVATE: 'check_circle',
+  DEACTIVATE: 'remove_circle'
 };

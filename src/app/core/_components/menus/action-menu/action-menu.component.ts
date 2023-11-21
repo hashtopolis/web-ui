@@ -11,6 +11,7 @@ import {
   Output
 } from '@angular/core';
 
+import { MatMenuTrigger } from '@angular/material/menu';
 import { Subscription } from 'rxjs';
 
 /**
@@ -44,6 +45,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   currentUrl: any[];
   isActive = false;
+  isOpen = false;
 
   /** Icon to be displayed in the menu button. */
   @Input() icon: string;
@@ -58,8 +60,15 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   /** Two-dimensional array of sections / menu items. */
   @Input() actionMenuItems: ActionMenuItem[][] = [];
 
+  @Input() openOnMouseEnter = false;
+
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> =
     new EventEmitter<ActionMenuEvent<any>>();
+
+  timedOutCloser: NodeJS.Timeout;
+  timedOutOpener: NodeJS.Timeout;
+
+  openSubmenus: MatMenuTrigger[] = [];
 
   constructor(
     private router: Router,
@@ -126,6 +135,116 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
         menuItem: menuItem,
         data: this.data
       });
+    }
+  }
+
+  /**
+   * Handle mouse enter event for the menu.
+   * @param trigger - The MatMenuTrigger associated with the menu.
+   */
+  menuEnter(trigger: MatMenuTrigger): void {
+    if (this.timedOutCloser) {
+      clearTimeout(this.timedOutCloser);
+    }
+
+    if (!trigger.menuOpen) {
+      this.timedOutOpener = setTimeout(() => {
+        this.openSubmenus.push(trigger);
+        trigger.openMenu();
+      }, 50);
+    }
+  }
+
+  /**
+   * Handle mouse leave event for the menu.
+   * @param trigger - The MatMenuTrigger associated with the menu.
+   */
+  menuLeave(trigger: MatMenuTrigger): void {
+    if (this.timedOutOpener) {
+      clearTimeout(this.timedOutOpener);
+    }
+
+    if (trigger.menuOpen) {
+      this.timedOutCloser = setTimeout(() => {
+        this.closeAllSubmenus();
+      }, 100);
+    }
+  }
+
+  /**
+   * Handle mouse enter event for a submenu.
+   */
+  subMenuEnter(trigger: MatMenuTrigger): void {
+    if (this.timedOutCloser) {
+      clearTimeout(this.timedOutCloser);
+    }
+
+    this.timedOutOpener = setTimeout(() => {
+      this.openSubmenus.push(trigger);
+      trigger.openMenu();
+    }, 50);
+  }
+
+  /**
+   * Handle mouse leave event for a submenu.
+   */
+  subMenuLeave(): void {
+    if (this.timedOutOpener) {
+      clearTimeout(this.timedOutOpener);
+    }
+
+    this.timedOutCloser = setTimeout(() => {
+      this.closeAllSubmenus();
+    }, 100);
+  }
+
+  /**
+   * Check if the related target is inside the menu panel.
+   * @param event - The mouse event.
+   * @param trigger - The MatMenuTrigger associated with the menu.
+   * @returns True if the related target is inside the menu panel, false otherwise.
+   */
+  isRelatedTargetInPanel(event: MouseEvent, trigger: MatMenuTrigger): boolean {
+    const panelId = trigger.menu?.panelId;
+
+    if (panelId && event.relatedTarget instanceof Element) {
+      const relatedTargetInPanel = event.relatedTarget.closest(`#${panelId}`);
+      const isAnotherMenuContent = event.relatedTarget.classList.contains(
+        'mat-mdc-menu-content'
+      );
+
+      return relatedTargetInPanel && !isAnotherMenuContent;
+    }
+
+    return false;
+  }
+
+  /**
+   * Prevent focus on the button.
+   * @param event - The focus event.
+   */
+  preventFocus(event: FocusEvent): void {
+    // Prevent the focus and blur the button immediately
+    event.preventDefault();
+    (event.target as HTMLElement).blur();
+  }
+
+  /**
+   * Close all open submenus.
+   */
+  closeAllSubmenus(): void {
+    this.openSubmenus.forEach((trigger) => trigger.closeMenu());
+    this.openSubmenus = [];
+  }
+
+  /**
+   * Navigate to the first menu item.
+   * @param event - The mouse event.
+   */
+  navigateToFirst(event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.actionMenuItems[0][0].routerLink) {
+      this.router.navigate(this.actionMenuItems[0][0].routerLink);
     }
   }
 }

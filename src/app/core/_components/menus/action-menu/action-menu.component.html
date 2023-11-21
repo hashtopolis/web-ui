@@ -1,29 +1,69 @@
-<button
-  mat-button
-  [ngClass]="cls"
-  [matMenuTriggerFor]="actionMenu"
-  (click)="$event.stopPropagation()"
-  [disabled]="disabled"
-  [class.active]="isActive"
->
-  <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
-  <ng-container *ngIf="label">
-    {{ label }}
-  </ng-container>
-</button>
-<mat-menu #actionMenu="matMenu">
-  <ng-container *ngFor="let section of actionMenuItems; let last = last">
-    <button
-      mat-menu-item
-      *ngFor="let item of section"
-      (click)="onMenuItemClick(item)"
-      [class.text-critical]="item.red"
-    >
-      <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{
-        item.icon
-      }}</mat-icon>
-      {{ item.label }}
-    </button>
-    <mat-divider *ngIf="!last" />
-  </ng-container>
-</mat-menu>
+<ng-container *ngIf="openOnMouseEnter">
+  <button
+    #menuTrigger="matMenuTrigger"
+    mat-button
+    [ngClass]="cls"
+    [matMenuTriggerFor]="actionMenu"
+    (click)="navigateToFirst($event)"
+    (mouseenter)="menuEnter(menuTrigger)"
+    (mouseleave)="menuLeave(menuTrigger)"
+    (focus)="preventFocus($event)"
+    [disabled]="disabled"
+    [class.active]="isActive"
+  >
+    <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+    <ng-container *ngIf="label">
+      {{ label }}
+    </ng-container>
+  </button>
+  <mat-menu #actionMenu="matMenu" [hasBackdrop]="false">
+    <div (mouseenter)="subMenuEnter(menuTrigger)" (mouseleave)="subMenuLeave()">
+      <ng-container *ngFor="let section of actionMenuItems; let last = last">
+        <button
+          mat-menu-item
+          *ngFor="let item of section"
+          (click)="onMenuItemClick(item)"
+          [class.text-critical]="item.red"
+        >
+          <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{
+            item.icon
+          }}</mat-icon>
+          {{ item.label }}
+        </button>
+        <mat-divider *ngIf="!last" />
+      </ng-container>
+    </div>
+  </mat-menu>
+</ng-container>
+<ng-container *ngIf="!openOnMouseEnter">
+  <button
+    mat-button
+    [ngClass]="cls"
+    [matMenuTriggerFor]="actionMenu"
+    #menuTrigger="matMenuTrigger"
+    (click)="$event.stopPropagation()"
+    [disabled]="disabled"
+    [class.active]="isActive"
+  >
+    <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+    <ng-container *ngIf="label">
+      {{ label }}
+    </ng-container>
+  </button>
+  <mat-menu #actionMenu="matMenu">
+    <ng-container *ngFor="let section of actionMenuItems; let last = last">
+      <button
+        mat-menu-item
+        *ngFor="let item of section"
+        (click)="onMenuItemClick(item)"
+        [class.text-critical]="item.red"
+      >
+        <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{
+          item.icon
+        }}</mat-icon>
+        {{ item.label }}
+      </button>
+      <mat-divider *ngIf="!last" />
+    </ng-container>
+  </mat-menu>
+</ng-container>

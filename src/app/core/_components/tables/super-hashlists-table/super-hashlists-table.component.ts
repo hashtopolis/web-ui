@@ -75,11 +75,8 @@ export class SuperHashlistsTableComponent
         dataKey: 'name',
         icons: (superHashlist: Hashlist) =>
           this.renderSecretIcon(superHashlist),
-        routerLink: (superHashlist: Hashlist) => [
-          {
-            routerLink: ['/hashlists', 'hashlist', superHashlist._id, 'edit']
-          }
-        ],
+        routerLink: (superHashlist: Hashlist) =>
+          this.renderHashlistLink(superHashlist),
         isSortable: true,
         export: async (superHashlist: Hashlist) => superHashlist.name
       },
@@ -105,7 +102,7 @@ export class SuperHashlistsTableComponent
         name: SuperHashlistsTableColumnLabel.HASHLISTS,
         dataKey: 'hashlists',
         routerLink: (superHashlist: Hashlist) =>
-          this.renderHashlists(superHashlist),
+          this.renderHashlistLinks(superHashlist),
         isSortable: false,
         export: async (superHashlist: Hashlist) =>
           superHashlist.hashTypeDescription
@@ -167,20 +164,6 @@ export class SuperHashlistsTableComponent
     }
 
     return icons;
-  }
-
-  @Cacheable(['_id', 'hashlists'])
-  renderHashlists(superHashlist: Hashlist): HTTableRouterLink[] {
-    const links: HTTableRouterLink[] = [];
-
-    for (const hashlist of superHashlist.hashlists) {
-      links.push({
-        label: hashlist.name,
-        routerLink: ['/hashlists', 'hashlist', hashlist._id, 'edit']
-      });
-    }
-
-    return links;
   }
 
   // --- Action functions ---

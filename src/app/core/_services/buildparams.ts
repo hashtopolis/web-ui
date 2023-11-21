@@ -7,17 +7,24 @@
  * @public
  */
 
-import { HttpParams } from "@angular/common/http";
-import { Params } from "@angular/router";
+import { HttpParams } from '@angular/common/http';
+import { Params } from '@angular/router';
 
-export function setParameter(routerParams: Params): HttpParams {
+export function setParameter(
+  routerParams: Params,
+  maxResults?: string | number
+): HttpParams {
   let queryParams = new HttpParams();
   for (const key in routerParams) {
-      if (routerParams.hasOwnProperty(key)) {
-          queryParams = queryParams.set(key, routerParams[key]);
-      }
+    if (routerParams.hasOwnProperty(key)) {
+      queryParams = queryParams.set(key, routerParams[key]);
+    }
   }
+
+  // If maxResults is not present, add it to queryParams
+  if (!queryParams.has('maxResults')) {
+    queryParams = queryParams.set('maxResults', maxResults);
+  }
+
   return queryParams;
 }
-
-
