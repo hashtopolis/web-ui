@@ -38,6 +38,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
+import { PermissionsTableComponent } from './tables/permissions-table/permissions-table.component';
 import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
@@ -67,7 +68,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
-    UsersTableComponent
+    UsersTableComponent,
+    PermissionsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -113,7 +115,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
-    UsersTableComponent
+    UsersTableComponent,
+    PermissionsTableComponent
   ],
   providers: [
     {

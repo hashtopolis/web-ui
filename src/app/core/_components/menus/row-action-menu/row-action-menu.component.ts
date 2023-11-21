@@ -48,6 +48,8 @@ export class RowActionMenuComponent
         RowActionMenuLabel.EDIT_HEALTHCHECK,
         RowActionMenuLabel.DELETE_HEALTHCHECK
       );
+    } else if (this.isPermission()) {
+      this.setPermissionMenu();
     } else if (this.isUser()) {
       this.setUserMenu();
     } else if (this.isTask()) {
@@ -58,6 +60,20 @@ export class RowActionMenuComponent
       this.setHashtypeMenu();
     } else if (this.isCrackerBinaryType()) {
       this.setCrackerBinaryTypeMenu();
+    }
+  }
+
+  /**
+   * Sets the context menu items for a permission data row.
+   */
+  private setPermissionMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_PERMISSION)
+    ]);
+    if (!this.data.user || this.data.user.length === 0) {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PERMISSION)
+      ]);
     }
   }
 

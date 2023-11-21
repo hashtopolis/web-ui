@@ -180,6 +180,18 @@ export class BaseTableComponent {
     ];
   }
 
+  @Cacheable(['id'])
+  async renderPermissionLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['id']
+            ? ['/users', 'global-permissions-groups', obj['id'], 'edit']
+            : []
+      }
+    ];
+  }
+
   @Cacheable(['accessGroups'])
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
