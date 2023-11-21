@@ -1,12 +1,13 @@
 <ht-table
   #table
-  name="agentTable"
+  [name]="name"
   dataType="agents"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [hasRowAction]="true"
-  [isFilterable]="true"
+  [isSelectable]="isSelectable"
+  [isFilterable]="isFilterable"
+  [hasRowAction]="hasRowAction"
+  [hasBulkActions]="hasBulkActions"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

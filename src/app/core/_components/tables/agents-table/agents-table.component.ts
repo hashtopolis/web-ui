@@ -1,7 +1,15 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
+import {
+  formatSeconds,
+  formatUnixTimestamp
+} from 'src/app/shared/utils/datetime';
 
 import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -18,7 +26,6 @@ import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu
 import { SERV } from 'src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
   selector: 'agents-table',
@@ -28,6 +35,8 @@ export class AgentsTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {
+  @Input() taskId = 0;
+
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   chunkData: { [key: number]: ChunkData } = {};
@@ -42,7 +51,11 @@ export class AgentsTableComponent
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.loadAll();
+    if (this.taskId) {
+      this.dataSource.setTaskId(this.taskId);
+    }
+
+    this.dataSource.reload();
   }
 
   filter(item: Agent, filterValue: string): boolean {
@@ -63,35 +76,29 @@ export class AgentsTableComponent
         name: AgentsTableColumnLabel.ID,
         dataKey: '_id',
         isSortable: true,
+        render: (agent: Agent) => agent._id,
         export: async (agent: Agent) => agent._id + ''
+      },
+      {
+        name: AgentsTableColumnLabel.NAME,
+        dataKey: 'agentName',
+        routerLink: (agent: Agent) => this.renderAgentLink(agent),
+        isSortable: true,
+        export: async (agent: Agent) => agent.agentName
       },
       {
         name: AgentsTableColumnLabel.STATUS,
         dataKey: 'status',
+        icons: (agent: Agent) => this.renderStatusIcon(agent),
         render: (agent: Agent) => this.renderStatus(agent),
         isSortable: true,
         export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
-        name: AgentsTableColumnLabel.NAME,
-        dataKey: 'agentName',
-        routerLink: (agent: Agent) => [
-          {
-            routerLink: ['/agents', 'show-agents', agent._id, 'edit']
-          }
-        ],
-        isSortable: true,
-        export: async (agent: Agent) => agent.agentName
-      },
-      {
         name: AgentsTableColumnLabel.USER,
         dataKey: 'userId',
         render: (agent: Agent) => this.renderOwner(agent),
-        routerLink: (agent: Agent) => [
-          {
-            routerLink: agent.userId ? ['/users', agent.userId, 'edit'] : []
-          }
-        ],
+        routerLink: (agent: Agent) => this.renderUserLink(agent),
         isSortable: true,
         export: async (agent: Agent) => (agent.user ? agent.user.name : '')
       },
@@ -104,21 +111,9 @@ export class AgentsTableComponent
           agent.clientSignature ? agent.clientSignature : ''
       },
       {
-        name: AgentsTableColumnLabel.CURRENT_TASK,
-        dataKey: 'taskName',
-        routerLink: (agent: Agent) => [
-          {
-            routerLink: agent.task
-              ? ['/tasks', 'show-tasks', agent.task._id, 'edit']
-              : []
-          }
-        ],
-        isSortable: true,
-        export: async (agent: Agent) => (agent.task ? agent.task.taskName : '')
-      },
-      {
         name: AgentsTableColumnLabel.TASK_SPEED,
         dataKey: 'taskId',
+        icons: (agent: Agent) => this.renderProgressIcon(agent),
         async: (agent: Agent) => this.renderCurrentSpeed(agent),
         isSortable: false,
         export: async (agent: Agent) => (await this.getSpeed(agent)) + ''
@@ -126,13 +121,7 @@ export class AgentsTableComponent
       {
         name: AgentsTableColumnLabel.CURRENT_CHUNK,
         dataKey: 'chunkId',
-        routerLink: (agent: Agent) => [
-          {
-            routerLink: agent.chunk
-              ? ['/tasks', 'chunks', agent.chunk._id, 'view']
-              : []
-          }
-        ],
+        routerLink: (agent: Agent) => this.renderChunkLink(agent),
         isSortable: true,
         export: async (agent: Agent) =>
           agent.chunk ? agent.chunk._id + '' : ''
@@ -152,14 +141,56 @@ export class AgentsTableComponent
           formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
+        name: AgentsTableColumnLabel.CRACKED,
+        dataKey: 'cracked',
+        routerLink: (agent: Agent) => this.renderCracked(agent),
+        isSortable: true,
+        export: async (agent: Agent) => (await this.getCracked(agent)) + ''
+      }
+    ];
+
+    if (this.taskId === 0) {
+      // If this is not assigned agents, add task and access group
+      tableColumns.push({
+        name: AgentsTableColumnLabel.CURRENT_TASK,
+        dataKey: 'taskName',
+        routerLink: (agent: Agent) => this.renderTaskLink(agent),
+        isSortable: true,
+        export: async (agent: Agent) => (agent.task ? agent.task.taskName : '')
+      });
+      tableColumns.push({
         name: AgentsTableColumnLabel.ACCESS_GROUP,
         dataKey: 'accessGroupId',
-        routerLink: (agent: Agent) => this.getAccessGroupRouterLinks(agent),
+        routerLink: (agent: Agent) => this.renderAccessGroupLinks(agent),
         isSortable: true,
         export: async (agent: Agent) =>
           agent.accessGroups.map((item) => item.groupName).join(', ')
-      }
-    ];
+      });
+    } else {
+      // If this is assigned agents, add benchmark, time spent and keyspace searched
+      tableColumns.push({
+        name: AgentsTableColumnLabel.BENCHMARK,
+        dataKey: 'benchmark',
+        isSortable: true,
+        export: async (agent: Agent) => agent.benchmark
+      });
+      tableColumns.push({
+        name: AgentsTableColumnLabel.TIME_SPENT,
+        dataKey: 'timeSpent',
+        async: (agent: Agent) => this.renderTimeSpent(agent),
+        icons: undefined,
+        isSortable: true,
+        export: async (agent: Agent) => (await this.getTimeSpent(agent)) + ''
+      });
+      tableColumns.push({
+        name: AgentsTableColumnLabel.SEARCHED,
+        dataKey: 'searched',
+        async: (agent: Agent) => this.renderSearched(agent),
+        icons: undefined,
+        isSortable: true,
+        export: async (agent: Agent) => (await this.getSearched(agent)) + ''
+      });
+    }
 
     return tableColumns;
   }
@@ -209,7 +240,7 @@ export class AgentsTableComponent
     );
   }
 
-  @Cacheable(['_id', 'taskId'])
+  @Cacheable(['_id'])
   async renderCurrentSpeed(agent: Agent): Promise<SafeHtml> {
     let html = '-';
     const speed = await this.getSpeed(agent);
@@ -219,15 +250,54 @@ export class AgentsTableComponent
     return this.sanitize(html);
   }
 
-  private async getSpeed(agent: Agent): Promise<number> {
-    if (!(agent._id in this.chunkData)) {
-      this.chunkData[agent._id] = await this.dataSource.getChunkData(agent._id);
+  @Cacheable(['_id'])
+  async renderTimeSpent(agent: Agent): Promise<SafeHtml> {
+    let html = '-';
+    const timeSpent = await this.getTimeSpent(agent);
+    if (timeSpent) {
+      html = `${formatSeconds(timeSpent)}`;
     }
-    if (this.chunkData[agent._id].speed) {
-      return this.chunkData[agent._id].speed;
+    return this.sanitize(html);
+  }
+
+  @Cacheable(['_id'])
+  async renderSearched(agent: Agent): Promise<SafeHtml> {
+    let html = '-';
+    const searched = await this.getSearched(agent);
+    if (searched) {
+      html = `${searched}`;
+    }
+    return this.sanitize(html);
+  }
+
+  @Cacheable(['_id'])
+  async renderCracked(agent: Agent): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    const cracked = await this.getCracked(agent);
+
+    if (cracked) {
+      links.push({
+        label: cracked + '',
+        routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId]
+      });
     }
 
-    return 0;
+    return links;
+  }
+
+  @Cacheable(['_id'])
+  async renderProgressIcon(agent: Agent): Promise<HTTableIcon[]> {
+    const icons: HTTableIcon[] = [];
+
+    const speed = await this.getSpeed(agent);
+    if (speed) {
+      icons.push({
+        name: 'radio_button_checked',
+        cls: 'pulsing-progress'
+      });
+    }
+
+    return icons;
   }
 
   @Cacheable(['_id', 'isActive'])
@@ -240,25 +310,6 @@ export class AgentsTableComponent
     }
 
     return this.sanitize(html);
-  }
-
-  @Cacheable(['_id', 'accessGroupId'])
-  getAccessGroupRouterLinks(agent: Agent): HTTableRouterLink[] {
-    const links: HTTableRouterLink[] = agent.accessGroups.map(
-      (accessGroup: AccessGroup) => {
-        return {
-          routerLink: [
-            '/users',
-            'access-groups',
-            accessGroup.accessGroupId,
-            'edit'
-          ],
-          label: accessGroup.groupName
-        };
-      }
-    );
-
-    return links;
   }
 
   @Cacheable(['_id', 'userId'])
@@ -280,9 +331,59 @@ export class AgentsTableComponent
   @Cacheable(['_id', 'lastTime'])
   renderLastActivity(agent: Agent): SafeHtml {
     const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    const data = `<code>${agent.lastAct}</code> at<br>${formattedDate}<br>IP:<code>${agent.lastIp}</code>`;
-
+    //const data = `<code>${agent.lastAct}</code> at<br>${formattedDate}<br>IP:<code>${agent.lastIp}</code>`;
+    const data = `<time datetime="${formatUnixTimestamp(
+      agent.lastTime,
+      'yyyy-MM-ddThh:mm:ss'
+    )}">${formattedDate}</time>`;
     return this.sanitize(data);
+  }
+
+  @Cacheable(['_id', 'isActive'])
+  async renderStatusIcon(agent: Agent): Promise<HTTableIcon[]> {
+    return agent.isActive
+      ? [
+          {
+            name: 'check_circle',
+            cls: 'text-ok'
+          }
+        ]
+      : [
+          {
+            name: 'remove_circle',
+            cls: 'text-critical'
+          }
+        ];
+  }
+
+  private async getSpeed(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'speed');
+  }
+
+  private async getSearched(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'searched');
+  }
+
+  private async getTimeSpent(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'timeSpent');
+  }
+
+  private async getCracked(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'cracked');
+  }
+
+  private async getChunkDataParam(
+    agentId: number,
+    key: string
+  ): Promise<number> {
+    if (!(agentId in this.chunkData)) {
+      this.chunkData[agentId] = await this.dataSource.getChunkData(agentId);
+    }
+    if (this.chunkData[agentId][key]) {
+      return this.chunkData[agentId][key];
+    }
+
+    return 0;
   }
 
   // --- Action functions ---
@@ -321,6 +422,13 @@ export class AgentsTableComponent
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
         break;
+      case RowActionMenuAction.ACTIVATE:
+        this.bulkActionActivate([event.data], true);
+        break;
+      case RowActionMenuAction.DEACTIVATE:
+        this.bulkActionActivate([event.data], false);
+        break;
+
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],

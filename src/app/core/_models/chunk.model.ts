@@ -28,4 +28,5 @@ export interface ChunkData {
   searched: number;
   cracked: number;
   speed: number;
+  timeSpent: number;
 }

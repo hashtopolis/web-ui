@@ -1,9 +1,11 @@
 export interface Preprocessor {
-  preprocessorId: number
-  name: string
-  url: string
-  binaryName: string
-  keyspaceCommand: string
-  skipCommand: string
-  limitCommand: string
+  _id: number;
+  _self: string;
+  preprocessorId: number;
+  name: string;
+  url: string;
+  binaryName: string;
+  keyspaceCommand: string;
+  skipCommand: string;
+  limitCommand: string;
 }

@@ -1,10 +1,27 @@
 <mat-toolbar class="hashtopolis-toolbar">
-  <a routerLink="/"><img [src]="this.headerConfig.brand.logo" [alt]="this.headerConfig.brand.name"
-      [width]="this.headerConfig.brand.width" [height]="this.headerConfig.brand.height" alt="Hashtopolis" /></a>
+  <div class="logo-container">
+    <a routerLink="/"
+      ><img
+        [src]="
+          isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo
+        "
+        [alt]="headerConfig.brand.name"
+        [width]="headerConfig.brand.width"
+        [height]="headerConfig.brand.height"
+        alt="Hashtopolis"
+    /></a>
+  </div>
+
   {{ this.headerConfig.brand.name }}
   <span class="menu-spacer"></span>
   <ng-container *ngFor="let menuItem of mainMenu">
-    <action-menu *ngIf="menuItem.display" [label]="menuItem.label" [icon]="menuItem.icon"
-      [actionMenuItems]="menuItem.actions" (menuItemClicked)="menuItemClicked($event)"></action-menu>
+    <action-menu
+      *ngIf="menuItem.display"
+      [label]="menuItem.label"
+      [icon]="menuItem.icon"
+      [actionMenuItems]="menuItem.actions"
+      [openOnMouseEnter]="true"
+      (menuItemClicked)="menuItemClicked($event)"
+    ></action-menu>
   </ng-container>
 </mat-toolbar>

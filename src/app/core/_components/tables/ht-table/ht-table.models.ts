@@ -6,6 +6,13 @@ export type DataType =
   | 'hashlists'
   | 'chunks'
   | 'hashtypes'
+  | 'files'
+  | 'crackers'
+  | 'preprocessors'
+  | 'users'
+  | 'agent-binaries'
+  | 'health-checks'
+  | 'logs'
   | 'superhashlists';
 
 export interface HTTableIcon {
@@ -27,6 +34,6 @@ export interface HTTableColumn {
   icons?: (data: any) => Promise<HTTableIcon[]>;
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
-  routerLink?: (data: any) => HTTableRouterLink[];
+  routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
 }
