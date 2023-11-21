@@ -1,41 +1,4 @@
-<app-page-title [title]="'Cracks'" [subbutton]="false"></app-page-title>
-<!-- Body -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" #showcracks datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="showcracks">
-    <thead class="thead-light">
-      <tr>
-        <th class="rounded-start">Time found</th>
-        <th>Plaintext</th>
-        <th>Hash</th>
-        <th>Hashlist</th>
-        <th>Agent</th>
-        <th>Task</th>
-        <th>Chunk</th>
-        <th>Type</th>
-        <th class="rounded-end">Salt</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let hash of allhashes">
-        <td>{{ hash.timeCracked | uiDate }}</td>
-        <td>{{ hash.plaintext }}</td>
-        <td>
-          <btn-truncate-text [text]="hash.hash"></btn-truncate-text>
-        </td>
-        <td>
-          <a [routerLink]="['/hashlists/hashlist/',hash.hashlist.hashlistId,'edit']" ngbTooltip={{hash.hashlist.name}}>{{ hash.hashlist.name | shortenString:30 }}</a>
-        </td>
-        <td>
-          <a [routerLink]="['/agents/show-agents/',hash.chunk['agentId'],'edit']">{{ hash.chunk['agentId'] }}</a>
-        </td>
-        <td>
-          <a [routerLink]="['/tasks/show-tasks/',hash.chunk['taskId'],'edit']">{{ hash.chunk['taskId'] }}</a>
-        </td>
-        <td>{{ hash.chunkId }}</td>
-        <td>{{ hash.hashlist['format'] }}</td>
-        <td>{{ hash.salt }}</td>
-    </tr>
-    </tbody>
-  </table>
+  <app-page-title title="Cracks" [subbutton]="false"></app-page-title>
+  <cracks-table [hasBulkActions]="false" [hasRowAction]="false"></cracks-table>
 </app-table>
-

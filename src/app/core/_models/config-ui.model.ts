@@ -2,6 +2,7 @@ import { AgentBinariesTableColumnLabel } from '../_components/tables/agent-binar
 import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/crackers-table.constants';
+import { CracksTableColumnLabel } from '../_components/tables/cracks-table/cracks-table.constants';
 import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
@@ -35,6 +36,15 @@ export const uiConfigDefault: UIConfig = {
       PermissionsTableColumnLabel.ID,
       PermissionsTableColumnLabel.NAME,
       PermissionsTableColumnLabel.MEMBERS
+    ],
+    cracksTable: [
+      CracksTableColumnLabel.FOUND,
+      CracksTableColumnLabel.PLAINTEXT,
+      CracksTableColumnLabel.HASH,
+      CracksTableColumnLabel.AGENT,
+      CracksTableColumnLabel.TASK,
+      CracksTableColumnLabel.CHUNK,
+      CracksTableColumnLabel.TYPE
     ],
     agentsTable: [
       AgentsTableColumnLabel.ID,
