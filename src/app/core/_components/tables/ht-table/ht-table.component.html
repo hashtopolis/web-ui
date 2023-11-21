@@ -138,36 +138,47 @@
           [class.truncate]="tableColumn.routerLink"
           [class.icons]="tableColumn.icons"
         >
-          <ng-container *ngIf="tableColumn.routerLink">
-            <span *ngFor="let link of tableColumn.routerLink(element) | async">
-              <a [routerLink]="link.routerLink">
-                <ng-container *ngIf="link.label">
-                  {{ link.label }}
-                </ng-container>
-                <ng-container *ngIf="!link.label">
-                  {{ element[tableColumn.dataKey] }}
-                </ng-container>
-              </a>
-            </span>
+          <ng-container *ngIf="tableColumn.truncate">
+            <table-truncate
+              [text]="element[tableColumn.dataKey]"
+            ></table-truncate>
           </ng-container>
-          <ng-container *ngIf="!tableColumn.routerLink">
-            <!-- Check if a async function is defined for the column -->
-            <ng-container *ngIf="tableColumn.async">
-              <div
-                [innerHtml]="(tableColumn.async(element) | async) || '-'"
-              ></div>
+          <ng-container *ngIf="!tableColumn.truncate">
+            <ng-container *ngIf="tableColumn.routerLink">
+              <span
+                *ngFor="let link of tableColumn.routerLink(element) | async"
+              >
+                <a [routerLink]="link.routerLink">
+                  <ng-container *ngIf="link.label">
+                    {{ link.label }}
+                  </ng-container>
+                  <ng-container *ngIf="!link.label">
+                    {{ element[tableColumn.dataKey] }}
+                  </ng-container>
+                </a>
+              </span>
             </ng-container>
-            <!-- Check if a render function is defined for the column -->
-            <ng-container *ngIf="!tableColumn.async && tableColumn.render">
-              <div [innerHtml]="tableColumn.render(element)"></div>
-            </ng-container>
-            <!-- Default rendering if no render function is defined -->
-            <ng-container
-              *ngIf="
-                !tableColumn.async && !tableColumn.render && !tableColumn.icons
-              "
-            >
-              {{ element[tableColumn.dataKey] }}
+            <ng-container *ngIf="!tableColumn.routerLink">
+              <!-- Check if a async function is defined for the column -->
+              <ng-container *ngIf="tableColumn.async">
+                <div
+                  [innerHtml]="(tableColumn.async(element) | async) || '-'"
+                ></div>
+              </ng-container>
+              <!-- Check if a render function is defined for the column -->
+              <ng-container *ngIf="!tableColumn.async && tableColumn.render">
+                <div [innerHtml]="tableColumn.render(element)"></div>
+              </ng-container>
+              <!-- Default rendering if no render function is defined -->
+              <ng-container
+                *ngIf="
+                  !tableColumn.async &&
+                  !tableColumn.render &&
+                  !tableColumn.icons
+                "
+              >
+                {{ element[tableColumn.dataKey] }}
+              </ng-container>
             </ng-container>
           </ng-container>
 

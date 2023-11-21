@@ -33,6 +33,10 @@ import { SuperhashlistComponent } from './superhashlist/superhashlist.component'
     HashesComponent
   ],
   imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ComponentsModule,
     HashlistRoutingModule,
     ReactiveFormsModule,
     CoreComponentsModule,
@@ -40,10 +44,6 @@ import { SuperhashlistComponent } from './superhashlist/superhashlist.component'
     DataTablesModule,
     MatSlideToggleModule,
     DirectivesModule,
-    ComponentsModule,
-    CommonModule,
-    RouterModule,
-    FormsModule,
     PipesModule,
     NgbModule
   ]
