@@ -6,7 +6,37 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   @ViewChild('inputField')
   inputField: ElementRef;
 
+  @Input()
+  title: string;
+
+  @Input()
+  disabled = false;
+
+  @Input()
+  error: string;
+
+  value: T;
+
+  @Input()
+  inputId: string;
+
+  @Input()
+  hint: string;
+
+  @Input()
+  tooltip: string;
+
   constructor() {}
+
+  ngOnInit(): void {
+    if (!this.inputId) {
+      this.inputId = 'input_' + Math.random().toString(36).substr(2, 9);
+      console.warn(
+        'Input ID not provided. Generated a unique ID:',
+        this.inputId
+      );
+    }
+  }
 
   onChange = (newValue: T) => {};
 
@@ -31,36 +61,6 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   focus() {
     if (this.inputField && this.inputField.nativeElement) {
       this.inputField.nativeElement.focus();
-    }
-  }
-
-  @Input()
-  title: string;
-
-  @Input()
-  disabled = false;
-
-  @Input()
-  error: string;
-
-  value: T;
-
-  @Input()
-  inputId: string;
-
-  @Input()
-  hint: string;
-
-  @Input()
-  tooltip: string;
-
-  ngOnInit(): void {
-    if (!this.inputId) {
-      this.inputId = 'input_' + Math.random().toString(36).substr(2, 9);
-      console.warn(
-        'Input ID not provided. Generated a unique ID:',
-        this.inputId
-      );
     }
   }
 }

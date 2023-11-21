@@ -43,15 +43,14 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperTask. */
   form: FormGroup;
 
+  @Input()
+  error;
+
   /** Maximum results for API requests. */
   private maxResults = environment.config.prodApiMaxResults;
 
   /** List of PreTasks. */
   selectPretasks: any[];
-
-  // Util functions
-  extractIds = extractIds;
-  transformSelectOptions = transformSelectOptions;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -65,9 +64,6 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
     this.buildForm();
     titleService.set(['New SuperTask']);
   }
-
-  @Input()
-  error;
 
   /**
    * Lifecycle hook called after component initialization.
@@ -104,10 +100,10 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
         _id: '_id'
       }
     };
-    this.gs
+    const loadSubscription$ = this.gs
       .getAll(SERV.PRETASKS, { maxResults: this.maxResults })
       .subscribe((response: ListResponseWrapper<Task>) => {
-        const transformedOptions = this.transformSelectOptions(
+        const transformedOptions = transformSelectOptions(
           response.values,
           field
         );
@@ -115,6 +111,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });
+    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -142,7 +139,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    * @param selectedItems - The items that are selected.
    */
   handleSelectedItems(selectedItems: SelectField[]): void {
-    const extractedIds = this.extractIds(selectedItems, '_id');
+    const extractedIds = extractIds(selectedItems, '_id');
     this.form.get('hashlistIds').setValue(extractedIds);
   }
 }

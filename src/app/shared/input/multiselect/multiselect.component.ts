@@ -22,11 +22,8 @@ import { Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { map, startWith } from 'rxjs/operators';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { SelectField } from 'src/app/core/_models/input.model';
 
-interface SelectField {
-  _id: string;
-  name: string;
-}
 /**
  * InputMultiSelectComponent for selecting or searching items from an array of objects.
  * Supports dynamic filtering, highlighting, and emits selection changes.

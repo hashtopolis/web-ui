@@ -7,7 +7,6 @@ import {
   OnInit
 } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -41,15 +40,14 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
 
+  @Input()
+  error;
+
   /** Maximum results for API requests. */
   private maxResults = environment.config.prodApiMaxResults;
 
   /** List of hashlists. */
   selectHashlists: any;
-
-  // Util functions
-  /** Utility function for extracting IDs from a list of items. */
-  extractIds = extractIds;
 
   /**
    * Constructor of the NewSuperhashlistComponent.
@@ -74,9 +72,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
     this.buildForm();
     titleService.set(['New SuperHashlist']);
   }
-
-  @Input()
-  error;
 
   /**
    * Lifecycle hook called after component initialization.
@@ -107,7 +102,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    this.globalService
+    const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, {
         maxResults: this.maxResults,
         filter: 'isArchived=false,format=0'
@@ -117,6 +112,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });
+    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -138,23 +134,13 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Checks if a given control is an instance of FormControl.
-   *
-   * @param control - The control to check.
-   * @returns True if the control is a FormControl, false otherwise.
-   */
-  isFormControl(control: AbstractControl | null): control is FormControl {
-    return control instanceof FormControl;
-  }
-
-  /**
    * Handles the selection of items in the UI.
    * Extracts the IDs from the selected items and sets them in the form.
    *
    * @param selectedItems - The items that are selected.
    */
   handleSelectedItems(selectedItems: SelectField[]): void {
-    const extractedIds = this.extractIds(selectedItems, '_id');
+    const extractedIds = extractIds(selectedItems, '_id');
     this.form.get('hashlistIds').setValue(extractedIds);
   }
 }

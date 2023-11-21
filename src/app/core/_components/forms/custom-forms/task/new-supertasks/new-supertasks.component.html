@@ -1,6 +1,6 @@
 <grid-main>
 
-  <app-page-subtitle [subtitle]="'Create SuperTask'"></app-page-subtitle>
+  <app-page-subtitle subtitle="Create SuperTask"></app-page-subtitle>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
@@ -12,7 +12,6 @@
       [arrayOfObjects]="selectPretasks"
       [mergeIdAndName]="true"
       [label]="'Select or search Tasks:'"
-      [externalControl]="form.get('pretasks')"
       (selectionChanged)="handleSelectedItems($event)"
     ></app-input-multiselect>
 
