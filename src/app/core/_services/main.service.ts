@@ -1,4 +1,3 @@
-
 import {
   Observable,
   catchError,
@@ -12,9 +11,8 @@ import {
   take,
   tap
 } from 'rxjs';
-import { Observable, debounceTime, delay, retryWhen, take, tap } from 'rxjs';
 import { environment } from './../../../environments/environment';
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { AuthService } from './access/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { setParameter } from './buildparams';
@@ -105,11 +103,6 @@ export class GlobalService {
           return of({ values: [] });
         })
       );
-      queryParams = setParameter(routerParams);
-    }
-    return this.http.get(this.cs.getEndpoint() + methodUrl, {
-      params: queryParams
-    });
   }
 
   /**
