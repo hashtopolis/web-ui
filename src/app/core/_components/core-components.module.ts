@@ -39,6 +39,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
+import { NotificationsTableComponent } from './tables/notifications-table/notifications-table.component';
 import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
@@ -69,7 +70,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     HealthChecksTableComponent,
     LogsTableComponent,
     UsersTableComponent,
-    AccessGroupsTableComponent
+    AccessGroupsTableComponent,
+    NotificationsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -116,7 +118,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     HealthChecksTableComponent,
     LogsTableComponent,
     UsersTableComponent,
-    AccessGroupsTableComponent
+    AccessGroupsTableComponent,
+    NotificationsTableComponent
   ],
   providers: [
     {

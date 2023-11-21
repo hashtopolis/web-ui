@@ -37,6 +37,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "Notification".
+   * @returns `true` if the data row is an notification; otherwise, `false`.
+   */
+  protected isNotification(): boolean {
+    return this.checkId('notificationSettingId');
+  }
+
+  /**
    * Check if the data row is of type "AccessGroup".
    * @returns `true` if the data row is an access group; otherwise, `false`.
    */

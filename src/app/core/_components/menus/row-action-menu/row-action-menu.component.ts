@@ -55,6 +55,8 @@ export class RowActionMenuComponent
       );
     } else if (this.isUser()) {
       this.setUserMenu();
+    } else if (this.isNotification()) {
+      this.setNotificationMenu();
     } else if (this.isTask()) {
       this.setTaskMenu();
     } else if (this.isHashlist()) {
@@ -154,6 +156,30 @@ export class RowActionMenuComponent
 
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)
+    ]);
+  }
+
+  /**
+   * Sets the context menu items for a user data row.
+   */
+  private setNotificationMenu(): void {
+    if (this.data['isActive']) {
+      this.setActionMenuItems(0, [
+        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_NOTIFICATION)
+      ]);
+    } else {
+      this.setActionMenuItems(0, [
+        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_NOTIFICATION)
+      ]);
+    }
+
+    this.addActionMenuItem(
+      0,
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_NOTIFICATION)
+    );
+
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)
     ]);
   }
 

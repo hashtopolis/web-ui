@@ -84,7 +84,7 @@ export class SuperHashlistsTableComponent
         name: SuperHashlistsTableColumnLabel.CRACKED,
         dataKey: 'cracked',
         icons: (superHashlist: Hashlist) =>
-          this.renderStatusIcon(superHashlist),
+          this.renderCrackedStatusIcon(superHashlist),
         render: (superHashlist: Hashlist) =>
           formatPercentage(superHashlist.cracked, superHashlist.hashCount),
         isSortable: true,
@@ -153,7 +153,9 @@ export class SuperHashlistsTableComponent
   }
 
   @Cacheable(['_id', 'hashCount', 'cracked'])
-  async renderStatusIcon(superHashlist: Hashlist): Promise<HTTableIcon[]> {
+  async renderCrackedStatusIcon(
+    superHashlist: Hashlist
+  ): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     if (superHashlist.hashCount === superHashlist.cracked) {
       icons.push({

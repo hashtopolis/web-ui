@@ -46,6 +46,12 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DEACTIVATE_USERS,
         BulkActionMenuLabel.DELETE_USERS
       );
+    } else if (this.dataType === 'notifications') {
+      this.setActivateDeleteMenu(
+        BulkActionMenuLabel.ACTIVATE_NOTIFICATION,
+        BulkActionMenuLabel.DEACTIVATE_NOTIFICATIONS,
+        BulkActionMenuLabel.DELETE_NOTIFICATIONS
+      );
     } else if (this.dataType === 'hashlists') {
       this.setHashlistMenu();
     } else if (this.dataType === 'access-groups') {

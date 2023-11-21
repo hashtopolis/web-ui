@@ -339,23 +339,6 @@ export class AgentsTableComponent
     return this.sanitize(data);
   }
 
-  @Cacheable(['_id', 'isActive'])
-  async renderStatusIcon(agent: Agent): Promise<HTTableIcon[]> {
-    return agent.isActive
-      ? [
-          {
-            name: 'check_circle',
-            cls: 'text-ok'
-          }
-        ]
-      : [
-          {
-            name: 'remove_circle',
-            cls: 'text-critical'
-          }
-        ];
-  }
-
   private async getSpeed(agent: Agent): Promise<number> {
     return this.getChunkDataParam(agent._id, 'speed');
   }
