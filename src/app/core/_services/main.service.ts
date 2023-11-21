@@ -1,6 +1,20 @@
+
+import {
+  Observable,
+  catchError,
+  debounceTime,
+  delay,
+  forkJoin,
+  map,
+  of,
+  retryWhen,
+  switchMap,
+  take,
+  tap
+} from 'rxjs';
 import { Observable, debounceTime, delay, retryWhen, take, tap } from 'rxjs';
 import { environment } from './../../../environments/environment';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { AuthService } from './access/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { setParameter } from './buildparams';
@@ -13,7 +27,6 @@ import { ConfigService } from './shared/config.service';
 export class GlobalService {
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object,
     private as: AuthService,
     private cs: ConfigService
   ) {}
@@ -28,13 +41,70 @@ export class GlobalService {
   }
 
   /**
-   * Returns all
-   * @param routerParams - to include multiple options such as Max number of results or filtering
-   * @returns  Object
-   **/
+   * Gets the maximum number of results from the environment configuration.
+   * @returns {number} The maximum number of results.
+   */
+  get maxResults(): number {
+    return Number(environment.config.prodApiMaxResults);
+  }
+
+  /**
+   * Service method to retrieve data from the API.
+   * If a value is specified for maxResults, it will be utilized; otherwise, the system will default to the maxResults defined in the configuration and load the data in chunks of the specified maxResults.
+   * @param methodUrl - The API endpoint URL.
+   * @param routerParams - Parameters for the API request, including options such as max number of results or filtering.
+   * @returns An observable that emits the API response.
+   */
   getAll(methodUrl: string, routerParams?: Params): Observable<any> {
     let queryParams: Params = {};
+    let fixedMaxResults: boolean;
+
     if (routerParams) {
+      if (!('maxResults' in routerParams)) {
+        fixedMaxResults = true;
+      }
+      queryParams = setParameter(routerParams, this.maxResults);
+    }
+
+    return this.http
+      .get(this.cs.getEndpoint() + methodUrl, { params: queryParams })
+      .pipe(
+        switchMap((response: any) => {
+          const total = response.total || 0;
+          const maxResults = this.maxResults;
+
+          if (total > maxResults && fixedMaxResults) {
+            const requests: Observable<any>[] = [];
+            const numRequests = Math.ceil(total / maxResults);
+
+            for (let i = 0; i < numRequests; i++) {
+              const startsAt = i * maxResults;
+              const partialParams = setParameter(
+                { ...queryParams, startsAt },
+                maxResults
+              );
+              requests.push(
+                this.http.get(this.cs.getEndpoint() + methodUrl, {
+                  params: partialParams
+                })
+              );
+            }
+
+            return forkJoin([of(response), ...requests]).pipe(
+              catchError((error) => {
+                console.error('Error in forkJoin:', error);
+                return of(response);
+              })
+            );
+          } else {
+            return of(response);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error in switchMap:', error);
+          return of({ values: [] });
+        })
+      );
       queryParams = setParameter(routerParams);
     }
     return this.http.get(this.cs.getEndpoint() + methodUrl, {
