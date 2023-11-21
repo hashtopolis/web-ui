@@ -23,6 +23,11 @@ export class RowActionMenuComponent
   ngOnInit(): void {
     if (this.isAgent()) {
       this.setAgentMenu();
+    } else if (this.isAccessGroup()) {
+      this.setEditDeleteMenuItems(
+        RowActionMenuLabel.EDIT_ACCESSGROUP,
+        RowActionMenuLabel.DELETE_ACCESSGROUP
+      );
     } else if (this.isSuperHashlist()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_SUPERHASHLIST,

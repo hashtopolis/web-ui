@@ -33,7 +33,15 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    return this.checkId('agentId');
+    return this.checkId('agentId') && 'agentName' in this.data;
+  }
+
+  /**
+   * Check if the data row is of type "AccessGroup".
+   * @returns `true` if the data row is an access group; otherwise, `false`.
+   */
+  protected isAccessGroup(): boolean {
+    return this.checkId('accessGroupId') && 'groupName' in this.data;
   }
 
   /**
@@ -41,7 +49,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent binary; otherwise, `false`.
    */
   protected isAgentBinary(): boolean {
-    return this.checkId('agentBinaryId');
+    return this.checkId('agentBinaryId') && 'filename' in this.data;
   }
 
   /**
@@ -49,7 +57,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
   protected isPreprocessor(): boolean {
-    return this.checkId('preprocessorId');
+    return this.checkId('preprocessorId') && 'binaryName' in this.data;
   }
 
   /**
@@ -57,7 +65,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    return this.checkId('crackerBinaryTypeId');
+    return this.checkId('crackerBinaryTypeId') && 'typeName' in this.data;
   }
 
   /**
@@ -65,7 +73,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task; otherwise, `false`.
    */
   protected isTask(): boolean {
-    return this.checkId('taskId');
+    return this.checkId('taskId') && 'taskName' in this.data;
   }
 
   /**

@@ -10,6 +10,7 @@ export type DataType =
   | 'crackers'
   | 'preprocessors'
   | 'users'
+  | 'access-groups'
   | 'agent-binaries'
   | 'health-checks'
   | 'logs'
