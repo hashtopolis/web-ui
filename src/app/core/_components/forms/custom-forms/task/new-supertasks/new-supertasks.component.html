@@ -1,0 +1,24 @@
+<grid-main>
+
+  <app-page-subtitle subtitle="Create SuperTask"></app-page-subtitle>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <input-text title="Name" formControlName="supertaskName" [error]="error?.name"></input-text>
+
+    <input-multiselect
+      [isLoading]="isLoading"
+      [placeholder]="'Tasks...'"
+      [arrayOfObjects]="selectPretasks"
+      [mergeIdAndName]="true"
+      [label]="'Select or search Tasks:'"
+      (selectionChanged)="handleSelectedItems($event)"
+    ></input-multiselect>
+
+    <grid-buttons>
+      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+      <button-submit [name]="'Create'"></button-submit>
+    </grid-buttons>
+
+  </form>
+</grid-main>

@@ -1,12 +1,12 @@
-<div class="modal-header">
-  <h2 class="h6 modal-title">Ups! Something went wrong</h2>
+<h2 mat-dialog-title class="h6">Ups! Something went wrong</h2>
+<div mat-dialog-content>
+  <p>
+    <b>Status Code: {{ data?.status }}</b>
+  </p>
+  <p class="err-msg">
+    {{ data?.message }}
+  </p>
 </div>
-<div class="modal-body">
-      <p>
-        <b>Status Code: {{ status }}</b>
-      </p>
-      <p class="err-msg">
-        {{ message }}
-      </p>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onClose()">Cancel</button>
 </div>
-

@@ -5,7 +5,7 @@
       <div *ngFor="let field of formMetadata">
         <div *ngIf="field.type !== 'hidden'">
           <ng-container *ngIf="field.isTitle">
-            <h5>{{ field.label }}</h5>
+            <h4>{{ field.label }}</h4>
           </ng-container>
           <ng-container *ngIf="!field.isTitle">
             <div *ngIf="field.type !== 'checkbox'">
@@ -69,15 +69,13 @@
                   </ng-container>
                   <ng-container *ngSwitchCase="'selectd'">
                     <mat-select [formControlName]="field.name">
-                      <mat-option [value]="null"
-                        >Please Select an Option</mat-option
-                      >
                       <mat-option
                         *ngFor="let option of field.selectOptions$"
                         [value]="option.id"
                         >{{ option.name }}</mat-option
                       >
                     </mat-select>
+                    <mat-spinner *ngIf="isLoadingSelect" diameter="16"></mat-spinner>
                   </ng-container>
                 </ng-container>
               </mat-form-field>

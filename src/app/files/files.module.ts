@@ -5,7 +5,6 @@ import { ComponentsModule } from '../shared/components.module';
 import { CoreComponentsModule } from '../core/_components/core-components.module';
 import { DataTablesModule } from 'angular-datatables';
 import { FilesComponent } from './files.component';
-import { FilesEditComponent } from './files-edit/files-edit.component';
 import { FilesRoutingModule } from './files-routing.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NewFilesComponent } from './new-files/new-files.component';
@@ -15,7 +14,7 @@ import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
-  declarations: [FilesEditComponent, FilesComponent, NewFilesComponent],
+  declarations: [FilesComponent, NewFilesComponent],
   imports: [
     ReactiveFormsModule,
     FilesRoutingModule,
@@ -31,3 +30,4 @@ import { RouterModule } from '@angular/router';
   ]
 })
 export class FilesModule {}
+

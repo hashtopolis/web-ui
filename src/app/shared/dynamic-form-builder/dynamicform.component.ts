@@ -27,6 +27,7 @@ import {
 } from 'rxjs';
 import { MetadataService } from 'src/app/core/_services/metadata.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { transformSelectOptions } from '../../shared/utils/forms';
 import { ChangeDetectorRef } from '@angular/core';
 
 /**
@@ -124,6 +125,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     private gs: GlobalService,
     private cd: ChangeDetectorRef
   ) {}
+
+  // Util functions
+  transformSelectOptions = transformSelectOptions;
 
   /**
    * Initializes the dynamic form by creating form controls and setting their initial values.
@@ -285,32 +289,5 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
     // Complete and close the destroy$ subject to prevent memory leaks
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  /**
-   * Transforms API response options based on a field mapping configuration.
-   *
-   * @param apiOptions - The options received from an API response.
-   * @param field - The field configuration that contains the mapping between form fields and API fields.
-   *
-   * @returns An array of transformed select options to be used in the form.
-   */
-  transformSelectOptions(apiOptions: any[], field: any): any[] {
-    return apiOptions.map((apiOption: any) => {
-      const transformedOption: any = {};
-
-      for (const formField of Object.keys(field.fieldMapping)) {
-        const apiField = field.fieldMapping[formField];
-
-        if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
-          transformedOption[formField] = apiOption[apiField];
-        } else {
-          // Handle the case where the API field doesn't exist in the response
-          transformedOption[formField] = null; // or set a default value
-        }
-      }
-
-      return transformedOption;
-    });
   }
 }

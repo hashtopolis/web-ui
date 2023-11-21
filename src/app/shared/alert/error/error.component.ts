@@ -1,21 +1,32 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef
+} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-timeout',
-  templateUrl: './error.component.html'
+  templateUrl: './error.component.html',
+  standalone: true,
+  imports: [MatButtonModule, MatDialogModule]
 })
 export class ErrorModalComponent {
-  @Input() message: any;
-  @Input() status?: number;
-  @Output() close = new EventEmitter<void>();
+  message: any;
+  status?: number;
 
   constructor(
-    public activeModal: NgbActiveModal
-  ) { }
+    public dialogRef: MatDialogRef<ErrorModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    if (data) {
+      this.message = data.message;
+      this.status = data.status;
+    }
+  }
 
   onClose() {
-    this.close.emit();
+    this.dialogRef.close();
   }
 }
-
