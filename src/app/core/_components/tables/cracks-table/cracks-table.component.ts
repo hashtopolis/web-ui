@@ -42,7 +42,7 @@ export class CracksTableComponent
   }
 
   filter(item: Hash, filterValue: string): boolean {
-    if (item.hash.toLowerCase().includes(filterValue)) {
+    if (item.plaintext.toLowerCase().includes(filterValue)) {
       return true;
     }
 

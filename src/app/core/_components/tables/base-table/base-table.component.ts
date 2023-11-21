@@ -103,7 +103,6 @@ export class BaseTableComponent {
 
   @Cacheable(['agentId'])
   async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    console.log('obj', obj);
     return [
       {
         routerLink:
