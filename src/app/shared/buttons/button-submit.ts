@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 
@@ -29,8 +29,11 @@ import { Location } from '@angular/common';
 @Component({
   selector: 'button-submit',
   template: `
-    <button class="btn" [class]="getCustomClass()" [attr.type]="getTypeAttribute()" [disabled]="disabled" (click)="handleClick()">{{name}}</button>
-  `
+    <button mat-raised-button class="separation-button" [ngClass]="getCustomClass()" [type]="getTypeAttribute()" [disabled]="disabled" (click)="handleClick()">
+      {{ name }}
+    </button>
+  `,
+  encapsulation: ViewEncapsulation.None,
 })
 export class ButtonSubmitComponent {
   /**
@@ -55,9 +58,9 @@ export class ButtonSubmitComponent {
    */
   getCustomClass(): string {
     if (this.type === 'cancel' || this.type === 'delete') {
-      return "btn-danger shadow-sm btn-sm me-3";
+      return 'mat-raised-button mat-warn mat-button-sm mat-button-shadow';
     } else {
-      return "btn btn-gray-800"; // Default to normal style
+      return 'mat-raised-button mat-primary mat-button-sm mat-button-shadow';
     }
   }
 

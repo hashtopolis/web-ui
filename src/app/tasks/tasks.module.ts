@@ -1,32 +1,35 @@
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { DataTablesModule } from "angular-datatables";
-import { CommonModule } from "@angular/common";
-import { RouterModule } from "@angular/router";
-import { NgModule } from "@angular/core";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { ApplyHashlistComponent } from './supertasks/applyhashlist.component';
+import { ChunksComponent } from './chunks/chunks.component';
+import { CommonModule } from '@angular/common';
+import { ComponentsModule } from '../shared/components.module';
+import { CoreComponentsModule } from '../core/_components/core-components.module';
+import { DataTablesModule } from 'angular-datatables';
 import { EditPreconfiguredTasksComponent } from './edit-preconfigured-tasks/edit-preconfigured-tasks.component';
-import { NewPreconfiguredTasksComponent } from "./new-preconfigured-tasks/new-preconfigured-tasks.component";
-import { PreconfiguredTasksComponent } from "./preconfigured-tasks/preconfigured-tasks.component";
-import { ModalSubtasksComponent } from './show-tasks/modal-subtasks/modal-subtasks.component';
-import { ModalPretasksComponent } from './supertasks/modal-pretasks/modal-pretasks.component';
 import { EditSupertasksComponent } from './edit-supertasks/edit-supertasks.component';
-import { NewSupertasksComponent } from "./new-supertasks/new-supertasks.component";
-import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
-import { ApplyHashlistComponent } from "./supertasks/applyhashlist.component";
-import { MasksComponent } from './import-supertasks/masks/masks.component';
-import { SupertasksComponent } from "./supertasks/supertasks.component";
-import { ShowTasksComponent } from "./show-tasks/show-tasks.component";
 import { EditTasksComponent } from './edit-tasks/edit-tasks.component';
-import { NewTasksComponent } from "./new-tasks/new-tasks.component";
-import { ComponentsModule } from "../shared/components.module";
-import { TasksRoutingModule } from "./tasks-routing.module";
-import { ChunksComponent } from "./chunks/chunks.component";
-import { PipesModule } from "../shared/pipes.module";
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MasksComponent } from './import-supertasks/masks/masks.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { ModalPretasksComponent } from './supertasks/modal-pretasks/modal-pretasks.component';
+import { ModalSubtasksComponent } from './show-tasks/modal-subtasks/modal-subtasks.component';
+import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-preconfigured-tasks.component';
+import { NewSupertasksComponent } from '../core/_components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
+import { NewTasksComponent } from './new-tasks/new-tasks.component';
+import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { PipesModule } from '../shared/pipes.module';
+import { PreconfiguredTasksComponent } from './preconfigured-tasks/preconfigured-tasks.component';
+import { RouterModule } from '@angular/router';
+import { ShowTasksComponent } from './show-tasks/show-tasks.component';
+import { SupertasksComponent } from './supertasks/supertasks.component';
+import { TasksRoutingModule } from './tasks-routing.module';
+import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
 
 @NgModule({
-  declarations:[
+  declarations: [
     EditPreconfiguredTasksComponent,
     NewPreconfiguredTasksComponent,
     PreconfiguredTasksComponent,
@@ -43,21 +46,21 @@ import { PipesModule } from "../shared/pipes.module";
     WrbulkComponent,
     MasksComponent
   ],
-  imports:[
+  imports: [
     ReactiveFormsModule,
     TasksRoutingModule,
     FontAwesomeModule,
     DataTablesModule,
     ComponentsModule,
+    CoreComponentsModule,
+    MatFormFieldModule,
+    MatInputModule,
     CommonModule,
     RouterModule,
     PipesModule,
     FormsModule,
     NgbModule
- ],
- exports: [
-  ModalPretasksComponent,
-  ModalSubtasksComponent
- ]
+  ],
+  exports: [ModalPretasksComponent, ModalSubtasksComponent]
 })
 export class TasksModule {}

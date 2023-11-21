@@ -1,23 +1,42 @@
 @import './colors';
 
 body {
-  font-family: var(--mdc-typography-button-font-family, var(--mdc-typography-font-family, Roboto, sans-serif));
+  font-family: var(
+    --mdc-typography-button-font-family,
+    var(--mdc-typography-font-family, Roboto, sans-serif)
+  );
 }
 
 a {
   color: $accent-800 !important;
 }
 
-.text-ok {
-  color: $color-green !important;
+.light-theme {
+  .text-ok {
+    color: $color-green !important;
+  }
+}
+
+.dark-theme {
+  .text-ok {
+    color: $color-green-dark !important;
+  }
 }
 
 .text-warning {
   color: $color-orange !important;
 }
 
-.text-critical {
-  color: $warn-600 !important;
+.light-theme {
+  .text-critical {
+    color: $warn-600 !important;
+  }
+}
+
+.dark-theme {
+  .text-critical {
+    color: $warn-300 !important;
+  }
 }
 
 .text-inactive {
@@ -50,14 +69,6 @@ a {
 
 .text-primary-300 {
   color: $primary-300 !important;
-}
-
-.truncate {
-  display: inline-block !important;
-  max-width: 150px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .page-title-wrapper {
@@ -103,7 +114,6 @@ h2 {
     margin-bottom: 0;
   }
 }
-
 
 .dark-theme {
   hr {

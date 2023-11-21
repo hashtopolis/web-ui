@@ -17,7 +17,7 @@
 
 export function validateFileExt(filename: string): boolean {
   const filext = filename.split('.').pop();
-  switch (filext.toLowerCase()){
+  switch (filext.toLowerCase()) {
     case 'zip':
     case 'dic':
     case 'txt':
@@ -37,35 +37,39 @@ export function validateFileExt(filename: string): boolean {
  * @beta
  */
 
-
 export function getBase64ImageFromURL(url: string) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.setAttribute("crossOrigin", "anonymous");
+    img.setAttribute('crossOrigin', 'anonymous');
 
     img.onload = () => {
-      const canvas = document.createElement("canvas");
+      const canvas = document.createElement('canvas');
       canvas.width = img.width;
       canvas.height = img.height;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
 
-      const dataURL = canvas.toDataURL("image/png");
+      const dataURL = canvas.toDataURL('image/png');
 
       resolve(dataURL);
     };
 
-    img.onerror = error => {
+    img.onerror = (error) => {
       reject(error);
     };
 
     img.src = url;
+  });
+}
 
-  });}
+export const formatPercentage = (value: number, total: number): string => {
+  if (total === 0) {
+    return '';
+  }
 
+  const percentage = (value / total) * 100;
+  const formattedPercentage = percentage.toFixed(1);
 
-
-
-
-
+  return `${formattedPercentage}%`;
+};

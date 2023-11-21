@@ -29,234 +29,9 @@ select, input {
   01- End
 */
 
-/*
-  02- Smart Form Style template
-*/
-
-// move this element to layout
-.container-project {
-  width: 100%;
-  padding-right: var(--bs-gutter-x, 0.75rem);
-  padding-left: var(--bs-gutter-x, 0.75rem);
-  margin-right: auto;
-  margin-left: auto;
-}
-
-// move this element to card
-.card-body {
-  flex: 1 1 auto;
-  padding: 1rem 1rem;
-}
-
-// move this element to layout
-.stepsContainer {
-  display:flex;
-  width:600px;
-  margin-left:auto;
-  margin-right:auto;
-  margin-bottom:20px;
-}
-
-.stepConectorPiece {
-  height:3px;
-  background:lightgrey;
-  flex:1;
-  margin-top:19px;
-}
-
-.stepCircle {
-  width:40px;
-  height:40px;
-  border-radius:100%;
-  background:lightgrey;
-  text-align:center;
-  line-height:40px;
-  color:#ffffff;
-  font-family:helvetica;
-}
-
-// move this element to layout
-.container-smart {
-  display:flex;
-  flex-direction:column;
-  // background:#f6f6f6;
-  width:300px;
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.one,
-.two,
-.three {
-  flex:1;
-  padding:5px;
-}
-
-.one {
-  padding-top:10px;
-}
-
-.three {
-  padding-bottom:10px;
-}
-
-.four {
-  flex:1;
-  position:relative;
-  height:40px;
-}
-
-.input {
-  width:90%;
-  display:block;
-  margin-left:auto;
-  margin-right:auto;
-  position:relative;
-  height:32px;
-  line-height:32px;
-  padding-left:10px;
-}
-
-.submit {
-  position:absolute;
-  right:14px;
-  background:darkblue;
-  color:#ffffff;
-  height:26px;
-  padding-left:10px;
-  padding-right:10px;
-  border:none;
-  font-size:10px;
-  font-weight:600;
-  text-transform:uppercase;
-  cursor:pointer;
-}
-
-.thankYou {
-  text-align:center;
-  font-family:helvetica;
-  font-weight:800;
-}
-
-.customerContactContainer {
-  display:flex;
-  height:32px;
-  line-height:32px;
-  font-family:helvetica;
-  font-weight:600;
-  margin-top:20px;
-  width:300px;
-  margin-left:auto;
-  margin-right:auto;
-
-}
-
-.nameTitle {
-  width:100px;
-  background:#f6f6f6;
-  padding-left:10px;
-  font-size:12px;
-}
-
-.emailTitle {
-  flex:1;
-  background:#f6f6f6;
-  padding-left:10px;
-  font-size:12px;
-}
-
-.customerListItemsContainer {
-  display:flex;
-  height:32px;
-  border-bottom:1px solid #dddddd;
-  width:300px;
-  margin-left:auto;
-  margin-right:auto;
-  line-height:32px;
-  font-family:helvetica;
-  font-size:12px;
-}
-
-.name {
-  width:100px;
-  padding-left:10px;
-}
-
-.email {
-  flex:1;
-  padding-left:10px;
-}
 
 /*
-  02- End
-*/
-
-/*
-  03- Selectize custom attributes
-*/
-
-input.ng-invalid.ng-touched {
-	border: 1.5px solid red;
-}
-
-.form-control-mini {
-  display: inline-block;
-  width: 35px !important;
-}
-
-.style_selectize {
-  padding: 10px 3px;
-  visibility: visible !important;
-  position: relative;
-  padding-left: 15px;
-  height: 45px;
-  border-top: 1px solid rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: 0.2s;
-}
-
-.style_selectize.active .select::after {
-  border: none;
-  color: #ffffff !important;
-  border-left: 2px solid white;
-  border-top: 2px solid white;
-}
-
-.style_selectize span{
-  color: #000;
-}
-
-.selectize-dropdown .selected {
-  background-color: #949596;
-  color: #fff !important;
-}
-
-.selectize-dropdown .active {
-  color: #070707 !important;
-}
-
-.active i {
-  color: #1411e6;
-  border: 2px solid rgb(0, 23, 128);
-}
-
-.active span {
-  color: #1411e6;
-  // border: 2px solid rgb(0, 23, 128);
-}
-
-.selectize-input::after {
-  visibility:hidden;
-}
-
-/*
-  03- End
-*/
-
-/*
-  04- File Zone Area
+  02- File Zone Area
 */
 .filedrop {
   display: flex;
@@ -336,11 +111,11 @@ progress::-webkit-progress-value {
 }
 
 /*
-  04- End
+  02- End
 */
 
 /*
-  05- Custom filter box
+  03- Custom filter box
 */
 .filterboxglass{
   border:none;
@@ -361,11 +136,11 @@ progress::-webkit-progress-value {
 }
 
 /*
-  05- End
+  03- End
 */
 
 /*
-  06- Password input field style and eye hidden/show
+  04- Password input field style and eye hidden/show
 */
 
 .input-icon-container{
@@ -394,11 +169,11 @@ progress::-webkit-progress-value {
 }
 
 /*
-  06- End
+  04- End
 */
 
 /*
-  07- Password Strength
+  05- Password Strength
 */
 
 .strength {
@@ -430,5 +205,124 @@ progress::-webkit-progress-value {
 }
 
 /*
+  05- End
+*/
+
+/*
+  06- Login Form
+*/
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.login-card {
+  width: 400px;
+  margin-bottom: 16px;
+}
+
+.card-login-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.forgot-password-link {
+  margin-top: 16px;
+  text-align: center;
+
+  a {
+    color: $hyperlink-color;
+    text-decoration: none;
+  }
+}
+
+.mat-card-alert {
+  background-color: $alert-color;
+  margin-top: 16px;
+}
+
+/*
+  06- End
+*/
+
+/*
+  07- Horizontal Menu Select
+*/
+.btn-toggle-select {
+  color: $btn-text-color;
+  background-color: $btn-bg-color;
+  border-color: $btn-border-color;
+}
+
+/*
   07- End
 */
+
+/*
+  08- Mat Autocomplete
+*/
+
+.custom-chip-grid {
+  width: 100%;
+}
+
+.highlight-text {
+  background-color: $search-text-highlight-color;
+}
+
+
+/*
+  08- End
+*/
+
+/*
+  09- Shared/Input
+*/
+
+.color-picker-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+}
+
+.color-picker-field {
+  flex: 1; /* Allow the mat-form-field to grow and take available space */
+  margin-right: 16px; /* Adjust the margin between the field and the button */
+}
+
+.custom-textarea {
+  width: 100%;
+  min-width: 300px; /* Set your desired minimum width */
+  max-width: 600px; /* Set your desired maximum width */
+}
+
+/*
+  09
+*/
+
+$custom-form-min-width: 150px;
+$custom-form-max-width: 500px;
+
+$mat-input-font-size: 14px; // Adjust the font size as needed
+$mat-form-field-max-width: 300px; // Adjust the maximum width as needed
+
+.custom-form {
+  min-width: $custom-form-min-width;
+  max-width: $custom-form-max-width;
+  width: 100%;
+}
+
+.matfield-full-width {
+  width: 100%;
+}
+
+.mat-input-element {
+  font-size: $mat-input-font-size !important;
+}
+
+.mat-form-field {
+  max-width: $mat-form-field-max-width !important;
+}

@@ -1,95 +1,120 @@
-import { CheckPerm } from "../core/_guards/permission.guard";
-import { Routes, RouterModule } from '@angular/router';
-import { IsAuth } from "../core/_guards/auth.guard";
-import { NgModule } from "@angular/core";
+import { CheckPerm } from '../core/_guards/permission.guard';
+import { RouterModule, Routes } from '@angular/router';
+import { IsAuth } from '../core/_guards/auth.guard';
+import { NgModule } from '@angular/core';
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
+import { NewFilesComponent } from './new-files/new-files.component';
+import { MyRoute, RouteData } from '../core/_models/routes.model';
+import { SERV } from '../core/_services/main.config';
+import { FilesComponent } from './files.component';
 
-import { FilesEditComponent } from "./files-edit/files-edit.component";
-import { NewFilesComponent } from "./new-files/new-files.component";
-import { FilesComponent } from "./files.component";
-
-const routes: Routes = [
+const routes: MyRoute[] = [
   {
     path: '',
+    canActivate: [IsAuth],
     children: [
       {
-        path: 'wordlist',  component: FilesComponent,
+        path: 'wordlist',
+        component: FilesComponent,
         data: {
-            kind: 'wordlist',
-            breadcrumb: 'Wordlist',
-            permission: 'File'
+          kind: 'wordlist',
+          breadcrumb: 'Wordlist',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: 'wordlist/new-wordlist',  component: NewFilesComponent,
+        path: 'wordlist/new-wordlist',
+        component: NewFilesComponent,
         data: {
-            kind: 'wordlist-new',
-            breadcrumb: 'Wordlist New',
-            permission: 'File'
+          kind: 'wordlist-new',
+          breadcrumb: 'Wordlist New',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: ':id/wordlist-edit',  component: FilesEditComponent,
+        path: ':id/wordlist-edit',
+        component: FormComponent,
         data: {
-            kind: 'wordlist-edit',
-            breadcrumb: 'Wordlist Edit',
-            permission: 'File'
+          kind: 'editwordlist',
+          type: 'edit',
+          path: SERV.FILES,
+          breadcrumb: 'Wordlist Edit',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: 'rules', component: FilesComponent,
+        path: 'rules',
+        component: FilesComponent,
         data: {
-            kind: 'rules',
-            breadcrumb: 'Rules',
-            permission: 'File'
+          kind: 'rules',
+          breadcrumb: 'Rules',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: 'rules/new-rule',  component: NewFilesComponent,
+        path: 'rules/new-rule',
+        component: NewFilesComponent,
         data: {
-            kind: 'rule-new',
-            breadcrumb: 'Rule New',
-            permission: 'File'
+          kind: 'rule-new',
+          breadcrumb: 'Rule New',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: ':id/rules-edit',  component: FilesEditComponent,
+        path: ':id/rules-edit',
+        component: FormComponent,
         data: {
-            kind: 'rules-edit',
-            breadcrumb: 'Rules Edit',
-            permission: 'File'
+          kind: 'editrule',
+          type: 'edit',
+          path: SERV.FILES,
+          breadcrumb: 'Rules Edit',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: 'other', component: FilesComponent,
+        path: 'other',
+        component: FilesComponent,
         data: {
-            kind: 'other',
-            breadcrumb: 'Other',
-            permission: 'File'
+          kind: 'other',
+          breadcrumb: 'Other',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: 'other/new-other',  component: NewFilesComponent,
+        path: 'other/new-other',
+        component: NewFilesComponent,
         data: {
-            kind: 'other-new',
-            breadcrumb: 'Other New',
-            permission: 'File'
+          kind: 'other-new',
+          breadcrumb: 'Other New',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      },
       {
-        path: ':id/other-edit',  component: FilesEditComponent,
+        path: ':id/other-edit',
+        component: FormComponent,
         data: {
-            kind: 'other-edit',
-            breadcrumb: 'Other Edit',
-            permission: 'File'
+          kind: 'editother',
+          type: 'edit',
+          path: SERV.FILES,
+          breadcrumb: 'Other Edit',
+          permission: 'File'
         },
-        canActivate: [IsAuth,CheckPerm]},
+        canActivate: [CheckPerm]
+      }
     ]
   }
-]
+];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
-
 })
 export class FilesRoutingModule {}

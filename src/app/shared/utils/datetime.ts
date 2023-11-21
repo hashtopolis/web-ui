@@ -11,7 +11,7 @@ export const unixTimestampInPast = (days: number): number => {
   const inPast = new Date(currentDate.getTime() - days * 24 * 60 * 60 * 1000);
 
   return Math.floor(inPast.getTime() / 1000);
-}
+};
 
 /**
  * Formats a Unix timestamp into a date-time string using a custom format.
@@ -33,11 +33,14 @@ export const unixTimestampInPast = (days: number): number => {
  *
  * @returns The formatted date-time string.
  */
-export function formatUnixTimestamp(unixTimestamp: number, fmt: string): string {
+export function formatUnixTimestamp(
+  unixTimestamp: number,
+  fmt: string
+): string {
   //return moment.unix(unixTimestamp).format(fmt)
   const date = new Date(unixTimestamp * 1000);
 
-  return formatDate(date, fmt)
+  return formatDate(date, fmt);
 }
 
 /**
@@ -64,7 +67,8 @@ export function formatDate(date: Date, fmt: string): string {
   //return moment(date).format(fmt)
   const pad = (value: number) => (value < 10 ? `0${value}` : value.toString());
 
-  return fmt.replace(/yyyy/g, date.getFullYear().toString())
+  return fmt
+    .replace(/yyyy/g, date.getFullYear().toString())
     .replace(/yy/g, date.getFullYear().toString().slice(-2))
     .replace(/MM/g, pad(date.getMonth() + 1))
     .replace(/M/g, (date.getMonth() + 1).toString())
@@ -77,3 +81,34 @@ export function formatDate(date: Date, fmt: string): string {
     .replace(/ss/g, pad(date.getSeconds()))
     .replace(/s/g, date.getSeconds().toString());
 }
+
+/**
+ * Formats a duration in seconds into a string representing days, hours, minutes, and seconds.
+ * Example output: "3 Days 04:15:30"
+ *
+ * @param seconds - The duration in seconds to format.
+ * @returns A formatted string representing the duration.
+ */
+export const formatSeconds = (seconds: number) => {
+  if (seconds < 1) {
+    return 'N/A';
+  }
+
+  const secondsInDay = 60 * 60 * 24;
+  let formatted = '';
+
+  if (seconds >= secondsInDay) {
+    const days = Math.floor(seconds / secondsInDay);
+    const dayLabel = days === 1 ? ' Day ' : ' Days ';
+    const daysFormatted = `${days}${dayLabel}`;
+
+    seconds = seconds - days * secondsInDay; // Remaining Time
+    formatted += daysFormatted;
+  }
+
+  const date = new Date(seconds * 1000);
+  const timeString = date.toISOString().slice(11, 19);
+
+  formatted += timeString;
+  return formatted;
+};

@@ -1,0 +1,111 @@
+<grid-main>
+  <app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
+    <grid-autocol [itemCount]="formMetadata.length">
+      <div *ngFor="let field of formMetadata">
+        <div *ngIf="field.type !== 'hidden'">
+          <ng-container *ngIf="field.isTitle">
+            <h4>{{ field.label }}</h4>
+          </ng-container>
+          <ng-container *ngIf="!field.isTitle">
+            <div *ngIf="field.type !== 'checkbox'">
+              <mat-form-field class="matfield-full-width">
+                <mat-label>
+                  {{ field.label }}
+                  <mat-icon
+                    matTooltip="{{ field.tooltip }}"
+                    matTooltipPosition="below"
+                    matTooltipClass="tooltip-custom-style"
+                    container="body"
+                    aria-hidden="true"
+                    *ngIf="field.tooltip"
+                  >
+                    info
+                  </mat-icon>
+                </mat-label>
+                <ng-container [ngSwitch]="field.type">
+                  <ng-container *ngSwitchCase="'number'">
+                    <input
+                      matInput
+                      type="number"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'text'">
+                    <input
+                      matInput
+                      [type]="field.type"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'password'">
+                    <input
+                      matInput
+                      type="password"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'textarea'">
+                    <textarea
+                      matInput
+                      [formControlName]="field.name"
+                    ></textarea>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'email'">
+                    <input
+                      matInput
+                      [type]="field.type"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'select'">
+                    <mat-select [formControlName]="field.name">
+                      <mat-option
+                        *ngFor="let option of field.selectOptions"
+                        [value]="option.value"
+                        >{{ option.label }}</mat-option
+                      >
+                    </mat-select>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'selectd'">
+                    <mat-select [formControlName]="field.name">
+                      <mat-option
+                        *ngFor="let option of field.selectOptions$"
+                        [value]="option.id"
+                        >{{ option.name }}</mat-option
+                      >
+                    </mat-select>
+                    <mat-spinner *ngIf="isLoadingSelect" diameter="16"></mat-spinner>
+                  </ng-container>
+                </ng-container>
+              </mat-form-field>
+            </div>
+            <div *ngIf="field.type === 'checkbox'">
+              <mat-checkbox [formControlName]="field.name">{{
+                field.label
+              }}</mat-checkbox>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <button-submit
+        name="Cancel"
+        [disabled]="false"
+        type="cancel"
+        *ngIf="isCreateMode"
+      ></button-submit>
+      <button-submit
+        name="Delete"
+        [disabled]="false"
+        type="delete"
+        *ngIf="!isCreateMode && showDeleteButton"
+        (click)="onDelete()"
+        >Delete</button-submit
+      >
+      <button-submit
+        [name]="buttonText"
+        [disabled]="!formIsValid()"
+      ></button-submit>
+    </grid-autocol>
+  </form>
+</grid-main>

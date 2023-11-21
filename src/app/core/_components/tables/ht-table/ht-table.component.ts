@@ -1,16 +1,28 @@
 /* eslint-disable @angular-eslint/component-selector */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ChangeDetectionStrategy, AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { DataType, HTTableColumn } from './ht-table.models';
-import { MatDialog } from '@angular/material/dialog';
-import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
+import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSort } from '@angular/material/sort';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -59,10 +71,9 @@ import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HTTableComponent implements OnInit, AfterViewInit {
-
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[];
 
@@ -76,13 +87,13 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort, { static: true }) matSort: MatSort;
 
   /** Name of the table, used when storing user customizations */
-  @Input() name: string
+  @Input() name: string;
 
   /** Data type displayed in the table, used to load relevant context menus */
-  @Input() dataType: DataType
+  @Input() dataType: DataType;
 
   /** Function used to filter table data. */
-  @Input() filterFn: (item: any, filterValue: string) => boolean
+  @Input() filterFn: (item: any, filterValue: string) => boolean;
 
   /** The data source for the table. */
   @Input() dataSource: BaseDataSource<any>;
@@ -99,11 +110,17 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
 
+  /** Flag show archived data. */
+  @Input() isArchived = false;
+
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
 
   /** Flag to enable row action menu */
   @Input() hasRowAction = false;
+
+  /** Flag to enable bulk action menu */
+  @Input() hasBulkActions = true;
 
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [3, 25, 50, 100, 250];
@@ -112,24 +129,41 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   @Input() defaultPageSize = this.paginationSizes[1];
 
   /** Event emitter for when the user triggers a row action */
-  @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> =
+    new EventEmitter<ActionMenuEvent<any>>();
 
   /** Event emitter for when the user triggers a bulk action */
-  @Output() bulkActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() bulkActionClicked: EventEmitter<ActionMenuEvent<any>> =
+    new EventEmitter<ActionMenuEvent<any>>();
 
   /** Event emitter for when the user triggers an export action */
-  @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
+  @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> =
+    new EventEmitter<ActionMenuEvent<any>>();
 
   /** Fetches user customizations */
-  private uiSettings: UISettingsUtilityClass
+  private uiSettings: UISettingsUtilityClass;
 
-  constructor(public dialog: MatDialog, private cd: ChangeDetectorRef, private storage: LocalStorageService<UIConfig>) { }
+  @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
+
+  constructor(
+    public dialog: MatDialog,
+    private cd: ChangeDetectorRef,
+    private storage: LocalStorageService<UIConfig>
+  ) {}
+
+  // @todo: fix ExpressionChangedAfterItHasBeenCheckedError. loading is causing trouble...
 
   ngOnInit(): void {
-    this.uiSettings = new UISettingsUtilityClass(this.storage)
-    this.columnNames = this.tableColumns.map((tableColumn: HTTableColumn) => tableColumn.name);
-    const displayedColumns = this.uiSettings.getTableSettings(this.name)
-    this.setDisplayedColumns(displayedColumns)
+    this.uiSettings = new UISettingsUtilityClass(this.storage);
+    this.columnNames = this.tableColumns.map(
+      (tableColumn: HTTableColumn) => tableColumn.name
+    );
+    const displayedColumns = this.uiSettings.getTableSettings(this.name);
+    if (displayedColumns) {
+      this.setDisplayedColumns(displayedColumns);
+    } else {
+      this.setDisplayedColumns(this.columnNames);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -156,23 +190,23 @@ export class HTTableComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((selectedColumns: string[]) => {
       if (selectedColumns) {
-        this.setDisplayedColumns(selectedColumns)
-        this.uiSettings.updateTableSettings(this.name, selectedColumns)
-        this.cd.detectChanges()
+        this.setDisplayedColumns(selectedColumns);
+        this.uiSettings.updateTableSettings(this.name, selectedColumns);
+        this.cd.detectChanges();
       }
     });
   }
 
   rowAction(event: ActionMenuEvent<any>): void {
-    this.rowActionClicked.emit(event)
+    this.rowActionClicked.emit(event);
   }
 
   bulkAction(event: ActionMenuEvent<any>): void {
-    this.bulkActionClicked.emit(event)
+    this.bulkActionClicked.emit(event);
   }
 
   exportAction(event: ActionMenuEvent<any>): void {
-    this.exportActionClicked.emit(event)
+    this.exportActionClicked.emit(event);
   }
 
   /**
@@ -199,7 +233,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    */
   applyFilter() {
     if (this.filterFn) {
-      this.dataSource.filterData(this.filterFn)
+      this.dataSource.filterData(this.filterFn);
     }
   }
 
@@ -230,7 +264,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    * Checks if there are selected rows.
    */
   hasSelected(): boolean {
-    return this.dataSource.hasSelected()
+    return this.dataSource.hasSelected();
   }
 
   /**
@@ -252,10 +286,13 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Reloads the data in the table.
+   * Reloads the data in the table and the bulk menu.
    */
   reload(): void {
-    this.dataSource.reload()
+    this.dataSource.reload();
+    if (this.bulkMenu) {
+      this.bulkMenu.reload();
+    }
   }
 
   /**
@@ -264,7 +301,11 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
-    this.dataSource.setPaginationConfig(event.pageSize, event.pageIndex, this.dataSource.totalItems);
+    this.dataSource.setPaginationConfig(
+      event.pageSize,
+      event.pageIndex,
+      this.dataSource.totalItems
+    );
     this.dataSource.reload();
   }
 }

@@ -1,0 +1,37 @@
+<div *ngIf="isLoading; else content">
+  <mat-spinner *ngIf="isLoading" diameter="16" class="spinner"></mat-spinner>
+  <mat-form-field>
+    <mat-label>{{label}}</mat-label>
+  </mat-form-field>
+</div>
+
+<ng-template #content>
+  <mat-form-field class="custom-chip-grid">
+    <mat-label>{{label}}</mat-label>
+    <mat-chip-grid #chipGrid aria-label="Items selection">
+      <mat-chip-row *ngFor="let item of items" (removed)="remove(item)">
+        {{ item._id }}
+        <span>({{ item.name }})</span>
+        <button matChipRemove [attr.aria-label]="'remove ' + item">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    </mat-chip-grid>
+    <input
+    matInput
+    #selectInput
+    [placeholder]="placeholder"
+    [matChipInputFor]="chipGrid"
+    [matAutocomplete]="auto"
+    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+    (matChipInputTokenEnd)="addItem($event)"
+  />
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+      <mat-option *ngFor="let item of filteredItems | async" [value]="item">
+        <span [innerHTML]="updateHighlightedValue(item._id + ' - ' + item.name, itemCtrl.value)"></span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <!-- <mat-error>{{ getSelectionError() }}</mat-error> -->
+</ng-template>
+
