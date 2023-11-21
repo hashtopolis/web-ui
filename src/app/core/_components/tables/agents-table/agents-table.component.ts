@@ -543,6 +543,8 @@ export class AgentsTableComponent
   }
 
   private rowActionEdit(agent: Agent): void {
-    this.router.navigate(['agents', 'show-agents', agent._id, 'edit']);
+    this.renderAgentLink(agent).then((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink);
+    });
   }
 }

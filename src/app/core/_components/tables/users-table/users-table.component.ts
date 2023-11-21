@@ -1,6 +1,10 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
 import {
   UsersTableColumnLabel,
   UsersTableStatus
@@ -336,6 +340,8 @@ export class UsersTableComponent
   }
 
   private rowActionEdit(user: User): void {
-    this.router.navigate(['/users', user._id, 'edit']);
+    this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink);
+    });
   }
 }

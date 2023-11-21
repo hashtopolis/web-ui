@@ -4,6 +4,7 @@ import {
   MatSnackBarModule
 } from '@angular/material/snack-bar';
 
+import { AccessGroupsTableComponent } from './tables/access-groups-table/access-groups-table.component';
 import { ActionMenuComponent } from './menus/action-menu/action-menu.component';
 import { AgentBinariesTableComponent } from './tables/agent-binaries-table/agent-binaries-table.component';
 import { AgentsTableComponent } from './tables/agents-table/agents-table.component';
@@ -67,7 +68,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
-    UsersTableComponent
+    UsersTableComponent,
+    AccessGroupsTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -113,7 +115,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
-    UsersTableComponent
+    UsersTableComponent,
+    AccessGroupsTableComponent
   ],
   providers: [
     {

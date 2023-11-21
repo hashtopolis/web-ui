@@ -1,48 +1,39 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { File, FileType } from 'src/app/core/_models/file.model';
-import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
+import { AccessGroup } from 'src/app/core/_models/access-group.model';
+import { AccessGroupsDataSource } from 'src/app/core/_datasources/access-groups.datasource';
+import { AccessGroupsTableColumnLabel } from './access-groups-table.constants';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { FilesDataSource } from 'src/app/core/_datasources/files.datasource';
-import { FilesTableColumnLabel } from './files-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatFileSize } from 'src/app/shared/utils/util';
 
 @Component({
-  selector: 'files-table',
-  templateUrl: './files-table.component.html'
+  selector: 'access-groups-table',
+  templateUrl: './access-groups-table.component.html'
 })
-export class FilesTableComponent
+export class AccessGroupsTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {
-  @Input() fileType: FileType = 0;
-
   tableColumns: HTTableColumn[] = [];
-  dataSource: FilesDataSource;
-  editPath = '';
+  dataSource: AccessGroupsDataSource;
 
   ngOnInit(): void {
-    this.editPath =
-      this.fileType === FileType.WORDLIST ? 'wordlist-edit' : 'rules-edit';
-
     this.tableColumns = this.getColumns();
-    this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsDataSource(
+      this.cdr,
+      this.gs,
+      this.uiService
+    );
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.setFileType(this.fileType);
     this.dataSource.loadAll();
   }
 
@@ -52,8 +43,8 @@ export class FilesTableComponent
     }
   }
 
-  filter(item: File, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
+  filter(item: AccessGroup, filterValue: string): boolean {
+    if (item.groupName.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -63,44 +54,25 @@ export class FilesTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: FilesTableColumnLabel.ID,
+        name: AccessGroupsTableColumnLabel.ID,
         dataKey: '_id',
         isSortable: true,
-        export: async (file: File) => file._id + ''
+        export: async (accessGroup: AccessGroup) => accessGroup._id + ''
       },
       {
-        name: FilesTableColumnLabel.NAME,
-        dataKey: 'filename',
-        icons: (file: File) => this.renderSecretIcon(file),
-        routerLink: (file: File) => this.renderFileLink(file),
+        name: AccessGroupsTableColumnLabel.NAME,
+        dataKey: 'groupName',
+        routerLink: (accessGroup: AccessGroup) =>
+          this.renderAccessGroupLink(accessGroup),
         isSortable: true,
-        export: async (file: File) => file.filename
-      },
-      {
-        name: FilesTableColumnLabel.SIZE,
-        dataKey: 'size',
-        render: (file: File) => formatFileSize(file.size, 'short'),
-        isSortable: true,
-        export: async (file: File) => formatFileSize(file.size, 'short')
-      },
-      {
-        name: FilesTableColumnLabel.LINE_COUNT,
-        dataKey: 'lineCount',
-        isSortable: true,
-        export: async (file: File) => file.lineCount + ''
-      },
-      {
-        name: FilesTableColumnLabel.ACCESS_GROUP,
-        dataKey: 'accessGroupName',
-        isSortable: true,
-        export: async (file: File) => file.accessGroupName
+        export: async (accessGroup: AccessGroup) => accessGroup.groupName
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<File>) {
+  openDialog(data: DialogData<AccessGroup>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -122,42 +94,27 @@ export class FilesTableComponent
     );
   }
 
-  // --- Render functions ---
-
-  @Cacheable(['_id', 'isSecret'])
-  async renderSecretIcon(file: File): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (file.isSecret) {
-      icons.push({
-        name: 'lock',
-        tooltip: 'Secret'
-      });
-    }
-
-    return icons;
-  }
-
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<File[]>): void {
+  exportActionClicked(event: ActionMenuEvent<AccessGroup[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<File>(
-          'hashtopolis-files',
+        this.exportService.toExcel<AccessGroup>(
+          'hashtopolis-access-groups',
           this.tableColumns,
           event.data
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<File>(
-          'hashtopolis-files',
+        this.exportService.toCsv<AccessGroup>(
+          'hashtopolis-access-groups',
           this.tableColumns,
           event.data
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<File>(this.tableColumns, event.data)
+          .toClipboard<AccessGroup>(this.tableColumns, event.data)
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',
@@ -168,34 +125,34 @@ export class FilesTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<File>): void {
+  rowActionClicked(event: ActionMenuEvent<AccessGroup>): void {
     switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting file ${event.data.filename} ...`,
+          title: `Deleting access group ${event.data.groupName} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
         break;
+      case RowActionMenuAction.EDIT:
+        this.rowActionEdit(event.data);
+        break;
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<File[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<AccessGroup[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} files ...`,
+          title: `Deleting ${event.data.length} access groups ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above files? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete the above access groups? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'filename',
+          listAttribute: 'groupName',
           action: event.menuItem.action
         });
         break;
@@ -205,9 +162,9 @@ export class FilesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(files: File[]): void {
-    const requests = files.map((file: File) => {
-      return this.gs.delete(SERV.HASHLISTS, file._id);
+  private bulkActionDelete(accessGroups: AccessGroup[]): void {
+    const requests = accessGroups.map((accessGroup: AccessGroup) => {
+      return this.gs.delete(SERV.CRACKERS_TYPES, accessGroup._id);
     });
 
     this.subscriptions.push(
@@ -220,7 +177,7 @@ export class FilesTableComponent
         )
         .subscribe((results) => {
           this.snackBar.open(
-            `Successfully deleted ${results.length} files!`,
+            `Successfully deleted ${results.length} access groups!`,
             'Close'
           );
           this.reload();
@@ -231,10 +188,10 @@ export class FilesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(files: File[]): void {
+  private rowActionDelete(accessGroups: AccessGroup[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.HASHLISTS, files[0]._id)
+        .delete(SERV.CRACKERS_TYPES, accessGroups[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -242,24 +199,17 @@ export class FilesTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted file!', 'Close');
+          this.snackBar.open('Successfully deleted accessGroup!', 'Close');
           this.reload();
         })
     );
   }
 
-  @Cacheable(['_id', 'fileType'])
-  async renderFileLink(file: File): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/files', file._id, this.editPath]
+  private rowActionEdit(accessGroup: AccessGroup): void {
+    this.renderAccessGroupLink(accessGroup).then(
+      (links: HTTableRouterLink[]) => {
+        this.router.navigate(links[0].routerLink);
       }
-    ];
-  }
-
-  private rowActionEdit(file: File): void {
-    this.renderFileLink(file).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
+    );
   }
 }

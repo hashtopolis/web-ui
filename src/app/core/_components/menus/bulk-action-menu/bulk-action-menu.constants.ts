@@ -9,6 +9,7 @@ export const BulkActionMenuLabel = {
   DELETE_AGENTBINARIES: 'Delete Agent Binaries',
   DELETE_HEALTHCHECKS: 'Delete Health Checks',
   DELETE_USERS: 'Delete Users',
+  DELETE_ACCESSGROUPS: 'Delete Access Groups',
   ACTIVATE_AGENTS: 'Activate Agents',
   ACTIVATE_USERS: 'Activate Users',
   DEACTIVATE_AGENTS: 'Deactivate Agents',

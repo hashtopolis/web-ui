@@ -1,6 +1,10 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -323,7 +327,9 @@ export class HashlistsTableComponent
   }
 
   private rowActionEdit(hashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', 'hashlist', hashlist._id, 'edit']);
+    this.renderHashlistLink(hashlist).then((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink);
+    });
   }
 
   /**
