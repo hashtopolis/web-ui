@@ -13,6 +13,7 @@ export type DataType =
   | 'agent-binaries'
   | 'health-checks'
   | 'logs'
+  | 'permissions'
   | 'cracks'
   | 'superhashlists';
 

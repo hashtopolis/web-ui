@@ -48,6 +48,8 @@ export class BulkActionMenuComponent
       );
     } else if (this.dataType === 'hashlists') {
       this.setHashlistMenu();
+    } else if (this.dataType === 'permissions') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_PERMISSIONS);
     } else if (this.dataType === 'hashtypes') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_HASHTYPES);
     } else if (this.dataType === 'agent-binaries') {
