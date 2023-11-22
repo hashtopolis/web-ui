@@ -15,28 +15,27 @@
   }
 
   &.m-field {
-    width: 40%
+    width: 40%;
   }
 
   &.l-field {
-    width: 60%
+    width: 60%;
   }
 
   &.xl-field {
-    width: 100%
+    width: 100%;
+  }
+
+  .mat-form-field-infix {
+    height: 16px;
   }
 
   .mat-mdc-form-field {
     width: 100%;
   }
 
-  .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-
-  .mat-mdc-form-field-infix {
-    min-height: 36px;
+  .mat-icon {
+    color: $primary-100;
   }
 }
 
@@ -55,7 +54,7 @@
     }
 
     &.l-field {
-      width: 100%
+      width: 100%;
     }
   }
 }
@@ -75,8 +74,7 @@
     }
 
     &.l-field {
-      width: 100%
+      width: 100%;
     }
   }
 }
-

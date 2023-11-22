@@ -16,6 +16,7 @@ export type DataType =
   | 'logs'
   | 'permissions'
   | 'cracks'
+  | 'vouchers'
   | 'superhashlists';
 
 export interface HTTableIcon {

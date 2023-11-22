@@ -1,13 +1,13 @@
 <ht-table
   #table
-  name="agentBinariesTable"
-  dataType="agent-binaries"
+  name="vouchersTable"
+  dataType="vouchers"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
+  [hasBulkActions]="hasBulkActions"
   [hasRowAction]="hasRowAction"
   [isFilterable]="isFilterable"
-  [hasBulkActions]="hasBulkActions"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

@@ -77,6 +77,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "Voucher".
+   * @returns `true` if the data row is a voucher; otherwise, `false`.
+   */
+  protected isVoucher(): boolean {
+    return this.checkId('regVoucherId') && 'voucher' in this.data;
+  }
+
+  /**
    * Check if the data row is of type "User".
    * @returns `true` if the data row is a user; otherwise, `false`.
    */

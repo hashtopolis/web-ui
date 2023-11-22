@@ -33,11 +33,6 @@ export class RowActionMenuComponent
         RowActionMenuLabel.EDIT_SUPERHASHLIST,
         RowActionMenuLabel.DELETE_SUPERHASHLIST
       );
-    } else if (this.isAgentBinary()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_AGENTBINARY,
-        RowActionMenuLabel.DELETE_AGENTBINARY
-      );
     } else if (this.isFile()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_FILE,
@@ -55,14 +50,18 @@ export class RowActionMenuComponent
       );
     } else if (this.isPermission()) {
       this.setPermissionMenu();
+    } else if (this.isHashtype()) {
+      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE);
+    } else if (this.isVoucher()) {
+      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER);
     } else if (this.isUser()) {
       this.setUserMenu();
+    } else if (this.isAgentBinary()) {
+      this.setAgentBinaryMenu();
     } else if (this.isTask()) {
       this.setTaskMenu();
     } else if (this.isHashlist()) {
       this.setHashlistMenu();
-    } else if (this.isHashtype()) {
-      this.setHashtypeMenu();
     } else if (this.isCrackerBinaryType()) {
       this.setCrackerBinaryTypeMenu();
     }
@@ -102,6 +101,27 @@ export class RowActionMenuComponent
   private setEditDeleteMenuItems(editLabel: string, deleteLabel: string): void {
     this.setActionMenuItems(0, [this.getEditMenuItem(editLabel)]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
+  }
+
+  /**
+   * Sets context menu with delete action.
+   * @param label The label for the delete action.
+   */
+  private setDeleteMenuItem(label: string): void {
+    this.setActionMenuItems(0, [this.getDeleteMenuItem(label)]);
+  }
+
+  /**
+   * Sets the context menu items for an agent binary data row.
+   */
+  private setAgentBinaryMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENTBINARY),
+      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_AGENT)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)
+    ]);
   }
 
   /**
@@ -211,15 +231,6 @@ export class RowActionMenuComponent
   }
 
   /**
-   * Sets the context menu items for a hashtype data row.
-   */
-  private setHashtypeMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE)
-    ]);
-  }
-
-  /**
    * Creates an ActionMenuItem with delete action.
    * @param label The label for the menu item.
    * @returns The ActionMenuItem with delete action.
@@ -230,6 +241,19 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.DELETE,
       icon: RowActionMenuIcon.DELETE,
       red: true
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with download action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with download action.
+   */
+  private getDownloadMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.DOWNLOAD,
+      icon: RowActionMenuIcon.DOWNLOAD
     };
   }
 

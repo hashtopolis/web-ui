@@ -14,6 +14,7 @@ import {
 
 import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { ConfigService } from 'src/app/core/_services/shared/config.service';
 import { ExportService } from 'src/app/core/_services/export/export.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
@@ -50,6 +51,7 @@ export class BaseTableComponent {
 
   constructor(
     protected gs: GlobalService,
+    protected cs: ConfigService,
     protected renderer: Renderer2,
     protected router: Router,
     protected settingsService: LocalStorageService<UIConfig>,

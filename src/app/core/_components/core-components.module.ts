@@ -48,6 +48,7 @@ import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/sup
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
 import { TableTruncateComponent } from './tables/table-truncate/table-truncate.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
+import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +76,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     UsersTableComponent,
     AccessGroupsTableComponent,
     PermissionsTableComponent,
-    CracksTableComponent
+    CracksTableComponent,
+    VouchersTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -125,7 +127,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     UsersTableComponent,
     AccessGroupsTableComponent,
     PermissionsTableComponent,
-    CracksTableComponent
+    CracksTableComponent,
+    VouchersTableComponent
   ],
   providers: [
     {

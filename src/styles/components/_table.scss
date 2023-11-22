@@ -226,6 +226,11 @@ input.dt-button {
 }
 
 table.hashtopolis-table {
+  .no-data {
+    text-align: center;
+    color: $primary-900;
+    padding: 1em;
+  }
   .mat-mdc-header-cell {
     background-color: $primary-800;
     color: #fff;
@@ -337,8 +342,11 @@ div.table-actions {
         color: $accent-600;
       }
     }
-  }
 
+    .no-data {
+      color: $primary-100;
+    }
+  }
   .mat-mdc-paginator {
     background-color: var(--mat-toolbar-container-background-color);
   }
