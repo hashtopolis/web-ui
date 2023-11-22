@@ -40,6 +40,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgModule } from '@angular/core';
+import { NotificationsTableComponent } from './tables/notifications-table/notifications-table.component';
 import { PermissionsTableComponent } from './tables/permissions-table/permissions-table.component';
 import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
 import { RouterModule } from '@angular/router';
@@ -74,6 +75,7 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
+    NotificationsTableComponent,
     PermissionsTableComponent,
     CracksTableComponent
   ],
@@ -124,6 +126,7 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
+    NotificationsTableComponent,
     PermissionsTableComponent,
     CracksTableComponent
   ],

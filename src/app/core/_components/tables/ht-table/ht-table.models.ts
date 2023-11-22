@@ -11,6 +11,7 @@ export type DataType =
   | 'preprocessors'
   | 'users'
   | 'access-groups'
+  | 'notifications'
   | 'agent-binaries'
   | 'health-checks'
   | 'logs'

@@ -1,42 +1,44 @@
+import {
+  ACTIONARRAY,
+  NOTIFARRAY
+} from '../../../core/_constants/notifications.config';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { Subscription } from 'rxjs';
 
-import { ACTIONARRAY, NOTIFARRAY } from '../../../core/_constants/notifications.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { Filter } from '../notifications.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Notification } from 'src/app/core/_models/notification.model';
 import { SERV } from '../../../core/_services/main.config';
-import { Filter } from '../notifications.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-notification',
   templateUrl: './new-notification.component.html'
 })
 export class EditNotificationComponent implements OnInit, OnDestroy {
-
-  static readonly SUBMITLABEL = 'Save Changes'
-  static readonly SUBTITLE = 'Edit Notification'
+  static readonly SUBMITLABEL = 'Save Changes';
+  static readonly SUBTITLE = 'Edit Notification';
 
   editedIndex: number;
   editView = true;
-  subscriptions: Subscription[] = []
+  subscriptions: Subscription[] = [];
   filters: Filter[];
   active = true;
   allowedActions = ACTIONARRAY;
   notifications = NOTIFARRAY;
-  oldValue: boolean
-  subTitle = EditNotificationComponent.SUBTITLE
-  submitLabel = EditNotificationComponent.SUBMITLABEL
+  oldValue: boolean;
+  subTitle = EditNotificationComponent.SUBTITLE;
+  submitLabel = EditNotificationComponent.SUBMITLABEL;
 
   form = new FormGroup({
-    'action': new FormControl({ value: '', disabled: true }),
-    'actionFilter': new FormControl({ value: '', disabled: true }),
-    'notification': new FormControl({ value: '', disabled: true }),
-    'receiver': new FormControl({ value: '', disabled: true }),
-    'isActive': new FormControl(),
+    action: new FormControl({ value: '', disabled: true }),
+    actionFilter: new FormControl({ value: '', disabled: true }),
+    notification: new FormControl({ value: '', disabled: true }),
+    receiver: new FormControl({ value: '', disabled: true }),
+    isActive: new FormControl()
   });
 
   constructor(
@@ -46,7 +48,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router
   ) {
-    titleService.set(['Edit Notification'])
+    titleService.set(['Edit Notification']);
   }
 
   /**
@@ -64,13 +66,12 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
-      sub.unsubscribe()
+      sub.unsubscribe();
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
-  changeAction(_action: string): void { }
-
+  changeAction(_action: string): void {}
 
   /**
    * Checks whether the form is valid for submission.
@@ -78,7 +79,10 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    * @returns {boolean} True if there is a change in the 'isActive' value; otherwise, false.
    */
   formIsValid(): boolean {
-    return Boolean(this.oldValue).valueOf() !== Boolean(this.form.value.isActive).valueOf();
+    return (
+      Boolean(this.oldValue).valueOf() !==
+      Boolean(this.form.value.isActive).valueOf()
+    );
   }
 
   /**
@@ -86,17 +90,30 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    * Subscribes to a service to fetch notification data and populate the form.
    */
   private createForm(): void {
-    this.subscriptions.push(this.gs.get(SERV.NOTIFICATIONS, this.editedIndex).subscribe((result: Notification) => {
-      const isActive = result.isActive
-      this.oldValue = isActive
-      this.form = new FormGroup({
-        'action': new FormControl({ value: result.action, disabled: true }),
-        'actionFilter': new FormControl({ value: result.objectId + '', disabled: true }),
-        'notification': new FormControl({ value: result.notification, disabled: true }),
-        'receiver': new FormControl({ value: result.receiver, disabled: true }),
-        'isActive': new FormControl(isActive),
-      });
-    }));
+    this.subscriptions.push(
+      this.gs
+        .get(SERV.NOTIFICATIONS, this.editedIndex)
+        .subscribe((result: Notification) => {
+          const isActive = result.isActive;
+          this.oldValue = isActive;
+          this.form = new FormGroup({
+            action: new FormControl({ value: result.action, disabled: true }),
+            actionFilter: new FormControl({
+              value: result.objectId + '',
+              disabled: true
+            }),
+            notification: new FormControl({
+              value: result.notification,
+              disabled: true
+            }),
+            receiver: new FormControl({
+              value: result.receiver,
+              disabled: true
+            }),
+            isActive: new FormControl(isActive)
+          });
+        })
+    );
   }
 
   /**
@@ -105,10 +122,16 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.form.valid) {
-      this.subscriptions.push(this.gs.update(SERV.NOTIFICATIONS, this.editedIndex, { 'isActive': this.form.value['isActive'] }).subscribe(() => {
-        this.alert.okAlert('Notification saved!', '');
-        this.router.navigate(['/account/notifications']);
-      }));
+      this.subscriptions.push(
+        this.gs
+          .update(SERV.NOTIFICATIONS, this.editedIndex, {
+            isActive: this.form.value['isActive']
+          })
+          .subscribe(() => {
+            this.alert.okAlert('Notification saved!', '');
+            this.router.navigate(['/account/notifications']);
+          })
+      );
     }
   }
 }

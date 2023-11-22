@@ -105,7 +105,7 @@ export class UsersTableComponent
       {
         name: UsersTableColumnLabel.STATUS,
         dataKey: 'isValid',
-        icons: (user: User) => this.renderStatusIcon(user),
+        icons: (user: User) => this.renderIsValidIcon(user),
         render: (user: User) =>
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
         isSortable: true,
@@ -160,7 +160,7 @@ export class UsersTableComponent
   // --- Render functions ---
 
   @Cacheable(['_id', 'isValid'])
-  async renderStatusIcon(user: User): Promise<HTTableIcon[]> {
+  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
     return user.isValid
       ? [
           {

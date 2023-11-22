@@ -1,5 +1,6 @@
 export const BulkActionMenuLabel = {
   DELETE_AGENTS: 'Delete Agents',
+  DELETE_NOTIFICATIONS: 'Delete Notification',
   DELETE_TASKS: 'Delete Tasks',
   DELETE_HASHLISTS: 'Delete Hashlists',
   DELETE_HASHTYPES: 'Delete Hashtypes',
@@ -13,7 +14,9 @@ export const BulkActionMenuLabel = {
   DELETE_PERMISSIONS: 'Delete Permission Groups',
   ACTIVATE_AGENTS: 'Activate Agents',
   ACTIVATE_USERS: 'Activate Users',
+  ACTIVATE_NOTIFICATION: 'Activate Notification',
   DEACTIVATE_AGENTS: 'Deactivate Agents',
+  DEACTIVATE_NOTIFICATIONS: 'Deactivate Notification',
   DEACTIVATE_USERS: 'Deactivate Users',
   ARCHIVE_TASKS: 'Archive Tasks',
   ARCHIVE_HASHLISTS: 'Archive Hashlists'
