@@ -1,5 +1,5 @@
 import { AbstractInputComponent } from '../abstract-input';
-import { Component, forwardRef } from '@angular/core';
+import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 /**
@@ -28,6 +28,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   ]
 })
 export class InputTextComponent extends AbstractInputComponent<string> {
+  @Input() pattern: string | RegExp;
   constructor() {
     super();
   }

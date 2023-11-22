@@ -9,10 +9,11 @@
     <input-multiselect
       [isLoading]="isLoading"
       [placeholder]="'Hashlists...'"
-      [arrayOfObjects]="selectHashlists"
-      [mergeIdAndName]="true"
+      [items]="selectHashlists"
       [label]="'Select or search Hashlists:'"
-      (selectionChanged)="handleSelectedItems($event)"
+      [mergeIdAndName]="true"
+      formControlName="hashlistIds"
+      style="flex: 1;"
     ></input-multiselect>
 
     <grid-buttons>

@@ -7,17 +7,17 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  *
  * Usage Example:
  * ```html
- * <app-input-text-area
+ * <input-text-area
  *   title="Name"
  *   [error]="error?.name"
  *   formControlName="name"
  *   tooltip='Description..'
  *   hint='Hint under field'
- * ></app-input-text-area>
+ * ></input-text-area>
  * ```
  */
 @Component({
-  selector: 'app-input-text-area-area',
+  selector: 'input-text-area',
   templateUrl: './text-area.component.html',
   providers: [
     {

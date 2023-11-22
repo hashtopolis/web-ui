@@ -1,36 +1,40 @@
-<div class="modal-header">
-  <app-page-subtitle [subtitle]="'Hashtype Detector'"></app-page-subtitle>
-</div>
-<div class="modal-body">
+<h2 mat-dialog-title class="h6">Hashtype Detector</h2>
+
+<mat-dialog-content>
   <form>
     <div class="mb-3">
       <div class="row">
-        <form>
-          <grid-form-input>
-            <textarea name="hashtypeDetector" rows="4" cols="100" #value></textarea>
-            <button class="btn btn-gray-800" type="submit" (click)="onTest(value.value)">Ok</button>
-          </grid-form-input>
+        <form class="custom-input-container">
+          <mat-form-field class="flex-grow">
+            <textarea matInput name="hashtypeDetector" #value style="flex: 1;"></textarea>
+          </mat-form-field>
+
+          <mat-dialog-actions align="end">
+            <button mat-raised-button color="primary" type="button" (click)="onSearch(value.value)">Search</button>
+          </mat-dialog-actions>
         </form>
-        <table *ngIf="type || type !== false" class="table table-centered table-nowrap mb-0 rounded">
-          <thead class="thead-light">
-            <tr>
-                <th class="rounded-start">Hashtype</th>
-                <th>Description</th>
-                <th class="rounded-end">Example</th>
-            </tr>
-            </thead>
-            <tbody *ngFor="let n of type">
-               <tr *ngFor="let nn of n.options">
-                <td>{{ nn.id }}</td>
-                <td>{{ nn.description }}</td>
-                <td>{{ nn.example }}</td>
-               </tr>
-            </tbody>
-        </table>
+      </div>
+
+      <mat-table *ngIf="type && type !== false" class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
+
+        <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
+          <mat-header-cell *matHeaderCellDef> {{ column | titlecase }} </mat-header-cell>
+          <mat-cell *matCellDef="let row"> {{ row[column] }} </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+
+      </mat-table>
+
+      <div *ngIf="type === false">
+        <p>Error. No hash type found.</p>
       </div>
     </div>
   </form>
-</div>
-<div class="modal-footer">
-  <!-- <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button> -->
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onClose()">Cancel</button>
+</mat-dialog-actions>

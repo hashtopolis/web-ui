@@ -19,7 +19,11 @@ import { HorizontalNavModule } from './navigation/navigation.module';
 import { PageTitleModule } from './page-headers/page-title.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { GridModule } from './grid-containers/grid.module';
 import { TableModule } from './table/table-actions.module';
@@ -57,6 +61,10 @@ import { FormsModule } from '@angular/forms';
     PageTitleModule,
     MatButtonModule,
     MatDialogModule,
+    MatTableModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
     ButtonsModule,
     LottiesModule,
     MatIconModule,

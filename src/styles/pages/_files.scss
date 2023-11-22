@@ -90,3 +90,22 @@
   font-family:Verdana;
   font-weight:bold;
 }
+
+.file-input-container {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+input.custom-file-input[type="file"] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.file-upload-label {
+  font-size: 16px;
+  line-height: 24px;
+}

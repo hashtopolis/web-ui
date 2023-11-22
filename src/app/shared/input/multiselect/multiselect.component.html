@@ -6,10 +6,10 @@
 </div>
 
 <ng-template #content>
-  <mat-form-field class="custom-chip-grid">
+  <mat-form-field class="custom-chip-grid custom-chip-list">
     <mat-label>{{label}}</mat-label>
     <mat-chip-grid #chipGrid aria-label="Items selection">
-      <mat-chip-row *ngFor="let item of items" (removed)="remove(item)">
+      <mat-chip-row *ngFor="let item of selectedItems" (removed)="remove(item)">
         {{ item._id }}
         <span>({{ item.name }})</span>
         <button matChipRemove [attr.aria-label]="'remove ' + item">
@@ -18,20 +18,23 @@
       </mat-chip-row>
     </mat-chip-grid>
     <input
-    matInput
-    #selectInput
-    [placeholder]="placeholder"
-    [matChipInputFor]="chipGrid"
-    [matAutocomplete]="auto"
-    [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-    (matChipInputTokenEnd)="addItem($event)"
-  />
+      matInput
+      #selectInput
+      [placeholder]="placeholder"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="auto"
+      [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+      (matChipInputTokenEnd)="onChangeValue(value)"
+      (input)="onSearchInputChange()"
+      [(ngModel)]="searchTerm"
+    />
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
       <mat-option *ngFor="let item of filteredItems | async" [value]="item">
-        <span [innerHTML]="updateHighlightedValue(item._id + ' - ' + item.name, itemCtrl.value)"></span>
+        <span [innerHTML]="updateHighlightedValue(item._id + ' - ' + item.name, searchTerm)"></span>
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-  <!-- <mat-error>{{ getSelectionError() }}</mat-error> -->
 </ng-template>
+
+
 

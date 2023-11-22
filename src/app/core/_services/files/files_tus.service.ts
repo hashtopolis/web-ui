@@ -62,7 +62,9 @@ export class UploadTUSService {
     /**
      * Retrieves user data from local storage using the STORAGE_KEY and sets the authentication token.
      */
-    const userData: UserData = this.storage.getItem(UploadTUSService.STORAGE_KEY);
+    const userData: UserData = this.storage.getItem(
+      UploadTUSService.STORAGE_KEY
+    );
     this._token = userData._token;
   }
 

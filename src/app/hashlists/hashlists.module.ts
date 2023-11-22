@@ -30,9 +30,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
@@ -54,12 +56,15 @@ import { MatChipsModule } from '@angular/material/chips';
     MatSlideToggleModule,
     MatAutocompleteModule,
     MatOptionModule,
+    MatCardModule,
     MatButtonModule,
     MatCheckboxModule,
     MatDividerModule,
     MatIconModule,
     MatInputModule,
+    MatProgressBarModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
     MatChipsModule,
     MatSelectModule,
     MatTooltipModule,

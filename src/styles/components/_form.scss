@@ -283,7 +283,7 @@ progress::-webkit-progress-value {
   09- Shared/Input
 */
 
-.color-picker-container {
+.custom-input-container {
   display: flex;
   align-items: center; /* Align items vertically */
 }
@@ -297,6 +297,18 @@ progress::-webkit-progress-value {
   width: 100%;
   min-width: 300px; /* Set your desired minimum width */
   max-width: 600px; /* Set your desired maximum width */
+}
+
+.custom-input-multiselect {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.flex-grow {
+  flex-grow: 1;
+  width: 100%;
+  margin-right: 8px;
 }
 
 /*
@@ -325,4 +337,12 @@ $mat-form-field-max-width: 300px; // Adjust the maximum width as needed
 
 .mat-form-field {
   max-width: $mat-form-field-max-width !important;
+}
+
+.mat-chip-list.custom-chip-list {
+  .mat-chip.custom-chip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

@@ -132,15 +132,4 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
       this.unsubscribeService.add(createSubscription$);
     }
   }
-
-  /**
-   * Handles the selection of items in the UI.
-   * Extracts the IDs from the selected items and sets them in the form.
-   *
-   * @param selectedItems - The items that are selected.
-   */
-  handleSelectedItems(selectedItems: SelectField[]): void {
-    const extractedIds = extractIds(selectedItems, '_id');
-    this.form.get('hashlistIds').setValue(extractedIds);
-  }
 }

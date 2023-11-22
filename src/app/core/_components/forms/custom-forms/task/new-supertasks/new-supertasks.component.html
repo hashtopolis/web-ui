@@ -9,10 +9,11 @@
     <input-multiselect
       [isLoading]="isLoading"
       [placeholder]="'Tasks...'"
-      [arrayOfObjects]="selectPretasks"
-      [mergeIdAndName]="true"
+      [items]="selectPretasks"
       [label]="'Select or search Tasks:'"
-      (selectionChanged)="handleSelectedItems($event)"
+      [mergeIdAndName]="true"
+      formControlName="pretasks"
+      style="flex: 1;"
     ></input-multiselect>
 
     <grid-buttons>
@@ -21,4 +22,5 @@
     </grid-buttons>
 
   </form>
+
 </grid-main>
