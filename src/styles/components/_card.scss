@@ -335,6 +335,52 @@ hr.break:after {
   }
 }
 
-.info-message {
-  color: $color-red; /* Custom color for additional information */
+
+/*
+  03- Simulate a Mat Form Field to use in forms
+*/
+
+.simulate-form-field {
+  display: inline-block;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  min-width: 210px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
+
+.simulate-form-field-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  padding: 4px 8px;
+  background-color: #fff;
+}
+
+.simulate-form-field-flex {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.simulate-form-field-infix {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+}
+
+.simulate-form-field-content {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.simulate-form-field-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
+
+

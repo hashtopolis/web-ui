@@ -1,11 +1,4 @@
 import {
-  faDownload,
-  faFileUpload,
-  faLink,
-  faPlus,
-  faUpload
-} from '@fortawesome/free-solid-svg-icons';
-import {
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -21,7 +14,6 @@ import { Buffer } from 'buffer';
 import { UploadTUSService } from 'src/app/core/_services/files/files_tus.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { validateFileExt } from '../../shared/utils/util';
@@ -33,32 +25,55 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 
+/**
+ * Represents the NewFilesComponent responsible for creating and uploading files
+ */
 @Component({
   selector: 'app-new-files',
-  templateUrl: './new-files.component.html',
-  providers: [FileSizePipe]
+  templateUrl: './new-files.component.html'
 })
 export class NewFilesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
-  faFileUpload = faFileUpload;
-  faDownload = faDownload;
-  faUpload = faUpload;
-  faLink = faLink;
-  faPlus = faPlus;
-
-  filterType: number;
-  whichView: string;
+  /** Form group for the new File. */
   form: FormGroup;
   submitted = false;
+
+  /** Filtering and views. */
+  filterType: number;
+  whichView: string;
+  viewMode = 'tab1';
+  title: string;
+  redirect: string;
 
   // Lists of Selected inputs
   selectAccessgroup: any[];
 
-  private maxResults = environment.config.prodApiMaxResults;
-  subscriptions: Subscription[] = [];
+  // Upload files
+  selectedFiles: FileList | null = null;
+  fileName: any;
+  uploadProgress = 0;
+  filenames: string[] = [];
+  selectedFile: '';
+  fileToUpload: File | null = null;
 
+  // Unsubcribe files
+  private fileUnsubscribe = new Subject();
+
+  /**
+   * Component for handling new files.
+   *
+   * @constructor
+   * @param {UnsubscribeService} unsubscribeService - Service for managing unsubscribing from observables.
+   * @param {ChangeDetectorRef} changeDetectorRef - Reference to Angular's ChangeDetectorRef for manual change detection.
+   * @param {UploadTUSService} uploadService - Service for handling file uploads using TUS protocol.
+   * @param {AutoTitleService} titleService - Service for setting and managing page titles automatically.
+   * @param {ActivatedRoute} route - Service for accessing the current route information.
+   * @param {AlertService} alert - Service for displaying alerts to the user.
+   * @param {GlobalService} gs - Service for accessing global application state.
+   * @param {Router} router - Angular router service for navigating between views.
+   */
   constructor(
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -67,7 +82,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private fs: FileSizePipe,
     private router: Router
   ) {
     this.getLocation();
@@ -75,9 +89,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     titleService.set([this.title]);
   }
 
-  // Get Title
-  public title: string;
-  public redirect: string;
+  /**
+   * Retrieves location information based on route data.
+   * Sets filterType, title, and redirect properties accordingly.
+   */
   getLocation() {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
@@ -115,6 +130,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
+    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.complete();
   }
 
   /**
@@ -129,22 +146,11 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       sourceType: new FormControl('import' || ''),
       sourceData: new FormControl('')
     });
-
-    //subscribe to changes to handle select salted hashes
-    // this.form.get('hashTypeId').valueChanges.subscribe((newvalue) => {
-    //   this.handleSelectedItems(newvalue);
-    // });
   }
 
-  // ngOnDestroy() {
-  //   this.subs.forEach((s) => s.unsubscribe());
-  //   for (const sub of this.subscriptions) {
-  //     sub.unsubscribe();
-  //   }
-  //   this.ngUnsubscribe.next(false);
-  //   this.ngUnsubscribe.complete();
-  // }
-
+  /**
+   * Loads data, specifically access groups, for the component.
+   */
   loadData() {
     const fieldAccess = {
       fieldMapping: {
@@ -167,53 +173,80 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Create File
-   *
+   * Handles the form submission for creating a new file.
+   * Checks form validity and submits the form data to create a new file.
+   * Navigates to the appropriate route upon successful creation.
    */
   onSubmit(): void {
     if (this.form.valid && this.submitted === false) {
-      let form = this.onPrep(this.form.value, false);
+      let form = this.onBeforeSubmit(this.form.value, false);
 
       this.submitted = true;
 
       if (form.status === false) {
-        this.subscriptions.push(
-          this.gs.create(SERV.FILES, form.update).subscribe(() => {
-            form = this.onPrep(this.form.value, true);
+        const createSubscription$ = this.gs
+          .create(SERV.FILES, form.update)
+          .subscribe(() => {
+            form = this.onBeforeSubmit(this.form.value, true);
             this.alert.okAlert('New File created!', '');
             this.submitted = false;
             this.router.navigate(['/files', this.redirect]);
-          })
-        );
+          });
+        this.unsubscribeService.add(createSubscription$);
       }
     }
   }
 
-  onPrep(obj: any, status: boolean) {
+  /**
+   * Prepares the form data before submission.
+   * Determines source data and filename based on the selected source type.
+   *
+   * @param {any} form - The form data to be prepared.
+   * @param {boolean} status - The status indicating the form's validity.
+   * @returns {{ update: { filename: string, isSecret: boolean, fileType: number, accessGroupId: number, sourceType: string, sourceData: string }, status: boolean }} Prepared form data.
+   */
+  onBeforeSubmit(form: any, status: boolean) {
     let sourcadata;
     let fname;
-    if (obj.sourceType == 'inline') {
-      fname = obj.filename;
-      sourcadata = Buffer.from(obj.sourceData).toString('base64');
+
+    if (form.sourceType === 'inline') {
+      fname = form.filename;
+      sourcadata = Buffer.from(form.sourceData).toString('base64');
     } else {
       sourcadata = this.fileName;
       fname = this.fileName;
     }
+
+    /**
+     * Prepared form data for submission.
+     */
     const res = {
       update: {
         filename: fname,
-        isSecret: obj.isSecret,
+        isSecret: form.isSecret,
         fileType: this.filterType,
-        accessGroupId: obj.accessGroupId,
-        sourceType: obj.sourceType,
+        accessGroupId: form.accessGroupId,
+        sourceType: form.sourceType,
         sourceData: sourcadata
       },
       status: status
     };
+
     return res;
   }
 
-  souceType(type: string, view: string) {
+  /**
+   * Handles the change of file upload type.
+   * Updates the view mode and resets form values based on the selected type.
+   *
+   * @param {string} type - The selected file upload type.
+   * @param {string} view - The selected view mode.
+   */
+  onChangeType(type: string, view: string): void {
+    /**
+     * Update the view mode based on the selected type.
+     * Reset form values related to file upload.
+     */
     this.viewMode = view;
     this.form.patchValue({
       filename: '',
@@ -223,58 +256,40 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Uploading file
-  @ViewChild('file', { static: false }) file: ElementRef;
-  name = '!!!';
-  viewMode = 'tab1';
-  uploadProgress = 0;
-  filenames: string[] = [];
+  /**
+   * Handles the selection of files.
+   * Updates the selected files and extracts the file name.
+   *
+   * @param {FileList} files - List of selected files.
+   */
 
-  isHovering: boolean;
-
-  toggleHover(event) {
-    this.isHovering = event;
+  onFilesSelected(files: FileList): void {
+    this.selectedFiles = files;
+    this.fileName = files[0].name;
   }
 
-  validateFileExt = validateFileExt;
-
-  selectedFile: '';
-  fileGroup: number;
-  fileToUpload: File | null = null;
-  fileSize: any;
-  fileName: any;
-
-  handleFileInput(event: any) {
-    this.fileToUpload = event.target.files[0];
-    this.fileSize = this.fileToUpload.size;
-    this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text(this.fs.transform(this.fileToUpload.size, false));
-  }
-
-  private subs: Subscription[] = [];
-  private ngUnsubscribe = new Subject();
-
-  onuploadFile(files: FileList) {
-    const form = this.onPrep(this.form.value, false);
+  /**
+   * Handles the upload of files.
+   * Prepares form data and initiates the file upload process.
+   *
+   * @param {FileList | null} files - List of files to be uploaded.
+   */
+  onuploadFile(files: FileList | null): void {
+    const form = this.onBeforeSubmit(this.form.value, false);
     const upload: Array<any> = [];
     for (let i = 0; i < files.length; i++) {
       upload.push(
         this.uploadService
-          .uploadFile(files[i], files[i].name, SERV.FILES, form.update, [
+          .uploadFile(files[0], files[0].name, SERV.FILES, form.update, [
             '/files',
             this.redirect
           ])
-          .pipe(takeUntil(this.ngUnsubscribe))
+          .pipe(takeUntil(this.fileUnsubscribe))
           .subscribe((progress) => {
             this.uploadProgress = progress;
             // console.log(`Upload progress: ${progress}%`);
           })
       );
     }
-    // this.reset();
-  }
-
-  reset() {
-    this.file.nativeElement.value = null;
   }
 }

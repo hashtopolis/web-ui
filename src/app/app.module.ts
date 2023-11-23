@@ -1,9 +1,9 @@
 /**
  * Main Modules
  *
-*/
+ */
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppPreloadingStrategy } from './core/app_preloading_strategy';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserModule, Title } from '@angular/platform-browser';
@@ -19,7 +19,7 @@ import { MomentModule } from 'ngx-moment';
 /**
  * App Pages Components
  *
-*/
+ */
 import { ScreenSizeDetectorComponent } from './layout/screen-size-detector/screen-size-detector.component';
 import { PageNotFoundComponent } from './layout/page-not-found/page-not-found.component';
 import { AuthInterceptorService } from './core/_interceptors/auth-interceptor.service';
@@ -35,7 +35,7 @@ import { AppComponent } from './app.component';
 /**
  * App Modules, Reducers
  *
-*/
+ */
 import { ScrollYTopComponent } from './shared/scrollytop/scrollytop.component';
 import { ThemeService } from './core/_services/shared/theme.service';
 import { ComponentsModule } from './shared/components.module';
@@ -48,10 +48,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCardModule } from "@angular/material/card";
+import { MatCardModule } from '@angular/material/card';
 import { CoreComponentsModule } from './core/_components/core-components.module';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/material/snack-bar';
+import {
+  MAT_SNACK_BAR_DEFAULT_OPTIONS,
+  MatSnackBarModule
+} from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -87,7 +90,7 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/mater
     MatSnackBarModule,
     CoreComponentsModule,
     NgbModule,
-    AppRoutingModule,  // Main routes for the App
+    AppRoutingModule, // Main routes for the App
     NgIdleKeepaliveModule.forRoot(),
     StoreModule.forRoot({ configList: configReducer })
   ],
@@ -106,18 +109,20 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/mater
     ThemeService,
     AppPreloadingStrategy,
     ConfigService,
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-    { provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: { duration: 2500, verticalPosition: 'top' } }
-
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { appearance: 'outline' }
+    },
+    {
+      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+      useValue: { duration: 2500, verticalPosition: 'top' }
+    }
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
   static injector: Injector;
-  constructor(
-    injector: Injector
-  ) {
+  constructor(injector: Injector) {
     AppModule.injector = injector;
   }
 }
-

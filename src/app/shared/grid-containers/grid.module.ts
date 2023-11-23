@@ -1,3 +1,4 @@
+import { SimulateFormFieldComponent } from './simulate-form-field/simulate-form-field.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { GridFormInputComponent } from './grid-formgroup';
 import { GridAutoColComponent } from './grid-autocol';
@@ -17,14 +18,16 @@ import { NgModule } from '@angular/core';
     NgbModule
   ],
   exports: [
+    SimulateFormFieldComponent,
     GridFormInputComponent,
     GridAutoColComponent,
     GridMainComponent
   ],
   declarations: [
+    SimulateFormFieldComponent,
     GridFormInputComponent,
     GridAutoColComponent,
     GridMainComponent
   ]
 })
-export class GridModule { }
+export class GridModule {}

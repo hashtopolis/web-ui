@@ -10,31 +10,26 @@ import { ButtonTruncateTextComponent } from './table/button-truncate-text.compon
 import { HexconvertorComponent } from './utils/hexconvertor/hexconvertor.component';
 import { TimeoutDialogComponent } from './dialog/timeout/timeout-dialog.component';
 import { PassMatchComponent } from './password/pass-match/pass-match.component';
+import { FixedAlertComponent } from './alert/fixed-alert/fixed-alert.component';
 import { CheatsheetComponent } from './alert/cheatsheet/cheatsheet.component';
 import { FilterTextboxModule } from './filter-textbox/filter-textbox.module';
 import { SwitchThemeModule } from './switch-theme/switch-theme.module';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TimeoutComponent } from './alert/timeout/timeout.component';
 import { HorizontalNavModule } from './navigation/navigation.module';
 import { PageTitleModule } from './page-headers/page-title.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { GridModule } from './grid-containers/grid.module';
 import { TableModule } from './table/table-actions.module';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { AlertComponent } from './alert/alert.component';
 import { ButtonsModule } from './buttons/buttons.module';
 import { LottiesModule } from './lottie/lottie.module';
-import { MatIconModule } from '@angular/material/icon';
 import { GraphsModule } from './graphs/graphs.module';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { InputModule } from './input/input.module';
 import { FormsModule } from '@angular/forms';
+import { CoreFormsModule } from './forms.module';
 
 @NgModule({
   declarations: [
@@ -46,29 +41,23 @@ import { FormsModule } from '@angular/forms';
     HexconvertorComponent,
     PassStrenghtComponent,
     CheatsheetComponent,
+    FixedAlertComponent,
     PassMatchComponent,
     TimeoutComponent,
     AlertComponent
   ],
   imports: [
-    MatProgressBarModule,
     FilterTextboxModule,
     HorizontalNavModule,
     DynamicFormModule,
     SwitchThemeModule,
     ColorPickerModule,
     PaginationModule,
+    CoreFormsModule,
     PageTitleModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatTableModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatInputModule,
+    FlexLayoutModule,
     ButtonsModule,
     LottiesModule,
-    MatIconModule,
-    MatIconModule,
     GraphsModule,
     CommonModule,
     FormsModule,
@@ -88,6 +77,7 @@ import { FormsModule } from '@angular/forms';
     FilterTextboxModule,
     HorizontalNavModule,
     CheatsheetComponent,
+    FixedAlertComponent,
     PassMatchComponent,
     SwitchThemeModule,
     DynamicFormModule,

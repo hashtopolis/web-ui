@@ -1,25 +1,12 @@
-<app-page-subtitle [subtitle]="'Hash Search'"></app-page-subtitle>
-<!-- Body -->
-<grid-main [class]="'width:100%'">
-  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-    <div class="row">
-    <grid-form-input [name]="'Search Hashes:'" [labelclass]="'requiredak'">
-      <div class="input-group">
-        <span class="input-group-text" >
-          <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-        </span>
-        <textarea
-              type='number'
-              id="hashes"
-              class='form-control'
-              formControlName="hashes"
-            >
-        </textarea>
-      </div>
-    </grid-form-input>
-    <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Minimum 1 hash required!</span><br>
+<grid-main>
+  <app-page-subtitle [subtitle]="'Hash Search'"></app-page-subtitle>
+
+  <form [formGroup]="createForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
+
+    <input-text-area title="Search Hashes" formControlName="hashes"></input-text-area>
+
     <button-submit [name]="'Search'"></button-submit>
-    </div>
+
   </form>
 </grid-main>
 <!-- Table -->

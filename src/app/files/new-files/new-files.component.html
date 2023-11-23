@@ -1,61 +1,34 @@
-<app-page-subtitle [subtitle]="title"></app-page-subtitle>
-<!-- Body -->
-<grid-main [class]="'width:100%'" [centered]="true">
+<grid-main>
+  <app-page-subtitle [subtitle]="title"></app-page-subtitle>
   <!-- <div class="container"> -->
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
-        <li class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="souceType('import', 'tab1')"><fa-icon [icon]="faUpload"  aria-hidden="true"></fa-icon></li>
-        <li class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="souceType('inline', 'tab2')"><fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon></li>
+        <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')">upload</mat-icon>
+        <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="onChangeType('inline', 'tab2')">download</mat-icon>
       </ul>
     </div>
     <div class="tab-slider--container" [ngSwitch]="viewMode">
       <div id="tab1" class="tab-slider--body" *ngSwitchCase="'tab1'">
-        <form [formGroup]="form">
-          <h3>Upload from your computer</h3>
-          <div class="col-sm">
+        <h3>Upload from your computer</h3>
+        <form [formGroup]="form" fxLayout="column" fxLayoutGap="20px">
 
-            <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+          <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
 
-          </div>&nbsp;
+          <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
 
-            <div class="row" id="uploadLine">
-                <div class="col-8">
-                <input
-                      type="file"
-                      accept="/*"
-                      (click)="file.value = null"
-                      class="form-control fileuploadspan"
-                      (change)="handleFileInput($event)"
-                      multiple #file
-                >
-                </div>
-                <div class="col-4">
-                  <span class="fileuploadspan custom-file-upload-size"></span>
-                </div>
-              </div>
-              <div>
-                <div *ngIf="uploadProgress > 0">
-                  <br>
-                  <ngb-progressbar
-                                  type="success"
-                                  textType="white"
-                                  [striped]="true"
-                                  [value]="uploadProgress"
-                                  [showValue]="true"
-                  ></ngb-progressbar>
-                </div>
-                <div *ngIf="uploadProgress === 100">
-                  <p><b>Upload completed!</b></p>
-                </div>
-            </div>
-            <grid-buttons>
-              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-              <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
-            </grid-buttons>
-            <!-- check text to be changed -->
-            <div class='alert alert-dark row justify-content-center closesys'>
-              Do not refresh the page while uploading
-            </div>
+          <div *ngIf="uploadProgress > 0">
+            <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+          </div>
+
+          <div *ngIf="uploadProgress === 100"><p><b>Upload completed!</b></p></div>
+
+          <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px">
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
+          </grid-buttons>
+
+          <fixed-alert message="Do not refresh the page while uploading"></fixed-alert>
+
         </form>
       </div>
       <div id="tab2" class="tab-slider--body" *ngSwitchCase="'tab2'">

@@ -1,147 +1,73 @@
-<app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
-<!-- Edit PreTask -->
+
 <div class="row g-3">
   <div class="col-md-7">
-    <grid-main [class]="'width:100%'">
+    <grid-main>
+      <app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
         <div class="row">
-          <div class="row g-3">
-            <div class="col-md-2">
-              <grid-form-input [name]="'ID'">
-                <input
-                      type='text'
-                      id='pretaskId'
-                      class='form-control'
-                      formControlName="pretaskId"
-                >
-              </grid-form-input>
-              </div>
-              <div class="col-md-7">
-                <div formGroupName="updateData">
-                  <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
-                    <input
-                          type='text'
-                          id='taskName'
-                          class='form-control'
-                          formControlName="taskName"
-                    >
-                  </grid-form-input>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <grid-form-input [name]="'Color'">
-                  <input
-                        type='text'
-                        class="form-control"
-                        [(colorPicker)]="color"
-                        (colorPickerChange)="OnChangeValue($event)"
-                        [style.background]="color"
-                        [value]="color"
-                        [cpPresetColors]="colorpicker"
-                        formControlName="color"/>
-                </grid-form-input>
-              </div>
-            </div>
+
+            <input-text title="ID" formControlName="pretaskId" [disabled]="true"></input-text>
+
             <div formGroupName="updateData">
-              <grid-form-input [name]="'Attack command'" [labelclass]="'requiredak'">
-                <textarea
-                      type='text'
-                      id='attackCmd'
-                      class='form-control'
-                      formControlName="attackCmd"
-                ></textarea>
-              </grid-form-input>
+
+              <input-text title="Name" formControlName="taskName"></input-text>
+
+
+              <input-color title="Color" formControlName="color"></input-color>
+
+
+              <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
+
               <div class="row g-3">
                 <div class="col-md-4">
-                  <grid-form-input [name]="'Priority'">
-                    <input
-                          type='number'
-                          id='priority'
-                          class='form-control'
-                          formControlName="priority"
-                          validateInputNumber
-                      >
-                  </grid-form-input>
+
+                  <input-number title="Priority" formControlName="priority"></input-number>
+
                 </div>
                 <div class="col-md-4">
-                  <grid-form-input [name]="'Max agents'">
-                    <input
-                          type='number'
-                          id='maxAgents'
-                          class='form-control'
-                          formControlName="maxAgents"
-                          validateInputNumber
-                      >
-                  </grid-form-input>
+
+                  <input-number title="Max agents" formControlName="maxAgents"></input-number>
+
                 </div>
                 <div class="col-md-4">
-                  <grid-form-input [name]="'Chunk size'" [tooltip]="'Measure is in seconds time.'">
-                    <input
-                          type='number'
-                          id='chunkTime'
-                          class='form-control'
-                          formControlName="chunkTime"
-                          validateInputNumber
-                    >
-                  </grid-form-input>
+
+                  <input-number title="Measure is in seconds time." formControlName="chunkTime"></input-number>
+
                 </div>
               </div>
               <div class="row">
                 <div class="col">
-                  <grid-form-input [name]="'CPU only'" [tooltip]="'The task will work only with CPU agents assigned'">
-                    <select
-                          id='isCpuTask'
-                          class='form-select'
-                          formControlName="isCpuTask"
-                      >
-                      <option [ngValue]="false">No</option>
-                      <option [ngValue]="true">Yes</option>
-                    </select>
-                  </grid-form-input>
+
+                  <input-select title="The task will work only with CPU agents assigned" formControlName="isCpuTask" [items]="selectYesno"></input-select>
+
                 </div>
                 <div class="col">
-                  <grid-form-input [name]="'Small task'">
-                    <select
-                          id='isSmall'
-                          class='form-select'
-                          formControlName="isSmall"
-                      >
-                      <option [ngValue]="false">No</option>
-                      <option [ngValue]="true">Yes</option>
-                    </select>
-                  </grid-form-input>
+
+                  <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
+
                 </div>
               </div>
           </div>
           <div class="row">
             <div class="col">
-              <grid-form-input [name]="'Benchmark Type'">
-                <select
-                      id='useNewBench'
-                      class='form-control'
-                      formControlName="useNewBench"
-                  >
-                  <option [ngValue]="false">Runtime Benchmark</option>
-                  <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
-                </select>
-              </grid-form-input>
+
+              <input-text title="Benchmark Type" formControlName="useNewBench" [disabled]="true"></input-text>
+
             </div>
             <div class="col">
-              <grid-form-input [name]="'Status timer'">
-                <input
-                      type='text'
-                      id='statusTimer'
-                      class='form-control'
-                      formControlName="statusTimer"
-                  >
-              </grid-form-input>
+
+              <input-text title="Status timer" formControlName="statusTimer" [disabled]="true"></input-text>
+
             </div>
           </div>
+
           <grid-buttons>
             <button-submit [name]="'Update'"></button-submit>
           </grid-buttons>
+
         </div>
       </form>
+
     </grid-main>
   </div>
   <div class="col-md-5">
@@ -163,7 +89,7 @@
               <a [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
                 {{ f.filename | shortenString:35 }}
               </a>
-              <span *ngIf="f.isSecret === true" ><fa-icon [icon]="faLock" aria-hidden="true"></fa-icon></span>
+              <span *ngIf="f.isSecret === true" ><fa-icon aria-hidden="true">Lock Here</fa-icon></span>
             </td>
             <td>{{ f.fileType | fileType  }}</td>
             <td>{{ f.size | fileSize:false }}</td>
@@ -173,3 +99,5 @@
     </app-table>
   </div>
 </div>
+
+

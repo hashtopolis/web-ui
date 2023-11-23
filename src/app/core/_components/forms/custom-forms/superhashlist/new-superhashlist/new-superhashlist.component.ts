@@ -43,10 +43,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   @Input()
   error;
 
-  /** Maximum results for API requests. */
-  private maxResults = environment.config.prodApiMaxResults;
-
-  /** List of hashlists. */
+  /** Select List of hashlists. */
   selectHashlists: any;
 
   /**
@@ -104,7 +101,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, {
-        maxResults: this.maxResults,
         filter: 'isArchived=false,format=0'
       })
       .subscribe((response: ListResponseWrapper<Hashlist>) => {

@@ -44,13 +44,11 @@
 
       <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
 
-      <mat-card>
-        <mat-card-content class="info-message">
-            Note: When brain is enabled, it'll create a network server. If used wrongly,
-            it could cause bottlenecks or collapse the network server. You can disable
-            this setting in Config > Server > General Settings.
-        </mat-card-content>
-      </mat-card>
+      <fixed-alert
+      message="Note: When brain is enabled, it'll create a network server. If used wrongly,
+      it could cause bottlenecks or collapse the network server. You can disable
+      this setting in Config > Server > General Settings."
+      ></fixed-alert>
 
     </div>
 
@@ -80,23 +78,13 @@
       <br>
 
      <div *ngIf="uploadProgress > 0">
-        <mat-progress-bar
-            mode="determinate"
-            [value]="uploadProgress"
-            [ngClass]="{
-              'mat-primary': uploadProgress < 50,
-              'mat-warn': uploadProgress >= 50 && uploadProgress < 100,
-              'mat-success': uploadProgress === 100
-            }"
-          ></mat-progress-bar>
-
-        <!-- <ngb-progressbar
+        <ngb-progressbar
                         type="success"
                         textType="white"
                         [striped]="true"
                         [value]="uploadProgress"
                         [showValue]="true"
-        ></ngb-progressbar> -->
+        ></ngb-progressbar>
       </div>
 
       <div *ngIf="uploadProgress === 100">

@@ -1,0 +1,17 @@
+<div class="file-input-container">
+  <input
+    #inputField
+    type="file"
+    [accept]="accept"
+    [multiple]="multiple"
+    [(ngModel)]="value"
+    (ngModelChange)="onChangeValue(value)"
+    (change)="handleFileInput($event)"
+    class="custom-file-input"
+    >
+  <mat-icon>attach_file</mat-icon>
+  <span class="file-upload-label">Choose File</span>
+  <mat-hint class="mt-2">
+    <span class="fileuploadspan custom-file-upload-size"></span>
+  </mat-hint>
+</div>

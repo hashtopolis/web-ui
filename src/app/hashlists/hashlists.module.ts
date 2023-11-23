@@ -10,7 +10,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HashesComponent } from './hashes/hashes.component';
 import { HashlistComponent } from './hashlist/hashlist.component';
 import { HashlistRoutingModule } from './hashlists-routing.module';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
 import { NewSuperhashlistComponent } from '../core/_components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 import { NgModule } from '@angular/core';
@@ -20,21 +19,9 @@ import { RouterModule } from '@angular/router';
 import { SearchHashComponent } from './search-hash/search-hash.component';
 import { ShowCracksComponent } from './show-cracks/show-cracks.component';
 import { SuperhashlistComponent } from './superhashlist/superhashlist.component';
+import { CoreFormsModule } from '../shared/forms.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatOptionModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatInputModule } from '@angular/material/input'; // You may need to import other modules based on your application's requirements.
 
 @NgModule({
   declarations: [
@@ -48,29 +35,17 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     HashesComponent
   ],
   imports: [
+    MatFormFieldModule,
+    MatInputModule,
     HashlistRoutingModule,
     ReactiveFormsModule,
+    CoreFormsModule,
     CoreComponentsModule,
     FontAwesomeModule,
     DataTablesModule,
-    MatSlideToggleModule,
-    MatAutocompleteModule,
-    MatOptionModule,
-    MatCardModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatDividerModule,
-    MatIconModule,
-    MatInputModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
-    MatDialogModule,
-    MatChipsModule,
-    MatSelectModule,
-    MatTooltipModule,
-    MatFormFieldModule,
     DirectivesModule,
     ComponentsModule,
+    CoreFormsModule,
     CommonModule,
     RouterModule,
     FormsModule,
