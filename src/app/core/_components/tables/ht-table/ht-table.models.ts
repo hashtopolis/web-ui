@@ -32,8 +32,8 @@ export interface HTTableRouterLink {
   tooltip?: string;
 }
 
-export interface HTTableEditable {
-  id: number;
+export interface HTTableEditable<T> {
+  data: T;
   value: string;
   action: string;
 }
@@ -52,5 +52,5 @@ export interface HTTableColumn {
   routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
-  editable?: (data: any) => HTTableEditable;
+  editable?: (data: any) => HTTableEditable<any>;
 }

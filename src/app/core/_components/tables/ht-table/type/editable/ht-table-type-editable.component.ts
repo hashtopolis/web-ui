@@ -16,13 +16,14 @@ import { HTTableColumn, HTTableEditable } from '../../ht-table.models';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HTTableTypeEditableComponent implements OnInit {
-  editable: HTTableEditable;
+  editable: HTTableEditable<any>;
+  original: string;
 
   @Input() element: any;
   @Input() tableColumn: HTTableColumn;
 
-  @Output() editableInputSaved: EventEmitter<HTTableEditable> =
-    new EventEmitter<HTTableEditable>();
+  @Output() editableInputSaved: EventEmitter<HTTableEditable<any>> =
+    new EventEmitter<HTTableEditable<any>>();
   @ViewChild('editableInput') editableInput: ElementRef;
 
   editMode = false;
@@ -30,6 +31,7 @@ export class HTTableTypeEditableComponent implements OnInit {
   ngOnInit(): void {
     if (this.tableColumn.editable) {
       this.editable = this.tableColumn.editable(this.element);
+      this.original = this.editable.value;
     }
   }
 
@@ -50,6 +52,7 @@ export class HTTableTypeEditableComponent implements OnInit {
     if (!targetElement || targetElement.tagName.toLowerCase() !== 'button') {
       event.stopPropagation();
       this.editMode = false;
+      this.editable.value = this.original;
     }
   }
 
@@ -61,5 +64,10 @@ export class HTTableTypeEditableComponent implements OnInit {
     event.stopPropagation();
     this.editableInputSaved.emit(this.editable);
     this.editMode = false;
+  }
+
+  onClose(): void {
+    this.editMode = false;
+    this.editable.value = this.original;
   }
 }

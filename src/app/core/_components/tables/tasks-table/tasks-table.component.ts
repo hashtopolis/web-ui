@@ -30,6 +30,8 @@ import {
 } from './tasks-table.constants';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
+import { MatSnackBarConfig } from '@angular/material/snack-bar';
+import { wrap } from 'module';
 
 @Component({
   selector: 'tasks-table',
@@ -93,7 +95,7 @@ export class TasksTableComponent
         dataKey: 'priority',
         editable: (wrapper: TaskWrapper) => {
           return {
-            id: wrapper._id,
+            data: wrapper,
             value: wrapper.priority + '',
             action: TaskTableEditableAction.CHANGE_PRIORITY
           };
@@ -503,21 +505,30 @@ export class TasksTableComponent
     );
   }
 
-  editableSaved(editable: HTTableEditable): void {
+  editableSaved(editable: HTTableEditable<TaskWrapper>): void {
     switch (editable.action) {
       case TaskTableEditableAction.CHANGE_PRIORITY:
-        this.changePriority(editable.id, editable.value);
+        this.changePriority(editable.data, editable.value);
         break;
     }
   }
 
-  private changePriority(id: number, value: string): void {
-    const val = parseInt(value);
+  private changePriority(wrapper: TaskWrapper, priority: string): void {
+    let val = 0;
+    try {
+      val = parseInt(priority);
+    } catch (error) {
+      // Do nothing
+    }
 
-    const request$ = this.gs.update(SERV.TASKS_WRAPPER, id, {
+    if (!val || wrapper.priority == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper._id, {
       priority: val
     });
-
     this.subscriptions.push(
       request$
         .pipe(

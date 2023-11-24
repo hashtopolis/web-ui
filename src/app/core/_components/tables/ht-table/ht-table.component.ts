@@ -141,8 +141,8 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     new EventEmitter<ActionMenuEvent<any>>();
 
   /** Event emitter for when the user saves an editable input */
-  @Output() editableSaved: EventEmitter<HTTableEditable> =
-    new EventEmitter<HTTableEditable>();
+  @Output() editableSaved: EventEmitter<HTTableEditable<any>> =
+    new EventEmitter<HTTableEditable<any>>();
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
@@ -314,7 +314,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     this.dataSource.reload();
   }
 
-  editableInputSaved(editable: HTTableEditable): void {
+  editableInputSaved(editable: HTTableEditable<any>): void {
     this.editableSaved.emit(editable);
   }
 }
