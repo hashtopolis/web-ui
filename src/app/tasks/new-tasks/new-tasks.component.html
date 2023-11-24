@@ -11,296 +11,145 @@
   <div class="col-md-7">
     <grid-main [class]="'width:100%'">
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-            <div class="row g-3">
-              <div class="col-md-9">
-                <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
-                  <input
-                        type='text'
-                        id="taskname"
-                        class='form-control'
-                        formControlName="taskName"
-                  >
-                </grid-form-input>
+
+        <input-text title="Name" formControlName="taskName"></input-text>
+        <input-color title="Color" formControlName="color"></input-color>
+
+        <grid-form-input [name]="'Hashlist'" [labelclass]="'requiredak'">
+          <select
+                type='number'
+                id='hashlist'
+                class='form-select'
+                formControlName="hashlistId"
+            >
+            <option></option>
+        </select>
+        </grid-form-input>
+
+        <div>
+          <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
+
+          <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+            <mat-icon>help</mat-icon>
+          </button>
+
+          <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
+            Please remove manually the blacklisted Characters or use the button below!
+            <br>
+            <b>BlackListed Chars: {{this.getBanChar()}} </b>
+            <br>
+            <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
+          </span>
+
+        </div>
+
+        <input-text-area title="Notes" formControlName="notes"></input-text-area>
+
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+          <input-number title="Priority" formControlName="priority"></input-number>
+          <input-number title="Max agents" formControlName="maxAgents"></input-number>
+
+        </div>
+
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <span><b>Advanced Settings</b></span>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+                <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
+                <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
+                <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
+                <input-select title="Use static chunking" formControlName="staticChunks" [items]="selectStaticChunking"></input-select>
+                <input-number title="if yes, chunk size:" formControlName="chunkSize"></input-number>
+                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+                <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
+                <input-number title="Chunk size" formControlName="chunkTime"></input-number>
+                <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
+                <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
+                <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
+
               </div>
-              <div class="col-md-3">
-                <grid-form-input [name]="'Color'">
-                  <input
-                        class="form-control"
-                        [(colorPicker)]="color"
-                        (colorPickerChange)="OnChangeValue($event)"
-                        [style.background]="color"
-                        [value]="color"
-                        [cpPresetColors]="colorpicker"
-                        formControlName="color"/>
-                </grid-form-input>
+              <hr>
+              <div class="row">
+
+                <div class="col">
+
+                  <grid-form-input [name]="'Binary type to run task'" [labelclass]="'display-col'">
+                    <select
+                          type='number'
+                          id='crackerBinaryId'
+                          class='form-select'
+                          #myBinary
+                          (change)="onChangeBinary(myBinary.value)"
+                          formControlName="crackerBinaryId">
+                    <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
+                  </select>
+                  </grid-form-input>
+                </div>
+                <div class="col">
+                  <grid-form-input [name]="'Binary type version'" [labelclass]="'display-col'">
+                    <select
+                          type='number'
+                          id='crackerBinaryTypeId'
+                          class='form-select'
+                          formControlName="crackerBinaryTypeId"
+                        >
+                        <!-- <option [ngValue]=""  disabled="true">--<option> -->
+                        <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
+                    </select>
+                  </grid-form-input>
+                </div>
               </div>
-            </div>
-            <div class="form-group">
-              <grid-form-input [name]="'Task notes'">
-                <textarea
-                      type='text'
-                      id="tasknotes"
-                      class='form-control'
-                      formControlName="notes"
-                >
-               </textarea>
-              </grid-form-input>
-            </div>
-            <grid-form-input [name]="'Hashlist'" [labelclass]="'requiredak'">
-              <select
-                    type='number'
-                    id='hashlist'
-                    class='form-select'
-                    formControlName="hashlistId"
-                >
-                <option></option>
-            </select>
-            </grid-form-input>
-            <div class="form-group">
-              <div class="form-outline form-input-custom">
-                  <label class="form-label requiredak" for="getattackCmd">Command line</label>
-                  <fa-icon
-                          placement="bottom"
-                          (click)="open(cheatsheet)"
-                          container="body"
-                          [icon]="faInfoCircle"
-                          aria-hidden="true"
-                          class="gray-light-ico"
-                  >
-                  </fa-icon>
-                  <textarea
-                        type='text'
-                        id="attackCmd"
-                        class='form-control'
-                        formControlName="attackCmd"
-                        required
-                  >
-                  </textarea>
-                  <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
-                    Please remove manually the blacklisted Characters or use the button below!
-                    <br>
-                    <b>BlackListed Chars: {{this.getBanChar()}} </b>
-                    <br>
-                    <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
-                  </span>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col">
-                <grid-form-input [name]="'Priority'" [labelclass]="'requiredak'">
-                  <input
-                        type='number'
-                        id="priority"
-                        class='form-control'
-                        formControlName="priority"
-                        validateInputNumber
-                  >
-                </grid-form-input>
-              </div>
-              <div class="col">
-                <grid-form-input [name]="'Max. number of agents'">
-                  <input
-                        type='number'
-                        id="maxAgents"
-                        class='form-control'
-                        formControlName="maxAgents"
-                        validateInputNumber
-                  >
-                </grid-form-input>
-              </div>
-            </div>
-            <ngb-accordion #acc="ngbAccordion" >
-              <ngb-panel>
-                <ng-template ngbPanelTitle>
-                  <span><b>Advanced Settings</b></span>
-                </ng-template>
-                <ng-template ngbPanelContent>
-                  <div class="row">
-                    <div class="col">
-                      <grid-form-input [name]="'CPU only'" [tooltip]="tasktip.isCpuTask" [labelclass]="'display-col'">
-                          <div class="form-check form-switch">
-                            <input
-                                  type="checkbox"
-                                  id="isCpuTask"
-                                  class="form-check-input"
-                                  formControlName="isCpuTask"
-                            >
-                        </div>
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Small task'" [tooltip]="tasktip.isSmall" [labelclass]="'display-col'">
-                        <div class="form-check form-switch">
-                          <input
-                                type="checkbox"
-                                id="isSmall"
-                                class="form-check-input"
-                                formControlName="isSmall"
-                          >
-                      </div>
-                    </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Enforce piping'" [tooltip]="tasktip.forcePipe" [labelclass]="'display-col'">
-                        <div class="form-check form-switch">
-                          <input
-                                type="checkbox"
-                                id="forcePipe"
-                                class="form-check-input"
-                                formControlName="forcePipe"
-                          >
-                      </div>
-                     </grid-form-input>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col">
-                      <grid-form-input [name]="'Chunk size'" [tooltip]="tasktip.chunkTime" [labelclass]="'display-col'">
-                        <input
-                              type='number'
-                              id="chunkTime"
+              <hr/>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <grid-form-input [name]="'Set Preprocessor'" [tooltip]="tasktip.preprocessorId"  [labelclass]="'display-col'">
+                    <select
+                          type='number'
+                          id='preprocessorId'
+                          class='form-select'
+                          formControlName="preprocessorId"
+                        >
+                        <option [ngValue]="0" [defaultSelected]=true>No</option>
+                        <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
+                    </select>
+                  </grid-form-input>
+                </div>
+                <div class="col-md-8">
+                  <div class="form-group">
+                    <div class="form-outline form-input-custom">
+                        <label class="form-label display-col" for="getPreprocessorCommand">
+                          Preprocessor command
+                          <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
+                        </label>
+                        <textarea
+                              type='text'
+                              id="preprocessorCommand"
                               class='form-control'
-                              formControlName="chunkTime"
+                              formControlName="preprocessorCommand"
+                              #cmdPreAttack
                         >
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Status timer'" [tooltip]="tasktip.statusTimer" [labelclass]="'display-col'">
-                        <input
-                              type='number'
-                              id="statusTimer"
-                              class='form-control'
-                              formControlName="statusTimer"
-                              validateInputNumber
-                        >
-                      </grid-form-input>
-                  </div>
-                  <div class="col">
-                      <grid-form-input [name]="'Skip keyspace'" [tooltip]="tasktip.skipKeyspace" [labelclass]="'display-col'">
-                        <input
-                              type='number'
-                              id="skipKeyspace"
-                              class='form-control'
-                              formControlName="skipKeyspace"
-                              validateInputNumber
-                        >
-                      </grid-form-input>
+                        </textarea>
                     </div>
                   </div>
-                  <div class="row">
-                    <div class="col">
-                      <grid-form-input [name]="'Use static chunking'" [tooltip]="tasktip.staticChunks" [labelclass]="'display-col'">
-                        <select
-                              type='number'
-                              id='staticChunks'
-                              class='form-select'
-                              formControlName="staticChunks"
-                            >
-                            <option [ngValue]="0" [defaultSelected]=true>No</option>
-                            <option [ngValue]="1">Fixed Chunk Size</option>
-                            <option [ngValue]="2">Fixed number of chunks</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'if yes, chunk size:'" [labelclass]="'display-col'">
-                        <input
-                              type='number'
-                              id="chunkSize"
-                              class='form-control'
-                              formControlName="chunkSize"
-                              validateInputNumber
-                        >
-                      </grid-form-input>
-                    </div>
-                  </div>
-                  <hr>
-                  <div class="row">
-                    <div class="col">
-                      <grid-form-input [name]="'Benchmark Type'" [labelclass]="'display-col'">
-                        <select
-                              type='number'
-                              id="useNewBench"
-                              class='form-select'
-                              formControlName="useNewBench"
-                        >
-                          <option [ngValue]="false">Runtime Benchmark</option>
-                          <option [ngValue]="true" [defaultSelected]=true>Speed Test</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Binary type to run task'" [labelclass]="'display-col'">
-                        <select
-                              type='number'
-                              id='crackerBinaryId'
-                              class='form-select'
-                              #myBinary
-                              (change)="onChangeBinary(myBinary.value)"
-                              formControlName="crackerBinaryId">
-                        <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
-                      </select>
-                      </grid-form-input>
-                    </div>
-                    <div class="col">
-                      <grid-form-input [name]="'Binary type version'" [labelclass]="'display-col'">
-                        <select
-                              type='number'
-                              id='crackerBinaryTypeId'
-                              class='form-select'
-                              formControlName="crackerBinaryTypeId"
-                            >
-                            <!-- <option [ngValue]=""  disabled="true">--<option> -->
-                            <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                  </div>
-                  <hr/>
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <grid-form-input [name]="'Set Preprocessor'" [tooltip]="tasktip.preprocessorId"  [labelclass]="'display-col'">
-                        <select
-                              type='number'
-                              id='preprocessorId'
-                              class='form-select'
-                              formControlName="preprocessorId"
-                            >
-                            <option [ngValue]="0" [defaultSelected]=true>No</option>
-                            <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
-                        </select>
-                      </grid-form-input>
-                    </div>
-                    <div class="col-md-8">
-                      <div class="form-group">
-                        <div class="form-outline form-input-custom">
-                            <label class="form-label display-col" for="getPreprocessorCommand">
-                              Preprocessor command
-                              <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
-                            </label>
-                            <textarea
-                                  type='text'
-                                  id="preprocessorCommand"
-                                  class='form-control'
-                                  formControlName="preprocessorCommand"
-                                  #cmdPreAttack
-                            >
-                            </textarea>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </ng-template>
-              </ngb-panel>
-            </ngb-accordion>
-          <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
-          <grid-buttons>
-            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
-          </grid-buttons>
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+      <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'"></button-submit>
+      </grid-buttons>
       </form>
     </grid-main>
   </div>
+  <!-- TABLES -->
   <div class="col-md-5">
     <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
       <ngb-panel id="panel0">
@@ -317,9 +166,9 @@
                               placement="bottom"
                               ngbTooltip='T: Task, P: Preprocessor'
                               container="body"
-                              [icon]="faInfoCircle"
                               aria-hidden="true"
                       >
+                      faInfoCircle
                       </fa-icon>
                     </a>
                   </th>
@@ -345,14 +194,14 @@
                     <label class="form-check-label" for="{{f.filename}}">
                       {{f.filename | shortenString:25 }}
                     </label>
-                    <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                    <fa-icon *ngIf="f.isSecret === true" aria-hidden="true">faLock</fa-icon>
                     <fa-icon
                             placement="bottom"
                             [ngbTooltip]="wordlist"
                             container="body"
-                            [icon]="faInfoCircle"
                             aria-hidden="true"
                     >
+                    faInfoCircle
                     </fa-icon>
                     <ng-template #wordlist>
                       <div class="d-flex flex-column">
@@ -381,9 +230,9 @@
                               placement="bottom"
                               ngbTooltip='T: Task, P: Preprocessor'
                               container="body"
-                              [icon]="faInfoCircle"
                               aria-hidden="true"
                       >
+                      faInfoCircle
                       </fa-icon>
                     </a>
                   </th>
@@ -409,14 +258,14 @@
                     <label class="form-check-label" for="{{f.filename}}">
                       {{f.filename | shortenString:25 }}
                     </label>
-                    <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                    <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true">faLock</fa-icon>
                     <fa-icon
                             placement="bottom"
                             [ngbTooltip]="rules"
                             container="body"
-                            [icon]="faInfoCircle"
                             aria-hidden="true"
                     >
+                    faInfoCircle
                     </fa-icon>
                     <ng-template #rules>
                       <div class="d-flex flex-column">
@@ -445,9 +294,9 @@
                               placement="bottom"
                               ngbTooltip='T: Task, P: Preprocessor'
                               container="body"
-                              [icon]="faInfoCircle"
                               aria-hidden="true"
                       >
+                      faInfoCircle
                       </fa-icon>
                     </a>
                   </th>
@@ -473,14 +322,14 @@
                   <label class="form-check-label" for="{{f.filename}}">
                     {{f.filename | shortenString:25 }}
                   </label>
-                  <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                  <fa-icon *ngIf="f.isSecret === true" aria-hidden="true">faLock</fa-icon>
                   <fa-icon
                           placement="bottom"
                           [ngbTooltip]="other"
                           container="body"
-                          [icon]="faInfoCircle"
                           aria-hidden="true"
                   >
+                  faInfoCircle
                   </fa-icon>
                   <ng-template #other>
                     <div class="d-flex flex-column">
@@ -498,9 +347,5 @@
     </ngb-accordion>
   </div>
 </div>
-<!-- Cheat Sheet Utilisation -->
-<ng-template #cheatsheet let-modal>
-  <app-cheatsheet></app-cheatsheet>
-</ng-template>
 
 

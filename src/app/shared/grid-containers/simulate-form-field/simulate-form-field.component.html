@@ -1,10 +1,15 @@
 <div class="simulate-form-field simulate-form-field-disabled">
   <div class="simulate-form-field-label">
-    {{label}}
+    {{ label }}
   </div>
   <div class="simulate-form-field-flex">
     <div class="simulate-form-field-infix">
-      <span class="simulate-form-field-content">{{ message}}</span>
+      <span class="simulate-form-field-content" [innerHTML]="message"></span>
+      <!-- Conditionally apply the 'active' class based on routerLinkActive -->
+      <a *ngIf="routerLink" [routerLink]="routerLink" [class.active]="isActive()">
+        {{ label }}
+      </a>
     </div>
   </div>
 </div>
+

@@ -20,12 +20,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   imports: [
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatSlideToggleModule,
+    MatExpansionModule,
     MatOptionModule,
     MatSelectModule,
     MatDividerModule,
@@ -50,6 +52,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     ReactiveFormsModule,
     MatAutocompleteModule,
     MatSlideToggleModule,
+    MatExpansionModule,
     MatOptionModule,
     MatSelectModule,
     MatDividerModule,
