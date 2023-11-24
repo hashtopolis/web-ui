@@ -19,6 +19,9 @@ import { CracksTableComponent } from './tables/cracks-table/cracks-table.compone
 import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { FilesTableComponent } from './tables/files-table/files-table.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
+import { HTTableTypeDefaultComponent } from './tables/ht-table/type/default/ht-table-type-default.component';
+import { HTTableTypeEditableComponent } from './tables/ht-table/type/editable/ht-table-type-editable.component';
+import { HTTableTypeLinkComponent } from './tables/ht-table/type/link/ht-table-type-link.component';
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
@@ -48,6 +51,7 @@ import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
 import { TableTruncateComponent } from './tables/table-truncate/table-truncate.component';
+import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 
 @NgModule({
@@ -56,6 +60,9 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     TableTruncateComponent,
     BaseTableComponent,
     HTTableComponent,
+    HTTableTypeLinkComponent,
+    HTTableTypeDefaultComponent,
+    HTTableTypeEditableComponent,
     BaseMenuComponent,
     ActionMenuComponent,
     RowActionMenuComponent,
@@ -77,6 +84,7 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AccessGroupsTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
+    TasksTableComponent,
     CracksTableComponent
   ],
   imports: [
@@ -107,6 +115,9 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     BaseTableComponent,
     TableTruncateComponent,
     HTTableComponent,
+    HTTableTypeLinkComponent,
+    HTTableTypeDefaultComponent,
+    HTTableTypeEditableComponent,
     ColumnSelectionDialogComponent,
     BaseMenuComponent,
     ActionMenuComponent,
@@ -128,6 +139,7 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AccessGroupsTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
+    TasksTableComponent,
     CracksTableComponent
   ],
   providers: [

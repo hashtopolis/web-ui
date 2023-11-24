@@ -17,6 +17,7 @@ export type DataType =
   | 'logs'
   | 'permissions'
   | 'cracks'
+  | 'tasks'
   | 'superhashlists';
 
 export interface HTTableIcon {
@@ -28,9 +29,19 @@ export interface HTTableIcon {
 export interface HTTableRouterLink {
   label?: string;
   routerLink: any[];
+  tooltip?: string;
 }
 
+export interface HTTableEditable {
+  id: number;
+  value: string;
+  action: string;
+}
+
+export type HTTableColumnType = 'dafeult | link | editable';
+
 export interface HTTableColumn {
+  type?: HTTableColumnType;
   name: string;
   dataKey: string;
   position?: 'right' | 'left';
@@ -41,4 +52,5 @@ export interface HTTableColumn {
   routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
+  editable?: (data: any) => HTTableEditable;
 }

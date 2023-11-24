@@ -56,7 +56,6 @@
         <mat-icon matPrefix>filter_list</mat-icon>
         <input
           matInput
-          placeholder="Ex. Pizza"
           (keyup)="applyFilter()"
           [(ngModel)]="dataSource.filter"
           placeholder="Filter data"
@@ -80,7 +79,20 @@
           [indeterminate]="indeterminate()"
         />
       </th>
-      <td mat-cell *matCellDef="let row">
+      <td
+        mat-cell
+        *matCellDef="let row"
+        [ngStyle]="{
+          'border-left':
+            row.tasks && row.tasks.length > 0 && row.tasks[0].color
+              ? '8px solid ' + row.tasks[0].color
+              : '',
+          'padding-left':
+            row.tasks && row.tasks.length > 0 && row.tasks[0].color
+              ? '8px'
+              : '16px'
+        }"
+      >
         <mat-checkbox
           (click)="$event.stopPropagation()"
           (change)="toggleSelect(row)"
@@ -101,7 +113,7 @@
     </ng-container>
 
     <ng-container
-      *ngFor="let tableColumn of tableColumns"
+      *ngFor="let tableColumn of tableColumns; let first = first"
       [matColumnDef]="tableColumn.name"
     >
       <!-- if sortable column header -->
@@ -135,7 +147,7 @@
       >
         <div
           class="flex-container"
-          [class.truncate]="tableColumn.routerLink"
+          [class.links]="tableColumn.routerLink"
           [class.icons]="tableColumn.icons"
         >
           <ng-container *ngIf="tableColumn.truncate">
@@ -144,42 +156,19 @@
             ></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">
-            <ng-container *ngIf="tableColumn.routerLink">
-              <span
-                *ngFor="let link of tableColumn.routerLink(element) | async"
-              >
-                <a [routerLink]="link.routerLink">
-                  <ng-container *ngIf="link.label">
-                    {{ link.label }}
-                  </ng-container>
-                  <ng-container *ngIf="!link.label">
-                    {{ element[tableColumn.dataKey] }}
-                  </ng-container>
-                </a>
-              </span>
-            </ng-container>
-            <ng-container *ngIf="!tableColumn.routerLink">
-              <!-- Check if a async function is defined for the column -->
-              <ng-container *ngIf="tableColumn.async">
-                <div
-                  [innerHtml]="(tableColumn.async(element) | async) || '-'"
-                ></div>
-              </ng-container>
-              <!-- Check if a render function is defined for the column -->
-              <ng-container *ngIf="!tableColumn.async && tableColumn.render">
-                <div [innerHtml]="tableColumn.render(element)"></div>
-              </ng-container>
-              <!-- Default rendering if no render function is defined -->
-              <ng-container
-                *ngIf="
-                  !tableColumn.async &&
-                  !tableColumn.render &&
-                  !tableColumn.icons
-                "
-              >
-                {{ element[tableColumn.dataKey] }}
-              </ng-container>
-            </ng-container>
+            <ht-table-link
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></ht-table-link>
+            <ht-table-default
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></ht-table-default>
+            <ht-table-editable
+              [tableColumn]="tableColumn"
+              [element]="element"
+              (editableInputSaved)="editableInputSaved($event)"
+            ></ht-table-editable>
           </ng-container>
 
           <!-- Check if icon function is defined -->

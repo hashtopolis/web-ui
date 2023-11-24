@@ -211,10 +211,10 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['accessGroups'])
+  @Cacheable(['_id', 'accessGroups'])
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
-
+    console.log(obj);
     if (obj && obj['accessGroups'] && obj['accessGroups'].length) {
       links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
         return {

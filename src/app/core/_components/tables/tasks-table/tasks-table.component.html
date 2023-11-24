@@ -1,0 +1,13 @@
+<ht-table
+  name="tasksTable"
+  dataType="tasks"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="isSelectable"
+  [hasRowAction]="hasRowAction"
+  (rowActionClicked)="rowActionClicked($event)"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (editableSaved)="editableSaved($event)"
+  [filterFn]="filter"
+  [isPageable]="true"
+/>

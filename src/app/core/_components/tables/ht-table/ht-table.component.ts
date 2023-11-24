@@ -11,7 +11,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { DataType, HTTableColumn } from './ht-table.models';
+import { DataType, HTTableColumn, HTTableEditable } from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -139,6 +139,10 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Event emitter for when the user triggers an export action */
   @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> =
     new EventEmitter<ActionMenuEvent<any>>();
+
+  /** Event emitter for when the user saves an editable input */
+  @Output() editableSaved: EventEmitter<HTTableEditable> =
+    new EventEmitter<HTTableEditable>();
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
@@ -308,5 +312,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
       this.dataSource.totalItems
     );
     this.dataSource.reload();
+  }
+
+  editableInputSaved(editable: HTTableEditable): void {
+    this.editableSaved.emit(editable);
   }
 }
