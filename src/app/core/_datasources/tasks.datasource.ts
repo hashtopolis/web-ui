@@ -11,20 +11,28 @@ export class TasksDataSource extends BaseDataSource<
   MatTableDataSourcePaginator
 > {
   private _isArchived = false;
+  private _hashlistId = 0;
 
   setIsArchived(isArchived: boolean): void {
     this._isArchived = isArchived;
+  }
+
+  setHashlistId(hashlistId: number): void {
+    this._hashlistId = hashlistId;
   }
 
   loadAll(): void {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
+    const additionalFilter = this._hashlistId
+      ? `;hashlistId=${this._hashlistId}`
+      : '';
     const params = {
       maxResults: this.pageSize,
       startAt: startAt,
       expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}`
+      filter: `isArchived=${this._isArchived}${additionalFilter}`
     };
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
@@ -44,6 +52,8 @@ export class TasksDataSource extends BaseDataSource<
               (hashlist: Hashlist) => hashlist._id === wrapper.hashlistId
             );
             wrapper.hashlists = [matchingHashList];
+            wrapper.taskName = wrapper.tasks[0].taskName;
+            wrapper.accessGroupName = wrapper.accessGroup?.groupName;
             return wrapper;
           }
         );
@@ -52,7 +62,6 @@ export class TasksDataSource extends BaseDataSource<
           this.currentPage,
           taskWrapperResponse.total
         );
-
         this.setData(wrappers);
       });
   }

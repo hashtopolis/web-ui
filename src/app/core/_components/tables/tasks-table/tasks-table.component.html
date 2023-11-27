@@ -1,10 +1,12 @@
 <ht-table
-  name="tasksTable"
+  #table
+  [name]="name"
   dataType="tasks"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [hasRowAction]="hasRowAction"
+  [isArchived]="isArchived"
   (rowActionClicked)="rowActionClicked($event)"
   (bulkActionClicked)="bulkActionClicked($event)"
   (editableSaved)="editableSaved($event)"

@@ -10,6 +10,7 @@
         [class.hidden]="!editMode"
         (blur)="onBlur($event)"
         (focus)="onFocus($event)"
+        (keyup.enter)="onEditableInputEnter($event)"
       />
       <button
         matSuffix

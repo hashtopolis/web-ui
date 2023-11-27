@@ -77,11 +77,11 @@ export class BaseMenuComponent {
   }
 
   /**
-   * Check if the data row is of type "Task".
-   * @returns `true` if the data row is a task; otherwise, `false`.
+   * Check if the data row is of type "TaskWrapper".
+   * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
-  protected isTask(): boolean {
-    return this.checkId('taskId') && 'taskName' in this.data;
+  protected isTaskWrapper(): boolean {
+    return this.checkId('taskWrapperId') && 'priority' in this.data;
   }
 
   /**
@@ -132,6 +132,7 @@ export class BaseMenuComponent {
     try {
       return (
         this.data['_id'] === this.data['hashlistId'] &&
+        'brainFeatures' in this.data &&
         this.data['format'] !== HashListFormat.SUPERHASHLIST
       );
     } catch (error) {

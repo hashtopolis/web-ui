@@ -122,6 +122,8 @@
   <!-- Table Cracking Hashlist -->
   <app-table>
     <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
+    <tasks-table name="hashlistTaskTable" [hashlistId]="editedHashlistIndex"></tasks-table>
+    
     <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
       <thead class="thead-light">
         <tr>

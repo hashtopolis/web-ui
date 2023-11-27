@@ -37,6 +37,8 @@ export class BaseTableComponent {
 
   @ViewChild('table') table: HTTableComponent;
 
+  @Input() hashlistId: number;
+
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
   /** Flag to enable bulk action menu */

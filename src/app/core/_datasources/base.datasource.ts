@@ -342,6 +342,7 @@ export abstract class BaseDataSource<
     isAgent = true,
     keyspace = 0
   ): Promise<ChunkData> {
+    console.log('getChunkdata', id);
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];
@@ -367,11 +368,14 @@ export abstract class BaseDataSource<
       agents.push(chunk.agentId);
       tasks.push(chunk.taskId);
 
+      // If progress is 100%, add total chunk length to dispatched
       if (chunk.progress >= 10000) {
         dispatched.push(chunk.length);
       }
       cracked.push(chunk.cracked);
       searched.push(chunk.checkpoint - chunk.skip);
+
+      // Calculate speed for chunks completed within the last chunktime
       if (
         now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
           chunktime &&

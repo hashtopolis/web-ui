@@ -1,7 +1,12 @@
+import {
+  AgentTableEditableAction,
+  AgentsTableColumnLabel
+} from './agents-table.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
+  HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '../ht-table/ht-table.models';
@@ -15,7 +20,6 @@ import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { Agent } from 'src/app/core/_models/agent.model';
 import { AgentsDataSource } from 'src/app/core/_datasources/agents.datasource';
-import { AgentsTableColumnLabel } from './agents-table.constants';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
@@ -40,6 +44,7 @@ export class AgentsTableComponent
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   chunkData: { [key: number]: ChunkData } = {};
+  private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -71,7 +76,7 @@ export class AgentsTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    const tableColumns: HTTableColumn[] = [
       {
         name: AgentsTableColumnLabel.ID,
         dataKey: '_id',
@@ -171,6 +176,13 @@ export class AgentsTableComponent
       tableColumns.push({
         name: AgentsTableColumnLabel.BENCHMARK,
         dataKey: 'benchmark',
+        editable: (agent: Agent) => {
+          return {
+            data: agent,
+            value: agent.benchmark,
+            action: AgentTableEditableAction.CHANGE_BENCHMARK
+          };
+        },
         isSortable: true,
         export: async (agent: Agent) => agent.benchmark
       });
@@ -193,6 +205,14 @@ export class AgentsTableComponent
     }
 
     return tableColumns;
+  }
+
+  editableSaved(editable: HTTableEditable<Agent>): void {
+    switch (editable.action) {
+      case AgentTableEditableAction.CHANGE_BENCHMARK:
+        this.changeBenchmark(editable.data, editable.value);
+        break;
+    }
   }
 
   openDialog(data: DialogData<Agent>) {
@@ -359,11 +379,9 @@ export class AgentsTableComponent
     agentId: number,
     key: string
   ): Promise<number> {
-    if (!(agentId in this.chunkData)) {
-      this.chunkData[agentId] = await this.dataSource.getChunkData(agentId);
-    }
-    if (this.chunkData[agentId][key]) {
-      return this.chunkData[agentId][key];
+    const cd: ChunkData = await this.getChunkData(agentId);
+    if (cd[key]) {
+      return cd[key];
     }
 
     return 0;
@@ -529,5 +547,67 @@ export class AgentsTableComponent
     this.renderAgentLink(agent).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });
+  }
+
+  /**
+   * Retrieves or fetches chunk data associated with a given agent from the data source.
+   * If the chunk data for the specified agent ID is not already cached, it is fetched
+   * asynchronously from the data source and stored in the cache for future use.
+   *
+   * @param {number} agentId - The ID of the agent for which chunk data is requested.
+   * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified agent.
+   *
+   * @remarks
+   * This function uses a locking mechanism to ensure that concurrent calls for the same agent ID
+   * do not interfere with each other. If another call is already fetching or has fetched
+   * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
+   * before proceeding.
+   */
+  private async getChunkData(agentId: number): Promise<ChunkData> {
+    if (!this.chunkDataLock[agentId]) {
+      // If there is no lock, create a new one
+      this.chunkDataLock[agentId] = (async () => {
+        if (!(agentId in this.chunkData)) {
+          // Inside the lock, await the asynchronous operation
+          this.chunkData[agentId] = await this.dataSource.getChunkData(agentId);
+        }
+
+        // Release the lock when the operation is complete
+        delete this.chunkDataLock[agentId];
+      })();
+    }
+
+    // Wait for the lock to be released before returning the data
+    await this.chunkDataLock[agentId];
+
+    return this.chunkData[agentId];
+  }
+
+  private changeBenchmark(agent: Agent, benchmark: string): void {
+    if (!benchmark || agent.benchmark == benchmark) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent._id, {
+      benchmark: benchmark
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update benchmark!`, 'Close');
+            console.error('Failed to update benchmark:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed benchmark to ${benchmark} on Agent #${agent._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
   }
 }

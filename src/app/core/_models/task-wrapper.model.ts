@@ -7,6 +7,7 @@ export interface TaskWrapper {
   _self: string;
   accessGroupId: number;
   accessGroup?: AccessGroup;
+  accessGroupName?: string;
   cracked: number;
   hashlistId: number;
   hashlists?: Hashlist[];
@@ -17,4 +18,5 @@ export interface TaskWrapper {
   taskWrapperId: number;
   taskWrapperName: string;
   tasks?: Task[];
+  taskName?: string;
 }

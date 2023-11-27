@@ -15,3 +15,7 @@ export const AgentsTableColumnLabel = {
   SEARCHED: 'Keyspace Searched',
   CRACKED: 'Cracked'
 };
+
+export const AgentTableEditableAction = {
+  CHANGE_BENCHMARK: 'change-benchmark'
+};

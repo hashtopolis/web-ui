@@ -70,14 +70,14 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         name: ChunksTableColumnLabel.TASK,
         dataKey: 'taskName',
-        routerLink: (chunk: Chunk) => this.renderTaskLink(chunk.taskId),
+        routerLink: (chunk: Chunk) => this.renderTaskLink(chunk),
         isSortable: true
       },
       {
         name: ChunksTableColumnLabel.AGENT,
         dataKey: 'agentName',
         render: (chunk: Chunk) => this.renderAgent(chunk),
-        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk.agentId),
+        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk),
         isSortable: true
       },
       {
@@ -107,7 +107,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         name: ChunksTableColumnLabel.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk.taskId),
+        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];

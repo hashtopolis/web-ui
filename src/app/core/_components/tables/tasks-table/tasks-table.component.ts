@@ -1,16 +1,15 @@
-import {
-  AfterViewInit,
-  Component,
-  OnDestroy,
-  OnInit,
-  Renderer2
-} from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '../ht-table/ht-table.models';
+import {
+  TaskTableColumnLabel,
+  TaskTableEditableAction
+} from './tasks-table.constants';
+
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -24,14 +23,8 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { Task } from 'src/app/core/_models/task.model';
-import {
-  TaskTableColumnLabel,
-  TaskTableEditableAction
-} from './tasks-table.constants';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
-import { MatSnackBarConfig } from '@angular/material/snack-bar';
-import { wrap } from 'module';
 
 @Component({
   selector: 'tasks-table',
@@ -43,12 +36,18 @@ export class TasksTableComponent
 {
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
+  isArchived = false;
   chunkData: { [key: number]: ChunkData } = {};
+  private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
     this.tableColumns = this.getColumns();
     this.dataSource = new TasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.dataSource.setIsArchived(this.isArchived);
+    if (this.hashlistId) {
+      this.dataSource.setHashlistId(this.hashlistId);
+    }
     this.dataSource.loadAll();
   }
 
@@ -91,28 +90,7 @@ export class TasksTableComponent
         isSortable: false
       },
       {
-        name: TaskTableColumnLabel.PRIORITY,
-        dataKey: 'priority',
-        editable: (wrapper: TaskWrapper) => {
-          return {
-            data: wrapper,
-            value: wrapper.priority + '',
-            action: TaskTableEditableAction.CHANGE_PRIORITY
-          };
-        },
-        isSortable: true
-      },
-      {
-        name: TaskTableColumnLabel.PREPROCESSOR,
-        dataKey: 'preprocessorId',
-        render: (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1
-            ? 'Prince'
-            : '',
-        isSortable: true
-      },
-      {
-        name: TaskTableColumnLabel.HASHLISTS,
+        name: TaskTableColumnLabel.HASHLISTS, // TODO: fix
         dataKey: 'userId',
         routerLink: (wrapper: TaskWrapper) => this.renderHashlistLinks(wrapper),
         isSortable: false
@@ -136,6 +114,46 @@ export class TasksTableComponent
         isSortable: false
       },
       {
+        name: TaskTableColumnLabel.ACCESS_GROUP,
+        dataKey: 'accessGroupName',
+        routerLink: (wrapper: TaskWrapper) =>
+          this.renderAccessGroupLink(wrapper),
+        isSortable: false
+      },
+      {
+        name: TaskTableColumnLabel.PRIORITY,
+        dataKey: 'priority',
+        editable: (wrapper: TaskWrapper) => {
+          return {
+            data: wrapper,
+            value: wrapper.priority + '',
+            action: TaskTableEditableAction.CHANGE_PRIORITY
+          };
+        },
+        isSortable: true
+      },
+      {
+        name: TaskTableColumnLabel.MAX_AGENTS,
+        dataKey: 'maxAgents',
+        editable: (wrapper: TaskWrapper) => {
+          return {
+            data: wrapper,
+            value: wrapper.maxAgents + '',
+            action: TaskTableEditableAction.CHANGE_MAX_AGENTS
+          };
+        },
+        isSortable: true
+      },
+      {
+        name: TaskTableColumnLabel.PREPROCESSOR,
+        dataKey: 'preprocessorId',
+        render: (wrapper: TaskWrapper) =>
+          wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1
+            ? 'Prince'
+            : '',
+        isSortable: true
+      },
+      {
         name: TaskTableColumnLabel.IS_SMALL,
         dataKey: 'isSmall',
         icons: (wrapper: TaskWrapper) => this.renderIsSmallIcon(wrapper),
@@ -152,7 +170,7 @@ export class TasksTableComponent
     return tableColumns;
   }
 
-  rowActionClicked(event: ActionMenuEvent<Task>): void {
+  rowActionClicked(event: ActionMenuEvent<TaskWrapper>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -169,6 +187,9 @@ export class TasksTableComponent
       case RowActionMenuAction.ARCHIVE:
         this.rowActionArchive(event.data);
         break;
+      case RowActionMenuAction.UNARCHIVE:
+        this.rowActionUnarchive(event.data);
+        break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
@@ -182,7 +203,7 @@ export class TasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Task[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
         this.openDialog({
@@ -207,7 +228,7 @@ export class TasksTableComponent
     }
   }
 
-  openDialog(data: DialogData<Task>) {
+  openDialog(data: DialogData<TaskWrapper>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -227,6 +248,11 @@ export class TasksTableComponent
         }
       })
     );
+  }
+
+  setIsArchived(isArchived: boolean): void {
+    this.isArchived = isArchived;
+    this.dataSource.setIsArchived(isArchived);
   }
 
   // --- Render functions ---
@@ -271,15 +297,8 @@ export class TasksTableComponent
     const icons: HTTableIcon[] = [];
 
     if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
-      const task: Task = wrapper.tasks[0];
-      if (!(task._id in this.chunkData)) {
-        this.chunkData[task._id] = await this.dataSource.getChunkData(
-          task.taskId,
-          false,
-          task.keyspace
-        );
-      }
-      const speed = this.chunkData[task._id].speed;
+      const cd: ChunkData = await this.getChunkData(wrapper);
+      const speed = cd.speed;
       if (speed > 0) {
         icons.push({
           name: 'radio_button_checked',
@@ -287,8 +306,8 @@ export class TasksTableComponent
           tooltip: 'In Progress'
         });
       } else if (
-        task.keyspaceProgress >= task.keyspace &&
-        task.keyspaceProgress > 0
+        wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
+        wrapper.tasks[0].keyspaceProgress > 0
       ) {
         icons.push({
           name: 'check',
@@ -367,16 +386,10 @@ export class TasksTableComponent
     if (wrapper.taskType === 0) {
       const task: Task = wrapper.tasks[0];
       if (task.keyspace > 0) {
-        if (!(task._id in this.chunkData)) {
-          this.chunkData[task._id] = await this.dataSource.getChunkData(
-            task.taskId,
-            false,
-            task.keyspace
-          );
-        }
-        html = `${this.chunkData[task._id].dispatched} / ${
-          this.chunkData[task._id].searched
-        }`;
+        const cd: ChunkData = await this.getChunkData(wrapper);
+        const disp = (cd.dispatched * 100).toFixed(2);
+        const sear = (cd.searched * 100).toFixed(2);
+        html = `${disp}% / ${sear}%`;
       }
     }
     return this.sanitize(html);
@@ -388,17 +401,10 @@ export class TasksTableComponent
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
-      const task: Task = wrapper.tasks[0];
-      if (!(task._id in this.chunkData)) {
-        this.chunkData[task._id] = await this.dataSource.getChunkData(
-          task.taskId,
-          false,
-          task.keyspace
-        );
-      }
+      const cd: ChunkData = await this.getChunkData(wrapper);
       links.push({
-        label: this.chunkData[task._id].cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', task._id]
+        label: cd.cracked + '',
+        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0]._id]
       });
     }
 
@@ -409,18 +415,8 @@ export class TasksTableComponent
   async renderAgents(wrapper: TaskWrapper): Promise<SafeHtml> {
     let html = '';
     if (wrapper.taskType === 0) {
-      const task: Task = wrapper.tasks[0];
-      if (!(task._id in this.chunkData)) {
-        this.chunkData[task._id] = await this.dataSource.getChunkData(
-          task.taskId,
-          false,
-          task.keyspace
-        );
-      }
-
-      html = task.maxAgents
-        ? `${this.chunkData[task._id].agents.length} / ${task.maxAgents}`
-        : `${this.chunkData[task._id].agents.length}`;
+      const cd: ChunkData = await this.getChunkData(wrapper);
+      html = `${cd.agents.length}`;
     }
     return this.sanitize(html);
   }
@@ -429,31 +425,21 @@ export class TasksTableComponent
   async renderSpeed(wrapper: TaskWrapper): Promise<SafeHtml> {
     let html = '';
     if (wrapper.taskType === 0) {
-      const task: Task = wrapper.tasks[0];
-      if (!(task._id in this.chunkData)) {
-        this.chunkData[task._id] = await this.dataSource.getChunkData(
-          task._id,
-          false,
-          task.keyspace
-        );
-      }
-      html =
-        this.chunkData[task._id].speed > 0
-          ? `${this.chunkData[task._id].speed}&nbsp;H/s`
-          : '';
+      const cd: ChunkData = await this.getChunkData(wrapper);
+      html = cd.speed > 0 ? `${cd.speed}&nbsp;H/s` : '';
     }
     return this.sanitize(html);
   }
 
   // --- Action functions ---
 
-  private rowActionEdit(task: Task): void {
+  private rowActionEdit(task: TaskWrapper): void {
     this.router.navigate(['tasks', 'show-tasks', task._id, 'edit']);
   }
 
-  private bulkActionDelete(tasks: Task[]): void {
-    const requests = tasks.map((task: Task) => {
-      return this.gs.delete(SERV.TASKS, task._id);
+  private bulkActionDelete(wrapper: TaskWrapper[]): void {
+    const requests = wrapper.map((w: TaskWrapper) => {
+      return this.gs.delete(SERV.TASKS, w.tasks[0]._id);
     });
 
     this.subscriptions.push(
@@ -469,39 +455,50 @@ export class TasksTableComponent
             `Successfully deleted ${results.length} tasks!`,
             'Close'
           );
-          this.dataSource.reload();
+          this.reload();
         })
     );
   }
 
-  private rowActionDelete(task: Task): void {
+  private rowActionDelete(wrapper: TaskWrapper): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.TASKS, task._id).subscribe(() => {
+      this.gs.delete(SERV.TASKS, wrapper.tasks[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted task!', 'Close');
-        this.dataSource.reload();
+        this.reload();
       })
     );
   }
 
-  private rowActionCopyToTask(task: Task): void {
-    this.router.navigate(['tasks', 'new-tasks', task._id, 'copy']);
+  private rowActionCopyToTask(wrapper: TaskWrapper): void {
+    this.router.navigate(['tasks', 'new-tasks', wrapper.tasks[0]._id, 'copy']);
   }
 
-  private rowActionCopyToPretask(task: Task): void {
+  private rowActionCopyToPretask(wrapper: TaskWrapper): void {
     this.router.navigate([
       'tasks',
       'preconfigured-tasks',
-      task._id,
+      wrapper.tasks[0]._id,
       'copytask'
     ]);
   }
 
-  private rowActionArchive(task: Task): void {
+  private rowActionArchive(wrapper: TaskWrapper): void {
+    this.updateIsArchived(wrapper.tasks[0]._id, true);
+  }
+
+  private rowActionUnarchive(wrapper: TaskWrapper): void {
+    this.updateIsArchived(wrapper.tasks[0]._id, false);
+  }
+
+  private updateIsArchived(taskId: number, isArchived: boolean): void {
+    const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
-      this.gs.archive(SERV.TASKS, task._id).subscribe(() => {
-        this.snackBar.open('Successfully archived task!', 'Close');
-        this.dataSource.reload();
-      })
+      this.gs
+        .update(SERV.TASKS, taskId, { isArchived: isArchived })
+        .subscribe(() => {
+          this.snackBar.open(`Successfully ${strArchived} task!`, 'Close');
+          this.reload();
+        })
     );
   }
 
@@ -509,6 +506,9 @@ export class TasksTableComponent
     switch (editable.action) {
       case TaskTableEditableAction.CHANGE_PRIORITY:
         this.changePriority(editable.data, editable.value);
+        break;
+      case TaskTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
         break;
     }
   }
@@ -539,9 +539,87 @@ export class TasksTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed prio to ${val}!`, 'Close');
+          this.snackBar.open(
+            `Changed prio to ${val} on Task #${wrapper.tasks[0]._id}!`,
+            'Close'
+          );
           this.reload();
         })
     );
+  }
+
+  private changeMaxAgents(wrapper: TaskWrapper, max: string): void {
+    let val = 0;
+    try {
+      val = parseInt(max);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || wrapper.maxAgents == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper._id, {
+      maxAgents: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            console.error('Failed to update max agents:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed number of max agents to ${val} on Task #${wrapper.tasks[0]._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  /**
+   * Retrieves or fetches chunk data associated with a given task from the data source.
+   * If the chunk data for the specified task ID is not already cached, it is fetched
+   * asynchronously from the data source and stored in the cache for future use.
+   *
+   * @param {TaskWrapper} wrapper - The task wrapper containing the task for which chunk data is requested.
+   * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified task.
+   *
+   * @remarks
+   * This function uses a locking mechanism to ensure that concurrent calls for the same task ID
+   * do not interfere with each other. If another call is already fetching or has fetched
+   * the chunk data for the same task ID, subsequent calls will wait for the operation to complete
+   * before proceeding.
+   */
+  private async getChunkData(wrapper: TaskWrapper): Promise<ChunkData> {
+    const task: Task = wrapper.tasks[0];
+
+    if (!this.chunkDataLock[task._id]) {
+      // If there is no lock, create a new one
+      this.chunkDataLock[task._id] = (async () => {
+        if (!(task._id in this.chunkData)) {
+          // Inside the lock, await the asynchronous operation
+          this.chunkData[task._id] = await this.dataSource.getChunkData(
+            task._id,
+            false,
+            task.keyspace
+          );
+        }
+
+        // Release the lock when the operation is complete
+        delete this.chunkDataLock[task._id];
+      })();
+    }
+
+    // Wait for the lock to be released before returning the data
+    await this.chunkDataLock[task._id];
+    console.log(this.chunkData[task._id]);
+    return this.chunkData[task._id];
   }
 }

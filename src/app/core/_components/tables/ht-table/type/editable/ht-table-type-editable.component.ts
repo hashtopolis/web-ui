@@ -58,9 +58,16 @@ export class HTTableTypeEditableComponent implements OnInit {
 
   onFocus(event: FocusEvent): void {
     event.stopPropagation();
+    this.editableInput.nativeElement.select();
   }
 
   onEditableInputSaved(event: MouseEvent): void {
+    event.stopPropagation();
+    this.editableInputSaved.emit(this.editable);
+    this.editMode = false;
+  }
+
+  onEditableInputEnter(event: Event): void {
     event.stopPropagation();
     this.editableInputSaved.emit(this.editable);
     this.editMode = false;

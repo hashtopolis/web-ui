@@ -137,7 +137,9 @@ export const uiConfigDefault: UIConfig = {
       HealthChecksTableColumnLabel.CREATED,
       HealthChecksTableColumnLabel.STATUS,
       HealthChecksTableColumnLabel.TYPE
-    ]
+    ],
+    tasksTable: [],
+    hashlistTasksTable: []
   },
   refreshPage: false,
   refreshInterval: 10
