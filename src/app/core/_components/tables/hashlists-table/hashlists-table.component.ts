@@ -89,7 +89,7 @@ export class HashlistsTableComponent
       {
         name: HashlistsTableColumnLabel.CRACKED,
         dataKey: 'cracked',
-        icons: (hashlist: Hashlist) => this.renderStatusIcon(hashlist),
+        icons: (hashlist: Hashlist) => this.renderCrackedStatusIcon(hashlist),
         render: (hashlist: Hashlist) =>
           formatPercentage(hashlist.cracked, hashlist.hashCount),
         isSortable: true,
@@ -157,7 +157,7 @@ export class HashlistsTableComponent
   }
 
   @Cacheable(['_id', 'hashCount', 'cracked'])
-  async renderStatusIcon(hashlist: Hashlist): Promise<HTTableIcon[]> {
+  async renderCrackedStatusIcon(hashlist: Hashlist): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     if (hashlist.hashCount === hashlist.cracked) {
       icons.push({

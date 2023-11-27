@@ -7,6 +7,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { HTTableIcon, HTTableRouterLink } from '../ht-table/ht-table.models';
 import {
   UIConfig,
   uiConfigDefault
@@ -18,7 +19,6 @@ import { ConfigService } from 'src/app/core/_services/shared/config.service';
 import { ExportService } from 'src/app/core/_services/export/export.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
-import { HTTableRouterLink } from '../ht-table/ht-table.models';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -232,5 +232,26 @@ export class BaseTableComponent {
     }
 
     return links;
+  }
+
+  @Cacheable(['isActive'])
+  async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
+    if (obj) {
+      return obj['isActive']
+        ? [
+            {
+              name: 'check_circle',
+              cls: 'text-ok'
+            }
+          ]
+        : [
+            {
+              name: 'remove_circle',
+              cls: 'text-critical'
+            }
+          ];
+    }
+
+    return [];
   }
 }
