@@ -43,9 +43,6 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   @Input()
   error;
 
-  /** Maximum results for API requests. */
-  private maxResults = environment.config.prodApiMaxResults;
-
   /** List of PreTasks. */
   selectPretasks: any[];
 
@@ -98,7 +95,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
       }
     };
     const loadSubscription$ = this.gs
-      .getAll(SERV.PRETASKS, { maxResults: this.maxResults })
+      .getAll(SERV.PRETASKS)
       .subscribe((response: ListResponseWrapper<Task>) => {
         const transformedOptions = transformSelectOptions(
           response.values,
