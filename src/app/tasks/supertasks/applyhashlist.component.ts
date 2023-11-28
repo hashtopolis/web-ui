@@ -8,137 +8,239 @@ import { environment } from '../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { FormControl, FormGroup } from '@angular/forms';
+import { OnDestroy } from '@angular/core';
+import { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy } from '@angular/core';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { Hashlist } from 'src/app/core/_models/hashlist.model';
+import { transformSelectOptions } from 'src/app/shared/utils/forms';
 
+/**
+ * ApplyHashlistComponent is a component responsible for managing and applying hashlists.
+ *
+ */
 @Component({
   selector: 'app-applyhashlist',
   templateUrl: './applyhashlist.component.html',
-  // changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.Default
 })
-@PageTitle(['Apply Hashlist'])
-export class ApplyHashlistComponent  {
+export class ApplyHashlistComponent implements OnInit, OnDestroy {
+  /** Flag indicating whether data is still loading. */
+  isLoading = true;
 
-  Index: number;
-  private maxResults = environment.config.prodApiMaxResults;
-  crackertype: any;
-  crackerversions: any = [];
-  createForm: FormGroup;
+  /** Form group for the new SuperHashlist. */
+  form: FormGroup;
 
+  /** Select Options. */
+  selectHashlists: any;
+  selectCrackertype: any;
+  selectCrackerversions: any = [];
+
+  /** Select Options Mapping */
+  selectCrackertypeMap = {
+    fieldMapping: {
+      name: 'typeName',
+      _id: 'crackerBinaryTypeId'
+    }
+  };
+  selectCrackervMap = {
+    fieldMapping: {
+      name: 'version',
+      _id: 'crackerBinaryId'
+    }
+  };
+
+  // Get SuperTask Index
+  editedIndex: number;
+
+  /**
+   * Constructor for the ApplyHashlistComponent.
+   * Initializes and sets up necessary services, properties, and the form.
+   *
+   * @param {UnsubscribeService} unsubscribeService - The service responsible for managing subscriptions.
+   * @param {ChangeDetectorRef} changeDetectorRef - The reference to the Angular ChangeDetectorRef.
+   * @param {AutoTitleService} titleService - The service responsible for setting the page title.
+   * @param {ActivatedRoute} route - The Angular ActivatedRoute service for accessing route parameters.
+   * @param {AlertService} alert - The service for displaying alert messages.
+   * @param {GlobalService} gs - The service providing global functionality.
+   * @param {Router} router - The Angular Router service for navigation.
+   * @returns {void}
+   */
   constructor(
-    private _changeDetectorRef: ChangeDetectorRef,
-    private route:ActivatedRoute,
+    private unsubscribeService: UnsubscribeService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private titleService: AutoTitleService,
+    private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router
-  ) { }
+  ) {
+    this.onInitialize();
+    this.buildForm();
+    titleService.set(['Apply Hashlist']);
+  }
 
+  /**
+   * Initializes the component by extracting and setting the user ID,
+   */
+  onInitialize() {
+    this.route.params.subscribe((params: Params) => {
+      this.editedIndex = +params['id'];
+      this.initForm();
+    });
+  }
 
+  /**
+   * Lifecycle hook called after component initialization.
+   */
   ngOnInit(): void {
-    this.route.params
-    .subscribe(
-      (params: Params) => {
-        this.Index = +params['id'];
-        this.initForm();
-      }
-    );
-
-    this.createForm = new FormGroup({
-      "supertaskTemplateId":  new FormControl(this.Index),
-      'hashlistId': new FormControl(),
-      "crackerVersionId": new FormControl(),
-    });
-
+    this.initForm();
   }
 
-  initForm(){
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+  }
 
-    this.gs.getAll(SERV.TASKS_WRAPPER,{'maxResults': this.maxResults}).subscribe((crackers) => {})
+  /**
+   * Builds the form for creating a new SuperHashlist.
+   */
+  buildForm(): void {
+    this.form = new FormGroup({
+      supertaskTemplateId: new FormControl(),
+      hashlistId: new FormControl(),
+      crackerBinaryId: new FormControl(),
+      crackerBinaryTypeId: new FormControl()
+    });
+  }
 
-    this.createForm = new FormGroup({
-      "supertaskTemplateId":  new FormControl(this.Index),
-      'hashlistId': new FormControl(),
-      "crackerVersionId": new FormControl(),
+  /**
+   * Initializes the form for creating a new SuperHashlist.
+   * Sets up form controls with default values and subscribes to changes for handling select cracker binary.
+   * Loads necessary data.
+   *
+   * @returns {void}
+   */
+  initForm() {
+    this.form = new FormGroup({
+      supertaskTemplateId: new FormControl(this.editedIndex),
+      hashlistId: new FormControl(),
+      crackerBinaryId: new FormControl(null || 1),
+      crackerBinaryTypeId: new FormControl()
     });
 
-    this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((crackers) => {
-      this.crackertype = crackers.values;
-      let crackerBinaryTypeId = '';
-      if(this.crackertype.find(obj => obj.typeName === 'hashcat').crackerBinaryTypeId){
-        crackerBinaryTypeId = this.crackertype.find(obj => obj.typeName === 'hashcat').crackerBinaryTypeId;
-      }else{
-        crackerBinaryTypeId = this.crackertype.slice(-1)[0]['crackerBinaryTypeId'];
-      }
-      this.gs.getAll(SERV.CRACKERS,{'maxResults': this.maxResults,'filter': 'crackerBinaryTypeId='+crackerBinaryTypeId+'' }).subscribe((crackers) => {
-        this.crackerversions = crackers.values;
-        const lastItem = this.crackerversions.slice(-1)[0]['crackerBinaryId'];
-        this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
+    //subscribe to changes to handle select cracker binary
+    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+      this.handleChangeBinary(newvalue);
+      console.log('here');
+    });
+
+    this.loadData();
+  }
+
+  /**
+   * Loads necessary data for the form, such as Hashlists, Cracker Types, and Crackers.
+   * Populates select options for Hashlists, Cracker Types, and Crackers.
+   * Handles subscriptions and updates form controls accordingly.
+   *
+   * @returns {void}
+   */
+  loadData() {
+    // Load Hahslists Select Options
+    const loadHashlistsSubscription$ = this.gs
+      .getAll(SERV.HASHLISTS, {
+        filter: 'isArchived=false,format=0'
       })
-    });
+      .subscribe((response: ListResponseWrapper<Hashlist>) => {
+        this.selectHashlists = response.values;
+        this.isLoading = false;
+        this.changeDetectorRef.detectChanges();
+      });
+    this.unsubscribeService.add(loadHashlistsSubscription$);
 
-  }
-
-  ngAfterViewInit() {
-
-    const params = {'maxResults': this.maxResults};
-
-    this.gs.getAll(SERV.HASHLISTS,params).subscribe((hlist: any) => {
-      const self = this;
-      const response = hlist.values;
-      ($("#hashlist") as any).selectize({
-        plugins: ['remove_button'],
-        preload: true,
-        create: false,
-        valueField: "hashlistId",
-        placeholder: "Search hashlist...",
-        labelField: "name",
-        searchField: ["name"],
-        loadingClass: 'Loading...',
-        highlight: true,
-        onChange: function (value) {
-          self.OnChangeHashlist(value);
-        },
-        render: {
-          option: function (item, escape) {
-            return '<div  class="style_selectize">' + escape(item.hashlistId) + ' -  ' + escape(item.name) + '</div>';
-          },
-        },
-        onInitialize: function(){
-            const selectize = this;
-            selectize.addOption(response);
-            const selected_items = [];
-            $.each(response, function( i, obj) {
-                selected_items.push(obj.id);
-            });
-            selectize.setValue(selected_items);
-          },
+    // Load Cracker Types and Crackers Select Options
+    const loadCrackerTypesSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES)
+      .subscribe((response) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          this.selectCrackertypeMap
+        );
+        this.selectCrackertype = transformedOptions;
+        let id = '';
+        if (this.selectCrackertype.find((obj) => obj.name === 'hashcat')._id) {
+          id = this.selectCrackertype.find((obj) => obj.name === 'hashcat')._id;
+        } else {
+          id = this.selectCrackertype.slice(-1)[0]['_id'];
+        }
+        const loadCrackersSubscription$ = this.gs
+          .getAll(SERV.CRACKERS, {
+            filter: 'crackerBinaryTypeId=' + id + ''
+          })
+          .subscribe((response) => {
+            const transformedOptions = transformSelectOptions(
+              response.values,
+              this.selectCrackervMap
+            );
+            this.selectCrackerversions = transformedOptions;
+            const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
+            this.form.get('crackerBinaryTypeId').patchValue(lastItem);
           });
+        this.unsubscribeService.add(loadCrackersSubscription$);
       });
 
+    this.unsubscribeService.add(loadCrackerTypesSubscription$);
   }
 
-  OnChangeHashlist(value){
-    this.createForm.patchValue({
-      hashlistId: Number(value)
-    });
-    // this._changeDetectorRef.detectChanges();
+  /**
+   * Handles the change event for the Cracker Binary select control.
+   * Loads and updates the list of Cracker Versions based on the selected Cracker Binary ID.
+   * Subscribes to the corresponding API request and updates the form control accordingly.
+   *
+   * @param {string} id - The selected Cracker Binary ID.
+   * @returns {void}
+   */
+  handleChangeBinary(id: string) {
+    const onChangeBinarySubscription$ = this.gs
+      .getAll(SERV.CRACKERS, { filter: 'crackerBinaryTypeId=' + id + '' })
+      .subscribe((response: any) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          this.selectCrackervMap
+        );
+        this.selectCrackerversions = transformedOptions;
+        const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
+        this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+      });
+    this.unsubscribeService.add(onChangeBinarySubscription$);
   }
 
-  onChangeBinary(id: string){
-    const params = {'filter': 'crackerBinaryTypeId='+id+''};
-    this.gs.getAll(SERV.CRACKERS,params).subscribe((crackers: any) => {
-      this.crackerversions = crackers.values;
-      const lastItem = this.crackerversions.slice(-1)[0]['crackerBinaryId'];
-      this.createForm.get('crackerVersionId').patchValue(lastItem);
-    });
+  /**
+   * OnSubmit save changes
+   */
+  onSubmit() {
+    const formValue = this.form.value;
+
+    // Adapt the form structure
+    const adaptedFormValue = {
+      supertaskTemplateId: formValue.supertaskTemplateId,
+      hashlistId: formValue.hashlistId,
+      crackerVersionId: formValue.crackerBinaryTypeId
+    };
+
+    const onSubmitSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'createSupertask', adaptedFormValue)
+      .subscribe(() => {
+        this.alert.okAlert('New SuperTask created!', '');
+        this.form.reset();
+        this.router.navigate(['tasks/show-tasks']);
+      });
+
+    this.unsubscribeService.add(onSubmitSubscription$);
   }
-
-  onSubmit(){
-    this.gs.chelper(SERV.HELPER,'createSupertask', this.createForm.value).subscribe(() => {
-      this.alert.okAlert('New SuperTask created!','');
-      this.createForm.reset();
-      this.router.navigate(['tasks/show-tasks']);
-      }
-    );
-  }
-
-
 }

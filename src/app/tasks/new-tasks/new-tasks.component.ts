@@ -101,6 +101,22 @@ export class NewTasksComponent implements OnInit {
 
   public allfiles: any;
 
+  /**
+   * Constructor for the Component.
+   * Initializes and sets up necessary services, properties, and components.
+   *
+   * @param {UnsubscribeService} unsubscribeService - The service responsible for managing subscriptions.
+   * @param {ChangeDetectorRef} changeDetectorRef - The reference to the Angular ChangeDetectorRef.
+   * @param {AutoTitleService} titleService - The service responsible for setting the page title.
+   * @param {TooltipService} tooltipService - The service responsible for managing tooltips.
+   * @param {UIConfigService} uiService - The service providing UI configuration.
+   * @param {ActivatedRoute} route - The Angular ActivatedRoute service for accessing route parameters.
+   * @param {AlertService} alert - The service for displaying alert messages.
+   * @param {GlobalService} gs - The service providing global functionality.
+   * @param {MatDialog} dialog - The Angular Material Dialog service for creating dialogs.
+   * @param {Router} router - The Angular Router service for navigation.
+   * @returns {void}
+   */
   constructor(
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -182,7 +198,7 @@ export class NewTasksComponent implements OnInit {
       files: new FormControl('' || [])
     });
 
-    //subscribe to changes to handle select salted hashes
+    //subscribe to changes to handle select cracker binary
     this.createForm
       .get('crackerBinaryId')
       .valueChanges.subscribe((newvalue) => {
