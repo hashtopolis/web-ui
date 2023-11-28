@@ -1,30 +1,22 @@
-<div [ngSwitch]="whichView">
-  <div *ngSwitchCase="'create'">
-    <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
-  </div>
-  <div *ngSwitchCase="'edit'">
-    <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
-  </div>
-</div>
-<!-- New Task End-->
-<div class="row g-3">
-  <div class="col-md-7">
-    <grid-main [class]="'width:100%'">
+<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
+  <div fxFlex="70" fxFlex.lt-md="100">
+    <grid-main>
+      <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
 
         <input-text title="Name" formControlName="taskName"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
 
-        <grid-form-input [name]="'Hashlist'" [labelclass]="'requiredak'">
-          <select
-                type='number'
-                id='hashlist'
-                class='form-select'
-                formControlName="hashlistId"
-            >
-            <option></option>
-        </select>
-        </grid-form-input>
+        <input-multiselect
+          [isLoading]="isLoading"
+          [placeholder]="'Hashlists...'"
+          [items]="selectHashlists"
+          [label]="'Select or search Hashlists:'"
+          [mergeIdAndName]="true"
+          [multiselectEnabled]="false"
+          formControlName="hashlistIds"
+          style="flex: 1;"
+        ></input-multiselect>
 
         <div>
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
@@ -75,69 +67,18 @@
 
               </div>
               <hr>
-              <div class="row">
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-                <div class="col">
+                <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
+                <input-select title="Binary type version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions"></input-select>
 
-                  <grid-form-input [name]="'Binary type to run task'" [labelclass]="'display-col'">
-                    <select
-                          type='number'
-                          id='crackerBinaryId'
-                          class='form-select'
-                          #myBinary
-                          (change)="onChangeBinary(myBinary.value)"
-                          formControlName="crackerBinaryId">
-                    <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
-                  </select>
-                  </grid-form-input>
-                </div>
-                <div class="col">
-                  <grid-form-input [name]="'Binary type version'" [labelclass]="'display-col'">
-                    <select
-                          type='number'
-                          id='crackerBinaryTypeId'
-                          class='form-select'
-                          formControlName="crackerBinaryTypeId"
-                        >
-                        <!-- <option [ngValue]=""  disabled="true">--<option> -->
-                        <option *ngFor="let cv of crackerversions" [value]="cv.crackerBinaryId">{{ cv.version }}</option>
-                    </select>
-                  </grid-form-input>
-                </div>
               </div>
               <hr/>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <grid-form-input [name]="'Set Preprocessor'" [tooltip]="tasktip.preprocessorId"  [labelclass]="'display-col'">
-                    <select
-                          type='number'
-                          id='preprocessorId'
-                          class='form-select'
-                          formControlName="preprocessorId"
-                        >
-                        <option [ngValue]="0" [defaultSelected]=true>No</option>
-                        <option *ngFor="let p of prep" [ngValue]="p.preprocessorId">{{ p.name }}</option>
-                    </select>
-                  </grid-form-input>
-                </div>
-                <div class="col-md-8">
-                  <div class="form-group">
-                    <div class="form-outline form-input-custom">
-                        <label class="form-label display-col" for="getPreprocessorCommand">
-                          Preprocessor command
-                          <span *ngIf="createForm.controls['preprocessorId'].value !== 0" [ngStyle]="{'color':'#88315e'}">&#9673;</span>
-                        </label>
-                        <textarea
-                              type='text'
-                              id="preprocessorCommand"
-                              class='form-control'
-                              formControlName="preprocessorCommand"
-                              #cmdPreAttack
-                        >
-                        </textarea>
-                    </div>
-                  </div>
-                </div>
+              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+                  <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
+                  <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
+
               </div>
             </mat-expansion-panel>
           </mat-accordion>
@@ -149,8 +90,8 @@
       </form>
     </grid-main>
   </div>
+  <div fxFlex="30" fxFlex.lt-md="100">
   <!-- TABLES -->
-  <div class="col-md-5">
     <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
       <ngb-panel id="panel0">
         <ng-template ngbPanelTitle>
@@ -161,7 +102,7 @@
             <thead class="thead-light">
                 <tr>
                   <th class="rounded-start">
-                    T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
+                    T<a *ngIf="createForm.controls['preprocessorId'].value !== null">|P
                       <fa-icon
                               placement="bottom"
                               ngbTooltip='T: Task, P: Preprocessor'

@@ -29,6 +29,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class InputSelectComponent extends AbstractInputComponent<any> {
   @Input() items: any[];
+  @Input() isBlankOptionDisabled = false;
 
   constructor() {
     super();

@@ -104,3 +104,39 @@ export function randomColor() {
     rgb[2]
   )}`;
 }
+
+/**
+ * Compare two version strings.
+ *
+ * @param {Object} a - The first version object with a 'version' property.
+ * @param {string} a.version - The version string to compare.
+ * @param {Object} b - The second version object with a 'version' property.
+ * @param {string} b.version - The version string to compare.
+ * @returns {number} - Returns -1 if version A is less than version B,
+ *                    1 if version A is greater than version B,
+ *                    or 0 if both versions are equal.
+ *
+ * @example
+ * const result = compareVersions({ version: '1.2.3' }, { version: '1.2.4' });
+ * console.log(result); // Output: -1
+ */
+export function compareVersions(a, b): number {
+  // Split the version strings into arrays of integers
+  const versionA = a.version.split('.').map(Number);
+  const versionB = b.version.split('.').map(Number);
+
+  // Compare each segment of the version numbers
+  for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+    const partA = versionA[i] || 0;
+    const partB = versionB[i] || 0;
+
+    if (partA < partB) {
+      return -1;
+    } else if (partA > partB) {
+      return 1;
+    }
+  }
+
+  // If all segments are equal, return 0
+  return 0;
+}

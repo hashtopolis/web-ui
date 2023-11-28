@@ -16,6 +16,7 @@
             [(ngModel)]="value"
             (selectionChange)="onChangeValue($event.value)"
             >
+    <mat-option value="null" *ngIf="isBlankOptionDisabled">Disabled</mat-option>
     <mat-option *ngFor="let item of items" [value]="item._id">
       {{ item.name }}
     </mat-option>

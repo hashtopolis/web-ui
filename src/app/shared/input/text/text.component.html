@@ -20,6 +20,7 @@
     [(ngModel)]="value"
     (ngModelChange)="onChange(value)"
     [pattern]="pattern"
+    [type]="inputType"
   />
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
   <mat-error *ngIf="error">{{ error }}</mat-error>
