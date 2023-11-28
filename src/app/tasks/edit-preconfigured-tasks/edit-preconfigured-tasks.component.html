@@ -1,76 +1,42 @@
-
-<div class="row g-3">
-  <div class="col-md-7">
+<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
+  <div fxFlex="60" fxFlex.lt-md="100">
     <grid-main>
       <app-page-title [title]="'Edit Preconfigured Tasks'" [subbutton]="false"></app-page-title>
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-        <div class="row">
 
             <input-text title="ID" formControlName="pretaskId" [disabled]="true"></input-text>
 
             <div formGroupName="updateData">
 
               <input-text title="Name" formControlName="taskName"></input-text>
-
-
               <input-color title="Color" formControlName="color"></input-color>
-
-
               <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
 
-              <div class="row g-3">
-                <div class="col-md-4">
+            </div>
+            <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <input-number title="Priority" formControlName="priority"></input-number>
+              <input-number title="Max agents" formControlName="maxAgents"></input-number>
+              <input-number title="Measure is in seconds time." formControlName="chunkTime"></input-number>
+              <input-select title="The task will work only with CPU agents assigned" formControlName="isCpuTask" [items]="selectYesno"></input-select>
+              <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
 
-                  <input-number title="Priority" formControlName="priority"></input-number>
-
-                </div>
-                <div class="col-md-4">
-
-                  <input-number title="Max agents" formControlName="maxAgents"></input-number>
-
-                </div>
-                <div class="col-md-4">
-
-                  <input-number title="Measure is in seconds time." formControlName="chunkTime"></input-number>
-
-                </div>
-              </div>
-              <div class="row">
-                <div class="col">
-
-                  <input-select title="The task will work only with CPU agents assigned" formControlName="isCpuTask" [items]="selectYesno"></input-select>
-
-                </div>
-                <div class="col">
-
-                  <input-select title="Small task" formControlName="isSmall" [items]="selectYesno"></input-select>
-
-                </div>
-              </div>
           </div>
-          <div class="row">
-            <div class="col">
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
               <input-text title="Benchmark Type" formControlName="useNewBench" [disabled]="true"></input-text>
-
-            </div>
-            <div class="col">
-
               <input-text title="Status timer" formControlName="statusTimer" [disabled]="true"></input-text>
 
-            </div>
           </div>
 
           <grid-buttons>
             <button-submit [name]="'Update'"></button-submit>
           </grid-buttons>
 
-        </div>
       </form>
 
     </grid-main>
   </div>
-  <div class="col-md-5">
+  <div fxFlex="40" fxFlex.lt-md="100">
     <!-- Table -->
     <app-table>
       <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
