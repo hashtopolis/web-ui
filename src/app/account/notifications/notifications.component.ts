@@ -1,4 +1,9 @@
-import { faTrash, faPlus, faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEdit,
+  faEye,
+  faPlus,
+  faTrash
+} from '@fortawesome/free-solid-svg-icons';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { DataTableDirective } from 'angular-datatables';
@@ -13,8 +18,8 @@ import { Notification } from 'src/app/core/_models/notification.model';
 import { SERV } from '../../core/_services/main.config';
 
 export interface Filter {
-  id: number,
-  name: string
+  _id: number;
+  name: string;
 }
 
 declare let $: any;
@@ -24,7 +29,6 @@ declare let $: any;
   templateUrl: './notifications.component.html'
 })
 export class NotificationsComponent implements OnInit, OnDestroy {
-
   faTrash = faTrash;
   faPlus = faPlus;
   faEdit = faEdit;
@@ -41,7 +45,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   notifications: Notification[];
 
   // Subscriptions to unsubscribe on component destruction
-  subscriptions: Subscription[] = []
+  subscriptions: Subscription[] = [];
 
   private maxResults = environment.config.prodApiMaxResults;
 
@@ -50,7 +54,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     private alert: AlertService,
     private gs: GlobalService
   ) {
-    titleService.set(['Notifications'])
+    titleService.set(['Notifications']);
   }
 
   /**
@@ -103,12 +107,16 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * Subscribes to the API response and updates the notifications list.
    */
   getNotifications(): void {
-    const params = { 'maxResults': this.maxResults };
+    const params = { maxResults: this.maxResults };
 
-    this.subscriptions.push(this.gs.getAll(SERV.NOTIFICATIONS, params).subscribe((response: NotificationListResponse) => {
-      this.notifications = response.values;
-      this.dtTrigger.next(void 0);
-    }));
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.NOTIFICATIONS, params)
+        .subscribe((response: NotificationListResponse) => {
+          this.notifications = response.values;
+          this.dtTrigger.next(void 0);
+        })
+    );
   }
 
   /**
@@ -130,7 +138,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       buttons: {
         dom: {
           button: {
-            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
+            className:
+              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
           }
         },
         buttons: [
@@ -149,7 +158,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
                 extend: 'excelHtml5',
                 exportOptions: {
                   columns: [0, 1, 2, 3, 4]
-                },
+                }
               },
               {
                 extend: 'print',
@@ -157,9 +166,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
                   columns: [0, 1, 2, 3, 4]
                 },
                 customize: function (win) {
+                  $(win.document.body).css('font-size', '10pt');
                   $(win.document.body)
-                    .css('font-size', '10pt')
-                  $(win.document.body).find('table')
+                    .find('table')
                     .addClass('compact')
                     .css('font-size', 'inherit');
                 }
@@ -177,7 +186,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
                 }
               },
               {
-                extend: 'copy',
+                extend: 'copy'
               }
             ]
           },
@@ -198,16 +207,16 @@ export class NotificationsComponent implements OnInit, OnDestroy {
             extend: 'pageLength',
             className: 'btn-sm'
           }
-        ],
+        ]
       }
-    }
+    };
   }
 
   // Refresh the table after a delete operation
   onRefreshTable() {
     setTimeout(() => {
       this.ngOnInit();
-      this.rerender();  // Rerender the DataTable
+      this.rerender(); // Rerender the DataTable
     }, 2000);
   }
 
@@ -222,11 +231,13 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.alert.deleteConfirmation(name, 'Notifications').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        this.subscriptions.push(this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
-          // Successful deletion
-          this.alert.okAlert(`Deleted notification ${name}`, '');
-          this.onRefreshTable(); // Refresh the table
-        }));
+        this.subscriptions.push(
+          this.gs.delete(SERV.NOTIFICATIONS, id).subscribe(() => {
+            // Successful deletion
+            this.alert.okAlert(`Deleted notification ${name}`, '');
+            this.onRefreshTable(); // Refresh the table
+          })
+        );
       } else {
         // Handle cancellation
         this.alert.okAlert(`Notification ${name} is safe!`, '');
@@ -242,13 +253,18 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * @returns {number[]} - An array of selected hashlist IDs.
    */
   onSelectedNotifications() {
-    $(".dt-button-background").trigger("click");
-    const selection = $($(this.dtElement).DataTable.tables()).DataTable().rows({ selected: true }).data().pluck(0).toArray();
+    $('.dt-button-background').trigger('click');
+    const selection = $($(this.dtElement).DataTable.tables())
+      .DataTable()
+      .rows({ selected: true })
+      .data()
+      .pluck(0)
+      .toArray();
     if (selection.length == 0) {
       this.alert.okAlert('You have not selected any Notification', '');
       return;
     }
-    const selectionnum = selection.map(i => Number(i));
+    const selectionnum = selection.map((i) => Number(i));
 
     return selectionnum;
   }
@@ -257,7 +273,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
    * Handles bulk deletion
    * Delete the Notifications showing a progress bar
    *
-  */
+   */
   async onDeleteBulk() {
     const NotifIds = this.onSelectedNotifications();
     this.alert.bulkDeleteAlert(NotifIds, 'Notifications', SERV.NOTIFICATIONS);
@@ -279,36 +295,39 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
       case ACTION.DELETE_AGENT:
-        title = 'Agent:'
+        title = 'Agent:';
         path = '/agents/show-agents/';
         break;
 
       case ACTION.NEW_TASK:
       case ACTION.TASK_COMPLETE:
       case ACTION.DELETE_TASK:
-        title = 'Task:'
+        title = 'Task:';
         path = '/tasks/show-tasks/';
         break;
 
       case ACTION.DELETE_HASHLIST:
       case ACTION.HASHLIST_ALL_CRACKED:
       case ACTION.HASHLIST_CRACKED_HASH:
-        title = 'Hashlist:'
+        title = 'Hashlist:';
         path = '/hashlists/hashlist/';
         break;
 
       case ACTION.USER_CREATED:
       case ACTION.USER_DELETED:
       case ACTION.USER_LOGIN_FAILED:
-        title = 'User:'
+        title = 'User:';
         path = '/users/';
         break;
 
       default:
-        title = ''
+        title = '';
         path = 'none';
-
     }
-    if (type) { return path; } else { return title; }
+    if (type) {
+      return path;
+    } else {
+      return title;
+    }
   }
 }
