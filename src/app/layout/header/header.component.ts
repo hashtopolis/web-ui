@@ -20,6 +20,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
 
+  // Before showing header check Authentification
+  private userSub: Subscription;
+  isAuthentificated = false;
+
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
   isDarkMode = false;
@@ -29,9 +33,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private storage: LocalStorageService<UIConfig>
   ) {
+    this.isAuth();
     this.rebuildMenu();
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
+  }
+
+  isAuth(): void {
+    this.userSub = this.authService.user.subscribe((user) => {
+      this.isAuthentificated = !!user;
+    });
   }
 
   ngOnInit(): void {
@@ -49,6 +60,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+    this.userSub.unsubscribe();
   }
 
   menuItemClicked(event: ActionMenuEvent<any>): void {
