@@ -225,6 +225,26 @@ progress::-webkit-progress-value {
   margin-bottom: 16px;
 }
 
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  a {
+    text-align: center;
+  }
+  img {
+    display: block;
+    margin: auto;
+  }
+}
+
+.forgot-password-link {
+  text-align: right;
+}
+
 .card-login-field {
   width: 100%;
   margin-bottom: 16px;

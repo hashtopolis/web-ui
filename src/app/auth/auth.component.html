@@ -1,23 +1,41 @@
 <div class="login-container">
   <mat-card class="login-card">
+    <div class="login-logo-container">
+      <a routerLink="/"
+        ><img
+          [src]="
+            isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo
+          "
+          [alt]="headerConfig.brand.name"
+          [width]="90"
+          [height]="90"
+          alt="Hashtopolis"
+      /></a>
+    </div>
     <mat-card-content>
-      <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" novalidate>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
-        <!-- Username field -->
         <mat-form-field appearance="fill" class="card-login-field">
           <mat-label>Username</mat-label>
-          <input matInput type="text" ngModel name="username" required />
+          <input
+                matInput
+                type="text"
+                placeholder="User Name"
+                formControlName="username"
+                aria-describedby="username-error"
+                />
+          <mat-hint *ngIf="loginForm.controls['username'].errors">User Name is required</mat-hint>
         </mat-form-field>
 
-        <!-- Password field -->
         <mat-form-field appearance="fill" class="card-login-field">
           <mat-label>Password</mat-label>
           <input
             matInput
             type="{{ isVisible ? 'password' : 'text' }}"
-            ngModel
-            name="password"
-            required
+            placeholder="Password"
+            formControlName="password"
+            (keydown.enter)="$event.preventDefault(); onSubmit()"
+            aria-describedby="password-error"
           />
           <button
             mat-icon-button
@@ -30,21 +48,21 @@
               isVisible ? 'visibility_off' : 'visibility'
             }}</mat-icon>
           </button>
+          <mat-hint *ngIf="loginForm.controls['password'].errors">Password is required</mat-hint>
         </mat-form-field>
 
-        <!-- Login button -->
-        <button mat-raised-button color="primary" type="submit">
-          Login
-        </button>
+        <grid-buttons>
+          <button-submit [name]="'Login'"></button-submit>
+        </grid-buttons>
+
+        <div class="forgot-password-link">
+          <a routerLink="forgot">Forgot your password?</a>
+        </div>
 
       </form>
     </mat-card-content>
   </mat-card>
 
-  <!-- Alert card -->
-  <mat-card class="mat-card-alert">
-    <mat-card-content>
-      This is a private closed system. If you need access, you need to contact an admin.
-    </mat-card-content>
-  </mat-card>
+  <fixed-alert message="This is a private closed system. If you need access, you need to contact an admin."></fixed-alert>
+
 </div>
