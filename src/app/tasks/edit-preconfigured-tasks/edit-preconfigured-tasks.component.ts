@@ -14,6 +14,7 @@ import { SERV } from '../../core/_services/main.config';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { OnDestroy } from '@angular/core';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -22,7 +23,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
   selector: 'app-edit-preconfigured-tasks',
   templateUrl: './edit-preconfigured-tasks.component.html'
 })
-export class EditPreconfiguredTasksComponent implements OnInit {
+export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -156,47 +157,42 @@ export class EditPreconfiguredTasksComponent implements OnInit {
    * This method retrieves the pre-task data from the server and updates the form controls accordingly.
    */
   private updateFormValues() {
-    this.gs.get(SERV.PRETASKS, this.editedPretaskIndex).subscribe((result) => {
-      this.pretask = result;
-      this.updateForm = new FormGroup({
-        pretaskId: new FormControl({
-          value: result['pretaskId'],
-          disabled: true
-        }),
-        statusTimer: new FormControl({
-          value: result['statusTimer'],
-          disabled: true
-        }),
-        useNewBench: new FormControl({
-          value: result['useNewBench'],
-          disabled: true
-        }),
-        updateData: new FormGroup({
-          taskName: new FormControl(result['taskName'], Validators.required),
-          attackCmd: new FormControl(result['attackCmd'], Validators.required),
-          chunkTime: new FormControl(result['chunkTime']),
-          color: new FormControl(result['color']),
-          priority: new FormControl(result['priority']),
-          maxAgents: new FormControl(result['maxAgents']),
-          isCpuTask: new FormControl(result['isCpuTask'], Validators.required),
-          isSmall: new FormControl(result['isSmall'], Validators.required)
-        })
+    const loadSubscription$ = this.gs
+      .get(SERV.PRETASKS, this.editedPretaskIndex)
+      .subscribe((result) => {
+        this.pretask = result;
+        this.updateForm = new FormGroup({
+          pretaskId: new FormControl({
+            value: result['pretaskId'],
+            disabled: true
+          }),
+          statusTimer: new FormControl({
+            value: result['statusTimer'],
+            disabled: true
+          }),
+          useNewBench: new FormControl({
+            value: result['useNewBench'],
+            disabled: true
+          }),
+          updateData: new FormGroup({
+            taskName: new FormControl(result['taskName'], Validators.required),
+            attackCmd: new FormControl(
+              result['attackCmd'],
+              Validators.required
+            ),
+            chunkTime: new FormControl(result['chunkTime']),
+            color: new FormControl(result['color']),
+            priority: new FormControl(result['priority']),
+            maxAgents: new FormControl(result['maxAgents']),
+            isCpuTask: new FormControl(
+              result['isCpuTask'],
+              Validators.required
+            ),
+            isSmall: new FormControl(result['isSmall'], Validators.required)
+          })
+        });
+        this.unsubscribeService.add(loadSubscription$);
       });
-    });
-  }
-
-  getFileEdit(value: any) {
-    if (value == 0) {
-      return 'wordlist-edit';
-    }
-    if (value == 1) {
-      return 'rules-edit';
-    }
-    if (value == 2) {
-      return 'other-edit';
-    } else {
-      return 'error';
-    }
   }
 
   // TABLES CODE
