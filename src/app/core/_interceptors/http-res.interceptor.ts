@@ -13,7 +13,6 @@ import {
   retry,
   throwError
 } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -31,7 +30,6 @@ export class HttpResInterceptor implements HttpInterceptor {
 
   constructor(
     public authService: AuthService,
-    private modalService: NgbModal, // Keep NgbModal for now
     private dialog: MatDialog,
     public ls: LoadingService,
     private router: Router
@@ -47,48 +45,44 @@ export class HttpResInterceptor implements HttpInterceptor {
       retry(1),
       finalize(this.finalize.bind(this)),
       catchError((error: HttpErrorResponse) => {
+        // Inside the catchError block
         let errmsg = '';
-        if (error.error instanceof ErrorEvent) {
-          const err = error?.error.message || 'Unknown API error';
-          errmsg = `Client Side Error: ${err}`;
-        } else {
-          if (error.status === 0) {
-            alert(`Unable to Connect to the Server: ` + error.message);
-          }
-          if (error.status === 401) {
-            if (!req.url.includes('/auth')) {
-              const token = this.authService.token;
-              const userData: { _expires: string } = JSON.parse(
-                localStorage.getItem('userData')
-              );
-              if (
-                token !== 'notoken' &&
-                new Date(userData._expires) < new Date(Date.now() - 60000)
-              ) {
-                this.isRefresh(req);
-              } else {
-                errmsg = `${error.error.title}`;
-              }
+        let status = 0;
+
+        if (error.status === 401) {
+          if (!req.url.includes('/auth')) {
+            const token = this.authService.token;
+            const userData: { _expires: string } = JSON.parse(
+              localStorage.getItem('userData')
+            );
+            if (
+              token !== 'notoken' &&
+              new Date(userData._expires) < new Date(Date.now() - 60000)
+            ) {
+              this.isRefresh(req);
             } else {
               errmsg = `${error.error.title}`;
+              status = error?.status || 0;
             }
+          } else {
+            errmsg = `${error.error.title}`;
+            status = error?.status || 0;
           }
-          if (error.status === 403) {
-            errmsg = `You don't have permissions. Please contact your Administrator.`;
-          }
-          if (error.status === 404 && !req.url.includes('config.json')) {
-            errmsg = `The requested URL was not found.`;
-          }
-          // if(error.status !== 404 && error.status !== 403 && error.status !== 401 && error.status >= 300){
-          //   this.router.navigate(['error']);
-          // }
-          else {
-            errmsg = error.error.exception[0].message;
-          }
+        } else if (error.status === 403) {
+          errmsg = `You don't have permissions. Please contact your Administrator.`;
+          status = error?.status || 0;
+        } else if (error.status === 404 && !req.url.includes('config.json')) {
+          errmsg = `The requested URL was not found.`;
+          status = error?.status || 0;
+        } else {
+          errmsg = error.error.exception[0].message;
+          status = error?.status || 0;
         }
-        this.dialog.open(ErrorModalComponent, {
-          data: { status: error?.status, message: errmsg }
+
+        this.modalRef = this.dialog.open(ErrorModalComponent, {
+          data: { status, message: errmsg }
         });
+
         return throwError(() => errmsg);
       })
     );

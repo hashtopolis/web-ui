@@ -30,6 +30,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { InputModule } from './input/input.module';
 import { FormsModule } from '@angular/forms';
 import { CoreFormsModule } from './forms.module';
+import { AlertNavModule } from './alert/alert.module';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { CoreFormsModule } from './forms.module';
     CoreFormsModule,
     PageTitleModule,
     FlexLayoutModule,
+    AlertNavModule,
     ButtonsModule,
     LottiesModule,
     GraphsModule,
@@ -86,6 +88,7 @@ import { CoreFormsModule } from './forms.module';
     TimeoutComponent,
     PageTitleModule,
     AlertComponent,
+    AlertNavModule,
     ButtonsModule,
     LottiesModule,
     GraphsModule,

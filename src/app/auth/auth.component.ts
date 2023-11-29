@@ -96,13 +96,11 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     const authSubscription$ = authObs.subscribe(
       (resData) => {
-        this.ngZone.run(() => {
-          this.handleSuccessfulLogin(resData);
-          this.loginForm.reset();
-        });
+        this.handleSuccessfulLogin(resData);
+        this.loginForm.reset();
       },
-      (errorMessage) => {
-        this.handleError(errorMessage);
+      (error) => {
+        this.handleError('An error occurred. Please try again later.');
       }
     );
 
@@ -122,6 +120,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   private handleError(errorMessage: string): void {
     this.errorRes = errorMessage;
+    console.log(this.errorRes);
   }
 
   onHandleError() {

@@ -1,16 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-timeout',
-  templateUrl: './error.component.html',
-  standalone: true,
-  imports: [MatButtonModule, MatDialogModule]
+  templateUrl: './error.component.html'
 })
 export class ErrorModalComponent {
   message: any;
