@@ -2,7 +2,7 @@
 
   <app-page-subtitle subtitle="Create SuperTask"></app-page-subtitle>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutAlign="start start">
 
     <input-text title="Name" formControlName="supertaskName" [error]="error?.name"></input-text>
 

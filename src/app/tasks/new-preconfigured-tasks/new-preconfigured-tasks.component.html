@@ -1,13 +1,13 @@
 <div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
   <div fxFlex="60" fxFlex.lt-md="100">
-    <div>
-      <app-page-subtitle *ngIf="whichView === 'create'" [subtitle]="'New Preconfigured Tasks'"></app-page-subtitle>
-      <div *ngIf="whichView === 'edit' || whichView === 'task'">
-        <h2 class="h5 mb-4">New Preconfigured Tasks <small>(Copied From {{whichView === 'edit' ? 'Pretask' : 'Task'}} ID {{editedIndex}})</small></h2>
-        <br>
-      </div>
-    </div>
     <grid-main>
+        <div>
+          <app-page-subtitle *ngIf="whichView === 'create'" [subtitle]="'New Preconfigured Tasks'"></app-page-subtitle>
+          <div *ngIf="whichView === 'edit' || whichView === 'task'">
+            <h2 class="h5 mb-4">New Preconfigured Tasks <small>(Copied From {{whichView === 'edit' ? 'Pretask' : 'Task'}} ID {{editedIndex}})</small></h2>
+            <br>
+          </div>
+        </div>
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
           <div>
 
@@ -43,6 +43,7 @@
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'"></button-submit>
       </grid-buttons>
+
     </form>
   </grid-main>
 </div>

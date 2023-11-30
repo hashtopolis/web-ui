@@ -10,25 +10,26 @@
 
             <input-text title="Name" formControlName="name"></input-text>
 
-            <input-text title="Notes" formControlName="notes"></input-text>
+            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-            <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+              <input-text title="Notes" formControlName="notes"></input-text>
+              <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+              <input-check title="isSecret" formControlName="notes" tooltip="Contains secret data"></input-check>
 
-            <input-check title="isSecret" formControlName="notes" tooltip="Contains secret data"></input-check>
+            </div>
 
           </div>
 
-          <simulate-form-field label="Hash Type"  message="{{ hashtype.hashTypeId }} - {{ hashtype.description }}"></simulate-form-field>
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-          <input-text title="Using hashcat brain" formControlName="useBrain" [disabled]="true"></input-text>
+            <simulate-form-field label="Hash Type"  message="{{ hashtype.hashTypeId }} - {{ hashtype.description }}"></simulate-form-field>
+            <input-text title="Using hashcat brain" formControlName="useBrain" [disabled]="true"></input-text>
+            <input-text title="Format" formControlName="format" [disabled]="true"></input-text>
+            <input-text title="Hashes" formControlName="hashCount" [disabled]="true"></input-text>
+            <input-text title="Cracked" formControlName="cracked" [disabled]="true"></input-text>
+            <input-text title="Remaining" formControlName="remaining" [disabled]="true"></input-text>
 
-          <input-text title="Format" formControlName="format" [disabled]="true"></input-text>
-
-          <input-text title="Hashes" formControlName="hashCount" [disabled]="true"></input-text>
-
-          <input-text title="Cracked" formControlName="cracked" [disabled]="true"></input-text>
-
-          <input-text title="Remaining" formControlName="remaining" [disabled]="true"></input-text>
+          </div>
 
           <grid-buttons>
             <button-submit [name]="'Update'"></button-submit>

@@ -286,8 +286,24 @@ progress::-webkit-progress-value {
   08- Mat Autocomplete
 */
 
-.custom-chip-grid {
-  width: 100%;
+:host-context(.custom-chip-grid) {
+  .mat-chip-list.custom-chip-list {
+    .mat-chip.custom-chip {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mat-form-field {
+      width: auto;
+      max-width: 400px;
+      margin: 0 auto;
+
+      .mat-input-element {
+        width: 100%;
+      }
+    }
+  }
 }
 
 .highlight-text {
