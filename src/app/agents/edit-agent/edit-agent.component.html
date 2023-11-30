@@ -5,9 +5,6 @@
 
       <simulate-form-field label="Agent ID"  message="{{ showagent['agentId'] }}"></simulate-form-field>
       <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
-
-
-
       <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
       <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
         <input-select title="Assignment" formControlName="taskId" [items]="assignTasks" [isBlankOptionDisabled]="assignNew"></input-select>
