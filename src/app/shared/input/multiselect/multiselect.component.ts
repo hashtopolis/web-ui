@@ -151,18 +151,21 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
     if (!this.multiselectEnabled) {
       // For single-select, clear the selected items before adding the new one
       this.selectedItems = [];
-    }
-
-    this.searchTerm = ''; // Reset the search term
-    this.selectedItems.push(event.option.value);
-
-    if (!this.multiselectEnabled) {
       // If single-select, remove the selected item from the unselected items
-      const index = this.getUnselectedItems().indexOf(event.option.value);
+      const index = this.items.indexOf(event.option.value);
+      if (index !== -1) {
+        this.items.splice(index, 1);
+      }
+    } else {
+      // For multi-select, remove the selected item from the items array
+      const index = this.items.indexOf(event.option.value);
       if (index !== -1) {
         this.items.splice(index, 1);
       }
     }
+
+    this.searchTerm = ''; // Reset the search term
+    this.selectedItems.push(event.option.value);
 
     // Update the filteredItems observable
     this.searchInputSubject.next(this.searchTerm);
@@ -170,9 +173,6 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
     // Notify about the change
     this.onChangeValue(this.selectedItems);
     // this.onTouched();
-
-    // Clear the search input
-    this.selectInput.value = '';
   }
 
   /**

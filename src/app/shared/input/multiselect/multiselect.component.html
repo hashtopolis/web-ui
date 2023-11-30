@@ -6,12 +6,14 @@
 </div>
 
 <ng-template #content>
-  <mat-form-field class="custom-chip-grid custom-chip-list">
+  <mat-form-field class="custom-chip-grid">
     <mat-label>{{label}}</mat-label>
     <mat-chip-grid #chipGrid aria-label="Items selection">
       <mat-chip-row *ngFor="let item of selectedItems" (removed)="remove(item)">
-        {{ item._id }}
-        <span>({{ item.name }})</span>
+        <div matTooltip="{{item.name }}">
+          {{ item._id }}
+          <span>{{ item.name.length > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
+        </div>
         <button matChipRemove [attr.aria-label]="'remove ' + item">
           <mat-icon>cancel</mat-icon>
         </button>
@@ -35,6 +37,4 @@
     </mat-autocomplete>
   </mat-form-field>
 </ng-template>
-
-
 
