@@ -112,7 +112,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       crackerBinaryId: new FormControl(''),
       attackCmd: new FormControl(
         this.uiService.getUIsettings('hashlistAlias').value,
-        [Validators.required, this.forbiddenChars(this.getBanChars())]
+        [Validators.required]
       ),
       files: new FormControl('')
     });
@@ -227,41 +227,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         preprocessorCommand: currentCmd + ' ' + newCmd
       });
     }
-  }
-
-  onRemoveFChars() {
-    let currentCmd = this.createForm.get('attackCmd').value;
-    currentCmd = currentCmd.replace(this.getBanChars(), '');
-    this.createForm.patchValue({
-      attackCmd: currentCmd
-    });
-  }
-
-  getBanChars() {
-    const chars = this.uiService
-      .getUIsettings('blacklistChars')
-      .value.replace(']', '\\]')
-      .replace('[', '\\[');
-    return new RegExp('[' + chars + '/]', 'g');
-  }
-
-  getBanChar() {
-    return this.uiService.getUIsettings('blacklistChars').value;
-  }
-
-  get attckcmd() {
-    return this.createForm.controls['attackCmd'];
-  }
-
-  forbiddenChars(name: RegExp): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } => {
-      const forbidden = name.test(control.value);
-      return forbidden ? { forbidden: { value: control.value } } : null;
-    };
-  }
-
-  getValueBchars(): void {
-    this.uiService.getUIsettings('blacklistChars').value;
   }
 
   // @HostListener allows us to also guard against browser refresh, close, etc.

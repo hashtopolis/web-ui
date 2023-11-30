@@ -23,14 +23,7 @@
           </div>
 
           <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
-
-          <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
-            Please remove manually the blacklisted Characters or use the button below!
-            <br>
-            <b>BlackListed Chars: {{this.getBanChar()}} </b>
-            <br>
-            <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
-          </span>
+          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
 
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>

@@ -14,14 +14,6 @@ import {
   VisualMapComponent,
   VisualMapComponentOption
 } from 'echarts/components';
-import {
-  faEraser,
-  faEye,
-  faHomeAlt,
-  faLock,
-  faPencil,
-  faTrash
-} from '@fortawesome/free-solid-svg-icons';
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -38,7 +30,6 @@ import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { colorpicker } from '../../core/_constants/settings.config';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
@@ -55,15 +46,6 @@ export class EditTasksComponent implements OnInit {
   taskWrapperId: number;
   editedTask: any; // Change to Model
 
-  faPencil = faPencil;
-  faEraser = faEraser;
-  faHome = faHomeAlt;
-  faTrash = faTrash;
-  faLock = faLock;
-  faEye = faEye;
-
-  private maxResults = environment.config.prodApiMaxResults;
-
   constructor(
     private uiService: UIConfigService,
     private route: ActivatedRoute,
@@ -75,7 +57,6 @@ export class EditTasksComponent implements OnInit {
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
-  colorpicker = colorpicker;
   color = '';
 
   @ViewChild(DataTableDirective)
@@ -225,18 +206,16 @@ export class EditTasksComponent implements OnInit {
    **/
   assingAgentInit() {
     this.gs.getAll(SERV.AGENT_ASSIGN).subscribe((res) => {
-      this.gs
-        .getAll(SERV.AGENTS, { maxResults: this.maxResults })
-        .subscribe((agents) => {
-          this.availAgents = this.getAvalAgents(res.values, agents.values);
-          this.assigAgents = res.values.map((mainObject) => {
-            const matchObject = agents.values.find(
-              (element) => element.agentId === mainObject.agentId
-            );
-            return { ...mainObject, ...matchObject };
-          });
-          this.dtTrigger1.next(void 0);
+      this.gs.getAll(SERV.AGENTS).subscribe((agents) => {
+        this.availAgents = this.getAvalAgents(res.values, agents.values);
+        this.assigAgents = res.values.map((mainObject) => {
+          const matchObject = agents.values.find(
+            (element) => element.agentId === mainObject.agentId
+          );
+          return { ...mainObject, ...matchObject };
         });
+        this.dtTrigger1.next(void 0);
+      });
     });
 
     this.dtOptions1 = {
@@ -351,7 +330,7 @@ export class EditTasksComponent implements OnInit {
         case 'edit-task':
           this.chunkview = 0;
           this.chunktitle = 'Live Chunks';
-          this.chunkresults = this.maxResults;
+          this.chunkresults = 60000;
           break;
 
         case 'edit-task-c100':

@@ -169,7 +169,7 @@ export class NewTasksComponent implements OnInit {
       hashlistId: new FormControl(),
       attackCmd: new FormControl(
         this.uiService.getUIsettings('hashlistAlias').value,
-        [Validators.required, this.forbiddenChars(this.getBanChars())]
+        [Validators.required]
       ),
       priority: new FormControl(null || this.priority, [
         Validators.required,
@@ -367,36 +367,6 @@ export class NewTasksComponent implements OnInit {
     }
   }
 
-  onRemoveFChars() {
-    let currentCmd = this.createForm.get('attackCmd').value;
-    currentCmd = currentCmd.replace(this.getBanChars(), '');
-    this.createForm.patchValue({
-      attackCmd: currentCmd
-    });
-  }
-
-  getBanChars() {
-    const chars = this.uiService
-      .getUIsettings('blacklistChars')
-      .value.replace(']', '\\]')
-      .replace('[', '\\[');
-    return new RegExp('[' + chars + '/]', 'g');
-  }
-
-  getBanChar() {
-    return this.uiService.getUIsettings('blacklistChars').value;
-  }
-  get attckcmd() {
-    return this.createForm.controls['attackCmd'];
-  }
-
-  forbiddenChars(name: RegExp): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } => {
-      const forbidden = name.test(control.value);
-      return forbidden ? { forbidden: { value: control.value } } : null;
-    };
-  }
-
   handleChangeBinary(id: string) {
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, { filter: 'crackerBinaryTypeId=' + id + '' })
@@ -451,8 +421,7 @@ export class NewTasksComponent implements OnInit {
             ),
             hashlistId: new FormControl(result.hashlist['hashlistId']),
             attackCmd: new FormControl(result['attackCmd'], [
-              Validators.required,
-              this.forbiddenChars(/[&*;$()\[\]{}'"\\|<>\/]/)
+              Validators.required
             ]),
             maxAgents: new FormControl(result['maxAgents']),
             chunkTime: new FormControl(result['chunkTime']),
@@ -508,8 +477,7 @@ export class NewTasksComponent implements OnInit {
             ),
             hashlistId: new FormControl(),
             attackCmd: new FormControl(result['attackCmd'], [
-              Validators.required,
-              this.forbiddenChars(/[&*;$()\[\]{}'"\\|<>\/]/)
+              Validators.required
             ]),
             maxAgents: new FormControl(result['maxAgents']),
             chunkTime: new FormControl(result['chunkTime']),

@@ -6,7 +6,6 @@ import { Observable, Subject } from 'rxjs';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { colorpicker } from '../../core/_constants/settings.config';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { yesNo } from '../../core/_constants/general.config';
