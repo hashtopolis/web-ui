@@ -54,7 +54,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       subgroups: [
         { subtitle: 'Hashlist', permissions: Object.values(Perm.Hashlist) },
         {
-          subtitle: 'SuperHaslist',
+          subtitle: 'SuperHashlist',
           permissions: Object.values(Perm.SuperHashlist)
         },
         { subtitle: 'Hash', permissions: Object.values(Perm.Hash) }

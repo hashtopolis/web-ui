@@ -41,7 +41,7 @@ export class EditHashlistComponent
   editedHashlistIndex: number;
   editedHashlist: any; // Change to Model
   hashtype: any;
-  type: any; // Hashlist or SuperHaslist
+  type: any; // Hashlist or SuperHashlist
   hashlist: any;
 
   // Lists of Selected inputs
