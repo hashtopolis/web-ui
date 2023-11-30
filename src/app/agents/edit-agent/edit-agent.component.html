@@ -7,44 +7,29 @@
       <simulate-form-field label="Last activity"  message="{{ showagent['lastTime'] | uiDate }}"></simulate-form-field>
       <simulate-form-field label="Last Action"  message="{{ showagent['lastAct'] }}"></simulate-form-field>
       <simulate-form-field label="IP"  message="{{ showagent['lastIp'] }}"></simulate-form-field>
+      <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
+
+      <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
+      <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
+        <input-select title="Assignment" formControlName="taskId" [items]="assignTasks" [isBlankOptionDisabled]="assignNew"></input-select>
+      </form>
+      <input-select title="Cracker errors" formControlName="ignoreErrors" [items]="selectIgnorerrors"></input-select>
+      <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
+      <input-check title="CPU only" formControlName="cpuOnly"></input-check>
+      <input-check title="Trust" formControlName="isTrusted"  tooltip="Trust agent with secret data"></input-check>
       <input-check title="Active" formControlName="isActive"></input-check>
+    </div>
+    <h4>Detailed Information</h4>
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+      <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
+      <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
+      <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
+      <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
+      <simulate-form-field label="Graphic cards"  message="{{ showagent['devices'] }}"></simulate-form-field>
 
     </div>
-
-    <mat-accordion>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <span><b>Show/Hide details</b></span>
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
-              <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
-              <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
-              <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
-              <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
-                <input-select title="Assignment" formControlName="taskId" [items]="assignTasks" [isBlankOptionDisabled]="assignNew"></input-select>
-              </form>
-              <input-select title="Cracker errors" formControlName="ignoreErrors" [items]="selectIgnorerrors"></input-select>
-              <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
-              <input-check title="CPU only" formControlName="cpuOnly"></input-check>
-              <input-check title="Trust" formControlName="isTrusted"  tooltip="Trust agent with secret data"></input-check>
-
-          </div>
-          <hr>
-          <h4 class="display-col">Agent Detailed Information</h4>
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
-              <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
-              <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
-              <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
-              <simulate-form-field label="Graphic cards"  message="{{ showagent['devices'] }}"></simulate-form-field>
-
-          </div>
-          <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>
-      </mat-expansion-panel>
-    </mat-accordion>
+    <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>
 
     <grid-buttons>
       <button-submit [name]="'Update'"></button-submit>
