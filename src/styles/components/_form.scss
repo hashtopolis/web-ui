@@ -308,6 +308,15 @@ progress::-webkit-progress-value {
   align-items: center; /* Align items vertically */
 }
 
+.custom-hashlist-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  button {
+    order: 1;
+    margin-left: 320px;
+  }
+}
+
 .color-picker-field {
   flex: 1; /* Allow the mat-form-field to grow and take available space */
   margin-right: 16px; /* Adjust the margin between the field and the button */
@@ -357,4 +366,10 @@ $mat-form-field-max-width: 300px; // Adjust the maximum width as needed
 
 .mat-form-field {
   max-width: $mat-form-field-max-width !important;
+}
+
+.mat-select-value-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

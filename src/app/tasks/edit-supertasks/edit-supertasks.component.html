@@ -17,6 +17,7 @@
         <h5>Add Pretask</h5>
         <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
 
+          <div fxLayout="column" fxLayoutAlign="start start">
           <input-multiselect
               [isLoading]="isLoading"
               [placeholder]="'Pretasks...'"
@@ -26,6 +27,7 @@
               formControlName="pretasks"
               style="flex: 1;"
             ></input-multiselect>
+          </div>
 
             <button-submit [name]="'Add'"></button-submit>
         </form>

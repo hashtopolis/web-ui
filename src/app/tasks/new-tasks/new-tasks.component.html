@@ -7,7 +7,8 @@
         <input-text title="Name" formControlName="taskName"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
 
-        <input-multiselect
+        <div fxLayout="column" fxLayoutAlign="start start">
+          <input-multiselect
           [isLoading]="isLoading"
           [placeholder]="'Hashlists...'"
           [items]="selectHashlists"
@@ -15,8 +16,8 @@
           [mergeIdAndName]="true"
           [multiselectEnabled]="false"
           formControlName="hashlistIds"
-          style="flex: 1;"
         ></input-multiselect>
+        </div>
 
         <div>
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
