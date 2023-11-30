@@ -10,10 +10,12 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
+import { CoreFormsModule } from '../forms.module';
 
 @NgModule({
   imports: [
     RouterModule,
+    CoreFormsModule,
     FontAwesomeModule,
     CommonModule,
     FormsModule,

@@ -370,6 +370,16 @@ hr.break:after {
   padding: 8px;
 }
 
+.simulate-form-field-flex.with-icon {
+  display: flex;
+  align-items: center;
+}
+
+.simulate-form-field-infix.with-icon {
+  display: flex;
+  align-items: center;
+}
+
 .simulate-form-field-content {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.87);

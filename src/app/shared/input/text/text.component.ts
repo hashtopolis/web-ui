@@ -30,6 +30,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() pattern: string | RegExp;
   @Input() inputType: 'text' | 'password' = 'text';
+  @Input() icon: string;
 
   constructor() {
     super();

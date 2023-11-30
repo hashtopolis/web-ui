@@ -1,223 +1,55 @@
-<!-- Header -->
-<app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
-<!-- Body -->
-<grid-main [class]="'width:100%'">
+<grid-main>
+  <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-    <div class="row g-3">
-      <div class="col-md-2">
-        <grid-form-input [name]="'Agent ID'">
-          <div class="input-group">
-            <span class="pre input-group-text input-group-lg">
-              <td>
-                {{ showagent['agentId'] }}
-              </td>
-            </span>
-          </div>
-        </grid-form-input>
-      </div>
-      <div class="col-md-10">
-        <grid-form-input [name]="'Last activity'">
-          <span class="input-group-text input-group-lg w-60 mx-auto">
-            <td>
-              Time: {{ showagent['lastTime'] | uiDate }}<br>
-              Action: {{ showagent['lastAct'] }}<br>
-              IP: <code>{{ showagent['lastIp'] }}</code>
-            </td>
-          </span>
-        </grid-form-input>
-      </div>
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+      <simulate-form-field label="Agent ID"  message="{{ showagent['agentId'] }}"></simulate-form-field>
+      <simulate-form-field label="Last activity"  message="{{ showagent['lastTime'] | uiDate }}"></simulate-form-field>
+      <simulate-form-field label="Last Action"  message="{{ showagent['lastAct'] }}"></simulate-form-field>
+      <simulate-form-field label="IP"  message="{{ showagent['lastIp'] }}"></simulate-form-field>
+      <input-check title="Active" formControlName="isActive"></input-check>
+
     </div>
-    <ngb-accordion #acc="ngbAccordion" >
-      <ngb-panel>
-        <ng-template ngbPanelTitle>
-          <span><b>Show/Hide details</b></span>
-        </ng-template>
-        <ng-template ngbPanelContent>
-          <div class="row">
-            <div class="col">
-              <grid-form-input [name]="'Machine Name'" [labelclass]="'display-col'">
-                <div class="input-group">
-                  <span class="input-group-text">
-                    <fa-icon [icon]="faComputer" aria-hidden="true"></fa-icon>
-                  </span>
-                  <input
-                        type='text'
-                        id="agentName"
-                        class='form-control'
-                        formControlName="agentName"
-                  >
-                </div>
-              </grid-form-input>
-            </div>
-            <div class="col">
-              <grid-form-input [name]="'Owner'" [labelclass]="'display-col'">
-                <div class="input-group">
-                  <span class="input-group-text">
-                    <fa-icon [icon]="faIdBadge" aria-hidden="true"></fa-icon>
-                  </span>
-                  <select
-                          id="userId"
-                          class='form-select'
-                          formControlName="userId"
-                  >
-                  <option *ngFor="let u of users" [ngValue]="u.id">{{ u.name }}</option>
-                  </select>
-                </div>
-              </grid-form-input>
-            </div>
-          </div>
-          <hr>
-          <div class="row g-3">
-            <div class="col-md-2">
-              <grid-form-input [name]="'CPU only'" [labelclass]="'display-col'">
-                <div class="form-check form-switch">
-                  <input
-                        type="checkbox"
-                        id="cpuOnly"
-                        class="form-check-input"
-                        formControlName="cpuOnly"
-                  >
-              </div>
-             </grid-form-input>
-            </div>
-            <div class="col-md-2">
-              <grid-form-input [name]="'Trust'" [labelclass]="'display-col'" [tooltip]="'Trust agent with secret data'">
-                <div class="form-check form-switch">
-                  <input
-                        type="checkbox"
-                        id="isTrusted"
-                        class="form-check-input"
-                        formControlName="isTrusted"
-                  >
-              </div>
-             </grid-form-input>
-            </div>
-            <div class="col-md-8">
+
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span><b>Show/Hide details</b></span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+              <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
+              <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
+              <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
               <form [formGroup]="updateAssignForm" (ngSubmit)="onSubmit()">
-                <grid-form-input [name]="'Assignment'" [labelclass]="'display-col'">
-                  <select
-                        type='text'
-                        id="assignment"
-                        class='form-select'
-                        formControlName="taskId"
-                      >
-                      <option [ngValue]="0" *ngIf="assignNew">Unassigned</option>
-                      <option *ngFor="let a of assignTasks" [ngValue]="a.taskId">{{ a.taskId }} - {{ a.taskName }}</option>
-                  </select>
-                </grid-form-input>
+                <input-select title="Assignment" formControlName="taskId" [items]="assignTasks" [isBlankOptionDisabled]="assignNew"></input-select>
               </form>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <grid-form-input [name]="'Extra parameters'" [labelclass]="'display-col'">
-                <input
-                      type='text'
-                      id="cmdPars"
-                      class='form-control'
-                      formControlName="cmdPars"
-                >
-              </grid-form-input>
-            </div>
-            <div class="col">
-              <grid-form-input [name]="'Cracker errors'" [labelclass]="'display-col'">
-                <select
-                      type='text'
-                      id="ignoreErrors"
-                      class='form-select'
-                      formControlName="ignoreErrors"
-                  >
-                  <option value="NO">Deactivate agent on error</option>
-                  <option value="IGNORE_SAVE">Keep agent running, but save errors</option>
-                  <option value="IGNORE_NOSAVE">Keep agent running and discard errors</option>
-                </select>
-              </grid-form-input>
-            </div>
+              <input-select title="Cracker errors" formControlName="ignoreErrors" [items]="selectIgnorerrors"></input-select>
+              <input-text title="Extra parameters" formControlName="cmdPars"></input-text>
+              <input-check title="CPU only" formControlName="cpuOnly"></input-check>
+              <input-check title="Trust" formControlName="isTrusted"  tooltip="Trust agent with secret data"></input-check>
+
           </div>
           <hr>
           <h4 class="display-col">Agent Detailed Information</h4>
-          <div class="row">
-            <div class="col">
-              <grid-form-input [name]="'Machine ID'" [labelclass]="'display-col'">
-                <span class="pre input-group-text input-group-lg w-70 mx-auto">
-                  <td>
-                    {{ showagent['uid'] }}
-                  </td>
-                </span>
-              </grid-form-input>
-              </div>
-              <div class="col">
-                <grid-form-input [name]="'Access token'" [labelclass]="'display-col'">
-                  <span class="pre input-group-text input-group-lg w-70 mx-auto">
-                      <fa-icon [icon]="faKey" aria-hidden="true"></fa-icon>
-                    <td>
-                      {{ showagent['token'] }}
-                    </td>
-                  </span>
-                </grid-form-input>
-              </div>
-              <div class="col">
-                <grid-form-input [name]="'O.S.'" [labelclass]="'display-col'">
-                    <span *ngIf="showagent['os'] === 0" class="input-group-text input-group-lg w-15 mx-auto">
-                      <fa-icon [icon]="faLinux" aria-hidden="true"></fa-icon>Linux
-                    </span>
-                    <span *ngIf="showagent['os'] === 1" class="input-group-text input-group-lg w-15 mx-auto">
-                      <fa-icon [icon]="faWindows" aria-hidden="true"></fa-icon>Windows
-                    </span>
-                    <span *ngIf="showagent['os'] === 2" class="input-group-text input-group-lg w-15 mx-auto">
-                      <fa-icon [icon]="faApple" aria-hidden="true"></fa-icon>IOS
-                    </span>
-                </grid-form-input>
-              </div>
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+              <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
+              <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
+              <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
+              <simulate-form-field label="Graphic cards"  message="{{ showagent['devices'] }}"></simulate-form-field>
+
           </div>
-          <div class="row g-3">
-            <div class="col-md-8">
-              <grid-form-input [name]="'Graphic cards'" [labelclass]="'display-col'">
-                <span class="pre input-group-text input-group-lg w-70 mx-auto">
-                  <td>
-                    {{ showagent['devices'] }}
-                  </td>
-                </span>
-              </grid-form-input>
-            </div>
-            <div class="col-md-4">
-              <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
-                <span class="pre input-group-text input-group-lg">
-                  <td>
-                    <div *ngFor="let g of groups" style="text-align:left;">
-                      <a [routerLink]="['/users/access-groups/',g.accessGroupId,'edit']">{{g.groupName}}</a>
-                    </div>
-                  </td>
-                </span>
-              </grid-form-input>
-            </div>
-          </div>
-          <grid-form-input [name]="'Time spent cracking'" [labelclass]="'display-col'" *ngIf="timespent">
-            <span class="pre input-group-text input-group-lg">
-              <td>
-                <div *ngIf="timespent">
-                  {{ timespent | sectotime }}
-                </div>
-              </td>
-            </span>
-          </grid-form-input>
-        </ng-template>
-      </ngb-panel>
-    </ngb-accordion>
-    &nbsp;
-    <grid-form-input [name]="'Active'" [labelclass]="'display-col'">
-      <div class="form-check form-switch">
-        <input
-              type="checkbox"
-              id="isActive"
-              class="form-check-input"
-              formControlName="isActive"
-        >
-      </div>
-    </grid-form-input>
+          <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>
+      </mat-expansion-panel>
+    </mat-accordion>
+
     <grid-buttons>
       <button-submit [name]="'Update'"></button-submit>
     </grid-buttons>
+
   </form>
 </grid-main>
 <!-- Graphs -->

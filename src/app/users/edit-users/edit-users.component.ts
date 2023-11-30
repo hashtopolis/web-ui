@@ -33,15 +33,16 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   /** Select List of Access Group Permissions. */
   selectAgp: any;
 
-  /** User Access Group Permissions. */
-  userAgps: any;
-
+  /** Select Options Mapping */
   selectUserAgpMap = {
     fieldMapping: {
       name: 'groupName',
       _id: '_id'
     }
   };
+
+  /** User Access Group Permissions. */
+  userAgps: any;
 
   // Edit Configuration
   editedUserIndex: number;

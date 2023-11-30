@@ -3,6 +3,7 @@
     {{ label }}
   </div>
   <div class="simulate-form-field-flex">
+    <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
     <div class="simulate-form-field-infix">
       <span class="simulate-form-field-content" [innerHTML]="message"></span>
       <!-- Conditionally apply the 'active' class based on routerLinkActive -->
