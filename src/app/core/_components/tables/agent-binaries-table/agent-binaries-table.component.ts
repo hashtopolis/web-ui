@@ -1,10 +1,13 @@
+import {
+  AgentBinariesTableCol,
+  AgentBinariesTableColumnLabel
+} from './agent-binaries-table.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { AgentBinariesDataSource } from 'src/app/core/_datasources/agent-binaries.datasource';
-import { AgentBinariesTableColumnLabel } from './agent-binaries-table.constants';
 import { AgentBinary } from 'src/app/core/_models/agent-binary.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
@@ -30,6 +33,7 @@ export class AgentBinariesTableComponent
   agentdownloadURL: string;
 
   ngOnInit(): void {
+    this.setColumnLabels(AgentBinariesTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentBinariesDataSource(
       this.cdr,
@@ -60,37 +64,37 @@ export class AgentBinariesTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: AgentBinariesTableColumnLabel.ID,
+        id: AgentBinariesTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (agentBinary: AgentBinary) => agentBinary._id + ''
       },
       {
-        name: AgentBinariesTableColumnLabel.TYPE,
+        id: AgentBinariesTableCol.TYPE,
         dataKey: 'type',
         isSortable: true,
         export: async (agentBinary: AgentBinary) => agentBinary.type
       },
       {
-        name: AgentBinariesTableColumnLabel.OS,
+        id: AgentBinariesTableCol.OS,
         dataKey: 'operatingSystems',
         isSortable: true,
         export: async (agentBinary: AgentBinary) => agentBinary.operatingSystems
       },
       {
-        name: AgentBinariesTableColumnLabel.FILENAME,
+        id: AgentBinariesTableCol.FILENAME,
         dataKey: 'filename',
         isSortable: true,
         export: async (agentBinary: AgentBinary) => agentBinary.filename
       },
       {
-        name: AgentBinariesTableColumnLabel.VERSION,
+        id: AgentBinariesTableCol.VERSION,
         dataKey: 'version',
         isSortable: true,
         export: async (agentBinary: AgentBinary) => agentBinary.version
       },
       {
-        name: AgentBinariesTableColumnLabel.UPDATE_TRACK,
+        id: AgentBinariesTableCol.UPDATE_TRACK,
         dataKey: 'updateTrack',
         isSortable: true,
         export: async (agentBinary: AgentBinary) => agentBinary.updateTrack
@@ -130,19 +134,25 @@ export class AgentBinariesTableComponent
         this.exportService.toExcel<AgentBinary>(
           'hashtopolis-agent-binaries',
           this.tableColumns,
-          event.data
+          event.data,
+          AgentBinariesTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<AgentBinary>(
           'hashtopolis-agent-binaries',
           this.tableColumns,
-          event.data
+          event.data,
+          AgentBinariesTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AgentBinary>(this.tableColumns, event.data)
+          .toClipboard<AgentBinary>(
+            this.tableColumns,
+            event.data,
+            AgentBinariesTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

@@ -2,7 +2,7 @@
 
 <mat-dialog-content>
   <mat-selection-list [(ngModel)]="selectedColumns">
-    <mat-list-option *ngFor="let column of data.availableColumns" [value]="column">{{ column }}</mat-list-option>
+    <mat-list-option *ngFor="let key of getKeys()" [value]="key">{{ availableColumns[key] }}</mat-list-option>
   </mat-selection-list>
 </mat-dialog-content>
 

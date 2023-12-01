@@ -35,8 +35,11 @@ export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
+  protected columnLabels: { [key: string]: string } = {};
 
   @ViewChild('table') table: HTTableComponent;
+
+  @Input() hashlistId: number;
 
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
@@ -83,6 +86,10 @@ export class BaseTableComponent {
    */
   protected sanitize(html: string): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  protected setColumnLabels(labels: { [key: string]: string }): void {
+    this.columnLabels = labels;
   }
 
   reload(): void {
@@ -213,10 +220,10 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['accessGroups'])
+  @Cacheable(['_id', 'accessGroups'])
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
-
+    console.log(obj);
     if (obj && obj['accessGroups'] && obj['accessGroups'].length) {
       links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
         return {

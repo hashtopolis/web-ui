@@ -1,0 +1,44 @@
+<div class="editable-container" *ngIf="tableColumn.editable">
+  <ng-container *ngIf="editMode; else textTmpl">
+    <mat-form-field>
+      <input
+        matInput
+        class="editable-input"
+        #editableInput
+        type="text"
+        [(ngModel)]="editable.value"
+        [class.hidden]="!editMode"
+        (blur)="onBlur($event)"
+        (focus)="onFocus($event)"
+        (keyup.enter)="onEditableInputEnter($event)"
+      />
+      <button
+        matSuffix
+        mat-icon-button
+        class="text-ok"
+        [attr.aria-label]="'Update Value'"
+        (click)="onEditableInputSaved($event)"
+      >
+        <mat-icon>check</mat-icon>
+      </button>
+      <button
+        matSuffix
+        mat-icon-button
+        color="primary"
+        (click)="onClose()"
+        [attr.aria-label]="'Cancel'"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </ng-container>
+  <ng-template #textTmpl>
+    <div class="editable-text">
+      <span
+        [innerHtml]="editable.value"
+        (click)="onSelect($event)"
+        matTooltip="Click to edit value"
+      ></span>
+    </div>
+  </ng-template>
+</div>

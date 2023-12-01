@@ -39,7 +39,8 @@ export const RowActionMenuLabel = {
   IMPORT_HASHLIST: 'Import Hashlist',
   EXPORT_HASHLIST: 'Export Hashlist',
   NEW_VERSION: 'Add Version',
-  DOWNLOAD_AGENT: 'Download Agent Binary'
+  DOWNLOAD_AGENT: 'Download Agent Binary',
+  UNARCHIVE_TASK: 'Unarchive Task'
 };
 
 export const RowActionMenuAction = {
@@ -54,7 +55,8 @@ export const RowActionMenuAction = {
   EXPORT: 'export',
   ACTIVATE: 'activate',
   DEACTIVATE: 'deactivate',
-  DOWNLOAD: 'download'
+  DOWNLOAD: 'download',
+  UNARCHIVE: 'unrachive'
 };
 
 export const RowActionMenuIcon = {
@@ -65,6 +67,7 @@ export const RowActionMenuIcon = {
   EXPORT: 'arrow_downward',
   COPY: 'content_copy',
   ARCHIVE: 'archive',
+  UNARCHIVE: 'unarchive',
   ACTIVATE: 'check_circle',
   DEACTIVATE: 'remove_circle',
   DOWNLOAD: 'file_download'

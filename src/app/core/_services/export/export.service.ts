@@ -28,13 +28,16 @@ export class ExportService {
   async toExcel<T>(
     fileName: string,
     tableColumns: HTTableColumn[],
-    rawData: T[]
+    rawData: T[],
+    columnLabels: { [key: number]: string }
   ): Promise<void> {
     try {
       const workbook = new Workbook();
       const worksheet = workbook.addWorksheet('Sheet 1');
-      const columns: ExcelColumn[] =
-        this.exportUtil.toExcelColumns(tableColumns);
+      const columns: ExcelColumn[] = this.exportUtil.toExcelColumns(
+        tableColumns,
+        columnLabels
+      );
 
       const data = await this.exportUtil.toExcelRows(tableColumns, rawData);
 
@@ -60,10 +63,14 @@ export class ExportService {
   async toCsv<T>(
     fileName: string,
     tableColumns: HTTableColumn[],
-    rawData: T[]
+    rawData: T[],
+    columnLabels: { [key: number]: string }
   ): Promise<void> {
     try {
-      const columns: string[] = this.exportUtil.toCsvColumns(tableColumns);
+      const columns: string[] = this.exportUtil.toCsvColumns(
+        tableColumns,
+        columnLabels
+      );
       const data = await this.exportUtil.toCsvRows(tableColumns, rawData);
 
       if (data && data.length) {
@@ -83,10 +90,14 @@ export class ExportService {
    */
   async toClipboard<T>(
     tableColumns: HTTableColumn[],
-    rawData: T[]
+    rawData: T[],
+    columnLabels: { [key: number]: string }
   ): Promise<void> {
     try {
-      const columns: string[] = this.exportUtil.toCsvColumns(tableColumns);
+      const columns: string[] = this.exportUtil.toCsvColumns(
+        tableColumns,
+        columnLabels
+      );
       const data = await this.exportUtil.toCsvRows(tableColumns, rawData);
 
       const textToCopy = [columns, ...data]

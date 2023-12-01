@@ -29,4 +29,6 @@ export interface ChunkData {
   cracked: number;
   speed: number;
   timeSpent: number;
+  agents: number[];
+  tasks: number[];
 }

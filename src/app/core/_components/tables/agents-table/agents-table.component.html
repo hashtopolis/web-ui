@@ -1,6 +1,7 @@
 <ht-table
   #table
   [name]="name"
+  [columnLabels]="columnLabels"
   dataType="agents"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
@@ -8,6 +9,7 @@
   [isFilterable]="isFilterable"
   [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
+  (editableSaved)="editableSaved($event)"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

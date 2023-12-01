@@ -1,6 +1,13 @@
+export enum HashtypesTableCol {
+  HASHTYPE,
+  DESCRIPTION,
+  SALTED,
+  SLOW_HASH
+}
+
 export const HashtypesTableColumnLabel = {
-  HASHTYPE: 'Hashtype (Hashcat -m)',
-  DESCRIPTION: 'Description',
-  SALTED: 'Salted',
-  SLOW_HASH: 'Slow Hash'
+  [HashtypesTableCol.HASHTYPE]: 'Hashtype (Hashcat -m)',
+  [HashtypesTableCol.DESCRIPTION]: 'Description',
+  [HashtypesTableCol.SALTED]: 'Salted',
+  [HashtypesTableCol.SLOW_HASH]: 'Slow Hash'
 };

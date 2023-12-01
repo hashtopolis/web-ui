@@ -9,6 +9,10 @@ import {
   HTTableColumn,
   HTTableIcon
 } from '../../tables/ht-table/ht-table.models';
+import {
+  HashtypesTableCol,
+  HashtypesTableColumnLabel
+} from './hashtypes-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -19,7 +23,6 @@ import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { Hashtype } from '../../../_models/hashtype.model';
 import { HashtypesDataSource } from '../../../_datasources/hashtypes.datasource';
-import { HashtypesTableColumnLabel } from './hashtypes-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -37,6 +40,7 @@ export class HashtypesTableComponent
   dataSource: HashtypesDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HashtypesDataSource(
       this.cdr,
@@ -54,26 +58,26 @@ export class HashtypesTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: HashtypesTableColumnLabel.HASHTYPE,
+        id: HashtypesTableCol.HASHTYPE,
         dataKey: 'hashTypeId',
         isSortable: true,
         export: async (hashtype: Hashtype) => hashtype.hashTypeId + ''
       },
       {
-        name: HashtypesTableColumnLabel.DESCRIPTION,
+        id: HashtypesTableCol.DESCRIPTION,
         dataKey: 'description',
         isSortable: true,
         export: async (hashtype: Hashtype) => hashtype.description
       },
       {
-        name: HashtypesTableColumnLabel.SALTED,
+        id: HashtypesTableCol.SALTED,
         dataKey: 'isSalted',
         icons: (hashtype: Hashtype) => this.renderIsSaltedIcon(hashtype),
         isSortable: true,
         export: async (hashtype: Hashtype) => (hashtype.isSalted ? 'Yes' : 'No')
       },
       {
-        name: HashtypesTableColumnLabel.SLOW_HASH,
+        id: HashtypesTableCol.SLOW_HASH,
         dataKey: 'isSlowHash',
         icons: (hashtype: Hashtype) => this.renderIsSlowIcon(hashtype),
         isSortable: true,
@@ -208,19 +212,25 @@ export class HashtypesTableComponent
         this.exportService.toExcel<Hashtype>(
           'hashtopolis-hashtypes',
           this.tableColumns,
-          event.data
+          event.data,
+          HashtypesTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Hashtype>(
           'hashtopolis-hashtypes',
           this.tableColumns,
-          event.data
+          event.data,
+          HashtypesTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hashtype>(this.tableColumns, event.data)
+          .toClipboard<Hashtype>(
+            this.tableColumns,
+            event.data,
+            HashtypesTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

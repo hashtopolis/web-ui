@@ -130,62 +130,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
       );
   }
 
-  async getChunkData(id: number, keyspace = 0): Promise<ChunkData> {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
-
-    const dispatched: number[] = [];
-    const searched: number[] = [];
-    const cracked: number[] = [];
-    const speed: number[] = [];
-    const timespent: number[] = [];
-    const now = Date.now();
-    const current = 0;
-
-    const params = {
-      maxResults: this.maxResults,
-      filter: `agentId=${id}`
-    };
-
-    const response: ListResponseWrapper<Chunk> = await firstValueFrom(
-      this.service.getAll(SERV.CHUNKS, params)
-    );
-
-    for (const chunk of response.values) {
-      if (chunk.progress >= 10000) {
-        dispatched.push(chunk.length);
-      }
-      cracked.push(chunk.cracked);
-      searched.push(chunk.checkpoint - chunk.skip);
-      if (
-        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
-          chunktime &&
-        chunk.progress < 10000
-      ) {
-        speed.push(chunk.speed);
-      }
-
-      if (chunk.dispatchTime > current) {
-        timespent.push(chunk.solveTime - chunk.dispatchTime);
-      } else if (chunk.solveTime > current) {
-        timespent.push(chunk.solveTime - current);
-      }
-    }
-
-    return {
-      dispatched:
-        keyspace && dispatched.length
-          ? dispatched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      searched:
-        keyspace && searched.length
-          ? searched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
-      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
-      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
-    };
-  }
-
   reload(): void {
     this.clearSelection();
     if (this._taskId) {

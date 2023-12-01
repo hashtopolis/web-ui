@@ -1,9 +1,19 @@
+export enum SuperHashlistsTableCol {
+  ID,
+  NAME,
+  STATUS,
+  HASHTYPE,
+  PRE_CRACKED,
+  HASHLISTS,
+  CRACKED
+}
+
 export const SuperHashlistsTableColumnLabel = {
-  ID: 'ID',
-  NAME: 'Name',
-  STATUS: 'Status',
-  HASHTYPE: 'Hash Type',
-  PRE_CRACKED: 'Pre-cracked',
-  HASHLISTS: 'Hashlists',
-  CRACKED: 'Cracked'
+  [SuperHashlistsTableCol.ID]: 'ID',
+  [SuperHashlistsTableCol.NAME]: 'Name',
+  [SuperHashlistsTableCol.STATUS]: 'Status',
+  [SuperHashlistsTableCol.HASHTYPE]: 'Hash Type',
+  [SuperHashlistsTableCol.PRE_CRACKED]: 'Pre-cracked',
+  [SuperHashlistsTableCol.HASHLISTS]: 'Hashlists',
+  [SuperHashlistsTableCol.CRACKED]: 'Cracked'
 };
