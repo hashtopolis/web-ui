@@ -78,6 +78,8 @@ export class BulkActionMenuComponent
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PREPROCESSORS);
     } else if (this.dataType === 'health-checks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_HEALTHCHECKS);
+    } else if (this.dataType === 'vouchers') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_VOUCHERS);
     }
   }
 

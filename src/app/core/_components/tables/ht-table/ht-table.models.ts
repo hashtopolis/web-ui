@@ -17,6 +17,7 @@ export type DataType =
   | 'logs'
   | 'permissions'
   | 'cracks'
+  | 'vouchers'
   | 'tasks'
   | 'superhashlists';
 

@@ -53,6 +53,7 @@ import { TableDialogComponent } from './tables/table-dialog/table-dialog.compone
 import { TableTruncateComponent } from './tables/table-truncate/table-truncate.component';
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
+import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +85,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AccessGroupsTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
+    CracksTableComponent,
+    VouchersTableComponent,
     TasksTableComponent,
     CracksTableComponent
   ],
@@ -139,6 +142,8 @@ import { UsersTableComponent } from './tables/users-table/users-table.component'
     AccessGroupsTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
+    CracksTableComponent,
+    VouchersTableComponent,
     TasksTableComponent,
     CracksTableComponent
   ],

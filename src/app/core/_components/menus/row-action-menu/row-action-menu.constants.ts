@@ -32,12 +32,14 @@ export const RowActionMenuLabel = {
   DELETE_USER: 'Delete User',
   DELETE_ACCESSGROUP: 'Delete Access Group',
   DELETE_PERMISSION: 'Delete Permission Group',
+  DELETE_VOUCHER: 'Delete Voucher',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
   EXPORT_HASHLIST: 'Export Hashlist',
   NEW_VERSION: 'Add Version',
+  DOWNLOAD_AGENT: 'Download Agent Binary',
   UNARCHIVE_TASK: 'Unarchive Task'
 };
 
@@ -53,6 +55,7 @@ export const RowActionMenuAction = {
   EXPORT: 'export',
   ACTIVATE: 'activate',
   DEACTIVATE: 'deactivate',
+  DOWNLOAD: 'download',
   UNARCHIVE: 'unrachive'
 };
 
@@ -66,5 +69,6 @@ export const RowActionMenuIcon = {
   ARCHIVE: 'archive',
   UNARCHIVE: 'unarchive',
   ACTIVATE: 'check_circle',
-  DEACTIVATE: 'remove_circle'
+  DEACTIVATE: 'remove_circle',
+  DOWNLOAD: 'file_download'
 };

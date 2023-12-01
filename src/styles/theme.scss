@@ -15,7 +15,7 @@ $hashtopolis-light-theme: mat.define-light-theme(
       warn: $hashtopolis-warn-palette
     ),
     typography: mat.define-typography-config(),
-    density: 0
+    density: -1
   )
 );
 
@@ -27,7 +27,7 @@ $hashtopolis-dark-theme: mat.define-dark-theme(
       warn: $hashtopolis-warn-palette
     ),
     typography: mat.define-typography-config(),
-    density: 0
+    density: -1
   )
 );
 

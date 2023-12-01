@@ -44,7 +44,7 @@
       </ng-template>
     </div>
     <!-- columns -->
-    <div class="table-action-wrapper">
+    <div class="table-action-wrapper" *ngIf="columnNames.length > 5">
       <button mat-button (click)="openColumnSelectionDialog()">
         <mat-icon>view_week</mat-icon>
         Columns
@@ -198,6 +198,11 @@
       *matRowDef="let row; columns: displayedColumns"
       (click)="toggleSelect(row)"
     ></tr>
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+        The table has no data.
+      </td>
+    </tr>
   </table>
 
   <!-- Pagination -->

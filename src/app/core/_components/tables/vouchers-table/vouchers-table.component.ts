@@ -1,14 +1,8 @@
-import {
-  AgentBinariesTableCol,
-  AgentBinariesTableColumnLabel
-} from './agent-binaries-table.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { AgentBinariesDataSource } from 'src/app/core/_datasources/agent-binaries.datasource';
-import { AgentBinary } from 'src/app/core/_models/agent-binary.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
@@ -17,34 +11,27 @@ import { HTTableColumn } from '../ht-table/ht-table.models';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { environment } from 'src/environments/environment';
+import { Voucher } from 'src/app/core/_models/voucher.model';
+import { VouchersDataSource } from 'src/app/core/_datasources/vouchers.datasource';
+import { VouchersTableColumnLabel } from './vouchers-table.constants';
+import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'agent-binaries-table',
-  templateUrl: './agent-binaries-table.component.html'
+  selector: 'vouchers-table',
+  templateUrl: './vouchers-table.component.html'
 })
-export class AgentBinariesTableComponent
+export class VouchersTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {
   tableColumns: HTTableColumn[] = [];
-  dataSource: AgentBinariesDataSource;
-
-  agentdownloadURL: string;
+  dataSource: VouchersDataSource;
 
   ngOnInit(): void {
-    this.setColumnLabels(AgentBinariesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentBinariesDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new VouchersDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
-
-    const path = this.cs.getEndpoint().replace('/api/v2', '');
-    this.agentdownloadURL = path + environment.config.agentdownloadURL;
   }
 
   ngOnDestroy(): void {
@@ -53,8 +40,8 @@ export class AgentBinariesTableComponent
     }
   }
 
-  filter(item: AgentBinary, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
+  filter(item: Voucher, filterValue: string): boolean {
+    if (item.voucher.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -64,47 +51,26 @@ export class AgentBinariesTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        id: AgentBinariesTableCol.ID,
-        dataKey: '_id',
+        name: VouchersTableColumnLabel.KEY,
+        dataKey: 'voucher',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary._id + ''
+        export: async (voucher: Voucher) => voucher.voucher
       },
       {
-        id: AgentBinariesTableCol.TYPE,
-        dataKey: 'type',
+        name: VouchersTableColumnLabel.CREATED,
+        dataKey: 'time',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.type
-      },
-      {
-        id: AgentBinariesTableCol.OS,
-        dataKey: 'operatingSystems',
-        isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.operatingSystems
-      },
-      {
-        id: AgentBinariesTableCol.FILENAME,
-        dataKey: 'filename',
-        isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.filename
-      },
-      {
-        id: AgentBinariesTableCol.VERSION,
-        dataKey: 'version',
-        isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.version
-      },
-      {
-        id: AgentBinariesTableCol.UPDATE_TRACK,
-        dataKey: 'updateTrack',
-        isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.updateTrack
+        render: (voucher: Voucher) =>
+          formatUnixTimestamp(voucher.time, this.dateFormat),
+        export: async (voucher: Voucher) =>
+          formatUnixTimestamp(voucher.time, this.dateFormat)
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<AgentBinary>) {
+  openDialog(data: DialogData<Voucher>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -128,31 +94,25 @@ export class AgentBinariesTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AgentBinary[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Voucher[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AgentBinary>(
-          'hashtopolis-agent-binaries',
+        this.exportService.toExcel<Voucher>(
+          'hashtopolis-vouchers',
           this.tableColumns,
-          event.data,
-          AgentBinariesTableColumnLabel
+          event.data
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<AgentBinary>(
-          'hashtopolis-agent-binaries',
+        this.exportService.toCsv<Voucher>(
+          'hashtopolis-vouchers',
           this.tableColumns,
-          event.data,
-          AgentBinariesTableColumnLabel
+          event.data
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AgentBinary>(
-            this.tableColumns,
-            event.data,
-            AgentBinariesTableColumnLabel
-          )
+          .toClipboard<Voucher>(this.tableColumns, event.data)
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',
@@ -163,12 +123,12 @@ export class AgentBinariesTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<AgentBinary>): void {
+  rowActionClicked(event: ActionMenuEvent<Voucher>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting agentBinary ${event.data.filename} ...`,
+          title: `Deleting voucher ${event.data.voucher} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -178,22 +138,19 @@ export class AgentBinariesTableComponent
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
         break;
-      case RowActionMenuAction.DOWNLOAD:
-        this.rowActionDownload(event.data);
-        break;
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AgentBinary[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<Voucher[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} agent binaries ...`,
+          title: `Deleting ${event.data.length} vouchers ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above agent binaries? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete the above vouchers? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'filename',
+          listAttribute: 'voucher',
           action: event.menuItem.action
         });
         break;
@@ -203,9 +160,9 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agentBinaries: AgentBinary[]): void {
-    const requests = agentBinaries.map((agentBinary: AgentBinary) => {
-      return this.gs.delete(SERV.AGENT_BINARY, agentBinary._id);
+  private bulkActionDelete(vouchers: Voucher[]): void {
+    const requests = vouchers.map((voucher: Voucher) => {
+      return this.gs.delete(SERV.VOUCHER, voucher._id);
     });
 
     this.subscriptions.push(
@@ -218,7 +175,7 @@ export class AgentBinariesTableComponent
         )
         .subscribe((results) => {
           this.snackBar.open(
-            `Successfully deleted ${results.length} agentBinaries!`,
+            `Successfully deleted ${results.length} vouchers!`,
             'Close'
           );
           this.reload();
@@ -229,10 +186,10 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agentBinaries: AgentBinary[]): void {
+  private rowActionDelete(vouchers: Voucher[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.AGENT_BINARY, agentBinaries[0]._id)
+        .delete(SERV.VOUCHER, vouchers[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -240,23 +197,19 @@ export class AgentBinariesTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted agent binary!', 'Close');
+          this.snackBar.open('Successfully deleted voucher!', 'Close');
           this.reload();
         })
     );
   }
 
-  private rowActionEdit(agentBinary: AgentBinary): void {
+  private rowActionEdit(voucher: Voucher): void {
     this.router.navigate([
       '/config',
       'engine',
-      'agent-binaries',
-      agentBinary._id,
+      'vouchers',
+      voucher._id,
       'edit'
     ]);
-  }
-
-  private rowActionDownload(agentBinary: AgentBinary): void {
-    window.location.href = `${this.agentdownloadURL}${agentBinary._id}`;
   }
 }
