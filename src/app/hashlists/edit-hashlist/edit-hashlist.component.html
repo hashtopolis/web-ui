@@ -1,121 +1,40 @@
-<app-page-title [title]="type === 3 ? 'Edit SuperHaslist': 'Edit HashList'" [subbutton]="false"></app-page-title>
-<!-- Edit Hashlist -->
 <div class="row g-3">
   <div class="col-md-7">
-    <grid-main [class]="'width:100%'">
-    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-        <grid-form-input [name]="'ID'">
-          <input
-                type='text'
-                id='hashlistId'
-                class='form-control'
-                formControlName="hashlistId"
-          >
-        </grid-form-input>
-        <div formGroupName="updateData">
-          <grid-form-input [name]="'Name'">
-            <input
-                  type='text'
-                  id='name'
-                  class='form-control'
-                  formControlName="name"
-            >
-          </grid-form-input>
-          <grid-form-input [name]="'Notes'">
-            <textarea
-                    id='notes'
-                    class='form-control'
-                    formControlName="notes"
-              >
-              </textarea>
-          </grid-form-input>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <grid-form-input [name]="'Access Group'">
-                <td>
-                  <select
-                        id='accessGroupId'
-                        class='form-select'
-                        formControlName="accessGroupId"
-                    >
-                    <option *ngFor="let a of accessgroup"  [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
-                  </select>
-              </grid-form-input>
+    <grid-main>
+      <app-page-title [title]="type === 3 ? 'Edit SuperHashlist': 'Edit HashList'" [subbutton]="false"></app-page-title>
+      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
+
+          <input-text title="ID" formControlName="hashlistId" [disabled]="true"></input-text>
+
+          <div formGroupName="updateData" fxLayout="column" fxLayoutGap="10px">
+
+            <input-text title="Name" formControlName="name"></input-text>
+
+            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+              <input-text title="Notes" formControlName="notes"></input-text>
+              <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+              <input-check title="isSecret" formControlName="notes" tooltip="Contains secret data"></input-check>
+
             </div>
-            <div class="col-md-8">
-              <grid-form-input [name]="'Secret'" [tooltip]="'Contains secret data'">
-                <td>
-                  <div class="form-check form-switch">
-                  <input
-                        type="checkbox"
-                        id="isSecret"
-                        class="form-check-input"
-                        formControlName="isSecret"
-                  >
-                  </div>
-              </grid-form-input>
-            </div>
+
           </div>
-        </div>
-        <hr>
-        <grid-form-input [name]="'Hash Type'">
-          <span class="pre input-group-text input-group-lg">
-            {{ hashtype.hashTypeId }} - {{ hashtype.description }}
-          </span>
-        </grid-form-input>
-        <div class="row">
-          <div class="col">
-            <grid-form-input [name]="'Using hashcat brain'">
-              <input
-                    id='useBrain'
-                    class='form-control'
-                    formControlName="useBrain"
-                >
-            </grid-form-input>
+
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+            <simulate-form-field label="Hash Type"  message="{{ hashtype.hashTypeId }} - {{ hashtype.description }}"></simulate-form-field>
+            <input-text title="Using hashcat brain" formControlName="useBrain" [disabled]="true"></input-text>
+            <input-text title="Format" formControlName="format" [disabled]="true"></input-text>
+            <input-text title="Hashes" formControlName="hashCount" [disabled]="true"></input-text>
+            <input-text title="Cracked" formControlName="cracked" [disabled]="true"></input-text>
+            <input-text title="Remaining" formControlName="remaining" [disabled]="true"></input-text>
+
           </div>
-          <div class="col">
-            <grid-form-input [name]="'Format'">
-              <input
-                    id='format'
-                    class='form-control'
-                    formControlName="format"
-                >
-            </grid-form-input>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <grid-form-input [name]="'Hashes'">
-              <input
-                    id='hashCount'
-                    class='form-control'
-                    formControlName="hashCount"
-                >
-            </grid-form-input>
-          </div>
-          <div class="col">
-            <grid-form-input [name]="'Cracked'">
-              <input
-                    id='cracked'
-                    class='form-control'
-                    formControlName="cracked"
-                >
-            </grid-form-input>
-          </div>
-          <div class="col">
-            <grid-form-input [name]="'Remaining'">
-              <input
-                    id='cracked'
-                    class='form-control'
-                    formControlName="remaining"
-                >
-            </grid-form-input>
-          </div>
-        </div>
-        <grid-buttons>
-          <button-submit [name]="'Update'"></button-submit>
-        </grid-buttons>
-    </form>
+
+          <grid-buttons>
+            <button-submit [name]="'Update'"></button-submit>
+          </grid-buttons>
+      </form>
   </grid-main>
 </div>
 <div class="col-md-5">

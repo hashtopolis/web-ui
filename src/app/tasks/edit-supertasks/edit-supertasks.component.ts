@@ -1,9 +1,8 @@
-import { faAlignJustify, faInfoCircle, faMagnifyingGlass, faEye, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 import { Subject } from 'rxjs';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
@@ -11,6 +10,11 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 declare let options: any;
 declare let defaultOptions: any;
@@ -20,27 +24,24 @@ declare let parser: any;
   selector: 'app-edit-supertasks',
   templateUrl: './edit-supertasks.component.html'
 })
-@PageTitle(['Edit SuperTasks'])
 export class EditSupertasksComponent implements OnInit {
+  /** Flag indicating whether data is still loading. */
+  isLoading = true;
 
-  editMode = false;
+  /** Form group for the new SuperTask. */
+  updateForm: FormGroup;
+  etForm: FormGroup; //estimation time form
+  viewForm: FormGroup; //Supertask details
+
+  /** List of PreTasks. */
+  selectPretasks: any[];
+
+  // Edit
   editedSTIndex: number;
-  editedST: any // Change to Model
-
-  faEye=faEye;
-  faTrash=faTrash;
-  faInfoCircle=faInfoCircle;
-  faAlignJustify=faAlignJustify;
-  faMagnifyingGlass=faMagnifyingGlass;
-
-  constructor(
-    private route:ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router,
-  ) { }
-
-  private maxResults = environment.config.prodApiMaxResults
+  editedST: any; // Change to Model
+  pretasks: any = [];
+  pretasksFiles: any = [];
+  assignPretasks: any;
 
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
@@ -48,27 +49,52 @@ export class EditSupertasksComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-  viewForm: FormGroup;
-  updateForm: FormGroup;
-  etForm:FormGroup; //estimation time form
-  pretasks: any = [];
-  pretasksFiles: any = [];
-  assignPretasks: any;
+  constructor(
+    private unsubscribeService: UnsubscribeService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private titleService: AutoTitleService,
+    private route: ActivatedRoute,
+    private alert: AlertService,
+    private gs: GlobalService,
+    private router: Router
+  ) {
+    this.onInitialize();
+    this.buildForm();
+    titleService.set(['Edit SuperTasks']);
+  }
 
+  /**
+   * Initializes the component by extracting and setting the user ID,
+   */
+  onInitialize() {
+    this.route.params.subscribe((params: Params) => {
+      this.editedSTIndex = +params['id'];
+    });
+  }
+
+  /**
+   * Lifecycle hook called after component initialization.
+   */
   ngOnInit(): void {
+    this.loadData();
+    this.loadTableData();
+  }
 
-    this.route.params
-    .subscribe(
-      (params: Params) => {
-        this.editedSTIndex = +params['id'];
-        this.editMode = params['id'] != null;
-        this.initForm();
-      }
-    );
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+  }
 
+  /**
+   * Builds the form for creating a new SuperHashlist.
+   */
+  buildForm(): void {
     this.viewForm = new FormGroup({
-      supertaskId: new FormControl({value: '', disabled: true}),
-      supertaskName: new FormControl({value: '', disabled: true}),
+      supertaskId: new FormControl({ value: '', disabled: true }),
+      supertaskName: new FormControl({ value: '', disabled: true })
     });
 
     this.updateForm = new FormGroup({
@@ -77,238 +103,255 @@ export class EditSupertasksComponent implements OnInit {
 
     this.etForm = new FormGroup({
       benchmarka0: new FormControl(null || 0),
-      benchmarka3: new FormControl(null || 0),
+      benchmarka3: new FormControl(null || 0)
     });
-
-    setTimeout(() => {
-      this.fetchPreTaskData();
-     }, 1000);
   }
 
-  onSubmit(){
-    if (this.updateForm.valid) {
+  /**
+   * Loads data, specifically hashlists, for the component.
+   */
+  loadData(): void {
+    const field = {
+      fieldMapping: {
+        name: 'taskName',
+        _id: 'pretaskId'
+      }
+    };
+    const loadSTSubscription$ = this.gs
+      .get(SERV.SUPER_TASKS, this.editedSTIndex, { expand: 'pretasks' })
+      .subscribe((res) => {
+        this.assignPretasks = res.pretasks;
+        this.viewForm = new FormGroup({
+          supertaskId: new FormControl({
+            value: res['supertaskId'],
+            disabled: true
+          }),
+          supertaskName: new FormControl({
+            value: res['supertaskName'],
+            disabled: true
+          })
+        });
+        const loadPTSubscription$ = this.gs
+          .getAll(SERV.PRETASKS)
+          .subscribe((htypes: ListResponseWrapper<any>) => {
+            const response = this.getAvailablePretasks(
+              res.pretasks,
+              htypes.values
+            );
+            const transformedOptions = transformSelectOptions(response, field);
+            this.selectPretasks = transformedOptions;
+            this.isLoading = false;
+            this.changeDetectorRef.detectChanges();
+          });
+        this.unsubscribeService.add(loadPTSubscription$);
+      });
+    this.unsubscribeService.add(loadSTSubscription$);
+  }
 
+  /**
+   * Retrieves the available pre-tasks that are not assigned.
+   *
+   * @param {Array} assigning - An array of assigned tasks with pre-task information.
+   * @param {Array} pretasks - An array of all available pre-tasks.
+   * @returns {Array} - An array containing pre-tasks that are not assigned.
+   */
+  getAvailablePretasks(assigning, pretasks) {
+    // Use filter to find pre-tasks not present in the assigning array
+    return pretasks.filter(
+      (pretask) =>
+        assigning.findIndex(
+          (assignedTask) => assignedTask.pretaskId === pretask.pretaskId
+        ) === -1
+    );
+  }
+
+  /**
+   * Handles the form submission for updating super tasks.
+   * Validates the form, concatenates the current and new pre-task values,
+   * and updates the super task with the new pre-task payload.
+   */
+  onSubmit() {
+    if (this.updateForm.valid) {
       const concat = []; // We get the current values and then concat with the new value
-      for(let i=0; i < this.assignPretasks.length; i++){
+      for (let i = 0; i < this.assignPretasks.length; i++) {
         concat.push(this.assignPretasks[i].pretaskId);
       }
-      let payload = concat.concat(this.updateForm.value['pretasks']);
+      const payload = concat.concat(this.updateForm.value['pretasks']);
 
-      this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe(() => {
-          this.alert.okAlert('SuperTask saved!','');
+      const updateSubscription$ = this.gs
+        .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
+        .subscribe(() => {
+          this.alert.okAlert('SuperTask saved!', '');
           this.updateForm.reset(); // success, we reset form
           this.onRefresh();
           // this.router.navigate(['/tasks/supertasks']);
-        }
-      );
-    }
-  }
-
-  ngAfterViewInit() {
-
-    const params = { 'maxResults': this.maxResults};
-    this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex,{'expand':'pretasks'}).subscribe((res)=>{
-    this.gs.getAll(SERV.PRETASKS,params).subscribe((htypes: any) => {
-      const self = this;
-      const response =  this.getAvalPretasks(res.pretasks,htypes.values);
-      ($("#pretasks") as any).selectize({
-        plugins: ['remove_button'],
-        valueField: "pretaskId",
-        placeholder: "Search pretask...",
-        labelField: "taskName",
-        searchField: ["taskName"],
-        loadingClass: 'Loading..',
-        highlight: true,
-        onType: function(){
-          this.$input[0].selectize.renderCache = {};
-          this.$input[0].selectize.clearOptions();
-          this.$input[0].selectize.refreshOptions(true);
-        },
-        onChange: function (value) {
-            self.OnChangeValue(value); // We need to overide DOM event, Angular vs Jquery
-        },
-        render: {
-          option: function (item, escape) {
-            return '<div  class="style_selectize" ngbTooltip="The "">' + escape(item.pretaskId) + ' -  ' + escape(item.taskName) + '</div>';
-          },
-        },
-        onInitialize: function(){
-          const selectize = this;
-            selectize.addOption(response); // This is will add to option
-            const selected_items = [];
-            $.each(response, function( i, obj) {
-                selected_items.push(obj.id);
-            });
-            selectize.setValue(selected_items); //this will set option values as default
-          }
-          });
         });
-      });
+      this.unsubscribeService.add(updateSubscription$);
     }
-
-  getAvalPretasks(assing: any, pretasks: any){
-
-    return pretasks.filter(u => assing.findIndex(lu => lu.pretaskId === u.pretaskId) === -1);
-
   }
 
-  OnChangeValue(value){
-    const formArr = new FormArray([]);
-    for (const val of value) {
-      formArr.push(
-        new FormControl(+val)
-      );
-    }
-    this.updateForm = new FormGroup({
-      pretasks: formArr
-    });
-  }
-
-  onDelete(){
-    const id = +this.route.snapshot.params['id'];
-    this.alert.deleteConfirmation('','Supertasks').then((confirmed) => {
+  /**
+   * Handles the deletion of a super task. Displays a confirmation dialog,
+   * and if confirmed, triggers the deletion of the super task.
+   * Navigates to the super tasks page after successful deletion.
+   */
+  onDelete() {
+    this.alert.deleteConfirmation('', 'Supertasks').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        this.gs.delete(SERV.SUPER_TASKS, id).subscribe(() => {
-          // Successful deletion
-          this.alert.okAlert(`Deleted Supertask`, '');
-          this.router.navigate(['/tasks/supertasks']);
-        });
+        const deleteSubscription$ = this.gs
+          .delete(SERV.SUPER_TASKS, this.editedSTIndex)
+          .subscribe(() => {
+            // Successful deletion
+            this.alert.okAlert(`Deleted Supertask`, '');
+            this.router.navigate(['/tasks/supertasks']);
+          });
+        this.unsubscribeService.add(deleteSubscription$);
       } else {
         // Handle cancellation
-        this.alert.okAlert(`Supertask is safe!`,'');
+        this.alert.okAlert(`Supertask is safe!`, '');
       }
     });
   }
 
-  onDeletePret(id: number){
-    const filter = this.assignPretasks.filter(u => u.pretaskId !== id);
+  /**
+   * Handles the removal of a pre-task from the assigned pre-tasks of a super task.
+   * Updates the super task with the modified pre-task payload after deletion.
+   *
+   * @param {number} pretaskId - The ID of the pre-task to be removed.
+   */
+  removeAssignedPretask(id: number) {
+    const filter = this.assignPretasks.filter((u) => u.pretaskId !== id);
     const payload = [];
-    for(let i=0; i < filter.length; i++){
+    for (let i = 0; i < filter.length; i++) {
       payload.push(filter[i].pretaskId);
     }
-    this.gs.update(SERV.SUPER_TASKS,this.editedSTIndex,{'pretasks': payload}).subscribe((result)=>{
-      this.alert.okAlert('Deleted supertask','');
-      this.updateForm.reset(); // success, we reset form
-      this.onRefresh();
-    })
-
+    const updateSubscription$ = this.gs
+      .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
+      .subscribe((result) => {
+        this.alert.okAlert('Deleted supertask', '');
+        this.updateForm.reset(); // success, we reset form
+        this.onRefresh();
+      });
+    this.unsubscribeService.add(updateSubscription$);
   }
 
-  private initForm() {
-    if (this.editMode) {
-    this.gs.get(SERV.SUPER_TASKS,this.editedSTIndex,{'expand': 'pretasks'}).subscribe((result)=>{
-      this.assignPretasks = result.pretasks;
-      this.viewForm = new FormGroup({
-        supertaskId: new FormControl({value: result['supertaskId'], disabled: true}),
-        supertaskName: new FormControl({value: result['supertaskName'], disabled: true}),
+  loadTableData() {
+    const matchObjectFiles = [];
+    this.gs
+      .getAll(SERV.SUPER_TASKS, {
+        expand: 'pretasks',
+        filter: 'supertaskId=' + this.editedSTIndex + ''
+      })
+      .subscribe((result) => {
+        this.gs
+          .getAll(SERV.PRETASKS, { expand: 'pretaskFiles' })
+          .subscribe((pretasks: any) => {
+            this.pretasks = result.values.map((mainObject) => {
+              for (
+                let i = 0;
+                i < Object.keys(result.values[0].pretasks).length;
+                i++
+              ) {
+                matchObjectFiles.push(
+                  pretasks.values.find(
+                    (element: any) =>
+                      element?.pretaskId === mainObject.pretasks[i]?.pretaskId
+                  )
+                );
+              }
+              return { ...mainObject, matchObjectFiles };
+            });
+            this.dtTrigger.next(void 0);
+          });
       });
-    });
-   }
-  }
-
-  async fetchPreTaskData() {
-
-    const params = {'maxResults': this.maxResults, 'expand': 'pretasks', 'filter': 'supertaskId='+this.editedSTIndex+''};
-    const paramspt = { 'maxResults': this.maxResults,'expand': 'pretaskFiles'};
-    const matchObjectFiles =[]
-    this.gs.getAll(SERV.SUPER_TASKS,params).subscribe((result)=>{
-    this.gs.getAll(SERV.PRETASKS,paramspt).subscribe((pretasks: any) => {
-      this.pretasks = result.values.map(mainObject => {
-          for(let i=0; i < Object.keys(result.values[0].pretasks).length; i++){
-            matchObjectFiles.push(pretasks.values.find((element:any) => element?.pretaskId === mainObject.pretasks[i]?.pretaskId))
-          }
-          return { ...mainObject, matchObjectFiles }
-        })
-        this.dtTrigger.next(void 0);
-      });
-    });
 
     this.dtOptions[0] = {
       dom: 'Bfrtip',
-      scrollY: "700px",
+      scrollY: '700px',
       scrollCollapse: true,
       paging: false,
       autoWidth: false,
       searching: false,
       buttons: {
-          dom: {
-            button: {
-              className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
-            }
-          },
-      buttons:[]
+        dom: {
+          button: {
+            className:
+              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
+          }
+        },
+        buttons: []
       }
-    }
-
+    };
   }
 
-  onRefresh(){
+  onRefresh() {
     // this.rerender();
     // this.ngOnInit();
     // Todo using window reload as some issues clearing filter when adding pretask
-   window.location.reload();
+    window.location.reload();
   }
 
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
-  }
-
-  // Calculate Estimated duration
-
-  keyspaceTimeCalc(){
-    if(this.etForm.value.benchmarka0 !==0 && this.etForm.value.benchmarka3 !== 0){
-
+  /**
+   * Calculates the total runtime of a supertask based on benchmark values and keyspace sizes.
+   * Updates the HTML content to display the total runtime of the supertask.
+   */
+  keyspaceTimeCalc() {
+    if (
+      this.etForm.value.benchmarka0 !== 0 &&
+      this.etForm.value.benchmarka3 !== 0
+    ) {
       let totalSecondsSupertask = 0;
       let unknown_runtime_included = 0;
       const benchmarka0 = this.etForm.value.benchmarka0;
       const benchmarka3 = this.etForm.value.benchmarka3;
 
-      $(".taskInSuper").each(function (index) {
-          const keyspace_size = $(this).find("td:nth-child(4)").text();
-          let seconds = null;
-          let runtime = null;
+      // Iterate over each task in the supertask
+      $('.taskInSuper').each(function (index) {
+        // Extract keyspace size from the table cell
+        const keyspace_size = $(this).find('td:nth-child(4)').text();
+        let seconds = null;
+        let runtime = null;
 
-          options = defaultOptions;
-          options.ruleFiles = [];
-          options.posArgs = [];
-          options.unrecognizedFlag = [];
+        // Set default options for the attack
+        options = defaultOptions;
+        options.ruleFiles = [];
+        options.posArgs = [];
+        options.unrecognizedFlag = [];
 
-          if (keyspace_size === null || !keyspace_size) {
-              unknown_runtime_included = 1;
-              runtime = "Unknown";
-          } else if (options.attackType === 3) {
-              seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
-          } else if (options.attackType === 0) {
-              seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
-          }
+        // Check if keyspace size is available
+        if (keyspace_size === null || !keyspace_size) {
+          unknown_runtime_included = 1;
+          runtime = 'Unknown';
+        } else if (options.attackType === 3) {
+          // Calculate seconds based on benchmarka3 for attackType 3
+          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
+        } else if (options.attackType === 0) {
+          // Calculate seconds based on benchmarka0 for attackType 0
+          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
+        }
 
-          if (Number.isInteger(seconds)) {
-              totalSecondsSupertask = totalSecondsSupertask + seconds;
-              const days = Math.floor(seconds / (3600 * 24));
-              seconds -= days * 3600 * 24;
-              const hrs = Math.floor(seconds / 3600);
-              seconds -= hrs * 3600;
-              const mins = Math.floor(seconds / 60);
-              seconds -= mins * 60;
+        // Convert seconds to human-readable runtime format
+        if (Number.isInteger(seconds)) {
+          totalSecondsSupertask += seconds;
+          const days = Math.floor(seconds / (3600 * 24));
+          seconds -= days * 3600 * 24;
+          const hrs = Math.floor(seconds / 3600);
+          seconds -= hrs * 3600;
+          const mins = Math.floor(seconds / 60);
+          seconds -= mins * 60;
 
-              runtime = days + "d, " + hrs + "h, " + mins + "m, " + seconds + "s";
-          } else {
-              unknown_runtime_included = 1;
-              runtime = "Unknown";
-          }
+          runtime = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+        } else {
+          unknown_runtime_included = 1;
+          runtime = 'Unknown';
+        }
 
-          $(this).find("td:nth-child(5)").html(runtime);
+        // Update the HTML content with the calculated runtime
+        $(this).find('td:nth-child(5)').html(runtime);
       });
 
-      // reduce total runtime to a human format
+      // Reduce total runtime to a human-readable format
       let seconds = totalSecondsSupertask;
       const days = Math.floor(seconds / (3600 * 24));
       seconds -= days * 3600 * 24;
@@ -317,15 +360,16 @@ export class EditSupertasksComponent implements OnInit {
       const mins = Math.floor(seconds / 60);
       seconds -= mins * 60;
 
-      let totalRuntimeSupertask = days + "d, " + hrs + "h, " + mins + "m, " + seconds + "s";
+      let totalRuntimeSupertask =
+        days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+
+      // Append additional information if unknown runtime is included
       if (unknown_runtime_included === 1) {
-          totalRuntimeSupertask = totalRuntimeSupertask + ", plus additional unknown runtime"
+        totalRuntimeSupertask += ', plus additional unknown runtime';
       }
 
-      $(".runtimeOfSupertask").html(totalRuntimeSupertask)
-
+      // Update the HTML content with the total runtime of the supertask
+      $('.runtimeOfSupertask').html(totalRuntimeSupertask);
     }
   }
-
-
 }

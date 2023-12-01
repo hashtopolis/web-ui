@@ -1,13 +1,14 @@
-<div class="color-picker-container">
+<div class="custom-input-container">
   <mat-form-field>
     <mat-label>{{ title }}</mat-label>
     <input
-          #colorInput
+          #inputField
           matInput
           [id]="inputId"
           [(ngModel)]="value"
+          (ngModelChange)="onChange(value)"
           (colorPickerChange)="onChangeValue($event)"
-          [style.background]="defaultColor"
+          [style.background]="value"
           [value]="defaultColor"
           [(colorPicker)]="defaultColor"
           [cpAddColorButtonText]="defaultColor"
@@ -18,7 +19,7 @@
   </mat-form-field>
 
   <div *ngIf="randomColor">
-    <button mat-icon-button matTooltip="Randomize Color" (click)="generateRandomColor()">
+    <button type="button" mat-icon-button matTooltip="Randomize Color" (click)="generateRandomColor()">
       <mat-icon>casino</mat-icon>
     </button>
   </div>

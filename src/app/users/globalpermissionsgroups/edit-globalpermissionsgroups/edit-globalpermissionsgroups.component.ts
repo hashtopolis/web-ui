@@ -1,6 +1,5 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject, Subscription } from 'rxjs';
@@ -9,351 +8,310 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { Perm } from 'src/app/core/_constants/userpermissions.config';
 
+/**
+ * EditGlobalpermissionsgroupsComponent is a component that manages and edit Global Permissions data.
+ *
+ */
 @Component({
   selector: 'app-edit-globalpermissionsgroups',
   templateUrl: './edit-globalpermissionsgroups.component.html'
 })
-/**
- * EditGlobalpermissionsgroupsComponent is a component that manages and edit Global Permissions data.
- *
-*/
 export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
+  /** Form group for edit User. */
+  updateForm: FormGroup;
 
-  // Font Awesome icons
-  faEye=faEye;
+  // Filters and forms
+  editedGPGIndex: number;
+  editedGPG: any;
 
-  // ViewChild reference to the DataTableDirective
+  // Permisions
+  private permissionValues: string[] = [];
+
+  // Form Permissions
+  permissionGroups: any[] = [
+    {
+      title: 'Agents',
+      subgroups: [
+        { subtitle: 'Agents', permissions: Object.values(Perm.Agent) },
+        { subtitle: 'Agent Stats', permissions: Object.values(Perm.AgentStat) },
+        { subtitle: 'Voucher', permissions: Object.values(Perm.Voucher) }
+      ]
+    },
+    {
+      title: 'Tasks',
+      subgroups: [
+        { subtitle: 'Task', permissions: Object.values(Perm.Task) },
+        { subtitle: 'PreTask', permissions: Object.values(Perm.Pretask) },
+        { subtitle: 'SuperTask', permissions: Object.values(Perm.SuperTask) },
+        { subtitle: 'Chunks', permissions: Object.values(Perm.Chunk) }
+      ]
+    },
+    {
+      title: 'Hashlists',
+      subgroups: [
+        { subtitle: 'Hashlist', permissions: Object.values(Perm.Hashlist) },
+        {
+          subtitle: 'SuperHashlist',
+          permissions: Object.values(Perm.SuperHashlist)
+        },
+        { subtitle: 'Hash', permissions: Object.values(Perm.Hash) }
+      ]
+    },
+    {
+      title: 'Files',
+      subgroups: [
+        {
+          subtitle: 'Files',
+          permissions: Object.values(Perm.File)
+        }
+      ]
+    },
+    {
+      title: 'Configuration',
+      subgroups: [
+        {
+          subtitle: 'Global Settings',
+          permissions: Object.values(Perm.Config)
+        },
+        {
+          subtitle: 'Agent Binary',
+          permissions: Object.values(Perm.AgentBinary)
+        },
+        {
+          subtitle: 'Cracker Binary',
+          permissions: Object.values(Perm.CrackerBinary)
+        },
+        {
+          subtitle: 'Cracker Binary Type',
+          permissions: Object.values(Perm.CrackerBinaryType)
+        },
+        { subtitle: 'Preprocessor', permissions: Object.values(Perm.Prepro) },
+        {
+          subtitle: 'Health Check',
+          permissions: Object.values(Perm.HealthCheck)
+        }
+      ]
+    },
+    {
+      title: 'Users',
+      subgroups: [
+        { subtitle: 'User', permissions: Object.values(Perm.User) },
+        {
+          subtitle: 'Notifications',
+          permissions: Object.values(Perm.Notif)
+        }
+      ]
+    },
+    {
+      title: 'Permissions',
+      subgroups: [
+        {
+          subtitle: 'Global Permissions',
+          permissions: Object.values(Perm.RightGroup)
+        },
+        {
+          subtitle: 'Access Groups',
+          permissions: Object.values(Perm.GroupAccess)
+        }
+      ]
+    }
+  ];
+
+  // Table to be replaced
   @ViewChild(DataTableDirective)
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
 
-  // Subscriptions to unsubscribe on component destruction
-  subscriptions: Subscription[] = []
-
-  // Filters and forms
-  editMode = false;
-  editedGPGIndex: number;
-  updateForm: FormGroup;
-  editedGPG: any // Change to Model
-  active= 1;
-
   constructor(
+    private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
-    private route:ActivatedRoute,
+    private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) {
-    titleService.set(['Edit Global Permissions'])
-   }
-
-  ngOnInit(): void {
-
-    this.route.params
-    .subscribe(
-      (params: Params) => {
-        this.editedGPGIndex = +params['id'];
-        this.editMode = params['id'] != null;
-        this.initForm();
-      }
-    );
-
-    this.updateForm = new FormGroup({
-      'name': new FormControl(),
-      'permissions': new FormGroup({
-      'permAgentCreate': new FormControl(),
-      'permAgentDelete': new FormControl(),
-      'permAgentRead': new FormControl(),
-      'permAgentUpdate': new FormControl(),
-      'permAgentStatCreate': new FormControl(),
-      'permAgentStatDelete': new FormControl(),
-      'permAgentStatRead': new FormControl(),
-      'permAgentStatUpdate': new FormControl(),
-      'permRegVoucherCreate': new FormControl(),
-      'permRegVoucherDelete': new FormControl(),
-      'permRegVoucherRead': new FormControl(),
-      'permRegVoucherUpdate': new FormControl(),
-      'permTaskCreate': new FormControl(),
-      'permTaskDelete': new FormControl(),
-      'permTaskRead': new FormControl(),
-      'permTaskUpdate': new FormControl(),
-      'permPretaskCreate': new FormControl(),
-      'permPretaskDelete': new FormControl(),
-      'permPretaskRead': new FormControl(),
-      'permPretaskUpdate': new FormControl(),
-      'permSupertaskCreate': new FormControl(),
-      'permSupertaskDelete': new FormControl(),
-      'permSupertaskRead': new FormControl(),
-      'permSupertaskUpdate': new FormControl(),
-      'permChunkDelete': new FormControl(),
-      'permChunkRead': new FormControl(),
-      'permChunkUpdate': new FormControl(),
-      'permHashlistCreate': new FormControl(),
-      'permHashlistDelete': new FormControl(),
-      'permHashlistRead': new FormControl(),
-      'permHashlistUpdate': new FormControl(),
-      'permHashlistHashlistCreate': new FormControl(),
-      'permHashlistHashlistRead': new FormControl(),
-      'permHashTypeCreate': new FormControl(),
-      'permHashTypeDelete': new FormControl(),
-      'permHashRead': new FormControl(),
-      'permFileCreate': new FormControl(),
-      'permFileDelete': new FormControl(),
-      'permFileRead': new FormControl(),
-      'permFileUpdate': new FormControl(),
-      'permConfigCreate': new FormControl(),
-      'permConfigDelete': new FormControl(),
-      'permConfigRead': new FormControl(),
-      'permConfigUpdate': new FormControl(),
-      'permAgentBinaryCreate': new FormControl(),
-      'permAgentBinaryDelete': new FormControl(),
-      'permAgentBinaryRead': new FormControl(),
-      'permAgentBinaryUpdate': new FormControl(),
-      'permCrackerBinaryCreate': new FormControl(),
-      'permCrackerBinaryDelete': new FormControl(),
-      'permCrackerBinaryRead': new FormControl(),
-      'permCrackerBinaryUpdate': new FormControl(),
-      'permCrackerBinaryTypeCreate': new FormControl(),
-      'permCrackerBinaryTypeDelete': new FormControl(),
-      'permCrackerBinaryTypeRead': new FormControl(),
-      'permCrackerBinaryTypeUpdate': new FormControl(),
-      'permPreprocessorCreate': new FormControl(),
-      'permPreprocessorDelete': new FormControl(),
-      'permPreprocessorRead': new FormControl(),
-      'permPreprocessorUpdate': new FormControl(),
-      'permHealthCheckCreate': new FormControl(),
-      'permHealthCheckDelete': new FormControl(),
-      'permHealthCheckRead': new FormControl(),
-      'permHealthCheckUpdate': new FormControl(),
-      'permUserCreate': new FormControl(),
-      'permUserDelete': new FormControl(),
-      'permUserRead': new FormControl(),
-      'permUserUpdate': new FormControl(),
-      'permNotificationSettingCreate': new FormControl(),
-      'permNotificationSettingDelete': new FormControl(),
-      'permNotificationSettingRead': new FormControl(),
-      'permNotificationSettingUpdate': new FormControl(),
-      'permRightGroupCreate': new FormControl(),
-      'permRightGroupDelete': new FormControl(),
-      'permRightGroupRead': new FormControl(),
-      'permRightGroupUpdate': new FormControl(),
-      'permAccessGroupCreate': new FormControl(),
-      'permAccessGroupDelete': new FormControl(),
-      'permAccessGroupRead': new FormControl(),
-      'permAccessGroupUpdate': new FormControl(),
-      })
-    });
-
+    this.onInitialize();
+    this.buildForm();
+    titleService.set(['Edit Global Permissions']);
   }
 
   /**
-   * Unsubscribes from active subscriptions.
-  */
+   * Initializes the component by extracting and setting the user ID,
+   */
+  onInitialize() {
+    this.route.params.subscribe((params: Params) => {
+      this.editedGPGIndex = +params['id'];
+    });
+  }
+
+  /**
+   * Lifecycle hook called after component initialization.
+   */
+  ngOnInit(): void {
+    this.initForm();
+  }
+
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
   ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
+    this.unsubscribeService.unsubscribeAll();
+  }
+
+  /**
+   * Build the form with default values for permissions.
+   *
+   * @returns {void}
+   */
+  buildForm(): void {
+    this.permissionValues = Object.values(Perm).flatMap((permission) => {
+      return typeof permission === 'string'
+        ? [permission]
+        : Object.values(permission);
+    });
+
+    const permissionsGroup = this.permissionValues.reduce((group, perm) => {
+      group[perm] = new FormControl(false);
+      return group;
+    }, {});
+
+    this.updateForm = new FormGroup({
+      name: new FormControl(),
+      permissions: new FormGroup(permissionsGroup)
+    });
+  }
+
+  /**
+   * Initialize the form with data obtained from the server.
+   *
+   * @returns {void}
+   */
+  initForm() {
+    this.loadData();
+  }
+
+  /**
+   * Loads data from the server for the edited global permission group.
+   * Populates the form with the received data.
+   *
+   * @private
+   * @returns {void}
+   */
+  private loadData() {
+    const loadSubscription$ = this.gs
+      .get(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, {
+        expand: 'user'
+      })
+      .subscribe((res) => {
+        if (res) {
+          this.editedGPG = res;
+          const result = res['permissions'];
+
+          const formValues = this.buildFormValues(result);
+
+          this.updateForm.patchValue(formValues);
+        }
+      });
+
+    this.unsubscribeService.add(loadSubscription$);
+  }
+
+  /**
+   * Builds form values based on the result received from the server.
+   * It sets the default values for the 'name' and 'permissions' fields.
+   *
+   * @private
+   * @param {any} result - The result data received from the server, typically representing permissions.
+   * @returns {any} Form values object with 'name' and 'permissions' fields.
+   */
+  private buildFormValues(result: any): any {
+    const formValues: any = {
+      name: this.editedGPG['name'],
+      permissions: {}
+    };
+
+    for (const permission of this.permissionValues) {
+      formValues.permissions[permission] = result
+        ? result[permission] || false
+        : false;
     }
+
+    return formValues;
   }
 
   /**
    * OnSubmit save changes
-  */
-  onSubmit(){
+   */
+  onSubmit() {
     if (this.updateForm.valid) {
-      this.subscriptions.push(this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, this.updateForm.value).subscribe(() => {
-        this.alert.okAlert('Global Permission Group saved!','');
-        this.updateForm.reset();
-        this.router.navigate(['/users/global-permissions-groups']);
-        }
-      ));
+      const onSubmitSubscription$ = this.gs
+        .update(
+          SERV.ACCESS_PERMISSIONS_GROUPS,
+          this.editedGPGIndex,
+          this.updateForm.value
+        )
+        .subscribe(() => {
+          this.alert.okAlert('Global Permission Group saved!', '');
+          this.updateForm.reset();
+          this.router.navigate(['/users/global-permissions-groups']);
+        });
+      this.unsubscribeService.add(onSubmitSubscription$);
     }
   }
 
-  private initForm() {
-    const params = {'expand': 'user'};
-    if (this.editMode) {
-      this.gs.get(SERV.ACCESS_PERMISSIONS_GROUPS,this.editedGPGIndex, params).subscribe((res)=>{
-      this.editedGPG = res;
-      const result = res['permissions'];
-      this.updateForm = new FormGroup({
-        'name': new FormControl(res['name']),
-        'permissions': new FormGroup({
-        'permAgentCreate': new FormControl(result['permAgentCreate']),
-        'permAgentDelete': new FormControl(result['permAgentDelete']),
-        'permAgentRead': new FormControl(result['permAgentRead']),
-        'permAgentUpdate': new FormControl(result['permAgentUpdate']),
-        'permAgentStatCreate': new FormControl(result['permAgentStatCreate']),
-        'permAgentStatDelete': new FormControl(result['permAgentStatDelete']),
-        'permAgentStatRead': new FormControl(result['permAgentStatRead']),
-        'permAgentStatUpdate': new FormControl(result['permAgentStatUpdate']),
-        'permRegVoucherCreate': new FormControl(result['permRegVoucherCreate']),
-        'permRegVoucherDelete': new FormControl(result['permRegVoucherDelete']),
-        'permRegVoucherRead': new FormControl(result['permRegVoucherRead']),
-        'permRegVoucherUpdate': new FormControl(result['permRegVoucherUpdate']),
-        'permTaskCreate': new FormControl(result['permTaskCreate']),
-        'permTaskDelete': new FormControl(result['permTaskDelete']),
-        'permTaskRead': new FormControl(result['permTaskRead']),
-        'permTaskUpdate': new FormControl(result['permTaskUpdate']),
-        'permPretaskCreate': new FormControl(result['permPretaskCreate']),
-        'permPretaskDelete': new FormControl(result['permPretaskDelete']),
-        'permPretaskRead': new FormControl(result['permPretaskRead']),
-        'permPretaskUpdate': new FormControl(result['permPretaskUpdate']),
-        'permSupertaskCreate': new FormControl(result['permSupertaskCreate']),
-        'permSupertaskDelete': new FormControl(result['permSupertaskDelete']),
-        'permSupertaskRead': new FormControl(result['permSupertaskRead']),
-        'permSupertaskUpdate': new FormControl(result['permSupertaskUpdate']),
-        'permChunkDelete': new FormControl(result['permChunkDelete']),
-        'permChunkRead': new FormControl(result['permChunkRead']),
-        'permChunkUpdate': new FormControl(result['permChunkUpdate']),
-        'permHashlistCreate': new FormControl(result['permHashlistCreate']),
-        'permHashlistDelete': new FormControl(result['permHashlistDelete']),
-        'permHashlistRead': new FormControl(result['permHashlistRead']),
-        'permHashlistUpdate': new FormControl(result['permHashlistUpdate']),
-        'permHashlistHashlistCreate': new FormControl(result['permHashlistHashlistCreate']),
-        'permHashlistHashlistRead': new FormControl(result['permHashlistHashlistRead']),
-        'permHashTypeCreate': new FormControl(result['permHashTypeCreate']),
-        'permHashTypeDelete': new FormControl(result['permHashTypeDelete']),
-        'permHashRead': new FormControl(result['permHashRead']),
-        'permFileCreate': new FormControl(result['permFileCreate']),
-        'permFileDelete': new FormControl(result['permFileDelete']),
-        'permFileRead': new FormControl(result['permFileRead']),
-        'permFileUpdate': new FormControl(result['permFileUpdate']),
-        'permConfigCreate': new FormControl(result['permConfigCreate']),
-        'permConfigDelete': new FormControl(result['permConfigDelete']),
-        'permConfigRead': new FormControl(result['permConfigRead']),
-        'permConfigUpdate': new FormControl(result['permConfigUpdate']),
-        'permAgentBinaryCreate': new FormControl(result['permAgentBinaryCreate']),
-        'permAgentBinaryDelete': new FormControl(result['permAgentBinaryDelete']),
-        'permAgentBinaryRead': new FormControl(result['permAgentBinaryRead']),
-        'permAgentBinaryUpdate': new FormControl(result['permAgentBinaryUpdate']),
-        'permCrackerBinaryCreate': new FormControl(result['permCrackerBinaryCreate']),
-        'permCrackerBinaryDelete': new FormControl(result['permCrackerBinaryDelete']),
-        'permCrackerBinaryRead': new FormControl(result['permCrackerBinaryRead']),
-        'permCrackerBinaryUpdate': new FormControl(result['permCrackerBinaryUpdate']),
-        'permCrackerBinaryTypeCreate': new FormControl(result['permCrackerBinaryTypeCreate']),
-        'permCrackerBinaryTypeDelete': new FormControl(result['permCrackerBinaryTypeDelete']),
-        'permCrackerBinaryTypeRead': new FormControl(result['permCrackerBinaryTypeRead']),
-        'permCrackerBinaryTypeUpdate': new FormControl(result['permCrackerBinaryTypeUpdate']),
-        'permPreprocessorCreate': new FormControl(result['permPreprocessorCreate']),
-        'permPreprocessorDelete': new FormControl(result['permPreprocessorDelete']),
-        'permPreprocessorRead': new FormControl(result['permPreprocessorRead']),
-        'permPreprocessorUpdate': new FormControl(result['permPreprocessorUpdate']),
-        'permHealthCheckCreate': new FormControl(result['permHealthCheckCreate']),
-        'permHealthCheckDelete': new FormControl(result['permHealthCheckDelete']),
-        'permHealthCheckRead': new FormControl(result['permHealthCheckRead']),
-        'permHealthCheckUpdate': new FormControl(result['permHealthCheckUpdate']),
-        'permUserCreate': new FormControl(result['permUserCreate']),
-        'permUserDelete': new FormControl(result['permUserDelete']),
-        'permUserRead': new FormControl(result['permUserRead']),
-        'permUserUpdate': new FormControl(result['permUserUpdate']),
-        'permNotificationSettingCreate': new FormControl(result['permNotificationSettingCreate']),
-        'permNotificationSettingDelete': new FormControl(result['permNotificationSettingDelete']),
-        'permNotificationSettingRead': new FormControl(result['permNotificationSettingRead']),
-        'permNotificationSettingUpdate': new FormControl(result['permNotificationSettingUpdate']),
-        'permRightGroupCreate': new FormControl(result['permRightGroupCreate']),
-        'permRightGroupDelete': new FormControl(result['permRightGroupDelete']),
-        'permRightGroupRead': new FormControl(result['permRightGroupRead']),
-        'permRightGroupUpdate': new FormControl(result['permRightGroupUpdate']),
-        'permAccessGroupCreate': new FormControl(result['permAccessGroupCreate']),
-        'permAccessGroupDelete': new FormControl(result['permAccessGroupDelete']),
-        'permAccessGroupRead': new FormControl(result['permAccessGroupRead']),
-        'permAccessGroupUpdate': new FormControl(result['permAccessGroupUpdate']),
-        })
-      });
-    });
-   }
+  /**
+   * Get a human-readable title from a permission string.
+   *
+   * @param {string} permission - The permission string to extract the title from.
+   * @returns {string} The corresponding title based on keywords like 'Create', 'Read', 'Update', 'Delete'.
+   */
+  getTitleFromPermission(permission: string): string {
+    if (permission.includes('Create')) {
+      return 'Create';
+    } else if (permission.includes('Read')) {
+      return 'Read';
+    } else if (permission.includes('Update')) {
+      return 'Update';
+    } else if (permission.includes('Delete')) {
+      return 'Delete';
+    } else {
+      // Default title if none of the keywords match
+      return 'Other';
+    }
   }
 
-  selected = true;
-  selectPerm(){
-    this.updateForm.patchValue({
-      'permissions': {
-        'permAgentCreate': this.selected,
-        'permAgentDelete': this.selected,
-        'permAgentRead': this.selected,
-        'permAgentUpdate': this.selected,
-        'permAgentStatCreate': this.selected,
-        'permAgentStatDelete': this.selected,
-        'permAgentStatRead': this.selected,
-        'permAgentStatUpdate': this.selected,
-        'permRegVoucherCreate': this.selected,
-        'permRegVoucherDelete': this.selected,
-        'permRegVoucherRead': this.selected,
-        'permRegVoucherUpdate': this.selected,
-        'permTaskCreate': this.selected,
-        'permTaskDelete': this.selected,
-        'permTaskRead': this.selected,
-        'permTaskUpdate': this.selected,
-        'permPretaskCreate': this.selected,
-        'permPretaskDelete': this.selected,
-        'permPretaskRead': this.selected,
-        'permPretaskUpdate': this.selected,
-        'permSupertaskCreate': this.selected,
-        'permSupertaskDelete': this.selected,
-        'permSupertaskRead': this.selected,
-        'permSupertaskUpdate': this.selected,
-        'permChunkDelete': this.selected,
-        'permChunkRead': this.selected,
-        'permChunkUpdate': this.selected,
-        'permHashlistCreate': this.selected,
-        'permHashlistDelete': this.selected,
-        'permHashlistRead': this.selected,
-        'permHashlistUpdate': this.selected,
-        'permHashlistHashlistCreate': this.selected,
-        'permHashlistHashlistRead': this.selected,
-        'permHashTypeCreate': this.selected,
-        'permHashTypeDelete': this.selected,
-        'permHashRead': this.selected,
-        'permFileCreate': this.selected,
-        'permFileDelete': this.selected,
-        'permFileRead': this.selected,
-        'permFileUpdate': this.selected,
-        'permConfigCreate': this.selected,
-        'permConfigDelete': this.selected,
-        'permConfigRead': this.selected,
-        'permConfigUpdate': this.selected,
-        'permAgentBinaryCreate': this.selected,
-        'permAgentBinaryDelete': this.selected,
-        'permAgentBinaryRead': this.selected,
-        'permAgentBinaryUpdate': this.selected,
-        'permCrackerBinaryCreate': this.selected,
-        'permCrackerBinaryDelete': this.selected,
-        'permCrackerBinaryRead': this.selected,
-        'permCrackerBinaryUpdate': this.selected,
-        'permCrackerBinaryTypeCreate': this.selected,
-        'permCrackerBinaryTypeDelete': this.selected,
-        'permCrackerBinaryTypeRead': this.selected,
-        'permCrackerBinaryTypeUpdate': this.selected,
-        'permPreprocessorCreate': this.selected,
-        'permPreprocessorDelete': this.selected,
-        'permPreprocessorRead': this.selected,
-        'permPreprocessorUpdate': this.selected,
-        'permHealthCheckCreate': this.selected,
-        'permHealthCheckDelete': this.selected,
-        'permHealthCheckRead': this.selected,
-        'permHealthCheckUpdate': this.selected,
-        'permUserCreate': this.selected,
-        'permUserDelete': this.selected,
-        'permUserRead': this.selected,
-        'permUserUpdate': this.selected,
-        'permNotificationSettingCreate': this.selected,
-        'permNotificationSettingDelete': this.selected,
-        'permNotificationSettingRead': this.selected,
-        'permNotificationSettingUpdate': this.selected,
-        'permRightGroupCreate': this.selected,
-        'permRightGroupDelete': this.selected,
-        'permRightGroupRead': this.selected,
-        'permRightGroupUpdate': this.selected,
-        'permAccessGroupCreate': this.selected,
-        'permAccessGroupDelete': this.selected,
-        'permAccessGroupRead': this.selected,
-        'permAccessGroupUpdate': this.selected,
+  /**
+   * Toggles the state of all permissions checkboxes in the form.
+   *
+   * @param {boolean} checked - The state to set for all checkboxes (true for checked, false for unchecked).
+   * @returns {void}
+   */
+  toggleAllPermissions(checked: boolean) {
+    const permissionsFormGroup = this.updateForm.get(
+      'permissions'
+    ) as FormGroup;
+
+    Object.keys(permissionsFormGroup.controls).forEach((controlName) => {
+      const control = permissionsFormGroup.get(controlName);
+      if (control) {
+        control.setValue(checked);
       }
     });
-    if(this.selected){this.selected = false;}else{this.selected = true;}
   }
 
+  /**
+   * Prevents the default behavior of an event.
+   *
+   * @param {Event} event - The event for which to prevent the default behavior.
+   * @returns {void}
+   */
+  preventDefault(event: Event) {
+    event.preventDefault();
+  }
 }

@@ -15,6 +15,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
 import { UsersRoutingModule } from './users-routing.module';
+import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { UsersRoutingModule } from './users-routing.module';
     FontAwesomeModule,
     DataTablesModule,
     ComponentsModule,
+    CoreFormsModule,
     RouterModule,
     CommonModule,
     FormsModule,

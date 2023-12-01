@@ -27,8 +27,11 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   subscriptions: Subscription[] = [];
   filters: Filter[];
   active = true;
-  allowedActions = ACTIONARRAY;
-  notifications = NOTIFARRAY;
+  allowedActions = ACTIONARRAY.map((action) => ({
+    _id: action,
+    name: action
+  }));
+  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
   oldValue: boolean;
   subTitle = EditNotificationComponent.SUBTITLE;
   submitLabel = EditNotificationComponent.SUBMITLABEL;

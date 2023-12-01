@@ -1,29 +1,21 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  ElementRef,
-  EventEmitter,
   Input,
-  OnInit,
   Output,
   ViewChild,
   forwardRef
 } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import {
-  AbstractControl,
-  FormControl,
-  NG_VALUE_ACCESSOR,
-  Validators
-} from '@angular/forms';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { Observable } from 'rxjs';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { map, startWith } from 'rxjs/operators';
+import { AbstractControl, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { SelectField } from 'src/app/core/_models/input.model';
-
+import { Observable, Subject, combineLatest, of } from 'rxjs';
+import { AbstractInputComponent } from '../abstract-input';
+import { extractIds } from '../../../shared/utils/forms';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatInput } from '@angular/material/input';
+import { map, startWith } from 'rxjs/operators';
 /**
  * InputMultiSelectComponent for selecting or searching items from an array of objects.
  * Supports dynamic filtering, highlighting, and emits selection changes.
@@ -40,152 +32,108 @@ import { SelectField } from 'src/app/core/_models/input.model';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputMultiSelectComponent implements OnInit {
-  @Input() arrayOfObjects: SelectField[] = [];
+export class InputMultiSelectComponent extends AbstractInputComponent<any> {
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
+  @Input() items: SelectField[] = [];
+  @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
-  @Input() externalControl: AbstractControl;
-  @Output() selectionChanged = new EventEmitter<SelectField[]>();
 
-  itemCtrl: AbstractControl;
-  highlightedValue: SafeHtml = '';
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
-  filteredItems: Observable<SelectField[]>;
-  items: SelectField[] = [];
+  @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
-  @ViewChild('selectInput') selectInput: ElementRef<HTMLInputElement>;
+  private searchInputSubject = new Subject<string>();
+  filteredItems: Observable<any[]>;
+  selectedItems: SelectField[] = [];
+  searchTerm = '';
 
-  /**
-   * Constructs the MatAutocompleteComponent.
-   * @param cdr - ChangeDetectorRef for triggering change detection
-   * @param sanitizer - DomSanitizer for sanitizing HTML content
-   */
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private sanitizer: DomSanitizer
-  ) {}
+  readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
-  /**
-   * Initializes the MatAutocompleteComponent and sets up the observable for filtering items
-   */
-  ngOnInit(): void {
-    this.itemCtrl = this.externalControl || this.createFormControl();
-
-    this.setupFilteredItemsObservable();
-
-    this.itemCtrl.valueChanges.subscribe((value: string) => {
-      this.updateHighlightedValue(value, this.itemCtrl.value);
-      this.cdr.markForCheck();
-    });
-  }
-
-  private createFormControl(): FormControl {
-    return new FormControl('', Validators.required);
-  }
-
-  /**
-   * Checks if a control is an instance of FormControl.
-   * @param control - The control to check.
-   * @returns True if the control is a FormControl, otherwise false.
-   */
-  isFormControl(control: AbstractControl): control is FormControl {
-    return control instanceof FormControl;
-  }
-
-  /**
-   * Handles the addition of a new item.
-   * @param event
-   */
-  public addItem(event: MatChipInputEvent): void {
-    const value = (event.value || '').trim();
-
-    event.chipInput!.clear();
-
-    this.itemCtrl.setValue(null);
-
-    this.selectionChanged.emit(this.items);
-  }
-
-  /**
-   * Handles the removal of a selected item.
-   * @param item - The SelectField item to be removed.
-   */
-  public remove(item: SelectField): void {
-    const index = this.items.indexOf(item);
-
-    if (index >= 0) {
-      this.items.splice(index, 1);
-
-      this.selectionChanged.emit(this.items);
-
-      this.setupFilteredItemsObservable();
-    }
-  }
-
-  /**
-   * Handles the selection of an option If an option is selected, it adds the selected item to the 'items' array
-   * If no option is selected, it sets the selection error to true.
-   * @param event - The MatAutocompleteSelectedEvent representing the selected option.
-   */
-  public selected(event: MatAutocompleteSelectedEvent): void {
-    this.items.push(event.option.value);
-    this.selectInput.nativeElement.value = '';
-    this.setupFilteredItemsObservable();
-    this.highlightedValue = '';
-    this.selectionChanged.emit(this.items);
-    this.onChange(this.items);
-    this.onTouched();
-  }
-
-  private onChange: any = () => {};
-  private onTouched: any = () => {};
-
-  writeValue(value: any): void {
-    if (value !== undefined) {
-      this.items = value;
-      this.cdr.detectChanges();
-    }
-  }
-
-  registerOnChange(fn: any): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: any): void {
-    this.onTouched = fn;
-  }
-
-  /**
-   * Sets up an observable for filtering items based on user input.
-   *
-   */
-  private setupFilteredItemsObservable(): void {
-    this.filteredItems = this.itemCtrl.valueChanges.pipe(
-      startWith(null),
-      map((inputValue: string | null) =>
-        inputValue ? this._filter(inputValue) : this.getUnselectedItems()
-      )
+  constructor(private sanitizer: DomSanitizer) {
+    super();
+    this.filteredItems = combineLatest([
+      this.searchInputSubject.pipe(
+        startWith('') // Emit an empty string as the initial value
+      ),
+      of(this.items) // Emit the items array as an initial value
+    ]).pipe(
+      map(([searchTerm, allItems]) => {
+        return searchTerm
+          ? this._filter(searchTerm)
+          : this.getUnselectedItems();
+      })
     );
   }
 
   /**
-   * Gets the unselected items from the array of objects.
-   * @returns An array of unselected items.
+   * Handles the change in the input value and triggers the corresponding change events.
+   *
+   * @param {any} value - The new value of the input.
+   * @returns {void}
    */
-  private getUnselectedItems(): SelectField[] {
-    return this.arrayOfObjects.filter((item) => !this.items.includes(item));
+  /**
+   * Handles the change in the input value and triggers the corresponding change events.
+   *
+   * @param {any} value - The new value of the input.
+   * @returns {void}
+   */
+  onChangeValue(value): void {
+    if (!this.multiselectEnabled) {
+      this.value = Array.isArray(value)
+        ? extractIds(value, '_id')[0]
+        : extractIds(value, '_id')[0];
+    } else {
+      this.value = Array.isArray(value)
+        ? extractIds(value, '_id')
+        : extractIds(value, '_id');
+    }
+
+    this.onChange(this.value);
   }
 
   /**
-   * Filters an array of SelectField items based on a search value.
-   * @param value - The search value used for filtering.
-   * @returns An array of SelectField items that match the search criteria.
+   * Handles the change in the search input and updates the search input subject.
+   *
+   * @returns {void}
+   */
+  onSearchInputChange(): void {
+    this.searchInputSubject.next(this.searchTerm);
+  }
+
+  /**
+   * Removes the specified item from the selected items.
+   *
+   * @param {SelectField} item - The item to be removed.
+   * @returns {void}
+   */
+  public remove(item: SelectField): void {
+    const index = this.selectedItems.indexOf(item);
+
+    if (index >= 0) {
+      // Add the removed item back to the unselected items
+      this.items.push(item);
+
+      // Remove the item from the selected items
+      this.selectedItems.splice(index, 1);
+
+      // Update the filteredItems observable
+      this.searchInputSubject.next(this.searchTerm);
+
+      // Notify about the change
+      this.onChangeValue(this.selectedItems);
+      // this.onTouched();
+    }
+  }
+
+  /**
+   * Filters the items based on the provided search value.
+   *
+   * @param {string} value - The search value to filter the items.
+   * @returns {SelectField[]} - The filtered array of items.
    */
   private _filter(value: string): SelectField[] {
     const filterValue = value.toLowerCase();
-    return this.arrayOfObjects.filter((item: SelectField) => {
+    return this.items.filter((item: SelectField) => {
       const nameToSearch = this.mergeIdAndName
         ? `${item._id} ${item.name}`.toLowerCase()
         : item.name.toLowerCase();
@@ -194,52 +142,75 @@ export class InputMultiSelectComponent implements OnInit {
   }
 
   /**
-   * Checks if a specific error is present in the FormControl.
-   * @param errorName - The name of the error to check.
-   * @returns True if the specified error is present, otherwise false.
+   * Handles the selection of an item from the autocomplete dropdown.
+   *
+   * @param {MatAutocompleteSelectedEvent} event - The event containing information about the selected item.
+   * @returns {void}
    */
-  public hasError = (errorName: string): boolean => {
-    return this.itemCtrl.hasError(errorName);
-  };
-
-  /**
-   * Gets the error message for the selection based on the current FormControl state.
-   * @returns The error message or an empty string if no error is present.
-   */
-  public getSelectionError(): string {
-    if (
-      this.hasError('required') &&
-      (this.itemCtrl.dirty || this.itemCtrl.touched)
-    ) {
-      return 'Please make a selection';
+  public selected(event: MatAutocompleteSelectedEvent): void {
+    if (!this.multiselectEnabled) {
+      // For single-select, clear the selected items before adding the new one
+      this.selectedItems = [];
+      // If single-select, remove the selected item from the unselected items
+      const index = this.items.indexOf(event.option.value);
+      if (index !== -1) {
+        this.items.splice(index, 1);
+      }
+    } else {
+      // For multi-select, remove the selected item from the items array
+      const index = this.items.indexOf(event.option.value);
+      if (index !== -1) {
+        this.items.splice(index, 1);
+      }
     }
 
-    return '';
+    this.searchTerm = ''; // Reset the search term
+    this.selectedItems.push(event.option.value);
+
+    // Update the filteredItems observable
+    this.searchInputSubject.next(this.searchTerm);
+
+    // Notify about the change
+    this.onChangeValue(this.selectedItems);
+    // this.onTouched();
   }
 
   /**
-   * Updates the HTML representation of a value with highlighted characters.
-   * @param value - The original string value.
-   * @param term - The search term used for highlighting.
-   * @returns A SafeHtml object representing the HTML with highlighted characters.
+   * Gets the unselected items from the available items list.
+   *
+   * @returns {SelectField[]} - The array of unselected items.
+   */
+  private getUnselectedItems(): SelectField[] {
+    return this.items.filter((item) => !this.selectedItems.includes(item));
+  }
+
+  /**
+   * Updates the provided string by highlighting the matching term.
+   *
+   * @param {string} value - The original string to be highlighted.
+   * @param {string} term - The term to be highlighted in the string.
+   * @returns {SafeHtml} - The sanitized HTML with the highlighted term.
    */
   public updateHighlightedValue(value: string, term: string): SafeHtml {
     if (typeof term === 'string' && typeof value === 'string') {
-      const pattern = term
-        .replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
-        .split(' ')
-        .filter((t) => t.length > 0)
-        .join('|');
-      const regex = new RegExp(`(${pattern})`, 'gi');
+      const lowerValue = value.toLowerCase();
+      const lowerTerm = term.toLowerCase();
 
-      const highlightedValue = value.replace(
-        regex,
-        (match) => `<span class="highlight-text">${match}</span>`
-      );
+      const index = lowerValue.indexOf(lowerTerm);
 
-      return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);
-    } else {
-      return this.sanitizer.bypassSecurityTrustHtml(value);
+      if (index >= 0) {
+        const highlightedValue =
+          value.substring(0, index) +
+          `<span class="highlight-text">${value.substr(
+            index,
+            term.length
+          )}</span>` +
+          value.substring(index + term.length);
+
+        return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);
+      }
     }
+
+    return this.sanitizer.bypassSecurityTrustHtml(value);
   }
 }

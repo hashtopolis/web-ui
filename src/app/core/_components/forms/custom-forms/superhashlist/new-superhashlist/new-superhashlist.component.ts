@@ -43,10 +43,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   @Input()
   error;
 
-  /** Maximum results for API requests. */
-  private maxResults = environment.config.prodApiMaxResults;
-
-  /** List of hashlists. */
+  /** Select List of hashlists. */
   selectHashlists: any;
 
   /**
@@ -104,7 +101,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, {
-        maxResults: this.maxResults,
         filter: 'isArchived=false,format=0'
       })
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
@@ -131,16 +127,5 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
 
       this.unsubscribeService.add(createSubscription$);
     }
-  }
-
-  /**
-   * Handles the selection of items in the UI.
-   * Extracts the IDs from the selected items and sets them in the form.
-   *
-   * @param selectedItems - The items that are selected.
-   */
-  handleSelectedItems(selectedItems: SelectField[]): void {
-    const extractedIds = extractIds(selectedItems, '_id');
-    this.form.get('hashlistIds').setValue(extractedIds);
   }
 }

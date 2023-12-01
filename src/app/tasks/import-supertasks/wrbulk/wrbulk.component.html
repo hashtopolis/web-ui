@@ -1,103 +1,39 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-    <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group ms-2 ms-3">
-      <a type="button" [routerLink]="['/tasks/import-supertasks/masks']" class="btn btn-sm btn-outline-gray-600">Masks</a>
-      <a type="button" [routerLink]="['/tasks/import-supertasks/wrbulk']" class="btn btn-sm btn-outline-gray-600-select">WordList/Rules Bulk</a>
-    </div>
-  </div>
-</div>
+<horizontalnav [menuItems]="menuItems"></horizontalnav>
 <!-- Body -->
-<div class="row g-3">
-  <div class="col-md-7">
-    <grid-main [class]="'width:100%'">
+<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
+  <div fxFlex="70" fxFlex.lt-md="100">
+    <grid-main>
+      <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-      <div class="row">
-        <grid-form-input [name]="'Name'">
-          <input
-                type='text'
-                id="name"
-                class='form-control'
-                formControlName="name"
-          >
-        </grid-form-input>
-          <div class="row">
-            <div class="col">
-              <grid-form-input [name]="'Benchmark type'">
-                <select
-                      type='number'
-                      id="useBench"
-                      class='form-select'
-                      formControlName="useBench"
-                >
-                  <option [ngValue]="false">Runtime</option>
-                  <option [ngValue]="true" [defaultSelected]=true>Speed</option>
-                </select>
-              </grid-form-input>
-            </div>
-              <div class="col">
-                <grid-form-input [name]="'Cracker Binary'">
-                  <select
-                        type='number'
-                        id='crackerBinaryId'
-                        class='form-select'
-                        #myBinary
-                        formControlName="crackerBinaryId">
-                  <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
-                </select>
-                </grid-form-input>
-            </div>
-            <div class="col">
-              <grid-form-input [name]="'Small tasks'">
-                <div class="form-check form-switch">
-                  <input
-                        type="checkbox"
-                        id="smallTask"
-                        class="form-check-input"
-                        formControlName="smallTask"
-                  >
-                </div>
-              </grid-form-input>
-            </div>
-            <div class="col">
-              <grid-form-input [name]="'CPU'">
-                <div class="form-check form-switch">
-                  <input
-                        type="checkbox"
-                        id="isCPU"
-                        class="form-check-input"
-                        formControlName="isCPU"
-                  >
-                </div>
-              </grid-form-input>
-            </div>
+
+        <input-text title="Name" formControlName="name"></input-text>
+
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+              <input-select title="Benchmark Type" formControlName="useBench" [items]="selectBenchmarktype"></input-select>
+              <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
+
           </div>
-          <grid-form-input [name]="'Base Command'">
-            <textarea
-                    type='text'
-                    id="attackCmd"
-                    class='form-control'
-                    formControlName="attackCmd"
-                    required
-              >
-              </textarea>
-              <span  *ngIf="attckcmd.errors" [style.color]="attckcmd.errors?  'red' : null">
-                Please remove manually the blacklisted Characters or use the button below!
-                <br>
-                <b>BlackListed Chars: {{this.getBanChar()}} </b>
-                <br>
-                <button class="btn btn-gray-800" (click)="onRemoveFChars()">Remove Blacklisted Chars</button>
-              </span>
-          </grid-form-input>
-        </div>
-      <button class="btn btn-gray-800" type="submit">Create Supertask</button>
-      {{createForm.value | json}}
+
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+              <input-check title="Small Tasks" formControlName="isSmall"></input-check>
+              <input-check title="CPU" formControlName="isCPU"></input-check>
+
+          </div>
+
+          <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
+          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
+
+          <grid-buttons>
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'"></button-submit>
+          </grid-buttons>
+
     </form>
   </grid-main>
 </div>
-<div class="col-md-5">
+<div fxFlex="30" fxFlex.lt-md="100">
   <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
     <ngb-panel id="panel0">
       <ng-template ngbPanelTitle>
@@ -113,7 +49,6 @@
                             placement="bottom"
                             ngbTooltip='B: Base, I: Iterate'
                             container="body"
-                            [icon]="faInfoCircle"
                             aria-hidden="true"
                     >
                     </fa-icon>
@@ -140,14 +75,12 @@
                   <label class="form-check-label" for="{{f.filename}}">
                     {{f.filename | shortenString:25 }} {{f.fileId}}
                   </label>
-                  <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                  <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true"></fa-icon>
                   <fa-icon
                           placement="bottom"
                           [ngbTooltip]="wordlist"
-                          container="body"
-                          [icon]="faInfoCircle"
-                          aria-hidden="true"
                   >
+                  faInfoCircle
                   </fa-icon>
                   <ng-template #wordlist>
                     <div class="d-flex flex-column">
@@ -176,9 +109,9 @@
                             placement="bottom"
                             ngbTooltip='B: Base, I: Iterate'
                             container="body"
-                            [icon]="faInfoCircle"
                             aria-hidden="true"
                     >
+                    faInfoCircle
                     </fa-icon>
                   </a>
                 </th>
@@ -203,14 +136,14 @@
                   <label class="form-check-label" for="{{f.filename}}">
                     {{f.filename | shortenString:25 }}
                   </label>
-                  <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                  <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true"></fa-icon>
                   <fa-icon
                           placement="bottom"
                           [ngbTooltip]="rules"
                           container="body"
-                          [icon]="faInfoCircle"
                           aria-hidden="true"
                   >
+                  faInfoCircle
                   </fa-icon>
                   <ng-template #rules>
                     <div class="d-flex flex-column">
@@ -239,9 +172,9 @@
                             placement="bottom"
                             ngbTooltip='B: Base, I: Iterate'
                             container="body"
-                            [icon]="faInfoCircle"
                             aria-hidden="true"
                     >
+                    faInfoCircle
                     </fa-icon>
                   </a>
                 </th>
@@ -266,14 +199,14 @@
                 <label class="form-check-label" for="{{f.filename}}">
                   {{f.filename | shortenString:25 }}
                 </label>
-                <fa-icon *ngIf="f.isSecret === true" [icon]="faLock" aria-hidden="true"></fa-icon>
+                <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true"></fa-icon>
                 <fa-icon
                         placement="bottom"
                         [ngbTooltip]="other"
                         container="body"
-                        [icon]="faInfoCircle"
                         aria-hidden="true"
                 >
+                faInfoCircle
                 </fa-icon>
                 <ng-template #other>
                   <div class="d-flex flex-column">

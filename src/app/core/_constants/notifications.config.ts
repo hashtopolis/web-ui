@@ -1,6 +1,6 @@
 /**
  * Notifications
-**/
+ **/
 
 export class ACTION {
   static readonly AGENT_ERROR = 'agentError';
@@ -47,7 +47,7 @@ export const ACTIONARRAY = [
   ACTION.LOG_WARN,
   ACTION.LOG_FATAL,
   ACTION.LOG_ERROR
-]
+];
 
 export const NOTIFARRAY = [
   NOTIF.CHATBOT,
@@ -55,5 +55,5 @@ export const NOTIFARRAY = [
   NOTIF.EMAIL,
   NOTIF.EXAMPLE,
   NOTIF.SLACK,
-  NOTIF.TELEGRAM,
-]
+  NOTIF.TELEGRAM
+];

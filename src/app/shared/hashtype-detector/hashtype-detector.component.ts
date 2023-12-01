@@ -1,37 +1,60 @@
+import {
+  ApplicationRef,
+  ChangeDetectorRef,
+  Component,
+  ViewEncapsulation
+} from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatDialogRef } from '@angular/material/dialog';
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
-import { Component } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
-  selector: 'app-hashtype-detector',
-  templateUrl: './hashtype-detector.component.html'
+  selector: 'hashtype-detector',
+  templateUrl: './hashtype-detector.component.html',
+  encapsulation: ViewEncapsulation.None
 })
-export class HashtypeDetectorComponent  {
-
-  findHashType=findHashType;
-
+export class HashtypeDetectorComponent {
   type: any;
+  displayedColumns: string[] = ['id', 'description', 'example'];
+  dataSource: MatTableDataSource<any>;
 
-  onTest(val){
+  constructor(
+    public dialogRef: MatDialogRef<HashtypeDetectorComponent>,
+    private appRef: ApplicationRef,
+    private breakpointObserver: BreakpointObserver
+  ) {}
 
-    let res = findHashType(val);
-
-    if(res === false){
-
-      res = [{
-        "regex": "",
-        "rAttack": " ",
-        "options": [
-            {
-                "id": 404,
-                "description": "Error. No hash type found.",
-                "example": ""
-            }
-        ]
-       }]
-
-    }
-
-    this.type = res;
+  onClose(): void {
+    this.dialogRef.close();
   }
 
+  onSearch(val: string): void {
+    const result = findHashType(val);
+    if (result === false || result === 'No hashes found.') {
+      this.type = false;
+    } else {
+      this.type = result;
+      this.dataSource.data = this.flattenData();
+      this.appRef.tick();
+    }
+  }
+
+  flattenData(): any[] {
+    const flattenedData: any[] = [];
+
+    if (this.type && this.type !== false) {
+      for (const n of this.type) {
+        for (const nn of n.options) {
+          flattenedData.push(nn);
+        }
+      }
+    }
+
+    return flattenedData;
+  }
+
+  ngOnInit() {
+    this.dataSource = new MatTableDataSource([]);
+  }
 }

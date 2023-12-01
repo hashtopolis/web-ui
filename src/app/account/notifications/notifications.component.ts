@@ -2,7 +2,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 export interface Filter {
-  id: number;
+  _id: number;
   name: string;
 }
 

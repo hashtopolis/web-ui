@@ -3,7 +3,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { ACTIONARRAY, ACTION, NOTIFARRAY } from '../../../core/_constants/notifications.config';
+import {
+  ACTION,
+  ACTIONARRAY,
+  NOTIFARRAY
+} from '../../../core/_constants/notifications.config';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { environment } from '../../../../environments/environment';
@@ -16,20 +20,22 @@ import { Filter } from '../notifications.component';
   templateUrl: './new-notification.component.html'
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
-
-  static readonly SUBMITLABEL = 'Save Notification'
-  static readonly SUBTITLE = 'Create Notification'
+  static readonly SUBMITLABEL = 'Save Notification';
+  static readonly SUBTITLE = 'Create Notification';
 
   triggerAction: string;
   form: FormGroup;
   filters: Filter[];
   editView = false;
   active = false;
-  allowedActions = ACTIONARRAY;
-  notifications = NOTIFARRAY;
-  subscriptions: Subscription[] = []
-  submitLabel = NewNotificationComponent.SUBMITLABEL
-  subTitle = NewNotificationComponent.SUBTITLE
+  allowedActions = ACTIONARRAY.map((action) => ({
+    _id: action,
+    name: action
+  }));
+  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
+  subscriptions: Subscription[] = [];
+  submitLabel = NewNotificationComponent.SUBMITLABEL;
+  subTitle = NewNotificationComponent.SUBTITLE;
   actionToServiceMap = {
     [ACTION.AGENT_ERROR]: SERV.AGENTS,
     [ACTION.OWN_AGENT_ERROR]: SERV.AGENTS,
@@ -46,9 +52,8 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     [ACTION.USER_LOGIN_FAILED]: SERV.USERS,
     [ACTION.LOG_WARN]: null,
     [ACTION.LOG_FATAL]: null,
-    [ACTION.LOG_ERROR]: null,
+    [ACTION.LOG_ERROR]: null
   };
-  maxResults = environment.config.prodApiMaxResults;
 
   constructor(
     private titleService: AutoTitleService,
@@ -56,14 +61,14 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router
   ) {
-    titleService.set(['New Notification'])
+    titleService.set(['New Notification']);
   }
 
   /**
    * Initializes the form for creating a new notification.
    */
   ngOnInit(): void {
-    this.createForm()
+    this.createForm();
   }
 
   /**
@@ -71,7 +76,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
-      sub.unsubscribe()
+      sub.unsubscribe();
     }
   }
 
@@ -81,11 +86,16 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   createForm(): void {
     this.form = new FormGroup({
-      'action': new FormControl('', [Validators.required]),
-      'actionFilter': new FormControl(''),
-      'notification': new FormControl('' || 'ChatBot', [Validators.required]),
-      'receiver': new FormControl('', [Validators.required]),
-      'isActive': new FormControl(true),
+      action: new FormControl('', [Validators.required]),
+      actionFilter: new FormControl(''),
+      notification: new FormControl('' || 'ChatBot', [Validators.required]),
+      receiver: new FormControl('', [Validators.required]),
+      isActive: new FormControl(true)
+    });
+
+    //subscribe to changes to handle select trigger actions
+    this.form.get('action').valueChanges.subscribe((newvalue) => {
+      this.changeAction(newvalue);
     });
   }
 
@@ -98,24 +108,34 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   changeAction(action: string): void {
     const path = this.actionToServiceMap[action];
     if (path) {
-      const params = { 'maxResults': this.maxResults };
       this.active = true;
 
-      this.subscriptions.push(this.gs.getAll(path, params).subscribe((res: any) => {
-        const _filters: Filter[] = []
-        for (let i = 0; i < res.values.length; i++) {
-          if (path === SERV.AGENTS) {
-            _filters.push({ 'id': res.values[i]['_id'], 'name': res.values[i]['agentName'] });
+      this.subscriptions.push(
+        this.gs.getAll(path).subscribe((res: any) => {
+          const _filters: Filter[] = [];
+          for (let i = 0; i < res.values.length; i++) {
+            if (path === SERV.AGENTS) {
+              _filters.push({
+                _id: res.values[i]['_id'],
+                name: res.values[i]['agentName']
+              });
+            }
+            if (path === SERV.TASKS) {
+              _filters.push({
+                _id: res.values[i]['_id'],
+                name: res.values[i]['taskName']
+              });
+            }
+            if (path === SERV.USERS || path === SERV.HASHLISTS) {
+              _filters.push({
+                _id: res.values[i]['_id'],
+                name: res.values[i]['name']
+              });
+            }
           }
-          if (path === SERV.TASKS) {
-            _filters.push({ 'id': res.values[i]['_id'], 'name': res.values[i]['taskName'] });
-          }
-          if (path === SERV.USERS || path === SERV.HASHLISTS) {
-            _filters.push({ 'id': res.values[i]['_id'], 'name': res.values[i]['name'] });
-          }
-        }
-        this.filters = _filters;
-      }));
+          this.filters = _filters;
+        })
+      );
     } else {
       this.active = false;
     }
@@ -127,7 +147,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * @returns {boolean} True if the form is valid; otherwise, false.
    */
   formIsValid(): boolean {
-    return this.form.valid
+    return this.form.valid;
   }
 
   /**
@@ -136,10 +156,12 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.form.valid) {
-      this.subscriptions.push(this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
-        this.alert.okAlert('New Notification created!','');
-        this.router.navigate(['/account/notifications']);
-      }));
+      this.subscriptions.push(
+        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
+          this.alert.okAlert('New Notification created!', '');
+          this.router.navigate(['/account/notifications']);
+        })
+      );
     }
   }
 }

@@ -1,18 +1,19 @@
 <grid-main>
 
-  <app-page-subtitle subtitle="Create Superhaslist"></app-page-subtitle>
+  <app-page-subtitle subtitle="Create SuperHashlist"></app-page-subtitle>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutAlign="start start">
 
     <input-text title="Name" formControlName="name" [error]="error?.name"></input-text>
 
     <input-multiselect
       [isLoading]="isLoading"
       [placeholder]="'Hashlists...'"
-      [arrayOfObjects]="selectHashlists"
-      [mergeIdAndName]="true"
+      [items]="selectHashlists"
       [label]="'Select or search Hashlists:'"
-      (selectionChanged)="handleSelectedItems($event)"
+      [mergeIdAndName]="true"
+      formControlName="hashlistIds"
+      style="flex: 1;"
     ></input-multiselect>
 
     <grid-buttons>

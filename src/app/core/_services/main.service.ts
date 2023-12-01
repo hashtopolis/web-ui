@@ -57,11 +57,17 @@ export class GlobalService {
     let queryParams: Params = {};
     let fixedMaxResults: boolean;
 
+    // Check if routerParams exist
     if (routerParams) {
+      // Check if 'maxResults' is not present in routerParams
       if (!('maxResults' in routerParams)) {
         fixedMaxResults = true;
       }
+      // Set queryParams using setParameter utility function
       queryParams = setParameter(routerParams, this.maxResults);
+    } else {
+      fixedMaxResults = true;
+      queryParams = setParameter({}, this.maxResults);
     }
 
     return this.http
@@ -71,10 +77,12 @@ export class GlobalService {
           const total = response.total || 0;
           const maxResults = this.maxResults;
 
+          // Check if total is greater than maxResults and fixedMaxResults is true
           if (total > maxResults && fixedMaxResults) {
             const requests: Observable<any>[] = [];
             const numRequests = Math.ceil(total / maxResults);
 
+            // Create multiple requests based on the total number of items
             for (let i = 0; i < numRequests; i++) {
               const startsAt = i * maxResults;
               const partialParams = setParameter(
@@ -88,10 +96,11 @@ export class GlobalService {
               );
             }
 
+            // Use forkJoin to combine the original response with additional responses
             return forkJoin([of(response), ...requests]).pipe(
               catchError((error) => {
                 console.error('Error in forkJoin:', error);
-                return of(response);
+                return of(response); // Return the original response in case of an error
               })
             );
           } else {
@@ -100,7 +109,7 @@ export class GlobalService {
         }),
         catchError((error) => {
           console.error('Error in switchMap:', error);
-          return of({ values: [] });
+          return of({ values: [] }); // Handle errors in switchMap and return a default response
         })
       );
   }

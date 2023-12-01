@@ -9,6 +9,7 @@ import {
 import { randomColor } from '../../../shared/utils/forms';
 import { AbstractInputComponent } from '../abstract-input';
 import { ChangeDetectorRef } from '@angular/core';
+import { Renderer2 } from '@angular/core';
 
 /**
  * Custom Input Color Picker Component.
@@ -36,10 +37,13 @@ import { ChangeDetectorRef } from '@angular/core';
   ]
 })
 export class InputColorComponent extends AbstractInputComponent<string> {
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private renderer: Renderer2
+  ) {
     super();
   }
-  @ViewChild('colorInput') colorInput: ElementRef;
+  @ViewChild('selectInput') colorInput: ElementRef;
   @Input() defaultColor = '';
   @Input() randomColor = true;
 
@@ -58,14 +62,14 @@ export class InputColorComponent extends AbstractInputComponent<string> {
 
   generateRandomColor() {
     this.onChangeValue(randomColor());
-    this.cdr.detectChanges();
+    // this.cdr.detectChanges();
   }
 
   onChangeValue(value) {
     this.value = value;
     this.onChange(value);
-    // When using generateRandomColor() dom needs to be update to reflect color change
+
     const inputElement = this.colorInput.nativeElement;
-    inputElement.style.background = this.value;
+    this.renderer.setStyle(inputElement, 'background', this.value);
   }
 }

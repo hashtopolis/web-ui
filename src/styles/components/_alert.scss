@@ -77,9 +77,13 @@
   02- Other
 */
 
-.closesys {  // Custom to adjust margin in alert
-  margin-top: 2em;
-  margin: 2em auto;
+.closesys {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: $accent-900 !important;
+  color: white;
 }
 
 /*
@@ -131,3 +135,8 @@
 /*
   04- End
 */
+
+.error-blacklisted {
+  display: block;
+  margin-top: 5px;
+}

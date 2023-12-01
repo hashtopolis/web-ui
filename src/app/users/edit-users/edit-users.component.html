@@ -1,124 +1,31 @@
-<grid-main [class]="'width:100%;'" [centered]="true">
+<grid-main>
   <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <grid-autocol>
-        <grid-form-input [name]="'User ID'">
-          <input
-                type='number'
-                id="id"
-                class='form-control'
-                formControlName="id"
-          >
-        </grid-form-input>
-        <grid-form-input [name]="'User Name'">
-          <div class="input-group">
-            <span class="input-group-text">
-              <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
-            </span>
-            <input
-                  type='text'
-                  id="name"
-                  class='form-control'
-                  formControlName="name"
-            />
-          </div>
-        </grid-form-input>
-        <grid-form-input [name]="'Email'">
-          <div class="input-group">
-            <span class="input-group-text">
-              <fa-icon [icon]="faEnvelope" aria-hidden="true"></fa-icon>
-            </span>
-            <input
-                  type='text'
-                  id="email"
-                  class='form-control'
-                  formControlName="email"
-            />
-          </div>
-        </grid-form-input>
-        <grid-form-input [name]="'Creation date'">
-          <div class="input-group">
-            <span class="input-group-text">
-              <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
-            </span>
-            <input
-                  type="text"
-                  id="registered"
-                  class='form-control'
-                  formControlName="registered"
-            />
-          </div>
-        </grid-form-input>
-        <grid-form-input [name]="'Last login'">
-          <div class="input-group">
-            <span class="input-group-text">
-              <fa-icon [icon]="faCalendar" aria-hidden="true"></fa-icon>
-            </span>
-            <input
-                  type="text"
-                  id="lastLogin"
-                  class='form-control'
-                  formControlName="lastLogin"
-            />
-          </div>
-        </grid-form-input>
-        <grid-form-input [name]="'Member of access groups'" [labelclass]="'display-col'">
-          <span class="pre input-group-text input-group-lg">
-            <td>
-              <div *ngFor="let g of this.user['accessGroups']" style="text-align:left;">
-                <a [routerLink]="['/users/access-groups/',g.accessGroupId,'edit']">{{g.groupName}}</a>
-              </div>
-            </td>
-          </span>
-        </grid-form-input>
-        <app-page-subtitle [subtitle]="'Update Settings'"></app-page-subtitle>
+
+        <input-text title="ID" formControlName="id" [disabled]="true"></input-text>
+        <input-text title="Name" formControlName="name" [disabled]="true"></input-text>
+        <input-text title="Email" formControlName="email" [disabled]="true"></input-text>
+        <input-text title="Registered" formControlName="registered" [disabled]="true"></input-text>
+        <input-text title="Last login" formControlName="lastLogin" [disabled]="true"></input-text>
+
+        <simulate-form-field-multi label="Member of access groups" [items]="userAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
+
         <div formGroupName="updateData">
-          <grid-form-input [name]="'Set user Global Permission Group:'">
-            <select
-                  type='number'
-                  id="globalPermissionGroupId"
-                  class='form-select'
-                  formControlName="globalPermissionGroupId"
-                >
-                <span *ngIf="!updateForm.errors?.['globalPermissionGroupId'].valid && updateForm.errors?.['globalPermissionGroupId'].touched" class="help-block" >Please select a group!</span>
-                <option *ngFor="let a of agp" [ngValue]="a.id">{{ a.name }}</option>
-            </select>
-          </grid-form-input>
+          <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId" [items]="selectAgp"></input-select>
           <form [formGroup]="updatePassForm" (ngSubmit)="onSubmit()">
-            <grid-form-input [name]="'Set password'">
-              <div class="input-group">
-                <span class="input-group-text">
-                <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                </span>
-                <input
-                      type='password'
-                      id="setpassword"
-                      class="form-control"
-                      formControlName="password"
-                />
-            </div>
-            </grid-form-input>
-            <app-pass-strenght [passwordToCheck]="updatePassForm.controls['password'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
+
+          <input-text title="Password" formControlName="password" inputType="password"></input-text>
+          <app-pass-strenght [passwordToCheck]="updatePassForm.controls['password'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
+
           </form>
-          <grid-form-input [name]="''">
-            <div class="form-check form-switch form-input-custom">
-              <label class="form-label" for="isvalid"></label>
-                  <input
-                        type="checkbox"
-                        id="user-notification-1"
-                        class="form-check-input"
-                        formControlName="isValid"
-                  >
-                  <label *ngIf="user['isValid'] === false" class="form-label" for="isvalid">User Disabled</label>
-                  <label *ngIf="user['isValid'] === true" class="form-label" for="isvalid">User Enabled</label>
-                  &nbsp;&nbsp;
-            </div>
-        </grid-form-input>
+        <input-check title="is Active?" formControlName="isValid"></input-check>
         <grid-buttons>
           <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
           <button-submit [name]="'Update'"></button-submit>
         </grid-buttons>
      </div>
+
     </grid-autocol>
   </form>
 </grid-main>

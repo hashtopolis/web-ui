@@ -18,10 +18,7 @@ import { Router } from '@angular/router';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from '../../../../../../../environments/environment';
-import {
-  extractIds,
-  transformSelectOptions
-} from '../../../../../../shared/utils/forms';
+import { transformSelectOptions } from '../../../../../../shared/utils/forms';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
@@ -45,9 +42,6 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
 
   @Input()
   error;
-
-  /** Maximum results for API requests. */
-  private maxResults = environment.config.prodApiMaxResults;
 
   /** List of PreTasks. */
   selectPretasks: any[];
@@ -86,7 +80,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.form = this.formBuilder.group({
       supertaskName: ['', Validators.required],
-      pretasks: [null, Validators.required]
+      pretasks: ['', Validators.required]
     });
   }
 
@@ -101,7 +95,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
       }
     };
     const loadSubscription$ = this.gs
-      .getAll(SERV.PRETASKS, { maxResults: this.maxResults })
+      .getAll(SERV.PRETASKS)
       .subscribe((response: ListResponseWrapper<Task>) => {
         const transformedOptions = transformSelectOptions(
           response.values,
@@ -130,16 +124,5 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
 
       this.unsubscribeService.add(createSubscription$);
     }
-  }
-
-  /**
-   * Handles the selection of items in the UI.
-   * Extracts the IDs from the selected items and sets them in the form.
-   *
-   * @param selectedItems - The items that are selected.
-   */
-  handleSelectedItems(selectedItems: SelectField[]): void {
-    const extractedIds = extractIds(selectedItems, '_id');
-    this.form.get('hashlistIds').setValue(extractedIds);
   }
 }

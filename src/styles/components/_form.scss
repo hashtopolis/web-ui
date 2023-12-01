@@ -225,6 +225,26 @@ progress::-webkit-progress-value {
   margin-bottom: 16px;
 }
 
+.login-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  a {
+    text-align: center;
+  }
+  img {
+    display: block;
+    margin: auto;
+  }
+}
+
+.forgot-password-link {
+  text-align: right;
+}
+
 .card-login-field {
   width: 100%;
   margin-bottom: 16px;
@@ -267,7 +287,7 @@ progress::-webkit-progress-value {
 */
 
 .custom-chip-grid {
-  width: 100%;
+  width: 250%;
 }
 
 .highlight-text {
@@ -283,9 +303,18 @@ progress::-webkit-progress-value {
   09- Shared/Input
 */
 
-.color-picker-container {
+.custom-input-container {
   display: flex;
   align-items: center; /* Align items vertically */
+}
+
+.custom-hashlist-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  button {
+    order: 1;
+    margin-left: 320px;
+  }
 }
 
 .color-picker-field {
@@ -297,6 +326,18 @@ progress::-webkit-progress-value {
   width: 100%;
   min-width: 300px; /* Set your desired minimum width */
   max-width: 600px; /* Set your desired maximum width */
+}
+
+.custom-input-multiselect {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.flex-grow {
+  flex-grow: 1;
+  width: 100%;
+  margin-right: 8px;
 }
 
 /*
@@ -325,4 +366,10 @@ $mat-form-field-max-width: 300px; // Adjust the maximum width as needed
 
 .mat-form-field {
   max-width: $mat-form-field-max-width !important;
+}
+
+.mat-select-value-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
