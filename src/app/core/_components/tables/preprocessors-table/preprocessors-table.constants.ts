@@ -1,4 +1,9 @@
+export enum PreprocessorsTableCol {
+  ID,
+  NAME
+}
+
 export const PreprocessorsTableColumnLabel = {
-  ID: 'ID',
-  NAME: 'Name'
+  [PreprocessorsTableCol.ID]: 'ID',
+  [PreprocessorsTableCol.NAME]: 'Name'
 };

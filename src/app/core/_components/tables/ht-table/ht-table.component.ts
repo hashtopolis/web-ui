@@ -11,8 +11,18 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { DataType, HTTableColumn } from './ht-table.models';
+import {
+  COL_ROW_ACTION,
+  COL_SELECT,
+  DataType,
+  HTTableColumn,
+  HTTableEditable
+} from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import {
+  UIConfig,
+  uiConfigDefault
+} from 'src/app/core/_models/config-ui.model';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
@@ -21,7 +31,6 @@ import { ColumnSelectionDialogComponent } from '../column-selection-dialog/colum
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
@@ -75,10 +84,10 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 })
 export class HTTableComponent implements OnInit, AfterViewInit {
   /** The list of column names to be displayed in the table. */
-  displayedColumns: string[];
+  displayedColumns: string[] = [];
 
-  /** The list of all available column names. */
-  columnNames: string[];
+  colSelect = COL_SELECT;
+  colRowAction = COL_ROW_ACTION;
 
   /** Reference to MatPaginator for pagination support. */
   @ViewChild(MatPaginator, { static: false }) matPaginator: MatPaginator;
@@ -88,6 +97,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
 
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
+
+  /** All available column labels */
+  @Input() columnLabels: { [key: number]: string };
 
   /** Data type displayed in the table, used to load relevant context menus */
   @Input() dataType: DataType;
@@ -140,6 +152,10 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> =
     new EventEmitter<ActionMenuEvent<any>>();
 
+  /** Event emitter for when the user saves an editable input */
+  @Output() editableSaved: EventEmitter<HTTableEditable<any>> =
+    new EventEmitter<HTTableEditable<any>>();
+
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
@@ -151,18 +167,13 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     private storage: LocalStorageService<UIConfig>
   ) {}
 
-  // @todo: fix ExpressionChangedAfterItHasBeenCheckedError. loading is causing trouble...
-
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
-    this.columnNames = this.tableColumns.map(
-      (tableColumn: HTTableColumn) => tableColumn.name
-    );
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
     if (displayedColumns) {
       this.setDisplayedColumns(displayedColumns);
     } else {
-      this.setDisplayedColumns(this.columnNames);
+      this.setDisplayedColumns(uiConfigDefault.tableSettings[this.name]);
     }
   }
 
@@ -183,18 +194,36 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(ColumnSelectionDialogComponent, {
       width: '400px',
       data: {
-        availableColumns: this.columnNames,
+        availableColumns: this.filterKeys(
+          this.columnLabels,
+          this.tableColumns.map((col) => col.id + '')
+        ),
         selectedColumns: this.displayedColumns
       }
     });
 
-    dialogRef.afterClosed().subscribe((selectedColumns: string[]) => {
+    dialogRef.afterClosed().subscribe((selectedColumns: number[]) => {
       if (selectedColumns) {
         this.setDisplayedColumns(selectedColumns);
         this.uiSettings.updateTableSettings(this.name, selectedColumns);
         this.cd.detectChanges();
       }
     });
+  }
+
+  private filterKeys(
+    original: { [key: string]: string },
+    include: string[]
+  ): any {
+    const filteredObject: { [key: string]: string } = {};
+
+    for (const attribute of include) {
+      if (original.hasOwnProperty(attribute)) {
+        filteredObject[attribute] = original[attribute];
+      }
+    }
+
+    return filteredObject;
   }
 
   rowAction(event: ActionMenuEvent<any>): void {
@@ -214,17 +243,19 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    *
    * @param columnNames - The list of column names to display.
    */
-  setDisplayedColumns(columnNames: string[]): void {
-    if (this.hasRowAction) {
-      // Add action menu if enabled
-      this.displayedColumns = [...columnNames, 'rowAction'];
-    } else {
-      this.displayedColumns = columnNames;
-    }
-
+  setDisplayedColumns(columnNames: number[]): void {
+    this.displayedColumns = [];
     if (this.isSelectable) {
       // Add checkbox if enabled
-      this.displayedColumns = ['select', ...this.displayedColumns];
+      this.displayedColumns.push(COL_SELECT + '');
+    }
+    for (const num of columnNames) {
+      this.displayedColumns.push(num + '');
+    }
+
+    if (this.hasRowAction) {
+      // Add action menu if enabled
+      this.displayedColumns.push(COL_ROW_ACTION + '');
     }
   }
 
@@ -308,5 +339,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
       this.dataSource.totalItems
     );
     this.dataSource.reload();
+  }
+
+  editableInputSaved(editable: HTTableEditable<any>): void {
+    this.editableSaved.emit(editable);
   }
 }

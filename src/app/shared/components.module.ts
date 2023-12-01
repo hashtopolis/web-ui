@@ -1,9 +1,3 @@
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-
-import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
-import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
 import { ActiveSpinnerComponent } from './loading-spinner/loading-spinner-active.component';
 import { PassStrenghtComponent } from './password/pass-strenght/pass-strenght.component';
 import { ButtonTruncateTextComponent } from './table/button-truncate-text.component';
@@ -12,10 +6,22 @@ import { TimeoutDialogComponent } from './dialog/timeout/timeout-dialog.componen
 import { PassMatchComponent } from './password/pass-match/pass-match.component';
 import { FixedAlertComponent } from './alert/fixed-alert/fixed-alert.component';
 import { CheatsheetComponent } from './alert/cheatsheet/cheatsheet.component';
+import { ColorPickerModule } from 'ngx-color-picker';
+import { CommonModule } from '@angular/common';
+import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
 import { FilterTextboxModule } from './filter-textbox/filter-textbox.module';
 import { SwitchThemeModule } from './switch-theme/switch-theme.module';
 import { TimeoutComponent } from './alert/timeout/timeout.component';
 import { HorizontalNavModule } from './navigation/navigation.module';
+import { InputModule } from './input/input.module';
+import { LoadingSpinnerComponent } from '../shared/loading-spinner/loading-spinner.component';
+import { LottiesModule } from './lottie/lottie.module';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PageTitleModule } from './page-headers/page-title.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { DynamicFormModule } from './dynamic-form-builder/dynamicform.module';
@@ -34,7 +40,6 @@ import { AlertNavModule } from './alert/alert.module';
 
 @NgModule({
   declarations: [
-    ButtonTruncateTextComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
@@ -61,15 +66,12 @@ import { AlertNavModule } from './alert/alert.module';
     ButtonsModule,
     LottiesModule,
     GraphsModule,
-    CommonModule,
-    FormsModule,
     TableModule,
     InputModule,
     GridModule,
     NgbModule
   ],
   exports: [
-    ButtonTruncateTextComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,

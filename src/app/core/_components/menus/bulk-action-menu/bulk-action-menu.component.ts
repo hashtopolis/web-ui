@@ -46,8 +46,26 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DEACTIVATE_USERS,
         BulkActionMenuLabel.DELETE_USERS
       );
+    } else if (this.dataType === 'notifications') {
+      this.setActivateDeleteMenu(
+        BulkActionMenuLabel.ACTIVATE_NOTIFICATION,
+        BulkActionMenuLabel.DEACTIVATE_NOTIFICATIONS,
+        BulkActionMenuLabel.DELETE_NOTIFICATIONS
+      );
     } else if (this.dataType === 'hashlists') {
-      this.setHashlistMenu();
+      this.setArchiveDeleteMenu(
+        BulkActionMenuLabel.DELETE_HASHLISTS,
+        BulkActionMenuLabel.ARCHIVE_HASHLISTS
+      );
+    } else if (this.dataType === 'tasks') {
+      this.setArchiveDeleteMenu(
+        BulkActionMenuLabel.DELETE_TASKS,
+        BulkActionMenuLabel.ARCHIVE_TASKS
+      );
+    } else if (this.dataType === 'access-groups') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_ACCESSGROUPS);
+    } else if (this.dataType === 'permissions') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_PERMISSIONS);
     } else if (this.dataType === 'hashtypes') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_HASHTYPES);
     } else if (this.dataType === 'agent-binaries') {
@@ -60,6 +78,8 @@ export class BulkActionMenuComponent
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PREPROCESSORS);
     } else if (this.dataType === 'health-checks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_HEALTHCHECKS);
+    } else if (this.dataType === 'vouchers') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_VOUCHERS);
     }
   }
 
@@ -78,6 +98,18 @@ export class BulkActionMenuComponent
       this.setActionMenuItems(1, [
         this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)
       ]);
+    }
+  }
+
+  private setArchiveDeleteMenu(
+    deleteLabel: string,
+    archiveLabel: string
+  ): void {
+    if (this.isArchived) {
+      this.setActionMenuItems(0, [this.getDeleteMenuItem(deleteLabel)]);
+    } else {
+      this.setActionMenuItems(0, [this.getArchiveMenuItem(archiveLabel)]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
     }
   }
 

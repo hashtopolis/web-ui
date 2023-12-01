@@ -1,29 +1,26 @@
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { AccountRoutingModule } from "./account-routing.module";
-import { ComponentsModule } from "../shared/components.module";
-import { DataTablesModule } from "angular-datatables";
-import { PipesModule } from "../shared/pipes.module";
-import { CommonModule } from "@angular/common";
-import { RouterModule } from "@angular/router";
-import { NgModule } from "@angular/core";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { EditNotificationComponent } from "./notifications/notification/edit-notification.component";
+import { AccountComponent } from './account.component';
+import { AccountRoutingModule } from './account-routing.module';
+import { AccountSettingsComponent } from './settings/acc-settings/acc-settings.component';
+import { CommonModule } from '@angular/common';
+import { ComponentsModule } from '../shared/components.module';
+import { CoreComponentsModule } from '../core/_components/core-components.module';
+import { DataTablesModule } from 'angular-datatables';
+import { EditNotificationComponent } from './notifications/notification/edit-notification.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NewNotificationComponent } from './notifications/notification/new-notification.component';
-import { NotificationsComponent } from "./notifications/notifications.component";
-import { AccountComponent } from "./account.component";
+import { NgModule } from '@angular/core';
+import { NotificationsComponent } from './notifications/notifications.component';
+import { PipesModule } from '../shared/pipes.module';
+import { RouterModule } from '@angular/router';
 import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
-import { AccountSettingsComponent } from "./settings/acc-settings/acc-settings.component";
-
-
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { MatIconModule } from "@angular/material/icon";
-import { MatSelectModule } from "@angular/material/select";
-import { MatButtonModule } from "@angular/material/button";
-import { MatSnackBarModule } from "@angular/material/snack-bar";
-
-
 
 @NgModule({
   declarations: [
@@ -40,6 +37,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
     FontAwesomeModule,
     DataTablesModule,
     ComponentsModule,
+    CoreComponentsModule,
     RouterModule,
     CommonModule,
     PipesModule,
@@ -49,7 +47,7 @@ import { MatSnackBarModule } from "@angular/material/snack-bar";
     MatSelectModule,
     MatIconModule,
     MatButtonModule,
-    MatSnackBarModule,
-  ],
+    MatSnackBarModule
+  ]
 })
-export class AccountModule { }
+export class AccountModule {}

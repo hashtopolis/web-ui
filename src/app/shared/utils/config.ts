@@ -1,16 +1,19 @@
-import { UIConfig, uiConfigDefault } from "src/app/core/_models/config-ui.model"
-import { LocalStorageService } from "src/app/core/_services/storage/local-storage.service"
+import {
+  UIConfig,
+  uiConfigDefault
+} from 'src/app/core/_models/config-ui.model';
+
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 /**
  * Utility class for managing user interface settings and configurations.
  */
 export class UISettingsUtilityClass {
-
   /** The key used for storing UI configuration in local storage. */
-  static readonly KEY = 'ui-config'
+  static readonly KEY = 'ui-config';
 
   /** The UI configuration object. */
-  uiConfig: UIConfig
+  uiConfig: UIConfig;
 
   /**
    * Creates an instance of the UISettingsUtilityClass.
@@ -18,9 +21,9 @@ export class UISettingsUtilityClass {
    * @param storage - The LocalStorageService used for managing UI configuration storage.
    */
   constructor(private storage: LocalStorageService<UIConfig>) {
-    this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY)
+    this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY);
     if (!this.uiConfig) {
-      this.uiConfig = uiConfigDefault
+      this.uiConfig = uiConfigDefault;
     }
   }
 
@@ -30,9 +33,9 @@ export class UISettingsUtilityClass {
    * @param key - The key for the table settings.
    * @param columns - An array of column names to set as table settings for the key.
    */
-  updateTableSettings(key: string, columns: string[]): void {
-    this.uiConfig.tableSettings[key] = columns
-    this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0)
+  updateTableSettings(key: string, columns: number[]): void {
+    this.uiConfig.tableSettings[key] = columns;
+    this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
   }
 
   /**
@@ -41,12 +44,12 @@ export class UISettingsUtilityClass {
    * @param key - The key for the table settings.
    * @returns An array of column names as table settings for the key.
    */
-  getTableSettings(key: string): string[] {
+  getTableSettings(key: string): number[] {
     try {
-      return this.uiConfig.tableSettings[key]
+      return this.uiConfig.tableSettings[key];
     } catch (error) {
-      console.log(error)
-      return []
+      console.log(error);
+      return [];
     }
   }
 
@@ -58,10 +61,10 @@ export class UISettingsUtilityClass {
    */
   getSetting<T>(key: string): T | undefined {
     try {
-      return this.uiConfig[key]
+      return this.uiConfig[key];
     } catch (error) {
-      console.log(error)
-      return undefined
+      console.log(error);
+      return undefined;
     }
   }
 
@@ -73,20 +76,19 @@ export class UISettingsUtilityClass {
    */
   updateSettings(settings: { [key: string]: any }): number {
     const keys = Object.keys(settings);
-    let changedValues = 0
+    let changedValues = 0;
 
     for (const key of keys) {
       if (key in this.uiConfig && this.uiConfig[key] !== settings[key]) {
-        this.uiConfig[key] = settings[key]
-        changedValues += 1
+        this.uiConfig[key] = settings[key];
+        changedValues += 1;
       }
     }
 
     if (changedValues > 0) {
-      this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0)
+      this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
     }
 
-    return changedValues
+    return changedValues;
   }
-
 }

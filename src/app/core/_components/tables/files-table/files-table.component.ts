@@ -1,6 +1,7 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { File, FileType } from 'src/app/core/_models/file.model';
+import { FilesTableCol, FilesTableColumnLabel } from './files-table.constants';
 import {
   HTTableColumn,
   HTTableIcon,
@@ -15,7 +16,6 @@ import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { FilesDataSource } from 'src/app/core/_datasources/files.datasource';
-import { FilesTableColumnLabel } from './files-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -38,7 +38,7 @@ export class FilesTableComponent
   ngOnInit(): void {
     this.editPath =
       this.fileType === FileType.WORDLIST ? 'wordlist-edit' : 'rules-edit';
-
+    this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
@@ -63,13 +63,13 @@ export class FilesTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: FilesTableColumnLabel.ID,
+        id: FilesTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (file: File) => file._id + ''
       },
       {
-        name: FilesTableColumnLabel.NAME,
+        id: FilesTableCol.NAME,
         dataKey: 'filename',
         icons: (file: File) => this.renderSecretIcon(file),
         routerLink: (file: File) => this.renderFileLink(file),
@@ -77,20 +77,20 @@ export class FilesTableComponent
         export: async (file: File) => file.filename
       },
       {
-        name: FilesTableColumnLabel.SIZE,
+        id: FilesTableCol.SIZE,
         dataKey: 'size',
         render: (file: File) => formatFileSize(file.size, 'short'),
         isSortable: true,
         export: async (file: File) => formatFileSize(file.size, 'short')
       },
       {
-        name: FilesTableColumnLabel.LINE_COUNT,
+        id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
         export: async (file: File) => file.lineCount + ''
       },
       {
-        name: FilesTableColumnLabel.ACCESS_GROUP,
+        id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
         export: async (file: File) => file.accessGroupName
@@ -145,19 +145,25 @@ export class FilesTableComponent
         this.exportService.toExcel<File>(
           'hashtopolis-files',
           this.tableColumns,
-          event.data
+          event.data,
+          FilesTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<File>(
           'hashtopolis-files',
           this.tableColumns,
-          event.data
+          event.data,
+          FilesTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<File>(this.tableColumns, event.data)
+          .toClipboard<File>(
+            this.tableColumns,
+            event.data,
+            FilesTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',
@@ -258,6 +264,8 @@ export class FilesTableComponent
   }
 
   private rowActionEdit(file: File): void {
-    this.router.navigate(['/files', file._id, this.editPath]);
+    this.renderFileLink(file).then((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink);
+    });
   }
 }

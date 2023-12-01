@@ -1,9 +1,12 @@
 export const RowActionMenuLabel = {
   ACTIVATE_USER: 'Activate User',
   ACTIVATE_AGENT: 'Activate Agent',
+  ACTIVATE_NOTIFICATION: 'Activate Notification',
   DEACTIVATE_USER: 'Deactivate User',
   DEACTIVATE_AGENT: 'Deactivate Agent',
+  DEACTIVATE_NOTIFICATION: 'Deactivate Notification',
   EDIT_AGENT: 'Edit Agent',
+  EDIT_NOTIFICATION: 'Edit Notification',
   EDIT_TASK: 'Edit Task',
   EDIT_SUBTASKS: 'Edit Subtasks',
   EDIT_HASHLIST: 'Edit Hashlist',
@@ -13,7 +16,10 @@ export const RowActionMenuLabel = {
   EDIT_AGENTBINARY: 'Edit Agent Binary',
   EDIT_HEALTHCHECK: 'Edit Health Check',
   EDIT_USER: 'Edit User',
+  EDIT_ACCESSGROUP: 'Edit Access Group',
+  EDIT_PERMISSION: 'Edit Permission Group',
   DELETE_AGENT: 'Delete Agent',
+  DELETE_NOTIFICATION: 'Delete Notification',
   DELETE_CRACKER: 'Delete Cracker',
   DELETE_TASK: 'Delete Task',
   DELETE_HASHLIST: 'Delete Hashlist',
@@ -24,12 +30,17 @@ export const RowActionMenuLabel = {
   DELETE_AGENTBINARY: 'Delete Agent Binary',
   DELETE_HEALTHCHECK: 'Delete Health Check',
   DELETE_USER: 'Delete User',
+  DELETE_ACCESSGROUP: 'Delete Access Group',
+  DELETE_PERMISSION: 'Delete Permission Group',
+  DELETE_VOUCHER: 'Delete Voucher',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
   EXPORT_HASHLIST: 'Export Hashlist',
-  NEW_VERSION: 'Add Version'
+  NEW_VERSION: 'Add Version',
+  DOWNLOAD_AGENT: 'Download Agent Binary',
+  UNARCHIVE_TASK: 'Unarchive Task'
 };
 
 export const RowActionMenuAction = {
@@ -43,7 +54,9 @@ export const RowActionMenuAction = {
   IMPORT: 'import',
   EXPORT: 'export',
   ACTIVATE: 'activate',
-  DEACTIVATE: 'deactivate'
+  DEACTIVATE: 'deactivate',
+  DOWNLOAD: 'download',
+  UNARCHIVE: 'unrachive'
 };
 
 export const RowActionMenuIcon = {
@@ -54,6 +67,8 @@ export const RowActionMenuIcon = {
   EXPORT: 'arrow_downward',
   COPY: 'content_copy',
   ARCHIVE: 'archive',
+  UNARCHIVE: 'unarchive',
   ACTIVATE: 'check_circle',
-  DEACTIVATE: 'remove_circle'
+  DEACTIVATE: 'remove_circle',
+  DOWNLOAD: 'file_download'
 };

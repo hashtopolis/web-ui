@@ -23,15 +23,15 @@ export class RowActionMenuComponent
   ngOnInit(): void {
     if (this.isAgent()) {
       this.setAgentMenu();
+    } else if (this.isAccessGroup()) {
+      this.setEditDeleteMenuItems(
+        RowActionMenuLabel.EDIT_ACCESSGROUP,
+        RowActionMenuLabel.DELETE_ACCESSGROUP
+      );
     } else if (this.isSuperHashlist()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_SUPERHASHLIST,
         RowActionMenuLabel.DELETE_SUPERHASHLIST
-      );
-    } else if (this.isAgentBinary()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_AGENTBINARY,
-        RowActionMenuLabel.DELETE_AGENTBINARY
       );
     } else if (this.isFile()) {
       this.setEditDeleteMenuItems(
@@ -48,16 +48,38 @@ export class RowActionMenuComponent
         RowActionMenuLabel.EDIT_HEALTHCHECK,
         RowActionMenuLabel.DELETE_HEALTHCHECK
       );
+    } else if (this.isPermission()) {
+      this.setPermissionMenu();
+    } else if (this.isHashtype()) {
+      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE);
+    } else if (this.isVoucher()) {
+      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER);
     } else if (this.isUser()) {
       this.setUserMenu();
-    } else if (this.isTask()) {
-      this.setTaskMenu();
+    } else if (this.isAgentBinary()) {
+      this.setAgentBinaryMenu();
+    } else if (this.isNotification()) {
+      this.setNotificationMenu();
+    } else if (this.isTaskWrapper()) {
+      this.setTaskWrapperMenu();
     } else if (this.isHashlist()) {
       this.setHashlistMenu();
-    } else if (this.isHashtype()) {
-      this.setHashtypeMenu();
     } else if (this.isCrackerBinaryType()) {
       this.setCrackerBinaryTypeMenu();
+    }
+  }
+
+  /**
+   * Sets the context menu items for a permission data row.
+   */
+  private setPermissionMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_PERMISSION)
+    ]);
+    if (!this.data.user || this.data.user.length === 0) {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PERMISSION)
+      ]);
     }
   }
 
@@ -81,6 +103,27 @@ export class RowActionMenuComponent
   private setEditDeleteMenuItems(editLabel: string, deleteLabel: string): void {
     this.setActionMenuItems(0, [this.getEditMenuItem(editLabel)]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
+  }
+
+  /**
+   * Sets context menu with delete action.
+   * @param label The label for the delete action.
+   */
+  private setDeleteMenuItem(label: string): void {
+    this.setActionMenuItems(0, [this.getDeleteMenuItem(label)]);
+  }
+
+  /**
+   * Sets the context menu items for an agent binary data row.
+   */
+  private setAgentBinaryMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENTBINARY),
+      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_AGENT)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)
+    ]);
   }
 
   /**
@@ -153,9 +196,33 @@ export class RowActionMenuComponent
   }
 
   /**
+   * Sets the context menu items for a user data row.
+   */
+  private setNotificationMenu(): void {
+    if (this.data['isActive']) {
+      this.setActionMenuItems(0, [
+        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_NOTIFICATION)
+      ]);
+    } else {
+      this.setActionMenuItems(0, [
+        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_NOTIFICATION)
+      ]);
+    }
+
+    this.addActionMenuItem(
+      0,
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_NOTIFICATION)
+    );
+
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)
+    ]);
+  }
+
+  /**
    * Sets the context menu items for a task data row.
    */
-  private setTaskMenu(): void {
+  private setTaskWrapperMenu(): void {
     this.setActionMenuItems(0, [
       this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
     ]);
@@ -183,19 +250,17 @@ export class RowActionMenuComponent
       });
     }
 
-    this.addActionMenuItem(
-      0,
-      this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
-    );
-  }
-
-  /**
-   * Sets the context menu items for a hashtype data row.
-   */
-  private setHashtypeMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE)
-    ]);
+    if (this.data.isArchived) {
+      this.addActionMenuItem(
+        0,
+        this.getUnarchiveMenuItem(RowActionMenuLabel.UNARCHIVE_TASK)
+      );
+    } else {
+      this.addActionMenuItem(
+        0,
+        this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
+      );
+    }
   }
 
   /**
@@ -209,6 +274,19 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.DELETE,
       icon: RowActionMenuIcon.DELETE,
       red: true
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with download action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with download action.
+   */
+  private getDownloadMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.DOWNLOAD,
+      icon: RowActionMenuIcon.DOWNLOAD
     };
   }
 
@@ -274,6 +352,19 @@ export class RowActionMenuComponent
       label: label,
       action: RowActionMenuAction.ARCHIVE,
       icon: RowActionMenuIcon.ARCHIVE
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with archive action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with archive action.
+   */
+  private getUnarchiveMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.UNARCHIVE,
+      icon: RowActionMenuIcon.UNARCHIVE
     };
   }
 

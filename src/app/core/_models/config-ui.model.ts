@@ -1,19 +1,26 @@
-import { AgentBinariesTableColumnLabel } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { AgentsTableColumnLabel } from '../_components/tables/agents-table/agents-table.constants';
-import { ChunksTableColumnLabel } from '../_components/tables/chunks-table/chunks-table.constants';
-import { CrackersTableColumnLabel } from '../_components/tables/crackers-table/crackers-table.constants';
-import { FilesTableColumnLabel } from '../_components/tables/files-table/files-table.constants';
-import { HashlistsTableColumnLabel } from '../_components/tables/hashlists-table/hashlists-table.constants';
-import { HashtypesTableColumnLabel } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
-import { HealthChecksTableColumnLabel } from '../_components/tables/health-checks-table/health-checks-table.constants';
-import { PreprocessorsTableColumnLabel } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
-import { SuperHashlistsTableColumnLabel } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
+import { AccessGroupsTableCol } from '../_components/tables/access-groups-table/access-groups-table.constants';
+import { AgentBinariesTableCol } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
+import { AgentsTableCol } from '../_components/tables/agents-table/agents-table.constants';
+import { ChunksTableCol } from '../_components/tables/chunks-table/chunks-table.constants';
+import { CrackersTableCol } from '../_components/tables/crackers-table/crackers-table.constants';
+import { CracksTableCol } from '../_components/tables/cracks-table/cracks-table.constants';
+import { FilesTableCol } from '../_components/tables/files-table/files-table.constants';
+import { HashlistsTableCol } from '../_components/tables/hashlists-table/hashlists-table.constants';
+import { HashtypesTableCol } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
+import { HealthChecksTableCol } from '../_components/tables/health-checks-table/health-checks-table.constants';
+import { LogsTableCol } from '../_components/tables/logs-table/logs-table.constants';
+import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
+import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
+import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
+import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
+import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
+import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
 
 export interface TableSettings {
-  [key: string]: string[];
+  [key: string]: number[];
 }
 
 export interface UIConfig {
@@ -30,89 +37,142 @@ export const uiConfigDefault: UIConfig = {
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
+    notificationsTable: [
+      NotificationsTableCol.ID,
+      NotificationsTableCol.STATUS,
+      NotificationsTableCol.APPLIED_TO,
+      NotificationsTableCol.ACTION,
+      NotificationsTableCol.NOTIFICATION,
+      NotificationsTableCol.RECEIVER
+    ],
+    permissionsTable: [
+      PermissionsTableCol.ID,
+      PermissionsTableCol.NAME,
+      PermissionsTableCol.MEMBERS
+    ],
+    cracksTable: [
+      CracksTableCol.FOUND,
+      CracksTableCol.PLAINTEXT,
+      CracksTableCol.HASH,
+      CracksTableCol.AGENT,
+      CracksTableCol.TASK,
+      CracksTableCol.CHUNK,
+      CracksTableCol.TYPE
+    ],
     agentsTable: [
-      AgentsTableColumnLabel.ID,
-      AgentsTableColumnLabel.NAME,
-      AgentsTableColumnLabel.STATUS,
-      AgentsTableColumnLabel.TASK_SPEED,
-      AgentsTableColumnLabel.CURRENT_TASK,
-      AgentsTableColumnLabel.CLIENT,
-      AgentsTableColumnLabel.GPUS_CPUS,
-      AgentsTableColumnLabel.LAST_ACTIVITY
+      AgentsTableCol.ID,
+      AgentsTableCol.NAME,
+      AgentsTableCol.STATUS,
+      AgentsTableCol.CURRENT_TASK,
+      AgentsTableCol.CLIENT,
+      AgentsTableCol.GPUS_CPUS,
+      AgentsTableCol.LAST_ACTIVITY
     ],
     assignedAgentsTable: [
-      AgentsTableColumnLabel.ID,
-      AgentsTableColumnLabel.NAME,
-      AgentsTableColumnLabel.STATUS,
-      AgentsTableColumnLabel.TASK_SPEED,
-      AgentsTableColumnLabel.LAST_ACTIVITY,
-      AgentsTableColumnLabel.TIME_SPENT,
-      AgentsTableColumnLabel.BENCHMARK,
-      AgentsTableColumnLabel.CRACKED,
-      AgentsTableColumnLabel.SEARCHED
+      AgentsTableCol.ID,
+      AgentsTableCol.NAME,
+      AgentsTableCol.STATUS,
+      AgentsTableCol.TASK_SPEED,
+      AgentsTableCol.LAST_ACTIVITY,
+      AgentsTableCol.TIME_SPENT,
+      AgentsTableCol.BENCHMARK,
+      AgentsTableCol.CRACKED,
+      AgentsTableCol.SEARCHED
     ],
     chunksTable: [
-      ChunksTableColumnLabel.ID,
-      ChunksTableColumnLabel.PROGRESS,
-      ChunksTableColumnLabel.TASK,
-      ChunksTableColumnLabel.AGENT,
-      ChunksTableColumnLabel.DISPATCH_TIME,
-      ChunksTableColumnLabel.LAST_ACTIVITY,
-      ChunksTableColumnLabel.TIME_SPENT,
-      ChunksTableColumnLabel.STATE,
-      ChunksTableColumnLabel.CRACKED
+      ChunksTableCol.ID,
+      ChunksTableCol.PROGRESS,
+      ChunksTableCol.TASK,
+      ChunksTableCol.AGENT,
+      ChunksTableCol.DISPATCH_TIME,
+      ChunksTableCol.LAST_ACTIVITY,
+      ChunksTableCol.TIME_SPENT,
+      ChunksTableCol.STATE,
+      ChunksTableCol.CRACKED
     ],
     hashlistsTable: [
-      HashlistsTableColumnLabel.ID,
-      HashlistsTableColumnLabel.NAME,
-      HashlistsTableColumnLabel.HASHTYPE,
-      HashlistsTableColumnLabel.FORMAT,
-      HashlistsTableColumnLabel.CRACKED,
-      HashlistsTableColumnLabel.HASH_COUNT
+      HashlistsTableCol.ID,
+      HashlistsTableCol.NAME,
+      HashlistsTableCol.HASHTYPE,
+      HashlistsTableCol.FORMAT,
+      HashlistsTableCol.CRACKED,
+      HashlistsTableCol.HASH_COUNT
     ],
     superHashlistsTable: [
-      SuperHashlistsTableColumnLabel.ID,
-      SuperHashlistsTableColumnLabel.NAME,
-      SuperHashlistsTableColumnLabel.HASHTYPE,
-      SuperHashlistsTableColumnLabel.CRACKED,
-      SuperHashlistsTableColumnLabel.HASHLISTS
+      SuperHashlistsTableCol.ID,
+      SuperHashlistsTableCol.NAME,
+      SuperHashlistsTableCol.HASHTYPE,
+      SuperHashlistsTableCol.CRACKED,
+      SuperHashlistsTableCol.HASHLISTS
     ],
     hashtypesTable: [
-      HashtypesTableColumnLabel.HASHTYPE,
-      HashtypesTableColumnLabel.DESCRIPTION,
-      HashtypesTableColumnLabel.SALTED,
-      HashtypesTableColumnLabel.SLOW_HASH
+      HashtypesTableCol.HASHTYPE,
+      HashtypesTableCol.DESCRIPTION,
+      HashtypesTableCol.SALTED,
+      HashtypesTableCol.SLOW_HASH
     ],
     filesTable: [
-      FilesTableColumnLabel.ID,
-      FilesTableColumnLabel.NAME,
-      FilesTableColumnLabel.SIZE,
-      FilesTableColumnLabel.LINE_COUNT,
-      FilesTableColumnLabel.ACCESS_GROUP
+      FilesTableCol.ID,
+      FilesTableCol.NAME,
+      FilesTableCol.SIZE,
+      FilesTableCol.LINE_COUNT,
+      FilesTableCol.ACCESS_GROUP
     ],
     crackersTable: [
-      CrackersTableColumnLabel.ID,
-      CrackersTableColumnLabel.NAME,
-      CrackersTableColumnLabel.VERSIONS
+      CrackersTableCol.ID,
+      CrackersTableCol.NAME,
+      CrackersTableCol.VERSIONS
     ],
-    preprocessorsTable: [
-      PreprocessorsTableColumnLabel.ID,
-      PreprocessorsTableColumnLabel.NAME
-    ],
+    preprocessorsTable: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
     agentBinariesTable: [
-      AgentBinariesTableColumnLabel.ID,
-      AgentBinariesTableColumnLabel.FILENAME,
-      AgentBinariesTableColumnLabel.OS,
-      AgentBinariesTableColumnLabel.TYPE,
-      AgentBinariesTableColumnLabel.UPDATE_TRACK,
-      AgentBinariesTableColumnLabel.VERSION
+      AgentBinariesTableCol.ID,
+      AgentBinariesTableCol.FILENAME,
+      AgentBinariesTableCol.OS,
+      AgentBinariesTableCol.TYPE,
+      AgentBinariesTableCol.UPDATE_TRACK,
+      AgentBinariesTableCol.VERSION
     ],
     healthChecksTable: [
-      HealthChecksTableColumnLabel.ID,
-      HealthChecksTableColumnLabel.CREATED,
-      HealthChecksTableColumnLabel.STATUS,
-      HealthChecksTableColumnLabel.TYPE
-    ]
+      HealthChecksTableCol.ID,
+      HealthChecksTableCol.CREATED,
+      HealthChecksTableCol.STATUS,
+      HealthChecksTableCol.TYPE
+    ],
+    tasksTable: [
+      TaskTableCol.ID,
+      TaskTableCol.NAME,
+      TaskTableCol.STATUS,
+      TaskTableCol.HASHLISTS,
+      TaskTableCol.PRIORITY,
+      TaskTableCol.AGENTS,
+      TaskTableCol.MAX_AGENTS,
+      TaskTableCol.DISPATCHED_SEARCHED,
+      TaskTableCol.CRACKED
+    ],
+    hashlistTasksTable: [
+      TaskTableCol.ID,
+      TaskTableCol.NAME,
+      TaskTableCol.DISPATCHED_SEARCHED,
+      TaskTableCol.CRACKED
+    ],
+    usersTable: [
+      UsersTableCol.ID,
+      UsersTableCol.NAME,
+      UsersTableCol.REGISTERED,
+      UsersTableCol.LAST_LOGIN,
+      UsersTableCol.EMAIL,
+      UsersTableCol.STATUS,
+      UsersTableCol.SESSION,
+      UsersTableCol.PERM_GROUP
+    ],
+    logsTable: [
+      LogsTableCol.ID,
+      LogsTableCol.ISSUER,
+      LogsTableCol.LEVEL,
+      LogsTableCol.MESSAGE,
+      LogsTableCol.TIME
+    ],
+    accessGroupsTable: [AccessGroupsTableCol.ID, AccessGroupsTableCol.NAME]
   },
   refreshPage: false,
   refreshInterval: 10

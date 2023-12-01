@@ -90,7 +90,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
     const users$ = this.service.getAll(SERV.USERS, params);
-    //const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS)
 
     forkJoin([users$, agentAssign$, chunks$])
       .pipe(
@@ -115,6 +114,7 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
             agent.task = task;
             agent.user = users.find((e: User) => e._id === agent.userId);
             agent.taskName = agent.task.taskName;
+            agent.taskId = agent.task._id;
             agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
             if (agent.chunk) {
               agent.chunkId = agent.chunk._id;
@@ -128,62 +128,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
           this.setData(agents);
         }
       );
-  }
-
-  async getChunkData(id: number, keyspace = 0): Promise<ChunkData> {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
-
-    const dispatched: number[] = [];
-    const searched: number[] = [];
-    const cracked: number[] = [];
-    const speed: number[] = [];
-    const timespent: number[] = [];
-    const now = Date.now();
-    const current = 0;
-
-    const params = {
-      maxResults: this.maxResults,
-      filter: `agentId=${id}`
-    };
-
-    const response: ListResponseWrapper<Chunk> = await firstValueFrom(
-      this.service.getAll(SERV.CHUNKS, params)
-    );
-
-    for (const chunk of response.values) {
-      if (chunk.progress >= 10000) {
-        dispatched.push(chunk.length);
-      }
-      cracked.push(chunk.cracked);
-      searched.push(chunk.checkpoint - chunk.skip);
-      if (
-        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
-          chunktime &&
-        chunk.progress < 10000
-      ) {
-        speed.push(chunk.speed);
-      }
-
-      if (chunk.dispatchTime > current) {
-        timespent.push(chunk.solveTime - chunk.dispatchTime);
-      } else if (chunk.solveTime > current) {
-        timespent.push(chunk.solveTime - current);
-      }
-    }
-
-    return {
-      dispatched:
-        keyspace && dispatched.length
-          ? dispatched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      searched:
-        keyspace && searched.length
-          ? searched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
-      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
-      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
-    };
   }
 
   reload(): void {

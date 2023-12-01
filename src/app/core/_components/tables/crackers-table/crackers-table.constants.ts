@@ -1,5 +1,11 @@
+export enum CrackersTableCol {
+  ID,
+  NAME,
+  VERSIONS
+}
+
 export const CrackersTableColumnLabel = {
-  ID: 'ID',
-  NAME: 'Name',
-  VERSIONS: 'Available Versions'
+  [CrackersTableCol.ID]: 'ID',
+  [CrackersTableCol.NAME]: 'Name',
+  [CrackersTableCol.VERSIONS]: 'Available Versions'
 };

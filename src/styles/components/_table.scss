@@ -226,6 +226,11 @@ input.dt-button {
 }
 
 table.hashtopolis-table {
+  .no-data {
+    text-align: center;
+    color: $primary-900;
+    padding: 1em;
+  }
   .mat-mdc-header-cell {
     background-color: $primary-800;
     color: #fff;
@@ -240,9 +245,54 @@ table.hashtopolis-table {
   }
 
   .mat-mdc-cell {
+    .editable-container {
+      .mat-icon {
+        font-size: 14px;
+        position: absolute;
+        top: 10px;
+        left: 0;
+      }
+      .mat-mdc-form-field-infix {
+        min-height: auto;
+        padding: 0.5em 0px !important;
+      }
+      .mat-form-field-label-wrapper {
+        top: -1.5em;
+      }
+
+      .mat-mdc-form-field-icon-suffix {
+        display: flex;
+      }
+
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+      .editable-input {
+        width: 50px;
+        margin: 0;
+      }
+      .editable-text {
+        display: inline-block;
+        border-bottom: 1px dashed $primary-400;
+        cursor: pointer;
+      }
+      .mat-mdc-icon-button {
+        width: 30px;
+        height: 30px;
+      }
+      .mat-mdc-form-field {
+        margin: 0;
+        padding: 0;
+        max-width: 150px;
+      }
+    }
     .pulsing-progress {
       color: $warn-900;
       animation: pulse 1s infinite;
+    }
+
+    .text-container button {
+      color: $accent-900;
     }
 
     .row-action {
@@ -324,8 +374,20 @@ div.table-actions {
     .mat-mdc-row:hover {
       background-color: $primary-900;
     }
-  }
 
+    .mat-mdc-cell {
+      .pulsing-progress {
+        color: $warn-300;
+      }
+      .text-container button {
+        color: $accent-600;
+      }
+    }
+
+    .no-data {
+      color: $primary-100;
+    }
+  }
   .mat-mdc-paginator {
     background-color: var(--mat-toolbar-container-background-color);
   }

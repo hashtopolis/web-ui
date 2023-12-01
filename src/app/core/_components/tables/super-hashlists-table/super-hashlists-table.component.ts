@@ -1,10 +1,10 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
 import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
+  SuperHashlistsTableCol,
+  SuperHashlistsTableColumnLabel
+} from './super-hashlists-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -17,7 +17,6 @@ import { Hashlist } from 'src/app/core/_models/hashlist.model';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { SuperHashlistsDataSource } from 'src/app/core/_datasources/super-hashlists.datasource';
-import { SuperHashlistsTableColumnLabel } from './super-hashlists-table.constants';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatPercentage } from 'src/app/shared/utils/util';
 
@@ -34,6 +33,7 @@ export class SuperHashlistsTableComponent
   isArchived = false;
 
   ngOnInit(): void {
+    this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new SuperHashlistsDataSource(
       this.cdr,
@@ -65,13 +65,13 @@ export class SuperHashlistsTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: SuperHashlistsTableColumnLabel.ID,
+        id: SuperHashlistsTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (superHashlist: Hashlist) => superHashlist._id + ''
       },
       {
-        name: SuperHashlistsTableColumnLabel.NAME,
+        id: SuperHashlistsTableCol.NAME,
         dataKey: 'name',
         icons: (superHashlist: Hashlist) =>
           this.renderSecretIcon(superHashlist),
@@ -81,10 +81,10 @@ export class SuperHashlistsTableComponent
         export: async (superHashlist: Hashlist) => superHashlist.name
       },
       {
-        name: SuperHashlistsTableColumnLabel.CRACKED,
+        id: SuperHashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icons: (superHashlist: Hashlist) =>
-          this.renderStatusIcon(superHashlist),
+          this.renderCrackedStatusIcon(superHashlist),
         render: (superHashlist: Hashlist) =>
           formatPercentage(superHashlist.cracked, superHashlist.hashCount),
         isSortable: true,
@@ -92,14 +92,14 @@ export class SuperHashlistsTableComponent
           formatPercentage(superHashlist.cracked, superHashlist.hashCount)
       },
       {
-        name: SuperHashlistsTableColumnLabel.HASHTYPE,
+        id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: true,
         export: async (superHashlist: Hashlist) =>
           superHashlist.hashTypeDescription
       },
       {
-        name: SuperHashlistsTableColumnLabel.HASHLISTS,
+        id: SuperHashlistsTableCol.HASHLISTS,
         dataKey: 'hashlists',
         routerLink: (superHashlist: Hashlist) =>
           this.renderHashlistLinks(superHashlist),
@@ -153,7 +153,9 @@ export class SuperHashlistsTableComponent
   }
 
   @Cacheable(['_id', 'hashCount', 'cracked'])
-  async renderStatusIcon(superHashlist: Hashlist): Promise<HTTableIcon[]> {
+  async renderCrackedStatusIcon(
+    superHashlist: Hashlist
+  ): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     if (superHashlist.hashCount === superHashlist.cracked) {
       icons.push({
@@ -174,19 +176,25 @@ export class SuperHashlistsTableComponent
         this.exportService.toExcel<Hashlist>(
           'hashtopolis-super-hashlists',
           this.tableColumns,
-          event.data
+          event.data,
+          SuperHashlistsTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Hashlist>(
           'hashtopolis-super-hashlists',
           this.tableColumns,
-          event.data
+          event.data,
+          SuperHashlistsTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hashlist>(this.tableColumns, event.data)
+          .toClipboard<Hashlist>(
+            this.tableColumns,
+            event.data,
+            SuperHashlistsTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

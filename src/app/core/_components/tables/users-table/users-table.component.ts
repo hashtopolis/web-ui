@@ -1,7 +1,12 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
 import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
+import {
+  UsersTableCol,
   UsersTableColumnLabel,
   UsersTableStatus
 } from './users-table.constants';
@@ -32,6 +37,7 @@ export class UsersTableComponent
   dataSource: UsersDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(UsersTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new UsersDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
@@ -58,20 +64,20 @@ export class UsersTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: UsersTableColumnLabel.ID,
+        id: UsersTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (user: User) => user._id + ''
       },
       {
-        name: UsersTableColumnLabel.NAME,
+        id: UsersTableCol.NAME,
         dataKey: 'name',
         routerLink: (user: User) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: User) => user.name
       },
       {
-        name: UsersTableColumnLabel.REGISTERED,
+        id: UsersTableCol.REGISTERED,
         dataKey: 'registeredSince',
         render: (user: User) =>
           formatUnixTimestamp(user.registeredSince, this.dateFormat),
@@ -80,7 +86,7 @@ export class UsersTableComponent
           formatUnixTimestamp(user.registeredSince, this.dateFormat)
       },
       {
-        name: UsersTableColumnLabel.LAST_LOGIN,
+        id: UsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
         render: (user: User) =>
           user.lastLoginDate
@@ -93,15 +99,15 @@ export class UsersTableComponent
             : 'Never'
       },
       {
-        name: UsersTableColumnLabel.EMAIL,
+        id: UsersTableCol.EMAIL,
         dataKey: 'email',
         isSortable: true,
         export: async (user: User) => user.email
       },
       {
-        name: UsersTableColumnLabel.STATUS,
+        id: UsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: User) => this.renderStatusIcon(user),
+        icons: (user: User) => this.renderIsValidIcon(user),
         render: (user: User) =>
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
         isSortable: true,
@@ -109,13 +115,13 @@ export class UsersTableComponent
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
       },
       {
-        name: UsersTableColumnLabel.SESSION,
+        id: UsersTableCol.SESSION,
         dataKey: 'sessionLifetime',
         isSortable: true,
         export: async (user: User) => user.sessionLifetime + ''
       },
       {
-        name: UsersTableColumnLabel.PERM_GROUP,
+        id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: true,
         export: async (user: User) => user.globalPermissionGroupName
@@ -156,7 +162,7 @@ export class UsersTableComponent
   // --- Render functions ---
 
   @Cacheable(['_id', 'isValid'])
-  async renderStatusIcon(user: User): Promise<HTTableIcon[]> {
+  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
     return user.isValid
       ? [
           {
@@ -180,19 +186,25 @@ export class UsersTableComponent
         this.exportService.toExcel<User>(
           'hashtopolis-users',
           this.tableColumns,
-          event.data
+          event.data,
+          UsersTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<User>(
           'hashtopolis-users',
           this.tableColumns,
-          event.data
+          event.data,
+          UsersTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<User>(this.tableColumns, event.data)
+          .toClipboard<User>(
+            this.tableColumns,
+            event.data,
+            UsersTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',
@@ -336,6 +348,8 @@ export class UsersTableComponent
   }
 
   private rowActionEdit(user: User): void {
-    this.router.navigate(['/users', user._id, 'edit']);
+    this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink);
+    });
   }
 }

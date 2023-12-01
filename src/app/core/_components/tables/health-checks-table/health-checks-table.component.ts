@@ -1,6 +1,7 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
+  HealthChecksTableCol,
   HealthChecksTableColumnLabel,
   HealthChecksTableStatusLabel
 } from './health-checks-table.constants';
@@ -31,6 +32,7 @@ export class HealthChecksTableComponent
   dataSource: HealthChecksDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(HealthChecksTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HealthChecksDataSource(
       this.cdr,
@@ -58,13 +60,13 @@ export class HealthChecksTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: HealthChecksTableColumnLabel.ID,
+        id: HealthChecksTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (healthCheck: HealthCheck) => healthCheck._id + ''
       },
       {
-        name: HealthChecksTableColumnLabel.CREATED,
+        id: HealthChecksTableCol.CREATED,
         dataKey: 'created',
         isSortable: true,
         render: (healthCheck: HealthCheck) =>
@@ -73,7 +75,7 @@ export class HealthChecksTableComponent
           formatUnixTimestamp(healthCheck.time, this.dateFormat)
       },
       {
-        name: HealthChecksTableColumnLabel.TYPE,
+        id: HealthChecksTableCol.TYPE,
         dataKey: 'hashtypeDescription',
         render: (healthCheck: HealthCheck) =>
           healthCheck.hashtype
@@ -86,7 +88,7 @@ export class HealthChecksTableComponent
             : ''
       },
       {
-        name: HealthChecksTableColumnLabel.STATUS,
+        id: HealthChecksTableCol.STATUS,
         dataKey: 'status',
         render: (healthCheck: HealthCheck) =>
           HealthChecksTableStatusLabel[healthCheck.status],
@@ -129,19 +131,25 @@ export class HealthChecksTableComponent
         this.exportService.toExcel<HealthCheck>(
           'hashtopolis-health-checks',
           this.tableColumns,
-          event.data
+          event.data,
+          HealthChecksTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<HealthCheck>(
           'hashtopolis-health-checks',
           this.tableColumns,
-          event.data
+          event.data,
+          HealthChecksTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<HealthCheck>(this.tableColumns, event.data)
+          .toClipboard<HealthCheck>(
+            this.tableColumns,
+            event.data,
+            HealthChecksTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

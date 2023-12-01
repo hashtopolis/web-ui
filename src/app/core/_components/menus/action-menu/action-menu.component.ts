@@ -45,7 +45,6 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   currentUrl: any[];
   isActive = false;
-  isOpen = false;
 
   /** Icon to be displayed in the menu button. */
   @Input() icon: string;
@@ -113,7 +112,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
           const partial = this.currentUrl.slice(0, item.routerLink.length);
           if (
             item.routerLink &&
-            item.routerLink.every((value, index) => value === partial[index])
+            partial.every((value, index) => value === item.routerLink[index])
           ) {
             this.isActive = true;
             break;

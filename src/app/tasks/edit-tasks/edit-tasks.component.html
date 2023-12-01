@@ -136,7 +136,11 @@
 </app-table>
 <!-- TABLE Attached Assigned Agents -->
 <app-table *ngIf="editedTaskIndex">
-  <app-page-subtitle subtitle="Assigned agents"></app-page-subtitle>
+  <app-page-subtitle 
+    subtitle="Assigned agents"
+    actionTitle="Assign Agents"
+    actionIcon="add"
+    (actionClicked)="assignAgents()"></app-page-subtitle>
   <agents-table
     name="assignedAgentsTable"
     [taskId]="editedTaskIndex"
@@ -172,119 +176,6 @@
       </ng-template>
     </ngb-panel>
   </ngb-accordion>
-  <table
-    style="width: 100%"
-    class="table table-striped table-hover table-sm"
-    datatable
-    [dtOptions]="dtOptions1"
-    [dtTrigger]="dtTrigger1"
-  >
-    <thead class="thead-light">
-      <tr>
-        <th class="rounded-start">ID</th>
-        <th>Status</th>
-        <th>Name</th>
-        <th>Agent Status</th>
-        <th>Benchmark</th>
-        <th>Speed</th>
-        <th>Keyspace searched</th>
-        <th>Time spent</th>
-        <th>Cracked</th>
-        <th>Last activity</th>
-        <th class="rounded-end">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let a of assigAgents">
-        <td>{{ a.assignmentId }}</td>
-        <td>
-          <app-active-spinner
-            *ngIf="(a.agentId | aspeed: true | async) > 0"
-          ></app-active-spinner>
-        </td>
-        <td style="white-space: nowrap">
-          <a
-            [routerLink]="['/agents/show-agents/', a.agentId, 'edit']"
-            ngbTooltip="{{ a.agentName }}"
-          >
-            {{ a.agentName | shortenString: 30 }}
-          </a>
-          <span *ngIf="a.isTrusted === true"
-            ><fa-icon
-              aria-hidden="true"
-              ngbTooltip="Trust agent with secret data"
-            >faLock</fa-icon
-          ></span>
-        </td>
-        <td>
-          <span
-            *ngIf="a.isActive === true"
-            class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0"
-            style="background-color: green"
-          >
-            Active
-          </span>
-          <span
-            *ngIf="a.isActive === false"
-            class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0"
-            style="background-color: rgba(255, 136, 0, 0.87)"
-          >
-            Inactive
-          </span>
-        </td>
-        <td style="white-space: nowrap">
-          <a ngbTooltip="{{ a.benchmark }}">{{
-            a.benchmark | shortenString: 20
-          }}</a>
-          <fa-icon
-            style="cursor: pointer"
-            (click)="
-              this.onModalUpdate(
-                'New Benchmark',
-                a.assignmentId,
-                a.benchmark,
-                a.agentName
-              )
-            "
-            aria-hidden="true"
-          > faPencil</fa-icon>
-        </td>
-        <td>
-          {{ a.agentId | aspeed: true | async | fileSize: false : 1000 }} H/s
-        </td>
-        <td>
-          <a *ngIf="tkeyspace > 0">{{
-            a.agentId | tdsearched: tkeyspace : true | async | percent: '1.2-2'
-          }}</a>
-        </td>
-        <td>
-          {{ a.agentId | ttimespent: false : true | async | sectotime }}
-        </td>
-        <td>
-          <a
-            *ngIf="(a.agentId | tdcracked | async) > 0"
-            [routerLink]="['/hashlists/hashes/', 'tasks', editedTaskIndex]"
-            routerLinkActive="active"
-            >{{ a.agentId | tdcracked | async }}</a
-          >
-        </td>
-        <td>{{ a.lastTime | uiDate }}</td>
-        <td>
-          <app-button-actions>
-            <button
-              ngbDropdownItem
-              (click)="onDelete(a.assignmentId)"
-              data-toggle="tooltip"
-              data-placement="top"
-              title="Delete"
-            >
-              <fa-icon aria-hidden="true">faTrash</fa-icon> Delete
-            </button>
-          </app-button-actions>
-        </td>
-      </tr>
-    </tbody>
-  </table>
 </app-table>
 <!-- Task speed -->
 <div>

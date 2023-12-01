@@ -33,7 +33,23 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    return this.checkId('agentId');
+    return this.checkId('agentId') && 'agentName' in this.data;
+  }
+
+  /**
+   * Check if the data row is of type "Notification".
+   * @returns `true` if the data row is an notification; otherwise, `false`.
+   */
+  protected isNotification(): boolean {
+    return this.checkId('notificationSettingId');
+  }
+
+  /**
+   * Check if the data row is of type "AccessGroup".
+   * @returns `true` if the data row is an access group; otherwise, `false`.
+   */
+  protected isAccessGroup(): boolean {
+    return this.checkId('accessGroupId') && 'groupName' in this.data;
   }
 
   /**
@@ -41,7 +57,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent binary; otherwise, `false`.
    */
   protected isAgentBinary(): boolean {
-    return this.checkId('agentBinaryId');
+    return this.checkId('agentBinaryId') && 'filename' in this.data;
   }
 
   /**
@@ -49,7 +65,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
   protected isPreprocessor(): boolean {
-    return this.checkId('preprocessorId');
+    return this.checkId('preprocessorId') && 'binaryName' in this.data;
   }
 
   /**
@@ -57,15 +73,23 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    return this.checkId('crackerBinaryTypeId');
+    return this.checkId('crackerBinaryTypeId') && 'typeName' in this.data;
   }
 
   /**
-   * Check if the data row is of type "Task".
-   * @returns `true` if the data row is a task; otherwise, `false`.
+   * Check if the data row is of type "TaskWrapper".
+   * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
-  protected isTask(): boolean {
-    return this.checkId('taskId');
+  protected isTaskWrapper(): boolean {
+    return this.checkId('taskWrapperId') && 'priority' in this.data;
+  }
+
+  /**
+   * Check if the data row is of type "Voucher".
+   * @returns `true` if the data row is a voucher; otherwise, `false`.
+   */
+  protected isVoucher(): boolean {
+    return this.checkId('regVoucherId') && 'voucher' in this.data;
   }
 
   /**
@@ -75,6 +99,18 @@ export class BaseMenuComponent {
   protected isUser(): boolean {
     try {
       return this.data['_id'] === this.data['id'] && 'email' in this.data;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Check if the data row is of type "GlobalPermissionGroup".
+   * @returns `true` if the data row is a permission; otherwise, `false`.
+   */
+  protected isPermission(): boolean {
+    try {
+      return this.data['_id'] === this.data['id'] && 'permissions' in this.data;
     } catch (error) {
       return false;
     }
@@ -104,6 +140,7 @@ export class BaseMenuComponent {
     try {
       return (
         this.data['_id'] === this.data['hashlistId'] &&
+        'brainFeatures' in this.data &&
         this.data['format'] !== HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
