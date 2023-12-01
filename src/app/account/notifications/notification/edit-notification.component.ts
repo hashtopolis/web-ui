@@ -1,18 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Subscription } from 'rxjs';
-
 import {
   ACTIONARRAY,
   NOTIFARRAY
 } from '../../../core/_constants/notifications.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { Filter } from '../notifications.component';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { Notification } from 'src/app/core/_models/notification.model';
 import { SERV } from '../../../core/_services/main.config';
-import { Filter } from '../notifications.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-notification',
