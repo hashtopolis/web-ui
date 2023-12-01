@@ -1,12 +1,25 @@
+export enum CracksTableCol {
+  ID,
+  FOUND,
+  PLAINTEXT,
+  HASH,
+  HASHLIST,
+  AGENT,
+  TASK,
+  CHUNK,
+  TYPE,
+  SALT
+}
+
 export const CracksTableColumnLabel = {
-  ID: 'ID',
-  FOUND: 'Time Found',
-  PLAINTEXT: 'Plaintext',
-  HASH: 'Hash',
-  HASHLIST: 'Hashlist',
-  AGENT: 'Agent',
-  TASK: 'Task',
-  CHUNK: 'Chunk',
-  TYPE: 'Type',
-  SALT: 'Salt'
+  [CracksTableCol.ID]: 'ID',
+  [CracksTableCol.FOUND]: 'Time Found',
+  [CracksTableCol.PLAINTEXT]: 'Plaintext',
+  [CracksTableCol.HASH]: 'Hash',
+  [CracksTableCol.HASHLIST]: 'Hashlist',
+  [CracksTableCol.AGENT]: 'Agent',
+  [CracksTableCol.TASK]: 'Task',
+  [CracksTableCol.CHUNK]: 'Chunk',
+  [CracksTableCol.TYPE]: 'Type',
+  [CracksTableCol.SALT]: 'Salt'
 };

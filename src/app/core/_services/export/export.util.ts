@@ -12,11 +12,14 @@ export class ExportUtil {
    * @param tableColumns The table columns.
    * @returns Excel columns.
    */
-  toExcelColumns(tableColumns: HTTableColumn[]): ExcelColumn[] {
+  toExcelColumns(
+    tableColumns: HTTableColumn[],
+    columnLabels: { [key: number]: string }
+  ): ExcelColumn[] {
     return tableColumns.map((col: HTTableColumn) => {
       return {
         key: col.dataKey,
-        header: col.name
+        header: columnLabels[col.id]
       };
     });
   }
@@ -27,8 +30,11 @@ export class ExportUtil {
    * @param tableColumns The table columns.
    * @returns CSV columns.
    */
-  toCsvColumns(tableColumns: HTTableColumn[]): string[] {
-    return tableColumns.map((col: HTTableColumn) => col.name);
+  toCsvColumns(
+    tableColumns: HTTableColumn[],
+    columnLabels: { [key: number]: string }
+  ): string[] {
+    return tableColumns.map((col: HTTableColumn) => columnLabels[col.id]);
   }
 
   /**

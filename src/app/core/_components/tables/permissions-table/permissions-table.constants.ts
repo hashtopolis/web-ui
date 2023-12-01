@@ -1,5 +1,11 @@
+export enum PermissionsTableCol {
+  ID,
+  NAME,
+  MEMBERS
+}
+
 export const PermissionsTableColumnLabel = {
-  ID: 'ID',
-  NAME: 'Name',
-  MEMBERS: 'Members'
+  [PermissionsTableCol.ID]: 'ID',
+  [PermissionsTableCol.NAME]: 'Name',
+  [PermissionsTableCol.MEMBERS]: 'Members'
 };

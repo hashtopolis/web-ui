@@ -34,6 +34,7 @@ export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
+  protected columnLabels: { [key: string]: string } = {};
 
   @ViewChild('table') table: HTTableComponent;
 
@@ -83,6 +84,10 @@ export class BaseTableComponent {
    */
   protected sanitize(html: string): SafeHtml {
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  protected setColumnLabels(labels: { [key: string]: string }): void {
+    this.columnLabels = labels;
   }
 
   reload(): void {

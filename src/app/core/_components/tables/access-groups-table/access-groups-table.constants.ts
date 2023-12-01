@@ -1,4 +1,9 @@
+export enum AccessGroupsTableCol {
+  ID,
+  NAME
+}
+
 export const AccessGroupsTableColumnLabel = {
-  ID: 'ID',
-  NAME: 'Name'
+  [AccessGroupsTableCol.ID]: 'ID',
+  [AccessGroupsTableCol.NAME]: 'Name'
 };

@@ -164,7 +164,7 @@ export abstract class BaseDataSource<
     const sortDirection = this.sort.direction;
     const data = this.dataSubject.value.slice();
     const columnMapping = this.columns.find(
-      (mapping) => mapping.name === this.sort.active
+      (mapping) => mapping.id + '' === this.sort.active
     );
 
     if (!columnMapping) {

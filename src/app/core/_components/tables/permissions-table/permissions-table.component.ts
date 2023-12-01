@@ -1,5 +1,9 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  PermissionsTableCol,
+  PermissionsTableColumnLabel
+} from './permissions-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -10,7 +14,6 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { GlobalPermissionGroup } from 'src/app/core/_models/global-permission-group.model';
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import { PermissionsDataSource } from 'src/app/core/_datasources/permissions.datasource';
-import { PermissionsTableColumnLabel } from './permissions-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -27,6 +30,7 @@ export class PermissionsTableComponent
   dataSource: PermissionsDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(PermissionsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new PermissionsDataSource(
       this.cdr,
@@ -54,13 +58,13 @@ export class PermissionsTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: PermissionsTableColumnLabel.ID,
+        id: PermissionsTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (permission: GlobalPermissionGroup) => permission._id + ''
       },
       {
-        name: PermissionsTableColumnLabel.NAME,
+        id: PermissionsTableCol.NAME,
         dataKey: 'name',
         routerLink: (permission: GlobalPermissionGroup) =>
           this.renderPermissionLink(permission),
@@ -68,7 +72,7 @@ export class PermissionsTableComponent
         export: async (permission: GlobalPermissionGroup) => permission.name
       },
       {
-        name: PermissionsTableColumnLabel.MEMBERS,
+        id: PermissionsTableCol.MEMBERS,
         dataKey: 'numUsers',
         isSortable: true,
         render: (permission: GlobalPermissionGroup) => permission.user.length,
@@ -109,19 +113,25 @@ export class PermissionsTableComponent
         this.exportService.toExcel<GlobalPermissionGroup>(
           'hashtopolis-permissions',
           this.tableColumns,
-          event.data
+          event.data,
+          PermissionsTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<GlobalPermissionGroup>(
           'hashtopolis-permissions',
           this.tableColumns,
-          event.data
+          event.data,
+          PermissionsTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<GlobalPermissionGroup>(this.tableColumns, event.data)
+          .toClipboard<GlobalPermissionGroup>(
+            this.tableColumns,
+            event.data,
+            PermissionsTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

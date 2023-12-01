@@ -1,12 +1,15 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  CracksTableCol,
+  CracksTableColumnLabel
+} from './cracks-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { CracksDataSource } from 'src/app/core/_datasources/cracks.datasource';
-import { CracksTableColumnLabel } from './cracks-table.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn } from '../ht-table/ht-table.models';
@@ -29,6 +32,7 @@ export class CracksTableComponent
   dataSource: CracksDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(CracksTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new CracksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
@@ -52,7 +56,7 @@ export class CracksTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: CracksTableColumnLabel.FOUND,
+        id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
         render: (crack: Hash) =>
           formatUnixTimestamp(crack.timeCracked, this.dateFormat),
@@ -61,41 +65,41 @@ export class CracksTableComponent
           formatUnixTimestamp(crack.timeCracked, this.dateFormat)
       },
       {
-        name: CracksTableColumnLabel.PLAINTEXT,
+        id: CracksTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
         export: async (crack: Hash) => crack.plaintext
       },
       {
-        name: CracksTableColumnLabel.HASH,
+        id: CracksTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
         truncate: true,
         export: async (crack: Hash) => crack.hash
       },
       {
-        name: CracksTableColumnLabel.AGENT,
+        id: CracksTableCol.AGENT,
         dataKey: 'agentId',
         isSortable: true,
         routerLink: (crack: Hash) => this.renderAgentLink(crack),
         export: async (crack: Hash) => crack.agentId + ''
       },
       {
-        name: CracksTableColumnLabel.TASK,
+        id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: true,
         routerLink: (crack: Hash) => this.renderTaskLink(crack),
         export: async (crack: Hash) => crack.taskId + ''
       },
       {
-        name: CracksTableColumnLabel.CHUNK,
+        id: CracksTableCol.CHUNK,
         dataKey: 'chunkId',
         isSortable: true,
         routerLink: (crack: Hash) => this.renderChunkLink(crack),
         export: async (crack: Hash) => crack.chunkId + ''
       },
       {
-        name: CracksTableColumnLabel.TYPE,
+        id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
         render: (crack: Hash) =>
@@ -138,19 +142,25 @@ export class CracksTableComponent
         this.exportService.toExcel<Hash>(
           'hashtopolis-cracks',
           this.tableColumns,
-          event.data
+          event.data,
+          CracksTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Hash>(
           'hashtopolis-cracks',
           this.tableColumns,
-          event.data
+          event.data,
+          CracksTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hash>(this.tableColumns, event.data)
+          .toClipboard<Hash>(
+            this.tableColumns,
+            event.data,
+            CracksTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

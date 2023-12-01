@@ -25,6 +25,7 @@ export class TasksDataSource extends BaseDataSource<
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
+    // @todo Implement hashlist filter in API
     const additionalFilter = this._hashlistId
       ? `;hashlistId=${this._hashlistId}`
       : '';
@@ -32,7 +33,7 @@ export class TasksDataSource extends BaseDataSource<
       maxResults: this.pageSize,
       startAt: startAt,
       expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}${additionalFilter}`
+      filter: `isArchived=${this._isArchived}` //${additionalFilter}`
     };
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
