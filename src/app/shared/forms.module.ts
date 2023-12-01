@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -26,6 +27,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
   imports: [
     ReactiveFormsModule,
     MatAutocompleteModule,
+    MatStepperModule,
     MatSlideToggleModule,
     MatExpansionModule,
     MatOptionModule,
@@ -53,6 +55,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatAutocompleteModule,
     MatSlideToggleModule,
     MatExpansionModule,
+    MatStepperModule,
     MatOptionModule,
     MatSelectModule,
     MatDividerModule,

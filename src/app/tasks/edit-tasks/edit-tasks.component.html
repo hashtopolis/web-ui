@@ -136,7 +136,7 @@
 </app-table>
 <!-- TABLE Attached Assigned Agents -->
 <app-table *ngIf="editedTaskIndex">
-  <app-page-subtitle 
+  <app-page-subtitle
     subtitle="Assigned agents"
     actionTitle="Assign Agents"
     actionIcon="add"
@@ -169,7 +169,7 @@
             </select>
           </grid-form-input>
           <button-submit
-            (click)="asignAgents()"
+            (click)="assignAgents()"
             [name]="'Assign'"
           ></button-submit>
         </form>

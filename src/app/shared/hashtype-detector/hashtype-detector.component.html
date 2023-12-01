@@ -18,7 +18,7 @@
       <mat-table *ngIf="type && type !== false" class="mat-elevation-z8 custom-mat-table" [dataSource]="dataSource">
 
         <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-          <mat-header-cell *matHeaderCellDef> {{ column | titlecase }} </mat-header-cell>
+          <mat-header-cell *matHeaderCellDef> {{ column }} </mat-header-cell>
           <mat-cell *matCellDef="let row"> {{ row[column] }} </mat-cell>
         </ng-container>
 

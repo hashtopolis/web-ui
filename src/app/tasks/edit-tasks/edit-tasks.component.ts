@@ -236,7 +236,7 @@ export class EditTasksComponent implements OnInit {
     );
   }
 
-  asignAgents() {
+  assignAgents() {
     if (this.createForm.valid) {
       const payload = {
         taskId: this.editedTaskIndex,
