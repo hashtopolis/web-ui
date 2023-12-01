@@ -11,7 +11,13 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { DataType, HTTableColumn, HTTableEditable } from './ht-table.models';
+import {
+  COL_ROW_ACTION,
+  COL_SELECT,
+  DataType,
+  HTTableColumn,
+  HTTableEditable
+} from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import {
   UIConfig,
@@ -79,6 +85,9 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
+
+  colSelect = COL_SELECT;
+  colRowAction = COL_ROW_ACTION;
 
   /** Reference to MatPaginator for pagination support. */
   @ViewChild(MatPaginator, { static: false }) matPaginator: MatPaginator;
@@ -238,7 +247,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     this.displayedColumns = [];
     if (this.isSelectable) {
       // Add checkbox if enabled
-      this.displayedColumns.push('100'); // 100 = select
+      this.displayedColumns.push(COL_SELECT + '');
     }
     for (const num of columnNames) {
       this.displayedColumns.push(num + '');
@@ -246,7 +255,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
 
     if (this.hasRowAction) {
       // Add action menu if enabled
-      this.displayedColumns.push('200'); // 200 = row action
+      this.displayedColumns.push(COL_ROW_ACTION + '');
     }
   }
 

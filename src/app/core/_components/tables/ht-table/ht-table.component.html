@@ -70,7 +70,7 @@
       <mat-spinner></mat-spinner>
     </div>
     <!-- select column -->
-    <ng-container *ngIf="isSelectable" matColumnDef="100">
+    <ng-container *ngIf="isSelectable" matColumnDef="{{ colSelect }}">
       <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox
           (click)="$event.stopPropagation()"
@@ -102,7 +102,7 @@
     </ng-container>
 
     <!-- action column -->
-    <ng-container *ngIf="hasRowAction" matColumnDef="200">
+    <ng-container *ngIf="hasRowAction" matColumnDef="{{ colRowAction }}">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" [class.text-right]="true">
         <row-action-menu

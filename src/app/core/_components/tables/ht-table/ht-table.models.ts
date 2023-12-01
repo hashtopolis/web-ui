@@ -54,3 +54,8 @@ export interface HTTableColumn {
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
 }
+
+/** Column def for selectable checkbox */
+export const COL_SELECT = 100;
+/** Column def for row action */
+export const COL_ROW_ACTION = 200;
