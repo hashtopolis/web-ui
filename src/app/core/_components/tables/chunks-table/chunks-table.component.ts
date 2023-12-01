@@ -6,6 +6,10 @@ import {
   OnInit
 } from '@angular/core';
 import {
+  ChunksTableCol,
+  ChunksTableColumnLabel
+} from './chunks-table.constants';
+import {
   formatSeconds,
   formatUnixTimestamp
 } from 'src/app/shared/utils/datetime';
@@ -14,7 +18,6 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { Cacheable } from '../../../_decorators/cacheable';
 import { Chunk } from '../../../_models/chunk.model';
 import { ChunksDataSource } from '../../../_datasources/chunks.datasource';
-import { ChunksTableColumnLabel } from './chunks-table.constants';
 import { HTTableColumn } from '../../tables/ht-table/ht-table.models';
 import { SafeHtml } from '@angular/platform-browser';
 import { chunkStates } from '../../../_constants/chunks.config';
@@ -32,6 +35,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   dataSource: ChunksDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new ChunksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
@@ -41,73 +45,73 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: ChunksTableColumnLabel.ID,
+        id: ChunksTableCol.ID,
         dataKey: '_id',
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.START,
+        id: ChunksTableCol.START,
         dataKey: 'skip',
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.LENGTH,
+        id: ChunksTableCol.LENGTH,
         dataKey: 'length',
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.CHECKPOINT,
+        id: ChunksTableCol.CHECKPOINT,
         dataKey: 'checkpoint',
         render: (chunk: Chunk) => this.renderCheckpoint(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.PROGRESS,
+        id: ChunksTableCol.PROGRESS,
         dataKey: 'progress',
         render: (chunk: Chunk) => this.renderProgress(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.TASK,
+        id: ChunksTableCol.TASK,
         dataKey: 'taskName',
-        routerLink: (chunk: Chunk) => this.renderTaskLink(chunk.taskId),
+        routerLink: (chunk: Chunk) => this.renderTaskLink(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.AGENT,
+        id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         render: (chunk: Chunk) => this.renderAgent(chunk),
-        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk.agentId),
+        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.DISPATCH_TIME,
+        id: ChunksTableCol.DISPATCH_TIME,
         dataKey: 'dispatchTime',
         render: (chunk: Chunk) => this.renderDispatchTime(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.LAST_ACTIVITY,
+        id: ChunksTableCol.LAST_ACTIVITY,
         dataKey: 'solveTime',
         render: (chunk: Chunk) => this.renderLastActivity(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.TIME_SPENT,
+        id: ChunksTableCol.TIME_SPENT,
         dataKey: 'timeSpent',
         render: (chunk: Chunk) => this.renderTimeSpent(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.STATE,
+        id: ChunksTableCol.STATE,
         dataKey: 'state',
         render: (chunk: Chunk) => this.renderState(chunk),
         isSortable: true
       },
       {
-        name: ChunksTableColumnLabel.CRACKED,
+        id: ChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk.taskId),
+        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];

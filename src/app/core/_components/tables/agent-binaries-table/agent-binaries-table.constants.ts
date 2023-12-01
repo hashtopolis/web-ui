@@ -1,8 +1,17 @@
+export enum AgentBinariesTableCol {
+  ID,
+  TYPE,
+  OS,
+  FILENAME,
+  VERSION,
+  UPDATE_TRACK
+}
+
 export const AgentBinariesTableColumnLabel = {
-  ID: 'ID',
-  TYPE: 'Type',
-  OS: 'OS',
-  FILENAME: 'Filename',
-  VERSION: 'Current Version',
-  UPDATE_TRACK: 'Update Track'
+  [AgentBinariesTableCol.ID]: 'ID',
+  [AgentBinariesTableCol.TYPE]: 'Type',
+  [AgentBinariesTableCol.OS]: 'OS',
+  [AgentBinariesTableCol.FILENAME]: 'Filename',
+  [AgentBinariesTableCol.VERSION]: 'Current Version',
+  [AgentBinariesTableCol.UPDATE_TRACK]: 'Update Track'
 };

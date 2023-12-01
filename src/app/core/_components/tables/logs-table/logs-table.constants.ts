@@ -1,7 +1,15 @@
+export enum LogsTableCol {
+  ID,
+  TIME,
+  LEVEL,
+  ISSUER,
+  MESSAGE
+}
+
 export const LogsTableColumnLabel = {
-  ID: 'ID',
-  TIME: 'Time',
-  LEVEL: 'Level',
-  ISSUER: 'Issuer',
-  MESSAGE: 'Message'
+  [LogsTableCol.ID]: 'ID',
+  [LogsTableCol.TIME]: 'Time',
+  [LogsTableCol.LEVEL]: 'Level',
+  [LogsTableCol.ISSUER]: 'Issuer',
+  [LogsTableCol.MESSAGE]: 'Message'
 };

@@ -59,8 +59,8 @@ export class RowActionMenuComponent
       this.setUserMenu();
     } else if (this.isNotification()) {
       this.setNotificationMenu();
-    } else if (this.isTask()) {
-      this.setTaskMenu();
+    } else if (this.isTaskWrapper()) {
+      this.setTaskWrapperMenu();
     } else if (this.isHashlist()) {
       this.setHashlistMenu();
     } else if (this.isHashtype()) {
@@ -202,7 +202,7 @@ export class RowActionMenuComponent
   /**
    * Sets the context menu items for a task data row.
    */
-  private setTaskMenu(): void {
+  private setTaskWrapperMenu(): void {
     this.setActionMenuItems(0, [
       this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
     ]);
@@ -230,10 +230,17 @@ export class RowActionMenuComponent
       });
     }
 
-    this.addActionMenuItem(
-      0,
-      this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
-    );
+    if (this.data.isArchived) {
+      this.addActionMenuItem(
+        0,
+        this.getUnarchiveMenuItem(RowActionMenuLabel.UNARCHIVE_TASK)
+      );
+    } else {
+      this.addActionMenuItem(
+        0,
+        this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
+      );
+    }
   }
 
   /**
@@ -321,6 +328,19 @@ export class RowActionMenuComponent
       label: label,
       action: RowActionMenuAction.ARCHIVE,
       icon: RowActionMenuIcon.ARCHIVE
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with archive action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with archive action.
+   */
+  private getUnarchiveMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.UNARCHIVE,
+      icon: RowActionMenuIcon.UNARCHIVE
     };
   }
 

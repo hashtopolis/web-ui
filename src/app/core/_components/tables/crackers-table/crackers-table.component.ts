@@ -4,6 +4,10 @@ import {
   CrackerBinary,
   CrackerBinaryType
 } from 'src/app/core/_models/cracker-binary.model';
+import {
+  CrackersTableCol,
+  CrackersTableColumnLabel
+} from './crackers-table.constants';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
@@ -12,7 +16,6 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { CrackersDataSource } from 'src/app/core/_datasources/crackers.datasource';
-import { CrackersTableColumnLabel } from './crackers-table.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
@@ -31,6 +34,7 @@ export class CrackersTableComponent
   dataSource: CrackersDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(CrackersTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new CrackersDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
@@ -54,19 +58,19 @@ export class CrackersTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: CrackersTableColumnLabel.ID,
+        id: CrackersTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (cracker: CrackerBinaryType) => cracker._id + ''
       },
       {
-        name: CrackersTableColumnLabel.NAME,
+        id: CrackersTableCol.NAME,
         dataKey: 'typeName',
         isSortable: true,
         export: async (cracker: CrackerBinaryType) => cracker.typeName
       },
       {
-        name: CrackersTableColumnLabel.VERSIONS,
+        id: CrackersTableCol.VERSIONS,
         dataKey: 'crackerVersions',
         routerLink: (cracker: CrackerBinaryType) =>
           this.renderVersions(cracker),
@@ -111,19 +115,25 @@ export class CrackersTableComponent
         this.exportService.toExcel<CrackerBinaryType>(
           'hashtopolis-crackers',
           this.tableColumns,
-          event.data
+          event.data,
+          CrackersTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<CrackerBinaryType>(
           'hashtopolis-crackers',
           this.tableColumns,
-          event.data
+          event.data,
+          CrackersTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<CrackerBinaryType>(this.tableColumns, event.data)
+          .toClipboard<CrackerBinaryType>(
+            this.tableColumns,
+            event.data,
+            CrackersTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

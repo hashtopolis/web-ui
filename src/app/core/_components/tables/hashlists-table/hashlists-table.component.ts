@@ -1,10 +1,14 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
   HTTableIcon,
   HTTableRouterLink
 } from '../ht-table/ht-table.models';
+import {
+  HashlistsTableCol,
+  HashlistsTableColumnLabel
+} from './hashlists-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -16,7 +20,6 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { HashListFormatLabel } from 'src/app/core/_constants/hashlist.config';
 import { Hashlist } from 'src/app/core/_models/hashlist.model';
 import { HashlistsDataSource } from 'src/app/core/_datasources/hashlists.datasource';
-import { HashlistsTableColumnLabel } from './hashlists-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -35,6 +38,7 @@ export class HashlistsTableComponent
   isArchived = false;
 
   ngOnInit(): void {
+    this.setColumnLabels(HashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HashlistsDataSource(
       this.cdr,
@@ -66,13 +70,13 @@ export class HashlistsTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: HashlistsTableColumnLabel.ID,
+        id: HashlistsTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (hashlist: Hashlist) => hashlist._id + ''
       },
       {
-        name: HashlistsTableColumnLabel.NAME,
+        id: HashlistsTableCol.NAME,
         dataKey: 'name',
         icons: (hashlist: Hashlist) => this.renderSecretIcon(hashlist),
         routerLink: (hashlist: Hashlist) => this.renderHashlistLink(hashlist),
@@ -80,14 +84,14 @@ export class HashlistsTableComponent
         export: async (hashlist: Hashlist) => hashlist.name
       },
       {
-        name: HashlistsTableColumnLabel.HASH_COUNT,
+        id: HashlistsTableCol.HASH_COUNT,
         dataKey: 'hashCount',
         isSortable: true,
         routerLink: (hashlist: Hashlist) => this.renderHashCountLink(hashlist),
         export: async (hashlist: Hashlist) => hashlist.hashCount + ''
       },
       {
-        name: HashlistsTableColumnLabel.CRACKED,
+        id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icons: (hashlist: Hashlist) => this.renderCrackedStatusIcon(hashlist),
         render: (hashlist: Hashlist) =>
@@ -97,13 +101,13 @@ export class HashlistsTableComponent
           formatPercentage(hashlist.cracked, hashlist.hashCount)
       },
       {
-        name: HashlistsTableColumnLabel.HASHTYPE,
+        id: HashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: true,
         export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
       },
       {
-        name: HashlistsTableColumnLabel.FORMAT,
+        id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
         render: (hashlist: Hashlist) =>
@@ -178,19 +182,25 @@ export class HashlistsTableComponent
         this.exportService.toExcel<Hashlist>(
           'hashtopolis-hashlists',
           this.tableColumns,
-          event.data
+          event.data,
+          HashlistsTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Hashlist>(
           'hashtopolis-hashlists',
           this.tableColumns,
-          event.data
+          event.data,
+          HashlistsTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hashlist>(this.tableColumns, event.data)
+          .toClipboard<Hashlist>(
+            this.tableColumns,
+            event.data,
+            HashlistsTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

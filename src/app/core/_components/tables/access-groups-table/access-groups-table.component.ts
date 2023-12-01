@@ -1,3 +1,7 @@
+import {
+  AccessGroupsTableCol,
+  AccessGroupsTableColumnLabel
+} from './access-groups-table.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
@@ -5,7 +9,6 @@ import { catchError, forkJoin } from 'rxjs';
 
 import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { AccessGroupsDataSource } from 'src/app/core/_datasources/access-groups.datasource';
-import { AccessGroupsTableColumnLabel } from './access-groups-table.constants';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
@@ -27,6 +30,7 @@ export class AccessGroupsTableComponent
   dataSource: AccessGroupsDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(AccessGroupsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new AccessGroupsDataSource(
       this.cdr,
@@ -54,13 +58,13 @@ export class AccessGroupsTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: AccessGroupsTableColumnLabel.ID,
+        id: AccessGroupsTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (accessGroup: AccessGroup) => accessGroup._id + ''
       },
       {
-        name: AccessGroupsTableColumnLabel.NAME,
+        id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
         routerLink: (accessGroup: AccessGroup) =>
           this.renderAccessGroupLink(accessGroup),
@@ -102,19 +106,25 @@ export class AccessGroupsTableComponent
         this.exportService.toExcel<AccessGroup>(
           'hashtopolis-access-groups',
           this.tableColumns,
-          event.data
+          event.data,
+          AccessGroupsTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<AccessGroup>(
           'hashtopolis-access-groups',
           this.tableColumns,
-          event.data
+          event.data,
+          AccessGroupsTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AccessGroup>(this.tableColumns, event.data)
+          .toClipboard<AccessGroup>(
+            this.tableColumns,
+            event.data,
+            AccessGroupsTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

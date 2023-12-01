@@ -37,7 +37,8 @@ export const RowActionMenuLabel = {
   ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
   EXPORT_HASHLIST: 'Export Hashlist',
-  NEW_VERSION: 'Add Version'
+  NEW_VERSION: 'Add Version',
+  UNARCHIVE_TASK: 'Unarchive Task'
 };
 
 export const RowActionMenuAction = {
@@ -51,7 +52,8 @@ export const RowActionMenuAction = {
   IMPORT: 'import',
   EXPORT: 'export',
   ACTIVATE: 'activate',
-  DEACTIVATE: 'deactivate'
+  DEACTIVATE: 'deactivate',
+  UNARCHIVE: 'unrachive'
 };
 
 export const RowActionMenuIcon = {
@@ -62,6 +64,7 @@ export const RowActionMenuIcon = {
   EXPORT: 'arrow_downward',
   COPY: 'content_copy',
   ARCHIVE: 'archive',
+  UNARCHIVE: 'unarchive',
   ACTIVATE: 'check_circle',
   DEACTIVATE: 'remove_circle'
 };

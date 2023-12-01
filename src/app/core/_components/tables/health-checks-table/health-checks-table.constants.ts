@@ -1,10 +1,17 @@
 import { HealthCheckStatus } from 'src/app/core/_models/health-check.model';
 
+export enum HealthChecksTableCol {
+  ID,
+  CREATED,
+  TYPE,
+  STATUS
+}
+
 export const HealthChecksTableColumnLabel = {
-  ID: 'ID',
-  CREATED: 'Created',
-  TYPE: 'Type',
-  STATUS: 'Status'
+  [HealthChecksTableCol.ID]: 'ID',
+  [HealthChecksTableCol.CREATED]: 'Created',
+  [HealthChecksTableCol.TYPE]: 'Type',
+  [HealthChecksTableCol.STATUS]: 'Status'
 };
 
 export const HealthChecksTableStatusLabel = {

@@ -53,7 +53,15 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_NOTIFICATIONS
       );
     } else if (this.dataType === 'hashlists') {
-      this.setHashlistMenu();
+      this.setArchiveDeleteMenu(
+        BulkActionMenuLabel.DELETE_HASHLISTS,
+        BulkActionMenuLabel.ARCHIVE_HASHLISTS
+      );
+    } else if (this.dataType === 'tasks') {
+      this.setArchiveDeleteMenu(
+        BulkActionMenuLabel.DELETE_TASKS,
+        BulkActionMenuLabel.ARCHIVE_TASKS
+      );
     } else if (this.dataType === 'access-groups') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_ACCESSGROUPS);
     } else if (this.dataType === 'permissions') {
@@ -88,6 +96,18 @@ export class BulkActionMenuComponent
       this.setActionMenuItems(1, [
         this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)
       ]);
+    }
+  }
+
+  private setArchiveDeleteMenu(
+    deleteLabel: string,
+    archiveLabel: string
+  ): void {
+    if (this.isArchived) {
+      this.setActionMenuItems(0, [this.getDeleteMenuItem(deleteLabel)]);
+    } else {
+      this.setActionMenuItems(0, [this.getArchiveMenuItem(archiveLabel)]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
     }
   }
 

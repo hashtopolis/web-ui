@@ -13,6 +13,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MasksComponent } from './import-supertasks/masks/masks.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ModalPretasksComponent } from './supertasks/modal-pretasks/modal-pretasks.component';
 import { ModalSubtasksComponent } from './show-tasks/modal-subtasks/modal-subtasks.component';
 import { NewPreconfiguredTasksComponent } from './new-preconfigured-tasks/new-preconfigured-tasks.component';
@@ -54,6 +55,7 @@ import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
     ComponentsModule,
     CoreComponentsModule,
     MatFormFieldModule,
+    MatSlideToggleModule,
     MatInputModule,
     CommonModule,
     RouterModule,

@@ -1,8 +1,17 @@
+export enum NotificationsTableCol {
+  ID,
+  STATUS,
+  APPLIED_TO,
+  ACTION,
+  NOTIFICATION,
+  RECEIVER
+}
+
 export const NotificationsTableColumnLabel = {
-  ID: 'ID',
-  STATUS: 'Status',
-  APPLIED_TO: 'Applied To',
-  ACTION: 'Trigger Action',
-  NOTIFICATION: 'Called Notification',
-  RECEIVER: 'Receiver'
+  [NotificationsTableCol.ID]: 'ID',
+  [NotificationsTableCol.STATUS]: 'Status',
+  [NotificationsTableCol.APPLIED_TO]: 'Applied To',
+  [NotificationsTableCol.ACTION]: 'Trigger Action',
+  [NotificationsTableCol.NOTIFICATION]: 'Called Notification',
+  [NotificationsTableCol.RECEIVER]: 'Receiver'
 };

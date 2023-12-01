@@ -1,5 +1,9 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  PreprocessorsTableCol,
+  PreprocessorsTableColumnLabel
+} from './preprocessors-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -10,7 +14,6 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
 import { PreprocessorsDataSource } from 'src/app/core/_datasources/preprocessors.datasource';
-import { PreprocessorsTableColumnLabel } from './preprocessors-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -27,6 +30,7 @@ export class PreprocessorsTableComponent
   dataSource: PreprocessorsDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new PreprocessorsDataSource(
       this.cdr,
@@ -54,13 +58,13 @@ export class PreprocessorsTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: PreprocessorsTableColumnLabel.ID,
+        id: PreprocessorsTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (preprocessor: Preprocessor) => preprocessor._id + ''
       },
       {
-        name: PreprocessorsTableColumnLabel.NAME,
+        id: PreprocessorsTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
         export: async (preprocessor: Preprocessor) => preprocessor.name
@@ -100,19 +104,25 @@ export class PreprocessorsTableComponent
         this.exportService.toExcel<Preprocessor>(
           'hashtopolis-preprocessors',
           this.tableColumns,
-          event.data
+          event.data,
+          PreprocessorsTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Preprocessor>(
           'hashtopolis-preprocessors',
           this.tableColumns,
-          event.data
+          event.data,
+          PreprocessorsTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Preprocessor>(this.tableColumns, event.data)
+          .toClipboard<Preprocessor>(
+            this.tableColumns,
+            event.data,
+            PreprocessorsTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

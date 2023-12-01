@@ -1,6 +1,10 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
+import {
+  NotificationsTableCol,
+  NotificationsTableColumnLabel
+} from './notifications-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ACTION } from 'src/app/core/_constants/notifications.config';
@@ -12,7 +16,6 @@ import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { Notification } from 'src/app/core/_models/notification.model';
 import { NotificationsDataSource } from 'src/app/core/_datasources/notifications.datasource';
-import { NotificationsTableColumnLabel } from './notifications-table.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
@@ -29,6 +32,7 @@ export class NotificationsTableComponent
   dataSource: NotificationsDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(NotificationsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new NotificationsDataSource(
       this.cdr,
@@ -56,13 +60,13 @@ export class NotificationsTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: NotificationsTableColumnLabel.ID,
+        id: NotificationsTableCol.ID,
         dataKey: '_id',
         isSortable: true,
         export: async (notification: Notification) => notification._id + ''
       },
       {
-        name: NotificationsTableColumnLabel.STATUS,
+        id: NotificationsTableCol.STATUS,
         dataKey: 'isActive',
         render: (notification: Notification) =>
           notification.isActive ? 'Active' : 'Inactive',
@@ -72,13 +76,13 @@ export class NotificationsTableComponent
         export: async (notification: Notification) => notification.isActive + ''
       },
       {
-        name: NotificationsTableColumnLabel.ACTION,
+        id: NotificationsTableCol.ACTION,
         dataKey: 'action',
         isSortable: true,
         export: async (notification: Notification) => notification.action
       },
       {
-        name: NotificationsTableColumnLabel.APPLIED_TO,
+        id: NotificationsTableCol.APPLIED_TO,
         dataKey: 'appliedTo',
         routerLink: (notification: Notification) =>
           this.renderAppliedToLink(notification),
@@ -86,13 +90,13 @@ export class NotificationsTableComponent
         export: async (notification: Notification) => notification.action
       },
       {
-        name: NotificationsTableColumnLabel.NOTIFICATION,
+        id: NotificationsTableCol.NOTIFICATION,
         dataKey: 'notification',
         isSortable: true,
         export: async (notification: Notification) => notification.notification
       },
       {
-        name: NotificationsTableColumnLabel.RECEIVER,
+        id: NotificationsTableCol.RECEIVER,
         dataKey: 'receiver',
         isSortable: true,
         export: async (notification: Notification) => notification.receiver
@@ -138,19 +142,25 @@ export class NotificationsTableComponent
         this.exportService.toExcel<Notification>(
           'hashtopolis-notifications',
           this.tableColumns,
-          event.data
+          event.data,
+          NotificationsTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Notification>(
           'hashtopolis-notifications',
           this.tableColumns,
-          event.data
+          event.data,
+          NotificationsTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Notification>(this.tableColumns, event.data)
+          .toClipboard<Notification>(
+            this.tableColumns,
+            event.data,
+            NotificationsTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',
