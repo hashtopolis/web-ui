@@ -1,4 +1,9 @@
+export enum VouchersTableCol {
+  KEY,
+  CREATED
+}
+
 export const VouchersTableColumnLabel = {
-  KEY: 'Key',
-  CREATED: 'Created'
+  [VouchersTableCol.KEY]: 'Key',
+  [VouchersTableCol.CREATED]: 'Created'
 };
