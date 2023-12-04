@@ -13,6 +13,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
+import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -42,10 +43,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, AfterViewInit {
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
-    fieldMapping: {
-      name: 'typeName',
-      _id: 'crackerBinaryTypeId'
-    }
+    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
 
   @ViewChild('cmdAttack', { static: true }) cmdAttack: any;

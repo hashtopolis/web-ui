@@ -140,3 +140,35 @@ export function compareVersions(a, b): number {
   // If all segments are equal, return 0
   return 0;
 }
+
+/**
+ * Removes the fake path prefix from the given file path.
+ *
+ * @param {string} originalPath - The original file path that may contain a fake path prefix.
+ * @returns {string} The file path with the fake path prefix removed.
+ * @throws {Error} Throws an error if the provided path is not a string.
+ */
+export function removeFakePath(originalPath: string): string {
+  const fakePathPrefix = 'C:\\fakepath\\';
+
+  // Ensure originalPath is a string
+  if (typeof originalPath !== 'string') {
+    throw new Error('Input must be a string.');
+  }
+
+  // Remove fake path prefix if it exists
+  return originalPath.startsWith(fakePathPrefix)
+    ? originalPath.slice(fakePathPrefix.length)
+    : originalPath;
+}
+
+/**
+ * Handles the encoding of source data based on the selected file type.
+ *
+ * @param {string} fileSource - The source data to be encoded.
+ * @returns {string} The encoded source data in base64 format.
+ */
+import { Buffer } from 'buffer';
+export function handleEncode(fileSource: string): string {
+  return Buffer.from(fileSource).toString('base64');
+}

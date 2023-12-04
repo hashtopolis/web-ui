@@ -4,8 +4,6 @@
 
   <form [formGroup]="form">
 
-    <!-- <grid-autocol> -->
-
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text title="Name" formControlName="name"></input-text>
       <input-text title="Notes" formControlName="notes"></input-text>
@@ -29,9 +27,9 @@
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
+      <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
       <input-check title="Salted hashes, separator" formControlName="isSalted"></input-check>
       <input-text title="Separator" formControlName="separator"></input-text>
-      <input-check title="Salt is in hex (only when salted hashes)" formControlName="isHexSalt"></input-check>
     </div>
 
     <div *ngIf="+brainenabled === 1"><hr>
@@ -60,39 +58,23 @@
     </div>
 
     <div *ngIf="sourceType === 'import'">
-
-      <div class="file-input-container">
-        <input type="file" accept="/*" formControlName="sourceData" (change)="handleFileInput($event)" multiple #file class="custom-file-input">
-        <mat-icon>attach_file</mat-icon>
-        <span class="file-upload-label">Choose File</span>
-        <mat-hint class="mt-2">
-          <span class="fileuploadspan custom-file-upload-size"></span>
-        </mat-hint>
-      </div>
-
+      <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
       <br>
       <br>
 
-     <div *ngIf="uploadProgress > 0">
-        <ngb-progressbar
-                        type="success"
-                        textType="white"
-                        [striped]="true"
-                        [value]="uploadProgress"
-                        [showValue]="true"
-        ></ngb-progressbar>
+      <!-- Show progress bar during hashlist upload -->
+      <div *ngIf="uploadProgress > 0">
+        <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
       </div>
 
-      <div *ngIf="uploadProgress === 100">
-        <p><b>Upload completed!</b></p>
-      </div><br>
+      <!-- Display message upon completion of upload -->
+      <div *ngIf="uploadProgress === 100"><p><b>Upload completed!</b></p></div><br>
 
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+        <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
       </grid-buttons>
     </div>
 
-    <!-- </grid-autocol> -->
   </form>
 </grid-main>

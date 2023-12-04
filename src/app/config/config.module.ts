@@ -18,6 +18,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { PipesModule } from '../shared/pipes.module';
 import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
 import { RouterModule } from '@angular/router';
+import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { RouterModule } from '@angular/router';
     FontAwesomeModule,
     DataTablesModule,
     ComponentsModule,
+    CoreFormsModule,
     CoreComponentsModule,
     CommonModule,
     RouterModule,
