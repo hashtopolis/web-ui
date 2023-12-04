@@ -1,5 +1,9 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  VouchersTableCol,
+  VouchersTableColumnLabel
+} from './vouchers-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -13,7 +17,6 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { Voucher } from 'src/app/core/_models/voucher.model';
 import { VouchersDataSource } from 'src/app/core/_datasources/vouchers.datasource';
-import { VouchersTableColumnLabel } from './vouchers-table.constants';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
@@ -28,6 +31,7 @@ export class VouchersTableComponent
   dataSource: VouchersDataSource;
 
   ngOnInit(): void {
+    this.setColumnLabels(VouchersTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new VouchersDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
@@ -51,13 +55,13 @@ export class VouchersTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        name: VouchersTableColumnLabel.KEY,
+        id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,
         export: async (voucher: Voucher) => voucher.voucher
       },
       {
-        name: VouchersTableColumnLabel.CREATED,
+        id: VouchersTableCol.CREATED,
         dataKey: 'time',
         isSortable: true,
         render: (voucher: Voucher) =>
@@ -100,19 +104,25 @@ export class VouchersTableComponent
         this.exportService.toExcel<Voucher>(
           'hashtopolis-vouchers',
           this.tableColumns,
-          event.data
+          event.data,
+          VouchersTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
         this.exportService.toCsv<Voucher>(
           'hashtopolis-vouchers',
           this.tableColumns,
-          event.data
+          event.data,
+          VouchersTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Voucher>(this.tableColumns, event.data)
+          .toClipboard<Voucher>(
+            this.tableColumns,
+            event.data,
+            VouchersTableColumnLabel
+          )
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',
