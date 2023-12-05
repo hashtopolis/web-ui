@@ -12,7 +12,7 @@
         <h3>Upload from your computer</h3>
         <form [formGroup]="form" fxLayout="column" fxLayoutGap="20px">
 
-          <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+          <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
 
           <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
 
@@ -35,15 +35,15 @@
         <h3>Upload to the server using a public/private link</h3>
         <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
 
-          <input-text title="Name" formControlName="filename"></input-text>
+          <input-text title="Name" formControlName="filename" [isRequired]="true"></input-text>
 
           <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
 
-          <input-text title="URL path" formControlName="sourceData" pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"></input-text>
+          <input-text title="URL path" formControlName="sourceData" pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$" [isRequired]="true"></input-text>
 
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="!form.valid"></button-submit>
           </grid-buttons>
 
         </form>

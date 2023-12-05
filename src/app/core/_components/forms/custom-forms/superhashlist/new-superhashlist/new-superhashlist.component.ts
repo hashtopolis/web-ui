@@ -40,9 +40,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
 
-  @Input()
-  error;
-
   /** Select List of hashlists. */
   selectHashlists: any;
 

@@ -19,8 +19,9 @@
     [(ngModel)]="value"
     (ngModelChange)="onChange(value)"
      matAutosize
+     [required]="isRequired"
      class="custom-textarea"
   ></textarea>
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error *ngIf="error">{{ error }}</mat-error>
+  <mat-error>{{ title }} is required</mat-error>
 </mat-form-field>

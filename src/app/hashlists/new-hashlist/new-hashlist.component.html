@@ -7,9 +7,9 @@
     <!-- <grid-autocol> -->
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-      <input-text title="Name" formControlName="name"></input-text>
+      <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
       <input-text title="Notes" formControlName="notes"></input-text>
-      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
     </div>
 
     <div class="custom-hashlist-container">
@@ -17,7 +17,7 @@
         [isLoading]="isLoadingHashtypes"
         [placeholder]="'Hashtypes...'"
         [items]="selectHashtypes"
-        [label]="'Hashtype:'"
+        [label]="'Hashtype *'"
         formControlName="hashTypeId"
         [multiselectEnabled]="false"
         [mergeIdAndName]="true"
@@ -89,7 +89,7 @@
 
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+        <button-submit [name]="'Create'" (click)="onuploadFile(file.files);" [disabled]="!form.valid"></button-submit>
       </grid-buttons>
     </div>
 

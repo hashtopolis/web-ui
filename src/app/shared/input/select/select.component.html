@@ -15,6 +15,7 @@
             #inputField
             [(ngModel)]="value"
             (selectionChange)="onChangeValue($event.value)"
+            [required]="isRequired"
             >
     <mat-option value="null" *ngIf="isBlankOptionDisabled">Disabled</mat-option>
     <mat-option *ngFor="let item of items" [value]="item._id">
@@ -22,5 +23,5 @@
     </mat-option>
   </mat-select>
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error *ngIf="error">{{ error }}</mat-error>
+  <mat-error>{{ title }} is required</mat-error>
 </mat-form-field>
