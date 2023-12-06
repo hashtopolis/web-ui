@@ -7,6 +7,16 @@
   01- custom card grid
 */
 
+.grid-wrapper {
+  padding-top: 5px;
+}
+
+.grid-main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .overflowAuto {
   overflow-x: hidden;
   overflow-y: auto;
