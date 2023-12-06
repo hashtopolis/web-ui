@@ -88,7 +88,8 @@ hr.break:after {
 }
 
 .err-msg {
-  background: #eee;
+  background: $color-grey-light;
+  color: $color-black;
   padding: 1rem;
   font-family: monospace;
   word-break: break-all;
