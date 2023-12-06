@@ -226,6 +226,10 @@ hr.break:after {
       height: 30px;
       text-align: center;
 
+      &:hover {
+        transform: scale(1.1);
+      }
+
       .mat-icon {
         color: #fff;
         position: relative;
