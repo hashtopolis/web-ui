@@ -1,6 +1,5 @@
 <grid-main>
   <app-page-subtitle [subtitle]="title"></app-page-subtitle>
-  <!-- <div class="container"> -->
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
         <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')">upload</mat-icon>
@@ -9,12 +8,20 @@
     </div>
     <div class="tab-slider--container" [ngSwitch]="viewMode">
       <div id="tab1" class="tab-slider--body" *ngSwitchCase="'tab1'">
-        <h3>Upload from your computer</h3>
-        <form [formGroup]="form" fxLayout="column" fxLayoutGap="20px">
+        <h4>Upload from your computer</h4>
+        <form [formGroup]="form" fxLayout="column">
 
           <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
 
-          <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+          <div fxLayout="row" fxLayoutGap="10px">
+            <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+
+            <div *ngIf="redirect === 'wordlist'">
+              <button mat-icon-button (click)="showHelp()" matTooltip="Simple Wordlist Generator">
+                <mat-icon>help</mat-icon>
+              </button>
+            </div>
+          </div>
 
           <div *ngIf="uploadProgress > 0">
             <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
@@ -27,13 +34,12 @@
             <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
           </grid-buttons>
 
-          <fixed-alert message="Do not refresh the page while uploading"></fixed-alert>
-
         </form>
+        <fixed-alert message="Do not refresh the page while uploading"></fixed-alert>
       </div>
       <div id="tab2" class="tab-slider--body" *ngSwitchCase="'tab2'">
-        <h3>Upload to the server using a public/private link</h3>
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
+        <h4>Upload to the server using a public/private link</h4>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column">
 
           <input-text title="Name" formControlName="filename"></input-text>
 
@@ -47,7 +53,6 @@
           </grid-buttons>
 
         </form>
-
       </div>
     </div>
 </grid-main>

@@ -24,6 +24,8 @@ import { subscribe } from 'diagnostics_channel';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { WordlisGeneratorComponent } from 'src/app/shared/wordlist-generator/wordlist-generatorcomponent';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
@@ -81,6 +83,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     private titleService: AutoTitleService,
     private route: ActivatedRoute,
     private alert: AlertService,
+    private dialog: MatDialog,
     private gs: GlobalService,
     private router: Router
   ) {
@@ -266,6 +269,16 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   onFilesSelected(files: FileList): void {
     this.selectedFiles = files;
     this.fileName = files[0].name;
+  }
+
+  showHelp(): void {
+    const dialogRef = this.dialog.open(WordlisGeneratorComponent, {
+      width: '100%',
+      maxWidth: '100vw'
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Dialog closed with result:', result);
+    });
   }
 
   /**

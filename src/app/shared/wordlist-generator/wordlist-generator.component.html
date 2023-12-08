@@ -1,0 +1,104 @@
+
+<grid-main>
+  <h2 mat-dialog-title class="h6">WordList Generator</h2>
+  <div class="content">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" >
+      <!-- Display added special dates -->
+      <div fxLayout="row" fxLayoutGap="10px">
+      <!-- Display added names -->
+      <div formArrayName="names">
+        <div fxLayout="row" fxLayoutGap="10px">
+          <mat-form-field>
+            <mat-label>Name 1</mat-label>
+            <input matInput [formControl]="getFormControl(names.controls[0])" placeholder="Enter name"/>
+            <mat-icon matSuffix color="primary" matTooltip="Target's {{ namehint }}">help</mat-icon>
+          </mat-form-field>
+
+          <button mat-icon-button color="primary" type="button" (click)="addControl('names')">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <div *ngFor="let control of names.controls.slice(1); let i = index">
+          <mat-form-field>
+            <mat-label>Name {{ i + 2 }}</mat-label>
+            <input matInput [formControl]="getFormControl(control)" placeholder="Enter name {{ i + 2 }}"/>
+          </mat-form-field>
+
+          <button mat-icon-button color="warn" type="button" (click)="removeItem(i + 1, 'names')" *ngIf="names.controls.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Display added special dates -->
+      <div formArrayName="sparetext">
+        <div fxLayout="row" fxLayoutGap="10px">
+          <mat-form-field>
+            <mat-label>Special Attribute 1</mat-label>
+            <input matInput [formControl]="getFormControl(sparetext.controls[0])" placeholder="Enter name"/>
+            <mat-icon matSuffix color="primary" matTooltip="Target's {{ specialhint }}">help</mat-icon>
+          </mat-form-field>
+
+          <button mat-icon-button color="primary" type="button" (click)="addControl('sparetext')">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <div *ngFor="let control of sparetext.controls.slice(1); let i = index">
+          <mat-form-field>
+            <mat-label>Special Attribute {{ i + 2 }}</mat-label>
+            <input matInput [formControl]="getFormControl(control)" placeholder="Enter Special Attribute {{ i + 2 }}"/>
+          </mat-form-field>
+
+          <button mat-icon-button color="warn" type="button" (click)="removeItem(i + 1, 'sparetext')" *ngIf="sparetext.controls.length > 1">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <mat-form-field>
+          <mat-label>Special Date</mat-label>
+          <input matInput [matDatepicker]="datepicker" formControlName="specialdates" name="specialdate" placeholder="Enter special date"/>
+          <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+          <mat-datepicker #datepicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      </div>
+
+      <!-- Additional Options -->
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span><b>Additional Options</b></span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px">
+            <mat-form-field>
+              <mat-label>File Name</mat-label>
+              <input matInput formControlName="filename" name="filename" placeholder="Wordlist.txt" />
+              <mat-hint align="start">
+                {{ filenamehint }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+          <mat-checkbox formControlName="useSpecCharacters">Add special chars</mat-checkbox>
+          <mat-checkbox formControlName="usePermutations">Permutations</mat-checkbox>
+          <mat-checkbox formControlName="isCapitalize">Capitalize</mat-checkbox>
+          <mat-checkbox formControlName="isAlternated">Alternate capitalize</mat-checkbox>
+          <mat-checkbox formControlName="isUppercasse">All Uppercasse</mat-checkbox>
+          <mat-checkbox formControlName="isLowercasse">All Lowercasse</mat-checkbox>
+          <mat-checkbox formControlName="isSimilarVowels">Similar Vowels (Replace vowels for similar numbers. ie. G = 6)</mat-checkbox>
+          <mat-checkbox formControlName="isSimilarConsonant">Similar Consonants (Replace consonants for similar numbers. ie. s = 5)</mat-checkbox>
+          <mat-checkbox formControlName="isSimilarSpecialchars">Similar Special Chars (Replace vowels and consonants for similar special chars. ie. h = #)</mat-checkbox>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <button mat-raised-button color="primary" type="submit">Generate Wordlist</button>
+
+    </form>
+  </div>
+</grid-main>
