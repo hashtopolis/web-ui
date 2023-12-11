@@ -13,7 +13,10 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   disabled = false;
 
   @Input()
-  error: string;
+  error: boolean | string;
+
+  @Input()
+  isRequired: boolean;
 
   value: T;
 

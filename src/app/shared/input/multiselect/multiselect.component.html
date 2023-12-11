@@ -29,12 +29,13 @@
       (matChipInputTokenEnd)="onChangeValue(value)"
       (input)="onSearchInputChange()"
       [(ngModel)]="searchTerm"
+      [required]="isRequired"
     />
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
       <mat-option *ngFor="let item of filteredItems | async" [value]="item">
         <span [innerHTML]="updateHighlightedValue(item._id + ' - ' + item.name, searchTerm)"></span>
       </mat-option>
     </mat-autocomplete>
+    <mat-error>{{ label }} is required</mat-error>
   </mat-form-field>
 </ng-template>
-

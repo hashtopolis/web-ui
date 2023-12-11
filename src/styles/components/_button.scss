@@ -252,5 +252,8 @@ mat-button-toggle-group {
 }
 
 .btn-toogle-select {
-  background-color: $color-grey-light;
+  background-color: $accent-200;
+  border-top: 2px solid $color-grey-border;
+  border-bottom: 2px solid $color-grey-border;
+  font-weight: bold;
 }

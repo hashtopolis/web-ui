@@ -7,6 +7,16 @@
   01- custom card grid
 */
 
+.grid-wrapper {
+  padding-top: 5px;
+}
+
+.grid-main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .overflowAuto {
   overflow-x: hidden;
   overflow-y: auto;
@@ -88,7 +98,8 @@ hr.break:after {
 }
 
 .err-msg {
-  background: #eee;
+  background: $color-grey-light;
+  color: $color-black;
   padding: 1rem;
   font-family: monospace;
   word-break: break-all;
@@ -225,6 +236,10 @@ hr.break:after {
       width: 30px;
       height: 30px;
       text-align: center;
+
+      &:hover {
+        transform: scale(1.1);
+      }
 
       .mat-icon {
         color: #fff;
@@ -392,5 +407,8 @@ hr.break:after {
   border: 1px solid #ccc;
 }
 
+.smaller-pass-strength {
+  width: 30%;
+}
 
 

@@ -4,13 +4,13 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutAlign="start start">
 
-    <input-text title="Name" formControlName="supertaskName" [error]="error?.name"></input-text>
+    <input-text title="Name" formControlName="supertaskName" [isRequired]="true"></input-text>
 
     <input-multiselect
       [isLoading]="isLoading"
       [placeholder]="'Tasks...'"
       [items]="selectPretasks"
-      [label]="'Select or search Tasks:'"
+      [label]="'Select or search Tasks *'"
       [mergeIdAndName]="true"
       formControlName="pretasks"
       style="flex: 1;"
@@ -18,7 +18,7 @@
 
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="'Create'"></button-submit>
+      <button-submit [name]="'Create'" [disabled]="!form.valid"></button-submit>
     </grid-buttons>
 
   </form>
