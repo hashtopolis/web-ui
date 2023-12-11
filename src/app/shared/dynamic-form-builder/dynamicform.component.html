@@ -88,7 +88,8 @@
           </ng-container>
         </div>
       </div>
-      <button-submit
+      <grid-buttons>
+        <button-submit
         name="Cancel"
         [disabled]="false"
         type="cancel"
@@ -106,6 +107,7 @@
         [name]="buttonText"
         [disabled]="!formIsValid()"
       ></button-submit>
+      </grid-buttons>
     </grid-autocol>
   </form>
 </grid-main>
