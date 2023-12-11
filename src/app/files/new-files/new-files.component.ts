@@ -207,7 +207,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   onBeforeSubmit(form: any, status: boolean) {
     const sourceType = form.sourceType || 'import';
     const isInline = sourceType === 'inline';
-    const fname = isInline ? form.filename : this.fileName;
+    const fileName = isInline ? form.filename : this.fileName;
     const sourcadata = isInline ? handleEncode(form.sourceData) : this.fileName;
 
     /**
@@ -215,7 +215,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
      */
     const res = {
       update: {
-        filename: fname,
+        filename: fileName,
         isSecret: form.isSecret,
         fileType: this.filterType,
         accessGroupId: form.accessGroupId,
