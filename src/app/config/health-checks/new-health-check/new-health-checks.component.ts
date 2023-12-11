@@ -82,9 +82,12 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       crackerBinaryType: new FormControl('')
     });
 
-    this.form.get('crackerBinaryType').valueChanges.subscribe((newvalue) => {
-      this.handleChangeBinary(newvalue);
-    });
+    const onHandleBinarySubscription$ = this.form
+      .get('crackerBinaryType')
+      .valueChanges.subscribe((newvalue) => {
+        this.handleChangeBinary(newvalue);
+      });
+    this.unsubscribeService.add(onHandleBinarySubscription$);
   }
 
   /**
@@ -112,15 +115,18 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    */
   handleChangeBinary(id: string) {
     const params = { filter: 'crackerBinaryTypeId=' + id + '' };
-    this.gs.getAll(SERV.CRACKERS, params).subscribe((response: any) => {
-      const transformedOptions = transformSelectOptions(
-        response.values,
-        this.selectCrackervMap
-      );
-      this.selectCrackerversions = transformedOptions;
-      const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
-      this.form.get('crackerBinaryId').patchValue(lastItem);
-    });
+    const onChangeBinarySubscription$ = this.gs
+      .getAll(SERV.CRACKERS, params)
+      .subscribe((response: any) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          this.selectCrackervMap
+        );
+        this.selectCrackerversions = transformedOptions;
+        const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
+        this.form.get('crackerBinaryId').patchValue(lastItem);
+      });
+    this.unsubscribeService.add(onChangeBinarySubscription$);
   }
 
   /**
