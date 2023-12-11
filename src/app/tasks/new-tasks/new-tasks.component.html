@@ -4,7 +4,7 @@
       <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
 
-        <input-text title="Name" formControlName="taskName"></input-text>
+        <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
 
         <div fxLayout="column" fxLayoutAlign="start start">
@@ -12,7 +12,7 @@
           [isLoading]="isLoading"
           [placeholder]="'Hashlists...'"
           [items]="selectHashlists"
-          [label]="'Select or search Hashlists:'"
+          [label]="'Select or search Hashlists *'"
           [mergeIdAndName]="true"
           [multiselectEnabled]="false"
           formControlName="hashlistIds"

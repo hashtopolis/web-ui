@@ -11,7 +11,7 @@
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
           <div>
 
-            <input-text title="Name" formControlName="taskName"></input-text>
+            <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
             <input-color title="Color" formControlName="color"></input-color>
 
           </div>

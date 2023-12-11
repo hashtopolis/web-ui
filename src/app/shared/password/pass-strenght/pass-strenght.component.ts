@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChange
+} from '@angular/core';
 
 export const PasswordStrengthVal = {
   1: 'Poor',
@@ -18,20 +26,25 @@ export enum PasswordStrengthColors {
 @Component({
   selector: 'app-pass-strenght',
   template: `
-  <div class="strength">
-    <ul class="strengthBar mt-2">
-      <li class="strength-point" [style.background-color]="bar0"></li>
-      <li class="strength-point" [style.background-color]="bar1"></li>
-      <li class="strength-point" [style.background-color]="bar2"></li>
-      <li class="strength-point" [style.background-color]="bar3"></li>
-    </ul>
+    <div class="strength">
+      <ul class="strengthBar mt-2">
+        <li class="strength-point" [style.background-color]="bar0"></li>
+        <li class="strength-point" [style.background-color]="bar1"></li>
+        <li class="strength-point" [style.background-color]="bar2"></li>
+        <li class="strength-point" [style.background-color]="bar3"></li>
+      </ul>
 
-    <p class="text-center mb-0 str-margin" [style.color]="messageColor" *ngIf="passwordToCheck?.length">{{ message }}</p>
-  </div>
-`,
+      <p
+        class="text-center mb-0 str-margin"
+        [style.color]="messageColor"
+        *ngIf="passwordToCheck?.length"
+      >
+        {{ message }}
+      </p>
+    </div>
+  `
 })
 export class PassStrenghtComponent implements OnChanges {
-
   bar0: string;
   bar1: string;
   bar2: string;
@@ -43,7 +56,6 @@ export class PassStrenghtComponent implements OnChanges {
   messageColor: string;
 
   checkStrength(password: string) {
-
     let force = 0;
 
     // Identify if password contains
@@ -85,7 +97,9 @@ export class PassStrenghtComponent implements OnChanges {
     if (password) {
       const pwdStrength = this.checkStrength(password);
 
-      pwdStrength === 40 ? this.passwordStrength.emit(true) : this.passwordStrength.emit(false);
+      pwdStrength === 40
+        ? this.passwordStrength.emit(true)
+        : this.passwordStrength.emit(false);
 
       const color = this.getColor(pwdStrength);
       this.setBarColors(color.index, color.color);
@@ -124,11 +138,11 @@ export class PassStrenghtComponent implements OnChanges {
       index = 4;
     }
 
-    this.messageColor = PasswordStrengthColors[index+1];
+    this.messageColor = PasswordStrengthColors[index + 1];
 
     return {
       index: index + 1,
-      color: PasswordStrengthColors[index+1],
+      color: PasswordStrengthColors[index + 1]
     };
   }
 

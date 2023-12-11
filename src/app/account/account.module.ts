@@ -21,6 +21,7 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
 import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
+import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { UiSettingsComponent } from './settings/ui-settings/ui-settings.componen
     FontAwesomeModule,
     DataTablesModule,
     ComponentsModule,
+    CoreFormsModule,
     CoreComponentsModule,
     RouterModule,
     CommonModule,

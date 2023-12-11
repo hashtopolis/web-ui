@@ -1,11 +1,10 @@
 <grid-main>
   <app-page-subtitle [subtitle]="'Hash Search'"></app-page-subtitle>
-
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
 
-    <input-text-area title="Search Hashes" formControlName="hashes"></input-text-area>
+    <input-text-area title="Search Hashes" formControlName="hashes" [required]="true"></input-text-area>
 
-    <button-submit [name]="'Search'"></button-submit>
+    <button-submit [name]="'Search'" [disabled]="!createForm.valid"></button-submit>
 
   </form>
 </grid-main>
