@@ -1,3 +1,5 @@
+import { Buffer } from 'buffer';
+
 /**
  * Section for reusable functions used in forms
  *
@@ -168,7 +170,6 @@ export function removeFakePath(originalPath: string): string {
  * @param {string} fileSource - The source data to be encoded.
  * @returns {string} The encoded source data in base64 format.
  */
-import { Buffer } from 'buffer';
 export function handleEncode(fileSource: string): string {
   return Buffer.from(fileSource).toString('base64');
 }
