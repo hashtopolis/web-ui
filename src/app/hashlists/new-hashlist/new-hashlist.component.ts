@@ -15,20 +15,26 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { Observable, Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { environment } from './../../../environments/environment';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
-import { Buffer } from 'buffer';
 
+import {
+  ACCESS_GROUP_FIELD_MAPPING,
+  HASHTYPE_FIELD_MAPPING
+} from 'src/app/core/_constants/select.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UploadTUSService } from '../../core/_services/files/files_tus.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { extractIds, transformSelectOptions } from '../../shared/utils/forms';
-import { validateFileExt } from '../../shared/utils/util';
+import {
+  extractIds,
+  handleEncode,
+  removeFakePath,
+  transformSelectOptions
+} from '../../shared/utils/forms';
 import { UploadFileTUS } from '../../core/_models/file.model';
 import { SERV } from '../../core/_services/main.config';
 import { SelectField } from 'src/app/core/_models/input.model';
@@ -70,6 +76,17 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   selectFormatbrain = hashcatbrainFormat;
   hashcatbrain: string;
 
+  // Upload Hashlists
+  selectedFiles: FileList | null = null;
+  fileName: any;
+  uploadProgress = 0;
+  filenames: string[] = [];
+  selectedFile: '';
+  fileToUpload: File | null = null;
+
+  // Unsubcribe
+  private fileUnsubscribe = new Subject();
+
   constructor(
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -101,6 +118,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
+    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.complete();
   }
 
   /**
@@ -139,10 +158,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const fieldAccess = {
-      fieldMapping: {
-        name: 'groupName',
-        _id: '_id'
-      }
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     };
     const accedgroupSubscription$ = this.gs
       .getAll(SERV.ACCESS_GROUPS)
@@ -158,10 +174,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.unsubscribeService.add(accedgroupSubscription$);
 
     const fieldHashtype = {
-      fieldMapping: {
-        name: 'description',
-        _id: '_id'
-      }
+      fieldMapping: HASHTYPE_FIELD_MAPPING
     };
     const hashtypesSubscription$ = this.gs
       .getAll(SERV.HASHTYPES)
@@ -182,28 +195,33 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     return this.form.get('sourceType').value;
   }
 
-  // FILE UPLOAD: TUS File Uload
-  @ViewChild('file', { static: false }) file: ElementRef;
-  uploadProgress = 0;
-  filenames: string[] = [];
-  private ngUnsubscribe = new Subject();
+  /**
+   * Handles the file upload process.
+   *
+   * @param {FileList | null} files - The list of files to be uploaded.
+   * @returns {void}
+   */
+  onuploadFile(files: FileList | null): void {
+    // Represents the modified form data without the fake path prefix.
+    const newForm = { ...this.form.value };
 
-  onuploadFile(files: FileList) {
-    if (this.form.valid) {
-      const newform = this.handlePathName(this.form.value);
-      const upload: Array<any> = [];
-      for (let i = 0; i < files.length; i++) {
-        upload.push(
-          this.uploadService
-            .uploadFile(files[i], files[i].name, SERV.HASHLISTS, newform, [
-              '/hashlists/hashlist'
-            ])
-            .pipe(takeUntil(this.ngUnsubscribe))
-            .subscribe((progress) => {
-              this.uploadProgress = progress;
-            })
-        );
-      }
+    // Modify the sourceData key if it exists
+    if (newForm.sourceData) {
+      newForm.sourceData = removeFakePath(newForm.sourceData);
+    }
+
+    const upload: Array<any> = [];
+    for (let i = 0; i < files.length; i++) {
+      upload.push(
+        this.uploadService
+          .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, [
+            '/hashlists/hashlist'
+          ])
+          .pipe(takeUntil(this.fileUnsubscribe))
+          .subscribe((progress) => {
+            this.uploadProgress = progress;
+          })
+      );
     }
   }
 
@@ -211,74 +229,28 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Handle Input and return file size
    * @param event
    */
-
-  selectedFile: '';
-  fileGroup: number;
-  fileToUpload: File | null = null;
-  fileSize: any;
-  fileName: any;
-
-  handleFileInput(event: any) {
-    this.fileToUpload = event.target.files[0];
-    this.fileSize = this.fileToUpload.size;
-    this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text(
-      ' ' +
-        this.fileName +
-        ' / Size: ' +
-        this.fs.transform(this.fileToUpload.size, false)
-    );
+  onFilesSelected(files: FileList): void {
+    this.selectedFiles = files;
+    this.fileName = files[0].name;
   }
 
   /**
    * Create Hashlist
    *
    */
-
   onSubmit(): void {
-    if (this.form.valid) {
-      this.handleEncode();
-      const onSubmitSubscription$ = this.gs
-        .create(SERV.HASHLISTS, this.form.value)
-        .subscribe(() => {
-          this.alert.okAlert('New HashList created!', '');
-          this.router.navigate(['/hashlists/hashlist']);
-        });
-      this.unsubscribeService.add(onSubmitSubscription$);
-    }
-  }
+    // Encode Paste hashes
+    this.form.patchValue({
+      sourceData: handleEncode(this.form.get('sourceType').value)
+    });
 
-  handleEncode() {
-    const fileType = this.form.get('sourceType').value;
-    if (fileType === 'paste') {
-      const fileSource = this.form.get('sourceType').value;
-      this.form.patchValue({
-        sourceData: Buffer.from(fileSource).toString('base64')
+    const onSubmitSubscription$ = this.gs
+      .create(SERV.HASHLISTS, this.form.value)
+      .subscribe(() => {
+        this.alert.okAlert('New HashList created!', '');
+        this.router.navigate(['/hashlists/hashlist']);
       });
-    }
-  }
-
-  handlePathName(form: any) {
-    const filePath = this.form.get('sourceData').value;
-    const fileReplacePath = filePath.replace('C:\\fakepath\\', '');
-    const res = {
-      name: form.name,
-      hashTypeId: form.hashTypeId,
-      format: form.format,
-      separator: form.separator,
-      isSalted: form.isSalted,
-      isHexSalt: form.isHexSalt,
-      accessGroupId: form.accessGroupId,
-      useBrain: form.useBrain,
-      brainFeatures: form.brainFeatures,
-      notes: form.notes,
-      sourceType: form.sourceType,
-      sourceData: fileReplacePath,
-      hashCount: form.hashCount,
-      isArchived: form.isArchived,
-      isSecret: form.isSecret
-    };
-    return res;
+    this.unsubscribeService.add(onSubmitSubscription$);
   }
 
   // Open Modal Hashtype Detector

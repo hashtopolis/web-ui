@@ -2,6 +2,10 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING
+} from 'src/app/core/_constants/select.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from '../../../environments/environment';
@@ -40,16 +44,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
-    fieldMapping: {
-      name: 'typeName',
-      _id: 'crackerBinaryTypeId'
-    }
+    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
+
   selectCrackervMap = {
-    fieldMapping: {
-      name: 'version',
-      _id: 'crackerBinaryId'
-    }
+    fieldMapping: CRACKER_VERSION_FIELD_MAPPING
   };
 
   // Get SuperTask Index

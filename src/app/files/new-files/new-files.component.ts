@@ -8,9 +8,8 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject, Subscription, takeUntil } from 'rxjs';
-// import { takeUntil } from 'rxjs/operators';
-import { Buffer } from 'buffer';
 
+import { ACCESS_GROUP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { UploadTUSService } from 'src/app/core/_services/files/files_tus.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -23,7 +22,10 @@ import { SERV } from '../../core/_services/main.config';
 import { subscribe } from 'diagnostics_channel';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import {
+  handleEncode,
+  transformSelectOptions
+} from 'src/app/shared/utils/forms';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
@@ -153,10 +155,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   loadData() {
     const fieldAccess = {
-      fieldMapping: {
-        name: 'groupName',
-        _id: '_id'
-      }
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     };
     const accedgroupSubscription$ = this.gs
       .getAll(SERV.ACCESS_GROUPS)
@@ -206,23 +205,17 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @returns {{ update: { filename: string, isSecret: boolean, fileType: number, accessGroupId: number, sourceType: string, sourceData: string }, status: boolean }} Prepared form data.
    */
   onBeforeSubmit(form: any, status: boolean) {
-    let sourcadata;
-    let fname;
-
-    if (form.sourceType === 'inline') {
-      fname = form.filename;
-      sourcadata = Buffer.from(form.sourceData).toString('base64');
-    } else {
-      sourcadata = this.fileName;
-      fname = this.fileName;
-    }
+    const sourceType = form.sourceType || 'import';
+    const isInline = sourceType === 'inline';
+    const fileName = isInline ? form.filename : this.fileName;
+    const sourcadata = isInline ? handleEncode(form.sourceData) : this.fileName;
 
     /**
      * Prepared form data for submission.
      */
     const res = {
       update: {
-        filename: fname,
+        filename: fileName,
         isSecret: form.isSecret,
         fileType: this.filterType,
         accessGroupId: form.accessGroupId,

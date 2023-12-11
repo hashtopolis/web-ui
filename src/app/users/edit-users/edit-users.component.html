@@ -1,18 +1,19 @@
 <grid-main>
   <app-page-subtitle [subtitle]="'User Profile'"></app-page-subtitle>
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-      <grid-autocol>
+      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
         <input-text title="ID" formControlName="id" [disabled]="true"></input-text>
         <input-text title="Name" formControlName="name" [disabled]="true"></input-text>
         <input-text title="Email" formControlName="email" [disabled]="true"></input-text>
         <input-text title="Registered" formControlName="registered" [disabled]="true"></input-text>
         <input-text title="Last login" formControlName="lastLogin" [disabled]="true"></input-text>
-
         <simulate-form-field-multi label="Member of access groups" [items]="userAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
 
-        <div formGroupName="updateData">
-          <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId" [items]="selectAgp"></input-select>
+      </div>
+      <div formGroupName="updateData" fxLayout="column" fxLayoutAlign="start start">
+
+        <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId" [items]="selectAgp"></input-select>
           <form [formGroup]="updatePassForm" (ngSubmit)="onSubmit()">
 
           <input-text title="Password" formControlName="password" inputType="password"></input-text>
@@ -20,13 +21,13 @@
 
           </form>
         <input-check title="is Active?" formControlName="isValid"></input-check>
-        <grid-buttons>
-          <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
-          <button-submit [name]="'Update'"></button-submit>
-        </grid-buttons>
-     </div>
+      </div>
 
-    </grid-autocol>
+      <grid-buttons>
+        <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+        <button-submit [name]="'Update'"></button-submit>
+      </grid-buttons>
+
   </form>
 </grid-main>
 

@@ -5,6 +5,7 @@ import { DataTableDirective } from 'angular-datatables';
 
 import { Subject } from 'rxjs';
 
+import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
@@ -35,6 +36,11 @@ export class EditSupertasksComponent implements OnInit {
 
   /** List of PreTasks. */
   selectPretasks: any[];
+
+  /** Select Options Mapping */
+  selectSuperTaskMap = {
+    fieldMapping: SUPER_TASK_FIELD_MAPPING
+  };
 
   // Edit
   editedSTIndex: number;
@@ -111,12 +117,6 @@ export class EditSupertasksComponent implements OnInit {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    const field = {
-      fieldMapping: {
-        name: 'taskName',
-        _id: 'pretaskId'
-      }
-    };
     const loadSTSubscription$ = this.gs
       .get(SERV.SUPER_TASKS, this.editedSTIndex, { expand: 'pretasks' })
       .subscribe((res) => {
@@ -138,7 +138,10 @@ export class EditSupertasksComponent implements OnInit {
               res.pretasks,
               htypes.values
             );
-            const transformedOptions = transformSelectOptions(response, field);
+            const transformedOptions = transformSelectOptions(
+              response,
+              this.selectSuperTaskMap
+            );
             this.selectPretasks = transformedOptions;
             this.isLoading = false;
             this.changeDetectorRef.detectChanges();

@@ -35,6 +35,10 @@ import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { OnDestroy } from '@angular/core';
+import {
+  TASKS_FIELD_MAPPING,
+  USER_AGP_FIELD_MAPPING
+} from 'src/app/core/_constants/select.config';
 
 @Component({
   selector: 'app-edit-agent',
@@ -55,17 +59,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   /** Select Options Mapping */
   selectUserAgpMap = {
-    fieldMapping: {
-      name: 'groupName',
-      _id: '_id'
-    }
+    fieldMapping: USER_AGP_FIELD_MAPPING
   };
 
   selectAssignMap = {
-    fieldMapping: {
-      name: 'taskName',
-      _id: 'taskId'
-    }
+    fieldMapping: TASKS_FIELD_MAPPING
   };
 
   /** Assign Tasks */

@@ -19,6 +19,10 @@ import { DataTableDirective } from 'angular-datatables';
 import { Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING
+} from 'src/app/core/_constants/select.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../core/_services/shared/tooltip.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
@@ -65,16 +69,11 @@ export class NewTasksComponent implements OnInit {
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
-    fieldMapping: {
-      name: 'typeName',
-      _id: 'crackerBinaryTypeId'
-    }
+    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
+
   selectCrackervMap = {
-    fieldMapping: {
-      name: 'version',
-      _id: 'crackerBinaryId'
-    }
+    fieldMapping: CRACKER_VERSION_FIELD_MAPPING
   };
 
   // Initial Configuration

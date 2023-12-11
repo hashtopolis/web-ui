@@ -10,7 +10,7 @@
     <div class="tab-slider--container" [ngSwitch]="viewMode">
       <div id="tab1" class="tab-slider--body" *ngSwitchCase="'tab1'">
         <h3>Upload from your computer</h3>
-        <form [formGroup]="form" fxLayout="column" fxLayoutGap="20px">
+        <form [formGroup]="form" fxLayout="column">
 
           <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
 
@@ -33,7 +33,7 @@
       </div>
       <div id="tab2" class="tab-slider--body" *ngSwitchCase="'tab2'">
         <h3>Upload to the server using a public/private link</h3>
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column">
 
           <input-text title="Name" formControlName="filename" [isRequired]="true"></input-text>
 

@@ -24,6 +24,7 @@ import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
 import { SelectField } from 'src/app/core/_models/input.model';
 import { SERV } from '../../../../../_services/main.config';
+import { PRETASKS_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 
 /**
  * Represents the NewSupertasksComponent responsible for creating a new SuperTask.
@@ -89,10 +90,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const field = {
-      fieldMapping: {
-        name: 'taskName',
-        _id: '_id'
-      }
+      fieldMapping: PRETASKS_FIELD_MAPPING
     };
     const loadSubscription$ = this.gs
       .getAll(SERV.PRETASKS)

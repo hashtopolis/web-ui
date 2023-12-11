@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { USER_AGP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
@@ -35,10 +36,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
 
   /** Select Options Mapping */
   selectUserAgpMap = {
-    fieldMapping: {
-      name: 'groupName',
-      _id: '_id'
-    }
+    fieldMapping: USER_AGP_FIELD_MAPPING
   };
 
   /** User Access Group Permissions. */
