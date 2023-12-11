@@ -21,7 +21,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 })
 export class NewHealthChecksComponent implements OnInit, OnDestroy {
   /** Form group for Health Checks */
-  createForm: FormGroup;
+  form: FormGroup;
 
   // Lists of Selected inputs
   selectAttack = attack;
@@ -75,18 +75,16 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
-    this.createForm = new FormGroup({
+    this.form = new FormGroup({
       checkType: new FormControl(0),
       hashtypeId: new FormControl(null || 0, [Validators.required]),
       crackerBinaryId: new FormControl('', [Validators.required]),
       crackerBinaryType: new FormControl('')
     });
 
-    this.createForm
-      .get('crackerBinaryType')
-      .valueChanges.subscribe((newvalue) => {
-        this.handleChangeBinary(newvalue);
-      });
+    this.form.get('crackerBinaryType').valueChanges.subscribe((newvalue) => {
+      this.handleChangeBinary(newvalue);
+    });
   }
 
   /**
@@ -121,7 +119,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       );
       this.selectCrackerversions = transformedOptions;
       const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
-      this.createForm.get('crackerBinaryId').patchValue(lastItem);
+      this.form.get('crackerBinaryId').patchValue(lastItem);
     });
   }
 
@@ -131,8 +129,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   onSubmit() {
-    if (this.createForm.valid) {
-      const { checkType, hashtypeId, crackerBinaryId } = this.createForm.value;
+    if (this.form.valid) {
+      const { checkType, hashtypeId, crackerBinaryId } = this.form.value;
 
       const payload = {
         checkType,
