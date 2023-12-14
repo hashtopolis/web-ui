@@ -12,6 +12,7 @@ import { LogsTableCol } from '../_components/tables/logs-table/logs-table.consta
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
 import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
 import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
+import { PretasksTableCol } from '../_components/tables/pretasks-table/pretasks-table.constants';
 import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
@@ -137,6 +138,15 @@ export const uiConfigDefault: UIConfig = {
       HealthChecksTableCol.CREATED,
       HealthChecksTableCol.STATUS,
       HealthChecksTableCol.TYPE
+    ],
+    pretasksTable: [
+      PretasksTableCol.ID,
+      PretasksTableCol.NAME,
+      PretasksTableCol.ATTACK_COMMAND,
+      PretasksTableCol.FILES_TOTAL,
+      PretasksTableCol.FILES_SIZE,
+      PretasksTableCol.PRIORITY,
+      PretasksTableCol.MAX_AGENTS
     ],
     tasksTable: [
       TaskTableCol.ID,

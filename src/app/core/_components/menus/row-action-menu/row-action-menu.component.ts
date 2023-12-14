@@ -60,6 +60,8 @@ export class RowActionMenuComponent
       this.setAgentBinaryMenu();
     } else if (this.isNotification()) {
       this.setNotificationMenu();
+    } else if (this.isPretask()) {
+      this.setPretaskMenu();
     } else if (this.isTaskWrapper()) {
       this.setTaskWrapperMenu();
     } else if (this.isHashlist()) {
@@ -216,6 +218,28 @@ export class RowActionMenuComponent
 
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)
+    ]);
+  }
+
+  /**
+   * Sets the context menu items for a pretask data row.
+   */
+  private setPretaskMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_PRETASK)
+    ]);
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.COPY_TO_TASK,
+      action: RowActionMenuAction.COPY_TO_TASK,
+      icon: RowActionMenuIcon.COPY
+    });
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.COPY_TO_PRETASK,
+      action: RowActionMenuAction.COPY_TO_PRETASK,
+      icon: RowActionMenuIcon.COPY
+    });
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
     ]);
   }
 

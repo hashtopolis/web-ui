@@ -77,6 +77,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "Pretask".
+   * @returns `true` if the data row is a pretask; otherwise, `false`.
+   */
+  protected isPretask(): boolean {
+    return this.checkId('pretaskId') && 'priority' in this.data;
+  }
+
+  /**
    * Check if the data row is of type "TaskWrapper".
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */

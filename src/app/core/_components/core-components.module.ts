@@ -46,6 +46,7 @@ import { NgModule } from '@angular/core';
 import { NotificationsTableComponent } from './tables/notifications-table/notifications-table.component';
 import { PermissionsTableComponent } from './tables/permissions-table/permissions-table.component';
 import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
+import { PretasksTableComponent } from './tables/pretasks-table/pretasks-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
@@ -78,6 +79,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
+    PretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
@@ -135,6 +137,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
+    PretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
