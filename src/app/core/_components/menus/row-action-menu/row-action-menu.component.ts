@@ -301,6 +301,11 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.APPLY_TO_HASHLIST,
       icon: RowActionMenuIcon.COPY
     });
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.EDIT_SUBTASKS,
+      action: RowActionMenuAction.EDIT_SUBTASKS,
+      icon: RowActionMenuIcon.EDIT
+    });
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERTASK)
     ]);

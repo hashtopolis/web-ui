@@ -1,45 +1,3 @@
-
-<!-- Body -->
-<!-- <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" #supertasks datatable [dtOptions]="dtOptions[0]" [dtTrigger]="dtTrigger" id="supertasks">
-    <thead class="thead-light">
-      <tr>
-        <th class="rounded-start">ID</th>
-        <th>Name</th>
-        <th class="rounded-end" style="text-align:right">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ng-container *ngFor="let stask of allsupertasks;  let i = index">
-       <tr>
-        <td>{{ stask.supertaskId }}</td>
-        <td>
-          <a [routerLink]="['../',stask.supertaskId,'edit']">
-            {{ stask.supertaskName }}
-          </a>
-        </td>
-        <td>
-          <app-button-actions>
-            <button ngbDropdownItem [routerLink]="['../',stask.supertaskId,'edit']" data-toggle="tooltip" data-placement="top" title="Edit">
-              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-            </button>
-            <button ngbDropdownItem *ngIf="stask.pretasks.length > 0" (click)="getPretasks(stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Edit">
-              <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
-            </button>
-            <button ngbDropdownItem [routerLink]="['../',stask.supertaskId,'applyhashlist']" data-toggle="tooltip" data-placement="top" title="Apply Hashlist">
-              <fa-icon [icon]="faAdd" aria-hidden="true"></fa-icon>Apply Hashlist
-            </button>
-            <div class="dropdown-divider"></div>
-            <button ngbDropdownItem (click)="onDelete(stask.supertaskId,stask.supertaskName)" data-toggle="tooltip" data-placement="top" title="Delete">
-              <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-            </button>
-          </app-button-actions>
-        </td>
-       </tr>
-      </ng-container>
-    </tbody>
-  </table>
-</app-table> -->
 <app-table>
   <app-page-title
       [title]="'Supertasks'"
@@ -49,3 +7,8 @@
   ></app-page-title>
   <supertasks-table></supertasks-table>
 </app-table>
+
+<!-- Missing Edit Pretasks -->
+<!-- <button ngbDropdownItem *ngIf="stask.pretasks.length > 0" (click)="getPretasks(stask.supertaskId)" data-toggle="tooltip" data-placement="top" title="Edit">
+<fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit Pretasks
+</button> -->

@@ -53,11 +53,8 @@ export class SuperTasksTableComponent
     }
   }
 
-  filter(item: Pretask, filterValue: string): boolean {
-    return (
-      item.taskName.toLowerCase().includes(filterValue) ||
-      item.attackCmd.toLowerCase().includes(filterValue)
-    );
+  filter(item: SuperTask, filterValue: string): boolean {
+    return item.supertaskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -71,14 +68,18 @@ export class SuperTasksTableComponent
       {
         id: SupertasksTableCol.NAME,
         dataKey: 'supertaskName',
-        // routerLink: (pretask: Pretask) => this.renderPretaskLink(pretask),
+        routerLink: (supertask: SuperTask) =>
+          this.renderSupertaskLink(supertask),
         isSortable: true,
         export: async (supertask: SuperTask) => supertask.supertaskName
       },
       {
         id: SupertasksTableCol.PRETASKS,
-        dataKey: 'attackCmd',
-        isSortable: true
+        dataKey: 'pretasks',
+        isSortable: true,
+        render: (supertask: SuperTask) => supertask.pretasks.length,
+        export: async (supertask: SuperTask) =>
+          supertask.pretasks.length.toString()
       }
     ];
 
@@ -149,11 +150,12 @@ export class SuperTasksTableComponent
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
         break;
-      // ADD Apply to hashlist
-      // case RowActionMenuAction.COPY_TO_TASK:
-      //   console.log('Copy to Task clicked:', event.data);
-      //   this.rowActionCopyToTask(event.data);
-      //   break;
+      case RowActionMenuAction.APPLY_TO_HASHLIST:
+        this.rowActionApplyToHashlist(event.data);
+        break;
+      case RowActionMenuAction.EDIT_SUBTASKS:
+        this.rowActionEditSubtasks(event.data);
+        break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
@@ -176,7 +178,7 @@ export class SuperTasksTableComponent
           icon: 'warning',
           body: `Are you sure you want to delete the above supertasks? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'taskName',
+          listAttribute: 'supertaskName',
           action: event.menuItem.action
         });
         break;
@@ -209,30 +211,13 @@ export class SuperTasksTableComponent
     );
   }
 
-  @Cacheable(['_id', 'isSecret'])
-  // async renderSecretIcon(supertask: SuperTask): Promise<HTTableIcon[]> {
-  //   // const icons: HTTableIcon[] = [];
-  //   // const secretFilesCount = supertask.pretaskFiles.reduce(
-  //   //   (sum, file) => sum + (file.isSecret ? 1 : 0),
-  //   //   0
-  //   // );
-
-  //   // if (secretFilesCount > 0) {
-  //   //   icons.push({
-  //   //     name: 'lock',
-  //   //     tooltip: `Secret: ${secretFilesCount} ${
-  //   //       secretFilesCount > 1 ? 'files' : 'file'
-  //   //     }`
-  //   //   });
-  //   // }
-
-  //   // return icons;
-  // }
   @Cacheable(['_id'])
-  async renderPretaskLink(supertask: SuperTask): Promise<HTTableRouterLink[]> {
+  async renderSupertaskLink(
+    supertask: SuperTask
+  ): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: ['/tasks/preconfigured-tasks', supertask._id, 'edit']
+        routerLink: ['/tasks/', supertask._id, 'edit']
       }
     ];
   }
@@ -257,16 +242,16 @@ export class SuperTasksTableComponent
     );
   }
 
-  private rowActionCopyToTask(supertask: SuperTask): void {
-    this.router.navigate(['/tasks/new-tasks', supertask._id, 'copypretask']);
+  private rowActionApplyToHashlist(supertask: SuperTask): void {
+    this.router.navigate(['/tasks/', supertask._id, 'applyhashlist']);
   }
 
-  private rowActionCopyToPretask(supertask: SuperTask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', supertask._id, 'copy']);
+  private rowActionEditSubtasks(supertask: SuperTask): void {
+    console.log('here');
   }
 
   private rowActionEdit(supertask: SuperTask): void {
-    this.renderPretaskLink(supertask).then((links: HTTableRouterLink[]) => {
+    this.renderSupertaskLink(supertask).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });
   }
