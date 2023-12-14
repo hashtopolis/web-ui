@@ -56,8 +56,6 @@ export class PretasksTableComponent
     );
   }
 
-  // <span *ngIf="(ptask.pretaskFiles | sum:'isSecret') > 0" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip="{{ptask.pretaskFiles | sum:'isSecret'}} file(s) protected"></fa-icon></span>
-
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
