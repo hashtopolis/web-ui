@@ -1,0 +1,17 @@
+<ht-table
+  #table
+  name="supertasksTable"
+  dataType="supertasks"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isFilterable]="true"
+  [filterFn]="filter"
+  [isPageable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

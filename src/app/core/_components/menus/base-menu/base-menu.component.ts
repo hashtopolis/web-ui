@@ -93,6 +93,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "Supertask".
+   * @returns `true` if the data row is a supertask; otherwise, `false`.
+   */
+  protected isSupertask(): boolean {
+    return this.checkId('supertaskId');
+  }
+
+  /**
    * Check if the data row is of type "Voucher".
    * @returns `true` if the data row is a voucher; otherwise, `false`.
    */

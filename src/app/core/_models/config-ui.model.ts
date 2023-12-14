@@ -14,6 +14,7 @@ import { PermissionsTableCol } from '../_components/tables/permissions-table/per
 import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
 import { PretasksTableCol } from '../_components/tables/pretasks-table/pretasks-table.constants';
 import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
+import { SupertasksTableCol } from '../_components/tables/supertasks-table/supertasks-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 
@@ -158,6 +159,11 @@ export const uiConfigDefault: UIConfig = {
       TaskTableCol.MAX_AGENTS,
       TaskTableCol.DISPATCHED_SEARCHED,
       TaskTableCol.CRACKED
+    ],
+    supertasksTable: [
+      SupertasksTableCol.ID,
+      SupertasksTableCol.NAME,
+      SupertasksTableCol.PRETASKS
     ],
     hashlistTasksTable: [
       TaskTableCol.ID,
