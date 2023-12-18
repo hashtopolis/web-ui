@@ -27,3 +27,18 @@ export interface HealthCheck {
   status: number;
   time: number;
 }
+
+export interface HealthCheckView {
+  _id: number;
+  _self: string;
+  healthCheckAgentId: number;
+  healthCheckId: number;
+  agentId: number;
+  status: number;
+  cracked: number;
+  numGpus: number;
+  start: number;
+  end: number;
+  errors: string;
+  agentName: string;
+}

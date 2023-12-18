@@ -54,6 +54,7 @@ import { TableTruncateComponent } from './tables/table-truncate/table-truncate.c
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
+import { HealthChecksViewTableComponent } from './tables/health-checks-view-table/health-checks-view-table.component';
 
 @NgModule({
   declarations: [
@@ -80,6 +81,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
+    HealthChecksViewTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
@@ -137,6 +139,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
+    HealthChecksViewTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,

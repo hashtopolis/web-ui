@@ -14,6 +14,7 @@ export type DataType =
   | 'notifications'
   | 'agent-binaries'
   | 'health-checks'
+  | 'health-checks-view'
   | 'logs'
   | 'permissions'
   | 'cracks'
