@@ -54,6 +54,7 @@ import { TableTruncateComponent } from './tables/table-truncate/table-truncate.c
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
+import { FilesAttackTableComponent } from './tables/files-attack-table/files-attack-table.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     HashtypesTableComponent,
     HashlistsTableComponent,
     SuperHashlistsTableComponent,
+    FilesAttackTableComponent,
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
@@ -132,6 +134,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     HashlistsTableComponent,
     HashtypesTableComponent,
     SuperHashlistsTableComponent,
+    FilesAttackTableComponent,
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,

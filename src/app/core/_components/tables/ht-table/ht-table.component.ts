@@ -14,6 +14,7 @@ import {
 import {
   COL_ROW_ACTION,
   COL_SELECT,
+  CheckboxChangeEvent,
   DataType,
   HTTableColumn,
   HTTableEditable
@@ -32,6 +33,7 @@ import { LocalStorageService } from 'src/app/core/_services/storage/local-storag
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -119,6 +121,12 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = false;
 
+  /** Flag to enable or disable cmd task attack checkbox. */
+  @Input() isCmdTask = false;
+
+  /** Flag to enable or disable cmd preprocessor attack checkbox. */
+  @Input() isCmdPreproAttack = false;
+
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
 
@@ -155,6 +163,10 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Event emitter for when the user saves an editable input */
   @Output() editableSaved: EventEmitter<HTTableEditable<any>> =
     new EventEmitter<HTTableEditable<any>>();
+
+  /** Event emitter for checkbox attack */
+  @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> =
+    new EventEmitter();
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
@@ -314,6 +326,24 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     if (this.isSelectable) {
       this.dataSource.toggleRow(row);
     }
+  }
+
+  /**
+   * Handles the change event for the attack checkbox.
+   *
+   * @param event - The MatCheckboxChange event.
+   * @param row - The data of the row.
+   * @param type - The type of the column (CMD, main attack, or preprocessor).
+   */
+  toggleAttack(event: MatCheckboxChange, row: any, type: string): void {
+    // Handle the change event for the Cmd Attack checkbox
+    const checked = event.checked;
+    // Emit the event with specific properties
+    this.checkboxChanged.emit({
+      row, // All row data
+      columnType: type, // Column type CMD main attack or preprocessor
+      checked: checked // Boolean
+    });
   }
 
   /**

@@ -1,0 +1,17 @@
+<ht-table
+  #table
+  name="filesAttackTable"
+  dataType="files-attack"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [hasBulkActions]="false"
+  [hasRowAction]="false"
+  [isFilterable]="true"
+  [filterFn]="filter"
+  [isPageable]="true"
+  [isCmdTask]="cmdTask"
+  [isCmdPreproAttack]="cmdPrepro"
+  [isSelectable]="true"
+  (checkboxChanged)="onCheckboxChanged($event)"
+/>
