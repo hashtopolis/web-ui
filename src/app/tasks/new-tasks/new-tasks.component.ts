@@ -57,7 +57,7 @@ export class NewTasksComponent implements OnInit {
   isLoading = true;
 
   /** Form group for the new SuperHashlist. */
-  createForm: FormGroup;
+  form: FormGroup;
 
   /** Select Options. */
   selectHashlists: any;
@@ -90,15 +90,6 @@ export class NewTasksComponent implements OnInit {
 
   // Tooltips
   tasktip: any = [];
-
-  // TABLES
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  public allfiles: any;
 
   /**
    * Constructor for the Component.
@@ -160,9 +151,8 @@ export class NewTasksComponent implements OnInit {
     });
 
     this.loadData();
-    this.loadTableData();
 
-    this.createForm = new FormGroup({
+    this.form = new FormGroup({
       taskName: new FormControl('', [Validators.required]),
       notes: new FormControl(''),
       hashlistId: new FormControl(),
@@ -198,11 +188,9 @@ export class NewTasksComponent implements OnInit {
     });
 
     //subscribe to changes to handle select cracker binary
-    this.createForm
-      .get('crackerBinaryId')
-      .valueChanges.subscribe((newvalue) => {
-        this.handleChangeBinary(newvalue);
-      });
+    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+      this.handleChangeBinary(newvalue);
+    });
   }
 
   loadData() {
@@ -244,7 +232,7 @@ export class NewTasksComponent implements OnInit {
             );
             this.selectCrackerversions = transformedOptions;
             const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
-            this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
+            this.form.get('crackerBinaryTypeId').patchValue(lastItem);
           });
         this.unsubscribeService.add(loadCrackersSubscription$);
       });
@@ -261,107 +249,28 @@ export class NewTasksComponent implements OnInit {
     this.unsubscribeService.add(loadPreprocessorsSubscription$);
   }
 
-  // TABLES TO BE REMOVED
-  loadTableData() {
-    this.gs
-      .getAll(SERV.FILES, {
-        expand: 'accessGroup'
-      })
-      .subscribe((files) => {
-        this.allfiles = files.values;
-        this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-          setTimeout(() => {
-            this.dtTrigger[0].next(null);
-            dtInstance.columns.adjust();
-          });
-        });
-      });
+  getFormData() {
+    return {
+      attackCmd: this.form.get('attackCmd').value,
+      files: this.form.get('files').value,
+      preprocessorCommand: this.form.get('preprocessorCommand').value
+    };
   }
 
-  // Attack Command with Files Table
-  filesFormArray: Array<any> = [];
-  onChange(
-    fileId: number,
-    fileType: number,
-    fileName: string,
-    cmdAttk: number,
-    $target: EventTarget
-  ) {
-    const isChecked = (<HTMLInputElement>$target).checked;
-    if (isChecked && cmdAttk === 0) {
-      if (this.copyMode) {
-        this.filesFormArray = this.createForm.get('files').value;
-      }
-      this.filesFormArray.push(fileId);
-      this.OnChangeAttack(fileName, fileType);
-      this.createForm.get('files').value;
-      this.createForm.patchValue({ files: this.filesFormArray });
-    }
-    if (isChecked && cmdAttk === 1) {
-      this.OnChangeAttackPrep(fileName, fileType);
-    }
-    if (!isChecked && cmdAttk === 0) {
-      if (this.copyMode) {
-        this.filesFormArray = this.createForm.get('files').value;
-      }
-      const index = this.filesFormArray.indexOf(fileId);
-      this.filesFormArray.splice(index, 1);
-      this.createForm.patchValue({ files: this.filesFormArray });
-      this.OnChangeAttack(fileName, fileType, true);
-    }
-    if (!isChecked && cmdAttk === 1) {
-      this.OnChangeAttackPrep(fileName, fileType, true);
-    }
+  isPreprocessor(): boolean {
+    const preprocessorId = this.form.get('preprocessorId').value;
+    return preprocessorId !== 0 && preprocessorId !== 'null';
   }
 
-  onChecked(fileId: number) {
-    return this.createForm.get('files').value.includes(fileId);
-  }
-
-  OnChangeAttack(item: string, fileType: number, onRemove?: boolean) {
-    if (onRemove === true) {
-      const currentCmd = this.createForm.get('attackCmd').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      newCmd = currentCmd.replace(newCmd, '');
-      newCmd = newCmd.replace(/^\s+|\s+$/g, '');
-      this.createForm.patchValue({
-        attackCmd: newCmd
+  onUpdateForm(event: any): void {
+    if (event.type === 'CMD') {
+      this.form.patchValue({
+        attackCmd: event.attackCmd,
+        files: event.files
       });
     } else {
-      const currentCmd = this.createForm.get('attackCmd').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      this.createForm.patchValue({
-        attackCmd: currentCmd + ' ' + newCmd
-      });
-    }
-  }
-
-  OnChangeAttackPrep(item: string, fileType: number, onRemove?: boolean) {
-    if (onRemove === true) {
-      const currentCmd = this.createForm.get('preprocessorCommand').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      newCmd = currentCmd.replace(newCmd, '');
-      newCmd = newCmd.replace(/^\s+|\s+$/g, '');
-      this.createForm.patchValue({
-        preprocessorCommand: newCmd
-      });
-    } else {
-      const currentCmd = this.createForm.get('preprocessorCommand').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      this.createForm.patchValue({
-        preprocessorCommand: currentCmd + ' ' + newCmd
+      this.form.patchValue({
+        preprocessorCommand: event.attackCmd
       });
     }
   }
@@ -376,18 +285,18 @@ export class NewTasksComponent implements OnInit {
         );
         this.selectCrackerversions = transformedOptions;
         const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
-        this.createForm.get('crackerBinaryTypeId').patchValue(lastItem);
+        this.form.get('crackerBinaryTypeId').patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
   }
 
   onSubmit() {
-    if (this.createForm.valid) {
+    if (this.form.valid) {
       const onSubmitSubscription$ = this.gs
-        .create(SERV.TASKS, this.createForm.value)
+        .create(SERV.TASKS, this.form.value)
         .subscribe(() => {
           this.alert.okAlert('New Task created!', '');
-          this.createForm.reset();
+          this.form.reset();
           this.router.navigate(['tasks/show-tasks']);
         });
       this.unsubscribeService.add(onSubmitSubscription$);
@@ -410,7 +319,7 @@ export class NewTasksComponent implements OnInit {
               arrFiles.push(result.files[i]['fileId']);
             }
           }
-          this.createForm = new FormGroup({
+          this.form = new FormGroup({
             taskName: new FormControl(
               result['taskName'] + '_(Copied_task_id_' + this.editedIndex + ')',
               [Validators.required, Validators.minLength(1)]
@@ -463,7 +372,7 @@ export class NewTasksComponent implements OnInit {
             }
             this.copyFiles = arrFiles;
           }
-          this.createForm = new FormGroup({
+          this.form = new FormGroup({
             taskName: new FormControl(
               result['taskName'] +
                 '_(Copied_pretask_id_' +
@@ -511,7 +420,7 @@ export class NewTasksComponent implements OnInit {
   }
 
   canDeactivate(): Observable<boolean> | boolean {
-    if (this.createForm.valid) {
+    if (this.form.valid) {
       return false;
     }
     return true;

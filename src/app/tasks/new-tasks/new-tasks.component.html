@@ -2,7 +2,7 @@
   <div fxFlex="70" fxFlex.lt-md="100">
     <grid-main>
       <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
-      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
@@ -24,7 +24,7 @@
           <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
             <mat-icon>help</mat-icon>
           </button>
-          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
+          <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
         </div>
 
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
@@ -74,7 +74,7 @@
               </div>
             </mat-expansion-panel>
           </mat-accordion>
-      <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
+      <span *ngIf="!form.valid && form.touched" class="help-block" >Please complete all the form!</span><br>
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'"></button-submit>
@@ -84,200 +84,28 @@
   </div>
   <div fxFlex="30" fxFlex.lt-md="100">
   <!-- TABLES -->
-    <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
-      <ngb-panel id="panel0">
-        <ng-template ngbPanelTitle>
+    <mat-accordion multi>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
           <span><b>Wordlists</b></span>
-        </ng-template>
-        <ng-template ngbPanelContent [collapsed]="false">
-          <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
-            <thead class="thead-light">
-                <tr>
-                  <th class="rounded-start">
-                    T<a *ngIf="createForm.controls['preprocessorId'].value !== null">|P
-                      <fa-icon
-                              placement="bottom"
-                              ngbTooltip='T: Task, P: Preprocessor'
-                              container="body"
-                              aria-hidden="true"
-                      >
-                      faInfoCircle
-                      </fa-icon>
-                    </a>
-                  </th>
-                  <th class="rounded-end">File Name</th>
-                </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let f of allfiles | search:'0':'fileType'">
-                  <td>
-                    <form [formGroup]="createForm" novalidate>
-                      <!-- Main attack checkbox -->
-                      <div class="form-check" >
-                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
-                        <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                      </div>
-                      <!-- Preprocessor checkbox -->
-                      <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                        <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                      </div>
-                    </form>
-                  </td>
-                  <td class="width: 100px">
-                    <label class="form-check-label" for="{{f.filename}}">
-                      {{f.filename | shortenString:25 }}
-                    </label>
-                    <fa-icon *ngIf="f.isSecret === true" aria-hidden="true">faLock</fa-icon>
-                    <fa-icon
-                            placement="bottom"
-                            [ngbTooltip]="wordlist"
-                            container="body"
-                            aria-hidden="true"
-                    >
-                    faInfoCircle
-                    </fa-icon>
-                    <ng-template #wordlist>
-                      <div class="d-flex flex-column">
-                        <span>Full Name: {{f.filename}}</span>
-                        <span>Line Count: {{f.lineCount}}</span>
-                        <span>Size: {{ f.size | fileSize:false}}</span>
-                      </div>
-                    </ng-template>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-template>
-      </ngb-panel>
-      <ngb-panel>
-        <ng-template ngbPanelTitle>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="0" [cmdPrepro]="isPreprocessor()" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
           <span><b>Rules</b></span>
-        </ng-template>
-        <ng-template ngbPanelContent>
-          <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
-            <thead class="thead-light">
-              <tr>
-                  <th class="rounded-start">
-                    T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
-                      <fa-icon
-                              placement="bottom"
-                              ngbTooltip='T: Task, P: Preprocessor'
-                              container="body"
-                              aria-hidden="true"
-                      >
-                      faInfoCircle
-                      </fa-icon>
-                    </a>
-                  </th>
-                  <th class="rounded-end">File Name</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let f of allfiles | search:'1':'fileType'">
-                  <td>
-                    <form [formGroup]="createForm" novalidate>
-                      <!-- Main attack checkbox -->
-                      <div class="form-check" >
-                        <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
-                        <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                      </div>
-                      <!-- Preprocessor checkbox -->
-                      <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                        <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                      </div>
-                    </form>
-                  </td>
-                  <td >
-                    <label class="form-check-label" for="{{f.filename}}">
-                      {{f.filename | shortenString:25 }}
-                    </label>
-                    <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true">faLock</fa-icon>
-                    <fa-icon
-                            placement="bottom"
-                            [ngbTooltip]="rules"
-                            container="body"
-                            aria-hidden="true"
-                    >
-                    faInfoCircle
-                    </fa-icon>
-                    <ng-template #rules>
-                      <div class="d-flex flex-column">
-                        <span>Full Name: {{f.filename}}</span>
-                        <span>Line Count: {{f.lineCount}}</span>
-                        <span>Size: {{ f.size | fileSize:false}}</span>
-                      </div>
-                    </ng-template>
-                  </td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-template>
-      </ngb-panel>
-      <ngb-panel>
-        <ng-template ngbPanelTitle>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
           <span><b>Other</b></span>
-        </ng-template>
-        <ng-template ngbPanelContent>
-          <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" >
-            <thead class="thead-light">
-              <tr>
-                  <th class="rounded-start">
-                    T<a *ngIf="createForm.controls['preprocessorId'].value !== 0">|P
-                      <fa-icon
-                              placement="bottom"
-                              ngbTooltip='T: Task, P: Preprocessor'
-                              container="body"
-                              aria-hidden="true"
-                      >
-                      faInfoCircle
-                      </fa-icon>
-                    </a>
-                  </th>
-                  <th class="rounded-end">File Name</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-                <td>
-                  <form [formGroup]="createForm" novalidate>
-                    <!-- Main attack checkbox -->
-                    <div class="form-check" >
-                      <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
-                      <a *ngIf="createForm.controls['preprocessorId'].value !== 0">T</a>
-                    </div>
-                    <!-- Preprocessor checkbox -->
-                    <div  class="form-check" *ngIf="createForm.controls['preprocessorId'].value !== 0" >
-                      <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>P</a>
-                    </div>
-                  </form>
-                </td>
-                <td class="width: 100px">
-                  <label class="form-check-label" for="{{f.filename}}">
-                    {{f.filename | shortenString:25 }}
-                  </label>
-                  <fa-icon *ngIf="f.isSecret === true" aria-hidden="true">faLock</fa-icon>
-                  <fa-icon
-                          placement="bottom"
-                          [ngbTooltip]="other"
-                          container="body"
-                          aria-hidden="true"
-                  >
-                  faInfoCircle
-                  </fa-icon>
-                  <ng-template #other>
-                    <div class="d-flex flex-column">
-                      <span>Full Name: {{f.filename}}</span>
-                      <span>Line Count: {{f.lineCount}}</span>
-                      <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                    </div>
-                  </ng-template>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-template>
-      </ngb-panel>
-    </ngb-accordion>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="2" [cmdPrepro]="isPreprocessor()" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+      </mat-expansion-panel>
+    </mat-accordion>
   </div>
 </div>
 

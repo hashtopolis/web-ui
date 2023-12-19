@@ -34,7 +34,11 @@ export class FilesAttackTableComponent
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
   @Input() checkboxChangedData: CheckboxChangeEvent;
-  @Input() formData: { attackCmd: string; files: any };
+  @Input() formData: {
+    attackCmd: string;
+    preprocessorCommand?: string;
+    files: any;
+  };
 
   @Output() updateFormEvent = new EventEmitter<any>();
 
@@ -114,7 +118,12 @@ export class FilesAttackTableComponent
   }
 
   onPrepareAttack(form: any, event: CheckboxChangeEvent): object {
-    const currentCmd = form.attackCmd;
+    let currentCmd;
+    if (event.columnType === 'CMD') {
+      currentCmd = form.attackCmd;
+    } else {
+      currentCmd = form.preprocessorCommand;
+    }
     const newCmdArray = currentCmd.split(' ');
     const fileName = event.row.filename;
     const fileId = event.row._id;
@@ -155,6 +164,6 @@ export class FilesAttackTableComponent
 
     const newCmd = newCmdArray.join(' ').trim();
 
-    return { attackCmd: newCmd, files: newFileIds };
+    return { attackCmd: newCmd, files: newFileIds, type: event.columnType };
   }
 }
