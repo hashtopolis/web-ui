@@ -70,7 +70,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedIndex = +params['id'];
-      this.copyMode = params['id'] != null;
+      this.copyMode = params && params['id'] !== null;
     });
   }
 

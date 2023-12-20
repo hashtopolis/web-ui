@@ -108,7 +108,7 @@
           />
         </ng-container>
         <ng-template #defaultCell>
-          <!-- CMD Attack-->
+          <!-- CMD Task -->
           <mat-checkbox
             *ngIf="isCmdTask"
             (click)="$event.stopPropagation()"
@@ -117,6 +117,7 @@
           />
         </ng-template>
         <ng-container *ngIf="isCmdPreproAttack">
+          <!-- CMD Preprocessor -->
           <mat-checkbox
             (click)="$event.stopPropagation()"
             (change)="toggleAttack($event, row, 'CMD_PREPRO')"

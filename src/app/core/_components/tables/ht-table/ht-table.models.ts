@@ -46,6 +46,10 @@ export interface CheckboxChangeEvent {
   checked: boolean;
 }
 
+export interface CheckboxFiles {
+  files?: any[];
+}
+
 export type HTTableColumnType = 'dafeult | link | editable';
 
 export interface HTTableColumn {

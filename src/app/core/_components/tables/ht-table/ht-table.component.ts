@@ -15,6 +15,7 @@ import {
   COL_ROW_ACTION,
   COL_SELECT,
   CheckboxChangeEvent,
+  CheckboxFiles,
   DataType,
   HTTableColumn,
   HTTableEditable
@@ -123,6 +124,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
 
   /** Flag to enable or disable cmd task attack checkbox. */
   @Input() isCmdTask = false;
+
+  /** Selected checkbox Cmd files */
+  @Input() isCmdFiles: CheckboxFiles;
 
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
@@ -286,7 +290,11 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    * @param row - The row to check.
    */
   isSelected(row: any): boolean {
-    return this.dataSource.isSelected(row);
+    if (Array.isArray(this.isCmdFiles) && this.isCmdFiles.length > 0) {
+      return this.isCmdFiles.includes(row._id);
+    } else {
+      return this.dataSource.isSelected(row);
+    }
   }
 
   /**
