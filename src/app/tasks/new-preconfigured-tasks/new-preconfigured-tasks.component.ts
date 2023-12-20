@@ -93,6 +93,14 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+  }
+
+  /**
    * Determines the view based on the specified kind.
    * @param {string} kind - The kind of view ('new-preconfigured-tasks', 'copy-preconfigured-tasks', or 'copy-tasks').
    * @returns {string} The determined view type ('create', 'edit', or 'task').
@@ -127,7 +135,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Builds the form for creating a task.
+   * Builds the form for creating a Pretask.
    * Initializes the form controls with default or UI settings values.
    */
   buildForm() {
@@ -171,14 +179,6 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
         this.selectCrackertype = transformedOptions;
       });
     this.unsubscribeService.add(loadCrackersSubscription$);
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
