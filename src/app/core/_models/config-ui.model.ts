@@ -12,6 +12,7 @@ import { LogsTableCol } from '../_components/tables/logs-table/logs-table.consta
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
 import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
 import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
+import { SearchHashTableCol } from '../_components/tables/search-hash-table/search-hash-table.constants';
 import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
@@ -155,6 +156,7 @@ export const uiConfigDefault: UIConfig = {
       TaskTableCol.DISPATCHED_SEARCHED,
       TaskTableCol.CRACKED
     ],
+    searchHashTable: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
     usersTable: [
       UsersTableCol.ID,
       UsersTableCol.NAME,
