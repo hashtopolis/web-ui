@@ -21,6 +21,7 @@ export type DataType =
   | 'pretasks'
   | 'tasks'
   | 'supertasks'
+  | 'supertasks-pretasks'
   | 'superhashlists';
 
 export interface HTTableIcon {

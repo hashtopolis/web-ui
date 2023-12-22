@@ -11,13 +11,4 @@ export class SupertasksComponent {
   constructor(private titleService: AutoTitleService) {
     titleService.set(['Show Preconfigured Task']);
   }
-
-  // getPretasks(id: number){
-  //   const ref = this.modalService.open(ModalPretasksComponent, { centered: true, size: 'xl'  });
-  //   const _filter = this.allsupertasks.filter(u=> u.supertaskId == id);
-  //   this.pretasks = _filter[0]['pretasks'];
-  //   ref.componentInstance.prep = _filter[0]['pretasks'];
-  //   ref.componentInstance.supertaskid = id;
-  //   ref.componentInstance.title = 'Edit Pretaks'
-  // }
 }

@@ -56,6 +56,7 @@ import { TableTruncateComponent } from './tables/table-truncate/table-truncate.c
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
+import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 
 @NgModule({
   declarations: [
@@ -82,6 +83,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     PreprocessorsTableComponent,
     PretasksTableComponent,
     SuperTasksTableComponent,
+    SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
@@ -141,6 +143,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     PreprocessorsTableComponent,
     PretasksTableComponent,
     SuperTasksTableComponent,
+    SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,

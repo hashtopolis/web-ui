@@ -21,8 +21,9 @@ import { Pretask } from 'src/app/core/_models/pretask.model';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { SuperTask } from 'src/app/core/_models/supertask.model';
-import { SuperTasksDataSource } from 'src/app/core/_datasources/super-tasks.datasource';
+import { SuperTasksDataSource } from 'src/app/core/_datasources/supertasks.datasource';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { ModalPretasksComponent } from 'src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 
 @Component({
   selector: 'supertasks-table',
@@ -247,7 +248,17 @@ export class SuperTasksTableComponent
   }
 
   private rowActionEditSubtasks(supertask: SuperTask): void {
-    console.log('here');
+    const dialogRef = this.dialog.open(ModalPretasksComponent, {
+      width: '100%',
+      data: {
+        supertaskId: supertask._id,
+        supertaskName: supertask.supertaskName
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The modal was closed');
+    });
   }
 
   private rowActionEdit(supertask: SuperTask): void {
