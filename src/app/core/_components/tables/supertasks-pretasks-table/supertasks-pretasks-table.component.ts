@@ -2,12 +2,14 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
+  HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '../ht-table/ht-table.models';
 import {
   SupertasksPretasksTableCol,
-  SupertasksPretasksTableColumnLabel
+  SupertasksPretasksTableColumnLabel,
+  SupertasksPretasksTableEditableAction
 } from './supertasks-pretasks-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
@@ -19,10 +21,10 @@ import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { Pretask } from 'src/app/core/_models/pretask.model';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { SuperTasksPretasksDataSource } from 'src/app/core/_datasources/supertasks-pretasks.datasource';
 import { SafeHtml } from '@angular/platform-browser';
+import { SERV } from 'src/app/core/_services/main.config';
+import { SuperTasksPretasksDataSource } from 'src/app/core/_datasources/supertasks-pretasks.datasource';
+import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
   selector: 'supertasks-pretasks-table',
@@ -81,9 +83,28 @@ export class SuperTasksPretasksTableComponent
       {
         id: SupertasksPretasksTableCol.PRIORITY,
         dataKey: 'priority',
+        editable: (pretask: Pretask) => {
+          return {
+            data: pretask,
+            value: pretask.priority + '',
+            action: SupertasksPretasksTableEditableAction.CHANGE_PRIORITY
+          };
+        },
         isSortable: true,
-        // render: (pretask: Pretask) => this.renderPriorityColumn(pretask),
         export: async (pretask: Pretask) => pretask.priority + ''
+      },
+      {
+        id: SupertasksPretasksTableCol.MAX_AGENTS,
+        dataKey: 'maxAgents',
+        editable: (pretask: Pretask) => {
+          return {
+            data: pretask,
+            value: pretask.maxAgents + '',
+            action: SupertasksPretasksTableEditableAction.CHANGE_MAX_AGENTS
+          };
+        },
+        isSortable: true,
+        export: async (pretask: Pretask) => pretask.maxAgents + ''
       }
     ];
 
@@ -264,38 +285,85 @@ export class SuperTasksPretasksTableComponent
     );
   }
 
-  /**
-   * @todo Implement error handling.
-   */
-  private rowSavePriority(pretasks: Pretask[]): void {
+  editableSaved(editable: HTTableEditable<Pretask>): void {
+    switch (editable.action) {
+      case SupertasksPretasksTableEditableAction.CHANGE_PRIORITY:
+        this.changePriority(editable.data, editable.value);
+        break;
+      case SupertasksPretasksTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
+        break;
+    }
+  }
+
+  private changePriority(pretask: Pretask, priority: string): void {
+    let val = 0;
+    try {
+      val = parseInt(priority);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || pretask.priority == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask.pretaskId, {
+      priority: val
+    });
     this.subscriptions.push(
-      this.gs
-        .update(SERV.PRETASKS, pretasks[0]._id, {
-          priority: 2
-        })
+      request$
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            this.snackBar.open(`Failed to update priority!`, 'Close');
+            console.error('Failed to update priority:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted pretasks!', 'Close');
+          this.snackBar.open(
+            `Changed priority to ${val} on PreTask #${pretask._id}!`,
+            'Close'
+          );
           this.reload();
         })
     );
   }
 
-  renderPriorityColumn(pretask: Pretask): SafeHtml {
-    const inputHtml = `
-        <mat-form-field appearance="fill">
-          <input matInput type="number" value="${pretask.priority}" (change)="rowSavePriority($event.target.value, ${pretask._id})" />
-        </mat-form-field>
-        <button mat-icon-button (click)="rowSavePriority(pretask.priority, ${pretask._id})">
-          <mat-icon>save</mat-icon>
-        </button>
-      `;
-    return this.sanitizer.bypassSecurityTrustHtml(inputHtml);
+  private changeMaxAgents(pretask: Pretask, max: string): void {
+    let val = 0;
+    try {
+      val = parseInt(max);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || pretask.maxAgents == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask.pretaskId, {
+      maxAgents: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            console.error('Failed to update max agents:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed number of max agents to ${val} on PreTask #${pretask._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
   }
 
   private rowActionCopyToTask(pretask: Pretask): void {

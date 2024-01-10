@@ -207,17 +207,6 @@ export class SuperTasksTableComponent
     );
   }
 
-  @Cacheable(['_id'])
-  async renderSupertaskLink(
-    supertask: SuperTask
-  ): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/tasks/', supertask._id, 'edit']
-      }
-    ];
-  }
-
   /**
    * @todo Implement error handling.
    */

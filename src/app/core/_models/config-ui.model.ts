@@ -169,7 +169,8 @@ export const uiConfigDefault: UIConfig = {
     supertasksPretasksTable: [
       SupertasksPretasksTableCol.ID,
       SupertasksPretasksTableCol.NAME,
-      SupertasksPretasksTableCol.PRIORITY
+      SupertasksPretasksTableCol.PRIORITY,
+      SupertasksPretasksTableCol.MAX_AGENTS
     ],
     hashlistTasksTable: [
       TaskTableCol.ID,
