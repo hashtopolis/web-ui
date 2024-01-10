@@ -29,10 +29,12 @@ import { FormsModule } from '@angular/forms';
 import { CoreFormsModule } from './forms.module';
 import { AlertNavModule } from './alert/alert.module';
 import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
+import { AgentStatusModalComponent } from '../agents/agent-status/agent-status-modal/agent-status-modal.component';
 
 @NgModule({
   declarations: [
     HashtypeDetectorComponent,
+    AgentStatusModalComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
     ActiveSpinnerComponent,
@@ -65,6 +67,7 @@ import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector
   ],
   exports: [
     HashtypeDetectorComponent,
+    AgentStatusModalComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
     ActiveSpinnerComponent,
