@@ -1,10 +1,6 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import {
   SupertasksTableCol,
   SupertasksTableColumnLabel
@@ -17,13 +13,12 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { Pretask } from 'src/app/core/_models/pretask.model';
+import { ModalPretasksComponent } from 'src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { SuperTask } from 'src/app/core/_models/supertask.model';
 import { SuperTasksDataSource } from 'src/app/core/_datasources/supertasks.datasource';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { ModalPretasksComponent } from 'src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 
 @Component({
   selector: 'supertasks-table',
@@ -256,9 +251,7 @@ export class SuperTasksTableComponent
       }
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The modal was closed');
-    });
+    dialogRef.afterClosed().subscribe();
   }
 
   private rowActionEdit(supertask: SuperTask): void {
