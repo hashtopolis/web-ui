@@ -1,6 +1,7 @@
 export const BulkActionMenuLabel = {
   DELETE_AGENTS: 'Delete Agents',
   DELETE_NOTIFICATIONS: 'Delete Notification',
+  DELETE_PRETASKS: 'Delete PreTasks',
   DELETE_TASKS: 'Delete Tasks',
   DELETE_HASHLISTS: 'Delete Hashlists',
   DELETE_HASHTYPES: 'Delete Hashtypes',
