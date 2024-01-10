@@ -20,6 +20,8 @@ export type DataType =
   | 'vouchers'
   | 'pretasks'
   | 'tasks'
+  | 'supertasks'
+  | 'supertasks-pretasks'
   | 'superhashlists';
 
 export interface HTTableIcon {

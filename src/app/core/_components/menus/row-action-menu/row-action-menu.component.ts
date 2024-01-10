@@ -64,6 +64,8 @@ export class RowActionMenuComponent
       this.setPretaskMenu();
     } else if (this.isTaskWrapper()) {
       this.setTaskWrapperMenu();
+    } else if (this.isSupertask()) {
+      this.setSupertaskMenu();
     } else if (this.isHashlist()) {
       this.setHashlistMenu();
     } else if (this.isCrackerBinaryType()) {
@@ -285,6 +287,28 @@ export class RowActionMenuComponent
         this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
       );
     }
+  }
+
+  /**
+   * Sets the context menu items for a pretask data row.
+   */
+  private setSupertaskMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERTASK)
+    ]);
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.APPLY_HASHLIST,
+      action: RowActionMenuAction.APPLY_TO_HASHLIST,
+      icon: RowActionMenuIcon.COPY
+    });
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.EDIT_SUBTASKS,
+      action: RowActionMenuAction.EDIT_SUBTASKS,
+      icon: RowActionMenuIcon.EDIT
+    });
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERTASK)
+    ]);
   }
 
   /**
