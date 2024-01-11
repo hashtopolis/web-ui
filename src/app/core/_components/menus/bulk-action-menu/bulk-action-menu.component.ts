@@ -57,11 +57,15 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_HASHLISTS,
         BulkActionMenuLabel.ARCHIVE_HASHLISTS
       );
+    } else if (this.dataType === 'pretasks') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_PRETASKS);
     } else if (this.dataType === 'tasks') {
       this.setArchiveDeleteMenu(
         BulkActionMenuLabel.DELETE_TASKS,
         BulkActionMenuLabel.ARCHIVE_TASKS
       );
+    } else if (this.dataType === 'supertasks') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERTASKS);
     } else if (this.dataType === 'access-groups') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_ACCESSGROUPS);
     } else if (this.dataType === 'permissions') {
