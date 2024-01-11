@@ -7,13 +7,16 @@ import { CracksTableCol } from '../_components/tables/cracks-table/cracks-table.
 import { FilesTableCol } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableCol } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableCol } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
-import { HealthChecksTableCol } from '../_components/tables/health-checks-table/health-checks-table.constants';
 import { HealthCheckAgentsTableCol } from '../_components/tables/health-check-agents-table/health-check-agents-table.constants';
+import { HealthChecksTableCol } from '../_components/tables/health-checks-table/health-checks-table.constants';
 import { LogsTableCol } from '../_components/tables/logs-table/logs-table.constants';
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
 import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
 import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
+import { PretasksTableCol } from '../_components/tables/pretasks-table/pretasks-table.constants';
 import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
+import { SupertasksPretasksTableCol } from '../_components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
+import { SupertasksTableCol } from '../_components/tables/supertasks-table/supertasks-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 
@@ -148,6 +151,15 @@ export const uiConfigDefault: UIConfig = {
       HealthCheckAgentsTableCol.CRACKED,
       HealthCheckAgentsTableCol.ERRORS
     ],
+    pretasksTable: [
+      PretasksTableCol.ID,
+      PretasksTableCol.NAME,
+      PretasksTableCol.ATTACK_COMMAND,
+      PretasksTableCol.FILES_TOTAL,
+      PretasksTableCol.FILES_SIZE,
+      PretasksTableCol.PRIORITY,
+      PretasksTableCol.MAX_AGENTS
+    ],
     tasksTable: [
       TaskTableCol.ID,
       TaskTableCol.NAME,
@@ -158,6 +170,17 @@ export const uiConfigDefault: UIConfig = {
       TaskTableCol.MAX_AGENTS,
       TaskTableCol.DISPATCHED_SEARCHED,
       TaskTableCol.CRACKED
+    ],
+    supertasksTable: [
+      SupertasksTableCol.ID,
+      SupertasksTableCol.NAME,
+      SupertasksTableCol.PRETASKS
+    ],
+    supertasksPretasksTable: [
+      SupertasksPretasksTableCol.ID,
+      SupertasksPretasksTableCol.NAME,
+      SupertasksPretasksTableCol.PRIORITY,
+      SupertasksPretasksTableCol.MAX_AGENTS
     ],
     hashlistTasksTable: [
       TaskTableCol.ID,
