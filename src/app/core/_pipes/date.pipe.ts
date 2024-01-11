@@ -1,9 +1,4 @@
-import {
-  Inject,
-  LOCALE_ID,
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { Inject, LOCALE_ID, Pipe, PipeTransform } from '@angular/core';
 import { CookieService } from '../_services/shared/cookies.service';
 import { dateFormats } from '../../core/_constants/settings.config';
 import { DatePipe } from '@angular/common';
@@ -16,27 +11,29 @@ import { DatePipe } from '@angular/common';
  * Example:
  *   {{ 1694866300 | uiDate }}
  * @returns 16/09/2023
-**/
+ **/
 
 @Pipe({
   name: 'uiDate'
 })
 export class uiDatePipe extends DatePipe implements PipeTransform {
-
   constructor(
     private cookieService: CookieService,
     @Inject(LOCALE_ID) locale: string
-  ) { super(locale); }
+  ) {
+    super(locale);
+  }
 
   override transform(epoch: number): any {
-
     if (epoch === undefined || epoch === null) return epoch;
 
     if (!this.cookieService.getCookie('localtimefmt')) {
       this.cookieService.setCookie('localtimefmt', 'dd/MM/yyyy h:mm:ss', 365);
     }
 
-    const format = this.checkFormat(this.cookieService.getCookie('localtimefmt'));
+    const format = this.checkFormat(
+      this.cookieService.getCookie('localtimefmt')
+    );
 
     return super.transform(epoch * 1000, format);
   }
@@ -55,6 +52,4 @@ export class uiDatePipe extends DatePipe implements PipeTransform {
     }
     return res;
   }
-
 }
-

@@ -8,7 +8,7 @@ import { FilesTableCol } from '../_components/tables/files-table/files-table.con
 import { HashlistsTableCol } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableCol } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
 import { HealthChecksTableCol } from '../_components/tables/health-checks-table/health-checks-table.constants';
-import { HealthChecksViewTableCol } from '../_components/tables/health-checks-view-table/health-checks-view-table.constants';
+import { HealthCheckAgentsTableCol } from '../_components/tables/health-check-agents-table/health-check-agents-table.constants';
 import { LogsTableCol } from '../_components/tables/logs-table/logs-table.constants';
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
 import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
@@ -139,14 +139,14 @@ export const uiConfigDefault: UIConfig = {
       HealthChecksTableCol.STATUS,
       HealthChecksTableCol.TYPE
     ],
-    healthChecksviewTable: [
-      HealthChecksViewTableCol.AGENT_ID,
-      HealthChecksViewTableCol.AGENT_NAME,
-      HealthChecksViewTableCol.STATUS,
-      HealthChecksViewTableCol.START,
-      HealthChecksViewTableCol.GPUS,
-      HealthChecksViewTableCol.CRACKED,
-      HealthChecksViewTableCol.ERRORS
+    healthCheckAgentsTable: [
+      HealthCheckAgentsTableCol.AGENT_ID,
+      HealthCheckAgentsTableCol.AGENT_NAME,
+      HealthCheckAgentsTableCol.STATUS,
+      HealthCheckAgentsTableCol.START,
+      HealthCheckAgentsTableCol.GPUS,
+      HealthCheckAgentsTableCol.CRACKED,
+      HealthCheckAgentsTableCol.ERRORS
     ],
     tasksTable: [
       TaskTableCol.ID,

@@ -1,3 +1,4 @@
+import { Agent } from 'http';
 import { Hashtype } from './hashtype.model';
 
 export enum HealthCheckType {
@@ -28,7 +29,7 @@ export interface HealthCheck {
   time: number;
 }
 
-export interface HealthCheckView {
+export interface HealthCheckAgent {
   _id: number;
   _self: string;
   healthCheckAgentId: number;
@@ -40,5 +41,5 @@ export interface HealthCheckView {
   start: number;
   end: number;
   errors: string;
-  agentName: string;
+  agentName?: string;
 }

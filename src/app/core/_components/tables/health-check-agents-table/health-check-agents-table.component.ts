@@ -1,9 +1,9 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
-  HealthChecksViewTableCol,
-  HealthChecksViewTableColumnLabel
-} from './health-checks-view-table.constants';
+  HealthCheckAgentsTableCol,
+  HealthCheckAgentsTableColColumnLabel
+} from './health-check-agents-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -14,32 +14,31 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import {
   HealthCheck,
-  HealthCheckView
+  HealthCheckAgent
 } from 'src/app/core/_models/health-check.model';
-import { HealthChecksViewDataSource } from 'src/app/core/_datasources/health-checks-view.datasource';
+import { HealthCheckAgentsDataSource } from 'src/app/core/_datasources/health-check-agents.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 import { HealthChecksTableStatusLabel } from '../health-checks-table/health-checks-table.constants';
 
 @Component({
-  selector: 'health-checks-view-table',
-  templateUrl: './health-checks-view-table.component.html'
+  selector: 'health-check-agents-table',
+  templateUrl: './health-check-agents-table.component.html'
 })
-export class HealthChecksViewTableComponent
+export class HealthCheckAgentsTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {
   @Input() healthCheckId = 0;
 
   tableColumns: HTTableColumn[] = [];
-  dataSource: HealthChecksViewDataSource;
+  dataSource: HealthCheckAgentsDataSource;
 
   ngOnInit(): void {
-    this.setColumnLabels(HealthChecksViewTableColumnLabel);
+    this.setColumnLabels(HealthCheckAgentsTableColColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HealthChecksViewDataSource(
+    this.dataSource = new HealthCheckAgentsDataSource(
       this.cdr,
       this.gs,
       this.uiService
@@ -57,7 +56,7 @@ export class HealthChecksViewTableComponent
     }
   }
 
-  filter(item: HealthCheckView, filterValue: string): boolean {
+  filter(item: HealthCheckAgent, filterValue: string): boolean {
     if (item.agentName.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -68,57 +67,59 @@ export class HealthChecksViewTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
-        id: HealthChecksViewTableCol.AGENT_ID,
+        id: HealthCheckAgentsTableCol.AGENT_ID,
         dataKey: 'healthCheckAgentId',
         isSortable: true,
-        export: async (healthCheckView: HealthCheckView) =>
-          healthCheckView.healthCheckAgentId + ''
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          HealthCheckAgent.healthCheckAgentId + ''
       },
       {
-        id: HealthChecksViewTableCol.AGENT_NAME,
+        id: HealthCheckAgentsTableCol.AGENT_NAME,
         dataKey: 'agentName',
+        routerLink: (HealthCheckAgent: HealthCheckAgent) =>
+          this.renderAgentLink(HealthCheckAgent),
         isSortable: true,
-        export: async (healthCheckView: HealthCheckView) =>
-          healthCheckView.agentName + ''
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          HealthCheckAgent.agentName + ''
       },
       {
-        id: HealthChecksViewTableCol.STATUS,
+        id: HealthCheckAgentsTableCol.STATUS,
         dataKey: 'status',
-        render: (healthCheckView: HealthCheckView) =>
-          HealthChecksTableStatusLabel[healthCheckView.status],
+        render: (HealthCheckAgent: HealthCheckAgent) =>
+          HealthChecksTableStatusLabel[HealthCheckAgent.status],
         isSortable: true,
-        export: async (healthCheckView: HealthCheckView) =>
-          HealthChecksTableStatusLabel[healthCheckView.status]
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          HealthChecksTableStatusLabel[HealthCheckAgent.status]
       },
       {
-        id: HealthChecksViewTableCol.START,
+        id: HealthCheckAgentsTableCol.START,
         dataKey: 'start',
         isSortable: true,
-        render: (healthCheckView: HealthCheckView) =>
-          formatUnixTimestamp(healthCheckView.start, this.dateFormat),
-        export: async (healthCheckView: HealthCheckView) =>
-          formatUnixTimestamp(healthCheckView.start, this.dateFormat)
+        render: (HealthCheckAgent: HealthCheckAgent) =>
+          formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat),
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat)
       },
       {
-        id: HealthChecksViewTableCol.GPUS,
+        id: HealthCheckAgentsTableCol.GPUS,
         dataKey: 'numGpus',
         isSortable: true,
-        export: async (healthCheckView: HealthCheckView) =>
-          healthCheckView.numGpus + ''
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          HealthCheckAgent.numGpus + ''
       },
       {
-        id: HealthChecksViewTableCol.CRACKED,
-        dataKey: 'numGpus',
+        id: HealthCheckAgentsTableCol.CRACKED,
+        dataKey: 'cracked',
         isSortable: true,
-        export: async (healthCheckView: HealthCheckView) =>
-          healthCheckView.cracked + ''
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          HealthCheckAgent.cracked + ''
       },
       {
-        id: HealthChecksViewTableCol.ERRORS,
-        dataKey: 'numGpus',
+        id: HealthCheckAgentsTableCol.ERRORS,
+        dataKey: 'errors',
         isSortable: true,
-        export: async (healthCheckView: HealthCheckView) =>
-          healthCheckView.errors + ''
+        export: async (HealthCheckAgent: HealthCheckAgent) =>
+          HealthCheckAgent.errors + ''
       }
     ];
 
@@ -127,30 +128,30 @@ export class HealthChecksViewTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<HealthCheckView[]>): void {
+  exportActionClicked(event: ActionMenuEvent<HealthCheckAgent[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<HealthCheckView>(
+        this.exportService.toExcel<HealthCheckAgent>(
           'hashtopolis-health-checks-view',
           this.tableColumns,
           event.data,
-          HealthChecksViewTableColumnLabel
+          HealthCheckAgentsTableColColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<HealthCheckView>(
+        this.exportService.toCsv<HealthCheckAgent>(
           'hashtopolis-health-checks-view',
           this.tableColumns,
           event.data,
-          HealthChecksViewTableColumnLabel
+          HealthCheckAgentsTableColColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<HealthCheckView>(
+          .toClipboard<HealthCheckAgent>(
             this.tableColumns,
             event.data,
-            HealthChecksViewTableColumnLabel
+            HealthCheckAgentsTableColColumnLabel
           )
           .then(() => {
             this.snackBar.open(

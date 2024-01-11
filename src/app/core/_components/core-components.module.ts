@@ -25,6 +25,7 @@ import { HTTableTypeLinkComponent } from './tables/ht-table/type/link/ht-table-t
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
+import { HealthCheckAgentsTableComponent } from './tables/health-check-agents-table/health-check-agents-table.component';
 import { LogsTableComponent } from './tables/logs-table/logs-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -54,7 +55,6 @@ import { TableTruncateComponent } from './tables/table-truncate/table-truncate.c
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
-import { HealthChecksViewTableComponent } from './tables/health-checks-view-table/health-checks-view-table.component';
 
 @NgModule({
   declarations: [
@@ -81,7 +81,7 @@ import { HealthChecksViewTableComponent } from './tables/health-checks-view-tabl
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
-    HealthChecksViewTableComponent,
+    HealthCheckAgentsTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
@@ -139,7 +139,7 @@ import { HealthChecksViewTableComponent } from './tables/health-checks-view-tabl
     PreprocessorsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
-    HealthChecksViewTableComponent,
+    HealthCheckAgentsTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,

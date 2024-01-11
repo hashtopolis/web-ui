@@ -1,7 +1,7 @@
 <ht-table
   #table
-  name="healthChecksviewTable"
-  dataType="health-checks-view"
+  name="healthCheckAgentsTable"
+  dataType="health-check-agents"
   [columnLabels]="columnLabels"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
@@ -11,5 +11,6 @@
   [isFilterable]="true"
   [filterFn]="filter"
   [isPageable]="true"
+  [hasRowAction]="false"
   (exportActionClicked)="exportActionClicked($event)"
 />

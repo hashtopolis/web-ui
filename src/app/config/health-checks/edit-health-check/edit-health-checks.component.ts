@@ -1,12 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import {
+  UIConfig,
+  uiConfigDefault
+} from 'src/app/core/_models/config-ui.model';
 
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { HealthCheck } from 'src/app/core/_models/health-check.model';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 @Component({
   selector: 'app-edit-health-checks',
@@ -18,6 +25,11 @@ export class EditHealthChecksComponent implements OnInit, OnDestroy {
   // The health check object.
   public healthc: HealthCheck;
 
+  //Date format
+  protected uiSettings: UISettingsUtilityClass;
+  formatUnixTimestamp = formatUnixTimestamp;
+  protected dateFormat: string;
+
   /**
    * Constructs a new instance of the YourComponentName class.
    * @param {AutoTitleService} titleService - The service for managing auto titles.
@@ -25,6 +37,7 @@ export class EditHealthChecksComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - The global service.
    */
   constructor(
+    protected settingsService: LocalStorageService<UIConfig>,
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
     private route: ActivatedRoute,
@@ -39,6 +52,8 @@ export class EditHealthChecksComponent implements OnInit, OnDestroy {
    */
   onInitialize(): void {
     this.editedHealthCIndex = +this.route.snapshot.params['id'];
+    this.uiSettings = new UISettingsUtilityClass(this.settingsService);
+    this.dateFormat = this.getDateFormat();
   }
 
   /**
@@ -66,5 +81,11 @@ export class EditHealthChecksComponent implements OnInit, OnDestroy {
         this.healthc = healthCheck;
       });
     this.unsubscribeService.add(loadSubscription$);
+  }
+
+  private getDateFormat(): string {
+    const fmt = this.uiSettings.getSetting<string>('timefmt');
+
+    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }

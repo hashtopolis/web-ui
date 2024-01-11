@@ -1,11 +1,11 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { Agent } from '../_models/agent.model';
 import { BaseDataSource } from './base.datasource';
-import { HealthCheckView } from '../_models/health-check.model';
+import { HealthCheckAgent } from '../_models/health-check.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
-export class HealthChecksViewDataSource extends BaseDataSource<HealthCheckView> {
+export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent> {
   private _healthCheckId = 0;
 
   setHealthCheckId(healthCheckId: number): void {
@@ -34,23 +34,41 @@ export class HealthChecksViewDataSource extends BaseDataSource<HealthCheckView> 
           finalize(() => (this.loading = false))
         )
         .subscribe(
-          ([healthCheckResponse, hashTypesResponse]: [
-            ListResponseWrapper<HealthCheckView>,
+          ([healthCheckResponse, agentsResponse]: [
+            ListResponseWrapper<HealthCheckAgent>,
             ListResponseWrapper<Agent>
           ]) => {
-            const healthChecks: HealthCheckView[] = healthCheckResponse.values;
-            const agents: Agent[] = hashTypesResponse.values;
+            const healthChecksAgent: HealthCheckAgent[] =
+              healthCheckResponse.values;
+            const agents: Agent[] = agentsResponse.values;
 
-            healthChecks.map((healthCheck) => {
-              agents.find((el) => el.agentId === healthCheck.agentId);
-            });
+            const joinedData: Array<{ [key: string]: any }> = healthChecksAgent
+              .map((healthCheckAgent: HealthCheckAgent) => {
+                const matchedAgent = agents.find(
+                  (el: Agent) => el._id === healthCheckAgent.agentId
+                );
+
+                if (matchedAgent) {
+                  return {
+                    ...healthCheckAgent,
+                    agentName: matchedAgent.agentName
+                  };
+                } else {
+                  // Handle the case where no matching agent is found, ie. deleted agent
+                  return null;
+                }
+              })
+              .filter(
+                (joinedObject: { [key: string]: any } | null) =>
+                  joinedObject !== null
+              );
 
             this.setPaginationConfig(
               this.pageSize,
               this.currentPage,
               healthCheckResponse.total
             );
-            this.setData(healthChecks);
+            this.setData(joinedData as HealthCheckAgent[]);
           }
         )
     );
