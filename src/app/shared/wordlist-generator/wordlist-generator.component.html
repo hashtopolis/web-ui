@@ -1,6 +1,5 @@
-
+<h2 mat-dialog-title class="h6">WordList Generator</h2>
 <grid-main>
-  <h2 mat-dialog-title class="h6">WordList Generator</h2>
   <div class="content">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" >
       <!-- Display added special dates -->
@@ -76,24 +75,27 @@
               <span><b>Additional Options</b></span>
             </mat-panel-title>
           </mat-expansion-panel-header>
+
           <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px">
-            <mat-form-field>
+            <mat-form-field style="width: 200px;">
               <mat-label>File Name</mat-label>
               <input matInput formControlName="filename" name="filename" placeholder="Wordlist.txt" />
-              <mat-hint align="start">
-                {{ filenamehint }}
-              </mat-hint>
+              <mat-hint align="start">{{ filenamehint }}</mat-hint>
             </mat-form-field>
+
+            <div>
+              <div><mat-checkbox formControlName="useSpecCharacters">Add special chars</mat-checkbox></div>
+              <div><mat-checkbox formControlName="usePermutations">Permutations</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isCapitalize">Capitalize</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isAlternated">Alternate capitalize</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isUppercasse">All Uppercase</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isLowercasse">All Lowercase</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isSimilarVowels">Similar Vowels (Replace vowels for similar numbers. ie. G = 6)</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isSimilarConsonant">Similar Consonants (Replace consonants for similar numbers. ie. s = 5)</mat-checkbox></div>
+              <div><mat-checkbox formControlName="isSimilarSpecialchars">Similar Special Chars (Replace vowels and consonants for similar special chars. ie. h = #)</mat-checkbox></div>
+            </div>
           </div>
-          <mat-checkbox formControlName="useSpecCharacters">Add special chars</mat-checkbox>
-          <mat-checkbox formControlName="usePermutations">Permutations</mat-checkbox>
-          <mat-checkbox formControlName="isCapitalize">Capitalize</mat-checkbox>
-          <mat-checkbox formControlName="isAlternated">Alternate capitalize</mat-checkbox>
-          <mat-checkbox formControlName="isUppercasse">All Uppercasse</mat-checkbox>
-          <mat-checkbox formControlName="isLowercasse">All Lowercasse</mat-checkbox>
-          <mat-checkbox formControlName="isSimilarVowels">Similar Vowels (Replace vowels for similar numbers. ie. G = 6)</mat-checkbox>
-          <mat-checkbox formControlName="isSimilarConsonant">Similar Consonants (Replace consonants for similar numbers. ie. s = 5)</mat-checkbox>
-          <mat-checkbox formControlName="isSimilarSpecialchars">Similar Special Chars (Replace vowels and consonants for similar special chars. ie. h = #)</mat-checkbox>
+
         </mat-expansion-panel>
       </mat-accordion>
 

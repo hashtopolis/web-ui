@@ -2,8 +2,8 @@
   <app-page-subtitle [subtitle]="title"></app-page-subtitle>
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
-        <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')">upload</mat-icon>
-        <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="onChangeType('inline', 'tab2')">download</mat-icon>
+        <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')" matTooltip="Upload using local file">upload_file</mat-icon>
+        <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="onChangeType('inline', 'tab2')" matTooltip="Upload using link">insert_link</mat-icon>
       </ul>
     </div>
     <div class="tab-slider--container" [ngSwitch]="viewMode">
@@ -18,7 +18,7 @@
 
             <div *ngIf="redirect === 'wordlist'">
               <button mat-icon-button (click)="showHelp()" matTooltip="Simple Wordlist Generator">
-                <mat-icon>help</mat-icon>
+                <mat-icon>build_circle</mat-icon>
               </button>
             </div>
           </div>

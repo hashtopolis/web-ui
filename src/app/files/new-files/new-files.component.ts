@@ -273,12 +273,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
 
   showHelp(): void {
     const dialogRef = this.dialog.open(WordlisGeneratorComponent, {
-      width: '100%',
+      width: '90%',
       maxWidth: '100vw'
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog closed with result:', result);
-    });
+    dialogRef.afterClosed().subscribe();
   }
 
   /**
