@@ -1,6 +1,6 @@
 <ht-table
   #table
-  [name]="name"
+  name="agentStatusTable"
   [columnLabels]="columnLabels"
   dataType="agents-status"
   [dataSource]="dataSource"
@@ -9,7 +9,6 @@
   [isFilterable]="isFilterable"
   [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
-  (editableSaved)="editableSaved($event)"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

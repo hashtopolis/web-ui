@@ -18,7 +18,7 @@ export class AgentsStatusDataSource extends BaseDataSource<Agent> {
     const agentParams = {
       maxResults: this.pageSize,
       startAt: startAt,
-      expand: 'accessGroups'
+      expand: 'accessGroups,agentstats'
     };
 
     const params = { maxResults: this.maxResults };
@@ -42,6 +42,7 @@ export class AgentsStatusDataSource extends BaseDataSource<Agent> {
           ListResponseWrapper<Chunk>
         ]) => {
           const agents: Agent[] = a.values;
+          console.log(a);
           const users: User[] = u.values;
           const assignments: AgentAssignment[] = aa.values;
           const tasks: Task[] = t.values;

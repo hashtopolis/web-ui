@@ -1,8 +1,6 @@
 import {
-  AgentTableEditableAction,
   AgentsStatusTableCol,
-  AgentsTableCol,
-  AgentsTableColumnLabel
+  AgentsStatusTableColumnLabel
 } from './agents-status-table.constants';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
@@ -53,7 +51,7 @@ export class AgentsStatusTableComponent
   }
 
   ngOnInit(): void {
-    this.setColumnLabels(AgentsTableColumnLabel);
+    this.setColumnLabels(AgentsStatusTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsStatusDataSource(
       this.cdr,
@@ -86,8 +84,16 @@ export class AgentsStatusTableComponent
         export: async (agent: Agent) => agent._id + ''
       },
       {
+        id: AgentsStatusTableCol.STATUS,
+        dataKey: 'status',
+        isSortable: true,
+        render: (agent: Agent): SafeHtml => this.renderActiveSpinner(agent),
+        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
+      },
+      {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
+        render: (agent: Agent) => this.renderName(agent),
         routerLink: (agent: Agent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: Agent) => agent.agentName
@@ -95,29 +101,23 @@ export class AgentsStatusTableComponent
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
         dataKey: 'isActive',
-        routerLink: (agent: Agent) => this.renderAgentLink(agent),
-        isSortable: true
-      },
-      {
-        id: AgentsStatusTableCol.STATUS,
-        dataKey: 'status',
         icons: (agent: Agent) => this.renderStatusIcon(agent),
         render: (agent: Agent) => this.renderStatus(agent),
-        isSortable: true,
-        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
+        isSortable: true
       },
       {
         id: AgentsStatusTableCol.WORKING_ON,
         dataKey: 'status',
-        icons: (agent: Agent) => this.renderStatusIcon(agent),
         render: (agent: Agent) => this.renderWorkingOn(agent),
         isSortable: true
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
+        isSortable: true,
         render: (agent: Agent) => agent.taskName,
-        isSortable: true
+        routerLink: (agent: Agent) => this.renderTaskLink(agent),
+        export: async (agent: Agent) => agent.taskName
       },
       {
         id: AgentsStatusTableCol.LAST_ACTIVITY,
@@ -130,14 +130,6 @@ export class AgentsStatusTableComponent
     ];
 
     return tableColumns;
-  }
-
-  editableSaved(editable: HTTableEditable<Agent>): void {
-    switch (editable.action) {
-      case AgentTableEditableAction.CHANGE_BENCHMARK:
-        this.changeBenchmark(editable.data, editable.value);
-        break;
-    }
   }
 
   openDialog(data: DialogData<Agent>) {
@@ -170,7 +162,12 @@ export class AgentsStatusTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['_id', 'agentName', 'isTrusted'])
+  renderActiveSpinner(agent: Agent): SafeHtml {
+    const htmlContent = `<mat-spinner diameter="16"></mat-spinner>`;
+    return this.sanitizer.bypassSecurityTrustHtml(htmlContent);
+  }
+
+  @Cacheable(['_id', 'agentName'])
   renderName(agent: Agent): SafeHtml {
     const agentName =
       agent.agentName?.length > 40
@@ -180,9 +177,7 @@ export class AgentsStatusTableComponent
       ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
       : '';
 
-    return this.sanitize(
-      `<a href="#" data-view-agent-id="${agent._id}">${agentName}</a>${isTrusted}`
-    );
+    return this.sanitize(`<a>${agentName}</a>${isTrusted}`);
   }
 
   @Cacheable(['_id'])
@@ -294,11 +289,11 @@ export class AgentsStatusTableComponent
   @Cacheable(['_id', 'lastTime'])
   renderLastActivity(agent: Agent): SafeHtml {
     const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    //const data = `<code>${agent.lastAct}</code> at<br>${formattedDate}<br>IP:<code>${agent.lastIp}</code>`;
-    const data = `<time datetime="${formatUnixTimestamp(
-      agent.lastTime,
-      'yyyy-MM-ddThh:mm:ss'
-    )}">${formattedDate}</time>`;
+    const action = `Action: ${agent.lastAct}<br>`;
+    const time = `Time: ${formattedDate}<br>`;
+    const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : '';
+
+    const data = `${action}${time}${ip}`;
     return this.sanitize(data);
   }
 
@@ -339,7 +334,7 @@ export class AgentsStatusTableComponent
           'hashtopolis-agents',
           this.tableColumns,
           event.data,
-          AgentsTableColumnLabel
+          AgentsStatusTableColumnLabel
         );
         break;
       case ExportMenuAction.CSV:
@@ -347,7 +342,7 @@ export class AgentsStatusTableComponent
           'hashtopolis-agents',
           this.tableColumns,
           event.data,
-          AgentsTableColumnLabel
+          AgentsStatusTableColumnLabel
         );
         break;
       case ExportMenuAction.COPY:
@@ -355,7 +350,7 @@ export class AgentsStatusTableComponent
           .toClipboard<Agent>(
             this.tableColumns,
             event.data,
-            AgentsTableColumnLabel
+            AgentsStatusTableColumnLabel
           )
           .then(() => {
             this.snackBar.open(
@@ -530,33 +525,5 @@ export class AgentsStatusTableComponent
     await this.chunkDataLock[agentId];
 
     return this.chunkData[agentId];
-  }
-
-  private changeBenchmark(agent: Agent, benchmark: string): void {
-    if (!benchmark || agent.benchmark == benchmark) {
-      this.snackBar.open('Nothing changed!', 'Close');
-      return;
-    }
-
-    const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent._id, {
-      benchmark: benchmark
-    });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.snackBar.open(`Failed to update benchmark!`, 'Close');
-            console.error('Failed to update benchmark:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open(
-            `Changed benchmark to ${benchmark} on Agent #${agent._id}!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
   }
 }

@@ -57,6 +57,7 @@ import { TasksTableComponent } from './tables/tasks-table/tasks-table.component'
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
 import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
+import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
     ExportMenuComponent,
     ColumnSelectionDialogComponent,
     AgentsTableComponent,
+    AgentsStatusTableComponent,
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
@@ -134,6 +136,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
     BulkActionMenuComponent,
     ExportMenuComponent,
     AgentsTableComponent,
+    AgentsStatusTableComponent,
     ChunksTableComponent,
     HashlistsTableComponent,
     HashtypesTableComponent,

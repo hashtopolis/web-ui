@@ -375,6 +375,11 @@
   </div>
 </div>
 <!-- Agent Activity Table -->
+
+<app-table>
+  <agents-status-table></agents-status-table>
+</app-table>
+
 <app-table>
   <app-page-subtitle [subtitle]="'Agents activity'"></app-page-subtitle>
   <table style="width: 100%" class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agentstatus">
