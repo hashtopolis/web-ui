@@ -110,6 +110,15 @@ export class BaseTableComponent {
     ];
   }
 
+  @Cacheable(['supertaskId'])
+  async renderSupertaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: ['/tasks/', obj['_id'], 'edit']
+      }
+    ];
+  }
+
   @Cacheable(['agentId'])
   async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [

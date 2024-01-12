@@ -46,14 +46,17 @@ import { NgModule } from '@angular/core';
 import { NotificationsTableComponent } from './tables/notifications-table/notifications-table.component';
 import { PermissionsTableComponent } from './tables/permissions-table/permissions-table.component';
 import { PreprocessorsTableComponent } from './tables/preprocessors-table/preprocessors-table.component';
+import { PretasksTableComponent } from './tables/pretasks-table/pretasks-table.component';
 import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from './menus/row-action-menu/row-action-menu.component';
 import { SuperHashlistsTableComponent } from './tables/super-hashlists-table/super-hashlists-table.component';
+import { SuperTasksTableComponent } from './tables/supertasks-table/supertasks-table.component';
 import { TableDialogComponent } from './tables/table-dialog/table-dialog.component';
 import { TableTruncateComponent } from './tables/table-truncate/table-truncate.component';
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
+import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 
 @NgModule({
   declarations: [
@@ -78,6 +81,9 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
+    PretasksTableComponent,
+    SuperTasksTableComponent,
+    SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
@@ -135,6 +141,9 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
+    PretasksTableComponent,
+    SuperTasksTableComponent,
+    SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     LogsTableComponent,
