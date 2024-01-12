@@ -4,7 +4,7 @@
   <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
 
-      <input-text title="Name" formControlName="name"></input-text>
+      <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
 
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 

@@ -1,22 +1,24 @@
-<grid-main fxLayout="row wrap">
+<grid-main>
   <app-page-subtitle [subtitle]="'Account Settings'"></app-page-subtitle>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <grid-autocol>
 
-      <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
-      <input-text title="Creation date" formControlName="registeredSince" data-testid="input-registered-since"></input-text>
-      <input-text title="Email" formControlName="email" data-testid="input-email"></input-text>
-      <input-text title="Old Password" placeholder="Enter Old Password" formControlName="oldpassword" inputType="password"  data-testid="input-password"></input-text>
-      <input-text title="New Password" placeholder="Enter New Password" formControlName="newpassword" inputType="password"  data-testid="input-newpassword"></input-text>
-      <app-pass-strenght [passwordToCheck]="form.controls['newpassword'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
-      <input-text title="Confirm Password" placeholder="Confirm Password" formControlName="confirmpass" inputType="password"  data-testid="input-confirmpass"></input-text>
-      <!-- Todo Erros here -->
-      <!-- <app-pass-match [newPassword]="form.controls['newpassword'].value" [confirmPassword]="form.controls['confirmpass'].value" ></app-pass-match> -->
+      <div fxLayout="column">
+        <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
+        <input-text title="Creation date" formControlName="registeredSince" data-testid="input-registered-since"></input-text>
+        <input-text title="Email" formControlName="email" data-testid="input-email"></input-text>
+        <input-text title="Old Password" placeholder="Enter Old Password" formControlName="oldpassword" inputType="password"  data-testid="input-password" [isRequired]="true"></input-text>
+        <input-text title="New Password" placeholder="Enter New Password" formControlName="newpassword" inputType="password"  data-testid="input-newpassword" [isRequired]="true"></input-text>
+        <div class="smaller-pass-strength">
+          <app-pass-strenght [passwordToCheck]="form.controls['newpassword'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
+        </div>
+        <input-text title="Confirm Password" placeholder="Confirm Password" formControlName="confirmpass" inputType="password"  data-testid="input-confirmpass" [isRequired]="true"></input-text>
+        <!-- Todo Erros here -->
+        <!-- <app-pass-match [newPassword]="form.controls['newpassword'].value" [confirmPassword]="form.controls['confirmpass'].value" ></app-pass-match> -->
+      </div>
+
       <grid-buttons>
         <button-submit [name]="'Update'" [disabled]="!form.valid" data-testid="button-submit"></button-submit>
       </grid-buttons>
-
-    </grid-autocol>
 
   </form>
 </grid-main>

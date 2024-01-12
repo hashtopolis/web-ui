@@ -22,7 +22,8 @@
     (ngModelChange)="onChange(value)"
     [pattern]="pattern"
     [type]="inputType"
+    [required]="isRequired"
   />
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error *ngIf="error">{{ error }}</mat-error>
+  <mat-error>{{ title }} is required</mat-error>
 </mat-form-field>

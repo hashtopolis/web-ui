@@ -8,18 +8,19 @@
           [isLoading]="isLoading"
           [placeholder]="'Hashlists...'"
           [items]="selectHashlists"
-          [label]="'Select or search Hashlists:'"
+          [label]="'Select or search Hashlists *'"
           [mergeIdAndName]="true"
           [multiselectEnabled]="false"
           formControlName="hashlistId"
           style="flex: 1;"
+          [isRequired]="true"
         ></input-multiselect>
         </div>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-          <input-select title="Binary type" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
-          <input-select title="Binary version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions"></input-select>
+          <input-select title="Binary type" formControlName="crackerBinaryId" [items]="selectCrackertype" [isRequired]="true"></input-select>
+          <input-select title="Binary version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
 
         </div>
 

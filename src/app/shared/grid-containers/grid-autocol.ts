@@ -96,7 +96,7 @@ export class GridAutoColComponent implements OnInit {
    */
   public getStyles() {
     // If the item count is less than 6, return an empty object to disable the component
-    if (this.itemCount < 6) {
+    if (this.itemCount < 8) {
       return {};
     }
 

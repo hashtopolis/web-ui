@@ -4,6 +4,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -45,10 +46,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
-    fieldMapping: {
-      name: 'typeName',
-      _id: 'crackerBinaryTypeId'
-    }
+    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
 
   /**

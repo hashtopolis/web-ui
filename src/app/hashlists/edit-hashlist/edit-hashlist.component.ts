@@ -20,6 +20,7 @@ import {
 } from 'src/app/core/_guards/pendingchanges.guard';
 import { OnDestroy } from '@angular/core';
 import { UnsavedChangesService } from 'src/app/core/_services/shared/unsaved-changes.service';
+import { ACCESS_GROUP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
@@ -138,10 +139,7 @@ export class EditHashlistComponent
    */
   loadData() {
     const fieldAccess = {
-      fieldMapping: {
-        name: 'groupName',
-        _id: '_id'
-      }
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     };
     const accedgroupSubscription$ = this.gs
       .getAll(SERV.ACCESS_GROUPS)

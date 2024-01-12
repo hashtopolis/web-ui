@@ -25,8 +25,8 @@
 }
 
 .files-theme.active {
-  color: #fff;
-  background: #343d49;
+  color: $color-white;
+  background: $color-grey-metal;
 }
 
 .tab-slider--body {
@@ -50,7 +50,7 @@
   border-radius: 35px;
   overflow: hidden;
   background: #f0eaea;
-  height: 35px;
+  height: 34px;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;

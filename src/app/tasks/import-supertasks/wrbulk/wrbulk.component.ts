@@ -16,6 +16,7 @@ import { environment } from './../../../../environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import { Observable, Subject } from 'rxjs';
 
+import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { TooltipService } from '../../../core/_services/shared/tooltip.service';
@@ -56,10 +57,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
-    fieldMapping: {
-      name: 'typeName',
-      _id: 'crackerBinaryTypeId'
-    }
+    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
 
   // TABLES, TO BE REMOVED
