@@ -22,8 +22,10 @@ import { SERV } from '../../core/_services/main.config';
 import { subscribe } from 'diagnostics_channel';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import {transformSelectOptions} from 'src/app/shared/utils/forms';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import {
+  handleEncode,
+  transformSelectOptions
+} from 'src/app/shared/utils/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { WordlisGeneratorComponent } from 'src/app/shared/wordlist-generator/wordlist-generatorcomponent';
 
