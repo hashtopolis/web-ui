@@ -8,6 +8,7 @@ import { FilesAttackTableCol } from '../_components/tables/files-attack-table/fi
 import { FilesTableCol } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableCol } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableCol } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
+import { HealthCheckAgentsTableCol } from '../_components/tables/health-check-agents-table/health-check-agents-table.constants';
 import { HealthChecksTableCol } from '../_components/tables/health-checks-table/health-checks-table.constants';
 import { LogsTableCol } from '../_components/tables/logs-table/logs-table.constants';
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
@@ -147,6 +148,15 @@ export const uiConfigDefault: UIConfig = {
       HealthChecksTableCol.CREATED,
       HealthChecksTableCol.STATUS,
       HealthChecksTableCol.TYPE
+    ],
+    healthCheckAgentsTable: [
+      HealthCheckAgentsTableCol.AGENT_ID,
+      HealthCheckAgentsTableCol.AGENT_NAME,
+      HealthCheckAgentsTableCol.STATUS,
+      HealthCheckAgentsTableCol.START,
+      HealthCheckAgentsTableCol.GPUS,
+      HealthCheckAgentsTableCol.CRACKED,
+      HealthCheckAgentsTableCol.ERRORS
     ],
     pretasksTable: [
       PretasksTableCol.ID,

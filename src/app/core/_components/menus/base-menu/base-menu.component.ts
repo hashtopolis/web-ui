@@ -141,6 +141,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "HealthCheckEdit".
+   * @returns `true` if the data row is a health check; otherwise, `false`.
+   */
+  protected isHealthCheckEdit(): boolean {
+    return this.checkId('healthCheckId') && 'healthCheckAgentId' in this.data;
+  }
+
+  /**
    * Check if the data row is of type "File".
    * @returns `true` if the data row is a file; otherwise, `false`.
    */

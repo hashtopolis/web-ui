@@ -25,6 +25,7 @@ import { HTTableTypeLinkComponent } from './tables/ht-table/type/link/ht-table-t
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
+import { HealthCheckAgentsTableComponent } from './tables/health-check-agents-table/health-check-agents-table.component';
 import { LogsTableComponent } from './tables/logs-table/logs-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -89,6 +90,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
     SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
+    HealthCheckAgentsTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
@@ -151,6 +153,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
     SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
+    HealthCheckAgentsTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
