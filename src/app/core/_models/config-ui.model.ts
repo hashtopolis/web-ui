@@ -5,14 +5,17 @@ import { AgentsTableCol } from '../_components/tables/agents-table/agents-table.
 import { ChunksTableCol } from '../_components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '../_components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '../_components/tables/cracks-table/cracks-table.constants';
+import { FilesAttackTableCol } from '../_components/tables/files-attack-table/files-attack-table.constants';
 import { FilesTableCol } from '../_components/tables/files-table/files-table.constants';
 import { HashlistsTableCol } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableCol } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
+import { HealthCheckAgentsTableCol } from '../_components/tables/health-check-agents-table/health-check-agents-table.constants';
 import { HealthChecksTableCol } from '../_components/tables/health-checks-table/health-checks-table.constants';
 import { LogsTableCol } from '../_components/tables/logs-table/logs-table.constants';
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
 import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
 import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
+import { SearchHashTableCol } from '../_components/tables/search-hash-table/search-hash-table.constants';
 import { PretasksTableCol } from '../_components/tables/pretasks-table/pretasks-table.constants';
 import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '../_components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
@@ -131,6 +134,11 @@ export const uiConfigDefault: UIConfig = {
       FilesTableCol.LINE_COUNT,
       FilesTableCol.ACCESS_GROUP
     ],
+    filesAttackTable: [
+      FilesAttackTableCol.ID,
+      FilesAttackTableCol.NAME,
+      FilesAttackTableCol.SIZE
+    ],
     crackersTable: [
       CrackersTableCol.ID,
       CrackersTableCol.NAME,
@@ -150,6 +158,15 @@ export const uiConfigDefault: UIConfig = {
       HealthChecksTableCol.CREATED,
       HealthChecksTableCol.STATUS,
       HealthChecksTableCol.TYPE
+    ],
+    healthCheckAgentsTable: [
+      HealthCheckAgentsTableCol.AGENT_ID,
+      HealthCheckAgentsTableCol.AGENT_NAME,
+      HealthCheckAgentsTableCol.STATUS,
+      HealthCheckAgentsTableCol.START,
+      HealthCheckAgentsTableCol.GPUS,
+      HealthCheckAgentsTableCol.CRACKED,
+      HealthCheckAgentsTableCol.ERRORS
     ],
     pretasksTable: [
       PretasksTableCol.ID,
@@ -188,6 +205,7 @@ export const uiConfigDefault: UIConfig = {
       TaskTableCol.DISPATCHED_SEARCHED,
       TaskTableCol.CRACKED
     ],
+    searchHashTable: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
     usersTable: [
       UsersTableCol.ID,
       UsersTableCol.NAME,

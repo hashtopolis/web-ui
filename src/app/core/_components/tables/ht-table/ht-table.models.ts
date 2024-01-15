@@ -5,9 +5,11 @@ export type DataType =
   | 'agents'
   | 'agents-status'
   | 'hashlists'
+  | 'search-hash'
   | 'chunks'
   | 'hashtypes'
   | 'files'
+  | 'files-attack'
   | 'crackers'
   | 'preprocessors'
   | 'users'
@@ -15,6 +17,7 @@ export type DataType =
   | 'notifications'
   | 'agent-binaries'
   | 'health-checks'
+  | 'health-check-agents'
   | 'logs'
   | 'permissions'
   | 'cracks'
@@ -41,6 +44,16 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
+}
+
+export interface CheckboxChangeEvent {
+  row: any;
+  columnType: string;
+  checked: boolean;
+}
+
+export interface CheckboxFiles {
+  files?: any[];
 }
 
 export type HTTableColumnType = 'dafeult | link | editable';

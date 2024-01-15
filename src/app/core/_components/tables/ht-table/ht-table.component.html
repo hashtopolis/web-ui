@@ -72,12 +72,19 @@
     <!-- select column -->
     <ng-container *ngIf="isSelectable" matColumnDef="{{ colSelect }}">
       <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox
-          (click)="$event.stopPropagation()"
-          (change)="toggleAll()"
-          [checked]="isAllSelected()"
-          [indeterminate]="indeterminate()"
-        />
+        <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
+        <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
+          <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">Task | Preprocessor</span>
+        </ng-container>
+        <!-- Check if only isCmdTask is true -->
+        <ng-template #checkCmdAttack>
+          <ng-container *ngIf="isCmdTask; else defaultHeader">
+            <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">Task</span>
+          </ng-container>
+        </ng-template>
+        <ng-template #defaultHeader>
+          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()" [checked]="isAllSelected()" [indeterminate]="indeterminate()"/>
+        </ng-template>
       </th>
       <td
         mat-cell
@@ -93,11 +100,30 @@
               : '16px'
         }"
       >
-        <mat-checkbox
-          (click)="$event.stopPropagation()"
-          (change)="toggleSelect(row)"
-          [checked]="isSelected(row)"
-        />
+        <ng-container *ngIf="!isCmdTask; else defaultCell">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="toggleSelect(row)"
+            [checked]="isSelected(row)"
+          />
+        </ng-container>
+        <ng-template #defaultCell>
+          <!-- CMD Task -->
+          <mat-checkbox
+            *ngIf="isCmdTask"
+            (click)="$event.stopPropagation()"
+            (change)="toggleAttack($event, row, 'CMD')"
+            [checked]="isSelected(row)"
+          />
+        </ng-template>
+        <ng-container *ngIf="isCmdPreproAttack">
+          <!-- CMD Preprocessor -->
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="toggleAttack($event, row, 'CMD_PREPRO')"
+            [checked]="isSelected(row)"
+          />
+        </ng-container>
       </td>
     </ng-container>
 

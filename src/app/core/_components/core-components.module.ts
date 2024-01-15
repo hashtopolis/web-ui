@@ -25,6 +25,7 @@ import { HTTableTypeLinkComponent } from './tables/ht-table/type/link/ht-table-t
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
+import { HealthCheckAgentsTableComponent } from './tables/health-check-agents-table/health-check-agents-table.component';
 import { LogsTableComponent } from './tables/logs-table/logs-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -56,6 +57,8 @@ import { TableTruncateComponent } from './tables/table-truncate/table-truncate.c
 import { TasksTableComponent } from './tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from './tables/users-table/users-table.component';
 import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.component';
+import { FilesAttackTableComponent } from './tables/files-attack-table/files-attack-table.component';
+import { SearchHashTableComponent } from './tables/search-hash-table/search-hash-table.component';
 import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
 
@@ -80,6 +83,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     HashtypesTableComponent,
     HashlistsTableComponent,
     SuperHashlistsTableComponent,
+    FilesAttackTableComponent,
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
@@ -88,6 +92,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
+    HealthCheckAgentsTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
@@ -95,6 +100,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     PermissionsTableComponent,
     CracksTableComponent,
     VouchersTableComponent,
+    SearchHashTableComponent,
     TasksTableComponent,
     CracksTableComponent
   ],
@@ -141,6 +147,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     HashlistsTableComponent,
     HashtypesTableComponent,
     SuperHashlistsTableComponent,
+    FilesAttackTableComponent,
     FilesTableComponent,
     CrackersTableComponent,
     PreprocessorsTableComponent,
@@ -149,6 +156,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     SuperTasksPretasksTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
+    HealthCheckAgentsTableComponent,
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
@@ -156,6 +164,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     PermissionsTableComponent,
     CracksTableComponent,
     VouchersTableComponent,
+    SearchHashTableComponent,
     TasksTableComponent,
     CracksTableComponent
   ],

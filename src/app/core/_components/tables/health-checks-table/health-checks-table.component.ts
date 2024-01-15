@@ -241,12 +241,6 @@ export class HealthChecksTableComponent
   }
 
   private rowActionEdit(healthCheck: HealthCheck): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'health-checks',
-      healthCheck._id,
-      'edit'
-    ]);
+    this.router.navigate(['/config/health-checks', healthCheck._id, 'edit']);
   }
 }
