@@ -85,6 +85,11 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   // Tooltips
   tasktip: any = [];
 
+  // Tables File Types
+  fileTypeWordlist: FileType = 0;
+  fileTypeRules: FileType = 1;
+  fileTypeOther: FileType = 2;
+
   /**
    * Constructor for the Component.
    * Initializes and sets up necessary services, properties, and components.
