@@ -4,6 +4,7 @@ import { SafeHtml } from '@angular/platform-browser';
 export type DataType =
   | 'agents'
   | 'hashlists'
+  | 'search-hash'
   | 'chunks'
   | 'hashtypes'
   | 'files'
@@ -19,7 +20,10 @@ export type DataType =
   | 'permissions'
   | 'cracks'
   | 'vouchers'
+  | 'pretasks'
   | 'tasks'
+  | 'supertasks'
+  | 'supertasks-pretasks'
   | 'superhashlists';
 
 export interface HTTableIcon {

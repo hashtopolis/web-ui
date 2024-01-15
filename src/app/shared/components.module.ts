@@ -29,9 +29,11 @@ import { FormsModule } from '@angular/forms';
 import { CoreFormsModule } from './forms.module';
 import { AlertNavModule } from './alert/alert.module';
 import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
+import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generatorcomponent';
 
 @NgModule({
   declarations: [
+    WordlisGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
@@ -57,6 +59,7 @@ import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector
     AlertNavModule,
     ButtonsModule,
     LottiesModule,
+    CommonModule,
     GraphsModule,
     TableModule,
     InputModule,
@@ -64,6 +67,7 @@ import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector
     NgbModule
   ],
   exports: [
+    WordlisGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,

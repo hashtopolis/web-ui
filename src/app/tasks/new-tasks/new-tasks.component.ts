@@ -36,6 +36,7 @@ import {
 } from '../../shared/utils/forms';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
 import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
+import { FileType } from 'src/app/core/_models/file.model';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.

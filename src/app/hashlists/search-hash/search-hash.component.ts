@@ -1,62 +1,76 @@
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from './../../../environments/environment';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../core/_services/main.config';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
 @Component({
   selector: 'app-search-hash',
   templateUrl: './search-hash.component.html'
 })
 @PageTitle(['Search Hash'])
-export class SearchHashComponent implements OnInit {
+export class SearchHashComponent implements OnInit, OnDestroy {
+  /** Form group for Search Hashes. */
+  form: FormGroup;
 
-  faMagnifyingGlass=faMagnifyingGlass;
+  /** Result of the search. */
+  private _searchResults: any[] = [];
 
   constructor(
-    private uiService: UIConfigService,
-    private gs: GlobalService,
-    private router: Router
-  ) { }
-
-  createForm: FormGroup;
-  searh: any;
-
-  private maxResults = environment.config.prodApiMaxResults;
+    private unsubscribeService: UnsubscribeService,
+    private titleService: AutoTitleService,
+    private cdr: ChangeDetectorRef,
+    private gs: GlobalService
+  ) {
+    titleService.set(['Search Hash']);
+  }
 
   ngOnInit(): void {
-
-    this.createForm = new FormGroup({
-      hashes: new FormControl('', [Validators.required]),
-    });
-
+    this.buildForm();
   }
 
-  onSubmit(){
-    if (this.createForm.valid) {
+  /**
+   * Build Form
+   */
+  buildForm() {
+    this.form = new FormGroup({
+      hashes: new FormControl('', [Validators.required])
+    });
+  }
 
-      let hash = this.createForm.value['hashes'].split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
-      const arr = [];
-      for(let i=0; i < hash.length; i++){
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+  }
 
-        this.gs.getAll(SERV.HASHES,{'filter':'hash='+hash[i]+''}).subscribe((res: any) => {
-            if(res.values[0]){
-              arr.push(res.values[0]);
-            }else{
-              arr.push({'hash':hash[i],'isCracked': 3});
-            }
+  get searchResults(): any[] {
+    return this._searchResults;
+  }
+
+  set searchResults(value: any[]) {
+    this._searchResults = value;
+  }
+
+  /**
+   * Search Hash and return results
+   */
+  onSubmit() {
+    if (this.form.valid) {
+      const currentSearchResult = this.form.value['hashes']
+        .split(/(\s+)/)
+        .filter(function (e) {
+          return e.trim().length > 0;
         });
 
-      }
+      this.searchResults = [currentSearchResult];
+      this.cdr.detectChanges();
 
-      this.searh = arr;
-
+      this.form.reset();
     }
   }
-
 }

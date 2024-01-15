@@ -85,25 +85,33 @@
   <div fxFlex="30" fxFlex.lt-md="100">
   <!-- TABLES -->
     <mat-accordion multi>
-      <mat-expansion-panel>
+
+      <mat-expansion-panel #wordlistPanel>
         <mat-expansion-panel-header>
-          <span><b>Wordlists</b></span>
+          <mat-panel-title>
+            <span><b>Wordlists</b></span>
+          </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="0" [cmdPrepro]="isPreprocessor()" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+        <files-table [hasBulkActions]="false" [isSelectable]="false" [fileType]="fileTypeWordlist"></files-table>
       </mat-expansion-panel>
 
-      <mat-expansion-panel>
+      <mat-expansion-panel #rulesPanel>
         <mat-expansion-panel-header>
-          <span><b>Rules</b></span>
+          <mat-panel-title>
+            <span><b>Rules</b></span>
+          </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+        <files-table [hasBulkActions]="false" [fileType]="fileTypeRules"></files-table>
       </mat-expansion-panel>
 
-      <mat-expansion-panel>
+      <mat-expansion-panel #otherPanel>
         <mat-expansion-panel-header>
-          <span><b>Other</b></span>
+          <mat-panel-title>
+            <span><b>Other</b></span>
+          </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="2" [cmdPrepro]="isPreprocessor()" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+        <files-table [hasBulkActions]="false" [fileType]="fileTypeOther"></files-table>
+
       </mat-expansion-panel>
     </mat-accordion>
   </div>

@@ -110,6 +110,14 @@ export abstract class BaseDataSource<
   }
 
   /**
+   * Gets the original unfiltered data for the table.
+   * @returns {T[]} The original unfiltered data.
+   */
+  getOriginalData(): T[] {
+    return this.originalData;
+  }
+
+  /**
    * Connect the data source to a collection viewer.
    *
    * @param _collectionViewer - The collection viewer to connect.
