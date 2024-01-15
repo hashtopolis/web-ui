@@ -2,7 +2,7 @@
   <div fxFlex="70" fxFlex.lt-md="100">
     <grid-main>
       <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
-      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
@@ -24,7 +24,7 @@
           <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
             <mat-icon>help</mat-icon>
           </button>
-          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
+          <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
         </div>
 
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
@@ -74,7 +74,7 @@
               </div>
             </mat-expansion-panel>
           </mat-accordion>
-      <span *ngIf="!createForm.valid && createForm.touched" class="help-block" >Please complete all the form!</span><br>
+      <span *ngIf="!form.valid && form.touched" class="help-block" >Please complete all the form!</span><br>
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'"></button-submit>
@@ -85,6 +85,7 @@
   <div fxFlex="30" fxFlex.lt-md="100">
   <!-- TABLES -->
     <mat-accordion multi>
+
       <mat-expansion-panel #wordlistPanel>
         <mat-expansion-panel-header>
           <mat-panel-title>
@@ -110,6 +111,7 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
         <files-table [hasBulkActions]="false" [fileType]="fileTypeOther"></files-table>
+
       </mat-expansion-panel>
     </mat-accordion>
   </div>

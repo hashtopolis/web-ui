@@ -8,6 +8,7 @@ export type DataType =
   | 'chunks'
   | 'hashtypes'
   | 'files'
+  | 'files-attack'
   | 'crackers'
   | 'preprocessors'
   | 'users'
@@ -41,6 +42,16 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
+}
+
+export interface CheckboxChangeEvent {
+  row: any;
+  columnType: string;
+  checked: boolean;
+}
+
+export interface CheckboxFiles {
+  files?: any[];
 }
 
 export type HTTableColumnType = 'dafeult | link | editable';

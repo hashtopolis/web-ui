@@ -1,13 +1,6 @@
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidatorFn,
-  Validators
-} from '@angular/forms';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { faInfoCircle, faLock } from '@fortawesome/free-solid-svg-icons';
 import { environment } from './../../../environments/environment';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
@@ -18,6 +11,7 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileTypePipe } from 'src/app/core/_pipes/file-type.pipe';
+import { FileType } from 'src/app/core/_models/file.model';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
@@ -30,12 +24,13 @@ import { transformSelectOptions } from 'src/app/shared/utils/forms';
   selector: 'app-new-preconfigured-tasks',
   templateUrl: './new-preconfigured-tasks.component.html'
 })
-export class NewPreconfiguredTasksComponent implements OnInit, AfterViewInit {
+export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
   /** Form group for the Pretask. */
   createForm: FormGroup;
+  cmdPrepro = false;
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
@@ -46,7 +41,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, AfterViewInit {
     fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
 
-  @ViewChild('cmdAttack', { static: true }) cmdAttack: any;
+  // Copy Mode
   copyMode = false;
   editedIndex: number;
   whichView: string;
@@ -55,113 +50,95 @@ export class NewPreconfiguredTasksComponent implements OnInit, AfterViewInit {
   private priority = environment.config.tasks.priority;
   private maxAgents = environment.config.tasks.maxAgents;
 
-  // TABLES
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  public allfiles: any;
-
   constructor(
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private modalService: NgbModal,
-    private fileType: FileTypePipe,
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) {
+    this.onInitialize();
     titleService.set(['New Preconfigured Tasks']);
   }
 
-  ngOnDestroy() {
-    this.dtTrigger.unsubscribe();
-  }
-
-  // New checkbox
-  filesFormArray: Array<any> = [];
-  onChange(
-    fileId: number,
-    fileType: number,
-    fileName: string,
-    $target: EventTarget
-  ) {
-    const isChecked = (<HTMLInputElement>$target).checked;
-    if (isChecked) {
-      if (this.copyMode) {
-        this.filesFormArray = this.createForm.get('files').value;
-      }
-      this.filesFormArray.push(fileId);
-      this.OnChangeAttack(fileName, fileType);
-      this.createForm.patchValue({ files: this.filesFormArray });
-    } else {
-      if (this.copyMode) {
-        this.filesFormArray = this.createForm.get('files').value;
-      }
-      const index = this.filesFormArray.indexOf(fileId);
-      this.filesFormArray.splice(index, 1);
-      this.createForm.patchValue({ files: this.filesFormArray });
-      this.OnChangeAttack(fileName, fileType, true);
-    }
-  }
-
-  onChecked(fileId: number) {
-    return this.createForm.get('files').value.includes(fileId);
-  }
-
-  OnChangeAttack(item: string, fileType: number, onRemove?: boolean) {
-    if (onRemove == true) {
-      const currentCmd = this.createForm.get('attackCmd').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      newCmd = currentCmd.replace(newCmd, '');
-      newCmd = newCmd.replace(/^\s+|\s+$/g, '');
-      this.createForm.patchValue({
-        attackCmd: newCmd
-      });
-    } else {
-      const currentCmd = this.createForm.get('attackCmd').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      this.createForm.patchValue({
-        attackCmd: currentCmd + ' ' + newCmd
-      });
-    }
-  }
-
-  ngOnInit(): void {
+  /**
+   * Initializes the component by extracting and setting the copy ID,
+   */
+  onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedIndex = +params['id'];
-      this.copyMode = params['id'] != null;
+      this.copyMode = params && params['id'] !== null;
     });
+  }
 
+  /**
+   * Initializes the component when it is created.
+   */
+  ngOnInit(): void {
     this.route.data.subscribe((data) => {
-      switch (data['kind']) {
-        case 'new-preconfigured-tasks':
-          this.whichView = 'create';
-          break;
+      // Determine the view type based on the provided data
+      this.whichView = this.determineView(data['kind']);
 
-        case 'copy-preconfigured-tasks':
-          this.whichView = 'edit';
-          this.initForm();
-          break;
-
-        case 'copy-tasks':
-          this.whichView = 'task';
-          this.initFormt();
-          break;
-      }
+      // Initialize the form based on the determined view type
+      this.initializeForm(this.whichView);
     });
 
+    // Build the default form and load additional data
+    this.buildForm();
+    this.loadData();
+  }
+
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+  }
+
+  /**
+   * Determines the view based on the specified kind.
+   * @param {string} kind - The kind of view ('new-preconfigured-tasks', 'copy-preconfigured-tasks', or 'copy-tasks').
+   * @returns {string} The determined view type ('create', 'edit', or 'task').
+   */
+  private determineView(kind: string): string {
+    switch (kind) {
+      case 'new-preconfigured-tasks':
+        return 'create';
+      case 'copy-preconfigured-tasks':
+        return 'edit';
+      case 'copy-tasks':
+        return 'task';
+      default:
+        return 'create';
+    }
+  }
+
+  /**
+   * Initializes the form based on the specified view.
+   * @param {string} view - The view type ('edit' or 'task').
+   * @returns {void}
+   */
+  private initializeForm(view: string): void {
+    switch (view) {
+      case 'edit':
+        this.initForm(true);
+        break;
+      case 'task':
+        this.initForm(false);
+        break;
+    }
+  }
+
+  /**
+   * Builds the form for creating a Pretask.
+   * Initializes the form controls with default or UI settings values.
+   */
+  buildForm() {
     this.createForm = new FormGroup({
       taskName: new FormControl('', [Validators.required]),
       attackCmd: new FormControl(
@@ -184,7 +161,14 @@ export class NewPreconfiguredTasksComponent implements OnInit, AfterViewInit {
       isMaskImport: new FormControl(false),
       files: new FormControl('' || [])
     });
+  }
 
+  /**
+   * Loads data for crackers types.
+   * Fetches all crackers types from the backend, transforms the options,
+   * and assigns them to the selectCrackertype property.
+   */
+  loadData() {
     const loadCrackersSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
       .subscribe((response: any) => {
@@ -195,144 +179,96 @@ export class NewPreconfiguredTasksComponent implements OnInit, AfterViewInit {
         this.selectCrackertype = transformedOptions;
       });
     this.unsubscribeService.add(loadCrackersSubscription$);
+  }
 
-    this.gs
-      .getAll(SERV.FILES, { expand: 'accessGroup' })
-      .subscribe((files: any) => {
-        this.allfiles = files.values;
-        this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-          setTimeout(() => {
-            this.dtTrigger[0].next(null);
-            dtInstance.columns.adjust();
-          });
-        });
-      });
-
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      scrollY: '1000px',
-      scrollCollapse: true,
-      paging: false,
-      // destroy: true,
-      buttons: {
-        dom: {
-          button: {
-            className:
-              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
-          }
-        },
-        buttons: []
-      }
+  /**
+   * Retrieves the form data containing attack command and files.
+   * @returns An object with attack command and files.
+   */
+  getFormData() {
+    return {
+      attackCmd: this.createForm.get('attackCmd').value,
+      files: this.createForm.get('files').value
     };
   }
 
+  /**
+   * Updates the form based on the provided event data.
+   * @param event - The event data containing attack command and files.
+   */
+  onUpdateForm(event: any): void {
+    this.createForm.patchValue({
+      attackCmd: event.attackCmd,
+      files: event.files
+    });
+  }
+
+  /**
+   * Initializes the form based on the copy mode and the type of task.
+   * @param isPretask - Indicates whether the task is a preconfigured task.
+   */
+  private initForm(isPretask: boolean) {
+    if (this.copyMode) {
+      const endpoint = isPretask ? SERV.PRETASKS : SERV.TASKS;
+      const onCopy$ = this.gs
+        .get(endpoint, this.editedIndex, {
+          expand: isPretask ? 'pretaskFiles' : 'files'
+        })
+        .subscribe((result) => {
+          const arrFiles: Array<any> = [];
+          if (result[isPretask ? 'pretaskFiles' : 'files']) {
+            for (
+              let i = 0;
+              i < result[isPretask ? 'pretaskFiles' : 'files'].length;
+              i++
+            ) {
+              arrFiles.push(
+                result[isPretask ? 'pretaskFiles' : 'files'][i]['fileId']
+              );
+            }
+          }
+          this.createForm = new FormGroup({
+            taskName: new FormControl(
+              result['taskName'] +
+                `_(Copied_${
+                  isPretask ? 'pretask_id' : 'pretask_from_task_id'
+                }_${this.editedIndex})`,
+              [Validators.required, Validators.minLength(1)]
+            ),
+            attackCmd: new FormControl(result['attackCmd']),
+            maxAgents: new FormControl(result['maxAgents']),
+            chunkTime: new FormControl(result['chunkTime']),
+            statusTimer: new FormControl(result['statusTimer']),
+            priority: new FormControl(result['priority']),
+            color: new FormControl(result['color']),
+            isCpuTask: new FormControl(result['isCpuTask']),
+            crackerBinaryTypeId: new FormControl(result['crackerBinaryTypeId']),
+            isSmall: new FormControl(result['isSmall']),
+            useNewBench: new FormControl(result['useNewBench']),
+            isMaskImport: new FormControl(false),
+            files: new FormControl(arrFiles)
+          });
+        });
+      this.unsubscribeService.add(onCopy$);
+    }
+  }
+
+  /**
+   * Submits the form data and creates a new PreTask.
+   * If the form is valid, it sends a request to create a new PreTask and
+   * resets the form on success.
+   */
   onSubmit() {
     if (this.createForm.valid) {
-      this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe(() => {
-        this.alert.okAlert('New PreTask created!', '');
-        this.createForm.reset(); // success, we reset form
-        this.router.navigate(['tasks/preconfigured-tasks']);
-      });
-    }
-  }
-
-  public matchFileType: any;
-  active = 0; //Active show first table wordlist
-
-  ngAfterViewInit() {
-    setTimeout(() => {
-      this.active = 1;
-    }, 1000);
-    this.dtTrigger[0].next(null);
-  }
-
-  private initForm() {
-    if (this.copyMode) {
-      this.gs
-        .get(SERV.PRETASKS, this.editedIndex, { expand: 'pretaskFiles' })
-        .subscribe((result) => {
-          const arrFiles: Array<any> = [];
-          if (result['pretaskFiles']) {
-            for (let i = 0; i < result['pretaskFiles'].length; i++) {
-              arrFiles.push(result['pretaskFiles'][i]['fileId']);
-            }
-          }
-          this.createForm = new FormGroup({
-            taskName: new FormControl(
-              result['taskName'] +
-                '_(Copied_pretask_id_' +
-                this.editedIndex +
-                ')',
-              [Validators.required, Validators.minLength(1)]
-            ),
-            attackCmd: new FormControl(result['attackCmd']),
-            maxAgents: new FormControl(result['maxAgents']),
-            chunkTime: new FormControl(result['chunkTime']),
-            statusTimer: new FormControl(result['statusTimer']),
-            priority: new FormControl(result['priority']),
-            color: new FormControl(result['color']),
-            isCpuTask: new FormControl(result['isCpuTask']),
-            crackerBinaryTypeId: new FormControl(result['crackerBinaryTypeId']),
-            isSmall: new FormControl(result['isSmall']),
-            useNewBench: new FormControl(result['useNewBench']),
-            isMaskImport: new FormControl(false),
-            files: new FormControl(arrFiles)
-          });
+      const onSubmitSubscription$ = this.gs
+        .create(SERV.PRETASKS, this.createForm.value)
+        .subscribe(() => {
+          this.alert.okAlert('New PreTask created!', '');
+          this.createForm.reset(); // success, we reset form
+          this.router.navigate(['tasks/preconfigured-tasks']);
         });
+      this.unsubscribeService.add(onSubmitSubscription$);
     }
-  }
-
-  private initFormt() {
-    if (this.copyMode) {
-      this.gs
-        .get(SERV.TASKS, this.editedIndex, { expand: 'files' })
-        .subscribe((result) => {
-          const arrFiles: Array<any> = [];
-          if (result.files) {
-            for (let i = 0; i < result.files.length; i++) {
-              arrFiles.push(result.files[i]['fileId']);
-            }
-          }
-          this.createForm = new FormGroup({
-            taskName: new FormControl(
-              result['taskName'] +
-                '_(Copied_pretask_from_task_id_' +
-                this.editedIndex +
-                ')',
-              [Validators.required, Validators.minLength(1)]
-            ),
-            attackCmd: new FormControl(result['attackCmd']),
-            maxAgents: new FormControl(result['maxAgents']),
-            chunkTime: new FormControl(result['chunkTime']),
-            statusTimer: new FormControl(result['statusTimer']),
-            priority: new FormControl(result['priority']),
-            color: new FormControl(result['color']),
-            isCpuTask: new FormControl(result['isCpuTask']),
-            crackerBinaryTypeId: new FormControl(result['crackerBinaryTypeId']),
-            isSmall: new FormControl(result['isSmall']),
-            useNewBench: new FormControl(result['useNewBench']),
-            isMaskImport: new FormControl(false),
-            files: new FormControl(arrFiles)
-          });
-        });
-    }
-  }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
   }
 
   // Navigation Modals

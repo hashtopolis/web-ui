@@ -39,150 +39,36 @@
           </mat-expansion-panel>
         </mat-accordion>
 
-      <grid-buttons>
-        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
-      </grid-buttons>
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit [name]="'Create'"></button-submit>
+        </grid-buttons>
 
-    </form>
-  </grid-main>
-</div>
-<div fxFlex="40" fxFlex.lt-md="100">
-        <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
-          <ngb-panel id="panel0">
-            <ng-template ngbPanelTitle>
-              <span><b>Wordlists</b></span>
-            </ng-template>
-            <ng-template ngbPanelContent>
-              <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
-                <thead class="thead-light">
-                  <tr>
-                      <th class="rounded-start rounded-end">File Name</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr *ngFor="let f of allfiles | search:'0':'fileType'">
-                      <td class="width: 100px">
-                        <form [formGroup]="createForm" novalidate>
-                          <div class="form-check" >
-                            <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
-                            <label class="form-check-label" for="{{f.filename}}">
-                                {{f.filename | shortenString:35 }}
-                            </label>
-                            <fa-icon *ngIf="f.isSecret === true" aria-hidden="true"></fa-icon>
-                            <fa-icon
-                                    placement="bottom"
-                                    [ngbTooltip]="wordlist"
-                                    container="body"
-                                    aria-hidden="true"
-                            >
-                            faInfoCircle
-                            </fa-icon>
-                            <ng-template #wordlist>
-                              <div class="d-flex flex-column">
-                                <span>Full Name: {{f.filename}}</span>
-                                <span>Line Count: {{f.lineCount}}</span>
-                                <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                              </div>
-                            </ng-template>
-                          </div>
-                        </form>
-                      </td>
-                  </tr>
-                </tbody>
-              </table>
-            </ng-template>
-          </ngb-panel>
-          <ngb-panel>
-            <ng-template ngbPanelTitle>
-              <span><b>Rules</b></span>
-            </ng-template>
-            <ng-template ngbPanelContent>
-              <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" >
-                <thead class="thead-light">
-                  <tr>
-                      <th class="rounded-start rounded-end">File Name</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr *ngFor="let f of allfiles | search:'1':'fileType'">
-                      <td>
-                        <form [formGroup]="createForm" novalidate>
-                          <div class="form-check" >
-                            <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
-                            <label class="form-check-label" for="{{f.filename}}">
-                                {{f.filename | shortenString:35 }}
-                            </label>
-                            <fa-icon *ngIf="f.isSecret === true" aria-hidden="true">faLock</fa-icon>
-                            <fa-icon
-                                    placement="bottom"
-                                    [ngbTooltip]="rules"
-                                    container="body"
-                                    aria-hidden="true"
-                            >
-                            faInfoCircle
-                            </fa-icon>
-                            <ng-template #rules>
-                              <div class="d-flex flex-column">
-                                <span>Full Name: {{f.filename}}</span>
-                                <span>Line Count: {{f.lineCount}}</span>
-                                <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                              </div>
-                            </ng-template>
-                          </div>
-                        </form>
-                      </td>
-                  </tr>
-                </tbody>
-              </table>
-            </ng-template>
-          </ngb-panel>
-          <ngb-panel>
-            <ng-template ngbPanelTitle>
-              <span><b>Other</b></span>
-            </ng-template>
-            <ng-template ngbPanelContent>
-              <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" >
-                <thead class="thead-light">
-                  <tr>
-                      <th class="rounded-start rounded-end">File Name</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-                      <td>
-                        <form [formGroup]="createForm" novalidate>
-                          <div class="form-check" >
-                            <input class="form-check-input" (change)="onChange(f.fileId, f.fileType, f.filename, $event.target )" type="checkbox" [checked]="onChecked(f.fileId)">
-                            <label class="form-check-label" for="{{f.filename}}">
-                                {{f.filename | shortenString:35 }}
-                            </label>
-                            <fa-icon *ngIf="f.isSecret === true" aria-hidden="true">faLock</fa-icon>
-                            <fa-icon
-                                    placement="bottom"
-                                    [ngbTooltip]="other"
-                                    container="body"
-                                    aria-hidden="true"
-                            >
-                            faInfoCircle
-                            </fa-icon>
-                            <ng-template #other>
-                              <div class="d-flex flex-column">
-                                <span>Full Name: {{f.filename}}</span>
-                                <span>Line Count: {{f.lineCount}}</span>
-                                <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                              </div>
-                            </ng-template>
-                          </div>
-                        </form>
-                      </td>
-                  </tr>
-                </tbody>
-              </table>
-            </ng-template>
-          </ngb-panel>
-        </ngb-accordion>
-    </div>
+      </form>
+    </grid-main>
   </div>
+  <div fxFlex="40" fxFlex.lt-md="100">
+    <mat-accordion multi>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <span><b>Wordlists</b></span>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="0" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+      </mat-expansion-panel>
 
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <span><b>Rules</b></span>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="1" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+      </mat-expansion-panel>
 
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <span><b>Other</b></span>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="2" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)"></files-attack-table>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>
