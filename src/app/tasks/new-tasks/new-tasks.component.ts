@@ -43,6 +43,7 @@ import {
 } from '../../shared/utils/forms';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
 import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
+import { FileType } from 'src/app/core/_models/file.model';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -90,6 +91,11 @@ export class NewTasksComponent implements OnInit {
 
   // Tooltips
   tasktip: any = [];
+
+  // Tables File Types
+  fileTypeWordlist: FileType = 0;
+  fileTypeRules: FileType = 1;
+  fileTypeOther: FileType = 2;
 
   // TABLES
   @ViewChild(DataTableDirective)

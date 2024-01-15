@@ -75,6 +75,7 @@
     "sweetalert2": "^11.7.32",
     "tslib": "^2.6.0",
     "tus-js-client": "^3.1.1",
+    "wordpolis": "^0.0.3",
     "zone.js": "~0.13.1"
   },
   "devDependencies": {

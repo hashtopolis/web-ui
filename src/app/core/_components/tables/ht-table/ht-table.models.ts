@@ -19,7 +19,10 @@ export type DataType =
   | 'permissions'
   | 'cracks'
   | 'vouchers'
+  | 'pretasks'
   | 'tasks'
+  | 'supertasks'
+  | 'supertasks-pretasks'
   | 'superhashlists';
 
 export interface HTTableIcon {
