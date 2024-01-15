@@ -1,60 +1,33 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">
-        Agents Status
-          <fa-icon
-                  placement="bottom"
-                  ngbTooltip="Click on the icons to display more information. You can display the information by individual agent or group by location/rack."
-                  container="body"
-                  [icon]="faInfoCircle"
-                  aria-hidden="true"
-          >
-          </fa-icon>
-      </h2>
-      <div *ngIf="view == 1"><h6>Location/Rack View</h6></div>
-      <div *ngIf="view == 0"><h6>Agent View</h6></div>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group ms-2 ms-3">
-      <cm-filter-textbox
-                        class="navbar-right"
-                        (changed)="filterChanged($event)"
-      >
-      </cm-filter-textbox>
+<grid-main>
+  <app-page-subtitle subtitle="Agents Status"></app-page-subtitle>
+  <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutWrap fxLayoutGap="20px" class="py-4">
+    <div class="mb-4 mb-md-0">
+      <div class="btn-group ms-2 ms-3">
+        <button mat-button (click)="setView('0')" *ngIf="view == 1">
+          Agent View
+          <mat-icon class="fagearcust">person</mat-icon>
+        </button>
+        <button mat-button (click)="setView('1')" *ngIf="view == 0">
+          Location/Rack View
+          <mat-icon class="fagearcust">group</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="btn-toolbar">
+      <div class="btn-group ms-2 ms-3">
+        <cm-filter-textbox (changed)="filterChanged($event)"></cm-filter-textbox>
+      </div>
     </div>
   </div>
-</div>
-<!-- View Menu -->
-<div class="btn-toolbar mb-2 mb-md-0">
-  <div class="btn-group ms-2 ms-3">
-      <fa-icon
-              *ngIf="view == 1"
-              placement="bottom"
-              class="fagearcust"
-              [icon]="faUsers"
-              aria-hidden="true"
-              #view
-              (click)="setView('0')"
-      ></fa-icon>
-      <fa-icon
-              *ngIf="view == 0"
-              placement="bottom"
-              class="fagearcust"
-              [icon]="faServer"
-              aria-hidden="true"
-              #view
-              (click)="setView('1')"
-        ></fa-icon>
-  </div>
-</div>
+</grid-main>
 <!-- Agent View -->
 <br>
 <div class="row card-container-ag" *ngIf="view == 0">
     <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
-        <div class="card card-ag overflowAuto">
-            <div class="card-header-ag">
+      <mat-card class="card card-ag overflowAuto">
+            <mat-card-header class="card-header-ag">
               <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | shortenString:15 }} </a>
-            </div>
+            </mat-card-header>
             <div class="card-body">
                 <div class="clearfix">
                     <div class="pull-left card-body-left-ag"></div>
@@ -221,7 +194,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </mat-card>
     </div>
     <div *ngIf="!showagents.length">
         No Records Found
@@ -232,10 +205,10 @@
 
 <div class="row card-container-ag" *ngIf="view == 1">
   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let gname of _filteresAgents | groupBy:'agentName' | sort:'asc':'agentName'">
-      <div class="card card-section">
-          <div class="card-header-ag text-center">
+    <mat-card class="card card-ag overflowAuto">
+          <mat-card-header class="card-header-ag">
             <a>{{ gname.k | shortenString:15 }} </a>
-          </div>
+          </mat-card-header>
           <div class="card-body" *ngFor="let a of gname.value ; let last=last">
             <div class="row">
               <small><b>
@@ -398,10 +371,15 @@
               <hr *ngIf="!last" class="mt-0 mb-0 break">
             </div>
           </div>
-      </div>
+      </mat-card>
   </div>
 </div>
 <!-- Agent Activity Table -->
+
+<app-table>
+  <agents-status-table></agents-status-table>
+</app-table>
+
 <app-table>
   <app-page-subtitle [subtitle]="'Agents activity'"></app-page-subtitle>
   <table style="width: 100%" class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agentstatus">
@@ -459,12 +437,3 @@
       </tbody>
   </table>
 </app-table>
-<!-- Todo Fix Pagination -->
-<!-- <div class="align-items-right py-4">
-  <cm-pagination
-                [totalItems]="totalRecords"
-                [pageSize]="pageSize"
-                (pageChanged)="pageChanged($event)"
-  >
-  </cm-pagination>
-</div> -->

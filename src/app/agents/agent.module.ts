@@ -26,6 +26,7 @@ import { CoreFormsModule } from '../shared/forms.module';
   ],
   imports: [
     CoreComponentsModule,
+    CoreFormsModule,
     FontAwesomeModule,
     ReactiveFormsModule,
     AgentsRoutingModule,

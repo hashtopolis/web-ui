@@ -60,6 +60,7 @@ import { VouchersTableComponent } from './tables/vouchers-table/vouchers-table.c
 import { FilesAttackTableComponent } from './tables/files-attack-table/files-attack-table.component';
 import { SearchHashTableComponent } from './tables/search-hash-table/search-hash-table.component';
 import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
+import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +78,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
     ExportMenuComponent,
     ColumnSelectionDialogComponent,
     AgentsTableComponent,
+    AgentsStatusTableComponent,
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
@@ -140,6 +142,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
     BulkActionMenuComponent,
     ExportMenuComponent,
     AgentsTableComponent,
+    AgentsStatusTableComponent,
     ChunksTableComponent,
     HashlistsTableComponent,
     HashtypesTableComponent,

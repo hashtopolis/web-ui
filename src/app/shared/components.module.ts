@@ -29,12 +29,14 @@ import { FormsModule } from '@angular/forms';
 import { CoreFormsModule } from './forms.module';
 import { AlertNavModule } from './alert/alert.module';
 import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
+import { AgentStatusModalComponent } from '../agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generatorcomponent';
 
 @NgModule({
   declarations: [
     WordlisGeneratorComponent,
     HashtypeDetectorComponent,
+    AgentStatusModalComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
     ActiveSpinnerComponent,
@@ -69,6 +71,7 @@ import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generat
   exports: [
     WordlisGeneratorComponent,
     HashtypeDetectorComponent,
+    AgentStatusModalComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
     ActiveSpinnerComponent,

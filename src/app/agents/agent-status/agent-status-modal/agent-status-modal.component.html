@@ -1,0 +1,10 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ icon }}</mat-icon> {{ title }} -
+  <span [style.color]="color">&#9673;</span> {{ content }}
+</h2>
+<mat-dialog-content>
+  <!-- Your modal body content here -->
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="closeDialog()">Ok</button>
+</mat-dialog-actions>

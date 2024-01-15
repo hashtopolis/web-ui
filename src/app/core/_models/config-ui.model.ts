@@ -1,5 +1,6 @@
 import { AccessGroupsTableCol } from '../_components/tables/access-groups-table/access-groups-table.constants';
 import { AgentBinariesTableCol } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
+import { AgentsStatusTableCol } from '../_components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '../_components/tables/agents-table/agents-table.constants';
 import { ChunksTableCol } from '../_components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '../_components/tables/crackers-table/crackers-table.constants';
@@ -73,6 +74,15 @@ export const uiConfigDefault: UIConfig = {
       AgentsTableCol.CLIENT,
       AgentsTableCol.GPUS_CPUS,
       AgentsTableCol.LAST_ACTIVITY
+    ],
+    agentStatusTable: [
+      AgentsStatusTableCol.ID,
+      AgentsStatusTableCol.STATUS,
+      AgentsStatusTableCol.NAME,
+      AgentsStatusTableCol.AGENT_STATUS,
+      AgentsStatusTableCol.WORKING_ON,
+      AgentsStatusTableCol.ASSIGNED,
+      AgentsStatusTableCol.LAST_ACTIVITY
     ],
     assignedAgentsTable: [
       AgentsTableCol.ID,
