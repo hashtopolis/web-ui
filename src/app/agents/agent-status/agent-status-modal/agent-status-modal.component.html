@@ -1,10 +1,36 @@
 <h2 mat-dialog-title>
   <mat-icon>{{ icon }}</mat-icon> {{ title }} -
-  <span [style.color]="color">&#9673;</span> {{ content }}
+  <span [ngStyle]="{'color':data.result | asColor:+threshold1:+threshold2:statusNumber:data.form.isActive:data.form.lastTime}">&#9673;</span> {{ content }}
 </h2>
+
 <mat-dialog-content>
-  <!-- Your modal body content here -->
+  <ng-container>
+    <div class="row">
+      <p>
+        <span style="color: #009933;">&#9673;</span> {{ statusLabel }} is good (> {{ threshold1 }} {{ unitLabel }})
+      </p>
+      <p>
+        <span style="color: #ff9900;">&#9673;</span> {{ statusLabel }} not ideal (<= {{ threshold2 }} {{ unitLabel }})
+      </p>
+      <p>
+        <span style="color: #800000;">&#9673;</span> {{ statusLabel }} low (<= {{ threshold2 }} {{ unitLabel }})
+      </p>
+      <p>
+        <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
+      </p>
+      <p>
+        <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing device data
+      </p>
+      <p>
+        <span style="color: #FF0000;">&#9673;</span> Invalid {{ statusInvalid }} data from agent or values being 0
+      </p>
+      <p>
+        {{ note }}
+      </p>
+    </div>
+  </ng-container>
 </mat-dialog-content>
+
 <mat-dialog-actions>
-  <button mat-button (click)="closeDialog()">Ok</button>
+  <button mat-button (click)="closeDialog()">Close</button>
 </mat-dialog-actions>
