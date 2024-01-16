@@ -104,6 +104,8 @@ export class HashlistsTableComponent
         id: HashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: true,
+        render: (hashlist: Hashlist) =>
+          hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
         export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
       },
       {
