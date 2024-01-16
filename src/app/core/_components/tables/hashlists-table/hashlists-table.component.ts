@@ -24,7 +24,6 @@ import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatPercentage } from 'src/app/shared/utils/util';
-import { Hashtype } from 'src/app/core/_models/hashtype.model';
 
 @Component({
   selector: 'hashlists-table',
