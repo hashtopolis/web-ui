@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 
+import { AgentStatusModalComponent } from './agent-status/agent-status-modal/agent-status-modal.component';
 import { AgentStatusComponent } from './agent-status/agent-status.component';
 import { ShowAgentsComponent } from './show-agents/show-agents.component';
 import { EditAgentComponent } from './edit-agent/edit-agent.component';
@@ -19,6 +20,7 @@ import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
   declarations: [
+    AgentStatusModalComponent,
     AgentStatusComponent,
     ShowAgentsComponent,
     EditAgentComponent,
