@@ -78,6 +78,14 @@ export class TasksTableComponent
         export: async (wrapper: TaskWrapper) => wrapper._id + ''
       },
       {
+        id: TaskTableCol.TASK_TYPE,
+        dataKey: 'taskType',
+        render: (wrapper: TaskWrapper) =>
+          wrapper.taskType === 0 ? 'Task' : '<b>SuperTask</b>',
+        export: async (wrapper: TaskWrapper) =>
+          wrapper.taskType === 0 ? 'Task' : 'Supertask' + ''
+      },
+      {
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: TaskWrapper) =>
@@ -104,6 +112,17 @@ export class TasksTableComponent
               return '';
           }
         }
+      },
+      {
+        id: TaskTableCol.HASHTYPE,
+        dataKey: 'userId',
+        render: (wrapper: any) => {
+          const firstHashtype = wrapper.hashtypes[0];
+          return firstHashtype
+            ? `${firstHashtype.hashTypeId} - ${firstHashtype.description}`
+            : 'No HashType';
+        },
+        isSortable: false
       },
       {
         id: TaskTableCol.HASHLISTS,

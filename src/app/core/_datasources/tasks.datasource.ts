@@ -5,6 +5,7 @@ import { Hashlist } from 'src/app/hashlists/hashlist.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { TaskWrapper } from '../_models/task-wrapper.model';
+import { Hashtype } from '../_models/hashtype.model';
 
 export class TasksDataSource extends BaseDataSource<
   TaskWrapper,
@@ -40,31 +41,42 @@ export class TasksDataSource extends BaseDataSource<
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, {
       maxResults: this.maxResults
     });
+    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
+      maxResults: this.maxResults
+    });
 
-    forkJoin([wrappers$, hashLists$])
+    forkJoin([wrappers$, hashLists$, hashTypes$])
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
-      .subscribe(([taskWrapperResponse, hashlistResponse]) => {
-        const wrappers: TaskWrapper[] = taskWrapperResponse.values.map(
-          (wrapper: TaskWrapper) => {
-            const matchingHashList = hashlistResponse.values.find(
-              (hashlist: Hashlist) => hashlist._id === wrapper.hashlistId
-            );
-            wrapper.hashlists = [matchingHashList];
-            wrapper.taskName = wrapper.tasks[0].taskName;
-            wrapper.accessGroupName = wrapper.accessGroup?.groupName;
-            return wrapper;
-          }
-        );
-        this.setPaginationConfig(
-          this.pageSize,
-          this.currentPage,
-          taskWrapperResponse.total
-        );
-        this.setData(wrappers);
-      });
+      .subscribe(
+        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]) => {
+          const wrappers: TaskWrapper[] = taskWrapperResponse.values.map(
+            (wrapper: TaskWrapper) => {
+              const matchingHashList = hashlistResponse.values.find(
+                (hashlist: Hashlist) => hashlist._id === wrapper.hashlistId
+              );
+              const matchingHashTypes = hashtypeResponse.values.find(
+                (hashtype: Hashtype) =>
+                  hashtype._id === matchingHashList.hashTypeId
+              );
+              wrapper.hashlists = [matchingHashList];
+              wrapper.hashtypes = [matchingHashTypes];
+              wrapper.taskName = wrapper.tasks[0].taskName;
+              wrapper.accessGroupName = wrapper.accessGroup?.groupName;
+              return wrapper;
+            }
+          );
+          console.log(wrappers);
+          this.setPaginationConfig(
+            this.pageSize,
+            this.currentPage,
+            taskWrapperResponse.total
+          );
+          this.setData(wrappers);
+        }
+      );
   }
 
   reload(): void {

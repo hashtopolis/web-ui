@@ -1,5 +1,6 @@
 import { AccessGroup } from './access-group.model';
 import { Hashlist } from './hashlist.model';
+import { Hashtype } from './hashtype.model';
 import { Task } from './task.model';
 
 export interface TaskWrapper {
@@ -11,6 +12,7 @@ export interface TaskWrapper {
   cracked: number;
   hashlistId: number;
   hashlists?: Hashlist[];
+  hashtypes?: Hashtype[];
   isArchived: boolean;
   maxAgents: number;
   priority: number;

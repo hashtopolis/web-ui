@@ -179,8 +179,10 @@ export const uiConfigDefault: UIConfig = {
     ],
     tasksTable: [
       TaskTableCol.ID,
+      TaskTableCol.TASK_TYPE,
       TaskTableCol.NAME,
       TaskTableCol.STATUS,
+      TaskTableCol.HASHTYPE,
       TaskTableCol.HASHLISTS,
       TaskTableCol.PRIORITY,
       TaskTableCol.AGENTS,

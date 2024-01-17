@@ -1,10 +1,12 @@
 export enum TaskTableCol {
   ID,
+  TASK_TYPE,
   NAME,
   STATUS,
   IS_SMALL,
   IS_CPU_TASK,
   PREPROCESSOR,
+  HASHTYPE,
   HASHLISTS,
   DISPATCHED_SEARCHED,
   CRACKED,
@@ -16,11 +18,13 @@ export enum TaskTableCol {
 
 export const TaskTableColumnLabel = {
   [TaskTableCol.ID]: 'ID',
+  [TaskTableCol.TASK_TYPE]: 'Task type',
   [TaskTableCol.NAME]: 'Name',
   [TaskTableCol.STATUS]: 'Status',
   [TaskTableCol.IS_SMALL]: 'Small Task',
   [TaskTableCol.IS_CPU_TASK]: 'CPU Task',
   [TaskTableCol.PREPROCESSOR]: 'Preprocessor',
+  [TaskTableCol.HASHTYPE]: 'Hashtype',
   [TaskTableCol.HASHLISTS]: 'Hashlists',
   [TaskTableCol.DISPATCHED_SEARCHED]: 'Dispatched/Searched',
   [TaskTableCol.CRACKED]: 'Cracked',

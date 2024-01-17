@@ -605,7 +605,6 @@ export class EditTasksComponent implements OnInit {
 
     const startdate = max.slice(0)[0];
     const enddate = max.slice(-1)[0];
-    console.log(enddate);
     const datelabel = this.transDate(enddate);
     const xAxis = this.generateIntervalsOf(1, +startdate, +enddate);
 
