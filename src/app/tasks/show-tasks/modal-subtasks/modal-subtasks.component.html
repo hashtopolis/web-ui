@@ -1,4 +1,10 @@
-<div class="modal-header">
+<app-table>
+  <app-page-title [title]="supertaskName"></app-page-title>
+  <tasks-supertasks-table [supertaskId]="supertaskId"></tasks-supertasks-table>
+</app-table>
+
+
+<!-- <div class="modal-header">
   <app-page-subtitle [subtitle]="title"></app-page-subtitle>
   <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
 </div>
@@ -65,39 +71,6 @@
                 </td>
               </tr>
             </ng-container>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           </ng-container>
         </tbody>
       </table>
@@ -107,6 +80,6 @@
 <div class="modal-footer">
   <button type="submit" class="btn btn-primary" (click)="onSubmit()">Update</button>
   <button class="btn" style="background-color: rgb(138, 133, 132);" (click)="modal.close('Cancel')">Cancel</button>
-</div>
+</div> -->
 
 

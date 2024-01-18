@@ -61,6 +61,7 @@ import { FilesAttackTableComponent } from './tables/files-attack-table/files-att
 import { SearchHashTableComponent } from './tables/search-hash-table/search-hash-table.component';
 import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
+import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/tasks-supertasks-table.component';
 
 @NgModule({
   declarations: [
@@ -102,6 +103,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksSupertasksTableComponent,
     CracksTableComponent
   ],
   imports: [
@@ -166,6 +168,7 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksSupertasksTableComponent,
     CracksTableComponent
   ],
   providers: [
