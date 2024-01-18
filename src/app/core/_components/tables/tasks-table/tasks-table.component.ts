@@ -28,6 +28,9 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { Task } from 'src/app/core/_models/task.model';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
+import { TasksSupertasksTableComponent } from '../tasks-supertasks-table/tasks-supertasks-table.component';
+import { SuperTask } from 'src/app/core/_models/supertask.model';
+import { ModalSubtasksComponent } from 'src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
   selector: 'tasks-table',
@@ -243,7 +246,7 @@ export class TasksTableComponent
         this.rowActionCopyToPretask(event.data);
         break;
       case RowActionMenuAction.EDIT_SUBTASKS:
-        console.log('edit-subtasks', event.data);
+        this.rowActionEditSubtasks(event.data);
         break;
       case RowActionMenuAction.ARCHIVE:
         this.rowActionArchive(event.data);
@@ -604,6 +607,19 @@ export class TasksTableComponent
       wrapper.tasks[0]._id,
       'copytask'
     ]);
+  }
+
+  private rowActionEditSubtasks(wrapper: TaskWrapper): void {
+    console.log(wrapper);
+    const dialogRef = this.dialog.open(ModalSubtasksComponent, {
+      width: '100%',
+      data: {
+        supertaskId: wrapper._id,
+        supertaskName: wrapper.taskWrapperName
+      }
+    });
+
+    dialogRef.afterClosed().subscribe();
   }
 
   private rowActionArchive(wrapper: TaskWrapper): void {

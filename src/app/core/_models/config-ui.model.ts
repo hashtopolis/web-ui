@@ -22,6 +22,7 @@ import { SupertasksPretasksTableCol } from '../_components/tables/supertasks-pre
 import { SupertasksTableCol } from '../_components/tables/supertasks-table/supertasks-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
+import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -189,6 +190,15 @@ export const uiConfigDefault: UIConfig = {
       TaskTableCol.MAX_AGENTS,
       TaskTableCol.DISPATCHED_SEARCHED,
       TaskTableCol.CRACKED
+    ],
+    tasksSupertasksTable: [
+      TasksSupertasksDataSourceTableCol.ID,
+      TasksSupertasksDataSourceTableCol.NAME,
+      TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
+      TasksSupertasksDataSourceTableCol.CRACKED,
+      TasksSupertasksDataSourceTableCol.AGENTS,
+      TasksSupertasksDataSourceTableCol.PRIORITY,
+      TasksSupertasksDataSourceTableCol.MAX_AGENTS
     ],
     supertasksTable: [
       SupertasksTableCol.ID,
