@@ -51,7 +51,10 @@ export class RowActionMenuComponent
     } else if (this.isPermission()) {
       this.setPermissionMenu();
     } else if (this.isHashtype()) {
-      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE);
+      this.setEditDeleteMenuItems(
+        RowActionMenuLabel.EDIT_HASHTYPE,
+        RowActionMenuLabel.DELETE_HASHTYPE
+      );
     } else if (this.isVoucher()) {
       this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER);
     } else if (this.isUser()) {

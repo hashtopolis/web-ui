@@ -13,6 +13,7 @@ export const RowActionMenuLabel = {
   EDIT_SUPERTASK: 'Edit Supertask',
   EDIT_SUBTASKS: 'Edit Subtasks',
   EDIT_HASHLIST: 'Edit Hashlist',
+  EDIT_HASHTYPE: 'Edit Hashtype',
   EDIT_SUPERHASHLIST: 'Edit Superhashlist',
   EDIT_FILE: 'Edit File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
