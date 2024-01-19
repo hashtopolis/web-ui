@@ -19,22 +19,21 @@ export class TasksSupertasksDataSource extends BaseDataSource<
   loadAll(): void {
     this.loading = true;
 
-    const pretasks$ = this.service.getAll(SERV.TASKS_WRAPPER, {
+    const subtasks$ = this.service.getAll(SERV.TASKS_WRAPPER, {
       maxResults: this.maxResults,
       filter: 'taskWrapperId=' + this._supertTaskId + '',
       expand: 'tasks'
     });
 
     this.subscriptions.push(
-      pretasks$
+      subtasks$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ListResponseWrapper<TaskWrapper>) => {
-          console.log(response);
-          const pretasks: any[] = response.values[0].tasks;
-          this.setData(pretasks);
+          const subtasks: any[] = response.values[0].tasks;
+          this.setData(subtasks);
         })
     );
   }

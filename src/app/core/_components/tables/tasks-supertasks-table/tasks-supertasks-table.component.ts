@@ -96,7 +96,8 @@ export class TasksSupertasksTableComponent
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
-        dataKey: 'agents'
+        dataKey: 'agents',
+        isSortable: true
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,

@@ -64,11 +64,9 @@ export class RowActionMenuComponent
       this.setPretaskMenu();
     } else if (this.isTaskWrapper()) {
       this.setTaskWrapperMenu();
-    }
-    // else if (this.isTaskWrapperModal()) {
-    //   this.setTaskWrapperModalMenu();
-    // }
-    else if (this.isSupertask()) {
+    } else if (this.isTaskWrapperModal()) {
+      this.setTaskWrapperModalMenu();
+    } else if (this.isSupertask()) {
       this.setSupertaskMenu();
     } else if (this.isHashlist()) {
       this.setHashlistMenu();
