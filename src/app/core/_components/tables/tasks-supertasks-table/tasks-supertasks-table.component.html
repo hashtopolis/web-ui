@@ -11,9 +11,9 @@
   [isFilterable]="true"
   [filterFn]="filter"
   [isPageable]="true"
+  (editableSaved)="editableSaved($event)"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
-
 />
-<!-- (editableSaved)="editableSaved($event)" -->
+

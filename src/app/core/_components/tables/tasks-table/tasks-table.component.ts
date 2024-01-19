@@ -235,6 +235,7 @@ export class TasksTableComponent
   }
 
   rowActionClicked(event: ActionMenuEvent<TaskWrapper>): void {
+    console.log('here');
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -339,6 +340,9 @@ export class TasksTableComponent
           switch (result.action) {
             case RowActionMenuAction.DELETE:
               this.rowActionDelete(result.data);
+              break;
+            case BulkActionMenuAction.ARCHIVE:
+              this.bulkActionArchive(result.data, true);
               break;
             case BulkActionMenuAction.DELETE:
               this.bulkActionDelete(result.data);
@@ -564,6 +568,40 @@ export class TasksTableComponent
     this.router.navigate(['tasks', 'show-tasks', task._id, 'edit']);
   }
 
+  /**
+   * @todo Implement error handling.
+   */
+  private bulkActionArchive(wrapper: TaskWrapper[], isArchived: boolean): void {
+    const requests = wrapper.map((w: TaskWrapper) => {
+      return this.gs.update(SERV.TASKS, w.tasks[0]._id, {
+        isArchived: isArchived
+      });
+    });
+
+    const action = isArchived ? 'archived' : 'unarchived';
+
+    this.subscriptions.push(
+      forkJoin(requests)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during archiving:', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(
+            `Successfully ${action} ${results.length} tasks!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  /**
+   * @todo Implement delete, currently we need to update to delete
+   */
+
   private bulkActionDelete(wrapper: TaskWrapper[]): void {
     const requests = wrapper.map((w: TaskWrapper) => {
       return this.gs.delete(SERV.TASKS, w.tasks[0]._id);
@@ -610,7 +648,6 @@ export class TasksTableComponent
   }
 
   private rowActionEditSubtasks(wrapper: TaskWrapper): void {
-    console.log(wrapper);
     const dialogRef = this.dialog.open(ModalSubtasksComponent, {
       width: '100%',
       data: {
@@ -759,7 +796,6 @@ export class TasksTableComponent
 
     // Wait for the lock to be released before returning the data
     await this.chunkDataLock[task._id];
-    console.log(this.chunkData[task._id]);
     return this.chunkData[task._id];
   }
 }
