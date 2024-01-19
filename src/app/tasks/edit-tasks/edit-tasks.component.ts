@@ -77,13 +77,20 @@ export class EditTasksComponent implements OnInit {
   getFiles: any;
 
   ngOnInit() {
+    this.onInitialize();
+    this.buildForm();
+    this.initForm();
+    this.assignChunksInit(this.editedTaskIndex);
+  }
+
+  onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedTaskIndex = +params['id'];
       this.editMode = params['id'] != null;
-      this.initForm();
-      this.assignChunksInit(this.editedTaskIndex);
     });
+  }
 
+  buildForm() {
     this.updateForm = new FormGroup({
       taskId: new FormControl({ value: '', disabled: true }),
       forcePipe: new FormControl({ value: '', disabled: true }),
@@ -105,7 +112,6 @@ export class EditTasksComponent implements OnInit {
         isSmall: new FormControl('')
       })
     });
-
     this.createForm = new FormGroup({
       agentId: new FormControl()
     });
@@ -150,13 +156,15 @@ export class EditTasksComponent implements OnInit {
           this.assingAgentInit();
           // Hashlist Description and Type
           this.hashlistinform = result.hashlist[0];
-          this.gs
-            .getAll(SERV.HASHTYPES, {
-              filter: 'hashTypeId=' + result.hashlist[0]['hashTypeId'] + ''
-            })
-            .subscribe((htypes: any) => {
-              this.hashlistDescrip = htypes.values[0].description;
-            });
+          if (this.hashlistinform) {
+            this.gs
+              .getAll(SERV.HASHTYPES, {
+                filter: 'hashTypeId=' + this.hashlistinform['hashTypeId'] + ''
+              })
+              .subscribe((htypes: any) => {
+                this.hashlistDescrip = htypes.values[0].description;
+              });
+          }
           this.tkeyspace = result['keyspace'];
           this.tusepreprocessor = result['preprocessorId'];
           this.updateForm = new FormGroup({
@@ -437,7 +445,7 @@ export class EditTasksComponent implements OnInit {
     this.gs
       .getAll(SERV.CHUNKS, {
         maxResults: this.chunkresults,
-        filter: 'taskId=' + id + ''
+        filter: 'taskId=' + this.editedTaskIndex + ''
       })
       .subscribe((result: any) => {
         this.timeCalc(result.values);

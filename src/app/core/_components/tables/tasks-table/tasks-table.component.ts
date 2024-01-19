@@ -235,9 +235,8 @@ export class TasksTableComponent
   }
 
   rowActionClicked(event: ActionMenuEvent<TaskWrapper>): void {
-    console.log('here');
     switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
+      case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
@@ -565,7 +564,7 @@ export class TasksTableComponent
   // --- Action functions ---
 
   private rowActionEdit(task: TaskWrapper): void {
-    this.router.navigate(['tasks', 'show-tasks', task._id, 'edit']);
+    this.router.navigate(['tasks', 'show-tasks', task.tasks[0]._id, 'edit']);
   }
 
   /**

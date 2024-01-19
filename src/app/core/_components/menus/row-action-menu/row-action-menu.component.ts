@@ -251,15 +251,20 @@ export class RowActionMenuComponent
    * Sets the context menu items for a task data row.
    */
   private setTaskWrapperMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
-    ]);
+    // this.setActionMenuItems(0, [
+    //   this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
+    // ]);
 
-    this.setActionMenuItems(1, [
+    this.setActionMenuItems(0, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)
     ]);
 
     if (this.data.taskType === 0) {
+      this.addActionMenuItem(0, {
+        label: RowActionMenuLabel.EDIT_TASK,
+        action: RowActionMenuAction.EDIT_TASKS,
+        icon: RowActionMenuIcon.EDIT
+      });
       this.addActionMenuItem(0, {
         label: RowActionMenuLabel.COPY_TO_TASK,
         action: RowActionMenuAction.COPY_TO_TASK,
