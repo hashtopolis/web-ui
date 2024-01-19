@@ -55,6 +55,7 @@ export const RowActionMenuAction = {
   APPLY_TO_HASHLIST: 'apply-to-hashlist',
   COPY_TO_TASK: 'copy-to-task',
   COPY_TO_PRETASK: 'copy-to-pretask',
+  EDIT_TASKS: 'edit-tasks',
   EDIT_SUBTASKS: 'edit-subtasks',
   NEW: 'new',
   IMPORT: 'import',

@@ -28,6 +28,7 @@ import { TasksSupertasksDataSource } from 'src/app/core/_datasources/tasks-super
 import { SuperTask } from 'src/app/core/_models/supertask.model';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { ChunkData } from 'src/app/core/_models/chunk.model';
+import { Task } from 'src/app/core/_models/task.model';
 
 @Component({
   selector: 'tasks-supertasks-table',
@@ -41,6 +42,8 @@ export class TasksSupertasksTableComponent
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksSupertasksDataSource;
+  chunkData: { [key: number]: ChunkData } = {};
+  private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
     this.setColumnLabels(TasksSupertasksDataSourceTableColumnLabel);
@@ -85,7 +88,7 @@ export class TasksSupertasksTableComponent
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'clientSignature',
-        // async: (wrapper: TaskWrapper) => this.renderDispatchedSearched(wrapper),
+        async: (task: Task) => this.renderDispatchedSearched(task),
         isSortable: true
       },
       {
@@ -96,7 +99,10 @@ export class TasksSupertasksTableComponent
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
-        dataKey: 'agents'
+        dataKey: 'agents',
+        async: (task: Task) => this.renderAgents(task),
+        isSortable: true,
+        export: async (task: Task) => (await this.getNumAgents(task)) + ''
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,
@@ -305,25 +311,33 @@ export class TasksSupertasksTableComponent
     );
   }
 
-  // async getDispatchedSearchedString(wrapper: TaskWrapper): Promise<string> {
-  //   if (wrapper.taskType === 0) {
-  //     const task: Task = wrapper.tasks[0];
-  //     if (task.keyspace > 0) {
-  //       const cd: ChunkData = await this.getChunkData(wrapper);
-  //       const disp = (cd.dispatched * 100).toFixed(2);
-  //       const sear = (cd.searched * 100).toFixed(2);
+  async getDispatchedSearchedString(task: Task): Promise<string> {
+    if (task.keyspace > 0) {
+      const cd: ChunkData = await this.getChunkData(task);
+      const disp = (cd.dispatched * 100).toFixed(2);
+      const sear = (cd.searched * 100).toFixed(2);
 
-  //       return `${disp}% / ${sear}%`;
-  //     }
-  //   }
-  //   return '';
-  // }
+      return `${disp}% / ${sear}%`;
+    }
+    return '';
+  }
 
-  // @Cacheable(['_id', 'taskType', 'tasks'])
-  // async renderDispatchedSearched(wrapper: TaskWrapper): Promise<SafeHtml> {
-  //   const html = await this.getDispatchedSearchedString(wrapper);
-  //   return this.sanitize(html);
-  // }
+  async getNumAgents(task: Task): Promise<number> {
+    const cd: ChunkData = await this.getChunkData(task);
+    return cd.agents.length;
+  }
+
+  @Cacheable(['_id', 'taskType', 'tasks'])
+  async renderAgents(task: Task): Promise<SafeHtml> {
+    const numAgents = await this.getNumAgents(task);
+    return this.sanitize(`${numAgents}`);
+  }
+
+  @Cacheable(['_id', 'taskType', 'tasks'])
+  async renderDispatchedSearched(task: Task): Promise<SafeHtml> {
+    const html = await this.getDispatchedSearchedString(task);
+    return this.sanitize(html);
+  }
 
   /**
    * @todo Implement error handling.
@@ -464,5 +478,28 @@ export class TasksSupertasksTableComponent
           this.reload();
         })
     );
+  }
+
+  private async getChunkData(task: Task): Promise<ChunkData> {
+    if (!this.chunkDataLock[task._id]) {
+      // If there is no lock, create a new one
+      this.chunkDataLock[task._id] = (async () => {
+        if (!(task._id in this.chunkData)) {
+          // Inside the lock, await the asynchronous operation
+          this.chunkData[task._id] = await this.dataSource.getChunkData(
+            task._id,
+            false,
+            task.keyspace
+          );
+        }
+
+        // Release the lock when the operation is complete
+        delete this.chunkDataLock[task._id];
+      })();
+    }
+
+    // Wait for the lock to be released before returning the data
+    await this.chunkDataLock[task._id];
+    return this.chunkData[task._id];
   }
 }
