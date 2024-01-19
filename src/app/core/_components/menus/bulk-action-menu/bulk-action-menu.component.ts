@@ -64,6 +64,11 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_TASKS,
         BulkActionMenuLabel.ARCHIVE_TASKS
       );
+    } else if (this.dataType === 'tasks-supertasks') {
+      this.setArchiveDeleteMenu(
+        BulkActionMenuLabel.DELETE_TASKS,
+        BulkActionMenuLabel.ARCHIVE_TASKS
+      );
     } else if (this.dataType === 'supertasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERTASKS);
     } else if (this.dataType === 'access-groups') {

@@ -68,7 +68,6 @@ export class TasksDataSource extends BaseDataSource<
               return wrapper;
             }
           );
-          console.log(wrappers);
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,

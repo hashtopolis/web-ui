@@ -4,10 +4,10 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
-import { SuperTask } from '../_models/supertask.model';
+import { TaskWrapper } from '../_models/task-wrapper.model';
 
 export class TasksSupertasksDataSource extends BaseDataSource<
-  Task,
+  TaskWrapper,
   MatTableDataSourcePaginator
 > {
   private _supertTaskId = 0;
@@ -19,10 +19,10 @@ export class TasksSupertasksDataSource extends BaseDataSource<
   loadAll(): void {
     this.loading = true;
 
-    const pretasks$ = this.service.getAll(SERV.TASKS, {
+    const pretasks$ = this.service.getAll(SERV.TASKS_WRAPPER, {
       maxResults: this.maxResults,
       filter: 'taskWrapperId=' + this._supertTaskId + '',
-      expand: 'assignedAgents'
+      expand: 'tasks'
     });
 
     this.subscriptions.push(
@@ -31,14 +31,15 @@ export class TasksSupertasksDataSource extends BaseDataSource<
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Task>) => {
-          const pretasks: Task[] = response.values;
+        .subscribe((response: ListResponseWrapper<TaskWrapper>) => {
+          console.log(response);
+          const pretasks: any[] = response.values[0].tasks;
           this.setData(pretasks);
         })
     );
   }
 
-  getData(): Task[] {
+  getData(): TaskWrapper[] {
     return this.getOriginalData();
   }
 

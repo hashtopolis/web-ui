@@ -64,7 +64,11 @@ export class RowActionMenuComponent
       this.setPretaskMenu();
     } else if (this.isTaskWrapper()) {
       this.setTaskWrapperMenu();
-    } else if (this.isSupertask()) {
+    }
+    // else if (this.isTaskWrapperModal()) {
+    //   this.setTaskWrapperModalMenu();
+    // }
+    else if (this.isSupertask()) {
       this.setSupertaskMenu();
     } else if (this.isHashlist()) {
       this.setHashlistMenu();
@@ -287,6 +291,32 @@ export class RowActionMenuComponent
         this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
       );
     }
+  }
+
+  /**
+   * Sets the context menu items for a task data row.
+   */
+  private setTaskWrapperModalMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)
+    ]);
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.COPY_TO_TASK,
+      action: RowActionMenuAction.COPY_TO_TASK,
+      icon: RowActionMenuIcon.COPY
+    });
+    this.addActionMenuItem(0, {
+      label: RowActionMenuLabel.COPY_TO_PRETASK,
+      action: RowActionMenuAction.COPY_TO_PRETASK,
+      icon: RowActionMenuIcon.COPY
+    });
+    this.addActionMenuItem(
+      0,
+      this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
+    );
   }
 
   /**

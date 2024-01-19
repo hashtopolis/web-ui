@@ -27,6 +27,7 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { TasksSupertasksDataSource } from 'src/app/core/_datasources/tasks-supertasks.datasource';
 import { SuperTask } from 'src/app/core/_models/supertask.model';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
+import { ChunkData } from 'src/app/core/_models/chunk.model';
 
 @Component({
   selector: 'tasks-supertasks-table',
@@ -62,7 +63,7 @@ export class TasksSupertasksTableComponent
     }
   }
 
-  filter(item: Pretask, filterValue: string): boolean {
+  filter(item: TaskWrapper, filterValue: string): boolean {
     return item.taskName.toLowerCase().includes(filterValue);
   }
 
@@ -70,51 +71,66 @@ export class TasksSupertasksTableComponent
     const tableColumns = [
       {
         id: TasksSupertasksDataSourceTableCol.ID,
-        dataKey: 'pretaskId',
-        routerLink: (pretask: Pretask) => this.renderPretaskLink(pretask),
+        dataKey: '_id',
         isSortable: true,
-        export: async (pretask: Pretask) => pretask._id + ''
+        export: async (wrapper: TaskWrapper) => wrapper._id + ''
       },
       {
         id: TasksSupertasksDataSourceTableCol.NAME,
         dataKey: 'taskName',
+        routerLink: (wrapper: TaskWrapper) => this.renderTaskLink(wrapper),
         isSortable: true,
-        render: (pretask: Pretask) => pretask.taskName,
-        export: async (pretask: Pretask) => pretask.taskName + ''
+        export: async (wrapper: TaskWrapper) => wrapper.taskName + ''
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
+        dataKey: 'clientSignature',
+        // async: (wrapper: TaskWrapper) => this.renderDispatchedSearched(wrapper),
+        isSortable: true
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.CRACKED,
+        dataKey: 'cracked',
+        routerLink: (wrapper: TaskWrapper) => this.renderCrackedLink(wrapper),
+        isSortable: true
+      },
+      {
+        id: TasksSupertasksDataSourceTableCol.AGENTS,
+        dataKey: 'agents'
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,
         dataKey: 'priority',
-        editable: (pretask: Pretask) => {
+        editable: (task: TaskWrapper) => {
           return {
-            data: pretask,
-            value: pretask.priority + '',
+            data: task,
+            value: task.priority + '',
             action: TasksSupertasksDataSourceTableEditableAction.CHANGE_PRIORITY
           };
         },
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.priority + ''
+        export: async (task: TaskWrapper) => task.priority + ''
       },
       {
         id: TasksSupertasksDataSourceTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
-        editable: (pretask: Pretask) => {
+        editable: (task: TaskWrapper) => {
           return {
-            data: pretask,
-            value: pretask.maxAgents + '',
+            data: task,
+            value: task.maxAgents + '',
             action:
               TasksSupertasksDataSourceTableEditableAction.CHANGE_MAX_AGENTS
           };
         },
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.maxAgents + ''
+        export: async (task: TaskWrapper) => task.maxAgents + ''
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Pretask>) {
+  openDialog(data: DialogData<TaskWrapper>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -125,10 +141,13 @@ export class TasksSupertasksTableComponent
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
-              // this.rowActionDelete(result.data);
+              this.rowActionDelete(result.data);
+              break;
+            case BulkActionMenuAction.ARCHIVE:
+              this.bulkActionArchive(result.data, true);
               break;
             case BulkActionMenuAction.DELETE:
-              // this.bulkActionDelete(result.data);
+              this.bulkActionDelete(result.data);
               break;
           }
         }
@@ -138,10 +157,10 @@ export class TasksSupertasksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Pretask[]>): void {
+  exportActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Pretask>(
+        this.exportService.toExcel<TaskWrapper>(
           'hashtopolis-tasks-supertaks',
           this.tableColumns,
           event.data,
@@ -149,7 +168,7 @@ export class TasksSupertasksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Pretask>(
+        this.exportService.toCsv<TaskWrapper>(
           'hashtopolis-tasks-supertaks',
           this.tableColumns,
           event.data,
@@ -158,7 +177,7 @@ export class TasksSupertasksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Pretask>(
+          .toClipboard<TaskWrapper>(
             this.tableColumns,
             event.data,
             TasksSupertasksDataSourceTableColumnLabel
@@ -173,7 +192,7 @@ export class TasksSupertasksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Pretask>): void {
+  rowActionClicked(event: ActionMenuEvent<TaskWrapper>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -186,10 +205,16 @@ export class TasksSupertasksTableComponent
         console.log('Copy to Pretask clicked:', event.data);
         this.rowActionCopyToPretask(event.data);
         break;
+      case RowActionMenuAction.ARCHIVE:
+        this.rowActionArchive(event.data);
+        break;
+      case RowActionMenuAction.UNARCHIVE:
+        this.rowActionUnarchive(event.data);
+        break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting Pretask ${event.data.taskName} ...`,
+          title: `Deleting Tasks ${event.data.taskName} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -199,16 +224,25 @@ export class TasksSupertasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Pretask[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
     switch (event.menuItem.action) {
+      case BulkActionMenuAction.ARCHIVE:
+        this.openDialog({
+          rows: event.data,
+          title: `Archiving ${event.data.length} tasks ...`,
+          icon: 'info',
+          listAttribute: 'taskName',
+          action: event.menuItem.action
+        });
+        break;
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} pretasks ...`,
+          title: `Deleting ${event.data.length} tasks ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above pretasks? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete the above tasks? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'supertaskName',
+          listAttribute: 'taskName',
           action: event.menuItem.action
         });
         break;
@@ -216,90 +250,121 @@ export class TasksSupertasksTableComponent
   }
 
   /**
+   * @todo Implement error handling.
+   */
+  private bulkActionArchive(wrapper: TaskWrapper[], isArchived: boolean): void {
+    const requests = wrapper.map((w: TaskWrapper) => {
+      return this.gs.update(SERV.TASKS, w._id, {
+        isArchived: isArchived
+      });
+    });
+
+    const action = isArchived ? 'archived' : 'unarchived';
+
+    this.subscriptions.push(
+      forkJoin(requests)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during archiving:', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(
+            `Successfully ${action} ${results.length} tasks!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  /**
    * @todo Implement delete, currently we need to update to delete
    */
-  // private bulkActionDelete(pretasks: TaskWrapper[]): void {
-  //   //Get the IDs of pretasks to be deleted
-  //   const pretaskIdsToDelete = pretasks.map((pretask) => pretask._id);
-  //   //Remove the selected pretasks from the list
-  //   const updatedPretasks = this.dataSource
-  //     .getData()
-  //     .filter((pretask) => !pretaskIdsToDelete.includes(pretask._id));
-  //   //Update the supertask with the modified list of pretasks
-  //   const payload = { pretasks: updatedPretasks.map((pretask) => pretask._id) };
-  //   //Update the supertask with the new list of pretasks
-  //   const updateRequest = this.gs.update(
-  //     SERV.SUPER_TASKS,
-  //     this.supertaskId,
-  //     payload
-  //   );
-  //   this.subscriptions.push(
-  //     updateRequest
-  //       .pipe(
-  //         catchError((error) => {
-  //           console.error('Error during deletion:', error);
-  //           return [];
-  //         })
-  //       )
-  //       .subscribe(() => {
-  //         this.snackBar.open(
-  //           `Successfully deleted ${pretasks.length} pretasks!`,
-  //           'Close'
-  //         );
-  //         this.reload();
-  //       })
-  //   );
+  private bulkActionDelete(wrapper: TaskWrapper[]): void {
+    const requests = wrapper.map((w: TaskWrapper) => {
+      return this.gs.delete(SERV.TASKS, w._id);
+    });
+
+    this.subscriptions.push(
+      forkJoin(requests)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion:', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(
+            `Successfully deleted ${results.length} tasks!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  // async getDispatchedSearchedString(wrapper: TaskWrapper): Promise<string> {
+  //   if (wrapper.taskType === 0) {
+  //     const task: Task = wrapper.tasks[0];
+  //     if (task.keyspace > 0) {
+  //       const cd: ChunkData = await this.getChunkData(wrapper);
+  //       const disp = (cd.dispatched * 100).toFixed(2);
+  //       const sear = (cd.searched * 100).toFixed(2);
+
+  //       return `${disp}% / ${sear}%`;
+  //     }
+  //   }
+  //   return '';
   // }
 
-  @Cacheable(['pretaskId'])
-  async renderPretaskLink(pretask: Pretask): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/tasks/preconfigured-tasks/', pretask._id, 'edit']
-      }
-    ];
-  }
+  // @Cacheable(['_id', 'taskType', 'tasks'])
+  // async renderDispatchedSearched(wrapper: TaskWrapper): Promise<SafeHtml> {
+  //   const html = await this.getDispatchedSearchedString(wrapper);
+  //   return this.sanitize(html);
+  // }
 
   /**
    * @todo Implement error handling.
    */
-  // private rowActionDelete(pretasks: TaskWrapper[]): void {
-  //   //Get the IDs of pretasks to be deleted
-  //   const pretaskIdsToDelete = pretasks.map((pretask) => pretask._id);
-  //   //Remove the selected pretasks from the list
-  //   const updatedPretasks = this.dataSource
-  //     .getData()
-  //     .filter((pretask) => !pretaskIdsToDelete.includes(pretask._id));
-  //   //Update the supertask with the modified list of pretasks
-  //   const payload = { pretasks: updatedPretasks.map((pretask) => pretask._id) };
-  //   this.subscriptions.push(
-  //     this.gs
-  //       .update(SERV.SUPER_TASKS, this.supertaskId, payload)
-  //       .pipe(
-  //         catchError((error) => {
-  //           console.error('Error during deletion:', error);
-  //           return [];
-  //         })
-  //       )
-  //       .subscribe(() => {
-  //         this.snackBar.open('Successfully deleted pretasks!', 'Close');
-  //         this.reload();
-  //       })
-  //   );
-  // }
+  private rowActionDelete(tasks: TaskWrapper[]): void {
+    //Get the IDs of tasks to be deleted
+    const tasksIdsToDelete = tasks.map((tasks) => tasks._id);
+    //Remove the selected tasks from the list
+    const updatedTasks = this.dataSource
+      .getData()
+      .filter((tasks) => !tasksIdsToDelete.includes(tasks._id));
+    //Update the supertask with the modified list of tasks
+    const payload = { tasks: updatedTasks.map((tasks) => tasks._id) };
+    this.subscriptions.push(
+      this.gs
+        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open('Successfully deleted tasks!', 'Close');
+          this.reload();
+        })
+    );
+  }
 
-  // editableSaved(editable: HTTableEditable<Pretask>): void {
-  //   switch (editable.action) {
-  //     case TasksSupertasksDataSourceTableEditableAction.CHANGE_PRIORITY:
-  //       this.changePriority(editable.data, editable.value);
-  //       break;
-  //     case TasksSupertasksDataSourceTableEditableAction.CHANGE_MAX_AGENTS:
-  //       this.changeMaxAgents(editable.data, editable.value);
-  //       break;
-  //   }
-  // }
+  editableSaved(editable: HTTableEditable<TaskWrapper>): void {
+    switch (editable.action) {
+      case TasksSupertasksDataSourceTableEditableAction.CHANGE_PRIORITY:
+        this.changePriority(editable.data, editable.value);
+        break;
+      case TasksSupertasksDataSourceTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
+        break;
+    }
+  }
 
-  private changePriority(pretask: TaskWrapper, priority: string): void {
+  private changePriority(task: TaskWrapper, priority: string): void {
     let val = 0;
     try {
       val = parseInt(priority);
@@ -307,12 +372,12 @@ export class TasksSupertasksTableComponent
       // Do nothing
     }
 
-    if (!val || pretask.priority == val) {
+    if (!val || task.priority == val) {
       this.snackBar.open('Nothing changed!', 'Close');
       return;
     }
 
-    const request$ = this.gs.update(SERV.TASKS, pretask._id, {
+    const request$ = this.gs.update(SERV.TASKS, task._id, {
       priority: val
     });
     this.subscriptions.push(
@@ -326,7 +391,7 @@ export class TasksSupertasksTableComponent
         )
         .subscribe(() => {
           this.snackBar.open(
-            `Changed priority to ${val} on PreTask #${pretask._id}!`,
+            `Changed priority to ${val} on subtask #${task._id}!`,
             'Close'
           );
           this.reload();
@@ -334,7 +399,7 @@ export class TasksSupertasksTableComponent
     );
   }
 
-  private changeMaxAgents(pretask: Pretask, max: string): void {
+  private changeMaxAgents(task: TaskWrapper, max: string): void {
     let val = 0;
     try {
       val = parseInt(max);
@@ -342,12 +407,12 @@ export class TasksSupertasksTableComponent
       // Do nothing
     }
 
-    if (!val || pretask.maxAgents == val) {
+    if (!val || task.maxAgents == val) {
       this.snackBar.open('Nothing changed!', 'Close');
       return;
     }
 
-    const request$ = this.gs.update(SERV.PRETASKS, pretask.pretaskId, {
+    const request$ = this.gs.update(SERV.TASKS, task._id, {
       maxAgents: val
     });
     this.subscriptions.push(
@@ -361,7 +426,7 @@ export class TasksSupertasksTableComponent
         )
         .subscribe(() => {
           this.snackBar.open(
-            `Changed number of max agents to ${val} on PreTask #${pretask._id}!`,
+            `Changed number of max agents to ${val} on subtask #${task._id}!`,
             'Close'
           );
           this.reload();
@@ -369,17 +434,35 @@ export class TasksSupertasksTableComponent
     );
   }
 
-  private rowActionCopyToTask(pretask: Pretask): void {
-    this.router.navigate(['/tasks/new-tasks', pretask._id, 'copypretask']);
+  private rowActionCopyToTask(task: TaskWrapper): void {
+    this.router.navigate(['/tasks/new-tasks', task._id, 'copypretask']);
   }
 
-  private rowActionCopyToPretask(pretask: Pretask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', pretask._id, 'copy']);
+  private rowActionCopyToPretask(task: TaskWrapper): void {
+    this.router.navigate(['/tasks/preconfigured-tasks', task._id, 'copy']);
   }
 
-  private rowActionEdit(pretasks: Pretask): void {
-    this.renderPretaskLink(pretasks).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
+  private rowActionArchive(wrapper: TaskWrapper): void {
+    this.updateIsArchived(wrapper._id, true);
+  }
+
+  private rowActionUnarchive(wrapper: TaskWrapper): void {
+    this.updateIsArchived(wrapper._id, false);
+  }
+
+  private rowActionEdit(task: TaskWrapper): void {
+    this.router.navigate(['tasks', 'show-tasks', task._id, 'edit']);
+  }
+
+  private updateIsArchived(taskId: number, isArchived: boolean): void {
+    const strArchived = isArchived ? 'archived' : 'unarchived';
+    this.subscriptions.push(
+      this.gs
+        .update(SERV.TASKS, taskId, { isArchived: isArchived })
+        .subscribe(() => {
+          this.snackBar.open(`Successfully ${strArchived} task!`, 'Close');
+          this.reload();
+        })
+    );
   }
 }
