@@ -37,31 +37,8 @@
     </grid-main>
   </div>
   <div fxFlex="40" fxFlex.lt-md="100">
-    <!-- Table -->
     <app-table>
-      <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-        <thead class="thead-light">
-          <tr>
-            <th class="rounded-start">ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th class="rounded-end">Size</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let f of files[0].pretaskFiles">
-            <td >{{ f.fileId }}</td>
-            <td>
-              <a [routerLink]="['/files',f.fileId, f.fileType | fileType:true ]">
-                {{ f.filename | shortenString:35 }}
-              </a>
-              <span *ngIf="f.isSecret === true" ><fa-icon aria-hidden="true">Lock Here</fa-icon></span>
-            </td>
-            <td>{{ f.fileType | fileType  }}</td>
-            <td>{{ f.size | fileSize:false }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <files-table [hasBulkActions]="false" [isSelectable]="false" [fileType]="0"></files-table>
     </app-table>
   </div>
 </div>

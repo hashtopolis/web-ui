@@ -77,7 +77,7 @@
 
             <!-- Hashlist and Cracker Information -->
 
-            <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : '' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
+            <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
 
             <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['crackerBinaryId']+'/edit'"></simulate-form-field>
             <ng-template #templatecrackerinfo>
@@ -183,7 +183,7 @@
     <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
     <div id="tspeed" style="height: 310px"></div>
   </app-table>
-  <!-- Dispatched Chunks -->
+<!-- Dispatched Chunks -->
   <app-table>
     <app-page-subtitle
       [subtitle]="'Dispatched chunks - ' + chunktitle + ''"
