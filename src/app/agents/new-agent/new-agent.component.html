@@ -37,7 +37,7 @@
           </button>
         </mat-form-field>
       </form>
-      <vouchers-table #table [isFilterable]="false"></vouchers-table>
+      <vouchers-table #table [hasBulkActions]="false" [isSelectable]="false"></vouchers-table>
       <div class="highlight-box">
         <p>
           <strong>Generate a voucher</strong> to register the agent. Note that
