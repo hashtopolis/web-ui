@@ -15,6 +15,7 @@ import {
 
 import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
 import { ExportService } from 'src/app/core/_services/export/export.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -56,6 +57,7 @@ export class BaseTableComponent {
     protected gs: GlobalService,
     protected cs: ConfigService,
     protected renderer: Renderer2,
+    public clipboard: Clipboard,
     protected router: Router,
     protected settingsService: LocalStorageService<UIConfig>,
     protected sanitizer: DomSanitizer,

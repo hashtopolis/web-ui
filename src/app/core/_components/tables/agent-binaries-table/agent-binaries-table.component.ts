@@ -178,6 +178,9 @@ export class AgentBinariesTableComponent
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
         break;
+      case RowActionMenuAction.COPY_LINK:
+        this.rowActionCopyLink(event.data);
+        break;
       case RowActionMenuAction.DOWNLOAD:
         this.rowActionDownload(event.data);
         break;
@@ -254,6 +257,15 @@ export class AgentBinariesTableComponent
       agentBinary._id,
       'edit'
     ]);
+  }
+
+  private rowActionCopyLink(agentBinary: AgentBinary): void {
+    const link = `${this.agentdownloadURL}${agentBinary._id}`;
+    this.clipboard.copy(link);
+    this.snackBar.open(
+      'The agent binary URL is copied to the clipboard',
+      'Close'
+    );
   }
 
   private rowActionDownload(agentBinary: AgentBinary): void {
