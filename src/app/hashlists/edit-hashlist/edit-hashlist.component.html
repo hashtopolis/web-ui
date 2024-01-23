@@ -14,7 +14,7 @@
 
               <input-text title="Notes" formControlName="notes"></input-text>
               <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
-              <input-check title="isSecret" formControlName="notes" tooltip="Contains secret data"></input-check>
+              <input-check title="is Secret?" formControlName="isSecret" tooltip="Contains secret data"></input-check>
 
             </div>
 
@@ -38,7 +38,6 @@
   </grid-main>
 </div>
 <div class="col-md-5">
-  <!-- Table Cracking Hashlist -->
   <app-table>
     <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
     <tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></tasks-table>

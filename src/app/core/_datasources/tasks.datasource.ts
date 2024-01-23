@@ -34,7 +34,8 @@ export class TasksDataSource extends BaseDataSource<
       maxResults: this.pageSize,
       startAt: startAt,
       expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}` //${additionalFilter}`
+      filter: `isArchived=${this._isArchived}`, //${additionalFilter}`
+      order: 'priority=ASC'
     };
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
@@ -68,6 +69,7 @@ export class TasksDataSource extends BaseDataSource<
               return wrapper;
             }
           );
+
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,

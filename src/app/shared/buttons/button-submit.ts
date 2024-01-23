@@ -29,11 +29,18 @@ import { Location } from '@angular/common';
 @Component({
   selector: 'button-submit',
   template: `
-    <button mat-raised-button class="separation-button" [ngClass]="getCustomClass()" [type]="getTypeAttribute()" [disabled]="disabled" (click)="handleClick()">
+    <button
+      mat-raised-button
+      class="separation-button"
+      [ngClass]="getCustomClass()"
+      [type]="getTypeAttribute()"
+      [disabled]="disabled"
+      (click)="handleClick()"
+    >
       {{ name }}
     </button>
   `,
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.None
 })
 export class ButtonSubmitComponent {
   /**
@@ -51,7 +58,10 @@ export class ButtonSubmitComponent {
    */
   @Input() type: string;
 
-  constructor(private router: Router, private location: Location) {}
+  constructor(
+    private router: Router,
+    private location: Location
+  ) {}
 
   /**
    * Get the custom CSS class based on the button type.
@@ -66,18 +76,18 @@ export class ButtonSubmitComponent {
 
   /**
    * Handle the button click based on its type.
-  */
+   */
   handleClick(): void {
     if (this.type === 'cancel') {
       this.location.back(); // Go back to the previous window
     } else {
-      return
+      return;
     }
   }
 
   /**
    * Get attribute and inject in button.
-  */
+   */
   getTypeAttribute(): string {
     if (this.type === 'cancel' || this.type === 'delete') {
       return 'button';
@@ -85,5 +95,4 @@ export class ButtonSubmitComponent {
       return 'submit';
     }
   }
-
 }

@@ -348,7 +348,7 @@ export class HashlistsTableComponent
    * @todo Implement export action.
    */
   private rowActionExport(hashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', hashlist._id, 'copy']);
+    this.router.navigate(['/hashlists/hashlist', hashlist._id, 'copy']);
   }
 
   /**

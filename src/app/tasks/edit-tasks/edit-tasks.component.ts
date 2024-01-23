@@ -146,6 +146,7 @@ export class EditTasksComponent implements OnInit {
           expand: 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
         })
         .subscribe((result) => {
+          console.log(result);
           this.color = result['color'];
           this.getFiles = result.files;
           this.crackerinfo = result.crackerBinary;
@@ -155,15 +156,32 @@ export class EditTasksComponent implements OnInit {
           // Assigned Agents init
           this.assingAgentInit();
           // Hashlist Description and Type
-          this.hashlistinform = result.hashlist[0];
-          if (this.hashlistinform) {
-            this.gs
-              .getAll(SERV.HASHTYPES, {
-                filter: 'hashTypeId=' + this.hashlistinform['hashTypeId'] + ''
-              })
-              .subscribe((htypes: any) => {
-                this.hashlistDescrip = htypes.values[0].description;
-              });
+          this.hashlistinform = '';
+          if (result.hashlist && result.hashlist.length > 0) {
+            this.hashlistinform = result.hashlist[0];
+            console.log('here');
+
+            if (this.hashlistinform) {
+              this.gs
+                .getAll(SERV.HASHTYPES, {
+                  filter: 'hashTypeId=' + this.hashlistinform['hashTypeId'] + ''
+                })
+                .subscribe(
+                  (htypes: any) => {
+                    this.hashlistDescrip = htypes.values[0].description;
+                  },
+                  (error) => {
+                    console.error(
+                      'Error retrieving hashlist description:',
+                      error
+                    );
+                  }
+                );
+            } else {
+              console.error('hashlistinform is undefined.');
+            }
+          } else {
+            console.error('No hashlist found in the result.');
           }
           this.tkeyspace = result['keyspace'];
           this.tusepreprocessor = result['preprocessorId'];

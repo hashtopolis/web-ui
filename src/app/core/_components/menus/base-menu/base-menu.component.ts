@@ -196,7 +196,7 @@ export class BaseMenuComponent {
   }
 
   protected isHashtype(): boolean {
-    return 'hashTypeId' in this.data;
+    return 'hashTypeId' && 'description' in this.data;
   }
 
   /**

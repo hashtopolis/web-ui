@@ -51,7 +51,10 @@ export class RowActionMenuComponent
     } else if (this.isPermission()) {
       this.setPermissionMenu();
     } else if (this.isHashtype()) {
-      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_HASHTYPE);
+      this.setEditDeleteMenuItems(
+        RowActionMenuLabel.EDIT_HASHTYPE,
+        RowActionMenuLabel.DELETE_HASHTYPE
+      );
     } else if (this.isVoucher()) {
       this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER);
     } else if (this.isUser()) {
@@ -125,7 +128,8 @@ export class RowActionMenuComponent
   private setAgentBinaryMenu(): void {
     this.setActionMenuItems(0, [
       this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENTBINARY),
-      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_AGENT)
+      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_AGENT),
+      this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
     ]);
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)
@@ -368,6 +372,19 @@ export class RowActionMenuComponent
       label: label,
       action: RowActionMenuAction.DOWNLOAD,
       icon: RowActionMenuIcon.DOWNLOAD
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with copy action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with download action.
+   */
+  private getCopyMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.COPY_LINK,
+      icon: RowActionMenuIcon.COPY
     };
   }
 

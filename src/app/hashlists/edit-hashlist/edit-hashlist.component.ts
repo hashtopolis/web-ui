@@ -47,7 +47,6 @@ export class EditHashlistComponent
 
   // Lists of Selected inputs
   selectAccessgroup: any[];
-  alltasks: any; //Change to Interface
 
   // To Remove for use tabes
   @ViewChild(DataTableDirective, { static: false })
@@ -118,7 +117,6 @@ export class EditHashlistComponent
   buildForm(): void {
     this.updateForm = new FormGroup({
       hashlistId: new FormControl({ value: '', disabled: true }),
-      accessGroupId: new FormControl(''),
       hashTypeId: new FormControl({ value: '', disabled: true }),
       useBrain: new FormControl({ value: '', disabled: true }),
       format: new FormControl({ value: '', disabled: true }),
@@ -192,7 +190,6 @@ export class EditHashlistComponent
         expand: 'tasks,hashlists,hashType'
       })
       .subscribe((result) => {
-        this.getTasks();
         this.editedHashlist = result;
         this.type = result['format'];
         this.hashtype = result['hashType'];
@@ -233,64 +230,8 @@ export class EditHashlistComponent
             accessGroupId: new FormControl(result['accessGroupId'])
           })
         });
-
-        this.dtTrigger1.next(null);
       });
     this.unsubscribeService.add(updateSubscription$);
-
-    this.dtOptions1 = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      bStateSave: true,
-      destroy: true,
-      buttons: []
-    };
-  }
-
-  // TABLE SECTION BELOW
-  getTasks(): void {
-    const params = {
-      expand: 'crackerBinary,crackerBinaryType,hashlist',
-      filter: 'isArchived=false'
-    };
-    const taskh = [];
-    this.gs.getAll(SERV.TASKS, params).subscribe((tasks: any) => {
-      for (let i = 0; i < tasks.values.length; i++) {
-        const firtprep = tasks.values[i].hashlist;
-        for (let i = 0; i < firtprep.length; i++) {
-          const match = firtprep[i].hashlistId == this.editedHashlistIndex;
-          if (match === true) {
-            taskh.push(tasks.values[i]);
-          }
-        }
-      }
-      this.alltasks = taskh;
-      this.dtTrigger.next(null);
-    });
-
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      bStateSave: true,
-      destroy: true,
-      buttons: []
-    };
-  }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
   }
 
   canDeactivate(): boolean {

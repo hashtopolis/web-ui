@@ -13,6 +13,7 @@ export const RowActionMenuLabel = {
   EDIT_SUPERTASK: 'Edit Supertask',
   EDIT_SUBTASKS: 'Edit Subtasks',
   EDIT_HASHLIST: 'Edit Hashlist',
+  EDIT_HASHTYPE: 'Edit Hashtype',
   EDIT_SUPERHASHLIST: 'Edit Superhashlist',
   EDIT_FILE: 'Edit File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
@@ -45,12 +46,14 @@ export const RowActionMenuLabel = {
   EXPORT_HASHLIST: 'Export Hashlist',
   NEW_VERSION: 'Add Version',
   DOWNLOAD_AGENT: 'Download Agent Binary',
+  COPY_LINK_BINARY: 'Copy link Agent Binary',
   UNARCHIVE_TASK: 'Unarchive Task'
 };
 
 export const RowActionMenuAction = {
   EDIT: 'edit',
   DELETE: 'delete',
+  COPY_LINK: 'copy-link',
   ARCHIVE: 'archive',
   APPLY_TO_HASHLIST: 'apply-to-hashlist',
   COPY_TO_TASK: 'copy-to-task',
