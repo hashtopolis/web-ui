@@ -480,7 +480,7 @@ export class AgentsStatusTableComponent
    */
   private rowActionDelete(agent: Agent): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent._id).subscribe(() => {
+      this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted agent!', 'Close');
         this.dataSource.reload();
       })

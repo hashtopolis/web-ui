@@ -24,6 +24,7 @@ export type DataType =
   | 'vouchers'
   | 'pretasks'
   | 'tasks'
+  | 'tasks-chunks'
   | 'tasks-supertasks'
   | 'supertasks'
   | 'supertasks-pretasks'

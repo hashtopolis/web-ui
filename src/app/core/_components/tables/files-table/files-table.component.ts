@@ -30,6 +30,8 @@ export class FilesTableComponent
   implements OnInit, OnDestroy
 {
   @Input() fileType: FileType = 0;
+  @Input() editIndex?: number;
+  @Input() editType?: number; //0 Task 1 Pretask
 
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
@@ -43,6 +45,9 @@ export class FilesTableComponent
     this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
+    if (this.editIndex) {
+      this.dataSource.setEditValues(this.editIndex, this.editType);
+    }
     this.dataSource.loadAll();
   }
 
@@ -93,6 +98,8 @@ export class FilesTableComponent
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
+        render: (file: File) =>
+          file.accessGroupName ? file.accessGroupName : file._id,
         export: async (file: File) => file.accessGroupName
       }
     ];

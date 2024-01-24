@@ -543,8 +543,9 @@ export class AgentsTableComponent
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: Agent): void {
+    console.log(agent);
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent._id).subscribe(() => {
+      this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted agent!', 'Close');
         this.dataSource.reload();
       })

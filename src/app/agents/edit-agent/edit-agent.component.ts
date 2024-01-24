@@ -274,9 +274,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         this.dtTrigger.next(void 0);
       });
     });
-
-    // DataTable Options
-    this.tableSettings();
   }
 
   /**
@@ -323,40 +320,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       this.unsubscribeService.add(onDeleteSubscription$);
     }
   }
-
-  // TABLES CODE
-
-  tableSettings() {
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollY: '700px',
-      scrollX: true,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      pageLength: 25,
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-        dom: {
-          button: {
-            className:
-              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
-          }
-        },
-        buttons: [
-          {
-            extend: 'colvis',
-            text: 'Column View',
-            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-          }
-        ]
-      }
-    };
-  }
-
   // //
   //  GRAPHS SECTION
   // //

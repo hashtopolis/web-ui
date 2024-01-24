@@ -503,12 +503,13 @@ export class EditTasksComponent implements OnInit {
         });
       });
   }
-
+  //To Delete
   onRefresh() {
     this.ngOnInit();
     this.rerender(); // rerender datatables
   }
 
+  //To Delete
   rerender(): void {
     this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
       // Destroy the table first
@@ -562,6 +563,7 @@ export class EditTasksComponent implements OnInit {
     });
   }
 
+  //To Delete
   onReset(id: number, state: number) {
     const path = state === 2 ? 'abortChunk' : 'resetChunk';
     const title = state === 2 ? 'Chunk Abort!' : 'Chunk Reset!';

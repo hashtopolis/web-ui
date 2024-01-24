@@ -101,6 +101,14 @@ export class BaseMenuComponent {
   }
 
   /**
+   * Check if the data row is of type "Chunks".
+   * @returns `true` if the data row is a task wrapper; otherwise, `false`.
+   */
+  protected isTaskChunks(): boolean {
+    return this.checkId('chunkId') && 'skip' in this.data;
+  }
+
+  /**
    * Check if the data row is of type "Supertask".
    * @returns `true` if the data row is a supertask; otherwise, `false`.
    */

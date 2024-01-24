@@ -21,6 +21,7 @@ import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-ta
 import { SupertasksPretasksTableCol } from '../_components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '../_components/tables/supertasks-table/supertasks-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
+import { TasksChunksTableCol } from '../_components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 import { VouchersTableCol } from '../_components/tables/vouchers-table/vouchers-table.constants';
@@ -54,7 +55,11 @@ export const uiConfigDefault: UIConfig = {
       NotificationsTableCol.NOTIFICATION,
       NotificationsTableCol.RECEIVER
     ],
-    vouchersTable: [VouchersTableCol.KEY, VouchersTableCol.CREATED],
+    vouchersTable: [
+      VouchersTableCol.ID,
+      VouchersTableCol.KEY,
+      VouchersTableCol.CREATED
+    ],
     permissionsTable: [
       PermissionsTableCol.ID,
       PermissionsTableCol.NAME,
@@ -192,6 +197,16 @@ export const uiConfigDefault: UIConfig = {
       TaskTableCol.MAX_AGENTS,
       TaskTableCol.DISPATCHED_SEARCHED,
       TaskTableCol.CRACKED
+    ],
+    tasksChunksTable: [
+      TasksChunksTableCol.ID,
+      TasksChunksTableCol.PROGRESS,
+      TasksChunksTableCol.AGENT,
+      TasksChunksTableCol.DISPATCH_TIME,
+      TasksChunksTableCol.LAST_ACTIVITY,
+      TasksChunksTableCol.TIME_SPENT,
+      TasksChunksTableCol.STATE,
+      TasksChunksTableCol.CRACKED
     ],
     tasksSupertasksTable: [
       TasksSupertasksDataSourceTableCol.ID,

@@ -55,6 +55,11 @@ export class VouchersTableComponent
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
+        id: VouchersTableCol.ID,
+        dataKey: '_id',
+        isSortable: true
+      },
+      {
         id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,

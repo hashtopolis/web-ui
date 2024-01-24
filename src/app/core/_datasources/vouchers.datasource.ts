@@ -26,6 +26,8 @@ export class VouchersDataSource extends BaseDataSource<Voucher> {
         .subscribe((response: ListResponseWrapper<Voucher>) => {
           const vouchers: Voucher[] = response.values;
 
+          console.log(vouchers);
+
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,

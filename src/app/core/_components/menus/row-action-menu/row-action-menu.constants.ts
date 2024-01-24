@@ -47,7 +47,8 @@ export const RowActionMenuLabel = {
   NEW_VERSION: 'Add Version',
   DOWNLOAD_AGENT: 'Download Agent Binary',
   COPY_LINK_BINARY: 'Copy link Agent Binary',
-  UNARCHIVE_TASK: 'Unarchive Task'
+  UNARCHIVE_TASK: 'Unarchive Task',
+  RESET_CHUNK: 'Reset Task Chunk'
 };
 
 export const RowActionMenuAction = {
@@ -66,7 +67,8 @@ export const RowActionMenuAction = {
   ACTIVATE: 'activate',
   DEACTIVATE: 'deactivate',
   DOWNLOAD: 'download',
-  UNARCHIVE: 'unrachive'
+  UNARCHIVE: 'unrachive',
+  RESET: 'reset'
 };
 
 export const RowActionMenuIcon = {
@@ -80,5 +82,6 @@ export const RowActionMenuIcon = {
   UNARCHIVE: 'unarchive',
   ACTIVATE: 'check_circle',
   DEACTIVATE: 'remove_circle',
-  DOWNLOAD: 'file_download'
+  DOWNLOAD: 'file_download',
+  RESET: 'restore'
 };

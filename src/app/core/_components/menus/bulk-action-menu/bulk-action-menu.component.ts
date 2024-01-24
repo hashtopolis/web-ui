@@ -64,11 +64,13 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_TASKS,
         BulkActionMenuLabel.ARCHIVE_TASKS
       );
-    } else if (this.dataType === 'tasks-supertasks') {
+    } else if (this.dataType === 'tasks-chunks') {
       this.setArchiveDeleteMenu(
         BulkActionMenuLabel.DELETE_TASKS,
         BulkActionMenuLabel.ARCHIVE_TASKS
       );
+    } else if (this.dataType === 'tasks-supertasks') {
+      this.setResetMenu(BulkActionMenuLabel.RESET_CHUNKS);
     } else if (this.dataType === 'supertasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERTASKS);
     } else if (this.dataType === 'access-groups') {
@@ -149,6 +151,14 @@ export class BulkActionMenuComponent
   }
 
   /**
+   * Sets the bulk menu items for a data type with only a reset option.
+   * @param label Reset action label.
+   */
+  private setResetMenu(label: string): void {
+    this.setActionMenuItems(0, [this.getResetMenuItem(label)]);
+  }
+
+  /**
    * Creates an ActionMenuItem with bulk delete action.
    * @param label The label for the menu item.
    * @returns The ActionMenuItem with bulk delete action.
@@ -198,6 +208,20 @@ export class BulkActionMenuComponent
       label: label,
       action: BulkActionMenuAction.DEACTIVATE,
       icon: BulkActionMenuIcon.DEACTIVATE
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with bulk reset action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with bulk reset action.
+   */
+  private getResetMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: BulkActionMenuAction.RESET,
+      icon: BulkActionMenuIcon.RESET,
+      red: true
     };
   }
 
