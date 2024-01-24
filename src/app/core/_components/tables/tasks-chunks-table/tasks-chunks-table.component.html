@@ -1,0 +1,15 @@
+<ht-table
+  #table
+  name="tasksChunksTable"
+  [columnLabels]="columnLabels"
+  dataType="tasks-chunks"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isPageable]="true"
+  [isSelectable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

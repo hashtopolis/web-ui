@@ -69,6 +69,8 @@ export class RowActionMenuComponent
       this.setTaskWrapperMenu();
     } else if (this.isTaskWrapperModal()) {
       this.setTaskWrapperModalMenu();
+    } else if (this.isTaskChunks()) {
+      this.setTaskChunksMenu();
     } else if (this.isSupertask()) {
       this.setSupertaskMenu();
     } else if (this.isHashlist()) {
@@ -327,6 +329,15 @@ export class RowActionMenuComponent
   }
 
   /**
+   * Sets the context menu items for a task chunks data row.
+   */
+  private setTaskChunksMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getResetMenuItem(RowActionMenuLabel.RESET_CHUNK)
+    ]);
+  }
+
+  /**
    * Sets the context menu items for a pretask data row.
    */
   private setSupertaskMenu(): void {
@@ -489,6 +500,19 @@ export class RowActionMenuComponent
       label: label,
       action: RowActionMenuAction.DEACTIVATE,
       icon: RowActionMenuIcon.DEACTIVATE
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with edit action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with edit action.
+   */
+  private getResetMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.RESET,
+      icon: RowActionMenuIcon.RESET
     };
   }
 }

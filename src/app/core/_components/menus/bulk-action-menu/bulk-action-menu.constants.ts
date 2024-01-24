@@ -22,19 +22,22 @@ export const BulkActionMenuLabel = {
   DEACTIVATE_NOTIFICATIONS: 'Deactivate Notification',
   DEACTIVATE_USERS: 'Deactivate Users',
   ARCHIVE_TASKS: 'Archive Tasks',
-  ARCHIVE_HASHLISTS: 'Archive Hashlists'
+  ARCHIVE_HASHLISTS: 'Archive Hashlists',
+  RESET_CHUNKS: 'Reset chunks'
 };
 
 export const BulkActionMenuAction = {
   DELETE: 'bulk-delete',
   ACTIVATE: 'bulk-activate',
   DEACTIVATE: 'bulk-deactivate',
-  ARCHIVE: 'bulk-archive'
+  ARCHIVE: 'bulk-archive',
+  RESET: 'bulk-reset'
 };
 
 export const BulkActionMenuIcon = {
   DELETE: 'delete',
   ARCHIVE: 'archive',
   ACTIVATE: 'check_circle',
-  DEACTIVATE: 'remove_circle'
+  DEACTIVATE: 'remove_circle',
+  RESET: 'restore'
 };

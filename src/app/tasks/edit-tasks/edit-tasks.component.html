@@ -86,31 +86,30 @@
 
       </form>
     </mat-expansion-panel>
-  </mat-accordion>
-<!-- TABLE Attached Files -->
-<!-- <ngb-accordion #acc="ngbAccordion" *ngIf="getFiles.length > 0"> -->
-<mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <span><b>Files</b></span>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-      <files-table [hasBulkActions]="false" [isSelectable]="false" [hasRowAction]="false" [editIndex]="editedTaskIndex" [editType]="0"></files-table>
-  </mat-expansion-panel>
+
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span><b>Files</b></span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+        <files-table [hasBulkActions]="false" [isSelectable]="false" [hasRowAction]="false" [editIndex]="editedTaskIndex" [editType]="0"></files-table>
+    </mat-expansion-panel>
 </mat-accordion>
 <!-- Graph Visual  -->
-<app-table *ngIf="tkeyspace > 0">
-  <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
-  <task-visual
-    [view]="'task'"
-    [tkeyspace]="tkeyspace"
-    [cprogress]="cprogress"
-    [taskid]="editedTaskIndex"
-    [taskWrapperId]="taskWrapperId"
-    [tusepreprocessor]="tusepreprocessor"
-  ></task-visual>
-</app-table>
+<div *ngIf="tkeyspace > 0" class="card shadow">
+  <div class="card-body table-responsive" style="overflow-x: auto;">
+    <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
+    <task-visual
+      [view]="'task'"
+      [tkeyspace]="tkeyspace"
+      [cprogress]="cprogress"
+      [taskid]="editedTaskIndex"
+      [taskWrapperId]="taskWrapperId"
+      [tusepreprocessor]="tusepreprocessor"
+    ></task-visual>
+  </div>
+</div>
 <!-- TABLE Attached Assigned Agents -->
 <app-table *ngIf="editedTaskIndex">
   <app-page-subtitle
@@ -162,84 +161,7 @@
   </app-table>
 <!-- Dispatched Chunks -->
   <app-table>
-    <app-page-subtitle
-      [subtitle]="'Dispatched chunks - ' + chunktitle + ''"
-    ></app-page-subtitle>
-
-    <div class="table-responsive">
-      <table
-        style="width: 100%"
-        class="table table-striped table-hover table-sm"
-        #tasksdispchunks
-        datatable
-        [dtOptions]="dtOptions"
-        [dtTrigger]="dtTrigger"
-        id="tasksdispchunks"
-      >
-        <thead class="thead-light">
-          <tr>
-            <th class="rounded-start">ID</th>
-            <th>Start</th>
-            <th>Length</th>
-            <th>Checkpoint</th>
-            <th>Progress</th>
-            <th>Agent</th>
-            <th>Dispatch time</th>
-            <th>Last activity</th>
-            <th>Time spent</th>
-            <th>State</th>
-            <th>Cracked</th>
-            <th class="rounded-end">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let gc of getchunks">
-            <td>
-              {{ gc.chunkId }}
-              <!-- <app-active-spinner *ngIf="(gc.state | staticArray:'states') === 'Running'"></app-active-spinner> -->
-            </td>
-            <td>{{ gc.skip }}</td>
-            <td>{{ gc.length }}</td>
-            <td>
-              {{ gc.checkpoint }} ({{
-                (gc.checkpoint - gc.skip) / gc.length | percent: '1.2-2'
-              }})
-            </td>
-            <td *ngIf="gc.progress > 0">{{ gc.progress / 100 }} %</td>
-            <td *ngIf="!gc.progress">N/A</td>
-            <td>
-              <a [routerLink]="['/agents/show-agents', gc.agentId, 'edit']">
-                {{ gc.agentName | shortenString: 15 }}</a
-              >
-            </td>
-            <td>{{ gc.dispatchTime | uiDate }}</td>
-            <td *ngIf="gc.solveTime === 0">(No acitivity)</td>
-            <td *ngIf="gc.solveTime > 0">{{ gc.solveTime | uiDate }}</td>
-            <td>{{ gc.solveTime - gc.dispatchTime | sectotime }}</td>
-            <td>
-              <span
-                class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0"
-                style="{{
-                  'background-color:' + (gc.state | staticArray: 'statescolor')
-                }}"
-              >
-                {{ gc.state | staticArray: 'states' }}
-              </span>
-            </td>
-            <td>{{ gc.cracked }}</td>
-            <td>
-              <button
-                class="navbar-toggler btn-outline-gray-600 float-right"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Reset Chunk"
-                (click)="onReset(gc.chunkId, gc.state)"
-              >
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <app-page-subtitle [subtitle]="'Dispatched chunks - ' + chunktitle + ''"></app-page-subtitle>
+    <tasks-chunks-table [taskId]="editedTaskIndex"></tasks-chunks-table>
   </app-table>
 </div>

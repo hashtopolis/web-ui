@@ -62,6 +62,7 @@ import { SearchHashTableComponent } from './tables/search-hash-table/search-hash
 import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
 import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/tasks-supertasks-table.component';
+import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chunks-table.component';
 
 @NgModule({
   declarations: [
@@ -103,6 +104,7 @@ import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/t
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksChunksTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent
   ],
@@ -168,6 +170,7 @@ import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/t
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksChunksTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent
   ],
