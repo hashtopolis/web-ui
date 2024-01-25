@@ -312,6 +312,7 @@ export class EditTasksComponent implements OnInit {
       }
     });
 
+    //TODO. It is repeting code to get the speed
     const params = { maxResults: this.chunkresults };
     this.gs
       .getAll(SERV.CHUNKS, {

@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Injectable } from '@angular/core';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BulkService } from './bulk.service';
 
 @Injectable({
@@ -9,6 +9,7 @@ import { BulkService } from './bulk.service';
 export class AlertService {
   constructor(
     private bulk: BulkService,
+    private snackBar: MatSnackBar
   ) {}
 
   cancelButtonColor = '#8A8584';
@@ -24,18 +25,12 @@ export class AlertService {
    * @param {string} type - Type of warning, default success
    */
 
-  okAlert(title: string, text: string, type: 'success' | 'error' | 'warning' = 'success') {
-    Swal.fire({
-      title,
-      text,
-      icon: type,
-      position: 'top-end',
-      backdrop: false,
-      toast: true,
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true,
-    });
+  okAlert(
+    title: string,
+    text: string,
+    type: 'success' | 'error' | 'warning' = 'success'
+  ) {
+    this.snackBar.open(title, 'Close');
   }
 
   /**
@@ -44,7 +39,7 @@ export class AlertService {
    *
    * @param {string} name - Item name
    * @param {string} title - Additional text
-  */
+   */
 
   deleteConfirmation(name: string, title: string): Promise<boolean> {
     return Swal.fire({
@@ -68,7 +63,7 @@ export class AlertService {
    * @param {string} path - API path call to delete the items on the array
    */
 
-  bulkDeleteAlert(items: any[], text: string, path: string ) {
+  bulkDeleteAlert(items: any[], text: string, path: string) {
     this.bulk.setItems(items); // Items to be deleted
     this.bulk.setPath(path); //Path route
     Swal.fire({
@@ -77,9 +72,10 @@ export class AlertService {
       showCancelButton: false,
       showConfirmButton: false,
       allowEscapeKey: false, //Dont let user escape modal until its finish
-      allowOutsideClick: false,//Dont let user close modal until its finish
+      allowOutsideClick: false, //Dont let user close modal until its finish
       didOpen: () => {
-        const progressBar = Swal.getHtmlContainer().querySelector('.progress-bar');
+        const progressBar =
+          Swal.getHtmlContainer().querySelector('.progress-bar');
         progressBar.style.width = '0%';
 
         this.bulk
@@ -88,12 +84,12 @@ export class AlertService {
           })
           .then((success) => {
             if (success) {
-              this.okAlert(`${items.length} ${text} deleted`,'')
+              this.okAlert(`${items.length} ${text} deleted`, '');
             } else {
               Swal.update({
                 icon: 'error',
                 title: 'Error Deleting Items',
-                showConfirmButton: true,
+                showConfirmButton: true
               });
             }
           })
@@ -102,10 +98,10 @@ export class AlertService {
               icon: 'error',
               title: 'Error Deleting Items',
               text: error.message,
-              showConfirmButton: true,
+              showConfirmButton: true
             });
           });
-      },
+      }
     });
   }
 
@@ -119,47 +115,46 @@ export class AlertService {
    * @param {string} path - API path call to delete the items on the array
    */
 
-    bulkUpdateAlert(items: any[], value: any, text: string, path: string ) {
-      this.bulk.setItems(items); // Items to be deleted
-      this.bulk.setValue(value);
-      this.bulk.setPath(path); //Path route
-      Swal.fire({
-        title: `Updating ${items.length} ${text}`,
-        html: '<div class="progress"><div class="progress-bar"></div></div>',
-        showCancelButton: false,
-        showConfirmButton: false,
-        allowEscapeKey: false, //Dont let user escape modal until its finish
-        allowOutsideClick: false,//Dont let user close modal until its finish
-        didOpen: () => {
-          const progressBar = Swal.getHtmlContainer().querySelector('.progress-bar');
-          progressBar.style.width = '0%';
+  bulkUpdateAlert(items: any[], value: any, text: string, path: string) {
+    this.bulk.setItems(items); // Items to be deleted
+    this.bulk.setValue(value);
+    this.bulk.setPath(path); //Path route
+    Swal.fire({
+      title: `Updating ${items.length} ${text}`,
+      html: '<div class="progress"><div class="progress-bar"></div></div>',
+      showCancelButton: false,
+      showConfirmButton: false,
+      allowEscapeKey: false, //Dont let user escape modal until its finish
+      allowOutsideClick: false, //Dont let user close modal until its finish
+      didOpen: () => {
+        const progressBar =
+          Swal.getHtmlContainer().querySelector('.progress-bar');
+        progressBar.style.width = '0%';
 
-          this.bulk
-            .performBulkUpdate((percentage) => {
-              progressBar.style.width = percentage + '%';
-            })
-            .then((success) => {
-              if (success) {
-                this.okAlert(`${items.length} ${text} updated`,'')
-              } else {
-                Swal.update({
-                  icon: 'error',
-                  title: 'Error Updating Items',
-                  showConfirmButton: true,
-                });
-              }
-            })
-            .catch((error) => {
+        this.bulk
+          .performBulkUpdate((percentage) => {
+            progressBar.style.width = percentage + '%';
+          })
+          .then((success) => {
+            if (success) {
+              this.okAlert(`${items.length} ${text} updated`, '');
+            } else {
               Swal.update({
                 icon: 'error',
                 title: 'Error Updating Items',
-                text: error.message,
-                showConfirmButton: true,
+                showConfirmButton: true
               });
+            }
+          })
+          .catch((error) => {
+            Swal.update({
+              icon: 'error',
+              title: 'Error Updating Items',
+              text: error.message,
+              showConfirmButton: true
             });
-        },
-      });
-    }
-
+          });
+      }
+    });
+  }
 }
-
