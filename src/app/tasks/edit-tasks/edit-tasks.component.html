@@ -110,13 +110,25 @@
     ></task-visual>
   </div>
 </div>
-<!-- TABLE Attached Assigned Agents -->
+<!-- Assigned Agents -->
 <app-table *ngIf="editedTaskIndex">
-  <app-page-subtitle
-    subtitle="Assigned agents"
-    actionTitle="Assign Agents"
-    actionIcon="add"
-    (actionClicked)="assignAgents()"></app-page-subtitle>
+  <app-page-subtitle subtitle="Assigned agents"></app-page-subtitle>
+  <form [formGroup]="createForm">
+    <br /><br />
+    <mat-form-field>
+      <mat-label>Assign Agents</mat-label>
+      <mat-select formControlName="agentId">
+        <mat-option *ngFor="let aval of availAgents" [value]="aval.agentId">
+          {{ aval.agentName }}
+        </mat-option>
+      </mat-select>
+      <mat-hint *ngIf="availAgents.length === 0">No agents available</mat-hint>
+      <mat-hint *ngIf="availAgents.length > 0">{{ availAgents.length }} agent(s) available</mat-hint>
+      <button mat-icon-button matSuffix (click)="assignAgent()" [attr.aria-label]="'Assign new Agent'">
+        <mat-icon>add</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
   <agents-table
     name="assignedAgentsTable"
     [taskId]="editedTaskIndex"
@@ -124,44 +136,19 @@
     [isSelectable]="false"
     [isFilterable]="false"
   ></agents-table>
-
-  <ngb-accordion #acc="ngbAccordion">
-    <ngb-panel>
-      <ng-template ngbPanelTitle>
-        <span><b>Assing</b></span>
-      </ng-template>
-      <ng-template ngbPanelContent>
-        <form [formGroup]="createForm">
-          <grid-form-input>
-            <select
-              type="text"
-              id="agentId"
-              class="form-select"
-              formControlName="agentId"
-            >
-              <option *ngFor="let aval of availAgents" [ngValue]="aval.agentId">
-                {{ aval.agentName }}
-              </option>
-            </select>
-          </grid-form-input>
-          <button-submit
-            (click)="assignAgents()"
-            [name]="'Assign'"
-          ></button-submit>
-        </form>
-      </ng-template>
-    </ngb-panel>
-  </ngb-accordion>
 </app-table>
 <!-- Task speed -->
-<div>
-  <app-table>
-    <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
-    <div id="tspeed" style="height: 310px"></div>
-  </app-table>
+<app-table>
+  <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
+  <div id="tspeed" style="height: 310px"></div>
+</app-table>
 <!-- Dispatched Chunks -->
-  <app-table>
-    <app-page-subtitle [subtitle]="'Dispatched chunks - ' + chunktitle + ''"></app-page-subtitle>
-    <tasks-chunks-table [taskId]="editedTaskIndex"></tasks-chunks-table>
-  </app-table>
-</div>
+<app-table>
+  <app-page-subtitle [subtitle]="'Dispatched chunks - ' + chunktitle + ''"></app-page-subtitle>
+  <mat-slide-toggle (change)="toggleIsAll($event)">
+    Show All
+  </mat-slide-toggle>
+  <br /><br />
+  <tasks-chunks-table [taskId]="editedTaskIndex"></tasks-chunks-table>
+</app-table>
+

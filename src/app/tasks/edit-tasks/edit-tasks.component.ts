@@ -26,6 +26,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 import * as echarts from 'echarts/core';
 
+import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
 import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
@@ -33,13 +34,14 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
   providers: [FileSizePipe]
 })
-@PageTitle(['Edit Task'])
 export class EditTasksComponent implements OnInit {
   editMode = false;
   editedTaskIndex: number;
@@ -47,25 +49,21 @@ export class EditTasksComponent implements OnInit {
   editedTask: any; // Change to Model
 
   constructor(
+    private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
     private alert: AlertService,
     private gs: GlobalService,
     private fs: FileSizePipe,
     private router: Router
-  ) {}
+  ) {
+    this.titleService.set(['Edit Task']);
+  }
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
   color = '';
-
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtTrigger1: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-  dtOptions1: any = {};
   tusepreprocessor: any;
   hashlistDescrip: any;
   hashlistinform: any;
@@ -75,6 +73,8 @@ export class EditTasksComponent implements OnInit {
   tkeyspace: any;
   getchunks: any;
   getFiles: any;
+
+  @ViewChild('table') table: AgentsTableComponent;
 
   ngOnInit() {
     this.onInitialize();
@@ -240,20 +240,8 @@ export class EditTasksComponent implements OnInit {
           );
           return { ...mainObject, ...matchObject };
         });
-        this.dtTrigger1.next(void 0);
       });
     });
-
-    this.dtOptions1 = {
-      dom: 'Bfrtip',
-      scrollY: '700px',
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      searching: false,
-      bInfo: false,
-      buttons: []
-    };
   }
 
   getAvalAgents(assing: any, agents: any) {
@@ -262,60 +250,17 @@ export class EditTasksComponent implements OnInit {
     );
   }
 
-  assignAgents() {
+  assignAgent() {
     if (this.createForm.valid) {
       const payload = {
         taskId: this.editedTaskIndex,
         agentId: this.createForm.value['agentId']
       };
       this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe(() => {
-        this.alert.okAlert('Agent assigned!', '');
-        this.rerender(); // rerender datatables
-        this.ngOnInit();
+        this.snackBar.open('Agent assigned!', 'Close');
+        this.table.reload();
       });
     }
-  }
-
-  onDelete(id: number) {
-    this.gs.delete(SERV.AGENT_ASSIGN, id).subscribe(() => {
-      this.alert.okAlert('Deleted', '');
-      this.rerender(); // rerender datatables
-      this.ngOnInit();
-    });
-  }
-
-  onModalUpdate(title: string, id: number, cvalue: any, nameref: string) {
-    (async () => {
-      const { value: formValues } = await Swal.fire({
-        title: title + ' - ' + nameref,
-        html:
-          '<input id="project-input" class="swal2-input" type="number" placeholder="' +
-          cvalue +
-          '">',
-        focusConfirm: false,
-        showCancelButton: true,
-        cancelButtonColor: this.alert.cancelButtonColor,
-        confirmButtonColor: this.alert.confirmButtonColor,
-        cancelButton: true,
-        preConfirm: () => {
-          return [
-            (<HTMLInputElement>document.getElementById('project-input')).value
-          ];
-        }
-      });
-
-      if (formValues) {
-        if (cvalue !== Number(formValues[0])) {
-          this.gs
-            .update(SERV.AGENT_ASSIGN, id, { benchmark: +formValues })
-            .subscribe(() => {
-              this.alert.okAlert('Task saved!', '');
-              this.ngOnInit();
-              this.rerender(); // rerender datatables
-            });
-        }
-      }
-    })();
   }
 
   /**
@@ -373,91 +318,35 @@ export class EditTasksComponent implements OnInit {
       }
     });
 
-    const self = this;
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      scrollY: '700px',
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-        dom: {
-          button: {
-            className:
-              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
-          }
-        },
-        buttons: [
-          {
-            text: '↻',
-            autoClose: true,
-            action: function (e, dt, node, config) {
-              self.onRefresh();
-            }
-          },
-          {
-            text: self.chunkview === 0 ? 'Show Latest 100' : 'Show Live',
-            action: function () {
-              if (self.chunkview === 0) {
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-100-chunks'
-                ]);
-              }
-              if (self.chunkview === 1) {
-                self.router.navigate(['/tasks/show-tasks', id, 'edit']);
-              }
-              if (self.chunkview === 2) {
-                self.router.navigate(['/tasks/show-tasks', id, 'edit']);
-              }
-            }
-          },
-          {
-            text: self.chunkview === 0 ? 'Show All' : 'Show Latest 100',
-            action: function () {
-              if (self.chunkview === 0) {
-                console.log(id);
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-all-chunks'
-                ]);
-              }
-              if (self.chunkview === 1) {
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-all-chunks'
-                ]);
-              }
-              if (self.chunkview === 2) {
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-100-chunks'
-                ]);
-              }
-            }
-          },
-          {
-            extend: 'colvis',
-            text: 'Column View',
-            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-          }
-        ]
-      }
-    };
+    {
+      // text: self.chunkview === 0 ? 'Show All' : 'Show Latest 100',
+      // action: function () {
+      //   if (self.chunkview === 0) {
+      //     console.log(id);
+      //     self.router.navigate([
+      //       '/tasks/show-tasks',
+      //       id,
+      //       'edit',
+      //       'show-all-chunks'
+      //     ]);
+      //   }
+      //   if (self.chunkview === 1) {
+      //     self.router.navigate([
+      //       '/tasks/show-tasks',
+      //       id,
+      //       'edit',
+      //       'show-all-chunks'
+      //     ]);
+      //   }
+      //   if (self.chunkview === 2) {
+      //     self.router.navigate([
+      //       '/tasks/show-tasks',
+      //       id,
+      //       'edit',
+      //       'show-100-chunks'
+      //     ]);
+      //   }
+    }
 
     const params = { maxResults: this.chunkresults };
     this.gs
@@ -499,27 +388,11 @@ export class EditTasksComponent implements OnInit {
             }
             this.getchunks = resultArray;
           }
-          this.dtTrigger.next(void 0);
         });
       });
   }
-  //To Delete
-  onRefresh() {
-    this.ngOnInit();
-    this.rerender(); // rerender datatables
-  }
 
-  //To Delete
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
-  }
+  toggleIsAll(event) {}
 
   /**
    * Helper functions
@@ -549,7 +422,6 @@ export class EditTasksComponent implements OnInit {
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alert.okAlert('Deleted ' + name + '', '');
           this.ngOnInit();
-          this.rerender(); // rerender datatables
         });
       } else {
         swalWithBootstrapButtons.fire({
@@ -560,18 +432,6 @@ export class EditTasksComponent implements OnInit {
           timer: 1500
         });
       }
-    });
-  }
-
-  //To Delete
-  onReset(id: number, state: number) {
-    const path = state === 2 ? 'abortChunk' : 'resetChunk';
-    const title = state === 2 ? 'Chunk Abort!' : 'Chunk Reset!';
-    const payload = { chunkId: id };
-    this.gs.chelper(SERV.HELPER, path, payload).subscribe(() => {
-      this.alert.okAlert('Resetted!', '');
-      this.ngOnInit();
-      this.rerender();
     });
   }
 
@@ -752,20 +612,5 @@ export class EditTasksComponent implements OnInit {
     }
 
     return result;
-  }
-
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    if (!this.canDeactivate()) {
-      $event.returnValue = 'IE and Edge Message';
-    }
-  }
-
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.updateForm.valid) {
-      return false;
-    }
-    return true;
   }
 }
