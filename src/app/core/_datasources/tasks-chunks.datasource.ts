@@ -39,22 +39,44 @@ export class TasksChunksDataSource extends BaseDataSource<Chunk> {
       )
       .subscribe(
         ([c, a]: [ListResponseWrapper<Chunk>, ListResponseWrapper<Agent>]) => {
-          const assignedChunks: Chunk[] = c.values;
+          const getchunks: Chunk[] = c.values;
 
-          assignedChunks.map((chunk: Chunk) => {
-            chunk.agent = a.values.find((e: Agent) => e._id === chunk.agentId);
-            // Flatten row so that we can access agent name and task name by key when rendering the table.
-            if (chunk.agent) {
-              chunk.agentName = chunk.agent.agentName;
+          if (this._isChunksLive === 0) {
+            const chunktime = this.uiService.getUIsettings('chunktime').value;
+            const resultArray = [];
+            const cspeed = [];
+
+            for (let i = 0; i < getchunks.length; i++) {
+              if (
+                Date.now() / 1000 -
+                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
+                  chunktime &&
+                getchunks[i].progress < 10000
+              ) {
+                cspeed.push(getchunks[i].speed);
+                resultArray.push(getchunks[i]);
+              }
             }
-            if (chunk.task) {
-              chunk.taskName = chunk.task.taskName;
-            }
 
-            return chunk;
-          });
+            this.setData(resultArray);
+          } else {
+            const assignedChunks: Chunk[] = getchunks.map((chunk: Chunk) => {
+              chunk.agent = a.values.find(
+                (e: Agent) => e._id === chunk.agentId
+              );
+              // Flatten row so that we can access agent name and task name by key when rendering the table.
+              if (chunk.agent) {
+                chunk.agentName = chunk.agent.agentName;
+              }
+              if (chunk.task) {
+                chunk.taskName = chunk.task.taskName;
+              }
 
-          this.setData(assignedChunks);
+              return chunk;
+            });
+
+            this.setData(assignedChunks);
+          }
         }
       );
   }
