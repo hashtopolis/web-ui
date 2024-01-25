@@ -41,6 +41,8 @@ export class TasksChunksTableComponent
 {
   // Input property to specify an task ID for filtering chunks.
   @Input() taskId: number;
+  // Input property to specify to filter all chunks or only live. Live = 0, All = 1
+  @Input() isChunksLive: number;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
@@ -56,6 +58,7 @@ export class TasksChunksTableComponent
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
+      this.dataSource.setIsChunksLive(this.isChunksLive);
     }
     this.dataSource.loadAll();
   }

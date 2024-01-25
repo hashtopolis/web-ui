@@ -36,6 +36,7 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -47,6 +48,32 @@ export class EditTasksComponent implements OnInit {
   editedTaskIndex: number;
   taskWrapperId: number;
   editedTask: any; // Change to Model
+
+  updateForm: FormGroup;
+  createForm: FormGroup; // Assign Agent
+  color = '';
+  tusepreprocessor: any;
+  hashlistDescrip: any;
+  hashlistinform: any;
+  assigAgents: any;
+  availAgents: any;
+  crackerinfo: any;
+  tkeyspace: any;
+
+  @ViewChild('table') table: AgentsTableComponent;
+  @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
+
+  //Time calculation
+  cprogress: any; // Keyspace searched
+  ctimespent: any; // Time Spent
+
+  // Chunk View
+  chunkview: number;
+  chunktitle: string;
+  isactive = 0;
+  currenspeed = 0;
+  chunkresults: Object;
+  activechunks: Object;
 
   constructor(
     private titleService: AutoTitleService,
@@ -60,21 +87,6 @@ export class EditTasksComponent implements OnInit {
   ) {
     this.titleService.set(['Edit Task']);
   }
-
-  updateForm: FormGroup;
-  createForm: FormGroup; // Assign Agent
-  color = '';
-  tusepreprocessor: any;
-  hashlistDescrip: any;
-  hashlistinform: any;
-  assigAgents: any;
-  availAgents: any;
-  crackerinfo: any;
-  tkeyspace: any;
-  getchunks: any;
-  getFiles: any;
-
-  @ViewChild('table') table: AgentsTableComponent;
 
   ngOnInit() {
     this.onInitialize();
@@ -148,7 +160,6 @@ export class EditTasksComponent implements OnInit {
         .subscribe((result) => {
           console.log(result);
           this.color = result['color'];
-          this.getFiles = result.files;
           this.crackerinfo = result.crackerBinary;
           this.taskWrapperId - result.taskWrapperId;
           // Graph Speed
@@ -267,10 +278,6 @@ export class EditTasksComponent implements OnInit {
    * This function calculates Keyspace searched, Time Spent and Estimated Time
    *
    **/
-  // Keyspace searched
-  cprogress: any;
-  // Time Spent
-  ctimespent: any;
   timeCalc(chunks) {
     const cprogress = [];
     const timespent = [];
@@ -287,14 +294,6 @@ export class EditTasksComponent implements OnInit {
     this.ctimespent = timespent.reduce((a, i) => a + i);
   }
 
-  // Chunk View
-  chunkview: number;
-  chunktitle: string;
-  isactive = 0;
-  currenspeed = 0;
-  chunkresults: Object;
-  activechunks: Object;
-
   assignChunksInit(id: number) {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
@@ -302,51 +301,16 @@ export class EditTasksComponent implements OnInit {
           this.chunkview = 0;
           this.chunktitle = 'Live Chunks';
           this.chunkresults = 60000;
+          this.slideToggle.checked = false;
           break;
-
-        case 'edit-task-c100':
-          this.chunkview = 1;
-          this.chunktitle = 'Latest 100 Chunks';
-          this.chunkresults = 100;
-          break;
-
         case 'edit-task-cAll':
-          this.chunkview = 2;
+          this.chunkview = 1;
           this.chunktitle = 'All Chunks';
           this.chunkresults = 60000;
+          this.slideToggle.checked = true;
           break;
       }
     });
-
-    {
-      // text: self.chunkview === 0 ? 'Show All' : 'Show Latest 100',
-      // action: function () {
-      //   if (self.chunkview === 0) {
-      //     console.log(id);
-      //     self.router.navigate([
-      //       '/tasks/show-tasks',
-      //       id,
-      //       'edit',
-      //       'show-all-chunks'
-      //     ]);
-      //   }
-      //   if (self.chunkview === 1) {
-      //     self.router.navigate([
-      //       '/tasks/show-tasks',
-      //       id,
-      //       'edit',
-      //       'show-all-chunks'
-      //     ]);
-      //   }
-      //   if (self.chunkview === 2) {
-      //     self.router.navigate([
-      //       '/tasks/show-tasks',
-      //       id,
-      //       'edit',
-      //       'show-100-chunks'
-      //     ]);
-      //   }
-    }
 
     const params = { maxResults: this.chunkresults };
     this.gs
@@ -358,7 +322,7 @@ export class EditTasksComponent implements OnInit {
         this.timeCalc(result.values);
         // this.initVisualGraph(result.values, 150, 150); // Get data for visual graph
         this.gs.getAll(SERV.AGENTS, params).subscribe((agents: any) => {
-          this.getchunks = result.values.map((mainObject) => {
+          const getchunks = result.values.map((mainObject) => {
             const matchObject = agents.values.find(
               (element) => element.agentId === mainObject.agentId
             );
@@ -368,31 +332,38 @@ export class EditTasksComponent implements OnInit {
             const chunktime = this.uiService.getUIsettings('chunktime').value;
             const resultArray = [];
             const cspeed = [];
-            for (let i = 0; i < this.getchunks.length; i++) {
+            for (let i = 0; i < getchunks.length; i++) {
               if (
                 Date.now() / 1000 -
-                  Math.max(
-                    this.getchunks[i].solveTime,
-                    this.getchunks[i].dispatchTime
-                  ) <
+                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
                   chunktime &&
-                this.getchunks[i].progress < 10000
+                getchunks[i].progress < 10000
               ) {
                 this.isactive = 1;
-                cspeed.push(this.getchunks[i].speed);
-                resultArray.push(this.getchunks[i]);
+                cspeed.push(getchunks[i].speed);
+                resultArray.push(getchunks[i]);
               }
             }
             if (cspeed.length > 0) {
               this.currenspeed = cspeed.reduce((a, i) => a + i);
             }
-            this.getchunks = resultArray;
           }
         });
       });
   }
 
-  toggleIsAll(event) {}
+  toggleIsAll(event) {
+    if (this.chunkview === 0) {
+      this.router.navigate([
+        '/tasks/show-tasks',
+        this.editedTaskIndex,
+        'edit',
+        'show-all-chunks'
+      ]);
+    } else {
+      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit']);
+    }
+  }
 
   /**
    * Helper functions

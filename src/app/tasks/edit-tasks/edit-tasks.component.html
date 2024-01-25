@@ -145,10 +145,10 @@
 <!-- Dispatched Chunks -->
 <app-table>
   <app-page-subtitle [subtitle]="'Dispatched chunks - ' + chunktitle + ''"></app-page-subtitle>
-  <mat-slide-toggle (change)="toggleIsAll($event)">
-    Show All
+  <mat-slide-toggle #slideToggle (change)="toggleIsAll($event)">
+    {{ chunkview === 1 ? 'Live Chunks' : 'Show All' }}
   </mat-slide-toggle>
   <br /><br />
-  <tasks-chunks-table [taskId]="editedTaskIndex"></tasks-chunks-table>
+  <tasks-chunks-table [taskId]="editedTaskIndex" [isChunksLive]="chunkview"></tasks-chunks-table>
 </app-table>
 

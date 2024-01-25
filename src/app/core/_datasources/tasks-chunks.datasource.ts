@@ -8,14 +8,14 @@ import { SERV } from '../_services/main.config';
 
 export class TasksChunksDataSource extends BaseDataSource<Chunk> {
   private _taskId = 0;
-  private _chunksLimit = 0;
+  private _isChunksLive = 0;
 
   setTaskId(taskId: number) {
     this._taskId = taskId;
   }
 
-  setChunksLimit(limit: number) {
-    this._chunksLimit = limit;
+  setIsChunksLive(number: number) {
+    this._isChunksLive = number;
   }
 
   loadAll(): void {
