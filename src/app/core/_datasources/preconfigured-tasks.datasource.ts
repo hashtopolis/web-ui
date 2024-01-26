@@ -17,6 +17,8 @@ export class PreTasksDataSource extends BaseDataSource<
     this._superTaskId = superTaskId;
   }
 
+  // ToDo supertasks expand pretask doesnt include pretasfiles, so currently we need to make
+  // and additional call to pretasks and join arrays. API call expand is needed
   loadAll(): void {
     this.loading = true;
 
@@ -53,11 +55,30 @@ export class PreTasksDataSource extends BaseDataSource<
               this.currentPage,
               response.total
             );
-          } else {
-            pretasks = response.pretasks || [];
-          }
 
-          this.setData(pretasks);
+            this.setData(pretasks);
+          } else {
+            const superTaskPretasks = response.pretasks || [];
+
+            // Make another request to get pretaskFiles
+            this.service
+              .getAll(SERV.PRETASKS, {
+                expand: 'pretaskFiles'
+              })
+              .subscribe((pretaskFilesResponse: ListResponseWrapper<any>) => {
+                const pretaskFiles = pretaskFilesResponse.values || [];
+
+                // Merge pretasks with pretaskFiles
+                const pretasks = superTaskPretasks.map((superTaskPretask) => ({
+                  ...superTaskPretask,
+                  pretaskFiles: pretaskFiles.filter(
+                    (pf) => pf.pretaskId === superTaskPretask.pretaskId
+                  )
+                }));
+
+                this.setData(pretasks);
+              });
+          }
         })
     );
   }

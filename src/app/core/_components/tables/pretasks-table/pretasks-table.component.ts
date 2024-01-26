@@ -15,15 +15,16 @@ import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { calculateKeyspace } from 'src/app/shared/utils/estkeyspace_attack';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { PreTasksDataSource } from 'src/app/core/_datasources/preconfigured-tasks.datasource';
 import { Pretask } from 'src/app/core/_models/pretask.model';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
+import { SafeHtml } from '@angular/platform-browser';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatFileSize } from 'src/app/shared/utils/util';
-import { SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'pretasks-table',
@@ -129,14 +130,14 @@ export class PretasksTableComponent
         async: (pretask: Pretask) => this.renderEstimatedKeyspace(pretask),
         icons: undefined,
         isSortable: true,
-        export: async (pretask: Pretask) => (await pretask) + ''
+        export: async (pretask: Pretask) =>
+          Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
       });
       tableColumns.push({
         id: PretasksTableCol.ATTACK_RUNTIME,
-        dataKey: 'runtime',
+        dataKey: 'attackRuntime',
         icons: undefined,
-        isSortable: true,
-        export: async (pretask: Pretask) => pretask.maxAgents.toString()
+        isSortable: true
       });
     }
 
@@ -331,9 +332,13 @@ export class PretasksTableComponent
   }
 
   @Cacheable(['_id'])
-  async renderEstimatedKeyspace(pretask: Pretask): Promise<SafeHtml> {
-    const html = '-';
-    return this.sanitize(html);
+  async renderEstimatedKeyspace(pretask: any): Promise<SafeHtml> {
+    return calculateKeyspace(
+      pretask.pretaskFiles[0].pretaskFiles,
+      'lineCount',
+      pretask.attackCmd,
+      false
+    );
   }
 
   /**
