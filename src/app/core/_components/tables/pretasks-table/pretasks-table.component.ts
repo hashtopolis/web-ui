@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
   HTTableIcon,
@@ -23,6 +23,7 @@ import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatFileSize } from 'src/app/shared/utils/util';
+import { SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'pretasks-table',
@@ -32,6 +33,9 @@ export class PretasksTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {
+  // Input property to specify an supertask ID for filtering pretasks.
+  @Input() supertTaskId = 0;
+
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
 
@@ -40,6 +44,9 @@ export class PretasksTableComponent
     this.tableColumns = this.getColumns();
     this.dataSource = new PreTasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    if (this.supertTaskId) {
+      this.dataSource.setSuperTaskId(this.supertTaskId);
+    }
     this.dataSource.loadAll();
   }
 
@@ -57,7 +64,7 @@ export class PretasksTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
         dataKey: '_id',
@@ -114,6 +121,24 @@ export class PretasksTableComponent
         export: async (pretask: Pretask) => pretask.maxAgents.toString()
       }
     ];
+
+    if (this.supertTaskId !== 0) {
+      tableColumns.push({
+        id: PretasksTableCol.ESTIMATED_KEYSPACE,
+        dataKey: 'priority',
+        async: (pretask: Pretask) => this.renderEstimatedKeyspace(pretask),
+        icons: undefined,
+        isSortable: true,
+        export: async (pretask: Pretask) => (await pretask) + ''
+      });
+      tableColumns.push({
+        id: PretasksTableCol.ATTACK_RUNTIME,
+        dataKey: 'runtime',
+        icons: undefined,
+        isSortable: true,
+        export: async (pretask: Pretask) => pretask.maxAgents.toString()
+      });
+    }
 
     return tableColumns;
   }
@@ -223,26 +248,57 @@ export class PretasksTableComponent
    * @todo Implement error handling.
    */
   private bulkActionDelete(pretasks: Pretask[]): void {
-    const requests = pretasks.map((pretask: Pretask) => {
-      return this.gs.delete(SERV.PRETASKS, pretask._id);
-    });
+    if (this.supertTaskId === 0) {
+      const requests = pretasks.map((pretask: Pretask) => {
+        return this.gs.delete(SERV.PRETASKS, pretask._id);
+      });
 
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
+      this.subscriptions.push(
+        forkJoin(requests)
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion:', error);
+              return [];
+            })
+          )
+          .subscribe((results) => {
+            this.snackBar.open(
+              `Successfully deleted ${results.length} pretasks!`,
+              'Close'
+            );
+            this.reload();
           })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} pretasks!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
+      );
+    } else {
+      const filter = this.dataSource['originalData'].filter(
+        (u) => u.pretaskId !== pretasks[0]._id
+      );
+      const payload = [];
+      for (let i = 0; i < filter.length; i++) {
+        payload.push(filter[i].pretaskId);
+      }
+
+      const requests = pretasks.map((pretask: Pretask) => {
+        return this.gs.delete(SERV.PRETASKS, pretask._id);
+      });
+
+      this.subscriptions.push(
+        forkJoin(requests)
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion:', error);
+              return [];
+            })
+          )
+          .subscribe((results) => {
+            this.snackBar.open(
+              `Successfully deleted ${results.length} pretasks!`,
+              'Close'
+            );
+            this.reload();
+          })
+      );
+    }
   }
 
   @Cacheable(['_id', 'isSecret'])
@@ -274,24 +330,54 @@ export class PretasksTableComponent
     ];
   }
 
+  @Cacheable(['_id'])
+  async renderEstimatedKeyspace(pretask: Pretask): Promise<SafeHtml> {
+    const html = '-';
+    return this.sanitize(html);
+  }
+
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(pretasks: Pretask[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.PRETASKS, pretasks[0]._id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
+    if (this.supertTaskId === 0) {
+      this.subscriptions.push(
+        this.gs
+          .delete(SERV.PRETASKS, pretasks[0]._id)
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion:', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.reload();
           })
-        )
-        .subscribe(() => {
-          this.snackBar.open('Successfully deleted pretask!', 'Close');
-          this.reload();
-        })
-    );
+      );
+    } else {
+      const filter = this.dataSource['originalData'].filter(
+        (u) => u.pretaskId !== pretasks[0]._id
+      );
+      const payload = [];
+      for (let i = 0; i < filter.length; i++) {
+        payload.push(filter[i].pretaskId);
+      }
+      this.subscriptions.push(
+        this.gs
+          .update(SERV.SUPER_TASKS, this.supertTaskId, { pretasks: payload })
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion:', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.reload();
+          })
+      );
+    }
   }
 
   private rowActionCopyToTask(pretask: Pretask): void {

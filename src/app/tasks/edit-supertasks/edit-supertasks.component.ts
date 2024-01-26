@@ -49,12 +49,6 @@ export class EditSupertasksComponent implements OnInit {
   pretasksFiles: any = [];
   assignPretasks: any;
 
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
   constructor(
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -217,27 +211,12 @@ export class EditSupertasksComponent implements OnInit {
     });
   }
 
-  /**
-   * Handles the removal of a pre-task from the assigned pre-tasks of a super task.
-   * Updates the super task with the modified pre-task payload after deletion.
-   *
-   * @param {number} pretaskId - The ID of the pre-task to be removed.
-   */
-  removeAssignedPretask(id: number) {
-    const filter = this.assignPretasks.filter((u) => u.pretaskId !== id);
-    const payload = [];
-    for (let i = 0; i < filter.length; i++) {
-      payload.push(filter[i].pretaskId);
-    }
-    const updateSubscription$ = this.gs
-      .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
-      .subscribe((result) => {
-        this.alert.okAlert('Deleted supertask', '');
-        this.updateForm.reset(); // success, we reset form
-        this.onRefresh();
-      });
-    this.unsubscribeService.add(updateSubscription$);
-  }
+  //To delete
+  @ViewChild(DataTableDirective)
+  dtElement: DataTableDirective;
+
+  dtTrigger: Subject<any> = new Subject<any>();
+  dtOptions: any = {};
 
   loadTableData() {
     const matchObjectFiles = [];
@@ -289,9 +268,6 @@ export class EditSupertasksComponent implements OnInit {
   }
 
   onRefresh() {
-    // this.rerender();
-    // this.ngOnInit();
-    // Todo using window reload as some issues clearing filter when adding pretask
     window.location.reload();
   }
 

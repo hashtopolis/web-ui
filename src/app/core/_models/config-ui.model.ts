@@ -228,6 +228,17 @@ export const uiConfigDefault: UIConfig = {
       SupertasksPretasksTableCol.PRIORITY,
       SupertasksPretasksTableCol.MAX_AGENTS
     ],
+    superTasksPretasksEditTable: [
+      PretasksTableCol.ID,
+      PretasksTableCol.NAME,
+      PretasksTableCol.ATTACK_COMMAND,
+      PretasksTableCol.ESTIMATED_KEYSPACE,
+      PretasksTableCol.ATTACK_RUNTIME,
+      PretasksTableCol.FILES_TOTAL,
+      PretasksTableCol.FILES_SIZE,
+      PretasksTableCol.PRIORITY,
+      PretasksTableCol.MAX_AGENTS
+    ],
     hashlistTasksTable: [
       TaskTableCol.ID,
       TaskTableCol.NAME,
