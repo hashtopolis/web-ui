@@ -55,7 +55,6 @@ export class PreTasksDataSource extends BaseDataSource<
               this.currentPage,
               response.total
             );
-
             this.setData(pretasks);
           } else {
             const superTaskPretasks = response.pretasks || [];

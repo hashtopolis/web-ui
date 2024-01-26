@@ -90,14 +90,8 @@
         mat-cell
         *matCellDef="let row"
         [ngStyle]="{
-          'border-left':
-            row.tasks && row.tasks.length > 0 && row.tasks[0].color
-              ? '8px solid ' + row.tasks[0].color
-              : '',
-          'padding-left':
-            row.tasks && row.tasks.length > 0 && row.tasks[0].color
-              ? '8px'
-              : '16px'
+          'border-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row && row.color) ? '8px solid ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color) : '',
+          'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row.color) ? '8px' : '16px'
         }"
       >
         <ng-container *ngIf="!isCmdTask; else defaultCell">
