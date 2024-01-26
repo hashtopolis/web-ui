@@ -2,7 +2,12 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { Setting, dateFormats, layouts, themes } from 'src/app/core/_constants/settings.config';
+import {
+  Setting,
+  dateFormats,
+  layouts,
+  themes
+} from 'src/app/core/_constants/settings.config';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -11,53 +16,50 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './ui-settings.component.html'
 })
 export class UiSettingsComponent implements OnInit {
+  form!: FormGroup;
+  util: UISettingsUtilityClass;
 
-  form!: FormGroup
-  util: UISettingsUtilityClass
-
-  formats: Setting[] = dateFormats
-  layouts: Setting[] = layouts
-  themes: Setting[] = themes
+  formats: Setting[] = dateFormats;
+  layouts: Setting[] = layouts;
+  themes: Setting[] = themes;
 
   constructor(
     private service: LocalStorageService<UIConfig>,
-    private snackBar: MatSnackBar,
+    private snackBar: MatSnackBar
   ) {
     this.initForm();
   }
 
   ngOnInit(): void {
-    this.util = new UISettingsUtilityClass(this.service)
+    this.util = new UISettingsUtilityClass(this.service);
     this.updateForm();
   }
 
   private initForm(): void {
     this.form = new FormGroup({
-      'timefmt': new FormControl(''),
-      'layout': new FormControl(''),
-      'theme': new FormControl('')
+      timefmt: new FormControl(''),
+      layout: new FormControl(''),
+      theme: new FormControl('')
     });
   }
 
   private updateForm(): void {
     this.form.patchValue({
-      'timefmt': this.util.uiConfig.timefmt,
-      'layout': this.util.uiConfig.layout,
-      'theme': this.util.uiConfig.theme
-    })
+      timefmt: this.util.uiConfig.timefmt,
+      layout: this.util.uiConfig.layout,
+      theme: this.util.uiConfig.theme
+    });
   }
 
   onSubmit(): void {
     setTimeout(() => {
-      window.location.reload()
-    }, 800)
+      window.location.reload();
+    }, 800);
 
-    const changedValues = this.util.updateSettings(this.form.value)
-    const message = changedValues > 0
-      ? 'Reloading settings ...'
-      : 'No changes were saved'
+    const changedValues = this.util.updateSettings(this.form.value);
+    const message =
+      changedValues > 0 ? 'Reloading settings ...' : 'No changes were saved';
 
-
-    this.snackBar.open(message, 'Close')
+    this.snackBar.open(message, 'Close');
   }
 }

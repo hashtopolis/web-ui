@@ -66,6 +66,11 @@
   </grid-main>
  </div>
 </div>
+<!--Table Pretasks-->
+<app-table>
+  <app-page-title [title]="'Preconfigured Tasks'"></app-page-title>
+  <pretasks-table name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex" [hasBulkActions]="false"></pretasks-table>
+</app-table>
 <!--Table Pretasks part of the supertask -->
 <app-table>
   <h4>Pretasks</h4>
@@ -94,7 +99,7 @@
         <td>{{ p.pretaskFiles | keyspace:'lineCount':p.attackCmd:false }}</td>
         <td class="attackRuntime"></td>
         <td>
-          <a class='btn-outline-gray-600 float-right' (click)="removeAssignedPretask(p.pretaskId)" data-toggle="tooltip" data-placement="top" title="Delete">
+          <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete">
             <fa-icon aria-hidden="true">faTrash</fa-icon>
           </a>
         </td>

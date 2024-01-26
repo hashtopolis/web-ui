@@ -55,16 +55,6 @@ const routes: MyRoute[] = [
         canActivate: [CheckPerm]
       },
       {
-        path: 'show-tasks/:id/edit/show-100-chunks',
-        component: EditTasksComponent,
-        data: {
-          kind: 'edit-task-c100',
-          breadcrumb: 'Edit Task > Show latest 100 chunks',
-          permission: 'Task'
-        },
-        canActivate: [CheckPerm]
-      },
-      {
         path: 'show-tasks/:id/edit/show-all-chunks',
         component: EditTasksComponent,
         data: {

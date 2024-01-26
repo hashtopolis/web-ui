@@ -61,7 +61,6 @@ export class AgentsTableComponent
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-
     this.dataSource.reload();
   }
 
@@ -437,7 +436,6 @@ export class AgentsTableComponent
       case RowActionMenuAction.DEACTIVATE:
         this.bulkActionActivate([event.data], false);
         break;
-
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
@@ -543,13 +541,21 @@ export class AgentsTableComponent
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: Agent): void {
-    console.log(agent);
-    this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
-        this.snackBar.open('Successfully deleted agent!', 'Close');
-        this.dataSource.reload();
-      })
-    );
+    if (this.taskId === 0) {
+      this.subscriptions.push(
+        this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
+          this.snackBar.open('Successfully deleted agent!', 'Close');
+          this.dataSource.reload();
+        })
+      );
+    } else {
+      this.subscriptions.push(
+        this.gs.delete(SERV.AGENT_ASSIGN, agent[0]._id).subscribe(() => {
+          this.snackBar.open('Successfully unassigned agent!', 'Close');
+          this.dataSource.reload();
+        })
+      );
+    }
   }
 
   private rowActionEdit(agent: Agent): void {

@@ -26,6 +26,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Observable, Subject } from 'rxjs';
 import * as echarts from 'echarts/core';
 
+import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
 import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
@@ -33,39 +34,24 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
   providers: [FileSizePipe]
 })
-@PageTitle(['Edit Task'])
 export class EditTasksComponent implements OnInit {
   editMode = false;
   editedTaskIndex: number;
   taskWrapperId: number;
   editedTask: any; // Change to Model
 
-  constructor(
-    private uiService: UIConfigService,
-    private route: ActivatedRoute,
-    private alert: AlertService,
-    private gs: GlobalService,
-    private fs: FileSizePipe,
-    private router: Router
-  ) {}
-
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
   color = '';
-
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtTrigger1: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-  dtOptions1: any = {};
   tusepreprocessor: any;
   hashlistDescrip: any;
   hashlistinform: any;
@@ -73,8 +59,34 @@ export class EditTasksComponent implements OnInit {
   availAgents: any;
   crackerinfo: any;
   tkeyspace: any;
-  getchunks: any;
-  getFiles: any;
+
+  @ViewChild('table') table: AgentsTableComponent;
+  @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
+
+  //Time calculation
+  cprogress: any; // Keyspace searched
+  ctimespent: any; // Time Spent
+
+  // Chunk View
+  chunkview: number;
+  chunktitle: string;
+  isactive = 0;
+  currenspeed = 0;
+  chunkresults: Object;
+  activechunks: Object;
+
+  constructor(
+    private titleService: AutoTitleService,
+    private uiService: UIConfigService,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar,
+    private alert: AlertService,
+    private gs: GlobalService,
+    private fs: FileSizePipe,
+    private router: Router
+  ) {
+    this.titleService.set(['Edit Task']);
+  }
 
   ngOnInit() {
     this.onInitialize();
@@ -148,7 +160,6 @@ export class EditTasksComponent implements OnInit {
         .subscribe((result) => {
           console.log(result);
           this.color = result['color'];
-          this.getFiles = result.files;
           this.crackerinfo = result.crackerBinary;
           this.taskWrapperId - result.taskWrapperId;
           // Graph Speed
@@ -240,20 +251,8 @@ export class EditTasksComponent implements OnInit {
           );
           return { ...mainObject, ...matchObject };
         });
-        this.dtTrigger1.next(void 0);
       });
     });
-
-    this.dtOptions1 = {
-      dom: 'Bfrtip',
-      scrollY: '700px',
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      searching: false,
-      bInfo: false,
-      buttons: []
-    };
   }
 
   getAvalAgents(assing: any, agents: any) {
@@ -262,70 +261,23 @@ export class EditTasksComponent implements OnInit {
     );
   }
 
-  assignAgents() {
+  assignAgent() {
     if (this.createForm.valid) {
       const payload = {
         taskId: this.editedTaskIndex,
         agentId: this.createForm.value['agentId']
       };
       this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe(() => {
-        this.alert.okAlert('Agent assigned!', '');
-        this.rerender(); // rerender datatables
-        this.ngOnInit();
+        this.snackBar.open('Agent assigned!', 'Close');
+        this.table.reload();
       });
     }
-  }
-
-  onDelete(id: number) {
-    this.gs.delete(SERV.AGENT_ASSIGN, id).subscribe(() => {
-      this.alert.okAlert('Deleted', '');
-      this.rerender(); // rerender datatables
-      this.ngOnInit();
-    });
-  }
-
-  onModalUpdate(title: string, id: number, cvalue: any, nameref: string) {
-    (async () => {
-      const { value: formValues } = await Swal.fire({
-        title: title + ' - ' + nameref,
-        html:
-          '<input id="project-input" class="swal2-input" type="number" placeholder="' +
-          cvalue +
-          '">',
-        focusConfirm: false,
-        showCancelButton: true,
-        cancelButtonColor: this.alert.cancelButtonColor,
-        confirmButtonColor: this.alert.confirmButtonColor,
-        cancelButton: true,
-        preConfirm: () => {
-          return [
-            (<HTMLInputElement>document.getElementById('project-input')).value
-          ];
-        }
-      });
-
-      if (formValues) {
-        if (cvalue !== Number(formValues[0])) {
-          this.gs
-            .update(SERV.AGENT_ASSIGN, id, { benchmark: +formValues })
-            .subscribe(() => {
-              this.alert.okAlert('Task saved!', '');
-              this.ngOnInit();
-              this.rerender(); // rerender datatables
-            });
-        }
-      }
-    })();
   }
 
   /**
    * This function calculates Keyspace searched, Time Spent and Estimated Time
    *
    **/
-  // Keyspace searched
-  cprogress: any;
-  // Time Spent
-  ctimespent: any;
   timeCalc(chunks) {
     const cprogress = [];
     const timespent = [];
@@ -342,14 +294,6 @@ export class EditTasksComponent implements OnInit {
     this.ctimespent = timespent.reduce((a, i) => a + i);
   }
 
-  // Chunk View
-  chunkview: number;
-  chunktitle: string;
-  isactive = 0;
-  currenspeed = 0;
-  chunkresults: Object;
-  activechunks: Object;
-
   assignChunksInit(id: number) {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
@@ -357,108 +301,18 @@ export class EditTasksComponent implements OnInit {
           this.chunkview = 0;
           this.chunktitle = 'Live Chunks';
           this.chunkresults = 60000;
+          this.slideToggle.checked = false;
           break;
-
-        case 'edit-task-c100':
-          this.chunkview = 1;
-          this.chunktitle = 'Latest 100 Chunks';
-          this.chunkresults = 100;
-          break;
-
         case 'edit-task-cAll':
-          this.chunkview = 2;
+          this.chunkview = 1;
           this.chunktitle = 'All Chunks';
           this.chunkresults = 60000;
+          this.slideToggle.checked = true;
           break;
       }
     });
 
-    const self = this;
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      scrollY: '700px',
-      scrollCollapse: true,
-      paging: false,
-      destroy: true,
-      buttons: {
-        dom: {
-          button: {
-            className:
-              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
-          }
-        },
-        buttons: [
-          {
-            text: '↻',
-            autoClose: true,
-            action: function (e, dt, node, config) {
-              self.onRefresh();
-            }
-          },
-          {
-            text: self.chunkview === 0 ? 'Show Latest 100' : 'Show Live',
-            action: function () {
-              if (self.chunkview === 0) {
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-100-chunks'
-                ]);
-              }
-              if (self.chunkview === 1) {
-                self.router.navigate(['/tasks/show-tasks', id, 'edit']);
-              }
-              if (self.chunkview === 2) {
-                self.router.navigate(['/tasks/show-tasks', id, 'edit']);
-              }
-            }
-          },
-          {
-            text: self.chunkview === 0 ? 'Show All' : 'Show Latest 100',
-            action: function () {
-              if (self.chunkview === 0) {
-                console.log(id);
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-all-chunks'
-                ]);
-              }
-              if (self.chunkview === 1) {
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-all-chunks'
-                ]);
-              }
-              if (self.chunkview === 2) {
-                self.router.navigate([
-                  '/tasks/show-tasks',
-                  id,
-                  'edit',
-                  'show-100-chunks'
-                ]);
-              }
-            }
-          },
-          {
-            extend: 'colvis',
-            text: 'Column View',
-            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-          }
-        ]
-      }
-    };
-
+    //TODO. It is repeting code to get the speed
     const params = { maxResults: this.chunkresults };
     this.gs
       .getAll(SERV.CHUNKS, {
@@ -469,7 +323,7 @@ export class EditTasksComponent implements OnInit {
         this.timeCalc(result.values);
         // this.initVisualGraph(result.values, 150, 150); // Get data for visual graph
         this.gs.getAll(SERV.AGENTS, params).subscribe((agents: any) => {
-          this.getchunks = result.values.map((mainObject) => {
+          const getchunks = result.values.map((mainObject) => {
             const matchObject = agents.values.find(
               (element) => element.agentId === mainObject.agentId
             );
@@ -479,46 +333,37 @@ export class EditTasksComponent implements OnInit {
             const chunktime = this.uiService.getUIsettings('chunktime').value;
             const resultArray = [];
             const cspeed = [];
-            for (let i = 0; i < this.getchunks.length; i++) {
+            for (let i = 0; i < getchunks.length; i++) {
               if (
                 Date.now() / 1000 -
-                  Math.max(
-                    this.getchunks[i].solveTime,
-                    this.getchunks[i].dispatchTime
-                  ) <
+                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
                   chunktime &&
-                this.getchunks[i].progress < 10000
+                getchunks[i].progress < 10000
               ) {
                 this.isactive = 1;
-                cspeed.push(this.getchunks[i].speed);
-                resultArray.push(this.getchunks[i]);
+                cspeed.push(getchunks[i].speed);
+                resultArray.push(getchunks[i]);
               }
             }
             if (cspeed.length > 0) {
               this.currenspeed = cspeed.reduce((a, i) => a + i);
             }
-            this.getchunks = resultArray;
           }
-          this.dtTrigger.next(void 0);
         });
       });
   }
-  //To Delete
-  onRefresh() {
-    this.ngOnInit();
-    this.rerender(); // rerender datatables
-  }
 
-  //To Delete
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
-    });
+  toggleIsAll(event) {
+    if (this.chunkview === 0) {
+      this.router.navigate([
+        '/tasks/show-tasks',
+        this.editedTaskIndex,
+        'edit',
+        'show-all-chunks'
+      ]);
+    } else {
+      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit']);
+    }
   }
 
   /**
@@ -549,7 +394,6 @@ export class EditTasksComponent implements OnInit {
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alert.okAlert('Deleted ' + name + '', '');
           this.ngOnInit();
-          this.rerender(); // rerender datatables
         });
       } else {
         swalWithBootstrapButtons.fire({
@@ -560,18 +404,6 @@ export class EditTasksComponent implements OnInit {
           timer: 1500
         });
       }
-    });
-  }
-
-  //To Delete
-  onReset(id: number, state: number) {
-    const path = state === 2 ? 'abortChunk' : 'resetChunk';
-    const title = state === 2 ? 'Chunk Abort!' : 'Chunk Reset!';
-    const payload = { chunkId: id };
-    this.gs.chelper(SERV.HELPER, path, payload).subscribe(() => {
-      this.alert.okAlert('Resetted!', '');
-      this.ngOnInit();
-      this.rerender();
     });
   }
 
@@ -752,20 +584,5 @@ export class EditTasksComponent implements OnInit {
     }
 
     return result;
-  }
-
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    if (!this.canDeactivate()) {
-      $event.returnValue = 'IE and Edge Message';
-    }
-  }
-
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.updateForm.valid) {
-      return false;
-    }
-    return true;
   }
 }

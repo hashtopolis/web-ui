@@ -1,4 +1,5 @@
-import { catchError, finalize, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
@@ -10,17 +11,33 @@ export class PreTasksDataSource extends BaseDataSource<
   Pretask,
   MatTableDataSourcePaginator
 > {
+  private _superTaskId = 0;
+
+  setSuperTaskId(superTaskId: number): void {
+    this._superTaskId = superTaskId;
+  }
+
+  // ToDo supertasks expand pretask doesnt include pretasfiles, so currently we need to make
+  // and additional call to pretasks and join arrays. API call expand is needed
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const params = {
-      maxResults: this.pageSize,
-      startAt: startAt,
-      expand: 'pretaskFiles'
-    };
+    let pretasks$;
 
-    const pretasks$ = this.service.getAll(SERV.PRETASKS, params);
+    if (this._superTaskId === 0) {
+      const startAt = this.currentPage * this.pageSize;
+      const params = {
+        maxResults: this.pageSize,
+        startAt: startAt,
+        expand: 'pretaskFiles'
+      };
+
+      pretasks$ = this.service.getAll(SERV.PRETASKS, params);
+    } else {
+      pretasks$ = this.service.get(SERV.SUPER_TASKS, this._superTaskId, {
+        expand: 'pretasks'
+      });
+    }
 
     this.subscriptions.push(
       pretasks$
@@ -29,14 +46,38 @@ export class PreTasksDataSource extends BaseDataSource<
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ListResponseWrapper<Pretask>) => {
-          const pretasks: Pretask[] = response.values;
+          let pretasks: Pretask[];
+          if (this._superTaskId === 0) {
+            pretasks = response.values;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
-          this.setData(pretasks);
+            this.setPaginationConfig(
+              this.pageSize,
+              this.currentPage,
+              response.total
+            );
+            this.setData(pretasks);
+          } else {
+            const superTaskPretasks = response.pretasks || [];
+
+            // Make another request to get pretaskFiles
+            this.service
+              .getAll(SERV.PRETASKS, {
+                expand: 'pretaskFiles'
+              })
+              .subscribe((pretaskFilesResponse: ListResponseWrapper<any>) => {
+                const pretaskFiles = pretaskFilesResponse.values || [];
+
+                // Merge pretasks with pretaskFiles
+                const pretasks = superTaskPretasks.map((superTaskPretask) => ({
+                  ...superTaskPretask,
+                  pretaskFiles: pretaskFiles.filter(
+                    (pf) => pf.pretaskId === superTaskPretask.pretaskId
+                  )
+                }));
+
+                this.setData(pretasks);
+              });
+          }
         })
     );
   }
