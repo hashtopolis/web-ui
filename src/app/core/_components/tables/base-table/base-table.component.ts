@@ -27,6 +27,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { UtilService } from 'src/app/core/_services/shared/util.service';
 
 @Component({
   selector: 'base-table',
@@ -65,7 +66,8 @@ export class BaseTableComponent {
     protected uiService: UIConfigService,
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public utilService: UtilService
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();

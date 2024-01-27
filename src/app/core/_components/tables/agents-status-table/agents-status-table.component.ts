@@ -87,7 +87,7 @@ export class AgentsStatusTableComponent
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: true,
-        render: (agent: Agent): SafeHtml => this.renderActiveSpinner(agent),
+        async: (agent: Agent) => this.renderActiveAgent(agent),
         export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
@@ -162,9 +162,13 @@ export class AgentsStatusTableComponent
 
   // --- Render functions ---
 
-  renderActiveSpinner(agent: Agent): SafeHtml {
-    const htmlContent = `<mat-spinner diameter="16"></mat-spinner>`;
-    return this.sanitizer.bypassSecurityTrustHtml(htmlContent);
+  @Cacheable(['_id'])
+  async renderActiveAgent(agent: Agent): Promise<SafeHtml> {
+    const agentSpeed = await this.utilService
+      .calculateSpeed(agent.agentId, true)
+      .toPromise();
+    const result = agentSpeed > 0 ? 'Running task' : 'Stopped task';
+    return this.sanitize(`${result}`);
   }
 
   @Cacheable(['_id', 'agentName'])
