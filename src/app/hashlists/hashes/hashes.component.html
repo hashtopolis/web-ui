@@ -9,8 +9,8 @@
     </ng-container>
     <a [routerLink]="getRouterLink()">{{ titleName }}</a>
   </h2>
-
-  <form [formGroup]="viewForm">
+  <app-hexconvertor></app-hexconvertor>
+  <!-- <form [formGroup]="viewForm">
     <div fxLayout="row" fxLayoutGap="10px">
 
     <simulate-form-field label="Displaying:"  message="Hash + Plain" *ngIf="!displaying"></simulate-form-field>
@@ -25,31 +25,11 @@
       <button-submit name="Ok" (click)="onRefresh()"></button-submit>
     </grid-buttons>
   </div>
- </form>
+ </form> -->
 </grid-main>
-<app-hexconvertor></app-hexconvertor>
-<!-- Matching Table Section -->
+<!-- Hashes -->
 <app-table>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-      <thead class="thead-light">
-        <tr>
-          <th class="rounded-start rounded-end">Matching hashes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let mh of matchHashes">
-          <td>
-              {{ mh | hashesf:displaying:filtering:crackPos }}
-              <fa-icon
-                      class='btn-outline-gray-600'
-                      [copyButton]="mh | hashesf:displaying:filtering:crackPos"
-              >
-              faCopy
-              </fa-icon>
-          </td>
-        </tr>
-      </tbody>
-  </table>
+ <hashes-table [id]="editedIndex" [dataType]="whichView"></hashes-table>
 </app-table>
 
 

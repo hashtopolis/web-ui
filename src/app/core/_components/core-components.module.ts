@@ -23,6 +23,7 @@ import { HTTableTypeDefaultComponent } from './tables/ht-table/type/default/ht-t
 import { HTTableTypeEditableComponent } from './tables/ht-table/type/editable/ht-table-type-editable.component';
 import { HTTableTypeLinkComponent } from './tables/ht-table/type/link/ht-table-type-link.component';
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
+import { HashesTableComponent } from './tables/hashes-table/hashes-table.component';
 import { HashtypesTableComponent } from './tables/hashtypes-table/hashtypes-table.component';
 import { HealthChecksTableComponent } from './tables/health-checks-table/health-checks-table.component';
 import { HealthCheckAgentsTableComponent } from './tables/health-check-agents-table/health-check-agents-table.component';
@@ -84,6 +85,7 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
+    HashesTableComponent,
     SuperHashlistsTableComponent,
     FilesAttackTableComponent,
     FilesTableComponent,
@@ -149,6 +151,7 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     AgentsStatusTableComponent,
     ChunksTableComponent,
     HashlistsTableComponent,
+    HashesTableComponent,
     HashtypesTableComponent,
     SuperHashlistsTableComponent,
     FilesAttackTableComponent,

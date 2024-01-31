@@ -5,6 +5,7 @@ export type DataType =
   | 'agents'
   | 'agents-status'
   | 'hashlists'
+  | 'hashes'
   | 'search-hash'
   | 'chunks'
   | 'hashtypes'
