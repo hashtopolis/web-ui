@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { faCopy } from '@fortawesome/free-solid-svg-icons';
 import { DataTableDirective } from 'angular-datatables';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
@@ -67,7 +66,6 @@ export class HashesComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadHashes();
-    this.setupTable();
   }
 
   /**
@@ -204,7 +202,7 @@ export class HashesComponent implements OnInit, OnDestroy {
 
     this.gs.getAll(SERV.HASHES, nwparams).subscribe((hashes: any) => {
       let res = hashes.values;
-      console.log(this.whichView);
+      // console.log(this.whichView);
       if (this.whichView === 'tasks') {
         res = res.filter((u) => u.chunk?.taskId == this.editedIndex);
       }
@@ -271,62 +269,5 @@ export class HashesComponent implements OnInit, OnDestroy {
     }
 
     return undefined;
-  }
-
-  /**
-   * Sets up the DataTable options and buttons.
-   * Customizes DataTable appearance and behavior.
-   */
-  setupTable(): void {
-    // DataTables options
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      scrollX: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
-      ],
-      searching: false,
-      buttons: {
-        dom: {
-          button: {
-            className:
-              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
-          }
-        },
-        buttons: [
-          {
-            extend: 'collection',
-            text: 'Export',
-            buttons: [
-              {
-                extend: 'print',
-                customize: function (win) {
-                  $(win.document.title).css('font-size', '14pt');
-                  $(win.document.body).css('font-size', '10pt');
-                  $(win.document.body)
-                    .find('table')
-                    .addClass('compact')
-                    .css('font-size', 'inherit');
-                }
-              },
-              {
-                extend: 'csvHtml5',
-                exportOptions: { modifier: { selected: true } },
-                select: true,
-                customize: function (dt, csv) {
-                  let data = '';
-                  for (let i = 0; i < dt.length; i++) {
-                    data = 'Hashes Information\n\n' + dt;
-                  }
-                  return data;
-                }
-              }
-            ]
-          }
-        ]
-      }
-    };
   }
 }

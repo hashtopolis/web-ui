@@ -37,6 +37,9 @@ export function formatUnixTimestamp(
   unixTimestamp: number,
   fmt: string
 ): string {
+  if (unixTimestamp === 0) {
+    return 'N/A';
+  }
   //return moment.unix(unixTimestamp).format(fmt)
   const date = new Date(unixTimestamp * 1000);
 

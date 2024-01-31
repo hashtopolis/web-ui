@@ -15,7 +15,6 @@ import { KeyspaceCalcPipe } from '../core/_pipes/keyspace-calc.pipe';
 import { StaticArrayPipe } from '../core/_pipes/static-array.pipe';
 import { MaximizePipe } from '../core/_pipes/maximize-object.pipe';
 import { TaskCrackedPipe } from '../core/_pipes/task-cracked.pipe';
-import { AgentsSpeedPipe } from '../core/_pipes/agents-speed.pipe';
 import { ArraySortPipe } from '../core/_pipes/orderby-item.pipe';
 import { AveragePipe } from '../core/_pipes/average-object.pipe';
 import { FilterItemPipe } from '../core/_pipes/filter-item.pipe';
@@ -42,7 +41,6 @@ import { uiDatePipe } from '../core/_pipes/date.pipe';
     StaticArrayPipe,
     AgentSColorPipe,
     TaskCrackedPipe,
-    AgentsSpeedPipe,
     FilterItemPipe,
     ArraySortPipe,
     FileSizePipe,
@@ -70,7 +68,6 @@ import { uiDatePipe } from '../core/_pipes/date.pipe';
     StaticArrayPipe,
     AgentSColorPipe,
     TaskCrackedPipe,
-    AgentsSpeedPipe,
     FilterItemPipe,
     ArraySortPipe,
     FileSizePipe,
