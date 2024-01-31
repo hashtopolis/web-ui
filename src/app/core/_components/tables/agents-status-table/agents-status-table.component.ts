@@ -108,8 +108,9 @@ export class AgentsStatusTableComponent
       {
         id: AgentsStatusTableCol.WORKING_ON,
         dataKey: 'status',
-        render: (agent: Agent) => this.renderWorkingOn(agent),
-        isSortable: true
+        async: (agent: Agent) => this.renderWorkingOn(agent),
+        isSortable: false,
+        export: async (agent: Agent) => (await this.renderWorkingOn(agent)) + ''
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
@@ -257,18 +258,17 @@ export class AgentsStatusTableComponent
   }
 
   @Cacheable(['_id', 'speed'])
-  renderWorkingOn(agent: Agent): SafeHtml {
+  async renderWorkingOn(agent: Agent): Promise<SafeHtml> {
     let html = '';
-
-    if (agent.agentId > 0) {
-      html = ` `;
-      // html = `
-      //   <div>
-      //     ${agent.taskId ? `<div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a>,</div>` : ''}
-      //     ${agent.speed ? `<div>at ${agent.speed | fileSize: false} H/s,<br></div>` : ''}
-      //     ${agent.chunkId ? `<div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>` : ''}
-      //   </div>
-      // `;
+    const speed = await this.getSpeed(agent);
+    if (speed) {
+      html = `
+        <div>
+        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
+        <div>at ${speed} H/s,<br></div>
+        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
+        </div>
+      `;
     }
 
     return this.sanitize(html);
