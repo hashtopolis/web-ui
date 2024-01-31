@@ -26,6 +26,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatOptionModule } from '@angular/material/core';
 import { PipesModule } from '../pipes.module';
+import { CoreFormsModule } from '../forms.module';
 
 @NgModule({
   declarations: [DynamicFormComponent, FormConfigComponent, FormComponent],
@@ -42,6 +43,7 @@ import { PipesModule } from '../pipes.module';
     MatChipsModule,
     MatOptionModule,
     CommonModule,
+    CoreFormsModule,
     MatAutocompleteModule,
     FontAwesomeModule,
     FormsModule,

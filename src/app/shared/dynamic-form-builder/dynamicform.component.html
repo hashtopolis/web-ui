@@ -1,7 +1,8 @@
 <grid-main>
   <app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
-    <grid-autocol [itemCount]="formMetadata.length">
+    <div gdAlignColumns="start stretch">
+    <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
       <div *ngFor="let field of formMetadata">
         <div *ngIf="field.type !== 'hidden'">
           <ng-container *ngIf="field.isTitle">
@@ -108,6 +109,7 @@
         [disabled]="!formIsValid()"
       ></button-submit>
       </grid-buttons>
-    </grid-autocol>
+    </div>
+    <!-- </grid-autocol> -->
   </form>
 </grid-main>
