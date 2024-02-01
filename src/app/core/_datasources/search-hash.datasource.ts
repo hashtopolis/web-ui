@@ -20,7 +20,7 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
     for (let i = 0; i < this._search.length; i++) {
       const params = {
         maxResults: this.pageSize,
-        startAt: startAt,
+        startsAt: startAt,
         filter: `hash=${this._search[i]}`
       };
 

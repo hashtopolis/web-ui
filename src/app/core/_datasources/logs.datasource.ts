@@ -10,9 +10,10 @@ export class LogsDataSource extends BaseDataSource<Log> {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
+
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt
+      startsAt: startAt
     };
 
     const logs$ = this.service.getAll(SERV.LOGS, params);

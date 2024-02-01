@@ -24,7 +24,7 @@ export class TasksChunksDataSource extends BaseDataSource<Chunk> {
     const startAt = this.currentPage * this.pageSize;
     const chunkParams = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'task',
       filter: 'taskId=' + this._taskId + ''
     };

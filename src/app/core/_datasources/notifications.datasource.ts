@@ -12,7 +12,7 @@ export class NotificationsDataSource extends BaseDataSource<Notification> {
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt
+      startsAt: startAt
     };
 
     const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);

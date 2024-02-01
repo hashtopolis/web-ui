@@ -19,7 +19,7 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'hashType,accessGroup',
       filter: `isArchived=${this.isArchived}`
     };

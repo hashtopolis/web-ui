@@ -12,7 +12,7 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt
+      startsAt: startAt
     };
 
     const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params);
