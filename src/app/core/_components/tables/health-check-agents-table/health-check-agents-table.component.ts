@@ -57,7 +57,10 @@ export class HealthCheckAgentsTableComponent
   }
 
   filter(item: HealthCheckAgent, filterValue: string): boolean {
-    if (item.agentName.toLowerCase().includes(filterValue)) {
+    if (
+      item.agentName.toLowerCase().includes(filterValue) ||
+      item.status.toString().includes(filterValue)
+    ) {
       return true;
     }
 
