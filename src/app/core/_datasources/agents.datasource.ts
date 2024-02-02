@@ -23,7 +23,7 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     const startAt = this.currentPage * this.pageSize;
     const agentParams = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'accessGroups'
     };
 
@@ -82,7 +82,7 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     const startAt = this.currentPage * this.pageSize;
     const assignParams = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'agent,task',
       filter: `taskId=${this._taskId}`
     };

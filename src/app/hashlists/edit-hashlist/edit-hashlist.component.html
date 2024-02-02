@@ -2,11 +2,11 @@
   <div class="col-md-7">
     <grid-main>
       <app-page-title [title]="type === 3 ? 'Edit SuperHashlist': 'Edit HashList'" [subbutton]="false"></app-page-title>
-      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
+      <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
 
           <input-text title="ID" formControlName="hashlistId" [disabled]="true"></input-text>
 
-          <div formGroupName="updateData" fxLayout="column" fxLayoutGap="10px">
+          <div formGroupName="updateData">
 
             <input-text title="Name" formControlName="name"></input-text>
 

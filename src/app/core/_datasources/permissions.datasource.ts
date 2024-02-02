@@ -12,7 +12,7 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup>
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'user'
     };
 

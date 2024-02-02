@@ -1,21 +1,14 @@
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { DataTableDirective } from 'angular-datatables';
-
-import { Subject } from 'rxjs';
-
-import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../core/_services/main.config';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { SERV } from '../../core/_services/main.config';
+import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 declare let options: any;
 declare let defaultOptions: any;
@@ -45,8 +38,6 @@ export class EditSupertasksComponent implements OnInit {
   // Edit
   editedSTIndex: number;
   editedST: any; // Change to Model
-  pretasks: any = [];
-  pretasksFiles: any = [];
   assignPretasks: any;
 
   constructor(
@@ -77,7 +68,6 @@ export class EditSupertasksComponent implements OnInit {
    */
   ngOnInit(): void {
     this.loadData();
-    this.loadTableData();
   }
 
   /**
@@ -92,15 +82,18 @@ export class EditSupertasksComponent implements OnInit {
    * Builds the form for creating a new SuperHashlist.
    */
   buildForm(): void {
+    // Form details
     this.viewForm = new FormGroup({
       supertaskId: new FormControl({ value: '', disabled: true }),
       supertaskName: new FormControl({ value: '', disabled: true })
     });
 
+    // Form add pretasks
     this.updateForm = new FormGroup({
       pretasks: new FormControl('')
     });
 
+    // Form calculate benchmark
     this.etForm = new FormGroup({
       benchmarka0: new FormControl(null || 0),
       benchmarka3: new FormControl(null || 0)
@@ -211,62 +204,6 @@ export class EditSupertasksComponent implements OnInit {
     });
   }
 
-  //To delete
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  loadTableData() {
-    const matchObjectFiles = [];
-    this.gs
-      .getAll(SERV.SUPER_TASKS, {
-        expand: 'pretasks',
-        filter: 'supertaskId=' + this.editedSTIndex + ''
-      })
-      .subscribe((result) => {
-        this.gs
-          .getAll(SERV.PRETASKS, { expand: 'pretaskFiles' })
-          .subscribe((pretasks: any) => {
-            this.pretasks = result.values.map((mainObject) => {
-              for (
-                let i = 0;
-                i < Object.keys(result.values[0].pretasks).length;
-                i++
-              ) {
-                matchObjectFiles.push(
-                  pretasks.values.find(
-                    (element: any) =>
-                      element?.pretaskId === mainObject.pretasks[i]?.pretaskId
-                  )
-                );
-              }
-              return { ...mainObject, matchObjectFiles };
-            });
-            this.dtTrigger.next(void 0);
-          });
-      });
-
-    this.dtOptions[0] = {
-      dom: 'Bfrtip',
-      scrollY: '700px',
-      scrollCollapse: true,
-      paging: false,
-      autoWidth: false,
-      searching: false,
-      buttons: {
-        dom: {
-          button: {
-            className:
-              'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
-          }
-        },
-        buttons: []
-      }
-    };
-  }
-
   onRefresh() {
     window.location.reload();
   }
@@ -286,48 +223,82 @@ export class EditSupertasksComponent implements OnInit {
       const benchmarka3 = this.etForm.value.benchmarka3;
 
       // Iterate over each task in the supertask
-      $('.taskInSuper').each(function (index) {
-        // Extract keyspace size from the table cell
-        const keyspace_size = $(this).find('td:nth-child(4)').text();
-        let seconds = null;
-        let runtime = null;
 
-        // Set default options for the attack
-        options = defaultOptions;
-        options.ruleFiles = [];
-        options.posArgs = [];
-        options.unrecognizedFlag = [];
+      $('.hashtopolis-table').each((index, table) => {
+        // Find the header row and get the column index with the label "Attack Runtime"
+        const headerRow = $(table).find('tr').first();
+        const attackEstimatedKeyspaceColumnIndex = headerRow
+          .find('th .mat-sort-header-content:contains("Estimated Keyspace")')
+          .closest('th')
+          .index();
 
-        // Check if keyspace size is available
-        if (keyspace_size === null || !keyspace_size) {
-          unknown_runtime_included = 1;
-          runtime = 'Unknown';
-        } else if (options.attackType === 3) {
-          // Calculate seconds based on benchmarka3 for attackType 3
-          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
-        } else if (options.attackType === 0) {
-          // Calculate seconds based on benchmarka0 for attackType 0
-          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
+        // Get the number of rows in the table
+        const numRows = $(table).find('tr').length;
+
+        // Iterate through each row
+        for (let i = 0; i < numRows; i++) {
+          // Extract the value from the "Attack Runtime" column
+          const keyspace_size_raw = $(table)
+            .find('tr')
+            .eq(i)
+            .find('td')
+            .eq(attackEstimatedKeyspaceColumnIndex)
+            .text();
+
+          // Extract keyspace size from the table cell
+          let seconds = null;
+          let runtime = null;
+
+          // Remove special characters and convert to a valid number
+          const keyspace_size = parseFloat(
+            keyspace_size_raw.replace(/[^0-9.-]/g, '')
+          );
+
+          // Set default options for the attack
+          options = defaultOptions;
+          options.ruleFiles = [];
+          options.posArgs = [];
+          options.unrecognizedFlag = [];
+
+          // Check if keyspace size is available
+          if (keyspace_size === null || !keyspace_size) {
+            unknown_runtime_included = 1;
+            runtime = 'Unknown';
+          } else if (options.attackType === 3) {
+            // Calculate seconds based on benchmarka3 for attackType 3
+            seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
+          } else if (options.attackType === 0) {
+            // Calculate seconds based on benchmarka0 for attackType 0
+            seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
+          }
+
+          // Convert seconds to human-readable runtime format
+          if (Number.isInteger(seconds)) {
+            totalSecondsSupertask += seconds;
+            const days = Math.floor(seconds / (3600 * 24));
+            seconds -= days * 3600 * 24;
+            const hrs = Math.floor(seconds / 3600);
+            seconds -= hrs * 3600;
+            const mins = Math.floor(seconds / 60);
+            seconds -= mins * 60;
+
+            runtime = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+          } else {
+            unknown_runtime_included = 1;
+            runtime = 'Unknown';
+          }
+          // Update the "Attack Runtime" column with the calculated runtime
+          const attackRuntimeColumnIndex = headerRow
+            .find('th .mat-sort-header-content:contains("Attack Runtime")')
+            .closest('th')
+            .index();
+          const attackRuntimeCell = $(table)
+            .find('tr')
+            .eq(i)
+            .find('td')
+            .eq(attackRuntimeColumnIndex);
+          attackRuntimeCell.html(runtime);
         }
-
-        // Convert seconds to human-readable runtime format
-        if (Number.isInteger(seconds)) {
-          totalSecondsSupertask += seconds;
-          const days = Math.floor(seconds / (3600 * 24));
-          seconds -= days * 3600 * 24;
-          const hrs = Math.floor(seconds / 3600);
-          seconds -= hrs * 3600;
-          const mins = Math.floor(seconds / 60);
-          seconds -= mins * 60;
-
-          runtime = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
-        } else {
-          unknown_runtime_included = 1;
-          runtime = 'Unknown';
-        }
-
-        // Update the HTML content with the calculated runtime
-        $(this).find('td:nth-child(5)').html(runtime);
       });
 
       // Reduce total runtime to a human-readable format

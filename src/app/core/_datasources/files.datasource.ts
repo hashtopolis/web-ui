@@ -42,7 +42,7 @@ export class FilesDataSource extends BaseDataSource<File> {
     } else {
       const params = {
         maxResults: this.pageSize,
-        startAt: startAt,
+        startsAt: startAt,
         expand: 'accessGroup',
         filter: `fileType=${this.fileType}`
       };

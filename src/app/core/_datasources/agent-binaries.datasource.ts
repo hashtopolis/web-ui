@@ -12,7 +12,7 @@ export class AgentBinariesDataSource extends BaseDataSource<AgentBinary> {
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt
+      startsAt: startAt
     };
 
     const agentBinaries$ = this.service.getAll(SERV.AGENT_BINARY, params);

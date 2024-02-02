@@ -114,7 +114,7 @@
 <app-table *ngIf="editedTaskIndex">
   <app-page-subtitle subtitle="Assigned agents"></app-page-subtitle>
   <form [formGroup]="createForm">
-    <br /><br />
+    <br/><br/>
     <mat-form-field>
       <mat-label>Assign Agents</mat-label>
       <mat-select formControlName="agentId">
@@ -124,8 +124,15 @@
       </mat-select>
       <mat-hint *ngIf="availAgents.length === 0">No agents available</mat-hint>
       <mat-hint *ngIf="availAgents.length > 0">{{ availAgents.length }} agent(s) available</mat-hint>
+
+      <!-- Add button -->
       <button mat-icon-button matSuffix (click)="assignAgent()" [attr.aria-label]="'Assign new Agent'">
         <mat-icon>add</mat-icon>
+      </button>
+
+      <!-- Reload button -->
+      <button mat-icon-button matSuffix (click)="assingAgentInit()" [attr.aria-label]="'Reload Table'">
+        <mat-icon>autorenew</mat-icon>
       </button>
     </mat-form-field>
   </form>

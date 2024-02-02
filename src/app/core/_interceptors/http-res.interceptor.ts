@@ -78,10 +78,16 @@ export class HttpResInterceptor implements HttpInterceptor {
           errmsg = error.error.exception[0].message;
           status = error?.status || 0;
         }
-
-        this.modalRef = this.dialog.open(ErrorModalComponent, {
-          data: { status, message: errmsg }
-        });
+        console.log(errmsg);
+        if (errmsg === 'No token found!') {
+          // Redirect to the login page
+          this.router.navigate(['/login']); // Adjust the route accordingly
+        } else {
+          // Display error modal for other cases
+          this.modalRef = this.dialog.open(ErrorModalComponent, {
+            data: { status, message: errmsg }
+          });
+        }
 
         return throwError(() => errmsg);
       })

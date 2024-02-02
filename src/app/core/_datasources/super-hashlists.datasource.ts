@@ -19,7 +19,7 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
     const startAt = this.currentPage * this.pageSize;
     const params = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'hashType,hashlists',
       filter: `format=${HashListFormat.SUPERHASHLIST}`
     };

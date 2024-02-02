@@ -36,7 +36,11 @@ export class LogsTableComponent
   }
 
   filter(item: Log, filterValue: string): boolean {
-    if (item.message.toLowerCase().includes(filterValue)) {
+    if (
+      item.message.toLowerCase().includes(filterValue) ||
+      item.level.toLowerCase().includes(filterValue) ||
+      item.issuer.toLowerCase().includes(filterValue)
+    ) {
       return true;
     }
 

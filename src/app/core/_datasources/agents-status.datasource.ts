@@ -17,7 +17,7 @@ export class AgentsStatusDataSource extends BaseDataSource<Agent> {
     const startAt = this.currentPage * this.pageSize;
     const agentParams = {
       maxResults: this.pageSize,
-      startAt: startAt,
+      startsAt: startAt,
       expand: 'accessGroups,agentstats'
     };
 
