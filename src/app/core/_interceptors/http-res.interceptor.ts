@@ -78,7 +78,7 @@ export class HttpResInterceptor implements HttpInterceptor {
           errmsg = error.error.exception[0].message;
           status = error?.status || 0;
         }
-
+        console.log(errmsg);
         if (errmsg === 'No token found!') {
           // Redirect to the login page
           this.router.navigate(['/login']); // Adjust the route accordingly

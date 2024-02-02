@@ -14,16 +14,13 @@ import {
   VisualMapComponent,
   VisualMapComponentOption
 } from 'echarts/components';
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
-import { environment } from './../../../environments/environment';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { LineChart, LineSeriesOption } from 'echarts/charts';
 import { FormControl, FormGroup } from '@angular/forms';
-import { DataTableDirective } from 'angular-datatables';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Observable, Subject } from 'rxjs';
 import * as echarts from 'echarts/core';
 
 import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
@@ -32,11 +29,11 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -267,10 +264,18 @@ export class EditTasksComponent implements OnInit {
         taskId: this.editedTaskIndex,
         agentId: this.createForm.value['agentId']
       };
-      this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe(() => {
-        this.snackBar.open('Agent assigned!', 'Close');
-        this.table.reload();
-      });
+      this.gs
+        .create(SERV.AGENT_ASSIGN, payload)
+        .pipe(
+          finalize(() => {
+            this.assingAgentInit();
+            this.table.reload();
+          })
+        )
+        .subscribe(() => {
+          this.createForm.reset();
+          this.snackBar.open('Agent assigned!', 'Close');
+        });
     }
   }
 
