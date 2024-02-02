@@ -1,109 +1,77 @@
-<div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
-  <div fxFlex="70" fxFlex.lt-md="100">
-    <grid-main>
-      <app-page-title [title]="'Supertask Details'"></app-page-title>
-        <form [formGroup]="viewForm">
+<grid-main>
+  <app-page-title [title]="'Supertask Details'"></app-page-title>
+    <form [formGroup]="viewForm" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <input-text title="ID" formControlName="supertaskId" [disabled]="true"></input-text>
-            <input-text title="Name" formControlName="supertaskName" [disabled]="true"></input-text>
-          </div>
+      <input-text title="ID" formControlName="supertaskId" [disabled]="true"></input-text>
+      <input-text title="Name" formControlName="supertaskName" [disabled]="true"></input-text>
 
-          <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
-          <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" (click)="onSubmit()"></button-submit>
+      <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+      <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" (click)="onSubmit()"></button-submit>
 
-        </form>
-        <hr>
-        <h5>Add Pretask</h5>
-        <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+    </form>
+    <hr>
+    <h5>Add Pretask</h5>
+    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
 
-          <div fxLayout="column" fxLayoutAlign="start start">
-          <input-multiselect
-              [isLoading]="isLoading"
-              [placeholder]="'Pretasks...'"
-              [items]="selectPretasks"
-              [label]="'Select or search Pretasks *'"
-              [mergeIdAndName]="true"
-              formControlName="pretasks"
-              style="flex: 1;"
-            ></input-multiselect>
-          </div>
-
-            <button-submit [name]="'Add'"></button-submit>
-        </form>
-  </grid-main>
-</div>
-<div fxFlex="30" fxFlex.lt-md="100">
-  <grid-main>
-    <h5> Estimate Time
-      <mat-icon
-      matTooltip="The benchmark number to enter below is the total amount of hashes per second per attack type of all of the agents combined that will run the supertask."
-      aria-hidden="true"
-    >
-      info
-    </mat-icon>
-    </h5>
-    <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
-
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <input-number title="Benchmark for -a0 attacks" formControlName="benchmarka0"></input-number>
-        <input-number title="Benchmark for -a3 attacks" formControlName="benchmarka3"></input-number>
+      <div fxLayout="column" fxLayoutAlign="start start">
+      <input-multiselect
+          [isLoading]="isLoading"
+          [placeholder]="'Pretasks...'"
+          [items]="selectPretasks"
+          [label]="'Select or search Pretasks *'"
+          [mergeIdAndName]="true"
+          formControlName="pretasks"
+          style="flex: 1;"
+        ></input-multiselect>
       </div>
 
-      <button-submit [name]="'Calculate Runtime'"></button-submit>
+        <button-submit [name]="'Add'"></button-submit>
+    </form>
+</grid-main>
+<!-- Benckmark calculation -->
+<mat-accordion>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span><b>Attack Runtime Estimation</b></span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+      <p>
+        The benchmark number to enter below is the total amount of hashes per second per attack type of all the agents combined that will run the supertask.
+      </p>
+      <p>
+        For example, if you have two agents running -a0 attacks and three agents running -a3 attacks, and each -a0 agent processes 100 hashes per second, and each -a3 agent processes 150 hashes per second, you would enter 200 for "Benchmark for -a0 attacks" and 450 for "Benchmark for -a3 attacks".
+      </p>
+      <p>
+        Note: For this tool to work correctly, ensure that the columns "Estimated Keyspace" and "Runtime Attack" are displayed in your application.
+      </p>
+      <br>
+      <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
 
-    <div *ngIf="etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0">
-      &nbsp;
-      <tr>
-        <th>
-          Estimated total runtime of supertask:
-        </th>
-        <td class="runtimeOfSupertask">
-        </td>
-      </tr>
-    </div>
-   </form>
-  </grid-main>
- </div>
-</div>
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <input-number title="Benchmark for -a0 attacks" formControlName="benchmarka0"></input-number>
+          <input-number title="Benchmark for -a3 attacks" formControlName="benchmarka3"></input-number>
+        </div>
+
+        <button-submit [name]="'Calculate Runtime'"></button-submit>
+
+      <div *ngIf="etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0">
+        &nbsp;
+        <tr>
+          <th>
+            Estimated total runtime of supertask:
+          </th>
+          <td class="runtimeOfSupertask">
+          </td>
+        </tr>
+      </div>
+     </form>
+  </mat-expansion-panel>
+</mat-accordion>
 <!--Table Pretasks-->
 <app-table>
   <app-page-title [title]="'Preconfigured Tasks'"></app-page-title>
   <pretasks-table name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex" [hasBulkActions]="false"></pretasks-table>
 </app-table>
-<!--Table Pretasks part of the supertask -->
-<app-table>
-  <h4>Pretasks</h4>
-  <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[0]" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Name</th>
-          <th>Attack Command</th>
-          <th>Estimated Keyspace</th>
-          <th>Attack runtime</th>
-          <th class="rounded-end">Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr class="taskInSuper" *ngFor="let p of pretasks[0].matchObjectFiles">
-        <td>
-          <span [ngClass]="!p.color ? '' : 'pill-ebidem-tk'" [ngStyle]="{'background-color': p.color }">{{  p.pretaskId }}</span>
-        </td>
-        <td>
-          <a [routerLink]="['/tasks/preconfigured-tasks/', p.pretaskId, 'edit' ]">
-            {{ p.taskName | shortenString:35 }}
-          </a>
-        </td>
-        <td>{{ p.attackCmd }}</td>
-        <td>{{ p.pretaskFiles | keyspace:'lineCount':p.attackCmd:false }}</td>
-        <td class="attackRuntime"></td>
-        <td>
-          <a class='btn-outline-gray-600 float-right' data-toggle="tooltip" data-placement="top" title="Delete">
-            <fa-icon aria-hidden="true">faTrash</fa-icon>
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</app-table>
+
+
