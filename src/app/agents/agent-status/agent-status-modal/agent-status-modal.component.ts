@@ -10,9 +10,9 @@ export class AgentStatusModalComponent implements OnInit {
   @Input() title = '';
   @Input() icon = '';
   @Input() content = '';
-  @Input() thresholdType: string; // 'temp', 'device' or 'util'
+  @Input() thresholdType: string; // Options are 'temp', 'device' or 'util'
 
-  // Threshold values from the database
+  // Threshold values from the config database
   threshold1: string;
   threshold2: string;
   unitLabel: string;
@@ -30,7 +30,6 @@ export class AgentStatusModalComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Data received in modal:', this.data);
     this.title = this.data.title;
     this.icon = this.data.icon;
     this.content = this.data.content;
@@ -43,6 +42,10 @@ export class AgentStatusModalComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  /**
+   * Fetches and sets threshold values based on the threshold type.
+   * @returns {void}
+   */
   private fetchThresholds(): void {
     if (this.thresholdType === 'temp') {
       this.threshold1 = this.getThresholdValue('agentTempThreshold1');
@@ -56,10 +59,19 @@ export class AgentStatusModalComponent implements OnInit {
     }
   }
 
+  /**
+   * Retrieves the threshold value for a given setting key from the UI settings.
+   * @param {string} settingKey - The key for the UI setting.
+   * @returns {string} The threshold value associated with the specified setting key.
+   */
   private getThresholdValue(settingKey: string): string {
     return this.uiService.getUIsettings(settingKey).value;
   }
 
+  /**
+   * Generates text labels and settings based on the threshold type.
+   * @returns {void}
+   */
   private generateText(): void {
     if (this.thresholdType === 'temp') {
       this.statusNumber = 2;
