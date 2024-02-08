@@ -1,11 +1,10 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { HashListFormat } from '../_constants/hashlist.config';
-import { Hashlist } from '../_models/hashlist.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
 import { Hash } from '../_models/hash.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
+import { SERV } from '../_services/main.config';
 
 export class HashesDataSource extends BaseDataSource<Hash> {
   private _id = 0;
@@ -22,11 +21,19 @@ export class HashesDataSource extends BaseDataSource<Hash> {
   loadAll(): void {
     this.loading = true;
 
-    const params: any = {
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
       maxResults: this.pageSize,
-      startsAt: this.currentPage * this.pageSize,
+      startsAt: startAt,
       expand: 'hashlist,chunk'
     };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     // Add additional params based on _dataType
     if (this._dataType === 'chunks') {

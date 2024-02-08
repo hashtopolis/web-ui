@@ -147,10 +147,13 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   @Input() hasBulkActions = true;
 
   /** Pagination sizes to choose from. */
-  @Input() paginationSizes: number[] = [3, 25, 50, 100, 250];
+  @Input() paginationSizes: number[] = [5, 25, 50, 100, 250, 500, 1000, 5000];
 
   /** Default page size for pagination. */
   @Input() defaultPageSize = this.paginationSizes[1];
+
+  /** Default start page. */
+  @Input() defaultStartPage = 0;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> =
@@ -175,6 +178,8 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
+  private sortingColumn;
+
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
 
   constructor(
@@ -186,18 +191,37 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
-    if (displayedColumns) {
+    this.defaultPageSize =
+      this.uiSettings['uiConfig']['tableSettings'][this.name]['page'];
+    this.defaultStartPage =
+      this.uiSettings['uiConfig']['tableSettings'][this.name]['start'];
+
+    if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
     } else {
-      this.setDisplayedColumns(uiConfigDefault.tableSettings[this.name]);
+      // Handle the case when the retrieved value is neither an array nor a TableConfig
+      console.error(`Unexpected table configuration for key: ${this.name}`);
     }
   }
 
   ngAfterViewInit(): void {
     // Configure paginator and sorting
     this.dataSource.paginator = this.matPaginator;
-    this.dataSource.sort = this.matSort;
+    // Get saved Pagesize from lcoal storage, otherwise use default value
     this.dataSource.pageSize = this.defaultPageSize;
+    // Get saved start page
+    this.dataSource.currentPage = this.defaultStartPage;
+    // Sorted header arrow and sorting initialization
+    this.dataSource.sortingColumn =
+      this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+    if (this.dataSource.sortingColumn) {
+      this.matSort.sort({
+        id: this.dataSource.sortingColumn.id,
+        start: this.dataSource.sortingColumn.direction,
+        disableClear: false
+      });
+    }
+    this.dataSource.sort = this.matSort;
     this.matSort.sortChange.subscribe(() => {
       this.dataSource.sortData();
     });
@@ -221,9 +245,29 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((selectedColumns: number[]) => {
       if (selectedColumns) {
         this.setDisplayedColumns(selectedColumns);
-        this.uiSettings.updateTableSettings(this.name, selectedColumns);
+        this.uiSettings.updateTableSettings(this.name, {
+          columns: selectedColumns
+        });
         this.cd.detectChanges();
       }
+    });
+  }
+
+  /**
+   * Handles the click event when a column header is clicked for sorting.
+   * Updates the sorting order in the UI settings based on the clicked column.
+   *
+   * @param {any} column - The column that was clicked for sorting.
+   * @returns {void}
+   */
+  onColumnHeaderClick(column: any): void {
+    const sorting = {
+      ...column,
+      direction: this.dataSource.sort['_direction']
+    };
+    this.dataSource.sortingColumn = sorting;
+    this.uiSettings.updateTableSettings(this.name, {
+      order: sorting
     });
   }
 
@@ -272,6 +316,30 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     if (this.hasRowAction) {
       // Add action menu if enabled
       this.displayedColumns.push(COL_ROW_ACTION + '');
+    }
+  }
+
+  /**
+   * Determines the position of the sorting arrow for the specified column.
+   * If the column is currently sorted, returns the position based on the saved sorting order.
+   * If the column is not sorted, returns null.
+   *
+   * @param {any} tableColumn - The column to determine the sorting arrow position for.
+   * @returns {'before' | 'after' | null} The position of the sorting arrow.
+   *   - 'before': The arrow should be displayed before the column label.
+   *   - 'after': The arrow should be displayed after the column label.
+   *   - null: No sorting arrow should be displayed for the column.
+   */
+  setColumnSorting(tableColumn: any): 'before' | 'after' {
+    if (
+      this.dataSource.sortingColumn &&
+      this.dataSource.sortingColumn.id === tableColumn.id
+    ) {
+      return this.dataSource.sortingColumn.direction === 'asc'
+        ? 'before'
+        : 'after';
+    } else {
+      return null; // or set a default arrow position if no saved sorting
     }
   }
 
@@ -371,11 +439,19 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
+    this.uiSettings.updateTableSettings(this.name, {
+      start: event.pageIndex, // Store the new page index
+      page: event.pageSize // Store the new page size
+    });
+
+    // Update pagination configuration in the data source
     this.dataSource.setPaginationConfig(
       event.pageSize,
       event.pageIndex,
       this.dataSource.totalItems
     );
+
+    // Reload data with updated pagination settings
     this.dataSource.reload();
   }
 

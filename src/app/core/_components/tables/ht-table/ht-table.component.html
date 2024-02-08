@@ -142,9 +142,7 @@
           mat-header-cell
           *matHeaderCellDef
           [mat-sort-header]="tableColumn.id + ''"
-          [arrowPosition]="
-            tableColumn.position === 'right' ? 'before' : 'after'
-          "
+          (click)="onColumnHeaderClick(tableColumn)"
         >
           {{ columnLabels[tableColumn.id] }}
         </th>
@@ -232,6 +230,7 @@
       [length]="dataSource.totalItems"
       [pageSize]="dataSource.pageSize"
       [pageSizeOptions]="paginationSizes"
+      [pageIndex]="dataSource.currentPage"
       (page)="onPageChange($event)"
     ></mat-paginator>
   </ng-container>

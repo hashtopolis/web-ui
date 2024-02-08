@@ -3,6 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { Preprocessor } from '../_models/preprocessor.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
@@ -10,10 +11,17 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
-    const params = {
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt
     };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params);
 

@@ -5,19 +5,28 @@ import { BaseDataSource } from './base.datasource';
 import { Chunk } from '../_models/chunk.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { RequestParams } from '../_models/request-params.model';
 
 export class ChunksDataSource extends BaseDataSource<Chunk> {
   loadAll(): void {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
-    const chunkParams = {
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       expand: 'task'
     };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const agentParams = { maxResults: this.maxResults };
-    const chunks$ = this.service.getAll(SERV.CHUNKS, chunkParams);
+    const chunks$ = this.service.getAll(SERV.CHUNKS, params);
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
     forkJoin([chunks$, agents$])

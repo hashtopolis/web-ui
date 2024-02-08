@@ -4,18 +4,27 @@ import { BaseDataSource } from './base.datasource';
 import { Hashtype } from '../_models/hashtype.model';
 import { HealthCheck } from '../_models/health-check.model';
 import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
   loadAll(): void {
     this.loading = true;
 
-    /**
-     * @todo Extend health checks api response with hashtype
-     */
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, {
-      maxResults: this.pageSize
-    });
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
 
     const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
       maxResults: this.maxResults

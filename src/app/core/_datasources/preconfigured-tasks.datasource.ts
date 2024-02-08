@@ -5,6 +5,7 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { Pretask } from '../_models/pretask.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class PreTasksDataSource extends BaseDataSource<
@@ -26,11 +27,18 @@ export class PreTasksDataSource extends BaseDataSource<
 
     if (this._superTaskId === 0) {
       const startAt = this.currentPage * this.pageSize;
-      const params = {
+      const sorting = this.sortingColumn;
+
+      const params: RequestParams = {
         maxResults: this.pageSize,
         startsAt: startAt,
         expand: 'pretaskFiles'
       };
+
+      if (sorting.dataKey && sorting.isSortable) {
+        const order = this.buildSortingParams(sorting);
+        params.ordering = order;
+      }
 
       pretasks$ = this.service.getAll(SERV.PRETASKS, params);
     } else {

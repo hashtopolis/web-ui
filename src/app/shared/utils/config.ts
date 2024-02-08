@@ -30,12 +30,56 @@ export class UISettingsUtilityClass {
   /**
    * Updates the table settings for a specific key in the UI configuration.
    *
-   * @param key - The key for the table settings.
-   * @param columns - An array of column names to set as table settings for the key.
+   * @param {string} key - The key for the table settings.
+   * @param {object} settings - The settings object containing properties to update.
+   * @param {number} [settings.page] - The page number to set.
+   * @param {number} [settings.start] - The start index to set.
+   * @param {number[]} [settings.columns] - An array of column numbers to set.
+   * @param {any[]} [settings.order] - An array defining the order of columns.
    */
-  updateTableSettings(key: string, columns: number[]): void {
-    this.uiConfig.tableSettings[key] = columns;
-    this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+  updateTableSettings(
+    key: string,
+    settings: {
+      page?: number;
+      start?: number;
+      columns?: number[];
+      order?: any[];
+    }
+  ): void {
+    try {
+      const existingTableSettings = this.uiConfig.tableSettings[key];
+
+      if (existingTableSettings) {
+        // Update the settings based on the provided parameters
+        if (settings.page !== undefined) {
+          existingTableSettings['page'] = settings.page;
+        }
+        if (settings.start !== undefined) {
+          existingTableSettings['start'] = settings.start;
+        }
+        if (settings.columns !== undefined) {
+          // Save columns
+          existingTableSettings['columns'] = settings.columns;
+          // Check if the value saved in order is visible; if not, remove it
+          const orderValue: number = existingTableSettings['order']['id'];
+          const numericColumns: number[] =
+            existingTableSettings['columns'].map(Number);
+          if (!numericColumns.includes(orderValue)) {
+            existingTableSettings['order'] = undefined;
+          }
+        }
+        if (settings.order !== undefined) {
+          existingTableSettings['order'] = settings.order;
+        }
+
+        this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);
+      } else {
+        // If the key doesn't exist, log an error or handle it accordingly
+        console.error(`Table settings not found for key: ${key}`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
@@ -46,9 +90,21 @@ export class UISettingsUtilityClass {
    */
   getTableSettings(key: string): number[] {
     try {
-      return this.uiConfig.tableSettings[key];
+      const tableConfig = this.uiConfig.tableSettings[key];
+
+      if (Array.isArray(tableConfig)) {
+        // If it's an array (number[]), return it
+        return tableConfig;
+      } else if ('columns' in tableConfig) {
+        // If it's a TableConfig, extract and return the columns property
+        return tableConfig.columns;
+      } else {
+        // If it's neither, log an error and return an empty array
+        console.error(`Unexpected table configuration for key: ${key}`);
+        return [];
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return [];
     }
   }
