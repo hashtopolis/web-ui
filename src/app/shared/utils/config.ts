@@ -35,6 +35,7 @@ export class UISettingsUtilityClass {
    * @param {number} [settings.page] - The page number to set.
    * @param {number} [settings.start] - The start index to set.
    * @param {number[]} [settings.columns] - An array of column numbers to set.
+   * @param {number[]} [settings.search] - An array of column numbers to set.
    * @param {any[]} [settings.order] - An array defining the order of columns.
    */
   updateTableSettings(
@@ -44,6 +45,7 @@ export class UISettingsUtilityClass {
       start?: number;
       columns?: number[];
       order?: any[];
+      search?: string;
     }
   ): void {
     try {
@@ -70,6 +72,9 @@ export class UISettingsUtilityClass {
         }
         if (settings.order !== undefined) {
           existingTableSettings['order'] = settings.order;
+        }
+        if (settings.search !== undefined) {
+          existingTableSettings['search'] = settings.search;
         }
 
         this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0);

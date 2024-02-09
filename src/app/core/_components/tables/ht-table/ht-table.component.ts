@@ -211,6 +211,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     this.dataSource.pageSize = this.defaultPageSize;
     // Get saved start page
     this.dataSource.currentPage = this.defaultStartPage;
+    // Search item
+    this.dataSource.filter =
+      this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
     // Sorted header arrow and sorting initialization
     this.dataSource.sortingColumn =
       this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
@@ -349,7 +352,24 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   applyFilter() {
     if (this.filterFn) {
       this.dataSource.filterData(this.filterFn);
+      this.uiSettings.updateTableSettings(this.name, {
+        search: this.dataSource.filter
+      });
     }
+  }
+
+  /**
+   * Clears a filter to the table based on user input.
+   */
+  clearFilter() {
+    // Reset the filter function to a default that passes all items
+    const defaultFilterFn = (item: any, filterValue: '') => true;
+    // Reapply the default filter function
+    this.dataSource.filterData(defaultFilterFn);
+    this.dataSource.filter = '';
+    this.uiSettings.updateTableSettings(this.name, {
+      search: ''
+    });
   }
 
   /**
@@ -439,6 +459,8 @@ export class HTTableComponent implements OnInit, AfterViewInit {
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
+    this.clearFilter();
+
     this.uiSettings.updateTableSettings(this.name, {
       start: event.pageIndex, // Store the new page index
       page: event.pageSize // Store the new page size
