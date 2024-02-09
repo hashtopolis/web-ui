@@ -3,6 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { SuperTask } from '../_models/supertask.model';
 
@@ -14,11 +15,18 @@ export class SuperTasksDataSource extends BaseDataSource<
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
-    const params = {
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       expand: 'pretasks'
     };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params);
 

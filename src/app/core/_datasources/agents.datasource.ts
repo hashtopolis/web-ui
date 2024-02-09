@@ -1,14 +1,14 @@
 import { Chunk, ChunkData } from '../_models/chunk.model';
-import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { Agent } from '../_models/agent.model';
 import { AgentAssignment } from '../_models/agent-assignment.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { Task } from '../_models/task.model';
 import { User } from '../_models/user.model';
-import { environment } from 'src/environments/environment';
 
 export class AgentsDataSource extends BaseDataSource<Agent> {
   private _taskId = 0;
@@ -21,11 +21,18 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
-    const agentParams = {
+    const sorting = this.sortingColumn;
+
+    const agentParams: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       expand: 'accessGroups'
     };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      agentParams.ordering = order;
+    }
 
     const params = { maxResults: this.maxResults };
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);

@@ -3,6 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { Hash } from '../_models/hash.model';
 import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class CracksDataSource extends BaseDataSource<Hash> {
@@ -10,12 +11,19 @@ export class CracksDataSource extends BaseDataSource<Hash> {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
-    const params = {
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       filter: 'isCracked=1',
       expand: 'hashlist,chunk'
     };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     const cracks$ = this.service.getAll(SERV.HASHES, params);
 

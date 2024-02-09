@@ -6,6 +6,7 @@ import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { TaskWrapper } from '../_models/task-wrapper.model';
 import { Hashtype } from '../_models/hashtype.model';
+import { RequestParams } from '../_models/request-params.model';
 
 export class TasksDataSource extends BaseDataSource<
   TaskWrapper,
@@ -26,17 +27,25 @@ export class TasksDataSource extends BaseDataSource<
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
     // @todo Implement hashlist filter in API
     const additionalFilter = this._hashlistId
       ? `;hashlistId=${this._hashlistId}`
       : '';
-    const params = {
+
+    const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}`, //${additionalFilter}`
-      order: 'priority=ASC'
+      filter: `isArchived=${this._isArchived}` //${additionalFilter}`
     };
+
+    console.log(sorting);
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, {

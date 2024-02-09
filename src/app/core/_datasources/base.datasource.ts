@@ -35,6 +35,7 @@ export abstract class BaseDataSource<
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
+  public sortingColumn;
 
   /**
    * Copy of the original dataSubject data used for filtering
@@ -188,6 +189,19 @@ export abstract class BaseDataSource<
     });
 
     this.dataSubject.next(sortedData);
+  }
+
+  /**
+   * Builds sorting parameters based on the provided sorting column.
+   * @param sortingColumn - The sorting column configuration.
+   * @returns {string} The sorting parameter string.
+   */
+  buildSortingParams(sortingColumn): string {
+    if (sortingColumn && sortingColumn.isSortable) {
+      const direction = sortingColumn.direction === 'asc' ? '' : '-';
+      return `${direction}${sortingColumn.dataKey}`;
+    }
+    return '';
   }
 
   /**

@@ -1,5 +1,5 @@
-import { Injectable } from "@angular/core";
-import { BaseStorageService, StorageWrapper } from "./base-storage.service";
+import { Injectable } from '@angular/core';
+import { BaseStorageService, StorageWrapper } from './base-storage.service';
 
 /**
  * A storage service implementation that uses browser's local storage to store and retrieve data
@@ -8,10 +8,9 @@ import { BaseStorageService, StorageWrapper } from "./base-storage.service";
  * @template T - The type of data to be stored.
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class LocalStorageService<T> extends BaseStorageService<T> {
-
   /**
    * Retrieves the stored data associated with the specified key from local storage,
    * and checks if it has expired. If the data has expired, it is removed from local storage.
@@ -20,7 +19,7 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
    * @returns The stored data if found and not expired, or `null` if not found or expired.
    */
   getItem(key: string): T | null {
-    key = this.decode(key)
+    key = this.decode(key);
     const storedValue = localStorage.getItem(key);
     if (!storedValue) {
       return null; // Data not found.
@@ -49,7 +48,7 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
     const storedValue: StorageWrapper<T> = {
       expires: expiresInMs ? new Date(Date.now() + expiresInMs).getTime() : 0,
       value: value
-    }
+    };
 
     localStorage.setItem(this.decode(key), JSON.stringify(storedValue));
   }
@@ -60,7 +59,7 @@ export class LocalStorageService<T> extends BaseStorageService<T> {
    * @param key - The key under which the data is stored.
    */
   removeItem(key: string): void {
-    key = this.decode(key)
+    key = this.decode(key);
     localStorage.removeItem(key);
   }
 }

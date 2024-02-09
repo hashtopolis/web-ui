@@ -30,7 +30,15 @@ export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
 
 export interface TableSettings {
-  [key: string]: number[];
+  [key: string]: number[] | TableConfig;
+}
+
+export interface TableConfig {
+  columns: number[]; // Columns
+  start: number; // Pagination value, start
+  order: Sorting; // Column sorting
+  page: number; //Page number of records
+  search: string | []; //Saved search
 }
 
 export interface UIConfig {
@@ -42,228 +50,565 @@ export interface UIConfig {
   refreshInterval: number;
 }
 
+export interface Sorting {
+  id: number;
+  dataKey: string;
+  isSortable: boolean;
+  direction: string;
+}
+
 export const uiConfigDefault: UIConfig = {
   layout: 'fixed',
   theme: 'light',
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
-    notificationsTable: [
-      NotificationsTableCol.ID,
-      NotificationsTableCol.STATUS,
-      NotificationsTableCol.APPLIED_TO,
-      NotificationsTableCol.ACTION,
-      NotificationsTableCol.NOTIFICATION,
-      NotificationsTableCol.RECEIVER
-    ],
-    vouchersTable: [
-      VouchersTableCol.ID,
-      VouchersTableCol.KEY,
-      VouchersTableCol.CREATED
-    ],
-    permissionsTable: [
-      PermissionsTableCol.ID,
-      PermissionsTableCol.NAME,
-      PermissionsTableCol.MEMBERS
-    ],
-    cracksTable: [
-      CracksTableCol.FOUND,
-      CracksTableCol.PLAINTEXT,
-      CracksTableCol.HASH,
-      CracksTableCol.AGENT,
-      CracksTableCol.TASK,
-      CracksTableCol.CHUNK,
-      CracksTableCol.TYPE
-    ],
-    agentsTable: [
-      AgentsTableCol.ID,
-      AgentsTableCol.NAME,
-      AgentsTableCol.STATUS,
-      AgentsTableCol.CURRENT_TASK,
-      AgentsTableCol.CLIENT,
-      AgentsTableCol.GPUS_CPUS,
-      AgentsTableCol.LAST_ACTIVITY
-    ],
-    agentStatusTable: [
-      AgentsStatusTableCol.ID,
-      AgentsStatusTableCol.STATUS,
-      AgentsStatusTableCol.NAME,
-      AgentsStatusTableCol.AGENT_STATUS,
-      AgentsStatusTableCol.WORKING_ON,
-      AgentsStatusTableCol.ASSIGNED,
-      AgentsStatusTableCol.LAST_ACTIVITY
-    ],
-    assignedAgentsTable: [
-      AgentsTableCol.ID,
-      AgentsTableCol.NAME,
-      AgentsTableCol.STATUS,
-      AgentsTableCol.TASK_SPEED,
-      AgentsTableCol.LAST_ACTIVITY,
-      AgentsTableCol.TIME_SPENT,
-      AgentsTableCol.BENCHMARK,
-      AgentsTableCol.CRACKED,
-      AgentsTableCol.SEARCHED
-    ],
-    chunksTable: [
-      ChunksTableCol.ID,
-      ChunksTableCol.PROGRESS,
-      ChunksTableCol.TASK,
-      ChunksTableCol.AGENT,
-      ChunksTableCol.DISPATCH_TIME,
-      ChunksTableCol.LAST_ACTIVITY,
-      ChunksTableCol.TIME_SPENT,
-      ChunksTableCol.STATE,
-      ChunksTableCol.CRACKED
-    ],
-    hashlistsTable: [
-      HashlistsTableCol.ID,
-      HashlistsTableCol.NAME,
-      HashlistsTableCol.HASHTYPE,
-      HashlistsTableCol.FORMAT,
-      HashlistsTableCol.CRACKED,
-      HashlistsTableCol.HASH_COUNT
-    ],
-    superHashlistsTable: [
-      SuperHashlistsTableCol.ID,
-      SuperHashlistsTableCol.NAME,
-      SuperHashlistsTableCol.HASHTYPE,
-      SuperHashlistsTableCol.CRACKED,
-      SuperHashlistsTableCol.HASHLISTS
-    ],
-    hashtypesTable: [
-      HashtypesTableCol.HASHTYPE,
-      HashtypesTableCol.DESCRIPTION,
-      HashtypesTableCol.SALTED,
-      HashtypesTableCol.SLOW_HASH
-    ],
-    filesTable: [
-      FilesTableCol.ID,
-      FilesTableCol.NAME,
-      FilesTableCol.SIZE,
-      FilesTableCol.LINE_COUNT,
-      FilesTableCol.ACCESS_GROUP
-    ],
-    filesAttackTable: [
-      FilesAttackTableCol.ID,
-      FilesAttackTableCol.NAME,
-      FilesAttackTableCol.SIZE
-    ],
-    crackersTable: [
-      CrackersTableCol.ID,
-      CrackersTableCol.NAME,
-      CrackersTableCol.VERSIONS
-    ],
-    preprocessorsTable: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
-    agentBinariesTable: [
-      AgentBinariesTableCol.ID,
-      AgentBinariesTableCol.FILENAME,
-      AgentBinariesTableCol.OS,
-      AgentBinariesTableCol.TYPE,
-      AgentBinariesTableCol.UPDATE_TRACK,
-      AgentBinariesTableCol.VERSION
-    ],
-    healthChecksTable: [
-      HealthChecksTableCol.ID,
-      HealthChecksTableCol.CREATED,
-      HealthChecksTableCol.STATUS,
-      HealthChecksTableCol.TYPE
-    ],
-    healthCheckAgentsTable: [
-      HealthCheckAgentsTableCol.AGENT_ID,
-      HealthCheckAgentsTableCol.AGENT_NAME,
-      HealthCheckAgentsTableCol.STATUS,
-      HealthCheckAgentsTableCol.START,
-      HealthCheckAgentsTableCol.GPUS,
-      HealthCheckAgentsTableCol.CRACKED,
-      HealthCheckAgentsTableCol.ERRORS
-    ],
-    pretasksTable: [
-      PretasksTableCol.ID,
-      PretasksTableCol.NAME,
-      PretasksTableCol.ATTACK_COMMAND,
-      PretasksTableCol.FILES_TOTAL,
-      PretasksTableCol.FILES_SIZE,
-      PretasksTableCol.PRIORITY,
-      PretasksTableCol.MAX_AGENTS
-    ],
-    tasksTable: [
-      TaskTableCol.ID,
-      TaskTableCol.TASK_TYPE,
-      TaskTableCol.NAME,
-      TaskTableCol.STATUS,
-      TaskTableCol.HASHTYPE,
-      TaskTableCol.HASHLISTS,
-      TaskTableCol.PRIORITY,
-      TaskTableCol.AGENTS,
-      TaskTableCol.MAX_AGENTS,
-      TaskTableCol.DISPATCHED_SEARCHED,
-      TaskTableCol.CRACKED
-    ],
-    tasksChunksTable: [
-      TasksChunksTableCol.ID,
-      TasksChunksTableCol.PROGRESS,
-      TasksChunksTableCol.AGENT,
-      TasksChunksTableCol.DISPATCH_TIME,
-      TasksChunksTableCol.LAST_ACTIVITY,
-      TasksChunksTableCol.TIME_SPENT,
-      TasksChunksTableCol.STATE,
-      TasksChunksTableCol.CRACKED
-    ],
-    tasksSupertasksTable: [
-      TasksSupertasksDataSourceTableCol.ID,
-      TasksSupertasksDataSourceTableCol.NAME,
-      TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
-      TasksSupertasksDataSourceTableCol.CRACKED,
-      TasksSupertasksDataSourceTableCol.AGENTS,
-      TasksSupertasksDataSourceTableCol.PRIORITY,
-      TasksSupertasksDataSourceTableCol.MAX_AGENTS
-    ],
-    supertasksTable: [
-      SupertasksTableCol.ID,
-      SupertasksTableCol.NAME,
-      SupertasksTableCol.PRETASKS
-    ],
-    supertasksPretasksTable: [
-      SupertasksPretasksTableCol.ID,
-      SupertasksPretasksTableCol.NAME,
-      SupertasksPretasksTableCol.PRIORITY,
-      SupertasksPretasksTableCol.MAX_AGENTS
-    ],
-    superTasksPretasksEditTable: [
-      PretasksTableCol.ID,
-      PretasksTableCol.NAME,
-      PretasksTableCol.ATTACK_COMMAND,
-      PretasksTableCol.ESTIMATED_KEYSPACE,
-      PretasksTableCol.ATTACK_RUNTIME,
-      PretasksTableCol.FILES_TOTAL,
-      PretasksTableCol.FILES_SIZE,
-      PretasksTableCol.PRIORITY,
-      PretasksTableCol.MAX_AGENTS
-    ],
-    hashlistTasksTable: [
-      TaskTableCol.ID,
-      TaskTableCol.NAME,
-      TaskTableCol.DISPATCHED_SEARCHED,
-      TaskTableCol.CRACKED
-    ],
-    searchHashTable: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
-    usersTable: [
-      UsersTableCol.ID,
-      UsersTableCol.NAME,
-      UsersTableCol.REGISTERED,
-      UsersTableCol.LAST_LOGIN,
-      UsersTableCol.EMAIL,
-      UsersTableCol.STATUS,
-      UsersTableCol.SESSION,
-      UsersTableCol.PERM_GROUP
-    ],
-    logsTable: [
-      LogsTableCol.ID,
-      LogsTableCol.ISSUER,
-      LogsTableCol.LEVEL,
-      LogsTableCol.MESSAGE,
-      LogsTableCol.TIME
-    ],
-    accessGroupsTable: [AccessGroupsTableCol.ID, AccessGroupsTableCol.NAME]
+    notificationsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        NotificationsTableCol.ID,
+        NotificationsTableCol.STATUS,
+        NotificationsTableCol.APPLIED_TO,
+        NotificationsTableCol.ACTION,
+        NotificationsTableCol.NOTIFICATION,
+        NotificationsTableCol.RECEIVER
+      ],
+      order: {
+        id: NotificationsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    vouchersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        VouchersTableCol.ID,
+        VouchersTableCol.KEY,
+        VouchersTableCol.CREATED
+      ],
+      order: {
+        id: VouchersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    permissionsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        PermissionsTableCol.ID,
+        PermissionsTableCol.NAME,
+        PermissionsTableCol.MEMBERS
+      ],
+      order: {
+        id: PermissionsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    cracksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        CracksTableCol.FOUND,
+        CracksTableCol.PLAINTEXT,
+        CracksTableCol.HASH,
+        CracksTableCol.AGENT,
+        CracksTableCol.TASK,
+        CracksTableCol.CHUNK,
+        CracksTableCol.TYPE
+      ],
+      order: {
+        id: CracksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    agentsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentsTableCol.ID,
+        AgentsTableCol.NAME,
+        AgentsTableCol.STATUS,
+        AgentsTableCol.CURRENT_TASK,
+        AgentsTableCol.CLIENT,
+        AgentsTableCol.GPUS_CPUS,
+        AgentsTableCol.LAST_ACTIVITY
+      ],
+      order: {
+        id: AgentsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    agentStatusTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentsStatusTableCol.ID,
+        AgentsStatusTableCol.STATUS,
+        AgentsStatusTableCol.NAME,
+        AgentsStatusTableCol.AGENT_STATUS,
+        AgentsStatusTableCol.WORKING_ON,
+        AgentsStatusTableCol.ASSIGNED,
+        AgentsStatusTableCol.LAST_ACTIVITY
+      ],
+      order: {
+        id: AgentsStatusTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    assignedAgentsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentsTableCol.ID,
+        AgentsTableCol.NAME,
+        AgentsTableCol.STATUS,
+        AgentsTableCol.TASK_SPEED,
+        AgentsTableCol.LAST_ACTIVITY,
+        AgentsTableCol.TIME_SPENT,
+        AgentsTableCol.BENCHMARK,
+        AgentsTableCol.CRACKED,
+        AgentsTableCol.SEARCHED
+      ],
+      order: {
+        id: AgentsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    chunksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        ChunksTableCol.ID,
+        ChunksTableCol.PROGRESS,
+        ChunksTableCol.TASK,
+        ChunksTableCol.AGENT,
+        ChunksTableCol.DISPATCH_TIME,
+        ChunksTableCol.LAST_ACTIVITY,
+        ChunksTableCol.TIME_SPENT,
+        ChunksTableCol.STATE,
+        ChunksTableCol.CRACKED
+      ],
+      order: {
+        id: ChunksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    hashlistsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HashlistsTableCol.ID,
+        HashlistsTableCol.NAME,
+        HashlistsTableCol.HASHTYPE,
+        HashlistsTableCol.FORMAT,
+        HashlistsTableCol.CRACKED,
+        HashlistsTableCol.HASH_COUNT
+      ],
+      order: {
+        id: HashlistsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    superHashlistsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        SuperHashlistsTableCol.ID,
+        SuperHashlistsTableCol.NAME,
+        SuperHashlistsTableCol.HASHTYPE,
+        SuperHashlistsTableCol.CRACKED,
+        SuperHashlistsTableCol.HASHLISTS
+      ],
+      order: {
+        id: SuperHashlistsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    hashtypesTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HashtypesTableCol.HASHTYPE,
+        HashtypesTableCol.DESCRIPTION,
+        HashtypesTableCol.SALTED,
+        HashtypesTableCol.SLOW_HASH
+      ],
+      order: {
+        id: HashtypesTableCol.HASHTYPE,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    filesTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        FilesTableCol.ID,
+        FilesTableCol.NAME,
+        FilesTableCol.SIZE,
+        FilesTableCol.LINE_COUNT,
+        FilesTableCol.ACCESS_GROUP
+      ],
+      order: {
+        id: FilesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    filesAttackTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        FilesAttackTableCol.ID,
+        FilesAttackTableCol.NAME,
+        FilesAttackTableCol.SIZE
+      ],
+      order: {
+        id: FilesAttackTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    crackersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        CrackersTableCol.ID,
+        CrackersTableCol.NAME,
+        CrackersTableCol.VERSIONS
+      ],
+      order: {
+        id: CrackersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    preprocessorsTable: {
+      start: 0,
+      page: 25,
+      columns: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
+      order: {
+        id: PreprocessorsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    agentBinariesTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentBinariesTableCol.ID,
+        AgentBinariesTableCol.FILENAME,
+        AgentBinariesTableCol.OS,
+        AgentBinariesTableCol.TYPE,
+        AgentBinariesTableCol.UPDATE_TRACK,
+        AgentBinariesTableCol.VERSION
+      ],
+      order: {
+        id: AgentBinariesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    healthChecksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HealthChecksTableCol.ID,
+        HealthChecksTableCol.CREATED,
+        HealthChecksTableCol.STATUS,
+        HealthChecksTableCol.TYPE
+      ],
+      order: {
+        id: HealthChecksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    healthCheckAgentsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HealthCheckAgentsTableCol.AGENT_ID,
+        HealthCheckAgentsTableCol.AGENT_NAME,
+        HealthCheckAgentsTableCol.STATUS,
+        HealthCheckAgentsTableCol.START,
+        HealthCheckAgentsTableCol.GPUS,
+        HealthCheckAgentsTableCol.CRACKED,
+        HealthCheckAgentsTableCol.ERRORS
+      ],
+      order: {
+        id: HealthCheckAgentsTableCol.AGENT_ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    pretasksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        PretasksTableCol.ID,
+        PretasksTableCol.NAME,
+        PretasksTableCol.ATTACK_COMMAND,
+        PretasksTableCol.FILES_TOTAL,
+        PretasksTableCol.FILES_SIZE,
+        PretasksTableCol.PRIORITY,
+        PretasksTableCol.MAX_AGENTS
+      ],
+      order: {
+        id: PretasksTableCol.PRIORITY,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    tasksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        TaskTableCol.ID,
+        TaskTableCol.TASK_TYPE,
+        TaskTableCol.NAME,
+        TaskTableCol.STATUS,
+        TaskTableCol.HASHTYPE,
+        TaskTableCol.HASHLISTS,
+        TaskTableCol.PRIORITY,
+        TaskTableCol.AGENTS,
+        TaskTableCol.MAX_AGENTS,
+        TaskTableCol.DISPATCHED_SEARCHED,
+        TaskTableCol.CRACKED
+      ],
+      order: {
+        id: TaskTableCol.PRIORITY,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    tasksChunksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        TasksChunksTableCol.ID,
+        TasksChunksTableCol.PROGRESS,
+        TasksChunksTableCol.AGENT,
+        TasksChunksTableCol.DISPATCH_TIME,
+        TasksChunksTableCol.LAST_ACTIVITY,
+        TasksChunksTableCol.TIME_SPENT,
+        TasksChunksTableCol.STATE,
+        TasksChunksTableCol.CRACKED
+      ],
+      order: {
+        id: TasksChunksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    tasksSupertasksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        TasksSupertasksDataSourceTableCol.ID,
+        TasksSupertasksDataSourceTableCol.NAME,
+        TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
+        TasksSupertasksDataSourceTableCol.CRACKED,
+        TasksSupertasksDataSourceTableCol.AGENTS,
+        TasksSupertasksDataSourceTableCol.PRIORITY,
+        TasksSupertasksDataSourceTableCol.MAX_AGENTS
+      ],
+      order: {
+        id: TasksSupertasksDataSourceTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    supertasksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        SupertasksTableCol.ID,
+        SupertasksTableCol.NAME,
+        SupertasksTableCol.PRETASKS
+      ],
+      order: {
+        id: SupertasksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    supertasksPretasksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        SupertasksPretasksTableCol.ID,
+        SupertasksPretasksTableCol.NAME,
+        SupertasksPretasksTableCol.PRIORITY,
+        SupertasksPretasksTableCol.MAX_AGENTS
+      ],
+      order: {
+        id: SupertasksPretasksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    superTasksPretasksEditTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        PretasksTableCol.ID,
+        PretasksTableCol.NAME,
+        PretasksTableCol.ATTACK_COMMAND,
+        PretasksTableCol.ESTIMATED_KEYSPACE,
+        PretasksTableCol.ATTACK_RUNTIME,
+        PretasksTableCol.FILES_TOTAL,
+        PretasksTableCol.FILES_SIZE,
+        PretasksTableCol.PRIORITY,
+        PretasksTableCol.MAX_AGENTS
+      ],
+      order: {
+        id: PretasksTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    hashlistTasksTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        TaskTableCol.ID,
+        TaskTableCol.NAME,
+        TaskTableCol.DISPATCHED_SEARCHED,
+        TaskTableCol.CRACKED
+      ],
+      order: {
+        id: TaskTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    searchHashTable: {
+      start: 0,
+      page: 25,
+      columns: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
+      order: {
+        id: SearchHashTableCol.HASH,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    usersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        UsersTableCol.ID,
+        UsersTableCol.NAME,
+        UsersTableCol.REGISTERED,
+        UsersTableCol.LAST_LOGIN,
+        UsersTableCol.EMAIL,
+        UsersTableCol.STATUS,
+        UsersTableCol.SESSION,
+        UsersTableCol.PERM_GROUP
+      ],
+      order: {
+        id: UsersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    logsTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        LogsTableCol.ID,
+        LogsTableCol.ISSUER,
+        LogsTableCol.LEVEL,
+        LogsTableCol.MESSAGE,
+        LogsTableCol.TIME
+      ],
+      order: {
+        id: LogsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessGroupsTable: {
+      start: 0,
+      page: 25,
+      columns: [AccessGroupsTableCol.ID, AccessGroupsTableCol.NAME],
+      order: {
+        id: AccessGroupsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    }
   },
   refreshPage: false,
   refreshInterval: 10

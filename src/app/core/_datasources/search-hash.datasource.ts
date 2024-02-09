@@ -3,6 +3,7 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { Log } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
+import { RequestParams } from '../_models/request-params.model';
 
 export class SearchHashDataSource extends BaseDataSource<Log> {
   private _search: string[];
@@ -15,14 +16,20 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
     const arr = [];
 
     for (let i = 0; i < this._search.length; i++) {
-      const params = {
+      const params: RequestParams = {
         maxResults: this.pageSize,
         startsAt: startAt,
         filter: `hash=${this._search[i]}`
       };
+
+      if (sorting.dataKey && sorting.isSortable) {
+        const order = this.buildSortingParams(sorting);
+        params.ordering = order;
+      }
 
       const hashs$ = this.service.getAll(SERV.HASHES, params);
 

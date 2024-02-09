@@ -1,6 +1,7 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { File, FileType } from '../_models/file.model';
 
@@ -26,6 +27,7 @@ export class FilesDataSource extends BaseDataSource<File> {
     this.loading = true;
 
     const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
 
     let files$;
 
@@ -40,12 +42,16 @@ export class FilesDataSource extends BaseDataSource<File> {
         });
       }
     } else {
-      const params = {
+      const params: RequestParams = {
         maxResults: this.pageSize,
         startsAt: startAt,
         expand: 'accessGroup',
         filter: `fileType=${this.fileType}`
       };
+      if (sorting.dataKey && sorting.isSortable) {
+        const order = this.buildSortingParams(sorting);
+        params.ordering = order;
+      }
       files$ = this.service.getAll(SERV.FILES, params);
     }
 
