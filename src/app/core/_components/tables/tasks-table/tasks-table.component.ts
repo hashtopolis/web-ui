@@ -13,7 +13,6 @@ import {
 } from './tasks-table.constants';
 
 import { catchError, forkJoin } from 'rxjs';
-
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';

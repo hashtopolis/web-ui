@@ -40,8 +40,6 @@ export class TasksDataSource extends BaseDataSource<
       filter: `isArchived=${this._isArchived}` //${additionalFilter}`
     };
 
-    console.log(sorting);
-
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
       params.ordering = order;
@@ -73,7 +71,7 @@ export class TasksDataSource extends BaseDataSource<
               );
               wrapper.hashlists = [matchingHashList];
               wrapper.hashtypes = [matchingHashTypes];
-              wrapper.taskName = wrapper.tasks[0].taskName;
+              wrapper.taskName = wrapper.tasks[0]?.taskName;
               wrapper.accessGroupName = wrapper.accessGroup?.groupName;
               return wrapper;
             }
