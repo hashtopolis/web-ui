@@ -429,7 +429,7 @@ export const uiConfigDefault: UIConfig = {
         id: TaskTableCol.PRIORITY,
         dataKey: '',
         isSortable: true,
-        direction: 'asc'
+        direction: 'desc'
       },
       search: ''
     },
