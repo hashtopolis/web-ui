@@ -11,16 +11,16 @@
 
         </div>
 
-        <div formGroupName="updateData">
+        <div formGroupName="updateData" fxLayoutGap="10px">
 
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
           <!-- <blacklist-attack [value]="updateForm.get('attackCmd').value"></blacklist-attack> -->
+          <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
         </div>
 
         <div formGroupName="updateData" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-          <input-text-area title="Notes" formControlName="notes"></input-text-area>
           <input-number title="Priority" formControlName="priority"></input-number>
           <input-number title="Status timer" formControlName="statusTimer"></input-number>
           <input-number title="Max agents" formControlName="maxAgents"></input-number>
@@ -46,43 +46,43 @@
     </mat-expansion-panel-header>
       <form [formGroup]="updateForm" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-            <input-text title="No. of Chunks" formControlName="chunkSize" [disabled]="true"></input-text>
-            <input-text title="Enforce Piping" formControlName="forcePipe" [disabled]="true"></input-text>
-            <input-text title="Skipping keyspace" formControlName="skipKeyspace" [disabled]="true"></input-text>
-            <input-text title="Keyspace size" formControlName="keyspace" [disabled]="true"></input-text>
-            <input-text title="Keyspace dispatched" formControlName="keyspaceProgress" [disabled]="true"></input-text>
+        <input-text title="No. of Chunks" formControlName="chunkSize" [disabled]="true"></input-text>
+        <input-text title="Enforce Piping" formControlName="forcePipe" [disabled]="true"></input-text>
+        <input-text title="Skipping keyspace" formControlName="skipKeyspace" [disabled]="true"></input-text>
+        <input-text title="Keyspace size" formControlName="keyspace" [disabled]="true"></input-text>
+        <input-text title="Keyspace dispatched" formControlName="keyspaceProgress" [disabled]="true"></input-text>
 
-            <simulate-form-field *ngIf=" tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templatekeysearch" label="Keyspace Searched"  message="{{ cprogress / tkeyspace | percent: '1.2-2' }}"></simulate-form-field>
-            <ng-template #templatekeysearch>
-              <simulate-form-field label="Keyspace Searched"  message="N/A"></simulate-form-field>
-            </ng-template>
+        <simulate-form-field *ngIf=" tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templatekeysearch" label="Keyspace Searched"  message="{{ cprogress / tkeyspace | percent: '1.2-2' }}"></simulate-form-field>
+        <ng-template #templatekeysearch>
+          <simulate-form-field label="Keyspace Searched"  message="N/A"></simulate-form-field>
+        </ng-template>
 
-            <!-- Calculations -->
+        <!-- Calculations -->
 
-            <simulate-form-field *ngIf="ctimespent; else templatetimespent" label="Time spent"  message="{{ editedTaskIndex | ttimespent: false : true | async | sectotime}}"></simulate-form-field>
-            <ng-template #templatetimespent>
-              <simulate-form-field label="Time spent"  message="---"></simulate-form-field>
-            </ng-template>
+        <simulate-form-field *ngIf="ctimespent; else templatetimespent" label="Time spent"  message="{{ editedTaskIndex | ttimespent: false : true | async | sectotime}}"></simulate-form-field>
+        <ng-template #templatetimespent>
+          <simulate-form-field label="Time spent"  message="---"></simulate-form-field>
+        </ng-template>
 
-            <simulate-form-field *ngIf=" tkeyspace !== 0 && cprogress / tkeyspace !== 0; else templatet" label="E.T."  message="{{ctimespent / (cprogress / tkeyspace) - ctimespent | sectotime }}"></simulate-form-field>
-            <ng-template #templatet>
-              <simulate-form-field label="E.T."  message="---"></simulate-form-field>
-            </ng-template>
+        <simulate-form-field *ngIf=" tkeyspace !== 0 && cprogress / tkeyspace !== 0; else templatet" label="E.T."  message="{{ctimespent / (cprogress / tkeyspace) - ctimespent | sectotime }}"></simulate-form-field>
+        <ng-template #templatet>
+          <simulate-form-field label="E.T."  message="---"></simulate-form-field>
+        </ng-template>
 
 
-            <simulate-form-field *ngIf="currenspeed; else templatespeed" label="Speed"  message="{{ currenspeed | fileSize: false }}H/s"></simulate-form-field>
-            <ng-template #templatespeed>
-              <simulate-form-field label="Speed"  message="---"></simulate-form-field>
-            </ng-template>
+        <simulate-form-field *ngIf="currenspeed; else templatespeed" label="Speed"  message="{{ currenspeed | fileSize: false }}H/s"></simulate-form-field>
+        <ng-template #templatespeed>
+          <simulate-form-field label="Speed"  message="---"></simulate-form-field>
+        </ng-template>
 
-            <!-- Hashlist and Cracker Information -->
+        <!-- Hashlist and Cracker Information -->
 
-            <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
+        <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
 
-            <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['crackerBinaryId']+'/edit'"></simulate-form-field>
-            <ng-template #templatecrackerinfo>
-              <simulate-form-field label="Cracker Information"  message="Unavailable"></simulate-form-field>
-            </ng-template>
+        <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['crackerBinaryId']+'/edit'"></simulate-form-field>
+        <ng-template #templatecrackerinfo>
+          <simulate-form-field label="Cracker Information"  message="Unavailable"></simulate-form-field>
+        </ng-template>
 
       </form>
     </mat-expansion-panel>
@@ -136,14 +136,7 @@
       </button>
     </mat-form-field>
   </form>
-  <agents-table
-    name="assignedAgentsTable"
-    [taskId]="editedTaskIndex"
-    [hasBulkActions]="false"
-    [assignAgents]="true"
-    [isSelectable]="false"
-    [isFilterable]="false"
-  ></agents-table>
+  <agents-table name="assignedAgentsTable" datatype="agents-assign" [taskId]="editedTaskIndex" [assignAgents]="true"></agents-table>
 </app-table>
 <!-- Task speed -->
 <app-table>

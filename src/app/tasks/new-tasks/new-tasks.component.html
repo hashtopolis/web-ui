@@ -58,7 +58,7 @@
                 <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
 
               </div>
-              <hr>
+              <hr><br>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
                 <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
@@ -66,11 +66,9 @@
 
               </div>
               <hr/>
-              <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
+              <div fxLayoutGap="10px">
                 <input-select title="Set Preprocessor" formControlName="preprocessorId" [items]="selectPreprocessor" [isBlankOptionDisabled]="true"></input-select>
                 <input-text-area title="Preprocessor command" formControlName="preprocessorCommand"></input-text-area>
-
               </div>
             </mat-expansion-panel>
           </mat-accordion>
