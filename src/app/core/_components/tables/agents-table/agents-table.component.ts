@@ -41,6 +41,7 @@ export class AgentsTableComponent
   implements OnInit, OnDestroy
 {
   @Input() taskId = 0;
+  @Input() assignAgents? = false;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
@@ -60,6 +61,9 @@ export class AgentsTableComponent
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
+    }
+    if (this.assignAgents) {
+      this.dataSource.setAssignAgents(this.assignAgents);
     }
     this.dataSource.reload();
   }
@@ -439,9 +443,13 @@ export class AgentsTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting ${event.data.agentName} ...`,
+          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'}  ${
+            event.data.agentName
+          } ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete ${event.data.agentName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${
+            this.assignAgents ? 'unassign' : 'delete'
+          } ${event.data.agentName}? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -550,10 +558,12 @@ export class AgentsTableComponent
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0]._id).subscribe(() => {
-          this.snackBar.open('Successfully unassigned agent!', 'Close');
-          this.dataSource.reload();
-        })
+        this.gs
+          .delete(SERV.AGENT_ASSIGN, agent[0].assignmentId)
+          .subscribe(() => {
+            this.snackBar.open('Successfully unassigned agent!', 'Close');
+            this.dataSource.reload();
+          })
       );
     }
   }

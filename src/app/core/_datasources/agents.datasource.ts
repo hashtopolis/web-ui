@@ -12,9 +12,14 @@ import { User } from '../_models/user.model';
 
 export class AgentsDataSource extends BaseDataSource<Agent> {
   private _taskId = 0;
+  private _assignAgents = false;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
+  }
+
+  setAssignAgents(assign: boolean): void {
+    this._assignAgents = assign;
   }
 
   loadAll(): void {
@@ -123,6 +128,9 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
             agent.taskName = agent.task.taskName;
             agent.taskId = agent.task._id;
             agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
+            agent.assignmentId = assignments.find(
+              (e) => e.agentId === agent._id
+            )?.assignmentId;
             if (agent.chunk) {
               agent.chunkId = agent.chunk._id;
             }

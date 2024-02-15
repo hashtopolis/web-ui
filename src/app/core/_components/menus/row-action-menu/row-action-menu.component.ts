@@ -156,9 +156,15 @@ export class RowActionMenuComponent
         this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT)
       );
     }
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)
-    ]);
+    if (this.data['assignmentId']) {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)
+      ]);
+    } else {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)
+      ]);
+    }
   }
 
   /**
