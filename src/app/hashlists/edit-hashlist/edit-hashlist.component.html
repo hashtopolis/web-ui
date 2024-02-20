@@ -39,6 +39,16 @@
           </grid-buttons>
       </form>
   </grid-main>
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span><b>Report Builder</b></span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-report-builder templateName="hashlists" [reportData]="prepareReport()"></app-report-builder>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
 <div class="col-md-5">
   <app-table>
@@ -46,3 +56,4 @@
     <tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></tasks-table>
   </app-table>
 </div>
+
