@@ -14,7 +14,7 @@
         </p>
       </div>
       <div>
-        <button mat-button matStepperNext>Next</button>
+        <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
       </div>
     </mat-step>
     <mat-step label="Generate Voucher" state="voucher">
@@ -37,7 +37,7 @@
           </button>
         </mat-form-field>
       </form>
-      <vouchers-table #table [hasBulkActions]="false" [isSelectable]="false"></vouchers-table>
+      <vouchers-table #table></vouchers-table>
       <div class="highlight-box">
         <p>
           <strong>Generate a voucher</strong> to register the agent. Note that
@@ -45,8 +45,8 @@
         </p>
       </div>
       <div>
-        <button mat-button matStepperPrevious>Back</button>
-        <button mat-button matStepperNext>Next</button>
+        <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
+        <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
       </div>
     </mat-step>
     <mat-step label="Register the agent" state="register">
@@ -58,7 +58,7 @@
         <p><strong>Register the agent</strong> using the above URL</p>
       </div>
       <div>
-        <button mat-button matStepperPrevious>Back</button>
+        <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
       </div>
     </mat-step>
   </mat-stepper>

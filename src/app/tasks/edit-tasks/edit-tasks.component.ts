@@ -53,7 +53,7 @@ export class EditTasksComponent implements OnInit {
   hashlistDescrip: any;
   hashlistinform: any;
   assigAgents: any;
-  availAgents: any;
+  availAgents = [];
   crackerinfo: any;
   tkeyspace: any;
 

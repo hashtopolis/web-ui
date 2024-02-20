@@ -6,13 +6,16 @@
 
           <input-text title="ID" formControlName="hashlistId" [disabled]="true"></input-text>
 
-          <div formGroupName="updateData">
+          <div formGroupName="updateData" fxLayoutGap="10px">
 
             <input-text title="Name" formControlName="name"></input-text>
 
+            <div>
+              <input-text-area title="Notes" formControlName="notes"></input-text-area>
+            </div>
+
             <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-              <input-text title="Notes" formControlName="notes"></input-text>
               <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
               <input-check title="is Secret?" formControlName="isSecret" tooltip="Contains secret data"></input-check>
 
@@ -36,6 +39,16 @@
           </grid-buttons>
       </form>
   </grid-main>
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span><b>Report Builder</b></span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <app-report-builder templateName="hashlists" [reportData]="prepareReport()"></app-report-builder>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
 <div class="col-md-5">
   <app-table>
@@ -43,3 +56,4 @@
     <tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></tasks-table>
   </app-table>
 </div>
+

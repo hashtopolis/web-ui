@@ -1,0 +1,20 @@
+{
+  "userpassword": "",
+  "ownerpassword": "hashtoadmin",
+  "cover_page": {
+    "title": "Hashlist Report",
+    "project_name": "Default Project Name",
+    "location": "Europe, ",
+    "project_description": "Default Project Description",
+    "info_header_text": "",
+    "info_cover_body_1": "Default Body 1",
+    "info_cover_body_2": "Default Body 2",
+    "reference": "Default Reference",
+    "info_cover_body_3": "Default Body 3",
+    "info_cover_body_4": "Default Body 4",
+    "info_cover_body_5": "Default Body 5",
+    "info_cover_footer_1": "",
+    "info_cover_footer_2": "",
+    "info_cover_footer_3": ""
+  }
+}

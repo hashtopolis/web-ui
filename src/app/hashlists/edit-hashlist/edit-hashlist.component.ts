@@ -234,6 +234,138 @@ export class EditHashlistComponent
     this.unsubscribeService.add(updateSubscription$);
   }
 
+  // Actions
+
+  importCrackedHashes() {
+    const helperImportCrackedSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'importCrackedHashes', this.editedHashlistIndex)
+      .subscribe(() => {
+        this.alert.okAlert('Imported Cracked Hashes!', '');
+      });
+
+    this.unsubscribeService.add(helperImportCrackedSubscription$);
+  }
+
+  exportCrackedHashes() {
+    const helperExportedCrackedSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'exportCrackedHashes', this.editedHashlistIndex)
+      .subscribe(() => {
+        this.alert.okAlert('Exported Cracked Hashes!', '');
+      });
+
+    this.unsubscribeService.add(helperExportedCrackedSubscription$);
+  }
+
+  exportLeftHashes() {
+    const helperExportedLeftSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'exportLeftHashes', this.editedHashlistIndex)
+      .subscribe(() => {
+        this.alert.okAlert('Exported Left Hashes!', '');
+      });
+
+    this.unsubscribeService.add(helperExportedLeftSubscription$);
+  }
+
+  exportWordlist() {
+    const helperExportedWordlistSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'exportWordlist', this.editedHashlistIndex)
+      .subscribe(() => {
+        this.alert.okAlert('Exported Wordlist!', '');
+      });
+
+    this.unsubscribeService.add(helperExportedWordlistSubscription$);
+  }
+
+  //Report data
+  prepareReport() {
+    let sum = 0;
+    const workflow = [];
+    let preCommand;
+    const files = [];
+    this.editedHashlist.tasks.forEach((item) => {
+      if (item.keyspace && typeof item.keyspace === 'number') {
+        sum += item.keyspace;
+      }
+      if (item.preprocessorCommand) {
+        preCommand.push({
+          subtitle: `Preprocessor Command: ${item.preprocessorCommand}`
+        });
+      }
+
+      // Extract file names using regular expressions
+      const fileNames = item.attackCmd.match(/\b\w+\.\w+\b/g);
+
+      if (fileNames && fileNames.length > 0) {
+        fileNames.forEach((fileName) => {
+          files.push({
+            text: `File: ${fileName}`,
+            margin: [0, 0, 0, 5]
+          });
+        });
+      }
+      workflow.push({
+        subtitle: `Command: ${item.attackCmd}`,
+        ...preCommand,
+        ul: [
+          {
+            text: `Keyspace: ${item.keyspace} (Progress: ${(
+              (item.keyspaceProgress / item.keyspace) *
+              100
+            ).toFixed(2)}%)`,
+            margin: [0, 0, 0, 5]
+          },
+          {
+            text: `Cracked entries: ${item.taskId}`,
+            margin: [0, 0, 0, 5]
+          },
+          ...files
+        ]
+      });
+    });
+
+    const report = [
+      {
+        title: 'Input Fields',
+        table: {
+          tableColumns: [
+            'Name',
+            'Notes',
+            'Hash Mode',
+            'Hash Count',
+            'Retrieved',
+            'Total Keyspace explored'
+          ],
+          tableValues: [
+            this.editedHashlist.name,
+            this.editedHashlist.notes,
+            this.editedHashlist.hashType.hashTypeId,
+            this.editedHashlist.hashCount,
+            this.editedHashlist.cracked,
+            sum
+          ]
+        }
+      },
+      { break: 1 },
+      {
+        title: 'WorkFlow Completed'
+      },
+      { break: 1 },
+      ...workflow
+    ];
+    return report;
+  }
+
+  getTaskInfo(id: number) {
+    // const taskInfoSubscription$ = this.gs
+    //   .get(SERV.TASKS, id, {
+    //     expand: 'files'
+    //   })
+    //   .subscribe((result) => {
+    //     console.log(result);
+    //   });
+    // this.unsubscribeService.add(taskInfoSubscription$);
+  }
+
   canDeactivate(): boolean {
     const hasUnsavedChanges = this.updateForm.dirty;
 

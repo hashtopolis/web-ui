@@ -41,6 +41,7 @@ export interface Agent {
   chunk?: Chunk;
   chunkId?: number;
   benchmark?: string;
+  assignmentId?: number;
 }
 
 export interface IAgents {

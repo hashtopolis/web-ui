@@ -6,6 +6,7 @@ import {
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
+  DataType,
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
@@ -40,7 +41,9 @@ export class AgentsTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {
+  @Input() datatype: DataType = 'agents';
   @Input() taskId = 0;
+  @Input() assignAgents? = false;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
@@ -60,6 +63,9 @@ export class AgentsTableComponent
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
+    }
+    if (this.assignAgents) {
+      this.dataSource.setAssignAgents(this.assignAgents);
     }
     this.dataSource.reload();
   }
@@ -439,9 +445,13 @@ export class AgentsTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting ${event.data.agentName} ...`,
+          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'}  ${
+            event.data.agentName
+          } ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete ${event.data.agentName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${
+            this.assignAgents ? 'unassign' : 'delete'
+          } ${event.data.agentName}? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -472,9 +482,13 @@ export class AgentsTableComponent
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} agents ...`,
+          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'} ${
+            event.data.length
+          } agents ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above agents? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${
+            this.assignAgents ? 'unassign' : 'delete'
+          } the above agents? Note that this action cannot be undone.`,
           warn: true,
           listAttribute: 'agentName',
           action: event.menuItem.action
@@ -515,9 +529,16 @@ export class AgentsTableComponent
    * @todo Implement error handling.
    */
   private bulkActionDelete(agents: Agent[]): void {
-    const requests = agents.map((agent: Agent) => {
-      return this.gs.delete(SERV.AGENTS, agent._id);
-    });
+    let requests;
+    if (this.taskId === 0) {
+      requests = agents.map((agent: Agent) => {
+        return this.gs.delete(SERV.AGENTS, agent._id);
+      });
+    } else {
+      requests = agents.map((agent: Agent) => {
+        return this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId);
+      });
+    }
 
     this.subscriptions.push(
       forkJoin(requests)
@@ -550,10 +571,12 @@ export class AgentsTableComponent
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0]._id).subscribe(() => {
-          this.snackBar.open('Successfully unassigned agent!', 'Close');
-          this.dataSource.reload();
-        })
+        this.gs
+          .delete(SERV.AGENT_ASSIGN, agent[0].assignmentId)
+          .subscribe(() => {
+            this.snackBar.open('Successfully unassigned agent!', 'Close');
+            this.dataSource.reload();
+          })
       );
     }
   }

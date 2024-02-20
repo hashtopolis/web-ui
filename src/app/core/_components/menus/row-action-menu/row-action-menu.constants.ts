@@ -48,6 +48,7 @@ export const RowActionMenuLabel = {
   DOWNLOAD_AGENT: 'Download Agent Binary',
   COPY_LINK_BINARY: 'Copy link Agent Binary',
   UNARCHIVE_TASK: 'Unarchive Task',
+  UNASSIGN_AGENT: 'Unassign Agent',
   RESET_CHUNK: 'Reset Task Chunk'
 };
 

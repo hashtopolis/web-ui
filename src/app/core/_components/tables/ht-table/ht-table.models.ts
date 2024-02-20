@@ -4,6 +4,7 @@ import { SafeHtml } from '@angular/platform-browser';
 export type DataType =
   | 'agents'
   | 'agents-status'
+  | 'agents-assign'
   | 'hashlists'
   | 'hashes'
   | 'search-hash'

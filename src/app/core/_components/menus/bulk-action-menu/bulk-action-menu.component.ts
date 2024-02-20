@@ -40,6 +40,12 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DEACTIVATE_AGENTS,
         BulkActionMenuLabel.DELETE_AGENTS
       );
+    } else if (this.dataType === 'agents-assign') {
+      this.setActivateDeleteMenu(
+        BulkActionMenuLabel.ACTIVATE_AGENTS,
+        BulkActionMenuLabel.DEACTIVATE_AGENTS,
+        BulkActionMenuLabel.UNASSIGN_AGENTS
+      );
     } else if (this.dataType === 'users') {
       this.setActivateDeleteMenu(
         BulkActionMenuLabel.ACTIVATE_USERS,

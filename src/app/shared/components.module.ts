@@ -30,6 +30,7 @@ import { CoreFormsModule } from './forms.module';
 import { AlertNavModule } from './alert/alert.module';
 import { HashtypeDetectorComponent } from './hashtype-detector/hashtype-detector.component';
 import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generatorcomponent';
+import { ReportBuilderComponent } from './report-builder/report-builder.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generat
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
     ActiveSpinnerComponent,
+    ReportBuilderComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
     CheatsheetComponent,
@@ -70,6 +72,7 @@ import { WordlisGeneratorComponent } from './wordlist-generator/wordlist-generat
     WordlisGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
+    ReportBuilderComponent,
     TimeoutDialogComponent,
     ActiveSpinnerComponent,
     HexconvertorComponent,

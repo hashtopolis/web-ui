@@ -23,7 +23,8 @@ export const BulkActionMenuLabel = {
   DEACTIVATE_USERS: 'Deactivate Users',
   ARCHIVE_TASKS: 'Archive Tasks',
   ARCHIVE_HASHLISTS: 'Archive Hashlists',
-  RESET_CHUNKS: 'Reset chunks'
+  RESET_CHUNKS: 'Reset chunks',
+  UNASSIGN_AGENTS: 'Unassign agents'
 };
 
 export const BulkActionMenuAction = {
