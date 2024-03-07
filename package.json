@@ -59,6 +59,7 @@
     "lightstep-tracer": "^0.35.0-no-protobuf",
     "lottie-web": "^5.12.2",
     "moment": "^2.29.4",
+    "ng": "^0.0.0",
     "ngx-color-picker": "^14.0.0",
     "ngx-lottie": "^10.0.0",
     "ngx-moment": "^6.0.2",
