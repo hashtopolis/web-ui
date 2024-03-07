@@ -16,7 +16,7 @@ ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 # Check for and run optional user-supplied command to enable (advanced) customizations of the container
 RUN if [ -n "${CONTAINER_USER_CMD_PRE}" ]; then echo "Applying CONTAINER_USER_CMD_PRE customizations..."; echo "${CONTAINER_USER_CMD_PRE}" | sh ; fi
 
-COPY resolv.conf /etc/resolv.conf
+#COPY resolv.conf /etc/resolv.conf
 #RUN echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 
 RUN mkdir /app
