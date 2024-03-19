@@ -1,0 +1,39 @@
+@use '@angular/material' as mat;
+@import '@angular/material/theming';
+@include mat.core();
+
+$hashtopolis-primary-palette: mat.define-palette(mat.$blue-grey-palette);
+$hashtopolis-accent-palette: mat.define-palette(mat.$cyan-palette);
+$hashtopolis-warn-palette: mat.define-palette(mat.$red-palette);
+
+// Include custom palettes in the theme
+$hashtopolis-light-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $hashtopolis-primary-palette,
+      accent: $hashtopolis-accent-palette,
+      warn: $hashtopolis-warn-palette
+    ),
+    typography: mat.define-typography-config(),
+    density: -1
+  )
+);
+
+$hashtopolis-dark-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $hashtopolis-primary-palette,
+      accent: $hashtopolis-accent-palette,
+      warn: $hashtopolis-warn-palette
+    ),
+    typography: mat.define-typography-config(),
+    density: -1
+  )
+);
+
+@include mat.all-component-themes($hashtopolis-light-theme);
+
+.dark-theme {
+  @include mat.all-component-colors($hashtopolis-dark-theme);
+  background-color: var(--mat-toolbar-container-background-color);
+}

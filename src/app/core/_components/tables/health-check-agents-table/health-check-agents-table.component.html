@@ -1,0 +1,16 @@
+<ht-table
+  #table
+  name="healthCheckAgentsTable"
+  dataType="health-check-agents"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isFilterable]="true"
+  [filterFn]="filter"
+  [isPageable]="true"
+  [hasRowAction]="false"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

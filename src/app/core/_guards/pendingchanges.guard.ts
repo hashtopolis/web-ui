@@ -1,37 +1,60 @@
+import { UnsavedChangesService } from '../_services/shared/unsaved-changes.service';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { CanDeactivate } from '@angular/router';
+import { CanDeactivate, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-
-export interface ComponentCanDeactivate {
-  canDeactivate: () => boolean | Observable<boolean>;
+export interface CanComponentDeactivate {
+  canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class PendingChangesGuard implements CanDeactivate<ComponentCanDeactivate> {
+export class PendingChangesGuard
+  implements CanDeactivate<CanComponentDeactivate>
+{
+  constructor(
+    private unsavedChangesService: UnsavedChangesService,
+    private router: Router
+  ) {}
 
-  canDeactivate(component: ComponentCanDeactivate): boolean | Observable<boolean> {
-    // if there are no pending changes, just allow deactivation; else confirm first
-    return component.canDeactivate() ?
-      true :
-      Swal.fire({
-        title: "WARNING",
-        text: "You have unsaved changes. Press Cancel to go back and save these changes, or OK to lose these changes.",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-        showCancelButton: true,
-      })
-      .then((result) => {
-        if (result.isConfirmed) {
-          return true;
-        } else {
-          return false
-        }
-      });
+  async canDeactivate(component: CanComponentDeactivate): Promise<boolean> {
+    const result = component.canDeactivate
+      ? await this.handleDeactivation(component.canDeactivate())
+      : true;
+
+    return result;
   }
 
+  private async handleDeactivation(
+    deactivate: Observable<boolean> | Promise<boolean> | boolean
+  ): Promise<boolean> {
+    if (deactivate instanceof Observable) {
+      return await deactivate.toPromise();
+    } else {
+      return deactivate;
+    }
+  }
+
+  private handleDefault(): boolean {
+    if (this.unsavedChangesService.hasUnsavedChanges()) {
+      console.log('here');
+      const userConfirmed = window.confirm(
+        'You have unsaved changes. Press OK to leave without saving, or Cancel to stay and save.'
+      );
+
+      if (userConfirmed) {
+        // User clicked OK, navigate away
+        this.unsavedChangesService.setUnsavedChanges(false);
+        this.router.navigate(['/']); // Adjust this route as needed
+        return true;
+      } else {
+        // User canceled, stay on the current page
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

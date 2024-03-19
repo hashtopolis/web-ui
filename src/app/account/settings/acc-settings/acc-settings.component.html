@@ -1,65 +1,24 @@
-<app-page-subtitle [subtitle]="'Account Settings'"></app-page-subtitle>
-<grid-main [class]="'fmxw-500'" [centered]="true">
-  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-    <div class="row">
-      <grid-form-input [name]="'Account Type'">
-        <input
-              type='text'
-              id="name"
-              class='form-control'
-              formControlName="name"
-        >
-      </grid-form-input>
-      <grid-form-input [name]="'Creation date'">
-        <div class="input-group">
-          <input
-                type="text"
-                id="registeredSince"
-                class='form-control'
-                formControlName="registeredSince"
-          />
+<grid-main>
+  <app-page-subtitle [subtitle]="'Account Settings'"></app-page-subtitle>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <div fxLayout="column">
+        <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
+        <input-text title="Creation date" formControlName="registeredSince" data-testid="input-registered-since"></input-text>
+        <input-text title="Email" formControlName="email" data-testid="input-email"></input-text>
+        <input-text title="Old Password" placeholder="Enter Old Password" formControlName="oldpassword" inputType="password"  data-testid="input-password" [isRequired]="true"></input-text>
+        <input-text title="New Password" placeholder="Enter New Password" formControlName="newpassword" inputType="password"  data-testid="input-newpassword" [isRequired]="true"></input-text>
+        <div class="smaller-pass-strength">
+          <app-pass-strenght [passwordToCheck]="form.controls['newpassword'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
         </div>
-      </grid-form-input>
-      <grid-form-input [name]="'Email'">
-        <input
-                type='email'
-                id="email"
-                class='form-control'
-                formControlName="email"
-          >
-      </grid-form-input>
-      <grid-form-input [name]="'Old Password'">
-        <input
-              type='password'
-              id="oldpassword"
-              class='form-control'
-              formControlName="oldpassword"
-              placeholder="Enter Old Password"
-              required
-          >
-      </grid-form-input>
-      <grid-form-input [name]="'New Password'">
-        <input
-              type='password'
-              id="newpassword"
-              class='form-control'
-              formControlName="newpassword"
-              placeholder="Enter New Password"
-              required
-          >
-      </grid-form-input>
-    <grid-form-input [name]="'Confirm Password'">
-      <input
-              type='password'
-              id="confirmpass"
-              class='form-control'
-              formControlName="confirmpass"
-              placeholder="Confirm Password"
-              required
-        >
-    </grid-form-input>
-    <!-- <span *ngIf="!createForm.valid && (createForm.touched || createForm.dirty)" class="help-block" >Please complete all the form!</span> -->
-    <button-submit [name]="'Update'"></button-submit>
-    </div>
+        <input-text title="Confirm Password" placeholder="Confirm Password" formControlName="confirmpass" inputType="password"  data-testid="input-confirmpass" [isRequired]="true"></input-text>
+        <!-- Todo Erros here -->
+        <!-- <app-pass-match [newPassword]="form.controls['newpassword'].value" [confirmPassword]="form.controls['confirmpass'].value" ></app-pass-match> -->
+      </div>
+
+      <grid-buttons>
+        <button-submit [name]="'Update'" [disabled]="!form.valid" data-testid="button-submit"></button-submit>
+      </grid-buttons>
+
   </form>
 </grid-main>

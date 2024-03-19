@@ -1,14 +1,17 @@
 <form>
-  <div class="input-group">
-    <fa-icon class="filterboxglass" [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-        <input
-              type="text"
-              id="filterbox"
-              name="filter"
-              placeholder="Type to search"
-              [(ngModel)]="model.filter"
-              (keyup)="filterChanged($event)"
-        />
+  <div fxLayout="row" fxLayoutAlign="start center" class="input-group">
+    <mat-form-field appearance="fill">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        name="filter"
+        placeholder="Search Agent"
+        [(ngModel)]="model.filter"
+        (keyup)="filterChanged($event)"
+      />
+    </mat-form-field>
   </div>
 </form>
+
+
 

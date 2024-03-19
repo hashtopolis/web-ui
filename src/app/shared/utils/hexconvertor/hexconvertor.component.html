@@ -1,16 +1,19 @@
-<grid-main [class]="'width:100%;'" [centered]="true">
-    <grid-form-input [name]="'HEX convertor:'">
-      <input
-             class="form-control input-lg"
-             #hexval
-             id="hexval"
-             (input)="hexConv(hexval.value)"
-             />
-    </grid-form-input>
+<!-- <mat-card>
+  <mat-card-header>
+    <mat-card-title>HEX Converter</mat-card-title>
+  </mat-card-header>
+  <mat-card-content> -->
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <mat-label>HEX Value:</mat-label>
+      <textarea matInput #hexval id="hexval" (input)="hexConv(hexval.value)"></textarea>
+    </mat-form-field>
     <div class="highlight">
-        {{ hexVal }}
+      {{ hexVal }}
     </div>
-    <button class="btn btn-gray-800" (click)="onClear()">Clear</button>
-</grid-main>
+  <!-- </mat-card-content> -->
+    <grid-buttons>
+      <button-submit name="Clear" (click)="onClear()"></button-submit>
+    </grid-buttons>
+<!-- </mat-card> -->
 
 

@@ -1,473 +1,123 @@
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <h2 class="h4">
-        Agents Status
-          <fa-icon
-                  placement="bottom"
-                  ngbTooltip="Click on the icons to display more information. You can display the information by individual agent or group by location/rack."
-                  container="body"
-                  [icon]="faInfoCircle"
-                  aria-hidden="true"
-          >
-          </fa-icon>
-      </h2>
-      <div *ngIf="view == 1"><h6>Location/Rack View</h6></div>
-      <div *ngIf="view == 0"><h6>Agent View</h6></div>
-  </div>
-  <div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group ms-2 ms-3">
-      <cm-filter-textbox
-                        class="navbar-right"
-                        (changed)="filterChanged($event)"
-      >
-      </cm-filter-textbox>
+<grid-main>
+  <app-page-subtitle subtitle="Agents Status"></app-page-subtitle>
+  <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutWrap fxLayoutGap="20px" class="py-4">
+    <div class="mb-4 mb-md-0">
+      <div class="btn-group ms-2 ms-3">
+        <button mat-button (click)="setView('0')" *ngIf="view == 1">
+          Agent View
+          <mat-icon class="fagearcust">person</mat-icon>
+        </button>
+        <button mat-button (click)="setView('1')" *ngIf="view == 0">
+          Location/Rack View
+          <mat-icon class="fagearcust">group</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="btn-toolbar">
+      <div class="btn-group ms-2 ms-3">
+        <cm-filter-textbox (changed)="filterChanged($event)"></cm-filter-textbox>
+      </div>
     </div>
   </div>
-</div>
-<!-- View Menu -->
-<div class="btn-toolbar mb-2 mb-md-0">
-  <div class="btn-group ms-2 ms-3">
-      <fa-icon
-              *ngIf="view == 1"
-              placement="bottom"
-              class="fagearcust"
-              [icon]="faUsers"
-              aria-hidden="true"
-              #view
-              (click)="setView('0')"
-      ></fa-icon>
-      <fa-icon
-              *ngIf="view == 0"
-              placement="bottom"
-              class="fagearcust"
-              [icon]="faServer"
-              aria-hidden="true"
-              #view
-              (click)="setView('1')"
-        ></fa-icon>
-  </div>
-</div>
-<!-- Agent View -->
-<br>
+
+  <!-- Agent View -->
 <div class="row card-container-ag" *ngIf="view == 0">
-    <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
-        <div class="card card-ag overflowAuto">
-            <div class="card-header-ag">
-              <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">
-                <fa-icon [icon]="faEye" aria-hidden="true" class="white-ico"></fa-icon>
-              </a>
-              <a underline>{{ a.agentName | shortenString:15 | lowercase | titlecase}} </a>
-            </div>
-            <div class="card-body">
-                <div class="clearfix">
-                    <div class="pull-left card-body-left-ag"></div>
-                    <div class="pull-left card-body-right-ag">
-                        <div class="card-body-content-ag" *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result">
-                            <fa-icon
-                                    placement="bottom"
-                                    (click)="open(device)"
-                                    container="body"
-                                    [icon]="faDigitalTachograph"
-                                    aria-hidden="true"
-                                    hoverDashed
-                                    style="cursor: pointer;"
-                                    [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}"
-                            ></fa-icon>
-                            <a (click)="open(device)" underline class="display-col pointer" style="cursor: pointer;">{{ result === 'No data'? result:result +'%' }}</a>
-                          <div>
-                            <!-- Modal Device Utilisation -->
-                            <ng-template #device let-modal>
-                              <div class="modal-header">
-                                <h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faDigitalTachograph" aria-hidden="true"></fa-icon> Device Utilisation - <span [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}">&#9673;</span> {{ result === 'No data'? result:result +'%' }}</h4>
-                              </div>
-                              <div class="modal-body">
-                                <form>
-                                  <div class="mb-3">
-                                    <div class="row">
-                                      <p>
-                                        <span style="color: #009933;">&#9673;</span> Device utilisation is good (> {{ this.getUtil1() }} %)
-                                      </p>
-                                      <p>
-                                        <span style="color: #ff9900;">&#9673;</span> Device utilisation not ideal (<= {{ this.getUtil2() }} %)
-                                      </p>
-                                      <p>
-                                        <span style="color: #800000;">&#9673;</span> Device utilisation low (<= {{ this.getUtil2() }} %)
-                                      </p>
-                                      <p>
-                                        <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
-                                      </p>
-                                      <p>
-                                        <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing device data
-                                      </p>
-                                      <p>
-                                        <span style="color: #FF0000;">&#9673;</span> Invalid device data from agent or values being 0
-                                      </p>
-                                      <p>
-                                        Note: Threshold can be configured in the config section.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </form>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
-                              </div>
-                            </ng-template>
-                          </div>
-                        </div>
-                        <div class="card-body-content-ag" *ngIf="statTemp | filterItem:'agentId':a.agentId | max:'value' as result">
-                          <fa-icon
-                                  placement="bottom"
-                                  (click)="open(temperature)"
-                                  container="body"
-                                  [icon]="faTemperature0"
-                                  aria-hidden="true"
-                                  hoverDashed
-                                  style="cursor: pointer;"
-                                  [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}"
-                          ></fa-icon>
-                          <a (click)="open(temperature)" underline class="display-col" style="cursor: pointer;">{{ result === 'No data'? result:result +'°' }}</a>
-                          <div>
-                            <!-- Modal Temperature -->
-                            <ng-template #temperature let-modal>
-                              <div class="modal-header">
-                                <h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faTemperature0" aria-hidden="true"></fa-icon> Temperature - <span [ngStyle]="{'color':result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}">&#9673;</span> {{ result === 'No data'? result:result +'°' }}</h4>
-                              </div>
-                              <div class="modal-body">
-                                <form>
-                                  <div class="mb-3">
-                                    <div class="row">
-                                      <p>
-                                        <span style="color: #009933;">&#9673;</span> Device temperatures good ( <= {{ this.getTemp1() }})
-                                      </p>
-                                      <p>
-                                        <span style="color: #ff9900;">&#9673;</span> Device temperatures acceptable ( <= {{ this.getTemp2() }})
-                                      </p>
-                                      <p>
-                                        <span style="color: #800000;">&#9673;</span> Device temperatures too high ( > {{ this.getTemp2() }})
-                                      </p>
-                                      <p>
-                                        <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
-                                      </p>
-                                      <p>
-                                        <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing device data
-                                      </p>
-                                      <p>
-                                        <span style="color: #FF0000;">&#9673;</span> Invalid device data from agent or values being 0
-                                      </p>
-                                      <p>
-                                        Note: Threshold can be configured in the config section.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </form>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
-                              </div>
-                            </ng-template>
-                          </div>
-                        </div>
-                        <div class="card-body-content-ag" *ngIf="statCpu | filterItem:'agentId':a.agentId | avg:'value' as result">
-                          <fa-icon
-                                  placement="bottom"
-                                  (click)="open(cpu)"
-                                  container="body"
-                                  [icon]="faMicrochip"
-                                  aria-hidden="true"
-                                  hoverDashed
-                                  style="cursor: pointer;"
-                                  [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}"
-                          ></fa-icon>
-                          <a (click)="open(cpu)" underline class="display-col" style="cursor: pointer;">{{ result === 'No data'? result:result +'%' }}</a>
-                          <div>
-                            <!-- CPU Utilisation -->
-                            <ng-template #cpu let-modal>
-                              <div class="modal-header">
-                                <h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faMicrochip" aria-hidden="true"></fa-icon> CPU Utilisation - <span [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}">&#9673;</span> {{ result === 'No data'? result:result +'%' }}</h4>
-                              </div>
-                              <div class="modal-body">
-                                <form>
-                                  <div class="mb-3">
-                                    <div class="row">
-                                      <p>
-                                        <span style="color: #009933;">&#9673;</span> CPU utilisation is good (> {{ this.getUtil1() }} %)
-                                      </p>
-                                      <p>
-                                        <span style="color: #ff9900;">&#9673;</span> CPU utilisation not ideal (<= {{ this.getUtil2() }} %)
-                                      </p>
-                                      <p>
-                                        <span style="color: #800000;">&#9673;</span> CPU utilisation low (<= {{ this.getUtil2() }} %)
-                                      </p>
-                                      <p>
-                                        <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
-                                      </p>
-                                      <p>
-                                        <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing CPU data
-                                      </p>
-                                      <p>
-                                        <span style="color: #FF0000;">&#9673;</span> Invalid CPU data from agent or values being 0
-                                      </p>
-                                      <p>
-                                        Note: Threshold can be configured in the config section.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </form>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
-                              </div>
-                            </ng-template>
-                          </div>
-                        </div>
+  <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
+    <mat-card class="card card-ag overflowAuto">
+          <mat-card-header class="card-header-ag">
+            <mat-icon *ngIf="a.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
+            <mat-icon *ngIf="!a.isActive" class="inactive-icon" matTooltip="Inactive" class="text-critical">highlight_off</mat-icon>
+            <a [routerLink]="['/agents/show-agents',a.agentId,'edit']"> {{ a.agentName | shortenString:15 }} </a>
+          </mat-card-header>
+            <div>
+                <div class="pull-left card-body-left-ag"></div>
+                <div class="pull-left card-body-right-ag">
+                   <div *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+                      <button mat-icon-button
+                              (click)="openModal('Device Utilisation','devices',result === 'No data'? result:result +'%','device',result, a)"
+                              matTooltip="Device Utilisation"
+                      >
+                        <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}">devices</mat-icon>
+                      </button>
+                      <span>{{ result === 'No data'? result:result +'%' }}</span>
+                    </div>
+                    <div *ngIf="statTemp | filterItem:'agentId':a.agentId | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+                      <button mat-icon-button
+                              (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, a)"
+                              matTooltip="Temperature"
+                      >
+                        <mat-icon [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}">device_thermostat</mat-icon>
+                      </button>
+                      <span>{{ result === 'No data'? result:result +'°' }}</span>
+                    </div>
+                    <div *ngIf="statCpu | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+                      <button mat-icon-button
+                              (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, a)"
+                              matTooltip="CPU Utilisation"
+                      >
+                        <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}">computer</mat-icon>
+                      </button>
+                      <span>{{ result === 'No data'? result:result +'%' }}</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div *ngIf="!showagents.length">
-        No Records Found
-    </div>
+      </mat-card>
+  </div>
+  <div *ngIf="!showagents.length">
+      No Records Found
+  </div>
 </div>
 
 <!-- Rack View -->
-
 <div class="row card-container-ag" *ngIf="view == 1">
   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let gname of _filteresAgents | groupBy:'agentName' | sort:'asc':'agentName'">
-      <div class="card card-section">
-          <div class="card-header-ag text-center">
-            <a>{{ gname.k | shortenString:15 | lowercase | titlecase}} </a>
+    <mat-card class="card card-ag-rack overflowAuto">
+      <mat-card-header class="card-header-ag">
+        <mat-icon *ngIf="gname.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
+        <mat-icon *ngIf="!gname.isActive" class="inactive-icon" matTooltip="Inactive" class="text-critical">highlight_off</mat-icon>
+        <a>{{ gname.k | shortenString:15 }} </a>
+      </mat-card-header>
+      <div class="card-body" *ngFor="let a of gname.value; let last=last">
+        <div class="row">
+          <small><b>
+            <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | split:'-':1 | shortenString:15 }}</a>
+          </b></small>
+          <div *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+            <button mat-icon-button
+                    (click)="openModal('Device Utilisation','devices',result === 'No data'? result:result +'%','device',result, a)"
+                    matTooltip="Device Utilisation"
+            >
+            <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}">devices</mat-icon>
+            </button>
+            <span>{{ result === 'No data'? result:result +'%' }}</span>
           </div>
-          <div class="card-body" *ngFor="let a of gname.value ; let last=last">
-            <div class="row">
-              <small><b>
-                <a class="display-col" [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | split:'-':1 | shortenString:15 | lowercase | titlecase }}</a>
-              </b></small>
-              <div class="col" *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result">
-                <fa-icon
-                        placement="bottom"
-                        (click)="open(rackdevice)"
-                        container="body"
-                        [icon]="faDigitalTachograph"
-                        aria-hidden="true"
-                        hoverDashed
-                        [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}"
-                ></fa-icon>
-                <br>
-                <a underline class="display-col">{{ result === 'No data'? result:result +'%' }}</a>
-                  <!-- Modal Device Utilisation -->
-                  <ng-template #rackdevice let-modal>
-                    <div class="modal-header">
-                      <h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faDigitalTachograph" aria-hidden="true"></fa-icon> Device Utilisation - <span [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}">&#9673;</span> {{ result === 'No data'? result:result +'%' }}</h4>
-                    </div>
-                    <div class="modal-body">
-                      <form>
-                        <div class="mb-3">
-                          <div class="row">
-                            <p>
-                              <span style="color: #009933;">&#9673;</span> Device utilisation is good (> {{ this.getUtil1() }} %)
-                            </p>
-                            <p>
-                              <span style="color: #ff9900;">&#9673;</span> Device utilisation not ideal (<= {{ this.getUtil2() }} %)
-                            </p>
-                            <p>
-                              <span style="color: #800000;">&#9673;</span> Device utilisation low (<= {{ this.getUtil2() }} %)
-                            </p>
-                            <p>
-                              <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
-                            </p>
-                            <p>
-                              <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing device data
-                            </p>
-                            <p>
-                              <span style="color: #FF0000;">&#9673;</span> Invalid device data from agent or values being 0
-                            </p>
-                            <p>
-                              Note: Threshold can be configured in the config section.
-                            </p>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
-                    </div>
-                  </ng-template>
-              </div>
-              <div class="col" *ngIf="statTemp | filterItem:'agentId':a.agentId | max:'value' as result">
-                <fa-icon
-                        placement="bottom"
-                        (click)="open(racktemp)"
-                        container="body"
-                        [icon]="faTemperature0"
-                        aria-hidden="true"
-                        hoverDashed
-                        [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}"
-
-                ></fa-icon>
-                <br>
-                <a underline class="display-col">{{ result === 'No data'? result:result +'°' }}</a>
-                <!-- Modal Temperature -->
-                <ng-template #racktemp let-modal>
-                  <div class="modal-header">
-                    <h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faTemperature0" aria-hidden="true"></fa-icon> Temperature - <span [ngStyle]="{'color':result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}">&#9673;</span> {{ result === 'No data'? result:result +'°' }}</h4>
-                  </div>
-                  <div class="modal-body">
-                    <form>
-                      <div class="mb-3">
-                        <div class="row">
-                          <p>
-                            <span style="color: #009933;">&#9673;</span> Device temperatures good ( <= {{ this.getTemp1() }})
-                          </p>
-                          <p>
-                            <span style="color: #ff9900;">&#9673;</span> Device temperatures acceptable ( <= {{ this.getTemp2() }})
-                          </p>
-                          <p>
-                            <span style="color: #800000;">&#9673;</span> Device temperatures too high ( > {{ this.getTemp2() }})
-                          </p>
-                          <p>
-                            <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
-                          </p>
-                          <p>
-                            <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing device data
-                          </p>
-                          <p>
-                            <span style="color: #FF0000;">&#9673;</span> Invalid device data from agent or values being 0
-                          </p>
-                          <p>
-                            Note: Threshold can be configured in the config section.
-                          </p>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
-                  </div>
-                </ng-template>
-              </div>
-              <div class="col" *ngIf="statCpu | filterItem:'agentId':a.agentId | avg:'value' as result">
-                <fa-icon
-                        placement="bottom"
-                        (click)="open(rackcpu)"
-                        container="body"
-                        [icon]="faMicrochip"
-                        aria-hidden="true"
-                        hoverDashed
-                        [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}"
-                ></fa-icon>
-                <br>
-                <a underline class="display-col">{{ result === 'No data'? result:result +'%' }}</a>
-                <!-- CPU Utilisation -->
-                <ng-template #rackcpu let-modal>
-                  <div class="modal-header">
-                    <h4 class="modal-title" id="modal-basic-title"><fa-icon [icon]="faMicrochip" aria-hidden="true"></fa-icon> CPU Utilisation - <span [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}">&#9673;</span> {{ result === 'No data'? result:result +'%' }}</h4>
-                  </div>
-                  <div class="modal-body">
-                    <form>
-                      <div class="mb-3">
-                        <div class="row">
-                          <p>
-                            <span style="color: #009933;">&#9673;</span> CPU utilisation is good (> {{ this.getUtil1() }} %)
-                          </p>
-                          <p>
-                            <span style="color: #ff9900;">&#9673;</span> CPU utilisation not ideal (<= {{ this.getUtil2() }} %)
-                          </p>
-                          <p>
-                            <span style="color: #800000;">&#9673;</span> CPU utilisation low (<= {{ this.getUtil2() }} %)
-                          </p>
-                          <p>
-                            <span style="color: #CCCCCC;">&#9673;</span> Agent is not active
-                          </p>
-                          <p>
-                            <span style="color: #42d4f4;">&#9673;</span> Agent is active but not working or not providing CPU data
-                          </p>
-                          <p>
-                            <span style="color: #FF0000;">&#9673;</span> Invalid CPU data from agent or values being 0
-                          </p>
-                          <p>
-                            Note: Threshold can be configured in the config section.
-                          </p>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Ok</button>
-                  </div>
-                </ng-template>
-              </div>
-              <hr *ngIf="!last" class="mt-0 mb-0 break">
-            </div>
+          <div *ngIf="statTemp | filterItem:'agentId':a.agentId | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+            <button mat-icon-button
+                    (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, a)"
+                    matTooltip="Temperature"
+            >
+              <mat-icon [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}">device_thermostat</mat-icon>
+            </button>
+            <span>{{ result === 'No data'? result:result +'°' }}</span>
           </div>
+          <div *ngIf="statCpu | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+            <button mat-icon-button
+                    (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, a)"
+                    matTooltip="CPU Utilisation"
+            >
+              <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}">computer</mat-icon>
+            </button>
+            <span>{{ result === 'No data'? result:result +'%' }}</span>
+          </div>
+          <hr *ngIf="!last" class="mt-0 mb-0 break">
+        </div>
       </div>
+    </mat-card>
   </div>
 </div>
+
+</grid-main>
 <!-- Agent Activity Table -->
 <app-table>
-  <app-page-subtitle [subtitle]="'Agents activity'"></app-page-subtitle>
-  <table class="table table-striped table-hover table-sm" #agentstatus datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" id="agentstatus">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Status</th>
-          <th>Name</th>
-          <th>Agent Status</th>
-          <th>Currently working on</th>
-          <th>Assigned to</th>
-          <th class="rounded-end">Last Activity</th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let aa of _filteresAgents | sort:statusOrderBy:statusOrderByName">
-          <td>{{ aa.agentId }}</td>
-          <td>
-            <app-active-spinner *ngIf="( aa.agentId | aspeed:true | async ) > 0"></app-active-spinner>
-          </td>
-          <td style="white-space: nowrap;">
-            <a [routerLink]="['/agents/show-agents',aa.agentId,'edit']">{{ aa.agentName | shortenString:15 | lowercase | titlecase }}</a>
-            <span *ngIf="aa.isTrusted === true" ><fa-icon [icon]="faLock" aria-hidden="true" ngbTooltip='Trust agent with secret data'></fa-icon></span>
-          </td>
-          <td>
-            <span *ngIf="aa.isActive === true" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: green;">
-              Active
-            </span>
-            <span *ngIf="aa.isActive === false" class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="background-color: rgba(255, 136, 0, 0.87);">
-              Inactive
-            </span>
-          </td>
-          <td>
-            <div *ngIf="( aa.agentId | aspeed:true | async ) > 0">
-              <div *ngIf="aa.taskId">Task:
-                <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']">{{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>,
-              </div>
-              <div *ngIf="aa.speed">at {{ aa.speed | fileSize:false }} H/s,<br></div>
-              <div *ngIf="aa.chunkId" >working on chunk
-                <a [routerLink]="['/tasks/chunks',aa.chunkId,'view']">{{ aa.chunkId }}</a>
-              </div>
-            </div>
-          </td>
-          <td>
-            <a *ngIf="aa.taskId">
-              <a [routerLink]="['/tasks/show-tasks/',aa.taskId,'edit']"> {{ aa.taskName | shortenString:15 | lowercase | titlecase }}</a>
-            </a>
-          </td>
-          <td>
-            Action: {{ aa.lastAct }}<br>
-            Time: {{ aa.lastTime | uiDate }}<br>
-            <div *ngIf="aa.lastIp">IP: <b>{{ aa.lastIp }}</b></div>
-          </td>
-        </tr>
-      </tbody>
-  </table>
+  <agents-status-table></agents-status-table>
 </app-table>
-<!-- Todo Fix Pagination -->
-<!-- <div class="align-items-right py-4">
-  <cm-pagination
-                [totalItems]="totalRecords"
-                [pageSize]="pageSize"
-                (pageChanged)="pageChanged($event)"
-  >
-  </cm-pagination>
-</div> -->

@@ -1,0 +1,13 @@
+<mat-checkbox [(ngModel)]="value" (change)="onChange(value)" (blur)="onTouched()" [disabled]="disabled">
+  {{ title }}
+  <mat-icon
+    matTooltip="{{ tooltip }}"
+    matTooltipPosition="below"
+    matTooltipClass="tooltip-custom-style"
+    container="body"
+    aria-hidden="true"
+    *ngIf="tooltip"
+  >
+    info
+  </mat-icon>
+</mat-checkbox>

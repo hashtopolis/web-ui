@@ -1,0 +1,27 @@
+<mat-form-field>
+  <mat-label>{{ title }}
+    <mat-icon
+      matTooltip="{{ tooltip }}"
+      matTooltipPosition="below"
+      matTooltipClass="tooltip-custom-style"
+      container="body"
+      aria-hidden="true"
+      *ngIf="tooltip"
+    >
+      info
+    </mat-icon>
+  </mat-label>
+  <mat-select
+            #inputField
+            [(ngModel)]="value"
+            (selectionChange)="onChangeValue($event.value)"
+            [required]="isRequired"
+            >
+    <mat-option value="null" *ngIf="isBlankOptionDisabled">Disabled</mat-option>
+    <mat-option *ngFor="let item of items" [value]="item._id">
+      {{ item.name }}
+    </mat-option>
+  </mat-select>
+  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+  <mat-error>{{ title }} is required</mat-error>
+</mat-form-field>

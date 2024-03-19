@@ -20,6 +20,8 @@
 		  "extensions": [
 			"Angular.ng-template",
 			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode",
+			"amatiasq.sort-imports",
 			"firefox-devtools.vscode-firefox-debug",
 			"github.vscode-pull-request-github",
 			"ms-azuretools.vscode-docker"

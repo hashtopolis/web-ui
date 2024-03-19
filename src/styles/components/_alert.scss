@@ -77,9 +77,13 @@
   02- Other
 */
 
-.closesys {  // Custom to adjust margin in alert
-  margin-top: 2em;
-  margin: 2em auto;
+.closesys {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: $accent-900 !important;
+  color: white;
 }
 
 /*
@@ -104,4 +108,35 @@
   // border-radius: 1rem;
   padding: 0.25rem 0.75rem;
   position: relative
+}
+
+/*
+  03- End
+*/
+
+/*
+  04- Progress Bar Sweet Alert Notification
+*/
+.progress {
+  background-color: #eee;
+  border-radius: 10px;
+  height: 10px;
+  width: 100%;
+}
+
+.progress-bar {
+  background-color: #4CAF50;
+  height: 100%;
+  width: 0;
+  border-radius: 10px;
+  transition: width 0.5s;
+}
+
+/*
+  04- End
+*/
+
+.error-blacklisted {
+  display: block;
+  margin-top: 5px;
 }

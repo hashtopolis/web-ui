@@ -1,54 +1,70 @@
-<section class="bg-soft d-flex align-items-center">
-  <div class="container">
-    <grid-main [class]="'fmxw-500'" [centered]="true">
-      <div class="text-center text-md-center mb-0 mt-md-0">
-          <h2>Log In</h2>
-          <h6>Enter your credentials to access.</h6>
-      </div>
-      <!-- Handle authentification Error -->
-      <!-- <app-alert [message]="errorRes" *ngIf="errorRes" (close)="onHandleError()"></app-alert> -->
-      <!-- End of Handle authentification Error -->
-      <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" class="mt-5">
-          <div class="form-group mb-0">
-              <label for="inputUsername">User Name</label>
-              <div class="input-group">
-                  <span class="input-group-text" >
-                    <fa-icon [icon]="faUser" aria-hidden="true"></fa-icon>
-                  </span>
-                  <input type="text" class="form-control" id="inputUsername" placeholder="User Name" ngModel name="username" autocomplete="on" autofocus required>
-              </div>
-          </div>
-          &nbsp;
-          <div class="form-group">
-              <div class="form-group mb-0">
-                  <label for="password">Password</label>
-                  <div class="input-group input-icon-container">
-                      <span class="input-group-text">
-                        <fa-icon [icon]="faLock" aria-hidden="true"></fa-icon>
-                      </span>
-                      <input [type]="showPasswordOnPress ? 'text' : 'password'" class="form-control pwd-control" id="inputPassword" placeholder="Enter Password" ngModel name="password" autocomplete="on" passToggle required>
-                      <div
-                        (mousedown)="showPasswordOnPress = !showPasswordOnPress"
-                        (mouseup)="showPasswordOnPress = !showPasswordOnPress"
-                        >
-                        <fa-icon alt="show" [icon]="faEye" aria-hidden="true" *ngIf="showPasswordOnPress"></fa-icon>
-                        <fa-icon alt="hide" [icon]="faEyeSlash" aria-hidden="true" *ngIf="!showPasswordOnPress"></fa-icon>
-                      </div>
-                  </div>
-              </div>
-              &nbsp;
-          <div class="d-flex justify-content-between align-items-top mb-0">
-              <div></div>
-              <div><a routerLink="forgot" class="small text-right">Forgot your password?</a></div>
-          </div>
-          </div>
-          <div class="d-grid">
-              <button type="submit" class="btn btn-gray-800">Sign in</button>
-          </div>
+<div class="login-container">
+  <mat-card class="login-card">
+    <div class="login-logo-container">
+      <a routerLink="/"
+        ><img
+          [src]="
+            isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo
+          "
+          [alt]="headerConfig.brand.name"
+          [width]="90"
+          [height]="90"
+          alt="Hashtopolis"
+      /></a>
+    </div>
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+        <mat-form-field appearance="fill" class="card-login-field">
+          <mat-label>Username</mat-label>
+          <mat-icon matPrefix>account_circle</mat-icon>
+          <input
+                matInput
+                type="text"
+                placeholder="User Name"
+                formControlName="username"
+                aria-describedby="username-error"
+                />
+          <mat-hint *ngIf="loginForm.controls['username'].errors">User Name is required</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="card-login-field">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            type="{{ isVisible ? 'password' : 'text' }}"
+            placeholder="Password"
+            formControlName="password"
+            (keydown.enter)="$event.preventDefault(); onSubmit()"
+            aria-describedby="password-error"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="isVisible = !isVisible"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="isVisible"
+          >
+            <mat-icon>{{
+              isVisible ? 'visibility_off' : 'visibility'
+            }}</mat-icon>
+          </button>
+          <mat-hint *ngIf="loginForm.controls['password'].errors">Password is required</mat-hint>
+        </mat-form-field>
+
+        <grid-buttons>
+          <button-submit [name]="'Login'"></button-submit>
+        </grid-buttons>
+
+        <div class="forgot-password-link">
+          <a routerLink="forgot">Forgot your password?</a>
+        </div>
+
       </form>
-      <div class='alert alert-secondary alert-dismissible row justify-content-center closesys'>
-        This is a private closed system. If you need access you need to contact an admin.
-      </div>
-    </grid-main>
-  </div>
-</section>
+    </mat-card-content>
+  </mat-card>
+
+  <fixed-alert message="This is a private closed system. If you need access, you need to contact an admin."></fixed-alert>
+
+</div>

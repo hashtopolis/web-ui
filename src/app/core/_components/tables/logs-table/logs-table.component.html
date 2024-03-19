@@ -1,0 +1,15 @@
+<ht-table
+  #table
+  name="logsTable"
+  dataType="logs"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isFilterable]="true"
+  [filterFn]="filter"
+  [isPageable]="true"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

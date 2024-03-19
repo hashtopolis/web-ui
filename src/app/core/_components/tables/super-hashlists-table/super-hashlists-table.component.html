@@ -1,0 +1,18 @@
+<ht-table
+  #table
+  name="superHashlistsTable"
+  dataType="superhashlists"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isFilterable]="true"
+  [isArchived]="isArchived"
+  [filterFn]="filter"
+  [isPageable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

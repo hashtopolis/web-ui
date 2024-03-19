@@ -7,7 +7,7 @@ import { DOCUMENT } from '@angular/common';
     templateUrl: './scrollytop.component.html'
 })
 
-export class ScrollYTopComponent implements OnInit {
+export class ScrollYTopComponent {
 
     windowScrolled: boolean;
     faChevronUp=faChevronUp;
@@ -19,10 +19,10 @@ export class ScrollYTopComponent implements OnInit {
     @HostListener("window:scroll", [])
 
     onWindowScroll() {
-        if (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop > 100) {
+        if (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop > 100) {
             this.windowScrolled = true;
         }
-       else if (this.windowScrolled && window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop < 10) {
+       else if (this.windowScrolled && window.scrollY || document.documentElement.scrollTop || document.body.scrollTop < 10) {
             this.windowScrolled = false;
         }
     }
@@ -37,7 +37,5 @@ export class ScrollYTopComponent implements OnInit {
             }
         })();
     }
-
-    ngOnInit() {}
 
 }

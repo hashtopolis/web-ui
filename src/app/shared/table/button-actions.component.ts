@@ -5,8 +5,8 @@ import { Component } from '@angular/core';
   selector: 'app-button-actions',
   template: `
   <div ngbDropdown container="body">
-    <button type="button" class="navbar-toggler btn-actions"  data-mdb-toggle="collapse" data-mdb-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
-      aria-expanded="false" aria-label="Toggle navigation" ngbDropdownToggle>
+    <button type="button" class="navbar-toggler btn-actions remove-caret"  data-mdb-toggle="collapse" data-mdb-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
+      aria-expanded="false"  ngbDropdownToggle>
       <fa-icon [icon]="faEllipsisH" aria-hidden="true"></fa-icon>
     </button>
     <div ngbDropdownMenu>

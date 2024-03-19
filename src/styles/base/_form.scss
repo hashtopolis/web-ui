@@ -1,0 +1,80 @@
+.form-field {
+  label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: inline-block;
+    color: $primary-700;
+  }
+
+  &.xs-field {
+    width: 10%;
+  }
+
+  &.s-field {
+    width: 25%;
+  }
+
+  &.m-field {
+    width: 40%;
+  }
+
+  &.l-field {
+    width: 60%;
+  }
+
+  &.xl-field {
+    width: 100%;
+  }
+
+  .mat-form-field-infix {
+    height: 16px;
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .mat-icon {
+    color: $primary-100;
+  }
+}
+
+.xsmall {
+  .form-field {
+    &.xs-field {
+      width: 100%;
+    }
+
+    &.s-field {
+      width: 100%;
+    }
+
+    &.m-field {
+      width: 100%;
+    }
+
+    &.l-field {
+      width: 100%;
+    }
+  }
+}
+
+.small {
+  .form-field {
+    &.xs-field {
+      width: 30%;
+    }
+
+    &.s-field {
+      width: 50%;
+    }
+
+    &.m-field {
+      width: 75%;
+    }
+
+    &.l-field {
+      width: 100%;
+    }
+  }
+}

@@ -1,0 +1,29 @@
+<mat-form-field>
+  <mat-label>{{ title }}
+    <mat-icon
+          matTooltip="{{ tooltip }}"
+          matTooltipPosition="below"
+          matTooltipClass="tooltip-custom-style"
+          container="body"
+          aria-hidden="true"
+          *ngIf="tooltip"
+        >
+          info
+        </mat-icon>
+  </mat-label>
+  <mat-icon matPrefix *ngIf="icon">{{ icon }}</mat-icon>
+  <input
+    #inputField
+    matInput
+    [disabled]="disabled"
+    [class.is-invalid]="error"
+    [id]="inputId"
+    [(ngModel)]="value"
+    (ngModelChange)="onChange(value)"
+    [pattern]="pattern"
+    [type]="inputType"
+    [required]="isRequired"
+  />
+  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+  <mat-error>{{ title }} is required</mat-error>
+</mat-form-field>

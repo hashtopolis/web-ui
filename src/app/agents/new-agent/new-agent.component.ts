@@ -1,155 +1,82 @@
-import { faTrash, faDownload, faInfoCircle, faCopy } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { environment } from './../../../environments/environment';
-import { DataTableDirective } from 'angular-datatables';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Subject } from 'rxjs';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { ConfigService } from 'src/app/core/_services/shared/config.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SERV } from '../../core/_services/main.config';
+import { Subscription } from 'rxjs';
+import { VoucherForm } from './new-agent.form';
+import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
+import { environment } from './../../../environments/environment';
 
 @Component({
   selector: 'app-new-agent',
   templateUrl: './new-agent.component.html'
 })
-@PageTitle(['New Agent'])
 export class NewAgentComponent implements OnInit, OnDestroy {
+  form: FormGroup<VoucherForm>;
+  agentURL: string;
+  newVoucherSubscription: Subscription;
 
-  // Form attributtes
-  faInfoCircle=faInfoCircle;
-  faDownload=faDownload;
-  faTrash=faTrash;
-  faCopy=faCopy;
-
-  @ViewChild(DataTableDirective, {static: false})
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
-  }
-
-  createForm: FormGroup
-  binaries: any = [];
-  vouchers: any = [];
-
-  randomstring:any
+  @ViewChild('table') table: VouchersTableComponent;
 
   constructor(
-    private uiService: UIConfigService,
+    private titleService: AutoTitleService,
+    private clipboard: Clipboard,
+    private snackBar: MatSnackBar,
+    private cs: ConfigService,
     private gs: GlobalService
-  ) { }
-
-  private maxResults = environment.config.prodApiMaxResults;
-
-  pathURL = location.protocol + '//' + location.hostname + ':' + environment.config.agentApiPort;
-  public agentdownloadURL = this.pathURL + environment.config.agentdownloadURL;
-  public agentURL = this.pathURL + environment.config.agentURL;
-
-  ngOnInit(): void {
-
-    // Generate Voucher
-    this.randomstring = Math.random().toString(36).slice(-8);
-
-    this.createForm = new FormGroup({
-      'voucher': new FormControl(''),
-    });
-
-    const params = {'maxResults': this.maxResults}
-
-    this.gs.getAll(SERV.VOUCHER,params).subscribe((vouchers: any) => {
-      this.vouchers = vouchers.values;
-    });
-
-    this.gs.getAll(SERV.AGENT_BINARY).subscribe((bin: any) => {
-      this.binaries = bin.values;
-      this.dtTrigger.next(void 0);
-    });
-
-    this.dtOptions = {
-      dom: 'Bfrtip',
-      pageLength: 10,
-      stateSave: true,
-      select: true,
-    };
-
-  }
-
-  rerender(): void {
-    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-      // Destroy the table first
-      dtInstance.destroy();
-      // Call the dtTrigger to rerender again
-      setTimeout(() => {
-        this.dtTrigger['new'].next();
-      });
+  ) {
+    this.titleService.set(['New Agent']);
+    this.form = new FormGroup<VoucherForm>({
+      voucher: new FormControl('', { nonNullable: true })
     });
   }
 
-  onDelete(id: number){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    })
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Once deleted, it can not be recovered!",
-      icon: "warning",
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: '#8A8584',
-      confirmButtonColor: '#C53819',
-      confirmButtonText: 'Yes, delete it!'
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        this.gs.delete(SERV.VOUCHER,id).subscribe(() => {
-          Swal.fire({
-            title: "Success",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        });
-      } else {
-        swalWithBootstrapButtons.fire({
-          title: "Cancelled",
-          text: "Your Voucher is safe!",
-          icon: "error",
-          showConfirmButton: false,
-          timer: 1500
-        })
-      }
-    });
-
-  }
-
-  onSubmit(){
-    if (this.createForm.valid) {
-
-      this.gs.create(SERV.VOUCHER,this.createForm.value).subscribe(() => {
-          Swal.fire({
-            title: "Success",
-            text: "New Voucher created!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.ngOnInit();
-          this.rerender();  // rerender datatables
-        }
-      );
+  ngOnDestroy(): void {
+    if (this.newVoucherSubscription) {
+      this.newVoucherSubscription.unsubscribe();
     }
   }
 
+  ngOnInit(): void {
+    const path = this.cs.getEndpoint().replace('/api/v2', '');
+    this.agentURL = path + '/api' + environment.config.agentURL;
+    this.updateVoucher();
+  }
+
+  updateVoucher(): void {
+    this.form.setValue({ voucher: this.generateVoucher() });
+  }
+
+  generateVoucher(): string {
+    return Math.random().toString(36).slice(-8);
+  }
+
+  copyAgentURL(): void {
+    this.clipboard.copy(this.agentURL);
+    this.snackBar.open(
+      'The agent register URL is copied to the clipboard',
+      'Close'
+    );
+  }
+
+  isValid(): boolean {
+    return this.form.valid && this.form.get('voucher').value !== '';
+  }
+
+  onSubmit() {
+    if (this.form.valid) {
+      this.newVoucherSubscription = this.gs
+        .create(SERV.VOUCHER, this.form.value)
+        .subscribe(() => {
+          this.updateVoucher();
+          this.snackBar.open('New voucher successfully created!', 'Close');
+          this.table.reload();
+        });
+    }
+  }
 }

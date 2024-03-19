@@ -1,41 +1,9 @@
-<app-page-title [title]="'Global Permission Group'" [buttontitle]="'New'" [buttonlink]="'/users/global-permissions-groups/new'" [subbutton]="true"></app-page-title>
-<!-- Table -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Name</th>
-          <th># of Users</th>
-          <th class="rounded-end">Actions
-            <fa-icon
-                    placement="bottom"
-                    ngbTooltip="To delete a permission group, the number of users has to be zero."
-                    container="body"
-                    [icon]="faInfoCircle"
-                    aria-hidden="true"
-            >
-            </fa-icon>
-          </th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let a of Allgpg; let i = index">
-            <td class="text-align:center">{{ a.id }}</td>
-            <td class="text-align:center">{{ a.name | lowercase | titlecase }}</td>
-            <td class="text-align:center">{{ a.user.length }}</td>
-            <td class="overflow-hidden">
-              <app-button-actions>
-                <button ngbDropdownItem [routerLink]="['/users/global-permissions-groups/',a.id,'edit']" data-placement="top" title="Edit">
-                  <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-                </button>
-                <div *ngIf="a.user.length === 0" class="dropdown-divider"></div>
-                <button *ngIf="a.user.length === 0" ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(a.id)">
-                  <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-                </button>
-              </app-button-actions>
-            </td>
-        </tr>
-      </tbody>
-  </table>
+  <app-page-title
+    title="Global Permission Groups"
+    buttontitle="New"
+    buttonlink="/users/global-permissions-groups/new"
+    [subbutton]="true"
+  ></app-page-title>
+  <permissions-table></permissions-table>
 </app-table>

@@ -1,0 +1,16 @@
+<div class="simulate-form-field simulate-form-field-disabled">
+  <div class="simulate-form-field-label">
+    {{ label }}
+  </div>
+  <div class="simulate-form-field-flex">
+    <div class="simulate-form-field-infix">
+      <div *ngFor="let item of items">
+      <span class="simulate-form-field-content" [innerHTML]=" item.name"></span>
+        <!-- <a *ngIf="routerLink" [routerLink]="getLink(item._id,'edit')" [class.active]="isActive()">
+          Link
+        </a> -->
+      </div>
+    </div>
+  </div>
+</div>
+

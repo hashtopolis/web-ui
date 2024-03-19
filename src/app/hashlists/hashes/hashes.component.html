@@ -1,90 +1,35 @@
-<!-- Header Hashes views -->
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
-  <div class="d-block mb-4 mb-md-0">
-      <div [ngSwitch]="whichView">
-        <div *ngSwitchCase="'chunks'">
-          <h2 class="h4">Hashes of chunk <a [routerLink]="['/tasks/show-tasks/', this.editedIndex,'edit']">{{ titleName }}</a></h2>
-        </div>
-        <div *ngSwitchCase="'tasks'">
-          <h2 class="h4">Hashes of task <a [routerLink]="['/tasks/show-tasks/', this.editedIndex,'edit']">{{ titleName }}</a></h2>
-        </div>
-        <div *ngSwitchCase="'hashlists'">
-          <h2 class="h4">Hashes of hashlist <a [routerLink]="['/hashlists/hashlist/', this.editedIndex,'edit']">{{ titleName }}</a></h2>
-        </div>
-      </div>
+<grid-main>
+
+  <h2 class="h5 mb-4" *ngIf="whichView === 'chunks' || whichView === 'tasks' || whichView === 'hashlists'">
+    Hashes of
+    <ng-container [ngSwitch]="whichView">
+      <ng-container *ngSwitchCase="'chunks'"> chunk </ng-container>
+      <ng-container *ngSwitchCase="'tasks'"> task </ng-container>
+      <ng-container *ngSwitchCase="'hashlists'"> hashlist </ng-container>
+    </ng-container>
+    <a [routerLink]="getRouterLink()">{{ titleName }}</a>
+  </h2>
+  <app-hexconvertor></app-hexconvertor>
+  <!-- <form [formGroup]="viewForm">
+    <div fxLayout="row" fxLayoutGap="10px">
+
+    <simulate-form-field label="Displaying:"  message="Hash + Plain" *ngIf="!displaying"></simulate-form-field>
+    <simulate-form-field label="Displaying:"  message="{{ displayingDescr }}" *ngIf="displaying"></simulate-form-field>
+    <simulate-form-field label="Filter:"  message="Cracked + Uncracked" *ngIf="!filtering"></simulate-form-field>
+    <simulate-form-field label="Filter:"  message="{{ filteringDescr }}" *ngIf="filtering"></simulate-form-field>
+
+    <input-select title="Display" formControlName="display" [items]="selectDisplays"></input-select>
+    <input-select title="Filter" formControlName="filter" [items]="selectFilters"  *ngIf="whichView !== 'tasks'"></input-select>
+
+    <grid-buttons>
+      <button-submit name="Ok" (click)="onRefresh()"></button-submit>
+    </grid-buttons>
   </div>
-</div>
-<!-- Form -->
-<grid-main [class]="'width:100%'" [centered]="true">
-  <form [formGroup]="viewForm">
-  <div class="row g-3">
-    <div class="col-md-6">
-      <th>Displaying: </th>
-      <td>
-        <a *ngIf="!displaying">Hash + Plain</a>
-        <a *ngIf="displaying">{{ displayingDescr }}</a>
-      </td>
-    </div>
-    <div class="col-md-6">
-      <th>Filter: </th>
-      <td>
-        <a *ngIf="!filtering">Cracked + Uncracked</a>
-        <a *ngIf="filtering">{{ filteringDescr }}</a>
-      </td>
-    </div>
-  </div>
-  <hr>
-  <div class="row g-3">
-    <div class="col-md-6">
-      <select
-            type='string'
-            class="form-select"
-            (change)="onQueryp(display.value, 0)"
-            formControlName="display"
-            #display
-            >
-            <option *ngFor="let d of displays" [value]="d.name">{{ d.description }}</option>
-      </select>
-    </div>
-    <div *ngIf="whichView !== 'tasks'" class="col-md-4">
-      <select
-            type='string'
-            class="form-select"
-            (change)="onQueryp(filter.value, 1)"
-            formControlName="filter"
-            #filter
-            >
-            <option *ngFor="let f of filters" [value]="f.name">{{ f.description }}</option>
-      </select>
-    </div>
-    <div *ngIf="whichView !== 'tasks'" class="col-md-2">
-      <button class="btn btn-gray-800" (click)="onOK()">Ok</button>
-    </div>
-  </div>
- </form>
+ </form> -->
 </grid-main>
-<!-- Matching Table Section -->
+<!-- Hashes -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-      <thead class="thead-light">
-        <tr>
-          <th class="rounded-start rounded-end">Matching hashes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let mh of matchHashes">
-          <td>
-              {{ mh | hashesf:displaying:filtering:crackPos }}
-              <fa-icon
-                      class='btn-outline-gray-600'
-                      [icon]="faCopy"
-                      [copyButton]="mh | hashesf:displaying:filtering:crackPos"
-              >
-              </fa-icon>
-          </td>
-        </tr>
-      </tbody>
-  </table>
+ <hashes-table [id]="editedIndex" [dataType]="whichView"></hashes-table>
 </app-table>
-<app-hexconvertor></app-hexconvertor>
+
 

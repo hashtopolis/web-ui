@@ -1,186 +1,167 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
-import { ACTIONARRAY, ACTION, NOTIFARRAY } from '../../../core/_constants/notifications.config';
+import {
+  ACTION,
+  ACTIONARRAY,
+  NOTIFARRAY
+} from '../../../core/_constants/notifications.config';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { environment } from '../../../../environments/environment';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Filter } from '../notifications.component';
 
 @Component({
   selector: 'app-new-notification',
   templateUrl: './new-notification.component.html'
 })
-@PageTitle(['New Notification'])
-export class NewNotificationComponent implements OnInit {
+export class NewNotificationComponent implements OnInit, OnDestroy {
+  static readonly SUBMITLABEL = 'Save Notification';
+  static readonly SUBTITLE = 'Create Notification';
+
+  triggerAction: string;
+  form: FormGroup;
+  filters: Filter[];
+  editView = false;
+  active = false;
+  allowedActions = ACTIONARRAY.map((action) => ({
+    _id: action,
+    name: action
+  }));
+  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
+  subscriptions: Subscription[] = [];
+  submitLabel = NewNotificationComponent.SUBMITLABEL;
+  subTitle = NewNotificationComponent.SUBTITLE;
+  actionToServiceMap = {
+    [ACTION.AGENT_ERROR]: SERV.AGENTS,
+    [ACTION.OWN_AGENT_ERROR]: SERV.AGENTS,
+    [ACTION.DELETE_AGENT]: SERV.AGENTS,
+    [ACTION.NEW_TASK]: SERV.TASKS,
+    [ACTION.TASK_COMPLETE]: SERV.TASKS,
+    [ACTION.DELETE_TASK]: SERV.TASKS,
+    [ACTION.NEW_HASHLIST]: null,
+    [ACTION.DELETE_HASHLIST]: SERV.HASHLISTS,
+    [ACTION.HASHLIST_ALL_CRACKED]: SERV.HASHLISTS,
+    [ACTION.HASHLIST_CRACKED_HASH]: SERV.HASHLISTS,
+    [ACTION.USER_CREATED]: SERV.USERS,
+    [ACTION.USER_DELETED]: SERV.USERS,
+    [ACTION.USER_LOGIN_FAILED]: SERV.USERS,
+    [ACTION.LOG_WARN]: null,
+    [ACTION.LOG_FATAL]: null,
+    [ACTION.LOG_ERROR]: null
+  };
 
   constructor(
-    private route:ActivatedRoute,
+    private titleService: AutoTitleService,
+    private alert: AlertService,
     private gs: GlobalService,
-    private router:Router
-  ) { }
-
-  createForm: FormGroup;
-  Allnotif: any;
-  value: any;
-  editView = false;
-  active = true;
-
-  allowedActions = ACTIONARRAY;
-
-  notifications = NOTIFARRAY;
-
-  private maxResults = environment.config.prodApiMaxResults;
-
-  ngOnInit(): void {
-
-    const qp = this.route.snapshot.queryParams;
-
-    this.onSubscribe(qp['filter']);
-
-    this.createForm = new FormGroup({
-      'action': new FormControl('' || qp['filter']),
-      'actionFilter': new FormControl(''),
-      'notification': new FormControl('' || 'ChatBot'),
-      'receiver': new FormControl(),
-      'isActive': new FormControl(true),
-    });
-
+    private router: Router
+  ) {
+    titleService.set(['New Notification']);
   }
 
-  onSubscribe(filter: string){
+  /**
+   * Initializes the form for creating a new notification.
+   */
+  ngOnInit(): void {
+    this.createForm();
+  }
 
-    let path = this.checkPath(filter);
+  /**
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
 
-    const params = {'maxResults': this.maxResults};
-
-    if(String(path) !== 'none'){
-    this.active = true;
-    this.gs.getAll(path,params).subscribe((res: any) => {
-      const value = []
-      for(let i=0; i < res.values.length; i++){
-        if(path === SERV.AGENTS) {
-          console.log(res.values.length)
-          value.push({"id": res.values[i]['_id'], "name": res.values[i]['agentName']});
-        }
-        if(path === SERV.TASKS) {
-          value.push({"id": res.values[i]['_id'], "name": res.values[i]['taskName']});
-        }
-        if(path === SERV.USERS || path === SERV.HASHLISTS ){
-          value.push({"id": res.values[i]['_id'], "name": res.values[i]['name']});
-        }
-       }
-      this.value = value;
+  /**
+   * Creates the form for creating a new notification.
+   * Initializes form controls with default values and validators.
+   */
+  createForm(): void {
+    this.form = new FormGroup({
+      action: new FormControl('', [Validators.required]),
+      actionFilter: new FormControl(''),
+      notification: new FormControl('' || 'ChatBot', [Validators.required]),
+      receiver: new FormControl('', [Validators.required]),
+      isActive: new FormControl(true)
     });
-    }else{
+
+    //subscribe to changes to handle select trigger actions
+    this.form.get('action').valueChanges.subscribe((newvalue) => {
+      this.changeAction(newvalue);
+    });
+  }
+
+  /**
+   * Handles the change of action for creating a new notification.
+   * Updates the available filters based on the selected action.
+   *
+   * @param {string} action - The selected action.
+   */
+  changeAction(action: string): void {
+    const path = this.actionToServiceMap[action];
+    if (path) {
+      this.active = true;
+
+      this.subscriptions.push(
+        this.gs.getAll(path).subscribe((res: any) => {
+          const _filters: Filter[] = [];
+          for (let i = 0; i < res.values.length; i++) {
+            if (path === SERV.AGENTS) {
+              _filters.push({
+                _id: res.values[i]['_id'],
+                name: res.values[i]['agentName']
+              });
+            }
+            if (path === SERV.TASKS) {
+              _filters.push({
+                _id: res.values[i]['_id'],
+                name: res.values[i]['taskName']
+              });
+            }
+            if (path === SERV.USERS || path === SERV.HASHLISTS) {
+              _filters.push({
+                _id: res.values[i]['_id'],
+                name: res.values[i]['name']
+              });
+            }
+          }
+          this.filters = _filters;
+        })
+      );
+    } else {
       this.active = false;
     }
-
   }
 
-  onQueryp(name: any){
-    this.router.navigate(['/account/notifications/new-notification'], {queryParams: {filter: name}, queryParamsHandling: 'merge'});
-    setTimeout(() => {
-      this.ngOnInit();
-    });
+  /**
+   * Checks if the form for creating a new notification is valid.
+   *
+   * @returns {boolean} True if the form is valid; otherwise, false.
+   */
+  formIsValid(): boolean {
+    return this.form.valid;
   }
 
-  checkPath(filter: string){
-
-    let path;
-    switch (filter) {
-
-      case ACTION.AGENT_ERROR:
-        path = SERV.AGENTS;
-      break;
-
-      case ACTION.OWN_AGENT_ERROR:
-        path = SERV.AGENTS;
-      break;
-
-      case ACTION.DELETE_AGENT:
-        path = SERV.AGENTS;
-      break;
-
-      case ACTION.NEW_TASK:
-        path = SERV.TASKS;
-      break;
-
-      case  ACTION.TASK_COMPLETE:
-        path = SERV.TASKS;
-      break;
-
-      case ACTION.DELETE_TASK:
-        path = SERV.TASKS;
-      break;
-
-      case ACTION.NEW_HASHLIST:
-        path = 'none';
-      break;
-
-      case ACTION.DELETE_HASHLIST:
-        path = SERV.HASHLISTS;
-      break;
-
-      case ACTION.HASHLIST_ALL_CRACKED:
-        path = SERV.HASHLISTS;
-      break;
-
-      case ACTION.HASHLIST_CRACKED_HASH:
-        path = SERV.HASHLISTS;
-      break;
-
-      case ACTION.USER_CREATED:
-        path = SERV.USERS;
-      break;
-
-      case ACTION.USER_DELETED:
-        path = SERV.USERS;
-      break;
-
-      case ACTION.USER_LOGIN_FAILED:
-        path = SERV.USERS;
-      break;
-
-      case ACTION.LOG_WARN:
-        path = 'none';
-      break;
-
-      case ACTION.LOG_FATAL:
-        path = 'none';
-      break;
-
-      case ACTION.LOG_ERROR:
-        path = 'none';
-      break;
-
-      default:
-        path = 'none';
-
-    }
-    return path;
-  }
-
-  onSubmit(){
-    if (this.createForm.valid) {
-
-      this.gs.create(SERV.NOTIFICATIONS,this.createForm.value).subscribe(() => {
-          Swal.fire({
-            title: "Success!",
-            text: "New Notification created!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.ngOnInit();
+  /**
+   * Submits the form to create a new notification.
+   * Sends a request to the server and navigates on success.
+   */
+  onSubmit(): void {
+    if (this.form.valid) {
+      this.subscriptions.push(
+        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
+          this.alert.okAlert('New Notification created!', '');
           this.router.navigate(['/account/notifications']);
-        }
+        })
       );
     }
   }
-
 }
-
-

@@ -1,26 +1,29 @@
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { IsAuth } from "../core/_guards/auth.guard";
-import { CommonModule } from "@angular/common";
-import { RouterModule } from "@angular/router";
-import { FormsModule } from "@angular/forms";
-import { NgModule } from "@angular/core";
-
-import { ComponentsModule } from "../shared/components.module";
-import { ForgotComponent } from "./forgot/forgot.component";
-import { AuthComponent } from "./auth.component";
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IsAuth } from '../core/_guards/auth.guard';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { NgModule } from '@angular/core';
+import { ComponentsModule } from '../shared/components.module';
+import { AuthComponent } from './auth.component';
+import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
-  declarations:[
-    ForgotComponent,
-    AuthComponent
-  ],
-  imports:[
+  declarations: [AuthComponent],
+  imports: [
     RouterModule.forChild([
-      {path: 'auth', component: AuthComponent},
-      {path: 'auth/forgot', component: ForgotComponent}
+      { path: 'auth', component: AuthComponent },
+      {
+        path: 'auth/forgot',
+        component: FormComponent,
+        data: {
+          kind: 'authforgot',
+          type: 'create'
+        }
+      }
     ]),
-    FontAwesomeModule,
+    CoreFormsModule,
     ComponentsModule,
     CommonModule,
     FormsModule,

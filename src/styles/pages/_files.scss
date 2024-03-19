@@ -5,13 +5,8 @@
 // Notes. Section to customize the files page
 
 .files-theme {
-  font-size: 12px;
-  line-height: 1;
-  font-weight: bold;
   color: #345F90;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 11px 20px;
+  padding: 5px 20px;
   position: relative;
   z-index: 2;
   cursor: pointer;
@@ -30,8 +25,8 @@
 }
 
 .files-theme.active {
-  color: #fff;
-  background: #343d49;
+  color: $color-white;
+  background: $color-grey-metal;
 }
 
 .tab-slider--body {
@@ -55,7 +50,7 @@
   border-radius: 35px;
   overflow: hidden;
   background: #f0eaea;
-  height: 35px;
+  height: 34px;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -89,4 +84,25 @@
   font-size:medium;
   font-family:Verdana;
   font-weight:bold;
+}
+
+.file-input-container {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  cursor: pointer !important;
+}
+
+input.custom-file-input[type="file"] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  cursor: pointer !important;
+}
+
+.file-upload-label {
+  font-size: 16px;
+  line-height: 24px;
 }

@@ -1,42 +1,36 @@
-<app-page-title [title]="'Use Supertask'" ></app-page-title>
-<!-- Body -->
-<grid-main [class]="'fmxw-800'" [centered]="true">
-    <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+<grid-main>
+  <app-page-title [title]="'Use Supertask'" ></app-page-title>
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="row">
-        <grid-form-input [name]="'Hashlist'">
-          <select
-                type='number'
-                id='hashlist'
-                class='form-select'
-                formControlName="hashlistId"
-            >
-           <option></option>
-          </select>
-        </grid-form-input>
-        <grid-form-input [name]="'Binary type'">
-          <select
-                  type='number'
-                  id='crackerBinaryId'
-                  class='form-select'
-                  #myBinary
-                  (change)="onChangeBinary(myBinary.value)"
-                  >
-            <option *ngFor="let cb of crackertype" [value]="cb.crackerBinaryTypeId">{{ cb.typeName }}</option>
-          </select>
-        </grid-form-input>
-        <grid-form-input [name]="'Binary version'">
-          <select
-                type='number'
-                id='crackerVersionId'
-                class='form-select'
-                formControlName="crackerVersionId"
-              >
-              <option *ngFor="let cv of crackerversions" [ngValue]="cv.crackerBinaryId">{{ cv.version }}</option>
-          </select>
-        </grid-form-input>
+
+        <div fxLayout="column" fxLayoutAlign="start start">
+        <input-multiselect
+          [isLoading]="isLoading"
+          [placeholder]="'Hashlists...'"
+          [items]="selectHashlists"
+          [label]="'Select or search Hashlists *'"
+          [mergeIdAndName]="true"
+          [multiselectEnabled]="false"
+          formControlName="hashlistId"
+          style="flex: 1;"
+          [isRequired]="true"
+        ></input-multiselect>
+        </div>
+
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+          <input-select title="Binary type" formControlName="crackerBinaryId" [items]="selectCrackertype" [isRequired]="true"></input-select>
+          <input-select title="Binary version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions" [isRequired]="true"></input-select>
+
+        </div>
+
       </div>
-      <button-submit [name]="'Create'"></button-submit>
-      </form>
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'"></button-submit>
+      </grid-buttons>
+
+    </form>
 </grid-main>
 
 

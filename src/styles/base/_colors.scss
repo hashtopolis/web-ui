@@ -1,0 +1,61 @@
+@use '@angular/material' as mat;
+
+$primary-50: mat.get-color-from-palette($hashtopolis-primary-palette, 50);
+$primary-100: mat.get-color-from-palette($hashtopolis-primary-palette, 100);
+$primary-200: mat.get-color-from-palette($hashtopolis-primary-palette, 200);
+$primary-300: mat.get-color-from-palette($hashtopolis-primary-palette, 300);
+$primary-400: mat.get-color-from-palette($hashtopolis-primary-palette, 400);
+$primary-500: mat.get-color-from-palette($hashtopolis-primary-palette, 500);
+$primary-600: mat.get-color-from-palette($hashtopolis-primary-palette, 600);
+$primary-700: mat.get-color-from-palette($hashtopolis-primary-palette, 700);
+$primary-800: mat.get-color-from-palette($hashtopolis-primary-palette, 800);
+$primary-900: mat.get-color-from-palette($hashtopolis-primary-palette, 900);
+
+$accent-50: mat.get-color-from-palette($hashtopolis-accent-palette, 50);
+$accent-100: mat.get-color-from-palette($hashtopolis-accent-palette, 100);
+$accent-200: mat.get-color-from-palette($hashtopolis-accent-palette, 200);
+$accent-300: mat.get-color-from-palette($hashtopolis-accent-palette, 300);
+$accent-400: mat.get-color-from-palette($hashtopolis-accent-palette, 400);
+$accent-500: mat.get-color-from-palette($hashtopolis-accent-palette, 500);
+$accent-600: mat.get-color-from-palette($hashtopolis-accent-palette, 600);
+$accent-700: mat.get-color-from-palette($hashtopolis-accent-palette, 700);
+$accent-800: mat.get-color-from-palette($hashtopolis-accent-palette, 800);
+$accent-900: mat.get-color-from-palette($hashtopolis-accent-palette, 900);
+
+$warn-50: mat.get-color-from-palette($hashtopolis-warn-palette, 50);
+$warn-100: mat.get-color-from-palette($hashtopolis-warn-palette, 100);
+$warn-200: mat.get-color-from-palette($hashtopolis-warn-palette, 200);
+$warn-300: mat.get-color-from-palette($hashtopolis-warn-palette, 300);
+$warn-400: mat.get-color-from-palette($hashtopolis-warn-palette, 400);
+$warn-500: mat.get-color-from-palette($hashtopolis-warn-palette, 500);
+$warn-600: mat.get-color-from-palette($hashtopolis-warn-palette, 600);
+$warn-700: mat.get-color-from-palette($hashtopolis-warn-palette, 700);
+$warn-800: mat.get-color-from-palette($hashtopolis-warn-palette, 800);
+$warn-900: mat.get-color-from-palette($hashtopolis-warn-palette, 900);
+
+$color-black: #080808;
+$color-white: #ffffff;
+$color-grey-light: #cccccc;
+$color-grey-border: #999999;
+$color-grey: #666666;
+$color-grey-metal: #4b5563;
+$color-grey-dark: #444444;
+$color-black: #111111;
+$color-orange: #ff9900;
+$color-orange-dark: #b36e06;
+$color-green: #009933;
+$color-green-dark: #1c6d37;
+$color-red: #ff0000;
+$color-red-dark: #800000;
+$color-blue-light: #42d4f4;
+$color-blue: #0b83b3;
+
+$hyperlink-color: #2196f3;
+$search-text-highlight-color: #96dcf7;
+$alert-color: #ffebee;
+
+$btn-text-color: #ffffff;
+$btn-bg-color: #1986b1;
+$btn-border-color: #1986b1;
+
+

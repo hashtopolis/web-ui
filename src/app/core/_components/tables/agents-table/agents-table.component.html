@@ -1,0 +1,18 @@
+<ht-table
+  #table
+  [name]="name"
+  [columnLabels]="columnLabels"
+  [dataType]="datatype"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="isSelectable"
+  [isFilterable]="isFilterable"
+  [hasRowAction]="hasRowAction"
+  [hasBulkActions]="hasBulkActions"
+  (editableSaved)="editableSaved($event)"
+  [filterFn]="filter"
+  [isPageable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

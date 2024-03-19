@@ -1,215 +1,80 @@
-<app-page-subtitle [subtitle]="'Create Hashlist'"></app-page-subtitle>
-<!-- Body -->
-<grid-main [class]="'min-width: 450px;'" [centered]="true">
-  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-    <grid-autocol>
-    <grid-form-input [name]="'Name'" [labelclass]="'requiredak'">
-      <input
-            type='text'
-            id="name"
-            class='form-control'
-            formControlName="name"
-      >
-    </grid-form-input>
-    <grid-form-input [name]="'Notes'">
-      <input
-            type='text'
-            id="notes"
-            class='form-control'
-            formControlName="notes"
-      >
-    </grid-form-input>
-    <grid-form-input [name]="'Access group'" [labelclass]="'requiredak'">
-      <select
-            type='number'
-            id='accessgroup'
-            class='form-select'
-            formControlName="accessGroupId"
-        >
-        <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
-    </select>
-    </grid-form-input>
-    <div class="form-group">
-      <div class="form-outline form-input-custom">
-          <label class="form-label requiredak" for="gethashtype">Hashtype</label>
-          <fa-icon
-                  placement="bottom"
-                  (click)="open(cheatsheet)"
-                  ngbTooltip='Click to use the Hash Detector'
-                  container="body"
-                  [icon]="faSearchPlus"
-                  aria-hidden="true"
-                  class="gray-light-ico"
-          ></fa-icon>
-          <div class="input-group">
-            <span class="input-group-text" >
-              <fa-icon [icon]="faMagnifyingGlass" aria-hidden="true"></fa-icon>
-            </span>
-            <select
-                    type='number'
-                    id="hashtype"
-                    class='form-select'
-                    formControlName="hashTypeId"
-                >
-                <option [value]=""></option>
-            </select>
-        </div>
-      </div>
+<grid-main>
+
+  <app-page-subtitle subtitle="Create Hashlist"></app-page-subtitle>
+
+  <form [formGroup]="form">
+
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
+      <input-text title="Notes" formControlName="notes"></input-text>
+      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
     </div>
-    <grid-form-input [name]="'Hashlist format'" [labelclass]="'requiredak'">
-      <td>
-        <select
-                type='number'
-                id='hashlistformat'
-                class='form-select'
-                formControlName="format"
-                string-number
-            >
-            <option [ngValue]="0" [defaultSelected]=true>Text file</option>
-            <option [ngValue]="1">HCCAPX file / PMKID hash</option>
-            <option [ngValue]="2">Binary file (single hash)</option>
-        </select>
-    </grid-form-input>
-    <grid-form-input>
-      <span>
-        <input
-              type="checkbox"
-              id="separator"
-              formControlName="isSalted"
-        > Salted hashes, separator:
-        <input
-              type="text"
-              class='form-control form-control-mini'
-              formControlName="separator"
-              value=";"
-        >
-      </span>
-    </grid-form-input>
-    <grid-form-input>
-      <span>
-        <input
-              type="checkbox"
-              id="isHexSalt"
-              formControlName="isHexSalt"
-        > Salt is in hex (only when salted hashes)
-      </span>
-    </grid-form-input>
-    <div *ngIf="+brainenabled === 1">
-      <hr>
-      <h5>Hashcat Brain Enabled</h5>&nbsp;
-      <div class="form-group">
-        <div class="form-outline">
-          <label class="form-label requiredak" for="getbrainfeatures">Hashlist format</label>
-            <fa-icon
-                    placement="bottom"
-                    ngbTooltip='You can disable this setting in Config > Server > General Settings'
-                    container="body"
-                    [icon]="faInfoCircle"
-                    aria-hidden="true"
-            >
-            </fa-icon>
-          <td>
-            <select
-                  type='number'
-                  id='brainfeatures'
-                  class='form-select'
-                  formControlName="brainFeatures"
-                >
-                <option [ngValue]="1">Send hashed passwords</option>
-                <option [ngValue]="2">Send attack positions</option>
-                <option [ngValue]="3" [defaultSelected]=true>Send hashed passwords and attack positions</option>
-            </select>
-            <div class='alert alert-info row justify-content-center closesys'>
-              Note: When brain is enabled it'll create a network server. If it is used wrongly it could cause bottlenecks or collapse the network server.
-          </div>
-        </div>
-      </div>
-      <hr>
-      &nbsp;
+
+    <div class="custom-hashlist-container">
+      <input-multiselect
+        [isLoading]="isLoadingHashtypes"
+        [placeholder]="'Hashtypes...'"
+        [items]="selectHashtypes"
+        [label]="'Hashtype *'"
+        formControlName="hashTypeId"
+        [multiselectEnabled]="false"
+        [mergeIdAndName]="true"
+      ></input-multiselect>
+      <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+        <mat-icon>help</mat-icon>
+      </button>
     </div>
-    <div class="form-group">
-      <div class="form-outline">
-          <label class="form-label requiredak" for="gethashsource">Hash source</label>
-            <td>
-                <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("paste")' value="paste"  title="Pasting" formControlName="sourceType"> Paste<br>
-                <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("upload")' value="import" title="Import" checked="checked" formControlName="sourceType" ngDefaultControl> Upload<br>
-                <!-- <input class="form-check-input" type="radio" name="sourceType" (change)='ShowHideTypeFile("download")' value="url" title="url" formControlName="sourceType"> Url download<br> -->
-            </td>
-            &nbsp;
-            <div id="pasteLine" style="display: none;"> <!-- start paste Haslist -->
-              <td>
-                <textarea
-                          class='form-control'
-                          id='sourceData'
-                          cols="60"
-                          rows="10"
-                          title="Hashes"
-                          formControlName="sourceData"
-                >
-                </textarea>
-              </td>
-              <br>
-              <button-submit [name]="'Create'"></button-submit>
-            </div>  <!-- end paste Haslist -->
 
-            <div id="uploadLine">  <!-- start Upload Haslist -->
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
+      <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
+      <input-check title="Salted hashes, separator" formControlName="isSalted"></input-check>
+      <input-text title="Separator" formControlName="separator"></input-text>
+    </div>
 
-              <div>
-                <input
-                      type="file"
-                      accept="/*"
-                      class="form-control fileuploadspan"
-                      formControlName="sourceData"
-                      (change)="handleFileInput($event)"
-                      fileSelect directory #file
-                >&nbsp;
-                <div class="col">
-                  <span class="fileuploadspan custom-file-upload-size"></span>
-                </div>
-              </div>
-              <div *ngFor="let fileStatus of uploadProgress | async">&nbsp;
+    <div *ngIf="+brainenabled === 1"><hr>
 
-                <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
-                <ngb-progressbar
-                                type="success"
-                                textType="white"
-                                [striped]="true"
-                                [value]="fileStatus.progress"
-                                [showValue]="true"
-                ></ngb-progressbar>
-                <div *ngIf="fileStatus.progress === 100">
-                  <p><b>Upload completed!</b></p>
-                  <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
-                </div>
+      <h5>Hashcat Brain Enabled</h5>
 
-              </div>
-              <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+      <input-select title="Brain mode" formControlName="brainFeatures" [items]="selectFormatbrain"></input-select>
 
-            </div>   <!-- end Upload -->
+      <fixed-alert
+      message="Note: When brain is enabled, it'll create a network server. If used wrongly,
+      it could cause bottlenecks or collapse the network server. You can disable
+      this setting in Config > Server > General Settings."
+      ></fixed-alert>
 
-            <!-- <tr id="urlLine" style="display: none;">
-              <div class="input-group">
-                <span class="input-group-text">
-                  <fa-icon [icon]="faLink" aria-hidden="true"></fa-icon>
-                </span>
-                <input
-                      class='form-control'
-                      formControlName="sourceData"
-                      pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
-                      required
-                  >
-              </div>
-              <br>
-              <button-submit [name]="'Create'"></button-submit>
-            </tr>  -->
+    </div>
 
-          </div>
-          &nbsp;
+    <input-select title="Hash Source" formControlName="sourceType" [items]="selectSource"></input-select>
+
+    <div *ngIf="sourceType === 'paste'">
+      <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
+
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'" (click)="onSubmit()"></button-submit>
+      </grid-buttons>
+    </div>
+
+    <div *ngIf="sourceType === 'import'">
+      <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+      <br>
+      <br>
+
+      <!-- Show progress bar during hashlist upload -->
+      <div *ngIf="uploadProgress > 0">
+        <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
       </div>
-    </grid-autocol>
+
+      <!-- Display message upon completion of upload -->
+      <div *ngIf="uploadProgress === 100"><p><b>Upload completed!</b></p></div><br>
+
+      <grid-buttons>
+        <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+        <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
+      </grid-buttons>
+    </div>
+
   </form>
 </grid-main>
-
-<ng-template #cheatsheet let-modal>
-  <app-hashtype-detector></app-hashtype-detector>
-</ng-template>

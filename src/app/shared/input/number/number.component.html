@@ -1,0 +1,8 @@
+<mat-form-field>
+  <mat-label>{{ title }}</mat-label>
+  <div [class.is-invalid]="error">
+    <input matInput type="number" [id]="inputId" [(ngModel)]="value" (change)="onChange(value)" [class.is-invalid]="error">
+  </div>
+  <div *ngIf="error">{{ error }}</div>
+  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+</mat-form-field>

@@ -1,294 +1,287 @@
-import { faMagnifyingGlass, faUpload, faInfoCircle, faFileUpload, faSearchPlus, faLink } from '@fortawesome/free-solid-svg-icons';
-import { Component, OnInit, ChangeDetectionStrategy ,ChangeDetectorRef, HostListener  } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators
+} from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { environment } from './../../../environments/environment';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
-import { Observable, delay } from 'rxjs';
-import { Buffer } from 'buffer';
 
+import {
+  ACCESS_GROUP_FIELD_MAPPING,
+  HASHTYPE_FIELD_MAPPING
+} from 'src/app/core/_constants/select.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UploadTUSService } from '../../core/_services/files/files_tus.service';
-import { fileSizeValue, validateFileExt } from '../../shared/utils/util';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { ShowHideTypeFile } from '../../shared/utils/forms';
-import { UploadFileTUS } from '../../core/_models/files';
+import {
+  extractIds,
+  handleEncode,
+  removeFakePath,
+  transformSelectOptions
+} from '../../shared/utils/forms';
+import { UploadFileTUS } from '../../core/_models/file.model';
 import { SERV } from '../../core/_services/main.config';
+import { SelectField } from 'src/app/core/_models/input.model';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { HashtypeDetectorComponent } from 'src/app/shared/hashtype-detector/hashtype-detector.component';
+import { MatDialog } from '@angular/material/dialog';
+import {
+  hashSource,
+  hashcatbrainFormat,
+  hashlistFormat
+} from 'src/app/core/_constants/hashlist.config';
 
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [FileSizePipe]
 })
-@PageTitle(['New Hashlist'])
-export class NewHashlistComponent implements OnInit {
-  /**
-   * Fa Icons
-   *
-  */
-  faMagnifyingGlass=faMagnifyingGlass;
-  faFileUpload=faFileUpload;
-  faInfoCircle=faInfoCircle;
-  faSearchPlus=faSearchPlus;
-  faUpload=faUpload;
-  faLink=faLink;
+export class NewHashlistComponent implements OnInit, OnDestroy {
+  /** Flag indicating whether data is still loading. */
+  isLoadingAccessGroups = true;
+  isLoadingHashtypes = true;
 
-  /**
-   * Form Settings
-   *
-  */
-  signupForm: FormGroup;
-  ShowHideTypeFile = ShowHideTypeFile;
-  radio=true;
-  brainenabled:any;
+  /** Form group for the new SuperHashlist. */
+  form: FormGroup;
+
+  // Lists of Selected inputs
+  selectAccessgroup: any[];
+  selectHashtypes: any[];
+  selectFormat = hashlistFormat;
+  selectSource = hashSource;
+
+  // Lists of Hashtypes
+  hashtypes: any[];
+
+  //Hashcat Brain Mode
+  brainenabled: any;
+  selectFormatbrain = hashcatbrainFormat;
   hashcatbrain: string;
 
-  // accessgroup: AccessGroup; //Use models when data structure is reliable
-  accessgroup: any[]
-  private maxResults = environment.config.prodApiMaxResults;
+  // Upload Hashlists
+  selectedFiles: FileList | null = null;
+  fileName: any;
+  uploadProgress = 0;
+  filenames: string[] = [];
+  selectedFile: '';
+  fileToUpload: File | null = null;
+
+  // Unsubcribe
+  private fileUnsubscribe = new Subject();
 
   constructor(
-     private _changeDetectorRef: ChangeDetectorRef,
-     private uploadService:UploadTUSService,
-     private uiService: UIConfigService,
-     private modalService: NgbModal,
-     private gs: GlobalService,
-     private router: Router,
-     ) {
-     }
-
-  ngOnInit(): void {
-
-    this.brainenabled = this.uiService.getUIsettings('hashcatBrainEnable').value;
-
-    const params = {'maxResults': this.maxResults};
-
-    this.gs.getAll(SERV.ACCESS_GROUPS, params).subscribe((agroups: any) => {
-      this.accessgroup = agroups.values;
-    });
-
-    this.signupForm = new FormGroup({
-      'name': new FormControl('', [Validators.required]),
-      'hashTypeId': new FormControl('', [Validators.required]),
-      'format': new FormControl(null),
-      'separator': new FormControl(null || ';'),
-      'isSalted': new FormControl(false),
-      'isHexSalt': new FormControl(false),
-      'accessGroupId': new FormControl(null, [Validators.required]),
-      'useBrain': new FormControl(+this.brainenabled=== 1? true:false),
-      'brainFeatures': new FormControl(null || 3),
-      'notes': new FormControl(''),
-      "sourceType": new FormControl('import' || null),
-      "sourceData": new FormControl(''),
-      'hashCount': new FormControl(0),
-      'isArchived': new FormControl(false),
-      'isSecret': new FormControl(true),
-    });
-
-  }
-
-  ngAfterViewInit() {
-
-    this.uploadProgress = this.uploadService.uploadProgress; // TUS upload progress
-
-    const params = {'maxResults': this.maxResults};
-
-    this.gs.getAll(SERV.HASHTYPES,params).subscribe((htypes: any) => {
-      const self = this;
-      const prep = htypes.values;
-      const response = [];
-      for(let i=0; i < prep.length; i++){
-        const obj = { hashTypeId: prep[i].hashTypeId, descrId: prep[i].hashTypeId +' '+prep[i].description };
-        response.push(obj)
-      }
-      ($("#hashtype") as any).selectize({
-        plugins: ['remove_button'],
-        valueField: "hashTypeId",
-        placeholder: "Search hashtype...",
-        labelField: "descrId",
-        searchField: ["descrId"],
-        loadingClass: 'Loading..',
-        highlight: true,
-        onChange: function (value) {
-            self.OnChangeValue(value);
-        },
-        render: {
-          option: function (item, escape) {
-            return '<div  class="style_selectize">' + escape(item.descrId) + '</div>';
-          },
-        },
-        onInitialize: function(){
-          const selectize = this;
-            selectize.addOption(response);
-            const selected_items = [];
-            $.each(response, function( i, obj) {
-                selected_items.push(obj.id);
-            });
-            selectize.setValue(selected_items);
-          }
-          });
-      });
-
-    }
-
-  OnChangeValue(value){
-    this.signupForm.patchValue({
-      hashTypeId: Number(value)
-    });
-    this._changeDetectorRef.detectChanges();
-  }
-
-  // FILE UPLOAD: TUS File Uload
-  uploadProgress: Observable<UploadFileTUS[]>;
-  filenames: string[] = [];
-
-  onuploadFile(files: FileList) {
-    for (let i = 0; i < files.length; i++) {
-      this.filenames.push(files[i].name);
-      console.log(`Uploading ${files[i].name} with size ${files[i].size} and type ${files[i].type}`);
-      this.uploadService.uploadFile(files[i], files[i].name);
-    }
-  }
-
-  onuploadCancel(filename: string) {
-    // this.uploadService.cancelUpload(filename);
+    private unsubscribeService: UnsubscribeService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private uploadService: UploadTUSService,
+    private titleService: AutoTitleService,
+    private uiService: UIConfigService,
+    private formBuilder: FormBuilder,
+    private modalService: NgbModal,
+    private alert: AlertService,
+    private gs: GlobalService,
+    private dialog: MatDialog,
+    private fs: FileSizePipe,
+    private router: Router
+  ) {
+    this.buildForm();
+    titleService.set(['New Hashlist']);
   }
 
   /**
-   * Drop Zone Area
-   *
-  */
-  fileList : any = [];
-  invalidFiles : any = [];
-
-  onFilesChange(fileList : Array<File> | DragEvent){
-    this.fileList = fileList;
+   * Lifecycle hook called after component initialization.
+   */
+  ngOnInit(): void {
+    this.loadData();
   }
 
-  onFileInvalids(fileList : Array<File> | DragEvent){
-    this.invalidFiles = fileList;
+  /**
+   * Lifecycle hook called before the component is destroyed.
+   * Unsubscribes from all subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    this.unsubscribeService.unsubscribeAll();
+    this.fileUnsubscribe.next(false);
+    this.fileUnsubscribe.complete();
+  }
+
+  /**
+   * Builds the form for creating a new Hashlist.
+   */
+  buildForm(): void {
+    this.brainenabled =
+      this.uiService.getUIsettings('hashcatBrainEnable').value;
+
+    this.form = this.formBuilder.group({
+      name: new FormControl('', [Validators.required]),
+      hashTypeId: new FormControl('', [Validators.required]),
+      format: new FormControl('' || 0),
+      separator: new FormControl(null || ':'),
+      isSalted: new FormControl(false),
+      isHexSalt: new FormControl(false),
+      accessGroupId: new FormControl(null, [Validators.required]),
+      useBrain: new FormControl(+this.brainenabled === 1 ? true : false),
+      brainFeatures: new FormControl(null || 3),
+      notes: new FormControl(''),
+      sourceType: new FormControl('import' || null),
+      sourceData: new FormControl(''),
+      hashCount: new FormControl(0),
+      isArchived: new FormControl(false),
+      isSecret: new FormControl(true)
+    });
+
+    //subscribe to changes to handle select salted hashes
+    this.form.get('hashTypeId').valueChanges.subscribe((newvalue) => {
+      this.handleSelectedItems(newvalue);
+    });
+  }
+
+  /**
+   * Loads data, Access Groups and Hashtypes, for the component.
+   */
+  loadData(): void {
+    const fieldAccess = {
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
+    };
+    const accedgroupSubscription$ = this.gs
+      .getAll(SERV.ACCESS_GROUPS)
+      .subscribe((response: any) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          fieldAccess
+        );
+        this.selectAccessgroup = transformedOptions;
+        this.isLoadingAccessGroups = false;
+        this.changeDetectorRef.detectChanges();
+      });
+    this.unsubscribeService.add(accedgroupSubscription$);
+
+    const fieldHashtype = {
+      fieldMapping: HASHTYPE_FIELD_MAPPING
+    };
+    const hashtypesSubscription$ = this.gs
+      .getAll(SERV.HASHTYPES)
+      .subscribe((response: any) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          fieldHashtype
+        );
+        this.selectHashtypes = transformedOptions;
+        this.hashtypes = response.values;
+        this.isLoadingHashtypes = false;
+        this.changeDetectorRef.detectChanges();
+      });
+    this.unsubscribeService.add(hashtypesSubscription$);
+  }
+
+  get sourceType() {
+    return this.form.get('sourceType').value;
+  }
+
+  /**
+   * Handles the file upload process.
+   *
+   * @param {FileList | null} files - The list of files to be uploaded.
+   * @returns {void}
+   */
+  onuploadFile(files: FileList | null): void {
+    // Represents the modified form data without the fake path prefix.
+    const newForm = { ...this.form.value };
+
+    // Modify the sourceData key if it exists
+    if (newForm.sourceData) {
+      newForm.sourceData = removeFakePath(newForm.sourceData);
+    }
+
+    const upload: Array<any> = [];
+    for (let i = 0; i < files.length; i++) {
+      upload.push(
+        this.uploadService
+          .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, [
+            '/hashlists/hashlist'
+          ])
+          .pipe(takeUntil(this.fileUnsubscribe))
+          .subscribe((progress) => {
+            this.uploadProgress = progress;
+          })
+      );
+    }
   }
 
   /**
    * Handle Input and return file size
    * @param event
-  */
-
-  fileSizeValue = fileSizeValue;
-
-  validateFileExt = validateFileExt;
-
-  fileGroup: number;
-  fileToUpload: File | null = null;
-  fileSize: any;
-  fileName: any;
-
-  handleFileInput(event: any) {
-    this.fileToUpload = event.target.files[0];
-    this.fileSize = this.fileToUpload.size;
-    this.fileName = this.fileToUpload.name;
-    $('.fileuploadspan').text('Size: '+fileSizeValue(this.fileToUpload.size));
+   */
+  onFilesSelected(files: FileList): void {
+    this.selectedFiles = files;
+    this.fileName = files[0].name;
   }
 
   /**
    * Create Hashlist
    *
-  */
+   */
+  onSubmit(): void {
+    // Encode Paste hashes
+    this.form.patchValue({
+      sourceData: handleEncode(this.form.get('sourceType').value)
+    });
 
-  submitted = false;
-  onSubmitFile(): void{
-    setTimeout(() => {
-      this.onSubmit();
-      this.submitted = true;
-    },1000);
-  }
-
-  onSubmit(): void{
-      if (this.signupForm.valid) {
-
-      const res = this.handleUpload(this.signupForm.value);
-
-      this.gs.create(SERV.HASHLISTS,res).subscribe(() => {
-        Swal.fire({
-          title: "Success",
-          text: "New HashList created!",
-          icon: "success",
-          showConfirmButton: false,
-          timer: 1500
-        });
+    const onSubmitSubscription$ = this.gs
+      .create(SERV.HASHLISTS, this.form.value)
+      .subscribe(() => {
+        this.alert.okAlert('New HashList created!', '');
         this.router.navigate(['/hashlists/hashlist']);
-      }
-    );
-    }
+      });
+    this.unsubscribeService.add(onSubmitSubscription$);
   }
 
-  handleUpload(arr: any){
-    const str = arr.sourceData;
-    const filereplace = str.replace("C:\\fakepath\\", "");
-    let filename = filereplace;
-    if(arr.sourceType === 'paste'){
-      filename = Buffer.from(filereplace).toString('base64');
-    }
-
-    const res = {
-      'name': arr.name,
-      'hashTypeId': arr.hashTypeId,
-      'format': arr.format,
-      'separator': arr.separator,
-      'isSalted': arr.isSalted,
-      'isHexSalt': arr.isHexSalt,
-      'accessGroupId': arr.accessGroupId,
-      'useBrain': arr.useBrain,
-      'brainFeatures': arr.brainFeatures,
-      'notes': arr.notes,
-      "sourceType": arr.sourceType,
-      "sourceData": filename,
-      'hashCount': arr.hashCount,
-      'isArchived': arr.isArchived,
-      'isSecret': arr.isSecret,
-     }
-     return res;
+  // Open Modal Hashtype Detector
+  openHelpDialog(): void {
+    const dialogRef = this.dialog.open(HashtypeDetectorComponent, {
+      width: '100%'
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Dialog closed with result:', result);
+    });
   }
 
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    if (!this.canDeactivate()) {
-      $event.returnValue = "IE and Edge Message";
-    }
-  }
+  /**
+   * Handles changes in the hashTypeId form control and adjusts form values accordingly.
+   *
+   * @param {any} hashTypeId - The new value of the hashTypeId form control.
+   * @returns {void}
+   */
+  handleSelectedItems(hashTypeId: any): void {
+    const filter = this.hashtypes.filter((u) => u._id === hashTypeId);
+    const salted = filter.length > 0 ? filter[0]['isSalted'] : false;
 
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.signupForm.valid) {
-    return false;
-    }
-    return true;
-  }
-
-  // Open Modal
-  // Modal Information
-  closeResult = '';
-  open(content) {
-    this.modalService.open(content, { size: 'xl' }).result.then(
-      (result) => {
-        this.closeResult = `Closed with: ${result}`;
-      },
-      (reason) => {
-        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-      },
-    );
-  }
-
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
+    if (hashTypeId === 2500 || hashTypeId === 16800 || hashTypeId === 16801) {
+      this.form.patchValue({
+        format: Number(1),
+        isSalted: salted
+      });
     } else {
-      return `with: ${reason}`;
+      this.form.patchValue({
+        isSalted: salted
+      });
     }
   }
-
 }

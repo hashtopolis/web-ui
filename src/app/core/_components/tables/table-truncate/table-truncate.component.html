@@ -1,0 +1,7 @@
+<div class="text-container">
+  <div *ngIf="!expanded">{{ abbr }}</div>
+  <div *ngIf="expanded">{{ text }}</div>
+  <button *ngIf="text.length > maxLength" (click)="toggleExpansion($event)">
+    {{ expanded ? 'Show Less' : 'Show More' }}
+  </button>
+</div>

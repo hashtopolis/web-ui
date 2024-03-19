@@ -27,8 +27,8 @@
 // Overrule Datatables button color
 .btn-outline-gray-600-dt {
   color: #ffffff !important;
-  background-color: #1a232f !important;
-  border-color: #19212c !important;
+  background-color: #5D6974 !important;
+  border-color: #5D6974 !important;
 }
 
 .btn-outline-gray-600-dt:hover {
@@ -139,6 +139,10 @@
   margin-left:-50px;
 }
 
+.form-control-sm {
+  font-size: 1.01rem !important;
+}
+
 /*
   01- End
 */
@@ -236,3 +240,20 @@
 /*
   04- End
 */
+
+// Angular Material
+
+.separation-button {
+  margin-right: 16px; /* Adjust the margin to control the spacing */
+}
+
+mat-button-toggle-group {
+  margin-left: -15px;
+}
+
+.btn-toogle-select {
+  background-color: $primary-300;
+  border-top: 2px solid $color-grey-border;
+  border-bottom: 2px solid $color-grey-border;
+  // font-weight: bold;
+}

@@ -1,46 +1,9 @@
-<app-page-title [title]="'Users'" [buttontitle]="'New User'" [buttonlink]="'/users'" [subbutton]="true"></app-page-title>
-<!-- Body -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Name</th>
-          <th>Creation date</th>
-          <th>Last login</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Session lifetime</th>
-          <th>Right group</th>
-          <th class="rounded-end">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let user of allusers">
-          <td class="text-align:center">{{ user.id }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.registeredSince | uiDate }}</td>
-          <td>{{ user.lastLoginDate | uiDate }}</td>
-          <td>{{ user.email }}</td>
-          <td>
-            <span class="ui-label-inner inline-flex whitespace-nowrap items-center px-2 py-0.5 rounded-md text-xs font-medium text-white capitalize badge my-0" style="{{user.isValid === true ? 'background-color:green' : 'background-color:orange'}}">
-              {{ user.isValid === true ? "Valid" : "Invalid/Not activated" }}
-            </span>
-          </td>
-          <td>{{ user.sessionLifetime }}</td>
-          <td>{{ user.globalPermissionGroup.name }}</td>
-          <td class="overflow-hidden">
-            <app-button-actions>
-              <button ngbDropdownItem [routerLink]="['/users',user.id,'edit']" data-placement="top" title="Edit">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-              </button>
-              <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(user.id)">
-                <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-              </button>
-            </app-button-actions>
-          </td>
-      </tr>
-      </tbody>
-  </table>
+  <app-page-title
+    title="Users"
+    buttontitle="New User"
+    buttonlink="/users"
+    [subbutton]="true"
+  ></app-page-title>
+  <users-table></users-table>
 </app-table>

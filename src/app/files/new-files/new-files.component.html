@@ -1,126 +1,58 @@
-<app-page-subtitle [subtitle]="title"></app-page-subtitle>
-<!-- Body -->
-<grid-main [class]="'fmxw-800'" [centered]="true">
-  <div class="container">
+<grid-main>
+  <app-page-subtitle [subtitle]="title"></app-page-subtitle>
     <div class="tab-slider--nav">
       <ul class="tab-slider--tabs">
-        <li class="files-theme" [class.active]="viewMode == 'tab1'" rel="tab1" (click)="souceType('import', 'tab1')"><fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon></li>
-        <li class="files-theme" [class.active]="viewMode == 'tab2'" rel="tab2" (click)="souceType('inline', 'tab2')"><fa-icon [icon]="faDownload" aria-hidden="true"></fa-icon></li>
+        <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')" matTooltip="Upload using local file">upload_file</mat-icon>
+        <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="onChangeType('inline', 'tab2')" matTooltip="Upload using link">insert_link</mat-icon>
       </ul>
     </div>
     <div class="tab-slider--container" [ngSwitch]="viewMode">
       <div id="tab1" class="tab-slider--body" *ngSwitchCase="'tab1'">
-        <form [formGroup]="createForm">
-          <div class="col-sm">
-            <div class="form-group">
-              <label class="form-label display-col requiredak" for="Associatedg">Associated Access Group</label>
-              <select
-                      type="number"
-                      class='form-select'
-                      formControlName="accessGroupId"
-                      >
-                <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
-              </select>
-            </div>
-          </div>&nbsp;
+        <h4>Upload from your computer</h4>
+        <form [formGroup]="form" fxLayout="column">
 
-            <tr id="uploadLine">
-              <div class="row">
-                <div class="col-md-8">
-                <input
-                      type="file"
-                      accept="/*"
-                      class="form-control fileuploadspan"
-                      formControlName="sourceData"
-                      (change)="handleFileInput($event)"
-                      fileSelect directory #file
-                >
-                </div>
-                <div class="col-md-4">
-                  <span class="fileuploadspan custom-file-upload-size"></span>
-                </div>
-                <!-- Alternative use button to upload first -->
-                <!-- <div class="col-md-1">
-                  <span style="width: 50%;text-align: center"><fa-icon [icon]="faFileUpload" class="btn btn-gray-800" title="Upload file" (click)="onuploadFile(file.files);" aria-hidden="true"></fa-icon></span>
-                </div> -->
-              </div>
-              <div *ngFor="let fileStatus of uploadProgress | async">
-                  &nbsp;
-                <p *ngIf="fileStatus.progress !== 100">Uploading File: {{fileStatus.filename}}</p>
-                <ngb-progressbar
-                                type="success"
-                                textType="white"
-                                [striped]="true"
-                                [value]="fileStatus.progress"
-                                [showValue]="true"
-                ></ngb-progressbar>
-                <div *ngIf="fileStatus.progress === 100">
-                  <p><b>Upload completed!</b></p>
-                  <div *ngIf="this.submitted === false"><div *ngIf="fileStatus.progress === 100?onSubmitFile():false">;</div></div>
-                </div>
-              </div>
-            </tr>&nbsp;
-            <div class="col-sm">
-              <button-submit [name]="'Create'" (click)="onuploadFile(file.files);"></button-submit>
+          <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
+
+          <div fxLayout="row" fxLayoutGap="10px">
+            <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
+
+            <div *ngIf="redirect === 'wordlist'">
+              <button mat-icon-button (click)="showHelp()" matTooltip="Simple Wordlist Generator">
+                <mat-icon>build_circle</mat-icon>
+              </button>
             </div>
-            <div class='alert alert-dark row justify-content-center closesys'>
-              Files are uploaded to the server in small chunks. Once uploading do not refresh the page.
-            </div>
+          </div>
+
+          <div *ngIf="uploadProgress > 0">
+            <ngb-progressbar type="success" textType="white" [striped]="true" [value]="uploadProgress" [showValue]="true"></ngb-progressbar>
+          </div>
+
+          <div *ngIf="uploadProgress === 100"><p><b>Upload completed!</b></p></div>
+
+          <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px">
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
+          </grid-buttons>
+
         </form>
+        <fixed-alert message="Do not refresh the page while uploading"></fixed-alert>
       </div>
       <div id="tab2" class="tab-slider--body" *ngSwitchCase="'tab2'">
-        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="form-label display-col requiredak" for="setName">Name</label>
-                <input
-                        type='text'
-                        id="filename"
-                        class='form-control'
-                        formControlName="filename"
-                >
-              </div>
-            </div>
-            <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label display-col requiredak" for="Associatedg">Associated Access Group</label>
-              <select
-                      type='number'
-                      id="accessgroup"
-                      class='form-select'
-                      formControlName="accessGroupId"
-                >
-                <option *ngFor="let a of accessgroup" [ngValue]="a.accessGroupId">{{ a.groupName }}</option>
-              </select>
-            </div>
-            </div>
-          </div>
-          &nbsp;
-          <div class="col-sm">
-            <div class="mb-3">
-                <label for="secret" class="display-col">Download URL</label>
-                <div class="input-group">
-                    <span class="input-group-text">
-                      <fa-icon [icon]="faLink" aria-hidden="true"></fa-icon>
-                    </span>
-                    <input
-                          class='form-control'
-                          formControlName="sourceData"
-                          pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
-                          required
-                      >
-                </div>
-            </div>
-          </div>
-          <div class="col-sm">
-            <button-submit [name]="'Create'"></button-submit>
-          </div>
+        <h4>Upload to the server using a public/private link</h4>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column">
+
+          <input-text title="Name" formControlName="filename" [isRequired]="true"></input-text>
+
+          <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
+
+          <input-text title="URL path" formControlName="sourceData" pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$" [isRequired]="true"></input-text>
+
+          <grid-buttons>
+            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+            <button-submit [name]="'Create'" [disabled]="!form.valid"></button-submit>
+          </grid-buttons>
+
         </form>
-        <div class='alert alert-dark row justify-content-center closesys'>
-          Files are uploaded to the server using a public/private link (URL).
-        </div>
       </div>
     </div>
-  </div>
 </grid-main>

@@ -1,33 +1,26 @@
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { DataTablesModule } from "angular-datatables";
-import { RouterModule } from "@angular/router";
-import { CommonModule } from "@angular/common";
-import { NgModule } from "@angular/core";
-
-import { FilesEditComponent } from "./files-edit/files-edit.component";
+import { CommonModule } from '@angular/common';
+import { ComponentsModule } from '../shared/components.module';
+import { CoreComponentsModule } from '../core/_components/core-components.module';
+import { DataTablesModule } from 'angular-datatables';
+import { FilesComponent } from './files.component';
+import { FilesRoutingModule } from './files-routing.module';
 import { NewFilesComponent } from './new-files/new-files.component';
-import { ComponentsModule } from "../shared/components.module";
-import { FilesRoutingModule } from "./files-routing.module";
-import { PipesModule } from "../shared/pipes.module";
-import { FilesComponent } from "./files.component";
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { PipesModule } from '../shared/pipes.module';
+import { RouterModule } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
-  declarations:[
-    FilesEditComponent,
-    FilesComponent,
-    NewFilesComponent
-  ],
-  imports:[
-    ReactiveFormsModule,
+  declarations: [FilesComponent, NewFilesComponent],
+  imports: [
+    CoreFormsModule,
     FilesRoutingModule,
-    FontAwesomeModule,
     DataTablesModule,
     ComponentsModule,
     CommonModule,
+    CoreComponentsModule,
     RouterModule,
-    FormsModule,
     PipesModule,
     NgbModule
   ]

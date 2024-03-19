@@ -1,34 +1,9 @@
-<app-page-title [title]="'Health check'" [buttontitle]="'New'" [buttonlink]="'/config/health-checks/new'" [subbutton]="true"></app-page-title>
-<!-- Table -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Created</th>
-          <th>Type</th>
-          <th>Status</th>
-          <th class="rounded-end">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let h of mergedObjects">
-          <td class="text-align:center">{{ h.healthCheckId }}</td>
-          <td>{{ h.time | uiDate }}</td>
-          <td>Brute-Force ({{ h.description }})</td>
-          <td>{{ h.status | HCstatus | lowercase | titlecase }}</td>
-          <td class="overflow-hidden">
-            <app-button-actions>
-              <button ngbDropdownItem [routerLink]="[h.healthCheckId,'edit']" data-placement="top" title="Edit">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-              </button>
-              <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(h.healthCheckId)">
-                <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-              </button>
-            </app-button-actions>
-          </td>
-      </tr>
-      </tbody>
-  </table>
+  <app-page-title
+    title="Health Checks"
+    buttontitle="New Health Check"
+    buttonlink="/config/health-checks/new"
+    [subbutton]="true"
+  ></app-page-title>
+  <health-checks-table></health-checks-table>
 </app-table>

@@ -1,54 +1,19 @@
-<grid-main [class]="'fmxw-500'" [centered]="true">
-  <app-page-subtitle [subtitle]="'Create Notification'"></app-page-subtitle>
-  <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-      <div class="row">
-        <grid-form-input [name]="'Trigger Action'" [labelclass]="'requiredak'">
-          <select
-                type='string'
-                class="form-select"
-                (change)="onQueryp(trigger.value)"
-                formControlName="action"
-                #trigger
-                >
-            <option value="" disabled="true">--<option>
-            <option *ngFor="let action of allowedActions" [value]="action">{{ action }}</option>
-          </select>
-        </grid-form-input>
-        <grid-form-input [name]="'Value'" [labelclass]="'requiredak'" *ngIf="active">
-          <select
-                 name="hashtypeId"
-                 class='form-select'
-                 title="hashtypeId"
-                 formControlName="actionFilter"
-                 >
-            <option value="" disabled="true">--<option>
-            <option *ngFor="let val of value" [value]="val.id">{{ val.name }}</option>
-          </select>
-        </grid-form-input>
-        <grid-form-input [name]="'Notification'" [labelclass]="'requiredak'">
-          <select
-                 name="notification"
-                 class='form-select'
-                 title="notification"
-                 formControlName="notification"
-                 >
-            <option *ngFor="let notif of notifications" [value]="notif">{{ notif }}</option>
-          </select>
-        </grid-form-input>
-        <grid-form-input [name]="'Receiver'" [labelclass]="'requiredak'">
-          <input type='text' id="receiver" class="form-control" formControlName="receiver"/>
-        </grid-form-input>
-        <grid-form-input [name]="'Status'" [labelclass]="'display-col'" *ngIf="editView">
-          <div class="form-check form-switch">
-            <input
-                  type="checkbox"
-                  id="isActive"
-                  class="form-check-input"
-                  formControlName="isActive"
-            >
-          </div>
-        </grid-form-input>
-        <button-submit [name]="'Create'"></button-submit>
-      </div>
+<grid-main>
+  <app-page-subtitle [subtitle]="subTitle"></app-page-subtitle>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <div fxLayout="column">
+      <input-select title="Trigger Action" formControlName="action" [items]="allowedActions" data-testid="select-action" [isRequired]="true"></input-select>
+      <input-select title="Value" formControlName="actionFilter" [items]="filters" data-testid="select-action-filter" *ngIf="active"></input-select>
+      <input-select title="Notification" formControlName="notification" [items]="notifications" data-testid="select-notification" [isRequired]="true"></input-select>
+      <input-text title="Receiver" formControlName="receiver" data-testid="input-receiver" [isRequired]="true"></input-text>
+      <input-check title="Status" formControlName="Status" data-testid="input-is-active"  *ngIf="editView"></input-check>
+    </div>
+
+    <grid-buttons>
+      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+      <button-submit [name]="submitLabel" [disabled]="!formIsValid()" data-testid="button-create"></button-submit>
+    </grid-buttons>
+
   </form>
 </grid-main>

@@ -1,3 +1,4 @@
+@import '../base/colors';
 /* ==================================
           SECTION TABLES
    ================================== */
@@ -6,15 +7,15 @@
   01- Main Style
 */
 .table .thead-light th {
-  background-color: #F2F4F6;
-  color: #1F2937;
+  background-color: #f2f4f6;
+  color: #1f2937;
 }
 
 .table .thead-light th a {
-  color: #1F2937;
+  color: #1f2937;
 }
 
-.th{
+.th {
   border: 0 !important;
   color: blueviolet !important;
 }
@@ -36,7 +37,7 @@
 }
 
 // Overrule datatables color setting
-table.dataTable tbody tr.selected>* {
+table.dataTable tbody tr.selected > * {
   // box-shadow: inset 0 0 0 9999px rgb(89, 143, 105) !important;
   a {
     color: rgb(246, 246, 246) !important;
@@ -45,21 +46,22 @@ table.dataTable tbody tr.selected>* {
 
 table.dataTable {
   th {
-    padding: 16px 12px;
+    padding: 12px 8px;
     padding-right: 12px;
     text-align: left;
     vertical-align: bottom;
-    font-size: .875rem;
+    font-size: 0.975rem;
     font-weight: 400;
     font-weight: normal;
     color: #999;
-    text-transform: uppercase;
+    // text-transform: uppercase; //Chane table header to uppercase
   }
+
   td {
     padding: 10px 10px;
     // vertical-align: top;
     text-align: left;
-    font-size: .930rem;
+    font-size: 0.93rem;
     font-weight: 400;
     font-weight: normal;
   }
@@ -69,37 +71,44 @@ table.dataTable {
   }
 
   .checkmark {
-    --bs-badge-padding-x: 0.0em !important;
-    --bs-badge-padding-y: 0.0em !important;
+    --bs-badge-padding-x: 0em !important;
+    --bs-badge-padding-y: 0em !important;
     line-height: 1 !important;
     white-space: normal !important;
   }
 }
 
-.btn-actions{
+.btn-actions {
   margin-top: -3px !important;
   margin-bottom: 0px !important;
 }
 
-.table.dataTable.table-hover>tbody>tr:hover>*{
+.remove-caret::after {
+  display: none !important;
+}
+
+.table.dataTable.table-hover > tbody > tr:hover > * {
   background-color: rgb(249, 249, 167);
 }
 
 .btn-actions {
   vertical-align: center;
-  font-size: .680rem;
+  font-size: 0.68rem;
   font-weight: 400;
   font-weight: normal;
 }
 
-div.dt-button-collection button.dt-button, div.dt-button-collection div.dt-button, div.dt-button-collection a.dt-button {
+div.dt-button-collection button.dt-button,
+div.dt-button-collection div.dt-button,
+div.dt-button-collection a.dt-button {
   position: relative;
-  display: block !important;;
+  display: block !important;
   padding: 0.5em 0 !important;
   margin: 4px 0 2px 0 !important;
+  overflow-x: visible !important;
 }
 
-div.dt-button-background:not(.disabled){
+div.dt-button-background:not(.disabled) {
   position: fixed;
   top: 0;
   left: 0;
@@ -111,31 +120,66 @@ div.dt-button-background:not(.disabled){
 
 div.dt-button-collection {
   background-color: #dadada;
-  background-color: rgba(0, 0, 0, 0) !important;
-  color: #ffffff !important;
-  border-color: #4B5563 !important;
+  color: #c71919 !important;
+  border-color: #4b5563 !important;
   padding: 4px 4px 2px !important;
   line-height: 1.6em !important;
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr="#f0f0f0", EndColorStr="#dadada");
+  overflow-x: visible !important;
+
+  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, StartColorStr="#f0f0f0", EndColorStr="#dadada");
+}
+
+.btn-overflow {
+  overflow-x: visible !important;
+}
+
+.btn-actions {
+  margin-top: -3px !important;
+  margin-bottom: 0px !important;
+}
+
+.table.dataTable.table-hover > tbody > tr:hover > * {
+  background-color: rgb(117, 117, 114);
+}
+
+.btn-actions {
+  vertical-align: center;
+  font-size: 0.68rem;
+  font-weight: 400;
+  font-weight: normal;
 }
 
 div.dt-button-collection span {
   color: #ffffff;
 }
 
-button.dt-button, div.dt-button, a.dt-button, input.dt-button {
+button.dt-button,
+div.dt-button,
+a.dt-button,
+input.dt-button {
   box-sizing: border-box;
-  border: 1px solid rgba(0,0,0,.3);
+  border: 1px solid rgba(0, 0, 0, 0.3);
   line-height: 1.6em;
   white-space: nowrap;
   overflow: hidden;
-  background: linear-gradient(to bottom,rgba(230,230,230,.1) 0%,rgba(0,0,0,.1) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(230, 230, 230, 0.1) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   user-select: none;
   text-decoration: none;
   outline: none;
   text-overflow: ellipsis;
   margin-bottom: 0.133em !important;
   text-align: center !important;
+}
+
+// Remove Previous when is in first and next when in last
+.paginate_button.disabled,
+.paginate_button.disabled:hover,
+.paginate_button.disabled:active {
+  display: none;
 }
 
 /*
@@ -146,19 +190,19 @@ button.dt-button, div.dt-button, a.dt-button, input.dt-button {
   02- Pagination
 */
 
-.pagination>.active>a,
-.pagination>.active>a:focus,
-.pagination>.active>a:hover,
-.pagination>.active>span,
-.pagination>.active>span:focus,
-.pagination>.active>span:hover {
-  background-color: #4B5563;
-  border-color: #4B5563;
-  color:#e0e4ea;
+.pagination > .active > a,
+.pagination > .active > a:focus,
+.pagination > .active > a:hover,
+.pagination > .active > span,
+.pagination > .active > span:focus,
+.pagination > .active > span:hover {
+  background-color: #4b5563;
+  border-color: #4b5563;
+  color: #e0e4ea;
 }
 
 .pagination a {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .container-pag {
@@ -169,4 +213,182 @@ button.dt-button, div.dt-button, a.dt-button, input.dt-button {
   02- End
 */
 
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
+table.hashtopolis-table {
+  .no-data {
+    text-align: center;
+    color: $primary-900;
+    padding: 1em;
+  }
+  .mat-mdc-header-cell {
+    background-color: $primary-800;
+    color: #fff;
+
+    .mat-sort-header-arrow {
+      color: #fff;
+    }
+  }
+
+  .mat-mdc-row:hover {
+    background-color: $primary-100;
+  }
+
+  .mat-mdc-cell {
+    .editable-container {
+      .mat-icon {
+        font-size: 14px;
+        position: absolute;
+        top: 10px;
+        left: 0;
+      }
+      .mat-mdc-form-field-infix {
+        min-height: auto;
+        padding: 0.5em 0px !important;
+      }
+      .mat-form-field-label-wrapper {
+        top: -1.5em;
+      }
+
+      .mat-mdc-form-field-icon-suffix {
+        display: flex;
+      }
+
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+      .editable-input {
+        width: 50px;
+        margin: 0;
+      }
+      .editable-text {
+        display: inline-block;
+        border-bottom: 1px dashed $primary-400;
+        cursor: pointer;
+      }
+      .mat-mdc-icon-button {
+        width: 30px;
+        height: 30px;
+      }
+      .mat-mdc-form-field {
+        margin: 0;
+        padding: 0;
+        max-width: 150px;
+      }
+    }
+    .pulsing-progress {
+      color: $warn-900;
+      animation: pulse 1s infinite;
+    }
+
+    .text-container button {
+      color: $accent-900;
+    }
+
+    .row-action {
+      .mat-icon {
+        margin-right: 0;
+      }
+    }
+    .flex-container {
+      display: flex;
+      justify-content: flex-start;
+      flex-direction: column;
+
+      .mat-icon {
+        margin-top: -3px;
+        margin-left: 3px;
+      }
+
+      a {
+        display: inline;
+        border-bottom: 1px dotted $primary-300;
+        &:last-child {
+          border-bottom: none;
+        }
+        &::after {
+          content: '\a';
+          white-space: pre;
+        }
+      }
+      &.icons {
+        flex-direction: row;
+      }
+    }
+    .tructate {
+      a {
+        display: inline-block;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &.text-right {
+      text-align: right;
+    }
+  }
+}
+
+div.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0.5rem;
+  font-size: 12px;
+
+  .right-aligned {
+    margin-left: auto;
+
+    .mdc-notched-outline {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .mat-icon {
+      padding-right: 0;
+      color: $primary-100;
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none;
+    }
+  }
+}
+
+.dark-theme {
+  table.hashtopolis-table {
+    background-color: var(--mat-toolbar-container-background-color);
+
+    .mat-mdc-row:hover {
+      background-color: $primary-900;
+    }
+
+    .mat-mdc-cell {
+      .pulsing-progress {
+        color: $warn-300;
+      }
+      .text-container button {
+        color: $accent-600;
+      }
+    }
+
+    .no-data {
+      color: $primary-100;
+    }
+  }
+  .mat-mdc-paginator {
+    background-color: var(--mat-toolbar-container-background-color);
+  }
+}

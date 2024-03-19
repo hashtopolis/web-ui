@@ -1,95 +1,121 @@
-import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { ValidationService } from '../../../core/_services/shared/validation.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
-
-function passwordMatchValidator(password: string): ValidatorFn {
-  return (control: FormControl) => {
-    if (!control || !control.parent) {
-      return null;
-    }
-    return control.parent.get(password).value === control.value ? null : { mismatch: true };
-  };
-}
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-acc-settings',
   templateUrl: './acc-settings.component.html',
   providers: [uiDatePipe]
 })
-@PageTitle(['Account Settings'])
-export class AccountSettingsComponent implements OnInit {
+export class AccountSettingsComponent implements OnInit, OnDestroy {
 
-  updateForm: FormGroup;
+  static readonly PWD_MIN = 4
+  static readonly PWD_MAX = 12
+
+  form: FormGroup;
+  strongPassword = false;
+  subscriptions: Subscription[] = []
 
   constructor(
-    private uiService: UIConfigService,
-    private datePipe:uiDatePipe,
+    private titleService: AutoTitleService,
+    private datePipe: uiDatePipe,
+    private alert: AlertService,
     private gs: GlobalService,
     private router: Router
   ) {
-    this.formInit();
+    this.titleService.set(['Account Settings'])
   }
 
+  /**
+   * Initializes the form, loads user settings, and sets up initial data.
+   */
   ngOnInit(): void {
-
-    this.initForm();
-
+    this.createForm();
+    this.loadUserSettings();
   }
 
-  private formInit() {
-    this.updateForm = new FormGroup({
-      'name': new FormControl({value: '', disabled: true} ),
-      'registeredSince': new FormControl({value: '', disabled: true} ),
-      'email': new FormControl(null, [Validators.required, Validators.email]),
-      'oldpassword': new FormControl(),
-      'newpassword': new FormControl([
-        Validators.required,
-        Validators.minLength(4),
-        Validators.maxLength(12)
-      ]),
-      'confirmpass': new FormControl([
-        Validators.required,
-        Validators.minLength(4),
-        Validators.maxLength(12)
-      ]),
-    });
-  }
-
-  onSubmit(){
-    if (this.updateForm.valid) {
-      this.gs.create(SERV.USERS,this.updateForm.value).subscribe(() => {
-          Swal.fire({
-            title: "Success",
-            text: "Updated!",
-            icon: "success",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.router.navigate(['users/all-users']);
-        }
-      );
+  /**
+   * Unsubscribes from all active subscriptions to prevent memory leaks.
+   */
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe()
     }
   }
 
-  private initForm() {
-    this.gs.get(SERV.USERS,this.gs.userId, {'expand':'globalPermissionGroup'}).subscribe((result)=>{
-    this.updateForm = new FormGroup({
-      'name': new FormControl({value: result.globalPermissionGroup['name'], disabled: true} ),
-      'registeredSince': new FormControl({value: this.datePipe.transform(result['registeredSince']), disabled: true} ),
-      'email': new FormControl(result['email']),
-      'oldpassword': new FormControl(),
-      'newpassword': new FormControl(),
-      'confirmpass': new FormControl(),
-    });
-  });
+  /**
+   * Creates and configures the Angular FormGroup for managing form controls.
+   *
+   * @param {string} name - Account type name.
+   * @param {string} registeredSince - Account registration date.
+   * @param {string} email - The user's email.
+   */
+  createForm(name = '', registeredSince = '', email = ''): void {
+    this.form = new FormGroup({
+      'name': new FormControl({
+        value: name,
+        disabled: true
+      }),
+      'registeredSince': new FormControl({
+        value: registeredSince,
+        disabled: true
+      }),
+      'email': new FormControl(email, [
+        Validators.required,
+        Validators.email
+      ]),
+      'oldpassword': new FormControl(''),
+      'newpassword': new FormControl('', [
+        Validators.required,
+        Validators.minLength(AccountSettingsComponent.PWD_MIN),
+        Validators.maxLength(AccountSettingsComponent.PWD_MAX),
+      ]),
+      'confirmpass': new FormControl('', [
+        Validators.required,
+        Validators.minLength(AccountSettingsComponent.PWD_MIN),
+        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+      ]),
+    }, passwordMatchValidator);
   }
 
+  /**
+   * Handles form submission. Sends the updated account data to the server upon valid form submission.
+   */
+  onSubmit() {
+    if (this.form.valid) {
+      this.subscriptions.push(this.gs.create(SERV.USERS, this.form.value).subscribe(() => {
+        this.alert.okAlert('User saved!','');
+        this.router.navigate(['users/all-users']);
+      }));
+    }
+  }
+
+  onPasswordStrengthChanged(event: boolean) {
+    this.strongPassword = event;
+  }
+
+  onPasswordMatchChanged(event: boolean) {
+    this.strongPassword = event;
+  }
+
+  /**
+   * Loads user settings from the server and populates the form with initial data.
+   */
+  private loadUserSettings() {
+    this.subscriptions.push(this.gs.get(SERV.USERS, this.gs.userId, { 'expand': 'globalPermissionGroup' }).subscribe((result) => {
+      this.createForm(
+        result.globalPermissionGroup['name'],
+        this.datePipe.transform(result['registeredSince']),
+        result['email']
+      )
+    }));
+  }
 }

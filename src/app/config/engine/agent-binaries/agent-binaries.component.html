@@ -1,39 +1,9 @@
-<app-page-title [title]="'Agent Binaries'" [buttontitle]="'New Binary'" [buttonlink]="'/config/engine/agent-binaries/new-agent-binary'" [subbutton]="true"></app-page-title>
-<engine-menu [aclass]="'btn-outline-gray-600-select'"></engine-menu>
-<!-- Body -->
 <app-table>
-  <table class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger">
-    <thead class="thead-light">
-      <tr>
-          <th class="rounded-start">ID</th>
-          <th>Type</th>
-          <th>OS</th>
-          <th>Filename</th>
-          <th>Current Version</th>
-          <th>Update Track</th>
-          <th class="rounded-end">Actions</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let b of binaries">
-          <td class="text-align:center">{{ b.agentBinaryId }}</td>
-          <td>{{ b.type }}</td>
-          <td>{{ b.operatingSystems }}</td>
-          <td>{{ b.filename }}</td>
-          <td>{{ b.version }}</td>
-          <td>{{ b.updateTrack }}</td>
-          <td class="overflow-hidden">
-            <app-button-actions>
-              <button ngbDropdownItem [routerLink]="[b.agentBinaryId,'edit']" data-placement="top" title="Edit">
-                <fa-icon [icon]="faEdit" aria-hidden="true"></fa-icon> Edit
-              </button>
-              <div class="dropdown-divider"></div>
-              <button ngbDropdownItem data-toggle="tooltip" data-placement="top" title="Delete" (click)="onDelete(b.agentBinaryId)">
-                <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon> Delete
-              </button>
-            </app-button-actions>
-          </td>
-      </tr>
-      </tbody>
-  </table>
+  <app-page-title
+    title="Agent Binaries"
+    buttontitle="New Binary"
+    buttonlink="/config/engine/agent-binaries/new-agent-binary"
+    [subbutton]="true"
+  ></app-page-title>
+  <agent-binaries-table></agent-binaries-table>
 </app-table>
