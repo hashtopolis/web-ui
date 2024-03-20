@@ -1,9 +1,8 @@
 /**
  * Services Available
-**/
+ **/
 
 export class SERV {
-
   // HELPER
   public static HELPER = '/helper';
   // ACCESS
@@ -43,6 +42,4 @@ export class SERV {
   public static USERS = '/ui/users';
   // PROJECTS
   public static PROJECTS = '/ui/tasks';
-
 }
-
