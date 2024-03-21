@@ -2,13 +2,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
-  HostListener,
   OnDestroy,
-  OnInit,
-  ViewChild
+  OnInit
 } from '@angular/core';
-import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   FormBuilder,
   FormControl,
@@ -16,7 +12,6 @@ import {
   Validators
 } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
-import { environment } from './../../../environments/environment';
 import { Router } from '@angular/router';
 
 import {
@@ -29,7 +24,6 @@ import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
 import {
-  extractIds,
   handleEncode,
   removeFakePath,
   transformSelectOptions
@@ -93,7 +87,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private formBuilder: FormBuilder,
-    private modalService: NgbModal,
     private alert: AlertService,
     private gs: GlobalService,
     private dialog: MatDialog,
@@ -240,7 +233,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     // Encode Paste hashes
     this.form.patchValue({
-      sourceData: handleEncode(this.form.get('sourceType').value)
+      sourceData: handleEncode(this.form.get('sourceData').value)
     });
 
     const onSubmitSubscription$ = this.gs
