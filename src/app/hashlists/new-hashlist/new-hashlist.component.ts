@@ -28,7 +28,6 @@ import { UploadTUSService } from '../../core/_services/files/files_tus.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import {
   extractIds,
   handleEncode,
