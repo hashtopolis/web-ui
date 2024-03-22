@@ -1,20 +1,184 @@
 {
-  "userpassword": "",
-  "ownerpassword": "hashtoadmin",
+  "settings": {
+    "userpassword": "",
+    "ownerpassword": "hashtoadmin",
+    "pageSize": "A4",
+    "pageMargins": [40, 80, 40, 60],
+    "img_logo": {
+      "enable": true,
+      "img_path": "logo.png",
+      "width": 45,
+      "margin": [35, 5, 0, 0]
+    },
+    "img_background": {
+      "enable": false,
+      "img_path": "background.png",
+      "width": 600,
+      "margin": [0, 520, 0, 0]
+    },
+    "info_header_text": {
+      "text": "CONFIDENTIAL",
+      "color": "#00275b",
+      "alignment": "center",
+      "margin": [0, -40, 0, 0],
+      "fontSize": 10,
+      "bold": true,
+      "allpages": true,
+      "startAt": 1
+    },
+    "global_style":{
+      "title":{
+        "color": "#00275b",
+        "bold": true,
+        "fontSize": 14,
+        "alignment": "left",
+        "margin": [0, 0, 0, 5]
+      },
+      "subtitle":{
+        "color": "#000000",
+        "bold": true,
+        "fontSize": 13,
+        "alignment": "left",
+        "margin": [0, 0, 0, 5]
+      },
+      "text":{
+        "color": "#000000",
+        "bold": false,
+        "fontSize": 12,
+        "alignment": "left"
+      },
+      "tables":{
+        "tableHeader":{
+          "fillColor": "#eaf2f5",
+          "border": [false, true, false, true],
+          "margin": [0, 5, 0, 5],
+          "textTransform": "uppercase"
+        }
+      }
+    }
+  },
   "cover_page": {
-    "title": "Hashlist Report",
-    "project_name": "Default Project Name",
-    "location": "Europe, ",
-    "project_description": "Default Project Description",
-    "info_header_text": "",
-    "info_cover_body_1": "Default Body 1",
-    "info_cover_body_2": "Default Body 2",
-    "reference": "Default Reference",
-    "info_cover_body_3": "Default Body 3",
-    "info_cover_body_4": "Default Body 4",
-    "info_cover_body_5": "Default Body 5",
-    "info_cover_footer_1": "",
-    "info_cover_footer_2": "",
-    "info_cover_footer_3": ""
+    "img_letterhead":{
+      "enable": false,
+      "img_path": "letterhead.png",
+      "width": 600,
+      "alignment": "center",
+      "margin": [0, -100, 0, 0]
+    },
+    "title": {
+      "text": "HASHLIST REPORT",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 26,
+      "alignment": "left",
+      "margin": [0, 0, 0, 10],
+      "gapPos": "top",
+      "gapLines": 4
+    },
+    "info_cover_body_1": {
+      "text": "Decryption Workflow",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5]
+    },
+    "info_cover_body_2": {
+      "text": "Hashlist and tasks information",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5]
+    },
+    "reference": {
+      "text": "Reference",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5]
+    },
+    "info_cover_body_3": {
+      "text": "Software used: Hashtopolis and Hashcat",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5],
+      "gapPos": "bottom",
+      "gapLines": 7
+    },
+    "info_cover_body_4": {
+      "text": "Issued by: Hashtopolis Admin User",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5]
+    },
+    "info_cover_body_5": {
+      "text": "Classification: Template",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5]
+    },
+    "location_date": {
+      "text": "Europe, ",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5],
+      "gapPos": "bottom",
+      "gapLines": 14
+    },
+    "info_cover_footer_1": {
+      "text": "Your Country\n Your City \n Your Postal Code",
+      "color": "#aaaaab",
+      "border": [true, true, false, true],
+      "margin": [30, 10, 10, 5],
+      "fontSize": 9,
+      "alignment": "center"
+    },
+    "info_cover_footer_2": {
+      "text": "Your Company\n The address \nThe Phone Number",
+      "color": "#aaaaab",
+      "border": [false, true, false, true],
+      "margin": [70, 10, 10, 5],
+      "fontSize": 9,
+      "alignment": "center"
+    },
+    "info_cover_footer_3": {
+      "text": "Your Phone Number\nYour Email Address\n Your discord",
+      "color": "#aaaaab",
+      "border": [false, true, true, true],
+      "margin": [70, 10, 10, 5],
+      "fontSize": 9,
+      "alignment": "center"
+    }
+  },
+  "pages":{
+    "project_name": {
+      "text": "",
+      "color": "#00275b",
+      "bold": true,
+      "fontSize": 14,
+      "alignment": "left",
+      "margin": [0, 0, 0, 5],
+      "gapPos": "bottom",
+      "gapLines": 1
+    },
+    "project_description": {
+      "text": "",
+      "color": "#000000",
+      "bold": false,
+      "fontSize": 13,
+      "alignment": "left",
+      "gapPos": "bottom",
+      "gapLines": 1
+    }
   }
 }

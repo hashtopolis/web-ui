@@ -46,7 +46,7 @@
           <span><b>Report Builder</b></span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <app-report-builder templateName="hashlists" [reportData]="prepareReport()"></app-report-builder>
+        <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
     </mat-expansion-panel>
   </mat-accordion>
 </div>
@@ -56,4 +56,5 @@
     <tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></tasks-table>
   </app-table>
 </div>
+
 
