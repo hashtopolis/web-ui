@@ -118,8 +118,8 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new Hashlist.
    */
   buildForm(): void {
-    this.brainenabled =
-      this.uiService.getUIsettings('hashcatBrainEnable').value;
+    const uiSettings = this.uiService.getUIsettings('hashcatBrainEnable');
+    this.brainenabled = uiSettings ? uiSettings.value : null;
 
     this.form = this.formBuilder.group({
       name: new FormControl('', [Validators.required]),
