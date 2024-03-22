@@ -355,17 +355,6 @@ export class EditHashlistComponent
     return report;
   }
 
-  getTaskInfo(id: number) {
-    // const taskInfoSubscription$ = this.gs
-    //   .get(SERV.TASKS, id, {
-    //     expand: 'files'
-    //   })
-    //   .subscribe((result) => {
-    //     console.log(result);
-    //   });
-    // this.unsubscribeService.add(taskInfoSubscription$);
-  }
-
   canDeactivate(): boolean {
     const hasUnsavedChanges = this.updateForm.dirty;
 
