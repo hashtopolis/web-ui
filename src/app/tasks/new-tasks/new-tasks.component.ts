@@ -194,13 +194,17 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Builds the form for creating a Task.
    * Initializes the form controls with default or UI settings values.
    */
-  buildForm() {
+  buildForm(): void {
+    const attackCmdSetting = this.uiService.getUIsettings('hashlistAlias');
+    const chunktimeSetting = this.uiService.getUIsettings('chunktime');
+    const statustimerSetting = this.uiService.getUIsettings('statustimer');
+
     this.form = new FormGroup({
       taskName: new FormControl('', [Validators.required]),
       notes: new FormControl(''),
       hashlistId: new FormControl(),
       attackCmd: new FormControl(
-        this.uiService.getUIsettings('hashlistAlias').value,
+        attackCmdSetting ? attackCmdSetting.value : '',
         [Validators.required]
       ),
       priority: new FormControl(null || this.priority, [
@@ -209,10 +213,10 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       ]),
       maxAgents: new FormControl(null || this.maxAgents),
       chunkTime: new FormControl(
-        null || Number(this.uiService.getUIsettings('chunktime').value)
+        chunktimeSetting ? Number(chunktimeSetting.value) : null
       ),
       statusTimer: new FormControl(
-        null || Number(this.uiService.getUIsettings('statustimer').value)
+        statustimerSetting ? Number(statustimerSetting.value) : null
       ),
       color: new FormControl(''),
       isCpuTask: new FormControl(null || false),
