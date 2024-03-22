@@ -1,35 +1,47 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CookieService {
-
   defaultSettings = false;
 
-  constructor() {}
-
-  public checkDefault(defaults: boolean, e: any, COOKIE: string, VALUE: string, EXPIRE_DAYS: number) {
+  public checkDefault(
+    defaults: boolean,
+    e: any,
+    COOKIE: string,
+    VALUE: string,
+    EXPIRE_DAYS: number
+  ) {
     if (defaults === true) {
-        return this.defaultSettings;
+      return this.defaultSettings;
     } else if (defaults === false) {
-        this.setCookie(COOKIE, VALUE, EXPIRE_DAYS);
-        this.defaultSettings = true;
+      this.setCookie(COOKIE, VALUE, EXPIRE_DAYS);
+      this.defaultSettings = true;
+      if (e instanceof Event) {
         e.preventDefault();
+      }
     }
-    return ''
+    return '';
   }
 
-  public checkDefaultCookies(){
-    const def_autorefresh:any = {active:false, value: '10'};
-    const defCookies = [{name: 'tooltip', value: '0', expiry: 365},{name: 'autorefresh', value:  JSON.stringify(def_autorefresh), expiry: 365}];
+  public checkDefaultCookies() {
+    const def_autorefresh: any = { active: false, value: '10' };
+    const defCookies = [
+      { name: 'tooltip', value: '0', expiry: 365 },
+      {
+        name: 'autorefresh',
+        value: JSON.stringify(def_autorefresh),
+        expiry: 365
+      }
+    ];
     const defCookiesLen = defCookies.length;
-    for (let i  = 0; i < defCookiesLen; i += 1) {
+    for (let i = 0; i < defCookiesLen; i += 1) {
       const name = defCookies[i].name;
       const value = defCookies[i].value;
       const expiry = defCookies[i].expiry;
-      const checkTooltip_exist = this.getCookie(name) ? true: false;
-      this.checkDefault(checkTooltip_exist,false,name,value,expiry);
+      const checkTooltip_exist = this.getCookie(name) ? true : false;
+      this.checkDefault(checkTooltip_exist, false, name, value, expiry);
     }
   }
 
@@ -39,11 +51,11 @@ export class CookieService {
     const cookieName = `${name}=`;
     let c: string;
 
-    for (let i  = 0; i < caLen; i += 1) {
-        c = ca[i].replace(/^\s+/g, '');
-        if (c.indexOf(cookieName) === 0) {
-            return c.substring(cookieName.length, c.length);
-        }
+    for (let i = 0; i < caLen; i += 1) {
+      c = ca[i].replace(/^\s+/g, '');
+      if (c.indexOf(cookieName) === 0) {
+        return c.substring(cookieName.length, c.length);
+      }
     }
     return '';
   }
@@ -59,8 +71,4 @@ export class CookieService {
   public deleteCookie(name) {
     this.setCookie(name, '', -1);
   }
-
-
 }
-
-
