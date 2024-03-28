@@ -7,7 +7,6 @@ import { Observable, Subject } from 'rxjs';
 
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
@@ -237,28 +236,13 @@ export class EditHashlistComponent
   // Actions
 
   importCrackedHashes() {
-    const helperImportCrackedSubscription$ = this.gs
-      .chelper(SERV.HELPER, 'importCrackedHashes', this.editedHashlistIndex)
-      .subscribe(() => {
-        this.alert.okAlert('Imported Cracked Hashes!', '');
-      });
-
-    this.unsubscribeService.add(helperImportCrackedSubscription$);
-  }
-
-  exportCrackedHashes() {
-    const helperExportedCrackedSubscription$ = this.gs
-      .chelper(SERV.HELPER, 'exportCrackedHashes', this.editedHashlistIndex)
-      .subscribe(() => {
-        this.alert.okAlert('Exported Cracked Hashes!', '');
-      });
-
-    this.unsubscribeService.add(helperExportedCrackedSubscription$);
+    //Redirect to Page
   }
 
   exportLeftHashes() {
+    const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedLeftSubscription$ = this.gs
-      .chelper(SERV.HELPER, 'exportLeftHashes', this.editedHashlistIndex)
+      .chelper(SERV.HELPER, 'exportLeftHashes', payload)
       .subscribe(() => {
         this.alert.okAlert('Exported Left Hashes!', '');
       });
@@ -267,8 +251,9 @@ export class EditHashlistComponent
   }
 
   exportWordlist() {
+    const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedWordlistSubscription$ = this.gs
-      .chelper(SERV.HELPER, 'exportWordlist', this.editedHashlistIndex)
+      .chelper(SERV.HELPER, 'exportWordlist', payload)
       .subscribe(() => {
         this.alert.okAlert('Exported Wordlist!', '');
       });
