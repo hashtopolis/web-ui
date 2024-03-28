@@ -345,10 +345,30 @@ export class HashlistsTableComponent
   }
 
   /**
-   * @todo Implement export action.
+   * Executes a row action to export cracked hashes from a hashlist.
+   * @param {Hashlist} hashlist - The hashlist containing the cracked hashes to export.
+   * @private
+   * @returns {void}
    */
   private rowActionExport(hashlist: Hashlist): void {
-    this.router.navigate(['/hashlists/hashlist', hashlist._id, 'copy']);
+    const payload = { hashlistId: hashlist._id };
+    this.subscriptions.push(
+      this.gs
+        .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during exporting:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            'Cracked hashes from hashlist exported sucessfully!',
+            'Close'
+          );
+          this.reload();
+        })
+    );
   }
 
   /**
