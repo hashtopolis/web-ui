@@ -29,10 +29,7 @@ export class RowActionMenuComponent
         RowActionMenuLabel.DELETE_ACCESSGROUP
       );
     } else if (this.isSuperHashlist()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_SUPERHASHLIST,
-        RowActionMenuLabel.DELETE_SUPERHASHLIST
-      );
+      this.setSuperHashlistMenu();
     } else if (this.isFile()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_FILE,
@@ -187,6 +184,22 @@ export class RowActionMenuComponent
         this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)
       ]);
     }
+  }
+
+  /**
+   * Sets the context menu items for an Super-hashlist data row.
+   */
+  private setSuperHashlistMenu(): void {
+    this.setActionMenuItems(0, []);
+
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERHASHLIST),
+      this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLISTS),
+      this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLISTS)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERHASHLIST)
+    ]);
   }
 
   /**
