@@ -39,12 +39,12 @@
           </grid-buttons>
       </form>
 
-      <!-- If its cracked or partially craked then show additional actions -->
+      <!-- If its cracked or partially cracked then show additional actions -->
       <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
 
       <div fxLayout="row" fxLayoutGap="5px">
         <grid-buttons>
-          <button-submit [name]="'Import pre-cracked hashes'"></button-submit>
+          <button-submit [name]="'Import pre-cracked hashes'" (click)="importCrackedHashes()"></button-submit>
           <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Generate Wordlist'" (click)="exportWordlist()"></button-submit>
           <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Export Left Hashes'" (click)="exportLeftHashes()"></button-submit>
         </grid-buttons>

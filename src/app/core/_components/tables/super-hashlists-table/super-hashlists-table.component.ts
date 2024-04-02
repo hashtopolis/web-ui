@@ -318,11 +318,11 @@ export class SuperHashlistsTableComponent
         })
     );
   }
-  /**
-   * @todo Implement import action.
-   */
+
   private rowActionImport(superHashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', superHashlist._id, 'copy']);
+    this.router.navigate([
+      '/hashlists/hashlist/' + superHashlist._id + '/import-cracked-hashes'
+    ]);
   }
 
   setIsArchived(isArchived: boolean): void {

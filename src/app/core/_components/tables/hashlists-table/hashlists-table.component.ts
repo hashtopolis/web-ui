@@ -371,11 +371,10 @@ export class HashlistsTableComponent
     );
   }
 
-  /**
-   * @todo Implement import action.
-   */
   private rowActionImport(hashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', hashlist._id, 'copy']);
+    this.router.navigate([
+      '/hashlists/hashlist/' + hashlist._id + '/import-cracked-hashes'
+    ]);
   }
 
   setIsArchived(isArchived: boolean): void {

@@ -233,10 +233,14 @@ export class EditHashlistComponent
     this.unsubscribeService.add(updateSubscription$);
   }
 
-  // Actions
+  // Actions; Import Cracked Hashes, Export left Hashes and Generate Wordlist
 
   importCrackedHashes() {
-    //Redirect to Page
+    this.router.navigate([
+      '/hashlists/hashlist/' +
+        this.editedHashlistIndex +
+        '/import-cracked-hashes'
+    ]);
   }
 
   exportLeftHashes() {
