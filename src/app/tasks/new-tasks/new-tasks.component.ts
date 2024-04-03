@@ -437,7 +437,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         .create(SERV.TASKS, this.form.value)
         .subscribe(() => {
           this.alert.okAlert('New Task created!', '');
-          this.form.reset();
           this.router.navigate(['tasks/show-tasks']);
         });
       this.unsubscribeService.add(onSubmitSubscription$);
