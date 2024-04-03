@@ -105,16 +105,26 @@ export class PretasksTableComponent
         id: PretasksTableCol.FILES_SIZE,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        render: (pretask: Pretask) =>
-          formatFileSize(
-            pretask.pretaskFiles.reduce((sum, file) => sum + file.size, 0),
-            'short'
-          ),
-        export: async (pretask: Pretask) =>
-          formatFileSize(
-            pretask.pretaskFiles.reduce((sum, file) => sum + file.size, 0),
-            'short'
-          )
+        render: (pretask: Pretask) => {
+          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
+            if (file && typeof file.size === 'number' && !isNaN(file.size)) {
+              return sum + file.size;
+            } else {
+              return sum;
+            }
+          }, 0);
+          return formatFileSize(totalFileSize, 'short');
+        },
+        export: async (pretask: Pretask) => {
+          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
+            if (file && typeof file.size === 'number' && !isNaN(file.size)) {
+              return sum + file.size;
+            } else {
+              return sum;
+            }
+          }, 0);
+          return formatFileSize(totalFileSize, 'short');
+        }
       },
       {
         id: PretasksTableCol.PRIORITY,
