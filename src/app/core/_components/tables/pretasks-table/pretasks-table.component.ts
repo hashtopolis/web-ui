@@ -2,12 +2,14 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
+  HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '../ht-table/ht-table.models';
 import {
   PretasksTableCol,
-  PretasksTableColumnLabel
+  PretasksTableColumnLabel,
+  PretasksTableEditableAction
 } from './pretasks-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
@@ -129,12 +131,26 @@ export class PretasksTableComponent
       {
         id: PretasksTableCol.PRIORITY,
         dataKey: 'priority',
+        editable: (pretask: Pretask) => {
+          return {
+            data: pretask,
+            value: pretask.priority + '',
+            action: PretasksTableEditableAction.CHANGE_PRIORITY
+          };
+        },
         isSortable: true,
         export: async (pretask: Pretask) => pretask.priority.toString()
       },
       {
         id: PretasksTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
+        editable: (pretask: Pretask) => {
+          return {
+            data: pretask,
+            value: pretask.maxAgents + '',
+            action: PretasksTableEditableAction.CHANGE_MAX_AGENTS
+          };
+        },
         isSortable: true,
         export: async (pretask: Pretask) => pretask.maxAgents.toString()
       }
@@ -368,6 +384,91 @@ export class PretasksTableComponent
   ): Promise<SafeHtml> {
     const result = await this.calculateKeyspaceTime(a0, a3, pretask);
     return result as unknown as SafeHtml;
+  }
+
+  /**
+   * Inline Editing
+   */
+
+  editableSaved(editable: HTTableEditable<Pretask>): void {
+    switch (editable.action) {
+      case PretasksTableEditableAction.CHANGE_PRIORITY:
+        this.changePriority(editable.data, editable.value);
+        break;
+      case PretasksTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
+        break;
+    }
+  }
+
+  private changePriority(pretask: Pretask, priority: string): void {
+    let val = 0;
+    try {
+      val = parseInt(priority);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || pretask.priority == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
+      priority: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update prio!`, 'Close');
+            console.error('Failed to update prio:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed prio to ${val} on Task #${pretask._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  private changeMaxAgents(pretask: Pretask, max: string): void {
+    let val = 0;
+    try {
+      val = parseInt(max);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || pretask.maxAgents == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
+      maxAgents: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            console.error('Failed to update max agents:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed number of max agents to ${val} on Task #${pretask._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
   }
 
   /**
