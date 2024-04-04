@@ -199,7 +199,7 @@ export class HealthChecksTableComponent
    */
   private bulkActionDelete(healthChecks: HealthCheck[]): void {
     const requests = healthChecks.map((healthCheck: HealthCheck) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, healthCheck._id);
+      return this.gs.delete(SERV.HEALTH_CHECKS, healthCheck._id);
     });
 
     this.subscriptions.push(
@@ -226,7 +226,7 @@ export class HealthChecksTableComponent
   private rowActionDelete(healthChecks: HealthCheck[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, healthChecks[0]._id)
+        .delete(SERV.HEALTH_CHECKS, healthChecks[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

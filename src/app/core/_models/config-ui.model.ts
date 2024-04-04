@@ -600,7 +600,12 @@ export const uiConfigDefault: UIConfig = {
     accessGroupsTable: {
       start: 0,
       page: 25,
-      columns: [AccessGroupsTableCol.ID, AccessGroupsTableCol.NAME],
+      columns: [
+        AccessGroupsTableCol.ID,
+        AccessGroupsTableCol.NAME,
+        AccessGroupsTableCol.NUSERS,
+        AccessGroupsTableCol.NAGENTS
+      ],
       order: {
         id: AccessGroupsTableCol.ID,
         dataKey: '',

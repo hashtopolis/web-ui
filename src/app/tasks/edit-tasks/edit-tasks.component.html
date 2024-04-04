@@ -35,67 +35,67 @@
       <button-submit [name]="'Update'" (click)="onSubmit()"></button-submit>
     </grid-buttons>
   </form>
-</grid-main>
 <!-- Task Information -->
-<mat-accordion>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <span><b>Task Information</b></span>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-      <form [formGroup]="updateForm" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
-        <input-text title="No. of Chunks" formControlName="chunkSize" [disabled]="true"></input-text>
-        <input-text title="Enforce Piping" formControlName="forcePipe" [disabled]="true"></input-text>
-        <input-text title="Skipping keyspace" formControlName="skipKeyspace" [disabled]="true"></input-text>
-        <input-text title="Keyspace size" formControlName="keyspace" [disabled]="true"></input-text>
-        <input-text title="Keyspace dispatched" formControlName="keyspaceProgress" [disabled]="true"></input-text>
-
-        <simulate-form-field *ngIf=" tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templatekeysearch" label="Keyspace Searched"  message="{{ cprogress / tkeyspace | percent: '1.2-2' }}"></simulate-form-field>
-        <ng-template #templatekeysearch>
-          <simulate-form-field label="Keyspace Searched"  message="N/A"></simulate-form-field>
-        </ng-template>
-
-        <!-- Calculations -->
-
-        <simulate-form-field *ngIf="ctimespent; else templatetimespent" label="Time spent"  message="{{ editedTaskIndex | ttimespent: false : true | async | sectotime}}"></simulate-form-field>
-        <ng-template #templatetimespent>
-          <simulate-form-field label="Time spent"  message="---"></simulate-form-field>
-        </ng-template>
-
-        <simulate-form-field *ngIf=" tkeyspace !== 0 && cprogress / tkeyspace !== 0; else templatet" label="E.T."  message="{{ctimespent / (cprogress / tkeyspace) - ctimespent | sectotime }}"></simulate-form-field>
-        <ng-template #templatet>
-          <simulate-form-field label="E.T."  message="---"></simulate-form-field>
-        </ng-template>
-
-
-        <simulate-form-field *ngIf="currenspeed; else templatespeed" label="Speed"  message="{{ currenspeed | fileSize: false }}H/s"></simulate-form-field>
-        <ng-template #templatespeed>
-          <simulate-form-field label="Speed"  message="---"></simulate-form-field>
-        </ng-template>
-
-        <!-- Hashlist and Cracker Information -->
-
-        <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
-
-        <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['crackerBinaryId']+'/edit'"></simulate-form-field>
-        <ng-template #templatecrackerinfo>
-          <simulate-form-field label="Cracker Information"  message="Unavailable"></simulate-form-field>
-        </ng-template>
-
-      </form>
-    </mat-expansion-panel>
-
+  <mat-accordion>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <span><b>Files</b></span>
+          <span><b>Task Information</b></span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-        <files-table [hasBulkActions]="false" [isSelectable]="false" [hasRowAction]="false" [editIndex]="editedTaskIndex" [editType]="0"></files-table>
-    </mat-expansion-panel>
-</mat-accordion>
+        <form [formGroup]="updateForm" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+
+          <input-text title="No. of Chunks" formControlName="chunkSize" [disabled]="true"></input-text>
+          <input-text title="Enforce Piping" formControlName="forcePipe" [disabled]="true"></input-text>
+          <input-text title="Skipping keyspace" formControlName="skipKeyspace" [disabled]="true"></input-text>
+          <input-text title="Keyspace size" formControlName="keyspace" [disabled]="true"></input-text>
+          <input-text title="Keyspace dispatched" formControlName="keyspaceProgress" [disabled]="true"></input-text>
+
+          <simulate-form-field *ngIf=" tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templatekeysearch" label="Keyspace Searched"  message="{{ cprogress / tkeyspace | percent: '1.2-2' }}"></simulate-form-field>
+          <ng-template #templatekeysearch>
+            <simulate-form-field label="Keyspace Searched"  message="N/A"></simulate-form-field>
+          </ng-template>
+
+          <!-- Calculations -->
+
+          <simulate-form-field *ngIf="ctimespent; else templatetimespent" label="Time spent"  message="{{ editedTaskIndex | ttimespent: false : true | async | sectotime}}"></simulate-form-field>
+          <ng-template #templatetimespent>
+            <simulate-form-field label="Time spent"  message="---"></simulate-form-field>
+          </ng-template>
+
+          <simulate-form-field *ngIf=" tkeyspace !== 0 && cprogress / tkeyspace !== 0; else templatet" label="E.T."  message="{{ctimespent / (cprogress / tkeyspace) - ctimespent | sectotime }}"></simulate-form-field>
+          <ng-template #templatet>
+            <simulate-form-field label="E.T."  message="---"></simulate-form-field>
+          </ng-template>
+
+
+          <simulate-form-field *ngIf="currenspeed; else templatespeed" label="Speed"  message="{{ currenspeed | fileSize: false }}H/s"></simulate-form-field>
+          <ng-template #templatespeed>
+            <simulate-form-field label="Speed"  message="---"></simulate-form-field>
+          </ng-template>
+
+          <!-- Hashlist and Cracker Information -->
+
+          <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
+
+          <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['crackerBinaryId']+'/edit'"></simulate-form-field>
+          <ng-template #templatecrackerinfo>
+            <simulate-form-field label="Cracker Information"  message="Unavailable"></simulate-form-field>
+          </ng-template>
+
+        </form>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span><b>Files</b></span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+          <files-table [hasBulkActions]="false" [isSelectable]="false" [hasRowAction]="false" [editIndex]="editedTaskIndex" [editType]="0"></files-table>
+      </mat-expansion-panel>
+  </mat-accordion>
+</grid-main>
 <!-- Graph Visual  -->
 <div *ngIf="tkeyspace > 0" class="card shadow">
   <div class="card-body table-responsive" style="overflow-x: auto;">
@@ -114,7 +114,6 @@
 <app-table *ngIf="editedTaskIndex">
   <app-page-subtitle subtitle="Assigned agents"></app-page-subtitle>
   <form [formGroup]="createForm">
-    <br/><br/>
     <mat-form-field>
       <mat-label>Assign Agents</mat-label>
       <mat-select formControlName="agentId">

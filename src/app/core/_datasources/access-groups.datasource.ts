@@ -15,7 +15,8 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
 
     const params: RequestParams = {
       maxResults: this.pageSize,
-      startsAt: startAt
+      startsAt: startAt,
+      expand: 'userMembers,agentMembers'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -33,7 +34,6 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
         )
         .subscribe((response: ListResponseWrapper<AccessGroup>) => {
           const accessGroups: AccessGroup[] = response.values;
-
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,

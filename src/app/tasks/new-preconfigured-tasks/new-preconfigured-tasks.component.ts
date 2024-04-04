@@ -264,7 +264,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
         .create(SERV.PRETASKS, this.createForm.value)
         .subscribe(() => {
           this.alert.okAlert('New PreTask created!', '');
-          this.createForm.reset(); // success, we reset form
+          // this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
         });
       this.unsubscribeService.add(onSubmitSubscription$);

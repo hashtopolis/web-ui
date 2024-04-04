@@ -9,4 +9,5 @@ export interface ActionMenuItem {
   icon?: string;
   red?: boolean;
   routerLink?: any[];
+  external?: any;
 }
