@@ -70,6 +70,26 @@ export class AccessGroupsTableComponent
           this.renderAccessGroupLink(accessGroup),
         isSortable: true,
         export: async (accessGroup: AccessGroup) => accessGroup.groupName
+      },
+      {
+        id: AccessGroupsTableCol.NUSERS,
+        dataKey: 'nusers',
+        isSortable: true,
+        render: (accessGroup: AccessGroup) => {
+          return accessGroup.userMembers.length;
+        },
+        export: async (accessGroup: AccessGroup) =>
+          accessGroup.userMembers.length.toString()
+      },
+      {
+        id: AccessGroupsTableCol.NAGENTS,
+        dataKey: 'nagents',
+        isSortable: true,
+        render: (accessGroup: AccessGroup) => {
+          return accessGroup.agentMembers.length;
+        },
+        export: async (accessGroup: AccessGroup) =>
+          accessGroup.agentMembers.length.toString()
       }
     ];
 
