@@ -13,6 +13,7 @@ import { ShowCracksComponent } from './show-cracks/show-cracks.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
 import { HashlistComponent } from './hashlist/hashlist.component';
 import { HashesComponent } from './hashes/hashes.component';
+import { ImportCrackedHashesComponent } from './import-cracked-hashes/import-cracked-hashes.component';
 
 const routes: MyRoute[] = [
   {
@@ -49,6 +50,16 @@ const routes: MyRoute[] = [
         },
         canActivate: [CheckPerm]
         // canDeactivate: [PendingChangesGuard]
+      },
+      {
+        path: 'hashlist/:id/import-cracked-hashes',
+        component: ImportCrackedHashesComponent,
+        data: {
+          kind: 'import-cracked-hashes',
+          breadcrumb: 'Import Cracked Hashes',
+          permission: 'Hashlist'
+        },
+        canActivate: [CheckPerm]
       },
       {
         path: 'new-hashlist',

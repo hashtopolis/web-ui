@@ -63,6 +63,8 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_HASHLISTS,
         BulkActionMenuLabel.ARCHIVE_HASHLISTS
       );
+    } else if (this.dataType === 'superhashlists') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PRETASKS);
     } else if (this.dataType === 'tasks') {

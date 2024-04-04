@@ -1,0 +1,28 @@
+<div class="row g-3">
+  <div class="col-md-7">
+    <grid-main>
+      <app-page-title [title]="type === 3 ? 'SuperHashlist details': 'HashList details'" [subbutton]="false"></app-page-title>
+      <app-page-subtitle [subtitle]="'Import pre-cracked hashes'" ></app-page-subtitle>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <simulate-form-field label="Hash Type"  message="{{ hashtype.hashTypeId }} - {{ hashtype.description }}"></simulate-form-field>
+          <div fxLayout="row" fxLayoutGap="5px">
+            <input-text title="Name" formControlName="name" [disabled]="true"></input-text>
+            <input-text title="Hashes" formControlName="hashCount" [disabled]="true"></input-text>
+            <input-text title="Salted" formControlName="isSalted" [disabled]="true"></input-text>
+            <input-text title="Format" formControlName="format" [disabled]="true"></input-text>
+          </div>
+          <div fxLayout="column">
+            <input-text title="Field separator" formControlName="separator"></input-text>
+            <input-text-area title="Hashes" formControlName="hashes"></input-text-area>
+          </div>
+
+          <grid-buttons>
+            <button-submit [name]="'Pre-crack hashes'"></button-submit>
+          </grid-buttons>
+      </form>
+     </grid-main>
+</div>
+
+
+

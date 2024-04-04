@@ -38,17 +38,31 @@
             <button-submit [name]="'Update'"></button-submit>
           </grid-buttons>
       </form>
-  </grid-main>
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <span><b>Report Builder</b></span>
-        </mat-panel-title>
-      </mat-expansion-panel-header>
-        <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
-    </mat-expansion-panel>
-  </mat-accordion>
+
+      <!-- If its cracked or partially cracked then show additional actions -->
+      <app-page-title [title]="'Actions'" [subbutton]="false"></app-page-title>
+
+      <div fxLayout="row" fxLayoutGap="5px">
+        <grid-buttons>
+          <button-submit [name]="'Import pre-cracked hashes'" (click)="importCrackedHashes()"></button-submit>
+          <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Generate Wordlist'" (click)="exportWordlist()"></button-submit>
+          <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Export Left Hashes'" (click)="exportLeftHashes()"></button-submit>
+        </grid-buttons>
+      </div>
+      <br *ngIf="editedHashlist.cracked > 0">
+
+      <mat-accordion *ngIf="editedHashlist.cracked > 0">
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span><b>Report Builder</b></span>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <hashlist-report [hashlistId]="editedHashlistIndex"></hashlist-report>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+     </grid-main>
 </div>
 <div class="col-md-5">
   <app-table>
