@@ -11,12 +11,13 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
 import { PreprocessorsDataSource } from 'src/app/core/_datasources/preprocessors.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { Cacheable } from 'src/app/core/_decorators/cacheable';
 
 @Component({
   selector: 'preprocessors-table',
@@ -66,6 +67,8 @@ export class PreprocessorsTableComponent
       {
         id: PreprocessorsTableCol.NAME,
         dataKey: 'name',
+        routerLink: (preprocessor: Preprocessor) =>
+          this.renderPreproLink(preprocessor),
         isSortable: true,
         export: async (preprocessor: Preprocessor) => preprocessor.name
       }
@@ -94,6 +97,23 @@ export class PreprocessorsTableComponent
         }
       })
     );
+  }
+
+  // --- Render functions ---
+
+  @Cacheable(['_id'])
+  async renderPreproLink(
+    preprocessor: Preprocessor
+  ): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+
+    links.push({
+      label: preprocessor.name,
+      routerLink: ['/config/engine/preprocessors', preprocessor._id, 'edit'],
+      tooltip: 'Supertask'
+    });
+
+    return links;
   }
 
   // --- Action functions ---
