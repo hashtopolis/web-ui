@@ -5,6 +5,8 @@ import {
 } from '@angular/material/snack-bar';
 
 import { AccessGroupsTableComponent } from './tables/access-groups-table/access-groups-table.component';
+import { AccessGroupsUserTableComponent } from './tables/access-groups-users-table/access-groups-users-table.component';
+import { AccessGroupsAgentsTableComponent } from './tables/access-groups-agents-table/access-groups-agents-table.component';
 import { ActionMenuComponent } from './menus/action-menu/action-menu.component';
 import { AgentBinariesTableComponent } from './tables/agent-binaries-table/agent-binaries-table.component';
 import { AgentsTableComponent } from './tables/agents-table/agents-table.component';
@@ -100,6 +102,8 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
+    AccessGroupsUserTableComponent,
+    AccessGroupsAgentsTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
     CracksTableComponent,
@@ -167,6 +171,8 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
+    AccessGroupsUserTableComponent,
+    AccessGroupsAgentsTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
     CracksTableComponent,

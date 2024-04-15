@@ -1,4 +1,6 @@
 import { AccessGroupsTableCol } from '../_components/tables/access-groups-table/access-groups-table.constants';
+import { AccessGroupsUsersTableCol } from '../_components/tables/access-groups-users-table/access-groups-users-table.constants';
+import { AccessGroupsAgentsTableCol } from '../_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AgentBinariesTableCol } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsStatusTableCol } from '../_components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '../_components/tables/agents-table/agents-table.constants';
@@ -224,6 +226,24 @@ export const uiConfigDefault: UIConfig = {
         HashlistsTableCol.ID,
         HashlistsTableCol.NAME,
         HashlistsTableCol.HASHTYPE,
+        HashlistsTableCol.FORMAT,
+        HashlistsTableCol.CRACKED,
+        HashlistsTableCol.HASH_COUNT
+      ],
+      order: {
+        id: HashlistsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    hashlistsInShTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HashlistsTableCol.ID,
+        HashlistsTableCol.NAME,
         HashlistsTableCol.FORMAT,
         HashlistsTableCol.CRACKED,
         HashlistsTableCol.HASH_COUNT
@@ -608,6 +628,34 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AccessGroupsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessGroupsUsersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AccessGroupsUsersTableCol.ID,
+        AccessGroupsUsersTableCol.NAME,
+        AccessGroupsUsersTableCol.STATUS
+      ],
+      order: {
+        id: AccessGroupsUsersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessGroupsAgentsTable: {
+      start: 0,
+      page: 25,
+      columns: [AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME],
+      order: {
+        id: AccessGroupsAgentsTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'

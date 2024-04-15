@@ -1,0 +1,25 @@
+<grid-main>
+  <app-page-subtitle [subtitle]="'Edit Access Group'"></app-page-subtitle>
+    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+
+      <input-text title="Name" formControlName="groupName"></input-text>
+
+      <grid-buttons>
+        <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+        <button-submit [name]="'Update'"></button-submit>
+      </grid-buttons>
+
+  </form>
+</grid-main>
+<app-table *ngIf="editedAccessGroupIndex">
+  <app-page-subtitle subtitle="User Members"></app-page-subtitle>
+  <access-groups-users-table [accessgroupId]="editedAccessGroupIndex"></access-groups-users-table>
+</app-table>
+<app-table *ngIf="editedAccessGroupIndex">
+  <app-page-subtitle subtitle="Agent Members"></app-page-subtitle>
+  <access-groups-agents-table [accessgroupId]="editedAccessGroupIndex"></access-groups-agents-table>
+</app-table>
+
+
+
+

@@ -123,7 +123,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
           this.selectUserAgpMap
         );
         this.userAgps = transformedOptions;
-        console.log(this.userAgps);
       });
 
     this.unsubscribeService.add(loaduserAGPSubscription$);

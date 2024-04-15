@@ -51,6 +51,7 @@ export const RowActionMenuLabel = {
   COPY_LINK_BINARY: 'Copy link Agent Binary',
   UNARCHIVE_TASK: 'Unarchive Task',
   UNASSIGN_AGENT: 'Unassign Agent',
+  UNASSIGN_USER: 'Unassign User',
   RESET_CHUNK: 'Reset Task Chunk'
 };
 

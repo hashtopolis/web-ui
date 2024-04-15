@@ -2,7 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
+  OnChanges,
   Output,
+  SimpleChanges,
   ViewChild,
   forwardRef
 } from '@angular/core';
@@ -32,13 +34,17 @@ import { map, startWith } from 'rxjs/operators';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputMultiSelectComponent extends AbstractInputComponent<any> {
+export class InputMultiSelectComponent
+  extends AbstractInputComponent<any>
+  implements OnChanges
+{
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
   @Input() items: SelectField[] = [];
   @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
+  @Input() initialHashlistId: string;
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
@@ -63,6 +69,14 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
           : this.getUnselectedItems();
       })
     );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.initialHashlistId) {
+      console.log(changes);
+      // this.selectedItems.push(changes);
+      // this.selectedItems.push(this.initialHashlistId);
+    }
   }
 
   /**

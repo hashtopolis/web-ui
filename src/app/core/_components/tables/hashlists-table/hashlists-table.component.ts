@@ -47,6 +47,9 @@ export class HashlistsTableComponent
     );
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    if (this.shashlistId) {
+      this.dataSource.setSHashlistId(this.shashlistId);
+    }
     this.dataSource.loadAll();
   }
 
@@ -68,7 +71,7 @@ export class HashlistsTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
         dataKey: '_id',
@@ -101,14 +104,6 @@ export class HashlistsTableComponent
           formatPercentage(hashlist.cracked, hashlist.hashCount)
       },
       {
-        id: HashlistsTableCol.HASHTYPE,
-        dataKey: 'hashTypeDescription',
-        isSortable: true,
-        render: (hashlist: Hashlist) =>
-          hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
-        export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
-      },
-      {
         id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
@@ -118,6 +113,17 @@ export class HashlistsTableComponent
           HashListFormatLabel[hashlist.format]
       }
     ];
+
+    if (!this.shashlistId) {
+      tableColumns.push({
+        id: HashlistsTableCol.HASHTYPE,
+        dataKey: 'hashTypeDescription',
+        isSortable: true,
+        render: (hashlist: Hashlist) =>
+          hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
+        export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
+      });
+    }
 
     return tableColumns;
   }
@@ -229,7 +235,9 @@ export class HashlistsTableComponent
           rows: [event.data],
           title: `Deleting hashlist with id ${event.data._id} (${event.data.hashTypeDescription}) ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete it? Note that this action cannot be undone. ${
+            this.shashlistId ? ' This action is deleting not unassigning.' : ''
+          }`,
           warn: true,
           action: event.menuItem.action
         });
@@ -253,7 +261,9 @@ export class HashlistsTableComponent
           rows: event.data,
           title: `Deleting ${event.data.length} hashlists ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above hashlists? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete the above hashlists? Note that this action cannot be undone. ${
+            this.shashlistId ? ' This action is deleting not unassigning.' : ''
+          }`,
           warn: true,
           listAttribute: 'name',
           action: event.menuItem.action

@@ -42,6 +42,7 @@ export class BaseTableComponent {
   @ViewChild('table') table: HTTableComponent;
 
   @Input() hashlistId: number;
+  @Input() shashlistId: number;
 
   /** Name of the table, used when storing user customizations */
   @Input() name: string;

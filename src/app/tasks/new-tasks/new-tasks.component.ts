@@ -366,20 +366,18 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       const expandField = isTask
         ? 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
         : 'pretaskFiles';
-
       this.gs
         .get(endpoint, this.editedIndex, { expand: expandField })
         .subscribe((result) => {
+          console.log(result['hashlist'][0]['_id']);
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';
-
           if (result[filesField]) {
             for (let i = 0; i < result[filesField].length; i++) {
               arrFiles.push(result[filesField][i]['fileId']);
             }
             this.copyFiles = arrFiles;
           }
-
           this.form = new FormGroup({
             taskName: new FormControl(
               result['taskName'] +
@@ -393,7 +391,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
                 this.editedIndex
               }`
             ),
-            hashlistId: new FormControl(result['hashlist']['hashlistId']),
+            hashlistId: new FormControl(result['hashlist'][0]['_id']),
             attackCmd: new FormControl(result['attackCmd'], [
               Validators.required
             ]),

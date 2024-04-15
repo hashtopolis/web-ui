@@ -220,7 +220,6 @@ export class RowActionMenuComponent
       0,
       this.getEditMenuItem(RowActionMenuLabel.EDIT_USER)
     );
-
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)
     ]);
