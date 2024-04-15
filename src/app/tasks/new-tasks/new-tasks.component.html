@@ -16,6 +16,7 @@
           [mergeIdAndName]="true"
           [multiselectEnabled]="false"
           formControlName="hashlistId"
+          [initialHashlistId]="form.get('hashlistId').value"
         ></input-multiselect>
         </div>
 
@@ -78,6 +79,7 @@
         <button-submit [name]="'Create'"></button-submit>
       </grid-buttons>
       </form>
+      {{ form.value | json}}
     </grid-main>
   </div>
   <div fxFlex="30" fxFlex.lt-md="100">

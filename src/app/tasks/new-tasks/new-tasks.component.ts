@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -49,6 +50,7 @@ import { FileType } from 'src/app/core/_models/file.model';
 export class NewTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
+  isLoadingCopyForm = true;
 
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
