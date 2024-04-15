@@ -52,11 +52,9 @@ export class HttpResInterceptor implements HttpInterceptor {
         if (error.status === 401) {
           if (!req.url.includes('/auth')) {
             const token = this.authService.token;
-            console.log(token);
             const userData: { _expires: string } = JSON.parse(
               localStorage.getItem('userData')
             );
-            console.log('Token expired' + userData);
             if (
               token !== 'notoken' &&
               new Date(userData._expires) < new Date(Date.now() - 60000)
@@ -80,12 +78,10 @@ export class HttpResInterceptor implements HttpInterceptor {
           errmsg = error.error.exception[0].message;
           status = error?.status || 0;
         }
-        console.log(errmsg);
         if (errmsg.toLowerCase().includes('token not')) {
           // Redirect to the login page
           console.log('should be reloading page');
-          // this.router.navigate(['/login']); // Adjust the route accordingly
-          window.location.reload();
+          window.location.reload(); //Reload page to redirect
         } else {
           // Display error modal for other cases
           this.modalRef = this.dialog.open(ErrorModalComponent, {
