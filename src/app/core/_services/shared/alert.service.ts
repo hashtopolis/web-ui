@@ -15,6 +15,7 @@ export class AlertService {
   cancelButtonColor = '#8A8584';
   confirmButtonColor = '#C53819';
   delconfirmText = 'Yes, delete it!';
+  purgeText = 'Yes, purge task!';
   submitText = 'Submit';
 
   /**

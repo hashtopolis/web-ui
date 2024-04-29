@@ -412,18 +412,18 @@ export class EditTasksComponent implements OnInit {
       showCancelButton: true,
       cancelButtonColor: this.alert.cancelButtonColor,
       confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
+      confirmButtonText: this.alert.purgeText
     }).then((result) => {
       if (result.isConfirmed) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
-          this.alert.okAlert('Deleted ' + name + '', '');
+          this.alert.okAlert('Purged task id' + this.editedTaskIndex + '', '');
           this.ngOnInit();
         });
       } else {
         swalWithBootstrapButtons.fire({
           title: 'Cancelled',
-          text: 'Your Task is safe!',
+          text: 'Purge was cancelled!',
           icon: 'error',
           showConfirmButton: false,
           timer: 1500
