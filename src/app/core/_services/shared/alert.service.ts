@@ -15,6 +15,7 @@ export class AlertService {
   cancelButtonColor = '#8A8584';
   confirmButtonColor = '#C53819';
   delconfirmText = 'Yes, delete it!';
+  submitText = 'Submit';
 
   /**
    * Handles notification confirmation.
@@ -49,6 +50,27 @@ export class AlertService {
       cancelButtonColor: this.cancelButtonColor,
       confirmButtonColor: this.confirmButtonColor,
       confirmButtonText: this.delconfirmText
+    }).then((result) => {
+      return result.isConfirmed;
+    });
+  }
+
+  /**
+   * Handles delete confirmation.
+   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
+   *
+   * @param {string} name - Item name
+   * @param {string} title - Additional text
+   */
+
+  customConfirmation(text: string): Promise<boolean> {
+    return Swal.fire({
+      title: `${text}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      cancelButtonColor: this.cancelButtonColor,
+      confirmButtonColor: this.confirmButtonColor,
+      confirmButtonText: this.submitText
     }).then((result) => {
       return result.isConfirmed;
     });

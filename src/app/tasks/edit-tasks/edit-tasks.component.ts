@@ -45,6 +45,7 @@ export class EditTasksComponent implements OnInit {
   editedTaskIndex: number;
   taskWrapperId: number;
   editedTask: any; // Change to Model
+  originalValue: any; // Change to Model
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
@@ -134,18 +135,39 @@ export class EditTasksComponent implements OnInit {
 
   onSubmit() {
     if (this.updateForm.valid) {
-      this.gs
-        .update(
-          SERV.TASKS,
-          this.editedTaskIndex,
-          this.updateForm.value['updateData']
-        )
-        .subscribe(() => {
-          this.alert.okAlert('Task saved!', '');
-          this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['tasks/show-tasks']);
+      // Check if attackCmd has been modified
+      if (
+        this.updateForm.value['updateData'].attackCmd !==
+        this.originalValue.attackCmd
+      ) {
+        const warning =
+          'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
+        this.alert.customConfirmation(warning).then((confirmed) => {
+          if (confirmed) {
+            this.updateTask();
+          } else {
+            // Handle cancellation
+            this.alert.okAlert(`Task Information has not been updated!`, '');
+          }
         });
+      } else {
+        this.updateTask();
+      }
     }
+  }
+
+  private updateTask() {
+    this.gs
+      .update(
+        SERV.TASKS,
+        this.editedTaskIndex,
+        this.updateForm.value['updateData']
+      )
+      .subscribe(() => {
+        this.alert.okAlert('Task saved!', '');
+        this.updateForm.reset(); // success, we reset form
+        this.router.navigate(['tasks/show-tasks']);
+      });
   }
 
   private initForm() {
@@ -155,7 +177,7 @@ export class EditTasksComponent implements OnInit {
           expand: 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
         })
         .subscribe((result) => {
-          console.log(result);
+          this.originalValue = result;
           this.color = result['color'];
           this.crackerinfo = result.crackerBinary;
           this.taskWrapperId - result.taskWrapperId;
@@ -167,8 +189,6 @@ export class EditTasksComponent implements OnInit {
           this.hashlistinform = '';
           if (result.hashlist && result.hashlist.length > 0) {
             this.hashlistinform = result.hashlist[0];
-            console.log('here');
-
             if (this.hashlistinform) {
               this.gs
                 .getAll(SERV.HASHTYPES, {
