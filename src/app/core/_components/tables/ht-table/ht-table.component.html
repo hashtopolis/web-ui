@@ -77,7 +77,7 @@
       <th mat-header-cell *matHeaderCellDef>
         <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
         <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
-          <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{this.isCmdLabel}}</span>
+          <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{ isCmdLabel ? isCmdLabel : 'Task | Preprocessor' }}</span>
         </ng-container>
         <!-- Check if only isCmdTask is true -->
         <ng-template #checkCmdAttack>
@@ -106,19 +106,21 @@
         </ng-container>
         <ng-template #defaultCell>
           <!-- CMD Task -->
-          <mat-checkbox
-            *ngIf="isCmdTask"
-            (click)="$event.stopPropagation()"
-            (change)="toggleAttack($event, row, 'CMD')"
-            [checked]="isSelected(row)"
+          <ng-container >
+            <mat-checkbox
+              *ngIf="isCmdTask"
+              (click)="$event.stopPropagation()"
+              (change)="toggleAttack($event, row, 'CMD')"
+              [checked]="isSelected(row)"
           />
+          </ng-container>
         </ng-template>
-        <ng-container *ngIf="isCmdPreproAttack">
+        <ng-container >
           <!-- CMD Preprocessor -->
           <mat-checkbox
+            *ngIf="isCmdPreproAttack"
             (click)="$event.stopPropagation()"
             (change)="toggleAttack($event, row, 'CMD_PREPRO')"
-            [checked]="isSelected(row)"
           />
         </ng-container>
       </td>

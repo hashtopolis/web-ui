@@ -132,7 +132,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   @Input() isCmdPreproAttack = false;
 
   /** Flag to add dual label text. */
-  @Input() isCmdLabel = 'Task | Preprocessor';
+  @Input() isCmdLabel: string;
 
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
@@ -437,6 +437,7 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   toggleAttack(event: MatCheckboxChange, row: any, type: string): void {
     // Handle the change event for the Cmd Attack checkbox
     const checked = event.checked;
+
     // Emit the event with specific properties
     this.checkboxChanged.emit({
       row, // All row data
