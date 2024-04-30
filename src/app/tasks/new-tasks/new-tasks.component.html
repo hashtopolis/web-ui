@@ -101,7 +101,7 @@
             <span><b>Rules</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></files-attack-table>
+        <files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel #otherPanel>
@@ -110,7 +110,7 @@
             <span><b>Other</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></files-attack-table>
+        <files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
       </mat-expansion-panel>
     </mat-accordion>
   </div>

@@ -17,6 +17,7 @@ export class AlertService {
   delconfirmText = 'Yes, delete it!';
   purgeText = 'Yes, purge task!';
   submitText = 'Submit';
+  okText = 'Ok';
 
   /**
    * Handles notification confirmation.
@@ -57,13 +58,12 @@ export class AlertService {
   }
 
   /**
-   * Handles delete confirmation.
+   * Handles custom text confirmation.
    * Displays a confirmation modal on the top end of the screen using library Sweet Alert
    *
    * @param {string} name - Item name
    * @param {string} title - Additional text
    */
-
   customConfirmation(text: string): Promise<boolean> {
     return Swal.fire({
       title: `${text}?`,
@@ -72,6 +72,25 @@ export class AlertService {
       cancelButtonColor: this.cancelButtonColor,
       confirmButtonColor: this.confirmButtonColor,
       confirmButtonText: this.submitText
+    }).then((result) => {
+      return result.isConfirmed;
+    });
+  }
+
+  /**
+   * Handles custom text confirmation.
+   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
+   *
+   * @param {string} name - Item name
+   * @param {string} title - Additional text
+   */
+  warningConfirmation(text: string): Promise<boolean> {
+    return Swal.fire({
+      title: `${text}?`,
+      icon: 'warning',
+      showCancelButton: false,
+      confirmButtonColor: this.confirmButtonColor,
+      confirmButtonText: this.okText
     }).then((result) => {
       return result.isConfirmed;
     });

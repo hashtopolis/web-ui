@@ -120,7 +120,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       const preTasksIds: string[] = [];
 
       // Split masks from form.masks by line break and create an array to iterate
-      const iterFiles: number[] = form.files;
+      const iterFiles: number[] = form.iterFiles;
 
       // Create an array to hold all subscription promises
       const subscriptionPromises: Promise<void>[] = [];
@@ -142,8 +142,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
           isSmall: form.isSmall,
           useNewBench: form.useNewBench,
           isMaskImport: true,
-          baseFiles: [],
-          iterFiles: []
+          files: form.baseFiles
         };
 
         // Create a subscription promise and push it to the array
@@ -183,14 +182,14 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       const attackCmd: string = formValue.attackCmd;
       const crackerBinaryId: any = formValue.crackerBinaryId;
 
-      const attackAlias = this.uiService.getUIsettings('hashlistAlias');
+      const attackAlias = this.uiService.getUIsettings('hashlistAlias').value;
 
       try {
         // Check if crackerBinaryId is invalid or missing
         if (!crackerBinaryId) {
           const warning = 'Invalid cracker type ID!';
-          this.alert.customConfirmation(warning).then((confirmed) => {
-            if (!confirmed) {
+          this.alert.warningConfirmation(warning).then((confirmed) => {
+            if (confirmed) {
               return;
             }
           });
@@ -198,10 +197,11 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
         // Check if attackCmd contains the hashlist alias
         if (!attackCmd.includes(attackAlias)) {
+          console.log(attackAlias);
           const warning =
             'Command line must contain hashlist alias (' + attackAlias + ')!';
-          this.alert.customConfirmation(warning).then((confirmed) => {
-            if (!confirmed) {
+          this.alert.warningConfirmation(warning).then((confirmed) => {
+            if (confirmed) {
               return;
             }
           });
@@ -210,8 +210,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         // Check if attackCmd contains FILE placeholder
         if (!attackCmd.includes('FILE')) {
           const warning = 'No placeholder (FILE) for the iteration!';
-          this.alert.customConfirmation(warning).then((confirmed) => {
-            if (!confirmed) {
+          this.alert.warningConfirmation(warning).then((confirmed) => {
+            if (confirmed) {
               return;
             }
           });
@@ -255,7 +255,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   getFormData() {
     return {
       attackCmd: this.createForm.get('attackCmd').value,
-      files: this.createForm.get('baseFiles').value
+      files: this.createForm.get('baseFiles').value,
+      otherFiles: this.createForm.get('iterFiles').value
     };
   }
 
@@ -264,8 +265,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @param event - The event data containing attack command and files.
    */
   onUpdateForm(event: any): void {
-    console.log(event.type);
-    console.log(event);
     if (event.type === 'CMD') {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,
@@ -273,7 +272,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       });
     } else {
       this.createForm.patchValue({
-        iterFiles: event.files
+        iterFiles: event.otherFiles
       });
     }
   }
