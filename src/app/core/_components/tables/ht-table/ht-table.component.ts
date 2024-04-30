@@ -131,6 +131,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
 
+  /** Flag to add dual label text. */
+  @Input() isCmdLabel = 'Task | Preprocessor';
+
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
 

@@ -33,6 +33,8 @@ export class FilesAttackTableComponent
   @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
+  @Input() customLabel: string;
+  @Input() bulkWordlistRule = false;
   @Input() checkboxChangedData: CheckboxChangeEvent;
   @Input() formData: {
     attackCmd: string;
@@ -122,7 +124,7 @@ export class FilesAttackTableComponent
     if (event.columnType === 'CMD') {
       currentCmd = form.attackCmd;
     } else {
-      currentCmd = form.preprocessorCommand;
+      currentCmd = form.preprocessorCommand || '';
     }
     const newCmdArray = currentCmd.split(' ');
     const fileName = event.row.filename;

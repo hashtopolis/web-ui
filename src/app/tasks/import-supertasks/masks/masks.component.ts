@@ -148,7 +148,7 @@ export class MasksComponent implements OnInit, OnDestroy {
         }
         const payload = {
           taskName: maskline,
-          attackCmd: ` #HL# -a 3 ${maskline} ${attackCmdSuffix}`,
+          attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
           maxAgents: form.maxAgents,
           chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
           statusTimer: Number(
@@ -200,7 +200,6 @@ export class MasksComponent implements OnInit, OnDestroy {
       try {
         this.isLoading = true; // Show spinner
         const ids = await this.preTasks(this.createForm.value);
-        console.log(ids);
         this.superTask(this.createForm.value.name, ids);
       } catch (error) {
         console.error('Error in preTasks:', error);

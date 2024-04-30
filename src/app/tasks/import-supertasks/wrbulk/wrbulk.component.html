@@ -1,231 +1,60 @@
 <horizontalnav [menuItems]="menuItems"></horizontalnav>
-<div class="highlight-box">
-  <p>
-    The following features or functionalities are currently not operational.
-  </p>
-</div>
 <!-- Body -->
 <div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
   <div fxFlex="70" fxFlex.lt-md="100">
-    <grid-main>
-      <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
-      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+      <grid-main>
+        <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
+        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
 
-        <input-text title="Name" formControlName="name"></input-text>
+          <input-text title="Name" formControlName="name"></input-text>
 
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <input-number title="maxAgents" formControlName="maxAgents"></input-number>
+                <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
+                <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
+            </div>
 
-              <input-select title="Benchmark Type" formControlName="useBench" [items]="selectBenchmarktype"></input-select>
-              <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
+            <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <input-check title="Small Tasks" formControlName="isSmall"></input-check>
+                <input-check title="CPU" formControlName="isCpuTask"></input-check>
+            </div>
 
-          </div>
+            <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
+            <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
 
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <grid-buttons>
+              <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+              <button-submit [name]="'Create'"></button-submit>
+              <div *ngIf="isLoading">
+                <mat-spinner diameter="24" color="accent"></mat-spinner>
+              </div>
+            </grid-buttons>
+      </form>
+      {{createForm.value | json}}
+    </grid-main>
+  </div>
+  <div fxFlex="40" fxFlex.lt-md="100">
+    <mat-accordion multi>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <span><b>Wordlists</b></span>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="0" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></files-attack-table>
+      </mat-expansion-panel>
 
-              <input-check title="Small Tasks" formControlName="isSmall"></input-check>
-              <input-check title="CPU" formControlName="isCPU"></input-check>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <span><b>Rules</b></span>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="1" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></files-attack-table>
+      </mat-expansion-panel>
 
-          </div>
-
-          <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
-          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
-
-          <grid-buttons>
-            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
-          </grid-buttons>
-
-    </form>
-  </grid-main>
-</div>
-<div fxFlex="30" fxFlex.lt-md="100">
-  <ngb-accordion #acc="ngbAccordion" [closeOthers]="true" activeIds="panel1">
-    <ngb-panel id="panel0">
-      <ng-template ngbPanelTitle>
-        <span><b>WordList</b></span>
-      </ng-template>
-      <ng-template ngbPanelContent [collapsed]="false">
-        <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
-          <thead class="thead-light">
-              <tr>
-                <th class="rounded-start">
-                  <a>B|I
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip='B: Base, I: Iterate'
-                            container="body"
-                            aria-hidden="true"
-                    >
-                    </fa-icon>
-                  </a>
-                </th>
-                <th class="rounded-end">File Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let f of allfiles | search:'0':'fileType'">
-                <td>
-                  <form [formGroup]="createForm" novalidate>
-                    <!-- Base checkbox -->
-                    <div class="form-check" >
-                      <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a>B</a>
-                    </div>
-                    <!-- Iterate checkbox -->
-                    <div  class="form-check">
-                      <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>I</a>
-                    </div>
-                  </form>
-                </td>
-                <td class="width: 100px">
-                  <label class="form-check-label" for="{{f.filename}}">
-                    {{f.filename | shortenString:25 }} {{f.fileId}}
-                  </label>
-                  <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true"></fa-icon>
-                  <fa-icon
-                          placement="bottom"
-                          [ngbTooltip]="wordlist"
-                  >
-                  faInfoCircle
-                  </fa-icon>
-                  <ng-template #wordlist>
-                    <div class="d-flex flex-column">
-                      <span>Full Name: {{f.filename}}</span>
-                      <span>Line Count: {{f.lineCount}}</span>
-                      <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                    </div>
-                  </ng-template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </ng-template>
-    </ngb-panel>
-    <ngb-panel>
-      <ng-template ngbPanelTitle>
-        <span><b>Rules</b></span>
-      </ng-template>
-      <ng-template ngbPanelContent>
-        <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions">
-          <thead class="thead-light">
-            <tr>
-                <th class="rounded-start">
-                  T<a>|P
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip='B: Base, I: Iterate'
-                            container="body"
-                            aria-hidden="true"
-                    >
-                    faInfoCircle
-                    </fa-icon>
-                  </a>
-                </th>
-                <th class="rounded-end">File Name</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let f of allfiles | search:'1':'fileType'">
-                <td>
-                  <form [formGroup]="createForm" novalidate>
-                    <!-- Main attack checkbox -->
-                    <div class="form-check" >
-                      <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a>B</a>
-                    </div>
-                    <!-- Preprocessor checkbox -->
-                    <div  class="form-check">
-                      <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>I</a>
-                    </div>
-                  </form>
-                </td>
-                <td >
-                  <label class="form-check-label" for="{{f.filename}}">
-                    {{f.filename | shortenString:25 }}
-                  </label>
-                  <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true"></fa-icon>
-                  <fa-icon
-                          placement="bottom"
-                          [ngbTooltip]="rules"
-                          container="body"
-                          aria-hidden="true"
-                  >
-                  faInfoCircle
-                  </fa-icon>
-                  <ng-template #rules>
-                    <div class="d-flex flex-column">
-                      <span>Full Name: {{f.filename}}</span>
-                      <span>Line Count: {{f.lineCount}}</span>
-                      <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                    </div>
-                  </ng-template>
-                </td>
-            </tr>
-          </tbody>
-        </table>
-      </ng-template>
-    </ngb-panel>
-    <ngb-panel>
-      <ng-template ngbPanelTitle>
-        <span><b>Other</b></span>
-      </ng-template>
-      <ng-template ngbPanelContent>
-        <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions" >
-          <thead class="thead-light">
-            <tr>
-                <th class="rounded-start">
-                  T<a>|P
-                    <fa-icon
-                            placement="bottom"
-                            ngbTooltip='B: Base, I: Iterate'
-                            container="body"
-                            aria-hidden="true"
-                    >
-                    faInfoCircle
-                    </fa-icon>
-                  </a>
-                </th>
-                <th class="rounded-end">File Name</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let f of allfiles | search:'2':'fileType'">
-              <td>
-                <form [formGroup]="createForm" novalidate>
-                  <!-- Main attack checkbox -->
-                  <div class="form-check" >
-                    <input class="form-check-input form-check-input-gray" (change)="onChange(f.fileId, f.fileType, f.filename, 0, $event.target )" type="checkbox"><a>B</a>
-                  </div>
-                  <!-- Preprocessor checkbox -->
-                  <div  class="form-check" >
-                    <input class="form-check-input form-check-input-violet" (change)="onChange(f.fileId, f.fileType, f.filename, 1, $event.target )" type="checkbox"><a>I</a>
-                  </div>
-                </form>
-              </td>
-              <td class="width: 100px">
-                <label class="form-check-label" for="{{f.filename}}">
-                  {{f.filename | shortenString:25 }}
-                </label>
-                <fa-icon *ngIf="f.isSecret === true"  aria-hidden="true"></fa-icon>
-                <fa-icon
-                        placement="bottom"
-                        [ngbTooltip]="other"
-                        container="body"
-                        aria-hidden="true"
-                >
-                faInfoCircle
-                </fa-icon>
-                <ng-template #other>
-                  <div class="d-flex flex-column">
-                    <span>Full Name: {{f.filename}}</span>
-                    <span>Line Count: {{f.lineCount}}</span>
-                    <span class="text-left">Size: {{ f.size | fileSize:false}}</span>
-                  </div>
-                </ng-template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </ng-template>
-    </ngb-panel>
-  </ngb-accordion>
-</div>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <span><b>Other</b></span>
+        </mat-expansion-panel-header>
+        <files-attack-table [fileType]="2" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></files-attack-table>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
 </div>
