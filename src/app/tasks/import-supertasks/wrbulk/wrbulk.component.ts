@@ -98,6 +98,13 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Loads data for the component.
+   *
+   * Retrieves cracker types from the server and transforms them into select options.
+   *
+   * @returns {void}
+   */
   loadData() {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
@@ -148,11 +155,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
             const fileNamePromise = new Promise<string>((resolve, reject) => {
               const fileSubscription$ = this.gs
-                .get(SERV.FILES, iter) // Use iter instead of id
+                .get(SERV.FILES, iter)
                 .subscribe((response: any) => {
-                  console.log(iter);
-                  console.log(response);
-                  const fileName = response.fileName;
+                  const fileName = response.filename;
                   resolve(fileName);
                 }, reject);
               this.unsubscribeService.add(fileSubscription$);
@@ -188,7 +193,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles the submission of the form to create a new super task.
+   * Handles the submission of the form to create a new super task - Import Wordlist/Rule Bulk
    * If the form is valid, it asynchronously performs the following steps:
    * 1. Calls preTasks to create preTasks based on the form data.
    * 2. Calls superTask with the created preTasks IDs and the super task name.
@@ -200,6 +205,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       const formValue = this.createForm.value;
       const attackCmd: string = formValue.attackCmd;
       const crackerBinaryId: any = formValue.crackerBinaryId;
+      const baseFiles: [] = formValue.baseFiles;
+      const iterFiles: [] = formValue.iterFiles;
 
       const attackAlias = this.uiService.getUIsettings('hashlistAlias').value;
       let hasError = false;
@@ -230,6 +237,26 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         // Check if attackCmd contains FILE placeholder
         if (!attackCmd.includes('FILE')) {
           const warning = 'No placeholder (FILE) for the iteration!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Check if at least one base file is selected
+        if (!baseFiles || baseFiles.length === 0) {
+          const warning = 'You need to select at least one base file!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Check if at least one iter file is selected
+        if (!iterFiles || iterFiles.length === 0) {
+          const warning = 'You need to select at least one iteration file!';
           const confirmed = await this.alert.errorConfirmation(warning);
           if (!confirmed) {
             return; // Stop further execution
