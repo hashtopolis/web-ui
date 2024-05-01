@@ -1,31 +1,5 @@
 <app-page-title [title]="'Global Permission Group - '+editedGPG.name+''"></app-page-title>
-<!-- Table current members -->
 <div class="row g-3">
-  <div class="col-md-5" *ngIf="editedGPG">
-    <grid-main [class]="'width:100%'" [centered]="true">
-      <app-page-subtitle [subtitle]="'Members'"></app-page-subtitle>
-      <div class="table-responsive">
-          <table style="width: 100%" class="table table-striped table-hover table-sm" datatable [dtOptions]="dtOptions[1]" [dtTrigger]="dtTrigger">
-            <thead class="thead-light">
-              <tr>
-                <th class="rounded-start">ID</th>
-                <th class="rounded-end">Username</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr *ngFor="let g of editedGPG.user">
-                <td>
-                {{ g.id }}
-                </td>
-                <td>
-                  <a [routerLink]="['/users/',g.id,'edit']">{{ g.name }}</a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-      </div>
-   </grid-main>
-  </div>
 <!-- Set permissions -->
   <div [ngClass]="editedGPG ? 'col-md-7':'' ">
     <grid-main>
@@ -75,4 +49,13 @@
     </form>
   </grid-main>
   </div>
+  <div class="col-md-5" *ngIf="editedGPG">
+    <!-- Table current members -->
+    <app-table>
+     <div *ngIf="editedGPG">
+       <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
+       <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
+     </div>
+    </app-table>
+   </div>
 </div>

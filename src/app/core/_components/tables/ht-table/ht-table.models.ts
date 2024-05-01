@@ -7,6 +7,7 @@ export type DataType =
   | 'agents-assign'
   | 'access-groups'
   | 'access-groups-users'
+  | 'access-permission-groups-users'
   | 'access-groups-agents'
   | 'hashlists'
   | 'hashes'

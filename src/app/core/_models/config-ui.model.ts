@@ -27,6 +27,7 @@ import { TasksChunksTableCol } from '../_components/tables/tasks-chunks-table/ta
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 import { VouchersTableCol } from '../_components/tables/vouchers-table/vouchers-table.constants';
+import { AccessPermissionGroupsUsersTableCol } from '../_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -644,6 +645,23 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AccessGroupsUsersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessPermissionGroupsUsersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AccessPermissionGroupsUsersTableCol.ID,
+        AccessPermissionGroupsUsersTableCol.NAME,
+        AccessPermissionGroupsUsersTableCol.STATUS,
+        AccessPermissionGroupsUsersTableCol.LAST_LOGIN
+      ],
+      order: {
+        id: AccessPermissionGroupsUsersTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'
