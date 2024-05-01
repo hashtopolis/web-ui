@@ -112,59 +112,78 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Create Pretasks
-   * Name: first line of mask
+   * Create pre-tasks asynchronously.
+   *
+   * @param {Object} form - The form data containing task configurations.
+   * @returns {Promise<string[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private async preTasks(form): Promise<string[]> {
+  private preTasks(form): Promise<string[]> {
     return new Promise<string[]>((resolve, reject) => {
       const preTasksIds: string[] = [];
-
-      // Split masks from form.masks by line break and create an array to iterate
+      const fileNamePromises: Promise<string>[] = [];
       const iterFiles: number[] = form.iterFiles;
 
-      // Create an array to hold all subscription promises
-      const subscriptionPromises: Promise<void>[] = [];
+      try {
+        Promise.all(
+          iterFiles.map((iter, index) => {
+            const payload = {
+              taskName: '',
+              attackCmd: '',
+              maxAgents: form.maxAgents,
+              chunkTime: Number(
+                this.uiService.getUIsettings('chunktime').value
+              ),
+              statusTimer: Number(
+                this.uiService.getUIsettings('statustimer').value
+              ),
+              priority: index + 1,
+              color: '',
+              isCpuTask: form.isCpuTask,
+              crackerBinaryTypeId: form.crackerBinaryId,
+              isSmall: form.isSmall,
+              useNewBench: form.useNewBench,
+              isMaskImport: true,
+              files: form.baseFiles
+            };
 
-      // Iterate over the iteration files array
-      iterFiles.forEach((maskline, index) => {
-        const payload = {
-          taskName: maskline,
-          attackCmd: form.attackCmd,
-          maxAgents: form.maxAgents,
-          chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
-          statusTimer: Number(
-            this.uiService.getUIsettings('statustimer').value
-          ),
-          priority: index + 1,
-          color: '',
-          isCpuTask: form.isCpuTask,
-          crackerBinaryTypeId: form.crackerBinaryId,
-          isSmall: form.isSmall,
-          useNewBench: form.useNewBench,
-          isMaskImport: true,
-          files: form.baseFiles
-        };
+            const fileNamePromise = new Promise<string>((resolve, reject) => {
+              const fileSubscription$ = this.gs
+                .get(SERV.FILES, iter) // Use iter instead of id
+                .subscribe((response: any) => {
+                  console.log(iter);
+                  console.log(response);
+                  const fileName = response.fileName;
+                  resolve(fileName);
+                }, reject);
+              this.unsubscribeService.add(fileSubscription$);
+            });
 
-        // Create a subscription promise and push it to the array
-        const subscriptionPromise = new Promise<void>((resolve, reject) => {
-          const onSubmitSubscription$ = this.gs
-            .create(SERV.PRETASKS, payload)
-            .subscribe((result) => {
-              preTasksIds.push(result._id);
-              resolve(); // Resolve the promise when subscription completes
-            }, reject); // Reject the promise if there's an error
-          this.unsubscribeService.add(onSubmitSubscription$);
-        });
+            fileNamePromises.push(fileNamePromise);
 
-        subscriptionPromises.push(subscriptionPromise);
-      });
-
-      // Wait for all subscription promises to resolve
-      Promise.all(subscriptionPromises)
-        .then(() => {
-          resolve(preTasksIds);
-        })
-        .catch(reject);
+            return fileNamePromise
+              .then((fileName) => {
+                const updatedAttackCmd = form.attackCmd.replace(
+                  'FILE',
+                  fileName
+                );
+                payload.taskName = form.name + ' + ' + fileName;
+                payload.attackCmd = updatedAttackCmd;
+                return this.gs.create(SERV.PRETASKS, payload).toPromise();
+              })
+              .then((result) => {
+                preTasksIds.push(result._id);
+              });
+          })
+        )
+          .then(() => {
+            resolve(preTasksIds);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
@@ -183,16 +202,17 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       const crackerBinaryId: any = formValue.crackerBinaryId;
 
       const attackAlias = this.uiService.getUIsettings('hashlistAlias').value;
+      let hasError = false;
 
       try {
         // Check if crackerBinaryId is invalid or missing
         if (!crackerBinaryId) {
           const warning = 'Invalid cracker type ID!';
-          this.alert.warningConfirmation(warning).then((confirmed) => {
-            if (confirmed) {
-              return;
-            }
-          });
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
         }
 
         // Check if attackCmd contains the hashlist alias
@@ -200,28 +220,34 @@ export class WrbulkComponent implements OnInit, OnDestroy {
           console.log(attackAlias);
           const warning =
             'Command line must contain hashlist alias (' + attackAlias + ')!';
-          this.alert.warningConfirmation(warning).then((confirmed) => {
-            if (confirmed) {
-              return;
-            }
-          });
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
         }
 
         // Check if attackCmd contains FILE placeholder
         if (!attackCmd.includes('FILE')) {
           const warning = 'No placeholder (FILE) for the iteration!';
-          this.alert.warningConfirmation(warning).then((confirmed) => {
-            if (confirmed) {
-              return;
-            }
-          });
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Add more error checks here if needed
+
+        if (hasError) {
+          return; // Error occurred, stop further execution
         }
 
         this.isLoading = true; // Show spinner
         const ids = await this.preTasks(formValue);
         this.superTask(formValue.name, ids);
       } catch (error) {
-        console.error('Error in onSubmit:', error);
+        console.error('Error when importing supertask:', error);
         // Handle error if needed
       } finally {
         this.isLoading = false; // Hide spinner regardless of success or error
