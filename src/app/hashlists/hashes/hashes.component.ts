@@ -202,7 +202,6 @@ export class HashesComponent implements OnInit, OnDestroy {
 
     this.gs.getAll(SERV.HASHES, nwparams).subscribe((hashes: any) => {
       let res = hashes.values;
-      // console.log(this.whichView);
       if (this.whichView === 'tasks') {
         res = res.filter((u) => u.chunk?.taskId == this.editedIndex);
       }

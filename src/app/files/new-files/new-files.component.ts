@@ -291,7 +291,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.fileUnsubscribe))
           .subscribe((progress) => {
             this.uploadProgress = progress;
-            // console.log(`Upload progress: ${progress}%`);
           })
       );
     }

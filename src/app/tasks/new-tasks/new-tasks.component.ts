@@ -371,7 +371,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       this.gs
         .get(endpoint, this.editedIndex, { expand: expandField })
         .subscribe((result) => {
-          console.log(result['hashlist'][0]['_id']);
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';
           if (result[filesField]) {

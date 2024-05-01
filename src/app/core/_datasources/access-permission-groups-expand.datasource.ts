@@ -42,7 +42,6 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
         )
         .subscribe((response: ListResponseWrapper<AccessGroup>) => {
           const data: AccessGroup[] = response[this._expand];
-          console.log(data);
           this.setData(data);
         })
     );

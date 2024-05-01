@@ -150,7 +150,6 @@ export class BaseTableComponent {
 
   @Cacheable(['userId'])
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    console.log(obj);
     return [
       {
         routerLink: obj && obj['_id'] ? ['/users', obj['_id'], 'edit'] : []

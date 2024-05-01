@@ -87,7 +87,6 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex)
       .subscribe((response) => {
-        console.log(response['groupName']);
         this.updateForm = new FormGroup({
           groupName: new FormControl(response['groupName'])
         });

@@ -276,7 +276,6 @@ export class ReportBuilderComponent implements OnInit {
 
       // Page Settings
       const pageSettings = this.templates[this.templateName]?.['settings'];
-      console.log(pageSettings);
       const headerLogo = pageSettings['img_logo'];
       const backgroundImg = pageSettings['img_background'];
       let bg = {}; // Initialize bg as an object
@@ -288,9 +287,6 @@ export class ReportBuilderComponent implements OnInit {
       // Encode logo image
       const imagePath = '../../assets/img/';
       if (formValues.cover_page && headerLogo.enable) {
-        console.log('here');
-        console.log(imagePath);
-        console.log(headerLogo);
         headerLogo.image = await this.getBase64ImageFromURL(
           imagePath + headerLogo.img_path
         );
@@ -402,8 +398,6 @@ export class ReportBuilderComponent implements OnInit {
    */
   async getBase64ImageFromURL(url: string): Promise<string> {
     try {
-      console.log('Image URL:', url);
-
       if (!url) {
         throw new Error('Image URL is undefined');
       }

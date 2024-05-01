@@ -224,7 +224,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
         // Check if attackCmd contains the hashlist alias
         if (!attackCmd.includes(attackAlias)) {
-          console.log(attackAlias);
           const warning =
             'Command line must contain hashlist alias (' + attackAlias + ')!';
           const confirmed = await this.alert.errorConfirmation(warning);

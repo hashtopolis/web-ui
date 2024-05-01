@@ -364,7 +364,6 @@ export abstract class BaseDataSource<
     isAgent = true,
     keyspace = 0
   ): Promise<ChunkData> {
-    console.log('getChunkdata', id);
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];

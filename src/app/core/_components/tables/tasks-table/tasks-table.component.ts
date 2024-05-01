@@ -624,7 +624,6 @@ export class TasksTableComponent
   }
 
   private rowActionDelete(wrapper: TaskWrapper): void {
-    console.log(wrapper);
     this.subscriptions.push(
       this.gs.delete(SERV.TASKS, wrapper.tasks[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted task!', 'Close');
