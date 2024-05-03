@@ -6,11 +6,9 @@
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
-      <input-text title="Notes" formControlName="notes"></input-text>
-      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
     </div>
 
-    <div class="custom-hashlist-container">
+    <div class="custom-hashlist-container" *ngIf="!isLoadingHashtypes; else loadingTemplate">
       <input-multiselect
         [isLoading]="isLoadingHashtypes"
         [placeholder]="'Hashtypes...'"
@@ -24,11 +22,25 @@
         <mat-icon>help</mat-icon>
       </button>
     </div>
+    <ng-template #loadingTemplate>
+      <div class="loading-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading Hashtypes...</span>
+      </div>
+    </ng-template>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
+      <input-text title="Notes" formControlName="notes"></input-text>
+    </div>
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
       <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
       <input-check title="Salted hashes, separator" formControlName="isSalted"></input-check>
+    </div>
+
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text title="Separator" formControlName="separator"></input-text>
     </div>
 
@@ -54,6 +66,9 @@
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'" (click)="onSubmit()"></button-submit>
+        <div *ngIf="isCreatingLoading">
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
       </grid-buttons>
     </div>
 
@@ -73,6 +88,9 @@
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
+        <div *ngIf="isCreatingLoading">
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
       </grid-buttons>
     </div>
 

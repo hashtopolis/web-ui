@@ -7,18 +7,24 @@
         <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
 
-        <div fxLayout="column" fxLayoutAlign="start start">
+        <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
           <input-multiselect
-          [isLoading]="isLoading"
-          [placeholder]="'Hashlist...'"
-          [items]="selectHashlists"
-          [label]="'Select or search Hashlist *'"
-          [mergeIdAndName]="true"
-          [multiselectEnabled]="false"
-          formControlName="hashlistId"
-          [initialHashlistId]="form.get('hashlistId').value"
-        ></input-multiselect>
+            [isLoading]="isLoading"
+            [placeholder]="'Hashlist...'"
+            [items]="selectHashlists"
+            [label]="'Select or search Hashlist *'"
+            [mergeIdAndName]="true"
+            [multiselectEnabled]="false"
+            formControlName="hashlistId"
+            [initialHashlistId]="form.get('hashlistId').value"
+          ></input-multiselect>
         </div>
+        <ng-template #loadingTemplate>
+          <div class="loading-spinner">
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading Hashlists...</span>
+          </div>
+        </ng-template>
 
         <div>
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
@@ -77,9 +83,11 @@
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'"></button-submit>
+        <div *ngIf="isCreatingLoading">
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
       </grid-buttons>
       </form>
-      {{ form.value | json}}
     </grid-main>
   </div>
   <div fxFlex="30" fxFlex.lt-md="100">

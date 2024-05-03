@@ -7,6 +7,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild
@@ -35,6 +36,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { Subscription, take, timer } from 'rxjs';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -85,15 +87,16 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   templateUrl: './ht-table.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HTTableComponent implements OnInit, AfterViewInit {
+export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
 
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
 
-  /** Flag to indicate data loading */
+  /** Flag to indicate if data is being loaded */
   loading = true;
+  loadingTimeoutSubscription: Subscription;
 
   /** Reference to MatPaginator for pagination support. */
   @ViewChild(MatPaginator, { static: false }) matPaginator: MatPaginator;
@@ -213,9 +216,11 @@ export class HTTableComponent implements OnInit, AfterViewInit {
       console.error(`Unexpected table configuration for key: ${this.name}`);
     }
     // ToDo. this should be done with the real data, only used as UI friendly
-    setTimeout(() => {
-      this.loading = false;
-    }, 10000);
+    this.loadingTimeoutSubscription = timer(5000)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.loading = false;
+      });
   }
 
   ngAfterViewInit(): void {
@@ -242,6 +247,12 @@ export class HTTableComponent implements OnInit, AfterViewInit {
     this.matSort.sortChange.subscribe(() => {
       this.dataSource.sortData();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.loadingTimeoutSubscription) {
+      this.loadingTimeoutSubscription.unsubscribe();
+    }
   }
 
   /**

@@ -11,7 +11,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, finalize, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 
 import {
@@ -54,6 +54,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
+
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
 
   // Lists of Selected inputs
   selectAccessgroup: any[];
@@ -235,13 +238,25 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     this.form.patchValue({
       sourceData: handleEncode(this.form.get('sourceData').value)
     });
-
+    this.isCreatingLoading = true;
     const onSubmitSubscription$ = this.gs
       .create(SERV.HASHLISTS, this.form.value)
-      .subscribe(() => {
-        this.alert.okAlert('New HashList created!', '');
-        this.router.navigate(['/hashlists/hashlist']);
-      });
+      .pipe(
+        finalize(() => {
+          this.isCreatingLoading = false;
+        })
+      )
+      .subscribe(
+        () => {
+          this.alert.okAlert('New HashList created!', '');
+          this.router.navigate(['/hashlists/hashlist']);
+          this.isCreatingLoading = false;
+        },
+        (error) => {
+          console.log('Error creating Hashlist', error);
+          this.isCreatingLoading = false;
+        }
+      );
     this.unsubscribeService.add(onSubmitSubscription$);
   }
 

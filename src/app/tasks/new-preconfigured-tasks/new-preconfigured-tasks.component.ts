@@ -36,6 +36,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   selectBenchmarktype = benchmarkType;
   selectCrackertype: any;
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   /** Select Options Mapping */
   selectCrackertypeMap = {
     fieldMapping: CRACKER_TYPE_FIELD_MAPPING
@@ -260,12 +263,14 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.createForm.valid) {
+      this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .create(SERV.PRETASKS, this.createForm.value)
         .subscribe(() => {
           this.alert.okAlert('New PreTask created!', '');
           // this.createForm.reset(); // success, we reset form
           this.router.navigate(['tasks/preconfigured-tasks']);
+          this.isCreatingLoading = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
     }

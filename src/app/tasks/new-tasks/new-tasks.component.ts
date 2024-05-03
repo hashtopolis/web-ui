@@ -55,6 +55,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   /** Select Options. */
   selectHashlists: any;
   selectStaticChunking = staticChunking;
@@ -432,29 +435,25 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .create(SERV.TASKS, this.form.value)
         .subscribe(() => {
           this.alert.okAlert('New Task created!', '');
-          this.router.navigate(['tasks/show-tasks']);
+          this.router
+            .navigate(['tasks/show-tasks'])
+            .then((success) => {
+              if (!success) {
+                console.error('Navigation failed.');
+              }
+            })
+            .catch((error) => {
+              console.error('Error navigating to tasks/show-tasks:', error);
+            });
+          this.isCreatingLoading = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
-  }
-
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    if (!this.canDeactivate()) {
-      $event.returnValue = 'IE and Edge Message';
-    }
-  }
-
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.form.valid) {
-      return false;
-    }
-    return true;
   }
 
   // Modal Information
