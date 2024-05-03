@@ -92,6 +92,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
 
+  /** Flag to indicate data loading */
+  loading = true;
+
   /** Reference to MatPaginator for pagination support. */
   @ViewChild(MatPaginator, { static: false }) matPaginator: MatPaginator;
 
@@ -209,6 +212,10 @@ export class HTTableComponent implements OnInit, AfterViewInit {
       // Handle the case when the retrieved value is neither an array nor a TableConfig
       console.error(`Unexpected table configuration for key: ${this.name}`);
     }
+    // ToDo. this should be done with the real data, only used as UI friendly
+    setTimeout(() => {
+      this.loading = false;
+    }, 10000);
   }
 
   ngAfterViewInit(): void {
