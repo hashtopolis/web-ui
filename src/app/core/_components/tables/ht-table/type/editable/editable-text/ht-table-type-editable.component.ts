@@ -8,7 +8,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { HTTableColumn, HTTableEditable } from '../../ht-table.models';
+import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
 
 @Component({
   selector: 'ht-table-editable',

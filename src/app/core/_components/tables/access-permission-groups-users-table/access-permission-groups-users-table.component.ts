@@ -20,7 +20,7 @@ import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
   selector: 'access-permission-groups-users-table',
   templateUrl: './access-permission-groups-users-table.component.html'
 })
-export class AccessPremissionGroupsUserTableComponent
+export class AccessPermissionGroupsUsersTableComponent
   extends BaseTableComponent
   implements OnInit, OnDestroy
 {

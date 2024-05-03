@@ -1,61 +1,22 @@
-<app-page-title [title]="'Global Permission Group - '+editedGPG.name+''"></app-page-title>
-<div class="row g-3">
-<!-- Set permissions -->
-  <div [ngClass]="editedGPG ? 'col-md-7':'' ">
-    <grid-main>
-    <app-page-subtitle [subtitle]="'Set Permissions'"></app-page-subtitle>
-    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-      <input-text title="Name" formControlName="name"></input-text>
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <button mat-raised-button color="primary" (click)="toggleAllPermissions(true); preventDefault($event)">Check All</button>
-        <button mat-raised-button color="warn" (click)="toggleAllPermissions(false); preventDefault($event)">Uncheck All</button>
-      </div>
-      <div formGroupName="permissions">
+<grid-main>
+  <app-page-title [title]="'Global Permission Group'"></app-page-title>
+  <app-page-subtitle [subtitle]="'Authorization Matrix'"></app-page-subtitle>
+  <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+    <mat-form-field>
+      <mat-label>Update Global Permission Name</mat-label>
+      <input matInput type="text" formControlName="name"/>
+      <button mat-icon-button matSuffix>
+        <mat-icon *ngIf="!processing">add</mat-icon>
+        <mat-spinner *ngIf="processing" diameter="20" color="accent"></mat-spinner>
+      </button>
+    </mat-form-field>
+  </form>
+</grid-main>
+<app-table>
+  <access-permission-groups-user-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-user-table>
+</app-table>
+<app-table *ngIf="editedGPG.users && editedGPG.users.length > 0">
+  <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
+  <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
+</app-table>
 
-        <ng-container *ngFor="let group of permissionGroups">
-          <mat-accordion>
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <span><b>{{ group.title }}</b></span>
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-
-              <ng-container *ngFor="let subgroup of group.subgroups">
-                <mat-expansion-panel>
-                  <mat-expansion-panel-header>
-                    <mat-panel-title>
-                      <span><b>{{ subgroup.subtitle }}</b></span>
-                    </mat-panel-title>
-                  </mat-expansion-panel-header>
-
-                  <div *ngFor="let permission of subgroup.permissions" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-                    <input-check [title]="getTitleFromPermission(permission)" [formControlName]="permission"></input-check>
-                  </div>
-
-                </mat-expansion-panel>
-              </ng-container>
-
-            </mat-expansion-panel>
-          </mat-accordion>
-        </ng-container>
-
-    </div>
-
-      <grid-buttons>
-        <button-submit [name]="'Update'"></button-submit>
-      </grid-buttons>
-
-    </form>
-  </grid-main>
-  </div>
-  <div class="col-md-5" *ngIf="editedGPG">
-    <!-- Table current members -->
-    <app-table>
-     <div *ngIf="editedGPG">
-       <app-page-subtitle [subtitle]="'User Members'"></app-page-subtitle>
-       <access-permission-groups-users-table [accesspermgroupId]="editedGPGIndex"></access-permission-groups-users-table>
-     </div>
-    </app-table>
-   </div>
-</div>

@@ -7,6 +7,7 @@ export type DataType =
   | 'agents-assign'
   | 'access-groups'
   | 'access-groups-users'
+  | 'access-permission-groups-user'
   | 'access-permission-groups-users'
   | 'access-groups-agents'
   | 'hashlists'
@@ -78,6 +79,7 @@ export interface HTTableColumn {
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
+  checkbox?: (data: any) => HTTableEditable<any>;
 }
 
 /** Column def for selectable checkbox */

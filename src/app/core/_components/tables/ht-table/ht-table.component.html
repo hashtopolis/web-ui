@@ -192,6 +192,11 @@
               [element]="element"
               (editableInputSaved)="editableInputSaved($event)"
             ></ht-table-editable>
+            <ht-table-editable-checkbox
+              [tableColumn]="tableColumn"
+              [element]="element"
+              (editableCheckboxSaved)="editableCheckboxSaved($event)"
+              ></ht-table-editable-checkbox>
           </ng-container>
 
           <!-- Check if icon function is defined -->

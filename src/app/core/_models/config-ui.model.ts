@@ -28,6 +28,7 @@ import { UsersTableCol } from '../_components/tables/users-table/users-table.con
 import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 import { VouchersTableCol } from '../_components/tables/vouchers-table/vouchers-table.constants';
 import { AccessPermissionGroupsUsersTableCol } from '../_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
+import { AccessPermissionGroupsUserTableCol } from '../_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -645,6 +646,24 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AccessGroupsUsersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessPermissionGroupsUserTable: {
+      start: 0,
+      page: 50,
+      columns: [
+        AccessPermissionGroupsUserTableCol.NAME,
+        AccessPermissionGroupsUserTableCol.CREATE,
+        AccessPermissionGroupsUserTableCol.READ,
+        AccessPermissionGroupsUserTableCol.UPDATE,
+        AccessPermissionGroupsUserTableCol.DELETE
+      ],
+      order: {
+        id: AccessPermissionGroupsUserTableCol.NAME,
         dataKey: '',
         isSortable: true,
         direction: 'asc'

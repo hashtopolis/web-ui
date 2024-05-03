@@ -12,6 +12,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
 > {
   private _accesspermgroupId = 0;
   private _expand = '';
+  private _perm = 0;
 
   setAccessPermGroupId(accesspermgroupId: number) {
     this._accesspermgroupId = accesspermgroupId;
@@ -21,6 +22,10 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
     this._expand = _expand;
   }
 
+  setPermissions(_perm: number) {
+    this._perm = _perm;
+  }
+
   loadAll(): void {
     this.loading = true;
 
@@ -28,23 +33,63 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
       expand: this._expand
     };
 
-    const pretasks$ = this.service.get(
+    const accessPermissions$ = this.service.get(
       SERV.ACCESS_PERMISSIONS_GROUPS,
       this._accesspermgroupId,
       params
     );
 
     this.subscriptions.push(
-      pretasks$
+      accessPermissions$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ListResponseWrapper<AccessGroup>) => {
-          const data: AccessGroup[] = response[this._expand];
+          let data: any[];
+          if (this._perm) {
+            data = this.processResponseWithPermissions(response['permissions']);
+          } else {
+            data = response[this._expand];
+          }
           this.setData(data);
         })
     );
+  }
+
+  private processResponseWithPermissions(
+    response: ListResponseWrapper<any>
+  ): any[] {
+    const transformedData = Object.entries(response).reduce(
+      (acc, [key, value]) => {
+        const operation = key
+          .replace(/^perm/, '')
+          .replace(/(Create|Delete|Read|Update)$/, '');
+        let operationName = operation
+          .replace(/([a-z])([A-Z])/g, '$1 $2')
+          .toLowerCase();
+        operationName =
+          operationName.charAt(0).toUpperCase() + operationName.slice(1);
+        const type = key.match(/(Create|Delete|Read|Update)$/)?.[0];
+        const existingPermission = acc.find(
+          (item) => item.name === operationName && item.key === operation
+        );
+        if (existingPermission) {
+          existingPermission[type.toLowerCase()] = value;
+        } else {
+          const newPermission = {
+            name: operationName,
+            key: operation,
+            originalName: 'perm' + operation,
+            [type ? type.toLowerCase() : '']: value
+          };
+          acc.push(newPermission);
+        }
+        return acc;
+      },
+      []
+    );
+    return transformedData;
   }
 
   getData(): AccessGroup[] {

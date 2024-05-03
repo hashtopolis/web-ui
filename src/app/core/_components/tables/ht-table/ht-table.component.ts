@@ -174,6 +174,10 @@ export class HTTableComponent implements OnInit, AfterViewInit {
   @Output() editableSaved: EventEmitter<HTTableEditable<any>> =
     new EventEmitter<HTTableEditable<any>>();
 
+  /** Event emitter for when the user saves a checkbox */
+  @Output() editableCheckbox: EventEmitter<HTTableEditable<any>> =
+    new EventEmitter<HTTableEditable<any>>();
+
   /** Event emitter for checkbox attack */
   @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> =
     new EventEmitter();
@@ -483,5 +487,9 @@ export class HTTableComponent implements OnInit, AfterViewInit {
 
   editableInputSaved(editable: HTTableEditable<any>): void {
     this.editableSaved.emit(editable);
+  }
+
+  editableCheckboxSaved(editable: any): void {
+    this.editableCheckbox.emit(editable);
   }
 }

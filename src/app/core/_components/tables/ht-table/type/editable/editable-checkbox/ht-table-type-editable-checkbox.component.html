@@ -1,0 +1,9 @@
+<div class="editable-container" *ngIf="tableColumn.checkbox">
+  <mat-checkbox
+    class="editable-checkbox"
+    *ngIf="checkbox.value !== 'undefined'"
+    [ngModel]="parseCheckboxValue(checkbox.value)"
+    (change)="onEditableInputSaved($event.checked)"
+    matTooltip="Click to edit value"
+  ></mat-checkbox>
+</div>
