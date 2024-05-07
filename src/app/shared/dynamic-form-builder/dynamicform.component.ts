@@ -115,6 +115,12 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoadingSelect = true;
 
   /**
+   * Indicates when a form is being submitted
+   *
+   */
+  isSubmitting = false;
+
+  /**
    * Constructor for the DynamicFormComponent.
    * @param fb - The Angular FormBuilder for creating form controls and groups.
    * @param gs - The GlobalService for handling global operations and API requests.
@@ -256,6 +262,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isSubmitting = true;
       // Emit the form values to the parent component
       this.formSubmit.emit(this.form.value);
     }
