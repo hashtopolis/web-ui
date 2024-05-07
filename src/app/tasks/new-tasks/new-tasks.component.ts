@@ -86,7 +86,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   editedIndex: number;
   whichView: string;
   copyType: number; //0 copy from task and 1 copy from pretask
-  isCopyHashlistId: number; //Get Value
+  isCopyHashlistId = null;
 
   // Tooltips
   tasktip: any = [];
@@ -385,6 +385,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   private initForm(isTask: boolean) {
     if (this.copyMode) {
+      console.log(this.copyType);
       const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
       const expandField = isTask
         ? 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
@@ -394,7 +395,8 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         .subscribe((result) => {
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';
-          this.isCopyHashlistId = result['hashlist'][0]['_id'];
+          this.isCopyHashlistId =
+            this.copyType === 1 ? 999999 : result['hashlist'][0]['_id'];
           if (result[filesField]) {
             for (let i = 0; i < result[filesField].length; i++) {
               arrFiles.push(result[filesField][i]['fileId']);
@@ -429,12 +431,12 @@ export class NewTasksComponent implements OnInit, OnDestroy {
             useNewBench: new FormControl(result['useNewBench']),
             skipKeyspace: new FormControl(isTask ? result['skipKeyspace'] : 0),
             crackerBinaryId: new FormControl(
-              isTask ? 1 : result.crackerBinary['crackerBinaryId']
+              isTask ? result.crackerBinary['crackerBinaryId'] : 1
             ),
             isArchived: new FormControl(false),
             staticChunks: new FormControl(isTask ? result['staticChunks'] : 0),
             chunkSize: new FormControl(
-              isTask ? this.chunkSize : result['chunkSize']
+              isTask ? result['chunkSize'] : this.chunkSize
             ),
             forcePipe: new FormControl(isTask ? result['forcePipe'] : false),
             preprocessorId: new FormControl(
