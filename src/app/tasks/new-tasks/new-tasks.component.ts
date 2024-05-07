@@ -86,6 +86,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   editedIndex: number;
   whichView: string;
   copyType: number; //0 copy from task and 1 copy from pretask
+  isCopyHashlistId: number; //Get Value
 
   // Tooltips
   tasktip: any = [];
@@ -257,6 +258,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;
         this.isLoading = false;
+        if (this.copyMode) {
+          this.checkHashlisId();
+        }
         this.changeDetectorRef.detectChanges();
       });
     this.unsubscribeService.add(loadHashlistsSubscription$);
@@ -362,6 +366,20 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * OnCopy check that hashlisId exist, as could be deleted from loaded hashlists
+   *
+   */
+  checkHashlisId() {
+    const exists = this.selectHashlists.some(
+      (hashlist) => hashlist._id === this.isCopyHashlistId
+    );
+
+    if (!exists || exists === undefined) {
+      this.alert.errorConfirmation('Hashlist ID not found!');
+    }
+  }
+
+  /**
    * Initialize the form based on the copied data.
    * @param isTask Determines whether the copied data is a Task or Pretask.
    */
@@ -376,6 +394,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         .subscribe((result) => {
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';
+          this.isCopyHashlistId = result['hashlist'][0]['_id'];
           if (result[filesField]) {
             for (let i = 0; i < result[filesField].length; i++) {
               arrFiles.push(result[filesField][i]['fileId']);
@@ -395,7 +414,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
                 this.editedIndex
               }`
             ),
-            hashlistId: new FormControl(result['hashlist'][0]['_id']),
+            hashlistId: new FormControl(this.isCopyHashlistId),
             attackCmd: new FormControl(result['attackCmd'], [
               Validators.required
             ]),

@@ -34,10 +34,10 @@ export class AbstractInputComponent<T> implements OnInit, ControlValueAccessor {
   ngOnInit(): void {
     if (!this.inputId) {
       this.inputId = 'input_' + Math.random().toString(36).substr(2, 9);
-      console.warn(
-        'Input ID not provided. Generated a unique ID:',
-        this.inputId
-      );
+      // console.warn(
+      //   'Input ID not provided. Generated a unique ID:',
+      //   this.inputId
+      // );
     }
   }
 

@@ -8,16 +8,18 @@
         <input-color title="Color" formControlName="color"></input-color>
 
         <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
-          <input-multiselect
-            [isLoading]="isLoading"
-            [placeholder]="'Hashlist...'"
-            [items]="selectHashlists"
-            [label]="'Select or search Hashlist *'"
-            [mergeIdAndName]="true"
-            [multiselectEnabled]="false"
-            formControlName="hashlistId"
-            [initialHashlistId]="form.get('hashlistId').value"
-          ></input-multiselect>
+          <ng-container *ngIf="(copyMode && isCopyHashlistId) || (!copyMode && !isCopyHashlistId)">
+            <input-multiselect
+              [isLoading]="isLoading"
+              [placeholder]="'Hashlist...'"
+              [items]="selectHashlists"
+              [label]="'Select or search Hashlist *'"
+              [mergeIdAndName]="true"
+              [multiselectEnabled]="false"
+              formControlName="hashlistId"
+              [initialHashlistId]="isCopyHashlistId"
+            ></input-multiselect>
+          </ng-container>
         </div>
         <ng-template #loadingTemplate>
           <div class="loading-spinner">
@@ -37,10 +39,8 @@
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
           <input-number title="Priority" formControlName="priority"></input-number>
           <input-number title="Max agents" formControlName="maxAgents"></input-number>
-
         </div>
 
         <mat-accordion>
@@ -51,7 +51,6 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
                 <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
                 <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
@@ -63,14 +62,11 @@
                 <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
                 <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
                 <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
-
               </div>
               <hr><br>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
                 <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
                 <input-select title="Binary type version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions"></input-select>
-
               </div>
               <hr/>
               <div fxLayoutGap="10px">
@@ -91,7 +87,6 @@
     </grid-main>
   </div>
   <div fxFlex="30" fxFlex.lt-md="100">
-  <!-- TABLES -->
     <mat-accordion multi>
 
       <mat-expansion-panel #wordlistPanel>
@@ -120,6 +115,7 @@
         </mat-expansion-panel-header>
         <files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
       </mat-expansion-panel>
+
     </mat-accordion>
   </div>
 </div>
