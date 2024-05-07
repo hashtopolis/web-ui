@@ -197,6 +197,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   onuploadFile(files: FileList | null): void {
+    this.isCreatingLoading = true;
     // Represents the modified form data without the fake path prefix.
     const newForm = { ...this.form.value };
 
@@ -215,6 +216,10 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.fileUnsubscribe))
           .subscribe((progress) => {
             this.uploadProgress = progress;
+            this.changeDetectorRef.detectChanges();
+            if (this.uploadProgress === 100) {
+              this.isCreatingLoading = false;
+            }
           })
       );
     }

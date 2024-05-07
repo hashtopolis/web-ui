@@ -29,19 +29,21 @@
       </div>
     </ng-template>
 
+    <input-text-area title="Notes" formControlName="notes"></input-text-area>
+
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup" [isRequired]="true"></input-select>
-      <input-text title="Notes" formControlName="notes"></input-text>
-    </div>
-
-    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-select title="Hashlist format" formControlName="format" [items]="selectFormat"></input-select>
-      <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
-      <input-check title="Salted hashes, separator" formControlName="isSalted"></input-check>
     </div>
 
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-      <input-text title="Separator" formControlName="separator"></input-text>
+      <div fxLayout="column">
+        <input-text title="Separator" formControlName="separator"></input-text>
+      </div>
+      <div fxLayout="column" style="position: relative; top: -10px;">
+        <input-check title="Salt is in hex (only salted hashes)" formControlName="isHexSalt"></input-check>
+        <input-check title="Salted hashes, separator" formControlName="isSalted"></input-check>
+      </div>
     </div>
 
     <div *ngIf="+brainenabled === 1"><hr>
