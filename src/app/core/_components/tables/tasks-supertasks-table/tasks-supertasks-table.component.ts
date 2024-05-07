@@ -204,11 +204,9 @@ export class TasksSupertasksTableComponent
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
-        console.log('Copy to Task clicked:', event.data);
         this.rowActionCopyToTask(event.data);
         break;
       case RowActionMenuAction.COPY_TO_PRETASK:
-        console.log('Copy to Pretask clicked:', event.data);
         this.rowActionCopyToPretask(event.data);
         break;
       case RowActionMenuAction.ARCHIVE:

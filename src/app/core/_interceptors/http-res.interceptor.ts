@@ -78,10 +78,10 @@ export class HttpResInterceptor implements HttpInterceptor {
           errmsg = error.error.exception[0].message;
           status = error?.status || 0;
         }
-        console.log(errmsg);
-        if (errmsg === 'No token found!') {
+        if (errmsg.toLowerCase().includes('token not')) {
           // Redirect to the login page
-          this.router.navigate(['/login']); // Adjust the route accordingly
+          console.log('should be reloading page');
+          window.location.reload(); //Reload page to redirect
         } else {
           // Display error modal for other cases
           this.modalRef = this.dialog.open(ErrorModalComponent, {
@@ -112,6 +112,7 @@ export class HttpResInterceptor implements HttpInterceptor {
   }
 
   isRefresh(request: HttpRequest<any>) {
+    console.log('Refreshing token...');
     this.authService.refreshToken();
     // this.router.navigate([request]);
     window.location.reload();

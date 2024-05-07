@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -49,9 +50,13 @@ import { FileType } from 'src/app/core/_models/file.model';
 export class NewTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
+  isLoadingCopyForm = true;
 
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
+
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
 
   /** Select Options. */
   selectHashlists: any;
@@ -81,6 +86,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   editedIndex: number;
   whichView: string;
   copyType: number; //0 copy from task and 1 copy from pretask
+  isCopyHashlistId = null;
 
   // Tooltips
   tasktip: any = [];
@@ -252,6 +258,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;
         this.isLoading = false;
+        if (this.copyMode) {
+          this.checkHashlisId();
+        }
         this.changeDetectorRef.detectChanges();
       });
     this.unsubscribeService.add(loadHashlistsSubscription$);
@@ -357,29 +366,43 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * OnCopy check that hashlisId exist, as could be deleted from loaded hashlists
+   *
+   */
+  checkHashlisId() {
+    const exists = this.selectHashlists.some(
+      (hashlist) => hashlist._id === this.isCopyHashlistId
+    );
+
+    if (!exists || exists === undefined) {
+      this.alert.errorConfirmation('Hashlist ID not found!');
+    }
+  }
+
+  /**
    * Initialize the form based on the copied data.
    * @param isTask Determines whether the copied data is a Task or Pretask.
    */
   private initForm(isTask: boolean) {
     if (this.copyMode) {
+      console.log(this.copyType);
       const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
       const expandField = isTask
         ? 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
         : 'pretaskFiles';
-
       this.gs
         .get(endpoint, this.editedIndex, { expand: expandField })
         .subscribe((result) => {
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';
-
+          this.isCopyHashlistId =
+            this.copyType === 1 ? 999999 : result['hashlist'][0]['_id'];
           if (result[filesField]) {
             for (let i = 0; i < result[filesField].length; i++) {
               arrFiles.push(result[filesField][i]['fileId']);
             }
             this.copyFiles = arrFiles;
           }
-
           this.form = new FormGroup({
             taskName: new FormControl(
               result['taskName'] +
@@ -393,7 +416,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
                 this.editedIndex
               }`
             ),
-            hashlistId: new FormControl(result['hashlist']['hashlistId']),
+            hashlistId: new FormControl(this.isCopyHashlistId),
             attackCmd: new FormControl(result['attackCmd'], [
               Validators.required
             ]),
@@ -408,12 +431,12 @@ export class NewTasksComponent implements OnInit, OnDestroy {
             useNewBench: new FormControl(result['useNewBench']),
             skipKeyspace: new FormControl(isTask ? result['skipKeyspace'] : 0),
             crackerBinaryId: new FormControl(
-              isTask ? 1 : result.crackerBinary['crackerBinaryId']
+              isTask ? result.crackerBinary['crackerBinaryId'] : 1
             ),
             isArchived: new FormControl(false),
             staticChunks: new FormControl(isTask ? result['staticChunks'] : 0),
             chunkSize: new FormControl(
-              isTask ? this.chunkSize : result['chunkSize']
+              isTask ? result['chunkSize'] : this.chunkSize
             ),
             forcePipe: new FormControl(isTask ? result['forcePipe'] : false),
             preprocessorId: new FormControl(
@@ -433,29 +456,25 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .create(SERV.TASKS, this.form.value)
         .subscribe(() => {
           this.alert.okAlert('New Task created!', '');
-          this.router.navigate(['tasks/show-tasks']);
+          this.router
+            .navigate(['tasks/show-tasks'])
+            .then((success) => {
+              if (!success) {
+                console.error('Navigation failed.');
+              }
+            })
+            .catch((error) => {
+              console.error('Error navigating to tasks/show-tasks:', error);
+            });
+          this.isCreatingLoading = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
-  }
-
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    if (!this.canDeactivate()) {
-      $event.returnValue = 'IE and Edge Message';
-    }
-  }
-
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.form.valid) {
-      return false;
-    }
-    return true;
   }
 
   // Modal Information

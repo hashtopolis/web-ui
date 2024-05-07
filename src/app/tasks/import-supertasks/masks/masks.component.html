@@ -1,10 +1,5 @@
 <horizontalnav [menuItems]="menuItems"></horizontalnav>
 <!-- Body -->
-<div class="highlight-box">
-  <p>
-    The following features or functionalities are currently not operational.
-  </p>
-</div>
 <grid-main>
   <app-page-subtitle [subtitle]="'Masks'"></app-page-subtitle>
   <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
@@ -13,16 +8,16 @@
 
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-        <input-select title="Benchmark Type" formControlName="useBench" [items]="selectBenchmarktype"></input-select>
-
+        <input-number title="maxAgents" formControlName="maxAgents"></input-number>
+        <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
         <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
 
       </div>
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-          <input-check title="Small Tasks" formControlName="isSmall"></input-check>
-          <input-check title="CPU" formControlName="isCPU"></input-check>
-          <input-check title="Use optimized flag (-O)" formControlName="optFlag"></input-check>
+        <input-check title="Small Tasks" formControlName="isSmall"></input-check>
+        <input-check title="CPU" formControlName="isCpuTask"></input-check>
+        <input-check title="Use optimized flag (-O)" formControlName="optFlag"></input-check>
 
       </div>
 
@@ -31,8 +26,10 @@
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
       <button-submit [name]="'Create'"></button-submit>
+      <div *ngIf="isLoading">
+        <mat-spinner diameter="24" color="accent"></mat-spinner>
+      </div>
     </grid-buttons>
 
   </form>
 </grid-main>
-

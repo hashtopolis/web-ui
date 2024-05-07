@@ -1,21 +1,5 @@
-import {
-  AbstractControl,
-  FormControl,
-  FormGroup,
-  ValidatorFn,
-  Validators
-} from '@angular/forms';
-import {
-  ChangeDetectorRef,
-  Component,
-  HostListener,
-  OnInit,
-  ViewChild
-} from '@angular/core';
-import { environment } from './../../../../environments/environment';
-import { DataTableDirective } from 'angular-datatables';
-import { Observable, Subject } from 'rxjs';
-
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
@@ -60,15 +44,11 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     fieldMapping: CRACKER_TYPE_FIELD_MAPPING
   };
 
-  // TABLES, TO BE REMOVED
+  /** on create loading */
+  isLoading = false;
 
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
-  allfiles: any;
+  /** Table custome label */
+  customLabel = 'Base | Iterate';
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -81,7 +61,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.buildForm();
-    titleService.set(['Import SuperTask - Mask']);
+    titleService.set(['Import SuperTask - Wordlist/Rules Bulk']);
   }
   /**
    * Lifecycle hook called after component initialization.
@@ -104,18 +84,27 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.createForm = new FormGroup({
       name: new FormControl('', [Validators.required]),
-      isSmall: new FormControl(''),
-      isCPU: new FormControl(''),
-      useBench: new FormControl(''),
-      crackerBinaryId: new FormControl(''),
+      maxAgents: new FormControl(0),
+      isSmall: new FormControl(false),
+      isCpuTask: new FormControl(false),
+      useNewBench: new FormControl(false),
+      crackerBinaryId: new FormControl(1),
       attackCmd: new FormControl(
         this.uiService.getUIsettings('hashlistAlias').value,
         [Validators.required]
       ),
-      files: new FormControl('')
+      baseFiles: new FormControl([]),
+      iterFiles: new FormControl([])
     });
   }
 
+  /**
+   * Loads data for the component.
+   *
+   * Retrieves cracker types from the server and transforms them into select options.
+   *
+   * @returns {void}
+   */
   loadData() {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
@@ -127,118 +116,216 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         this.selectCrackertype = transformedOptions;
       });
     this.unsubscribeService.add(loadSubscription$);
-
-    // TABLES
-    this.gs
-      .getAll(SERV.FILES, { expand: 'accessGroup' })
-      .subscribe((files: any) => {
-        this.allfiles = files.values;
-        this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
-          setTimeout(() => {
-            this.dtTrigger.next(null);
-            dtInstance.columns.adjust();
-          });
-        });
-      });
   }
 
   /**
-   * Handles the submission of the form to create a new Bulk.
+   * Create pre-tasks asynchronously.
    *
+   * @param {Object} form - The form data containing task configurations.
+   * @returns {Promise<string[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  onSubmit() {
-    if (this.createForm.valid) {
-    }
-  }
+  private preTasks(form): Promise<string[]> {
+    return new Promise<string[]>((resolve, reject) => {
+      const preTasksIds: string[] = [];
+      const fileNamePromises: Promise<string>[] = [];
+      const iterFiles: number[] = form.iterFiles;
 
-  filesFormArray: Array<any> = [];
-  onChange(
-    fileId: number,
-    fileType: number,
-    fileName: string,
-    cmdAttk: number,
-    $target: EventTarget
-  ) {
-    const isChecked = (<HTMLInputElement>$target).checked;
-    if (isChecked && cmdAttk === 0) {
-      this.filesFormArray.push(fileId);
-      this.OnChangeAttack(fileName, fileType);
-      this.createForm.patchValue({ files: this.filesFormArray });
-    }
-    if (isChecked && cmdAttk === 1) {
-      this.OnChangeAttackPrep(fileName, fileType);
-    }
-    if (!isChecked && cmdAttk === 0) {
-      const index = this.filesFormArray.indexOf(fileId);
-      this.filesFormArray.splice(index, 1);
-      this.createForm.patchValue({ files: this.filesFormArray });
-      this.OnChangeAttack(fileName, fileType, true);
-    }
-    if (!isChecked && cmdAttk === 1) {
-      this.OnChangeAttackPrep(fileName, fileType, true);
-    }
-  }
+      try {
+        Promise.all(
+          iterFiles.map((iter, index) => {
+            const payload = {
+              taskName: '',
+              attackCmd: '',
+              maxAgents: form.maxAgents,
+              chunkTime: Number(
+                this.uiService.getUIsettings('chunktime').value
+              ),
+              statusTimer: Number(
+                this.uiService.getUIsettings('statustimer').value
+              ),
+              priority: index + 1,
+              color: '',
+              isCpuTask: form.isCpuTask,
+              crackerBinaryTypeId: form.crackerBinaryId,
+              isSmall: form.isSmall,
+              useNewBench: form.useNewBench,
+              isMaskImport: true,
+              files: form.baseFiles
+            };
 
-  OnChangeAttack(item: string, fileType: number, onRemove?: boolean) {
-    if (onRemove === true) {
-      const currentCmd = this.createForm.get('attackCmd').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
+            const fileNamePromise = new Promise<string>((resolve, reject) => {
+              const fileSubscription$ = this.gs
+                .get(SERV.FILES, iter)
+                .subscribe((response: any) => {
+                  const fileName = response.filename;
+                  resolve(fileName);
+                }, reject);
+              this.unsubscribeService.add(fileSubscription$);
+            });
+
+            fileNamePromises.push(fileNamePromise);
+
+            return fileNamePromise
+              .then((fileName) => {
+                const updatedAttackCmd = form.attackCmd.replace(
+                  'FILE',
+                  fileName
+                );
+                payload.taskName = form.name + ' + ' + fileName;
+                payload.attackCmd = updatedAttackCmd;
+                return this.gs.create(SERV.PRETASKS, payload).toPromise();
+              })
+              .then((result) => {
+                preTasksIds.push(result._id);
+              });
+          })
+        )
+          .then(() => {
+            resolve(preTasksIds);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } catch (error) {
+        reject(error);
       }
-      newCmd = currentCmd.replace(newCmd, '');
-      newCmd = newCmd.replace(/^\s+|\s+$/g, '');
+    });
+  }
+
+  /**
+   * Handles the submission of the form to create a new super task - Import Wordlist/Rule Bulk
+   * If the form is valid, it asynchronously performs the following steps:
+   * 1. Calls preTasks to create preTasks based on the form data.
+   * 2. Calls superTask with the created preTasks IDs and the super task name.
+   * Any errors that occur during the process are caught and logged.
+   * @returns {Promise<void>} A promise that resolves when the submission process is completed.
+   */
+  async onSubmit(): Promise<void> {
+    if (this.createForm.valid) {
+      const formValue = this.createForm.value;
+      const attackCmd: string = formValue.attackCmd;
+      const crackerBinaryId: any = formValue.crackerBinaryId;
+      const baseFiles: [] = formValue.baseFiles;
+      const iterFiles: [] = formValue.iterFiles;
+
+      const attackAlias = this.uiService.getUIsettings('hashlistAlias').value;
+      let hasError = false;
+
+      try {
+        // Check if crackerBinaryId is invalid or missing
+        if (!crackerBinaryId) {
+          const warning = 'Invalid cracker type ID!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Check if attackCmd contains the hashlist alias
+        if (!attackCmd.includes(attackAlias)) {
+          const warning =
+            'Command line must contain hashlist alias (' + attackAlias + ')!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Check if attackCmd contains FILE placeholder
+        if (!attackCmd.includes('FILE')) {
+          const warning = 'No placeholder (FILE) for the iteration!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Check if at least one base file is selected
+        if (!baseFiles || baseFiles.length === 0) {
+          const warning = 'You need to select at least one base file!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Check if at least one iter file is selected
+        if (!iterFiles || iterFiles.length === 0) {
+          const warning = 'You need to select at least one iteration file!';
+          const confirmed = await this.alert.errorConfirmation(warning);
+          if (!confirmed) {
+            return; // Stop further execution
+          }
+          hasError = true; // Set error flag
+        }
+
+        // Add more error checks here if needed
+
+        if (hasError) {
+          return; // Error occurred, stop further execution
+        }
+
+        this.isLoading = true; // Show spinner
+        const ids = await this.preTasks(formValue);
+        this.superTask(formValue.name, ids);
+      } catch (error) {
+        console.error('Error when importing supertask:', error);
+        // Handle error if needed
+      } finally {
+        this.isLoading = false; // Hide spinner regardless of success or error
+      }
+    }
+  }
+
+  /**
+   * Creates a new super task with the given name and preTasks IDs.
+   * @param {string} name - The name of the super task.
+   * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
+   * @returns {void}
+   */
+  private superTask(name: string, ids: string[]) {
+    const payload = { supertaskName: name, pretasks: ids };
+    const createSubscription$ = this.gs
+      .create(SERV.SUPER_TASKS, payload)
+      .subscribe(() => {
+        this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
+        this.router.navigate(['/tasks/supertasks']);
+      });
+
+    this.unsubscribeService.add(createSubscription$);
+    this.isLoading = false;
+  }
+
+  /**
+   * Retrieves the form data containing attack command and files.
+   * @returns An object with attack command and files.
+   */
+  getFormData() {
+    return {
+      attackCmd: this.createForm.get('attackCmd').value,
+      files: this.createForm.get('baseFiles').value,
+      otherFiles: this.createForm.get('iterFiles').value
+    };
+  }
+
+  /**
+   * Updates the form based on the provided event data.
+   * @param event - The event data containing attack command and files.
+   */
+  onUpdateForm(event: any): void {
+    if (event.type === 'CMD') {
       this.createForm.patchValue({
-        attackCmd: newCmd
+        attackCmd: event.attackCmd,
+        baseFiles: event.files
       });
     } else {
-      const currentCmd = this.createForm.get('attackCmd').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
       this.createForm.patchValue({
-        attackCmd: currentCmd + ' ' + newCmd
+        iterFiles: event.otherFiles
       });
     }
-  }
-
-  OnChangeAttackPrep(item: string, fileType: number, onRemove?: boolean) {
-    if (onRemove === true) {
-      const currentCmd = this.createForm.get('preprocessorCommand').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      newCmd = currentCmd.replace(newCmd, '');
-      newCmd = newCmd.replace(/^\s+|\s+$/g, '');
-      this.createForm.patchValue({
-        preprocessorCommand: newCmd
-      });
-    } else {
-      const currentCmd = this.createForm.get('preprocessorCommand').value;
-      let newCmd = item;
-      if (fileType === 1) {
-        newCmd = '-r ' + newCmd;
-      }
-      this.createForm.patchValue({
-        preprocessorCommand: currentCmd + ' ' + newCmd
-      });
-    }
-  }
-
-  // @HostListener allows us to also guard against browser refresh, close, etc.
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    if (!this.canDeactivate()) {
-      $event.returnValue = 'IE and Edge Message';
-    }
-  }
-
-  canDeactivate(): Observable<boolean> | boolean {
-    if (this.createForm.valid) {
-      return false;
-    }
-    return true;
   }
 }

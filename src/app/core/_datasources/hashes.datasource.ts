@@ -55,8 +55,6 @@ export class HashesDataSource extends BaseDataSource<Hash> {
         .subscribe((response: ListResponseWrapper<Hash>) => {
           const rows: Hash[] = response.values;
 
-          console.log(rows);
-
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,

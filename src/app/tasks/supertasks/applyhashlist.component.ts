@@ -136,7 +136,6 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     //subscribe to changes to handle select cracker binary
     this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
-      console.log('here');
     });
 
     this.loadData();

@@ -65,6 +65,10 @@
      </grid-main>
 </div>
 <div class="col-md-5">
+  <app-table *ngIf="type === 3">
+    <app-page-subtitle [subtitle]="'Included Hashlists within the Superhashlist'"></app-page-subtitle>
+    <hashlists-table #table name="hashlistsInShTable" [shashlistId]="editedHashlistIndex"></hashlists-table>
+  </app-table>
   <app-table>
     <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
     <tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></tasks-table>

@@ -1,0 +1,16 @@
+<ht-table
+  #table
+  name="accessPermissionGroupsUserTable"
+  dataType="access-permission-groups-user"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [hasBulkActions]="false"
+  [hasRowAction]="false"
+  [isFilterable]="true"
+  [filterFn]="filter"
+  [isPageable]="true"
+  (editableCheckbox)="editableCheckSaved($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+/>

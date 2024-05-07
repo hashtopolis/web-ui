@@ -7,17 +7,26 @@
         <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>
         <input-color title="Color" formControlName="color"></input-color>
 
-        <div fxLayout="column" fxLayoutAlign="start start">
-          <input-multiselect
-          [isLoading]="isLoading"
-          [placeholder]="'Hashlist...'"
-          [items]="selectHashlists"
-          [label]="'Select or search Hashlist *'"
-          [mergeIdAndName]="true"
-          [multiselectEnabled]="false"
-          formControlName="hashlistId"
-        ></input-multiselect>
+        <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
+          <ng-container *ngIf="(copyMode && isCopyHashlistId) || (!copyMode && !isCopyHashlistId)">
+            <input-multiselect
+              [isLoading]="isLoading"
+              [placeholder]="'Hashlist...'"
+              [items]="selectHashlists"
+              [label]="'Select or search Hashlist *'"
+              [mergeIdAndName]="true"
+              [multiselectEnabled]="false"
+              formControlName="hashlistId"
+              [initialHashlistId]="isCopyHashlistId"
+            ></input-multiselect>
+          </ng-container>
         </div>
+        <ng-template #loadingTemplate>
+          <div class="loading-spinner">
+            <mat-spinner diameter="32"></mat-spinner>
+            <span>Loading Hashlists...</span>
+          </div>
+        </ng-template>
 
         <div>
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
@@ -30,10 +39,8 @@
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
           <input-number title="Priority" formControlName="priority"></input-number>
           <input-number title="Max agents" formControlName="maxAgents"></input-number>
-
         </div>
 
         <mat-accordion>
@@ -44,7 +51,6 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
                 <input-number title="Chunk size" formControlName="chunkTime" [tooltip]="tasktip.chunkTime"></input-number>
                 <input-number title="Status timer" formControlName="statusTimer" [tooltip]="tasktip.statusTimer"></input-number>
                 <input-number title="Skip keyspace" formControlName="skipKeyspace" [tooltip]="tasktip.skipKeyspace"></input-number>
@@ -56,14 +62,11 @@
                 <input-check title="CPU only" formControlName="isCpuTask" [tooltip]="tasktip.isCpuTask"></input-check>
                 <input-check title="Small task" formControlName="isSmall"  [tooltip]="tasktip.isSmall"></input-check>
                 <input-check title="Enforce piping" formControlName="forcePipe"  [tooltip]="tasktip.forcePipe"></input-check>
-
               </div>
               <hr><br>
               <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
                 <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
                 <input-select title="Binary type version" formControlName="crackerBinaryTypeId" [items]="selectCrackerversions"></input-select>
-
               </div>
               <hr/>
               <div fxLayoutGap="10px">
@@ -76,12 +79,14 @@
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'"></button-submit>
+        <div *ngIf="isCreatingLoading">
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
       </grid-buttons>
       </form>
     </grid-main>
   </div>
   <div fxFlex="30" fxFlex.lt-md="100">
-  <!-- TABLES -->
     <mat-accordion multi>
 
       <mat-expansion-panel #wordlistPanel>
@@ -99,7 +104,7 @@
             <span><b>Rules</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></files-attack-table>
+        <files-attack-table [fileType]="fileTypeRules" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel #otherPanel>
@@ -108,8 +113,9 @@
             <span><b>Other</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="isPreprocessor()"></files-attack-table>
+        <files-attack-table [fileType]="fileTypeOther" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="false"></files-attack-table>
       </mat-expansion-panel>
+
     </mat-accordion>
   </div>
 </div>

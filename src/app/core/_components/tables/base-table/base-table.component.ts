@@ -42,6 +42,7 @@ export class BaseTableComponent {
   @ViewChild('table') table: HTTableComponent;
 
   @Input() hashlistId: number;
+  @Input() shashlistId: number;
 
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
@@ -149,7 +150,6 @@ export class BaseTableComponent {
 
   @Cacheable(['userId'])
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    console.log(obj);
     return [
       {
         routerLink: obj && obj['_id'] ? ['/users', obj['_id'], 'edit'] : []

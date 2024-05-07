@@ -16,8 +16,6 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   loadAll(): void {
     this.loading = true;
 
-    console.log(this._hashlistId);
-
     const hashList$ = this.service.get(SERV.HASHLISTS, this._hashlistId, {
       expand: 'accessGroup,tasks,hashes,hashType,hashlists'
     });

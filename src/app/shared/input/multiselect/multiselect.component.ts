@@ -1,8 +1,12 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
+  OnChanges,
+  OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
   forwardRef
 } from '@angular/core';
@@ -32,13 +36,17 @@ import { map, startWith } from 'rxjs/operators';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputMultiSelectComponent extends AbstractInputComponent<any> {
+export class InputMultiSelectComponent
+  extends AbstractInputComponent<any>
+  implements AfterViewInit
+{
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
   @Input() items: SelectField[] = [];
   @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
+  @Input() initialHashlistId: any;
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
@@ -63,6 +71,27 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
           : this.getUnselectedItems();
       })
     );
+  }
+
+  ngAfterViewInit(): void {
+    // Check if initialHashlistId is provided
+    if (this.initialHashlistId != null) {
+      // Find the preselected item based on initialHashlistId
+      const preselectedItem = this.items.find(
+        (item) => item._id === this.initialHashlistId
+      );
+
+      // If the preselected item is found, add it to selectedItems
+      if (preselectedItem) {
+        this.selectedItems.push(preselectedItem);
+
+        // Optionally, remove the preselected item from the available items
+        const index = this.items.indexOf(preselectedItem);
+        if (index !== -1) {
+          this.items.splice(index, 1);
+        }
+      }
+    }
   }
 
   /**

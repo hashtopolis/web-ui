@@ -28,16 +28,16 @@ export class TasksDataSource extends BaseDataSource<
 
     const startAt = this.currentPage * this.pageSize;
     const sorting = this.sortingColumn;
-    // @todo Implement hashlist filter in API
+
     const additionalFilter = this._hashlistId
-      ? `;hashlistId=${this._hashlistId}`
+      ? `,hashlistId=${this._hashlistId}`
       : '';
 
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}` //${additionalFilter}`
+      filter: `isArchived=${this._isArchived}${additionalFilter}`
     };
 
     if (sorting.dataKey && sorting.isSortable) {

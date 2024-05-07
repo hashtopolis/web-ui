@@ -11,6 +11,7 @@ import { AllUsersComponent } from './all-users/all-users.component';
 import { MyRoute, RouteData } from '../core/_models/routes.model';
 import { GroupsComponent } from './groups/groups.component';
 import { SERV } from '../core/_services/main.config';
+import { EditGroupsComponent } from './edit-groups/edit-groups.component';
 
 const routes: MyRoute[] = [
   {
@@ -105,11 +106,10 @@ const routes: MyRoute[] = [
       },
       {
         path: 'access-groups/:id/edit',
-        component: FormComponent,
+        component: EditGroupsComponent,
         data: {
           kind: 'editaccessgroups',
           type: 'edit',
-          path: SERV.ACCESS_GROUPS,
           breadcrumb: 'Edit Access Group',
           permission: 'GroupAccess'
         },

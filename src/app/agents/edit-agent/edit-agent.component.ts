@@ -381,9 +381,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       templabel = '%';
     }
 
-    // console.log(this.getTemp1());  //Min temp
-    // console.log(this.getTemp2());  //Max temp
-
     const data: any = obj;
     const arr = [];
     const max = [];

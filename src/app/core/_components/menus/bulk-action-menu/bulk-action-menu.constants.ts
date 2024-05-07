@@ -25,7 +25,8 @@ export const BulkActionMenuLabel = {
   ARCHIVE_TASKS: 'Archive Tasks',
   ARCHIVE_HASHLISTS: 'Archive Hashlists',
   RESET_CHUNKS: 'Reset chunks',
-  UNASSIGN_AGENTS: 'Unassign agents'
+  UNASSIGN_AGENTS: 'Unassign agents',
+  UNASSIGN_ACCESSGROUP_USERS: 'Unassign User'
 };
 
 export const BulkActionMenuAction = {

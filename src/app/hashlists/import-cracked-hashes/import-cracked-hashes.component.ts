@@ -118,7 +118,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         separator: this.form.get('separator').value,
         sourceData: handleEncode(this.form.get('hashes').value)
       };
-      console.log(payload);
       const createSubscription$ = this.gs
         .chelper(SERV.HELPER, 'importCrackedHashes', payload)
         .subscribe(() => {
