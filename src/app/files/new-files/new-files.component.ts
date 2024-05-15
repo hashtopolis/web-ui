@@ -44,6 +44,9 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   form: FormGroup;
   submitted = false;
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   /** Filtering and views. */
   filterType: number;
   whichView: string;
@@ -182,7 +185,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (this.form.valid && this.submitted === false) {
       let form = this.onBeforeSubmit(this.form.value, false);
-
+      this.isCreatingLoading = true;
       this.submitted = true;
 
       if (form.status === false) {
@@ -191,6 +194,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           .subscribe(() => {
             form = this.onBeforeSubmit(this.form.value, true);
             this.alert.okAlert('New File created!', '');
+            this.isCreatingLoading = false;
             this.submitted = false;
             this.router.navigate(['/files', this.redirect]);
           });
@@ -281,6 +285,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   onuploadFile(files: FileList | null): void {
     const form = this.onBeforeSubmit(this.form.value, false);
     const upload: Array<any> = [];
+    this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {
       upload.push(
         this.uploadService
@@ -291,6 +296,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
           .pipe(takeUntil(this.fileUnsubscribe))
           .subscribe((progress) => {
             this.uploadProgress = progress;
+            this.changeDetectorRef.detectChanges();
+            if (this.uploadProgress === 100) {
+              this.isCreatingLoading = false;
+            }
           })
       );
     }
