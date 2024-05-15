@@ -37,6 +37,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   /** Select Options. */
   selectHashlists: any;
   selectCrackertype: any;
@@ -157,6 +160,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;
         this.isLoading = false;
+        if (!this.selectHashlists.length) {
+          this.alert.errorConfirmation(
+            'Before proceeding, you need to create a Hashlist.'
+          );
+        }
         this.changeDetectorRef.detectChanges();
       });
     this.unsubscribeService.add(loadHashlistsSubscription$);
@@ -223,7 +231,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     const formValue = this.form.value;
-
+    this.isCreatingLoading = true;
     // Adapt the form structure
     const adaptedFormValue = {
       supertaskTemplateId: formValue.supertaskTemplateId,
@@ -235,8 +243,8 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       .chelper(SERV.HELPER, 'createSupertask', adaptedFormValue)
       .subscribe(() => {
         this.alert.okAlert('New SuperTask created!', '');
-        this.form.reset();
         this.router.navigate(['tasks/show-tasks']);
+        this.isCreatingLoading = false;
       });
 
     this.unsubscribeService.add(onSubmitSubscription$);

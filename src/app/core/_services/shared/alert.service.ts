@@ -86,7 +86,7 @@ export class AlertService {
    */
   errorConfirmation(text: string): Promise<boolean> {
     return Swal.fire({
-      title: `${text}?`,
+      title: `${text}`,
       icon: 'error',
       showCancelButton: false,
       confirmButtonColor: this.confirmButtonColor,
