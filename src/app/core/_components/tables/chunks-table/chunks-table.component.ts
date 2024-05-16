@@ -39,6 +39,9 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     this.tableColumns = this.getColumns();
     this.dataSource = new ChunksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    if (this.agentId) {
+      this.dataSource.setAgentId(this.agentId);
+    }
     this.dataSource.loadAll();
   }
 
