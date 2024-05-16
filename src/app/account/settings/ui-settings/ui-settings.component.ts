@@ -19,6 +19,9 @@ export class UiSettingsComponent implements OnInit {
   form!: FormGroup;
   util: UISettingsUtilityClass;
 
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   formats: Setting[] = dateFormats;
   layouts: Setting[] = layouts;
   themes: Setting[] = themes;
@@ -52,6 +55,7 @@ export class UiSettingsComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.isUpdatingLoading = true;
     setTimeout(() => {
       window.location.reload();
     }, 800);
@@ -61,5 +65,6 @@ export class UiSettingsComponent implements OnInit {
       changedValues > 0 ? 'Reloading settings ...' : 'No changes were saved';
 
     this.snackBar.open(message, 'Close');
+    this.isUpdatingLoading = false;
   }
 }

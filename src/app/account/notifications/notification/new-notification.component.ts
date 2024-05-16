@@ -23,6 +23,9 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Notification';
   static readonly SUBTITLE = 'Create Notification';
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   triggerAction: string;
   form: FormGroup;
   filters: Filter[];
@@ -156,9 +159,11 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
           this.alert.okAlert('New Notification created!', '');
+          this.isCreatingLoading = false;
           this.router.navigate(['/account/notifications']);
         })
       );

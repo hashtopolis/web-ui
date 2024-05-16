@@ -22,6 +22,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   /** Form group for edit Access group. */
   updateForm: FormGroup;
 
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   // Edit Configuration
   editedAccessGroupIndex: number;
 
@@ -100,6 +103,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
+      this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .update(
           SERV.ACCESS_GROUPS,
@@ -108,7 +112,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.alert.okAlert('Access Group saved!', '');
-          this.updateForm.reset(); // success, we reset form
+          this.isUpdatingLoading = false;
           this.router.navigate(['/users/access-groups']);
         });
       this.unsubscribeService.add(onSubmitSubscription$);
