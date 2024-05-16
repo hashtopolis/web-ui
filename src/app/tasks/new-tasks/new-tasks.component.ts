@@ -258,6 +258,11 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;
         this.isLoading = false;
+        if (!this.selectHashlists.length) {
+          this.alert.errorConfirmation(
+            'You need to create a Hashlist to continue creating a Task'
+          );
+        }
         if (this.copyMode) {
           this.checkHashlisId();
         }

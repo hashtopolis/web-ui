@@ -246,11 +246,14 @@ export class HashlistsTableComponent
   }
 
   bulkActionClicked(event: ActionMenuEvent<Hashlist[]>): void {
+    const hashlistCount = event.data.length;
+    const label = hashlistCount > 1 ? 'hashlists' : 'hashlist';
+
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
         this.openDialog({
           rows: event.data,
-          title: `Archiving ${event.data.length} hashlists ...`,
+          title: `Archiving ${event.data.length} ${label} ...`,
           icon: 'info',
           listAttribute: 'name',
           action: event.menuItem.action
@@ -259,9 +262,9 @@ export class HashlistsTableComponent
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} hashlists ...`,
+          title: `Deleting ${event.data.length} ${label} ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above hashlists? Note that this action cannot be undone. ${
+          body: `Are you sure you want to delete the above ${label}? Note that this action cannot be undone. ${
             this.shashlistId ? ' This action is deleting not unassigning.' : ''
           }`,
           warn: true,

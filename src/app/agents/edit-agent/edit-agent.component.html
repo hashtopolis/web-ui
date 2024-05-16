@@ -2,7 +2,6 @@
   <app-page-title [title]="'Agent Details'" [subbutton]="false"></app-page-title>
   <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
       <simulate-form-field label="Agent ID"  message="{{ showagent['agentId'] }}"></simulate-form-field>
       <input-text title="Machine Name" formControlName="agentName" icon="computer"></input-text>
       <input-select title="Owner" formControlName="userId" [items]="selectUsers"></input-select>
@@ -15,23 +14,32 @@
       <input-check title="Trust" formControlName="isTrusted"  tooltip="Trust agent with secret data"></input-check>
       <input-check title="Active" formControlName="isActive"></input-check>
     </div>
-    <h4>Detailed Information</h4>
-    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
-      <simulate-form-field label="Last activity"  message="{{ showagent['lastTime'] | uiDate }}"></simulate-form-field>
-      <simulate-form-field label="Last Action"  message="{{ showagent['lastAct'] }}"></simulate-form-field>
-      <simulate-form-field label="IP"  message="{{ showagent['lastIp'] }}"></simulate-form-field>
-      <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
-      <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
-      <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
-      <simulate-form-field label="Graphic cards"  message="{{ showagent['devices'] }}"></simulate-form-field>
-      <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
-
-    </div>
-    <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span><b>Detailed Information</b></span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <simulate-form-field label="Last activity"  message="{{ showagent['lastTime'] | uiDate }}"></simulate-form-field>
+            <simulate-form-field label="Last Action"  message="{{ showagent['lastAct'] }}"></simulate-form-field>
+            <simulate-form-field label="IP"  message="{{ showagent['lastIp'] }}"></simulate-form-field>
+            <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
+            <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
+            <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
+            <simulate-form-field label="Graphic cards"  message="{{ showagent['devices'] }}"></simulate-form-field>
+            <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
+          </div>
+          <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>
+      </mat-expansion-panel>
+    </mat-accordion>
 
     <grid-buttons>
       <button-submit [name]="'Update'"></button-submit>
+      <div *ngIf="isUpdatingLoading">
+        <mat-spinner diameter="24" color="accent"></mat-spinner>
+      </div>
     </grid-buttons>
 
   </form>
@@ -63,7 +71,7 @@
 </app-table> -->
 <!-- Dispatched Chunks -->
 <app-table>
-  <app-page-subtitle subtitle="Dispatched chunks (Latest 50)"></app-page-subtitle>
+  <app-page-subtitle subtitle="Latest Dispatched chunks"></app-page-subtitle>
   <chunks-table [agentId]="this.editedAgentIndex"></chunks-table>
 </app-table>
 

@@ -52,6 +52,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   updateForm: FormGroup;
   updateAssignForm: FormGroup;
 
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   /** Select Options. */
   selectUsers: any;
   selectIgnorerrors = ignoreErrors;
@@ -284,11 +287,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.updateForm.valid) {
       this.onUpdateAssign(this.updateAssignForm.value);
+      this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
         .subscribe(() => {
           this.alert.okAlert('Agent saved!', '');
-          this.updateForm.reset(); // success, we reset form
+          this.isUpdatingLoading = false;
           this.router.navigate(['agents/show-agents']);
         });
       this.unsubscribeService.add(onSubmitSubscription$);

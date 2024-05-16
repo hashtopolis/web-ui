@@ -254,11 +254,12 @@ export class TasksTableComponent
         this.rowActionUnarchive(event.data);
         break;
       case RowActionMenuAction.DELETE:
+        const prodata = this.getRowDeleteLabel(event.data);
         this.openDialog({
-          rows: [event.data],
-          title: `Deleting ${event.data.taskName} ...`,
+          rows: [prodata],
+          title: `Deleting ${prodata.taskName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete ${event.data.taskName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete ${prodata.taskName}? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -266,12 +267,46 @@ export class TasksTableComponent
     }
   }
 
+  getRowDeleteLabel(data): any {
+    return {
+      ...data,
+      taskName: data.taskType === 1 ? data.taskWrapperName : data.taskName
+    };
+  }
+
   bulkActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
+    let superTasksCount = 0;
+    let tasksCount = 0;
+
+    // Preprocess the data and count the occurrences of each type
+    const updatedData = event.data.map((taskWrapper) => {
+      if (taskWrapper.taskType === 1) {
+        superTasksCount++;
+        return { ...taskWrapper, taskName: taskWrapper.taskWrapperName };
+      } else {
+        tasksCount++;
+        return taskWrapper;
+      }
+    });
+
+    // Construct the label with counts, also adding plural
+    const superTasksLabel = superTasksCount === 1 ? 'supertask' : 'supertasks';
+    const tasksLabel = tasksCount === 1 ? 'task' : 'tasks';
+
+    let label = '';
+    if (superTasksCount > 0 && tasksCount > 0) {
+      label = `${tasksCount} ${tasksLabel} and ${superTasksCount} ${superTasksLabel}`;
+    } else if (superTasksCount > 0) {
+      label = `${superTasksCount} ${superTasksLabel}`;
+    } else if (tasksCount > 0) {
+      label = `${tasksCount} ${tasksLabel}`;
+    }
+
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
         this.openDialog({
-          rows: event.data,
-          title: `Archiving ${event.data.length} tasks ...`,
+          rows: updatedData,
+          title: `Archiving ${label} ...`,
           icon: 'info',
           listAttribute: 'taskName',
           action: event.menuItem.action
@@ -279,10 +314,10 @@ export class TasksTableComponent
         break;
       case BulkActionMenuAction.DELETE:
         this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} tasks ...`,
+          rows: updatedData,
+          title: `Deleting ${label} ...`,
           icon: 'warning',
-          body: `Are you sure you want to permanently delete the selected tasks? Note that this action cannot be undone.`,
+          body: `Are you sure you want to permanently delete the selected ${label}? Note that this action cannot be undone.`,
           warn: true,
           listAttribute: 'taskName',
           action: event.menuItem.action
@@ -596,13 +631,9 @@ export class TasksTableComponent
     );
   }
 
-  /**
-   * @todo Implement delete, currently we need to update to delete
-   */
-
   private bulkActionDelete(wrapper: TaskWrapper[]): void {
     const requests = wrapper.map((w: TaskWrapper) => {
-      return this.gs.delete(SERV.TASKS, w.tasks[0]._id);
+      return this.gs.delete(SERV.TASKS_WRAPPER, w._id);
     });
 
     this.subscriptions.push(
@@ -624,8 +655,9 @@ export class TasksTableComponent
   }
 
   private rowActionDelete(wrapper: TaskWrapper): void {
+    console.log(wrapper);
     this.subscriptions.push(
-      this.gs.delete(SERV.TASKS, wrapper.tasks[0]._id).subscribe(() => {
+      this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted task!', 'Close');
         this.reload();
       })
