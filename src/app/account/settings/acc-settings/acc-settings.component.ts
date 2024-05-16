@@ -16,13 +16,19 @@ import { Subscription } from 'rxjs';
   providers: [uiDatePipe]
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
+  static readonly PWD_MIN = 4;
+  static readonly PWD_MAX = 12;
 
-  static readonly PWD_MIN = 4
-  static readonly PWD_MAX = 12
-
+  /** Form group for main form. */
   form: FormGroup;
+  passform: FormGroup;
+
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+  isUpdatingPassLoading = false;
+
   strongPassword = false;
-  subscriptions: Subscription[] = []
+  subscriptions: Subscription[] = [];
 
   constructor(
     private titleService: AutoTitleService,
@@ -31,7 +37,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router
   ) {
-    this.titleService.set(['Account Settings'])
+    this.titleService.set(['Account Settings']);
   }
 
   /**
@@ -40,6 +46,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.createForm();
     this.loadUserSettings();
+    this.updatePassForm();
   }
 
   /**
@@ -47,12 +54,12 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
-      sub.unsubscribe()
+      sub.unsubscribe();
     }
   }
 
   /**
-   * Creates and configures the Angular FormGroup for managing form controls.
+   * Creates and configures basic controls
    *
    * @param {string} name - Account type name.
    * @param {string} registeredSince - Account registration date.
@@ -60,41 +67,86 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   createForm(name = '', registeredSince = '', email = ''): void {
     this.form = new FormGroup({
-      'name': new FormControl({
+      name: new FormControl({
         value: name,
         disabled: true
       }),
-      'registeredSince': new FormControl({
+      registeredSince: new FormControl({
         value: registeredSince,
         disabled: true
       }),
-      'email': new FormControl(email, [
-        Validators.required,
-        Validators.email
-      ]),
-      'oldpassword': new FormControl(''),
-      'newpassword': new FormControl('', [
-        Validators.required,
-        Validators.minLength(AccountSettingsComponent.PWD_MIN),
-        Validators.maxLength(AccountSettingsComponent.PWD_MAX),
-      ]),
-      'confirmpass': new FormControl('', [
-        Validators.required,
-        Validators.minLength(AccountSettingsComponent.PWD_MIN),
-        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-      ]),
-    }, passwordMatchValidator);
+      email: new FormControl(email, [Validators.required, Validators.email])
+    });
   }
 
   /**
-   * Handles form submission. Sends the updated account data to the server upon valid form submission.
+   * Creates and password update
+   *
+   */
+  updatePassForm() {
+    // this.passform = new FormGroup(
+    //   {
+    //     oldpassword: new FormControl(''),
+    //     newpassword: new FormControl('', [
+    //       Validators.required,
+    //       Validators.minLength(AccountSettingsComponent.PWD_MIN),
+    //       Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+    //     ]),
+    //     confirmpass: new FormControl('', [
+    //       Validators.required,
+    //       Validators.minLength(AccountSettingsComponent.PWD_MIN),
+    //       Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+    //     ])
+    //   },
+    //   passwordMatchValidator
+    // );
+    this.passform = new FormGroup({
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(AccountSettingsComponent.PWD_MIN),
+        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+      ])
+    });
+  }
+
+  /**
+   * Handles form basic form submission
    */
   onSubmit() {
     if (this.form.valid) {
-      this.subscriptions.push(this.gs.create(SERV.USERS, this.form.value).subscribe(() => {
-        this.alert.okAlert('User saved!','');
-        this.router.navigate(['users/all-users']);
-      }));
+      this.isUpdatingLoading = true;
+      this.subscriptions.push(
+        this.gs
+          .update(SERV.USERS, this.gs.userId, this.form.value)
+          .subscribe(() => {
+            this.alert.okAlert('User saved!', '');
+            this.isUpdatingLoading = false;
+            this.router.navigate(['users/all-users']);
+          })
+      );
+    }
+  }
+
+  /**
+   * Handles password submission
+   */
+  onSubmitPass() {
+    if (this.passform.valid) {
+      this.isUpdatingPassLoading = true;
+      const payload = {
+        userId: this.gs.userId,
+        password: this.passform.value['password']
+      };
+      console.log(payload);
+      this.subscriptions.push(
+        this.gs
+          .chelper(SERV.HELPER, 'setUserPassword', payload)
+          .subscribe(() => {
+            this.alert.okAlert('User password updated!', '');
+            this.isUpdatingPassLoading = false;
+            this.router.navigate(['users/all-users']);
+          })
+      );
     }
   }
 
@@ -110,12 +162,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Loads user settings from the server and populates the form with initial data.
    */
   private loadUserSettings() {
-    this.subscriptions.push(this.gs.get(SERV.USERS, this.gs.userId, { 'expand': 'globalPermissionGroup' }).subscribe((result) => {
-      this.createForm(
-        result.globalPermissionGroup['name'],
-        this.datePipe.transform(result['registeredSince']),
-        result['email']
-      )
-    }));
+    this.subscriptions.push(
+      this.gs
+        .get(SERV.USERS, this.gs.userId, { expand: 'globalPermissionGroup' })
+        .subscribe((result) => {
+          this.createForm(
+            result.globalPermissionGroup['name'],
+            this.datePipe.transform(result['registeredSince']),
+            result['email']
+          );
+        })
+    );
   }
 }

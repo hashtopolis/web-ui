@@ -22,6 +22,9 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Changes';
   static readonly SUBTITLE = 'Edit Notification';
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   editedIndex: number;
   editView = true;
   subscriptions: Subscription[] = [];
@@ -125,6 +128,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs
           .update(SERV.NOTIFICATIONS, this.editedIndex, {
@@ -132,6 +136,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
           })
           .subscribe(() => {
             this.alert.okAlert('Notification saved!', '');
+            this.isCreatingLoading = false;
             this.router.navigate(['/account/notifications']);
           })
       );

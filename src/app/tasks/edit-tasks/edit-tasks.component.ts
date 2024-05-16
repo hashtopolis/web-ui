@@ -49,6 +49,9 @@ export class EditTasksComponent implements OnInit {
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   color = '';
   tusepreprocessor: any;
   hashlistDescrip: any;
@@ -157,6 +160,7 @@ export class EditTasksComponent implements OnInit {
   }
 
   private updateTask() {
+    this.isUpdatingLoading = true;
     this.gs
       .update(
         SERV.TASKS,
@@ -165,7 +169,7 @@ export class EditTasksComponent implements OnInit {
       )
       .subscribe(() => {
         this.alert.okAlert('Task saved!', '');
-        this.updateForm.reset(); // success, we reset form
+        this.isUpdatingLoading = false;
         this.router.navigate(['tasks/show-tasks']);
       });
   }

@@ -400,6 +400,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         .subscribe((result) => {
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';
+          console.log(result);
           this.isCopyHashlistId =
             this.copyType === 1 ? 999999 : result['hashlist'][0]['_id'];
           if (result[filesField]) {

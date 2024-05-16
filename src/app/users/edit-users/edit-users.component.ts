@@ -31,6 +31,9 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   updateForm: FormGroup;
   updatePassForm: FormGroup;
 
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   /** Select List of Access Group Permissions. */
   selectAgp: any;
 
@@ -179,6 +182,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
+      this.isUpdatingLoading = true;
       this.onUpdatePass(this.updatePassForm.value);
 
       const onSubmitSubscription$ = this.gs
@@ -189,6 +193,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.alert.okAlert('User saved!', '');
+          this.isUpdatingLoading = false;
           this.updateForm.reset(); // success, we reset form
           this.updatePassForm.reset();
           this.router.navigate(['users/all-users']);

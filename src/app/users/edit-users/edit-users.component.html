@@ -3,28 +3,31 @@
     <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
       <div fxLayout="column" fxLayoutAlign="start stretch">
 
-        <input-text title="ID" formControlName="id" [disabled]="true"></input-text>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <input-text title="ID" formControlName="id" [disabled]="true"></input-text>
           <input-text title="Name" formControlName="name" [disabled]="true"></input-text>
-          <input-text title="Email" formControlName="email" [disabled]="true"></input-text>
         </div>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
           <input-text title="Registered" formControlName="registered" [disabled]="true"></input-text>
           <input-text title="Last login" formControlName="lastLogin" [disabled]="true"></input-text>
+        </div>
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <input-text title="Email" formControlName="email" [disabled]="true"></input-text>
+          <simulate-form-field-multi label="Member of access groups" [items]="userAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
         </div>
 
       </div>
       <div formGroupName="updateData" fxLayout="column" fxLayoutAlign="start start">
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <simulate-form-field-multi label="Member of access groups" [items]="userAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
+
           <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId" [items]="selectAgp"></input-select>
         </div>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
           <form [formGroup]="updatePassForm" (ngSubmit)="onSubmit()">
             <input-text title="Password" formControlName="password" inputType="password"></input-text>
-            <app-pass-strenght [passwordToCheck]="updatePassForm.controls['password'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
+            <!-- <app-pass-strenght [passwordToCheck]="updatePassForm.controls['password'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght> -->
           </form>
           <input-check title="Active" formControlName="isValid"></input-check>
         </div>
@@ -34,6 +37,9 @@
       <grid-buttons>
         <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
         <button-submit [name]="'Update'"></button-submit>
+        <div *ngIf="isUpdatingLoading">
+          <mat-spinner diameter="24" color="accent"></mat-spinner>
+        </div>
       </grid-buttons>
 
   </form>

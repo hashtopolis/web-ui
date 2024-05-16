@@ -23,6 +23,9 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   /** Form group for Health Checks */
   form: FormGroup;
 
+  /** On form update show a spinner loading */
+  isCreatingLoading = false;
+
   // Lists of Selected inputs
   selectAttack = attack;
   selectHashtypes = hashtype;
@@ -136,6 +139,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       const { checkType, hashtypeId, crackerBinaryId } = this.form.value;
 
       const payload = {
@@ -149,6 +153,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
         .subscribe(() => {
           this.alert.okAlert('New Health Check created!', '');
           this.router.navigate(['/config/health-checks']);
+          this.isCreatingLoading = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
