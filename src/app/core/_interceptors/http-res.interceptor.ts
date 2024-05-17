@@ -10,16 +10,14 @@ import {
   Observable,
   catchError,
   finalize,
-  retry,
   throwError
 } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-
+import { MatDialog } from '@angular/material/dialog';
 import { ErrorModalComponent } from '../../shared/alert/error/error.component';
 import { LoadingService } from '../_services/shared/loading.service';
 import { AuthService } from '../_services/access/auth.service';
-import { MatDialog } from '@angular/material/dialog';
 
 @Injectable()
 export class HttpResInterceptor implements HttpInterceptor {
@@ -29,92 +27,119 @@ export class HttpResInterceptor implements HttpInterceptor {
   );
 
   constructor(
-    public authService: AuthService,
+    private authService: AuthService,
     private dialog: MatDialog,
-    public ls: LoadingService,
+    private loadingService: LoadingService,
     private router: Router
   ) {}
 
-  modalRef = null;
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    this.ls.handleRequest('plus');
+    this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
-      retry(1),
-      finalize(this.finalize.bind(this)),
-      catchError((error: HttpErrorResponse) => {
-        // Inside the catchError block
-        let errmsg = '';
-        let status = 0;
-
-        if (error.status === 401) {
-          if (!req.url.includes('/auth')) {
-            const token = this.authService.token;
-            const userData: { _expires: string } = JSON.parse(
-              localStorage.getItem('userData')
-            );
-            if (
-              token !== 'notoken' &&
-              new Date(userData._expires) < new Date(Date.now() - 60000)
-            ) {
-              this.isRefresh(req);
-            } else {
-              errmsg = `${error.error.title}`;
-              status = error?.status || 0;
-            }
-          } else {
-            errmsg = `${error.error.title}`;
-            status = error?.status || 0;
-          }
-        } else if (error.status === 403) {
-          errmsg = `You don't have permissions. Please contact your Administrator.`;
-          status = error?.status || 0;
-        } else if (error.status === 404 && !req.url.includes('config.json')) {
-          errmsg = `The requested URL was not found.`;
-          status = error?.status || 0;
-        } else {
-          errmsg = error.error.exception[0].message;
-          status = error?.status || 0;
-        }
-        if (errmsg.toLowerCase().includes('token not')) {
-          // Redirect to the login page
-          console.log('should be reloading page');
-          window.location.reload(); //Reload page to redirect
-        } else {
-          // Display error modal for other cases
-          this.modalRef = this.dialog.open(ErrorModalComponent, {
-            data: { status, message: errmsg }
-          });
-        }
-
-        return throwError(() => errmsg);
-      })
+      catchError((error: HttpErrorResponse) => this.handleError(req, error)),
+      finalize(() => this.loadingService.handleRequest())
     );
   }
 
-  finalize = (): void => this.ls.handleRequest();
+  /**
+   * Handles HTTP errors by categorizing them and setting appropriate error messages.
+   * Displays an error modal with the message and status code.
+   *
+   * @param {HttpRequest<any>} req - The HTTP request that resulted in an error.
+   * @param {HttpErrorResponse} error - The HTTP error response received.
+   * @returns {Observable<never>} - An observable that errors out with the error message.
+   */
+  private handleError(
+    req: HttpRequest<any>,
+    error: HttpErrorResponse
+  ): Observable<never> {
+    let errmsg = '';
+    const status = error?.status || 0;
 
-  isNetworkError(errorObject) {
-    return (
-      errorObject.message === 'net::ERR_INTERNET_DISCONNECTED' ||
-      errorObject.message === 'net::ERR_PROXY_CONNECTION_FAILED' ||
-      errorObject.message === 'net::ERR_PROXY_CONNECTION_FAILED' ||
-      errorObject.message === 'net::ERR_CONNECTION_TIMED_OUT' ||
-      errorObject.message === 'net::ERR_CONNECTION_RESET' ||
-      errorObject.message === 'net::ERR_CONNECTION_CLOSE' ||
-      errorObject.message === 'net::ERR_UNKNOWN_PROTOCOL' ||
-      errorObject.message === 'net::ERR_SLOW_CONNECTION' ||
-      errorObject.message === 'net::ERR_FAILED' ||
-      errorObject.message === 'net::ERR_NAME_NOT_RESOLVED'
-    );
+    if (error.status === 401) {
+      errmsg = this.handleUnauthorizedError(req);
+    } else if (error.status === 403) {
+      errmsg = `You don't have permissions. Please contact your Administrator.`;
+    } else if (error.status === 404 && !req.url.includes('config.json')) {
+      errmsg = `The requested URL was not found.`;
+    } else if (error.status === 0) {
+      errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
+        req.url
+      )}) and try again. Note: APIv2 HASHTOPOLIS_APIV2_ENABLE=1 needs to be enabled. `;
+    } else {
+      errmsg =
+        error.error.exception?.[0]?.message || 'An unknown error occurred.';
+    }
+
+    this.displayErrorModal(status, errmsg);
+    return throwError(() => new Error(errmsg));
   }
 
-  isRefresh(request: HttpRequest<any>) {
+  /**
+   * Handles unauthorized errors by checking if the token needs to be refreshed
+   * or if the credentials need to be checked.
+   *
+   * @param {HttpRequest<any>} req - The HTTP request that resulted in an unauthorized error.
+   * @returns {string} - A message indicating the action taken or needed.
+   */
+  private handleUnauthorizedError(req: HttpRequest<any>): string {
+    if (!req.url.includes('/auth')) {
+      const token = this.authService.token;
+      const userData: { _expires: string } = JSON.parse(
+        localStorage.getItem('userData') || '{}'
+      );
+      if (
+        token !== 'notoken' &&
+        new Date(userData._expires) < new Date(Date.now() - 60000)
+      ) {
+        this.refreshToken(req);
+        return 'Refreshing token...';
+      } else {
+        return `Check credentials.`;
+      }
+    } else {
+      return `Check credentials.`;
+    }
+  }
+
+  /**
+   * Refresh token
+   *
+   * @param {any} request -token request
+   */
+  private refreshToken(request: HttpRequest<any>): void {
     console.log('Refreshing token...');
     this.authService.refreshToken();
-    // this.router.navigate([request]);
     window.location.reload();
+  }
+
+  /**
+   * Extracts the IP address and port from a URL.
+   *
+   * @param {string} url - The URL to extract the IP address and port from.
+   * @returns {string} - The extracted IP address and port in the format "hostname:port".
+   */
+  private extractIpAndPort(url: string): string {
+    try {
+      const urlObj = new URL(url);
+      return `${urlObj.hostname}:${urlObj.port}`;
+    } catch (e) {
+      return 'unknown IP and port';
+    }
+  }
+
+  /**
+   * Displays an error modal with the given status and message.
+   *
+   * @param {number} status - The HTTP status code of the error.
+   * @param {string} message - The error message to display.
+   */
+  private displayErrorModal(status: number, message: string): void {
+    this.dialog.open(ErrorModalComponent, {
+      data: { status, message }
+    });
   }
 }

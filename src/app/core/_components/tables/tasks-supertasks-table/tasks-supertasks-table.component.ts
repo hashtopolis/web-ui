@@ -325,21 +325,16 @@ export class TasksSupertasksTableComponent
     return cd.agents.length;
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
   async renderAgents(task: Task): Promise<SafeHtml> {
     const numAgents = await this.getNumAgents(task);
     return this.sanitize(`${numAgents}`);
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
   async renderDispatchedSearched(task: Task): Promise<SafeHtml> {
     const html = await this.getDispatchedSearchedString(task);
     return this.sanitize(html);
   }
 
-  /**
-   * @todo Implement error handling.
-   */
   private rowActionDelete(tasks: TaskWrapper[]): void {
     //Get the IDs of tasks to be deleted
     const tasksIdsToDelete = tasks.map((tasks) => tasks._id);
