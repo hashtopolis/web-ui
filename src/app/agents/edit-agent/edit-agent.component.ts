@@ -83,13 +83,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   timespent: number;
   getchunks: any;
 
-  // Tables Code
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-
   constructor(
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -272,9 +265,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         // Calculate and update timespent
         this.timeCalc(this.getchunks);
-
-        // Trigger DataTable reload
-        this.dtTrigger.next(void 0);
       });
     });
   }
@@ -324,6 +314,29 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       this.unsubscribeService.add(onDeleteSubscription$);
     }
   }
+
+  // Render devices using count by device type
+  renderDevices(agent: any) {
+    const deviceList = agent.split('\n');
+    const deviceCountMap: { [key: string]: number } = {};
+
+    // Count occurrences of each device
+    deviceList.forEach((device) => {
+      if (deviceCountMap[device]) {
+        deviceCountMap[device]++;
+      } else {
+        deviceCountMap[device] = 1;
+      }
+    });
+
+    // Format the result string with HTML line breaks
+    const formattedDevices = Object.keys(deviceCountMap)
+      .map((device) => `${deviceCountMap[device]} x ${device}`)
+      .join('<br>');
+
+    return formattedDevices;
+  }
+
   // //
   //  GRAPHS SECTION
   // //

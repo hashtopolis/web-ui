@@ -82,7 +82,6 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
           });
 
           this.setPaginationConfig(this.pageSize, this.currentPage, a.total);
-          console.log(agents);
           this.setData(agents);
         }
       );
