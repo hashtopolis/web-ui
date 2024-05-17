@@ -29,6 +29,7 @@ import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-s
 import { VouchersTableCol } from '../_components/tables/vouchers-table/vouchers-table.constants';
 import { AccessPermissionGroupsUsersTableCol } from '../_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 import { AccessPermissionGroupsUserTableCol } from '../_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+import { HashesTableCol } from '../_components/tables/hashes-table/hashes-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -562,6 +563,25 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: TaskTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    hashesTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HashesTableCol.HASHES,
+        HashesTableCol.PLAINTEXT,
+        HashesTableCol.SALT,
+        HashesTableCol.CRACK_POSITION,
+        HashesTableCol.ISCRACKED,
+        HashesTableCol.TIMECRACKED
+      ],
+      order: {
+        id: HashesTableCol.TIMECRACKED,
         dataKey: '',
         isSortable: true,
         direction: 'asc'
