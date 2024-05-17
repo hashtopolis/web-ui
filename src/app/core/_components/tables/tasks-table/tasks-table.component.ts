@@ -467,27 +467,49 @@ export class TasksTableComponent
     const icons: HTTableIcon[] = [];
     const status = await this.getTaskStatus(wrapper);
 
-    switch (status) {
-      case TaskStatus.RUNNING:
-        icons.push({
-          name: 'radio_button_checked',
-          cls: 'pulsing-progress',
-          tooltip: 'In Progress'
-        });
-        break;
-      case TaskStatus.COMPLETED:
+    const isTasksInSuperTaskCompleted = (task: Task) => {
+      return (
+        (task.keyspaceProgress > 0 &&
+          task.keyspaceProgress === task.keyspace) ||
+        (task.keyspaceProgress === 1 && task.keyspace === 1)
+      );
+    };
+
+    if (wrapper.taskType === 0) {
+      switch (status) {
+        case TaskStatus.RUNNING:
+          icons.push({
+            name: 'radio_button_checked',
+            cls: 'pulsing-progress',
+            tooltip: 'In Progress'
+          });
+          break;
+        case TaskStatus.COMPLETED:
+          icons.push({
+            name: 'check',
+            tooltip: 'Completed'
+          });
+          break;
+        case TaskStatus.IDLE:
+          icons.push({
+            name: 'radio_button_checked',
+            tooltip: 'Idle',
+            cls: 'text-primary'
+          });
+          break;
+      }
+    } else {
+      // Count the completed tasks in supertasks
+      const countCompleted = wrapper.tasks.reduce((count, task) => {
+        return count + (isTasksInSuperTaskCompleted(task) ? 1 : 0);
+      }, 0);
+
+      if (wrapper.tasks.length === countCompleted) {
         icons.push({
           name: 'check',
           tooltip: 'Completed'
         });
-        break;
-      case TaskStatus.IDLE:
-        icons.push({
-          name: 'radio_button_checked',
-          tooltip: 'Idle',
-          cls: 'text-primary'
-        });
-        break;
+      }
     }
 
     return icons;
