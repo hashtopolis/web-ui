@@ -68,7 +68,7 @@ export class HttpResInterceptor implements HttpInterceptor {
     } else if (error.status === 0) {
       errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(
         req.url
-      )}) and try again.`;
+      )}) and try again. Note: APIv2 HASHTOPOLIS_APIV2_ENABLE=1 needs to be enabled. `;
     } else {
       errmsg =
         error.error.exception?.[0]?.message || 'An unknown error occurred.';
