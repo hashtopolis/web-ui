@@ -234,7 +234,7 @@ export class NotificationsTableComponent
    */
   private bulkActionDelete(notifications: Notification[]): void {
     const requests = notifications.map((notification: Notification) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, notification._id);
+      return this.gs.delete(SERV.NOTIFICATIONS, notification._id);
     });
 
     this.subscriptions.push(
@@ -294,7 +294,7 @@ export class NotificationsTableComponent
   private rowActionDelete(notifications: Notification[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, notifications[0]._id)
+        .delete(SERV.NOTIFICATIONS, notifications[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

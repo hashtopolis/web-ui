@@ -110,7 +110,7 @@ export class PreprocessorsTableComponent
     links.push({
       label: preprocessor.name,
       routerLink: ['/config/engine/preprocessors', preprocessor._id, 'edit'],
-      tooltip: 'Supertask'
+      tooltip: 'Preprocessor Name'
     });
 
     return links;
@@ -192,7 +192,7 @@ export class PreprocessorsTableComponent
    */
   private bulkActionDelete(preprocessors: Preprocessor[]): void {
     const requests = preprocessors.map((preprocessor: Preprocessor) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, preprocessor._id);
+      return this.gs.delete(SERV.PREPROCESSORS, preprocessor._id);
     });
 
     this.subscriptions.push(
@@ -219,7 +219,7 @@ export class PreprocessorsTableComponent
   private rowActionDelete(preprocessors: Preprocessor[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, preprocessors[0]._id)
+        .delete(SERV.PREPROCESSORS, preprocessors[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
