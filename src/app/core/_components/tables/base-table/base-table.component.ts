@@ -148,7 +148,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['userId'])
+  @Cacheable(['userId', '_id'])
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
