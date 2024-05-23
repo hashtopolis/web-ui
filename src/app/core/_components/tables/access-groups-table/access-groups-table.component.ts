@@ -194,7 +194,7 @@ export class AccessGroupsTableComponent
    */
   private bulkActionDelete(accessGroups: AccessGroup[]): void {
     const requests = accessGroups.map((accessGroup: AccessGroup) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, accessGroup._id);
+      return this.gs.delete(SERV.ACCESS_GROUPS, accessGroup._id);
     });
 
     this.subscriptions.push(
@@ -221,7 +221,7 @@ export class AccessGroupsTableComponent
   private rowActionDelete(accessGroups: AccessGroup[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, accessGroups[0]._id)
+        .delete(SERV.ACCESS_GROUPS, accessGroups[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
