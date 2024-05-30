@@ -1,25 +1,15 @@
 import { StaticArrayPipe } from 'src/app/core/_pipes/static-array.pipe';
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
-import { DataTableDirective } from 'angular-datatables';
-import { Observable, Subject } from 'rxjs';
 
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { environment } from '../../../environments/environment';
 import { SERV } from '../../core/_services/main.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import {
-  handleEncode,
-  transformSelectOptions
-} from 'src/app/shared/utils/forms';
+import { handleEncode } from 'src/app/shared/utils/forms';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import {
-  CanComponentDeactivate,
-  PendingChangesGuard
-} from 'src/app/core/_guards/pendingchanges.guard';
 import { OnDestroy } from '@angular/core';
 import { UnsavedChangesService } from 'src/app/core/_services/shared/unsaved-changes.service';
 import { ACCESS_GROUP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
@@ -35,6 +25,9 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   /** Form group for the new File. */
   form: FormGroup;
 
@@ -47,7 +40,6 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    * Initializes and injects required services and dependencies.
    * Calls necessary methods to set up the component.
    * @param {UnsubscribeService} unsubscribeService - Service for managing subscriptions.
-   * @param {ChangeDetectorRef} changeDetectorRef - Reference to the Angular change detector.
    * @param {AutoTitleService} titleService - Service for managing page titles.
    * @param {StaticArrayPipe} format - Angular pipe for formatting static arrays.
    * @param {ActivatedRoute} route - The activated route, representing the route associated with this component.
@@ -113,6 +105,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       const payload = {
         hashlistId: this.editedHashlistIndex,
         separator: this.form.get('separator').value,
@@ -122,18 +115,20 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         .chelper(SERV.HELPER, 'importCrackedHashes', payload)
         .subscribe(() => {
           this.alert.okAlert('Imported Cracked Hashes!', '');
-          this.form.reset(); // success, we reset form
+          this.isCreatingLoading = false;
           const path =
             this.type === 3
               ? '/hashlists/superhashlist'
               : '/hashlists/hashlist';
           this.router.navigate([path]);
         });
+      this.isCreatingLoading = false;
       this.unsubscribeService.add(createSubscription$);
     }
   }
 
   /**
+   * Sets form values after fetching hashlist details.
    * @returns {void}
    */
   private formValues() {
@@ -144,6 +139,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
       .subscribe((result) => {
         this.type = result['format'];
         this.hashtype = result['hashType'];
+        console.log(result);
         this.form = new FormGroup({
           name: new FormControl({
             value: result['name'],
@@ -161,9 +157,10 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
             value: result['hashCount'],
             disabled: true
           }),
-          separator: new FormControl(result['separator']),
+          separator: new FormControl(result['separator'] || ':'),
           hashes: new FormControl('')
         });
+        this.isLoading = false; // Set isLoading to false after data is loaded
       });
     this.unsubscribeService.add(updateSubscription$);
   }
