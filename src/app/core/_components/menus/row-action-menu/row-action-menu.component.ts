@@ -266,9 +266,15 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.COPY_TO_PRETASK,
       icon: RowActionMenuIcon.COPY
     });
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
-    ]);
+    if (!this.data.editst) {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
+      ]);
+    } else {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)
+      ]);
+    }
   }
 
   /**
