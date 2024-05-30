@@ -99,7 +99,6 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       .subscribe((res) => {
         if (res) {
           this.editedGPG = res;
-          console.log(res);
           const formValues = this.buildFormValues();
           this.updateForm.patchValue(formValues);
         }
