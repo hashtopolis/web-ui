@@ -252,9 +252,17 @@ export class PretasksTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting Pretask ${event.data.taskName} ...`,
+          title: `${
+            this.supertTaskId !== 0
+              ? `Unassigning Pretask ${event.data.taskName} ...`
+              : `Deleting Pretask ${event.data.taskName} ...`
+          }`,
           icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${
+            this.supertTaskId !== 0
+              ? `unassign it?`
+              : `delete it? Note that this action cannot be undone.`
+          } `,
           warn: true,
           action: event.menuItem.action
         });
@@ -506,7 +514,7 @@ export class PretasksTableComponent
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.snackBar.open('Successfully unassigned pretask!', 'Close');
             this.reload();
           })
       );

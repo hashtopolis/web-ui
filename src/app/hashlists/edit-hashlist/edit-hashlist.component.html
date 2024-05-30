@@ -1,37 +1,27 @@
 <div class="row g-3">
   <div class="col-md-7">
-    <grid-main>
+    <grid-main *ngIf="!isLoading">
       <app-page-title [title]="type === 3 ? 'Edit SuperHashlist': 'Edit HashList'" [subbutton]="false"></app-page-title>
       <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
 
           <input-text title="ID" formControlName="hashlistId" [disabled]="true"></input-text>
-
           <div formGroupName="updateData" fxLayoutGap="10px">
-
             <input-text title="Name" formControlName="name"></input-text>
-
             <div>
               <input-text-area title="Notes" formControlName="notes"></input-text-area>
             </div>
-
             <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
               <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
-              <input-check title="is Secret?" formControlName="isSecret" tooltip="Contains secret data"></input-check>
-
+              <input-check title="Secret Data" formControlName="isSecret"></input-check>
             </div>
-
           </div>
-
           <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-
             <simulate-form-field label="Hash Type"  message="{{ hashtype.hashTypeId }} - {{ hashtype.description }}"></simulate-form-field>
             <input-text title="Using hashcat brain" formControlName="useBrain" [disabled]="true"></input-text>
             <input-text title="Format" formControlName="format" [disabled]="true"></input-text>
             <input-text title="Hashes" formControlName="hashCount" [disabled]="true"></input-text>
             <input-text title="Cracked" formControlName="cracked" [disabled]="true"></input-text>
             <input-text title="Remaining" formControlName="remaining" [disabled]="true"></input-text>
-
           </div>
 
           <grid-buttons>

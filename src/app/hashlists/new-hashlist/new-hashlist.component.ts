@@ -121,9 +121,6 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new Hashlist.
    */
   buildForm(): void {
-    const uiSettings = this.uiService.getUIsettings('hashcatBrainEnable');
-    this.brainenabled = uiSettings ? uiSettings.value : null;
-
     this.form = this.formBuilder.group({
       name: new FormControl('', [Validators.required]),
       hashTypeId: new FormControl('', [Validators.required]),
@@ -152,6 +149,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Loads data, Access Groups and Hashtypes, for the component.
    */
   loadData(): void {
+    this.loadConfigs();
     const fieldAccess = {
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     };
@@ -188,6 +186,20 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
   get sourceType() {
     return this.form.get('sourceType').value;
+  }
+
+  /**
+   * Load configurations
+   * ToDO. id could change
+   */
+  loadConfigs() {
+    const configSubscription$ = this.gs
+      .get(SERV.CONFIGS, 66)
+      .subscribe((response: any) => {
+        this.brainenabled = response.value;
+        this.changeDetectorRef.detectChanges();
+      });
+    this.unsubscribeService.add(configSubscription$);
   }
 
   /**

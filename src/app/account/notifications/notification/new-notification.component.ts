@@ -90,7 +90,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   createForm(): void {
     this.form = new FormGroup({
       action: new FormControl('', [Validators.required]),
-      actionFilter: new FormControl(''),
+      actionFilter: new FormControl(String('')),
       notification: new FormControl('' || 'ChatBot', [Validators.required]),
       receiver: new FormControl('', [Validators.required]),
       isActive: new FormControl(true)
@@ -158,6 +158,9 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
    * Sends a request to the server and navigates on success.
    */
   onSubmit(): void {
+    this.form.patchValue({
+      actionFilter: String(this.form.get('actionFilter').value)
+    });
     if (this.form.valid) {
       this.isCreatingLoading = true;
       this.subscriptions.push(

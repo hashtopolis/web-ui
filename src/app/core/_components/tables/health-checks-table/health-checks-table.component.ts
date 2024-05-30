@@ -12,13 +12,14 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { HealthCheck } from 'src/app/core/_models/health-check.model';
 import { HealthChecksDataSource } from 'src/app/core/_datasources/health-checks.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { Cacheable } from 'src/app/core/_decorators/cacheable';
 
 @Component({
   selector: 'health-checks-table',
@@ -62,6 +63,8 @@ export class HealthChecksTableComponent
       {
         id: HealthChecksTableCol.ID,
         dataKey: '_id',
+        routerLink: (healthCheck: HealthCheck) =>
+          this.renderHealthCheckLink(healthCheck),
         isSortable: true,
         export: async (healthCheck: HealthCheck) => healthCheck._id + ''
       },
@@ -121,6 +124,15 @@ export class HealthChecksTableComponent
         }
       })
     );
+  }
+
+  @Cacheable(['_id'])
+  async renderHealthCheckLink(hc: HealthCheck): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: ['/config/health-checks', hc._id, 'edit']
+      }
+    ];
   }
 
   // --- Action functions ---
