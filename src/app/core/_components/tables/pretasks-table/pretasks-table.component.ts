@@ -506,7 +506,7 @@ export class PretasksTableComponent
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.snackBar.open('Successfully unassigned pretask!', 'Close');
             this.reload();
           })
       );

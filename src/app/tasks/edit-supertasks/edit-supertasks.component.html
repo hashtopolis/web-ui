@@ -1,39 +1,45 @@
 <grid-main>
   <app-page-title [title]="'Supertask Details'"></app-page-title>
     <form [formGroup]="viewForm" >
-
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
         <input-text title="ID" formControlName="supertaskId" [disabled]="true"></input-text>
         <input-text title="Name" formControlName="supertaskName" [disabled]="true"></input-text>
       </div>
-
       <div fxLayout="row">
         <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
         <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" (click)="onSubmit()"></button-submit>
       </div>
-
     </form>
     <hr>
-    <h5>Add Pretask</h5>
-    <form [formGroup]="updateForm" (ngSubmit)="onSubmit()">
-
-      <div fxLayout="column" fxLayoutAlign="start start">
-      <input-multiselect
-          [isLoading]="isLoading"
-          [placeholder]="'Pretasks...'"
-          [items]="selectPretasks"
-          [label]="'Select or search Pretasks *'"
-          [mergeIdAndName]="true"
-          formControlName="pretasks"
-          style="flex: 1;"
-        ></input-multiselect>
+    <h5>Add Pretasks</h5>
+    <form [formGroup]="updateForm">
+      <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
+        <input-multiselect
+            [isLoading]="isLoading"
+            [placeholder]="'Pretasks...'"
+            [items]="selectPretasks"
+            [label]="'Select or search Pretasks *'"
+            [mergeIdAndName]="true"
+            formControlName="pretasks"
+            style="flex: 1;"
+          ></input-multiselect>
+          <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
+            <button-submit [name]="'Add'" (click)="onSubmit()"></button-submit>
+            <button mat-icon-button (click)="refresh()">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
       </div>
-
-        <button-submit [name]="'Add'"></button-submit>
+      <ng-template #loadingTemplate>
+        <div class="loading-spinner">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Loading Pretasks...</span>
+        </div>
+      </ng-template>
     </form>
 </grid-main>
 <!-- Benckmark calculation -->
-<mat-accordion>
+<mat-accordion *ngIf="isLoading">
   <mat-expansion-panel>
     <mat-expansion-panel-header>
       <mat-panel-title>
