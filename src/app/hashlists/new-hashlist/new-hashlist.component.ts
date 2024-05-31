@@ -125,7 +125,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       name: new FormControl('', [Validators.required]),
       hashTypeId: new FormControl('', [Validators.required]),
       format: new FormControl('' || 0),
-      separator: new FormControl(null || ':'),
+      hashlistSeperator: new FormControl(null || ':'),
       isSalted: new FormControl(false),
       isHexSalt: new FormControl(false),
       accessGroupId: new FormControl(null, [Validators.required]),
