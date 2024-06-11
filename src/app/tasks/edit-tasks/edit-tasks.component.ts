@@ -24,7 +24,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import * as echarts from 'echarts/core';
 
 import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
-import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -170,7 +169,9 @@ export class EditTasksComponent implements OnInit {
       .subscribe(() => {
         this.alert.okAlert('Task saved!', '');
         this.isUpdatingLoading = false;
-        this.router.navigate(['tasks/show-tasks']);
+        this.router.navigate(['tasks/show-tasks']).then(() => {
+          window.location.reload();
+        });
       });
   }
 
@@ -365,8 +366,8 @@ export class EditTasksComponent implements OnInit {
             for (let i = 0; i < getchunks.length; i++) {
               if (
                 Date.now() / 1000 -
-                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
-                  chunktime &&
+                Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
+                chunktime &&
                 getchunks[i].progress < 10000
               ) {
                 this.isactive = 1;
@@ -410,7 +411,7 @@ export class EditTasksComponent implements OnInit {
     });
     Swal.fire({
       title: 'Are you sure?',
-      text: "It'll purge the Task!",
+      text: 'It\'ll purge the Task!',
       icon: 'warning',
       reverseButtons: true,
       showCancelButton: true,
@@ -470,7 +471,7 @@ export class EditTasksComponent implements OnInit {
     const max = [];
     const result = [];
 
-    data.reduce(function (res, value) {
+    data.reduce(function(res, value) {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -509,7 +510,7 @@ export class EditTasksComponent implements OnInit {
       },
       tooltip: {
         position: 'top',
-        formatter: function (p) {
+        formatter: function(p) {
           return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
         }
       },
@@ -518,7 +519,7 @@ export class EditTasksComponent implements OnInit {
         right: '4%'
       },
       xAxis: {
-        data: xAxis.map(function (item: any[] | any) {
+        data: xAxis.map(function(item: any[] | any) {
           return self.transDate(item);
         })
       },
