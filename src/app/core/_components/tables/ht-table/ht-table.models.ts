@@ -5,6 +5,11 @@ export type DataType =
   | 'agents'
   | 'agents-status'
   | 'agents-assign'
+  | 'access-groups'
+  | 'access-groups-users'
+  | 'access-permission-groups-user'
+  | 'access-permission-groups-users'
+  | 'access-groups-agents'
   | 'hashlists'
   | 'hashes'
   | 'search-hash'
@@ -15,7 +20,6 @@ export type DataType =
   | 'crackers'
   | 'preprocessors'
   | 'users'
-  | 'access-groups'
   | 'notifications'
   | 'agent-binaries'
   | 'health-checks'
@@ -57,7 +61,7 @@ export interface CheckboxChangeEvent {
 }
 
 export interface CheckboxFiles {
-  files?: any[];
+  [key: string]: boolean;
 }
 
 export type HTTableColumnType = 'dafeult | link | editable';
@@ -75,6 +79,7 @@ export interface HTTableColumn {
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
+  checkbox?: (data: any) => HTTableEditable<any>;
 }
 
 /** Column def for selectable checkbox */

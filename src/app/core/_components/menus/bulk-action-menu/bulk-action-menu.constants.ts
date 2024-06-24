@@ -5,6 +5,7 @@ export const BulkActionMenuLabel = {
   DELETE_TASKS: 'Delete Tasks',
   DELETE_SUPERTASKS: 'Delete Supertasks',
   DELETE_HASHLISTS: 'Delete Hashlists',
+  DELETE_SUPERHASHLIST: 'Delete Super-Hashlist',
   DELETE_HASHTYPES: 'Delete Hashtypes',
   DELETE_FILES: 'Delete Files',
   DELETE_CRACKERS: 'Delete Crackers',
@@ -24,7 +25,8 @@ export const BulkActionMenuLabel = {
   ARCHIVE_TASKS: 'Archive Tasks',
   ARCHIVE_HASHLISTS: 'Archive Hashlists',
   RESET_CHUNKS: 'Reset chunks',
-  UNASSIGN_AGENTS: 'Unassign agents'
+  UNASSIGN_AGENTS: 'Unassign agents',
+  UNASSIGN_ACCESSGROUP_USERS: 'Unassign User'
 };
 
 export const BulkActionMenuAction = {

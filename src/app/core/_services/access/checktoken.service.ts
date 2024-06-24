@@ -1,16 +1,14 @@
-import { AuthService } from "./auth.service";
-import { Injectable, } from "@angular/core";
+import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
 
 export interface AuthResponseData {
-  token: string,
-  expires: string,
+  token: string;
+  expires: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CheckTokenService {
-  constructor(
-    private authService: AuthService,
-  ) {
+  constructor(private authService: AuthService) {
     // We Listen using visibility api to look change events, tab inactive and active
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
@@ -21,13 +19,15 @@ export class CheckTokenService {
   }
 
   checkTokenValidity() {
-    const userData: { _token: string, _expires: string } = JSON.parse(localStorage.getItem('userData'));
+    const userData: { _token: string; _expires: string } = JSON.parse(
+      localStorage.getItem('userData')
+    );
     if (!userData) {
       return;
     }
-    let tokendate = new Date(userData._expires).getTime();
-    let currentDate = new Date().getTime();
-    let timeDifference = tokendate - currentDate;
+    const tokendate = new Date(userData._expires).getTime();
+    const currentDate = new Date().getTime();
+    const timeDifference = tokendate - currentDate;
     // We should be refreshing but when using refresh token, we get an error "Signature verification failure"
     // if(timeDifference > 0 && timeDifference <  600){
     //   console.log('trying to refresh token')
@@ -41,5 +41,4 @@ export class CheckTokenService {
       this.authService.logOut();
     }
   }
-
 }

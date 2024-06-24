@@ -29,6 +29,9 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Form group for the Pretask. */
   updateForm: FormGroup;
 
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   /** Select Options. */
   selectYesno = yesNo;
 
@@ -136,6 +139,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
+      this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
         .update(
           SERV.PRETASKS,
@@ -144,7 +148,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
         )
         .subscribe(() => {
           this.alert.okAlert('PreTask saved!', '');
-          this.updateForm.reset(); // success, we reset form
+          this.isUpdatingLoading = false;
           this.router.navigate(['tasks/preconfigured-tasks']);
         });
       this.unsubscribeService.add(updateSubscription$);

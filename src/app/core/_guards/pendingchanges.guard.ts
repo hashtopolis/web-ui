@@ -39,7 +39,6 @@ export class PendingChangesGuard
 
   private handleDefault(): boolean {
     if (this.unsavedChangesService.hasUnsavedChanges()) {
-      console.log('here');
       const userConfirmed = window.confirm(
         'You have unsaved changes. Press OK to leave without saving, or Cancel to stay and save.'
       );

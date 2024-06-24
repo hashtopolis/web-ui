@@ -106,7 +106,6 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
       if (this.isActive) {
         break;
       }
-
       for (const item of section) {
         if (item.routerLink) {
           const partial = this.currentUrl.slice(0, item.routerLink.length);
@@ -127,8 +126,11 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
    * @param menuItem - The selected menu item.
    */
   onMenuItemClick(menuItem: ActionMenuItem): void {
-    if (menuItem.routerLink) {
+    if (menuItem.routerLink && !menuItem.external) {
       this.router.navigate(menuItem.routerLink);
+    } else if (menuItem.routerLink && menuItem.external) {
+      // Open external link in a new tab
+      window.open(String(menuItem.routerLink), '_blank');
     } else {
       this.menuItemClicked.emit({
         menuItem: menuItem,

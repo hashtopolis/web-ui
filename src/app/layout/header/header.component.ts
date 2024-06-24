@@ -224,10 +224,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
             routerLink: ['account', 'notifications']
           },
           {
+            label: 'Bug Report/Enhancement',
+            routerLink: [
+              'https://github.com/hashtopolis/server/issues/new/choose'
+            ],
+            external: true
+          },
+          {
             label: 'Support',
             routerLink: [
               'https://discord.com/channels/419123475538509844/419123475538509846'
-            ]
+            ],
+            external: true
           }
         ],
         [

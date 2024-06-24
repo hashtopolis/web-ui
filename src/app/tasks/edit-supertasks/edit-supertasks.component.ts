@@ -1,7 +1,7 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
@@ -18,7 +18,7 @@ declare let parser: any;
   selector: 'app-edit-supertasks',
   templateUrl: './edit-supertasks.component.html'
 })
-export class EditSupertasksComponent implements OnInit {
+export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -104,6 +104,7 @@ export class EditSupertasksComponent implements OnInit {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
+    console.log(this.editedSTIndex);
     const loadSTSubscription$ = this.gs
       .get(SERV.SUPER_TASKS, this.editedSTIndex, { expand: 'pretasks' })
       .subscribe((res) => {
@@ -136,6 +137,16 @@ export class EditSupertasksComponent implements OnInit {
         this.unsubscribeService.add(loadPTSubscription$);
       });
     this.unsubscribeService.add(loadSTSubscription$);
+  }
+
+  /**
+   * Reload data
+   *
+   */
+  refresh(): void {
+    this.isLoading = true;
+    this.onInitialize();
+    this.loadData();
   }
 
   /**
@@ -174,7 +185,6 @@ export class EditSupertasksComponent implements OnInit {
           this.alert.okAlert('SuperTask saved!', '');
           this.updateForm.reset(); // success, we reset form
           this.onRefresh();
-          // this.router.navigate(['/tasks/supertasks']);
         });
       this.unsubscribeService.add(updateSubscription$);
     }

@@ -70,6 +70,26 @@ export class AccessGroupsTableComponent
           this.renderAccessGroupLink(accessGroup),
         isSortable: true,
         export: async (accessGroup: AccessGroup) => accessGroup.groupName
+      },
+      {
+        id: AccessGroupsTableCol.NUSERS,
+        dataKey: 'nusers',
+        isSortable: true,
+        render: (accessGroup: AccessGroup) => {
+          return accessGroup.userMembers.length;
+        },
+        export: async (accessGroup: AccessGroup) =>
+          accessGroup.userMembers.length.toString()
+      },
+      {
+        id: AccessGroupsTableCol.NAGENTS,
+        dataKey: 'nagents',
+        isSortable: true,
+        render: (accessGroup: AccessGroup) => {
+          return accessGroup.agentMembers.length;
+        },
+        export: async (accessGroup: AccessGroup) =>
+          accessGroup.agentMembers.length.toString()
       }
     ];
 
@@ -174,7 +194,7 @@ export class AccessGroupsTableComponent
    */
   private bulkActionDelete(accessGroups: AccessGroup[]): void {
     const requests = accessGroups.map((accessGroup: AccessGroup) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, accessGroup._id);
+      return this.gs.delete(SERV.ACCESS_GROUPS, accessGroup._id);
     });
 
     this.subscriptions.push(
@@ -201,7 +221,7 @@ export class AccessGroupsTableComponent
   private rowActionDelete(accessGroups: AccessGroup[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, accessGroups[0]._id)
+        .delete(SERV.ACCESS_GROUPS, accessGroups[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

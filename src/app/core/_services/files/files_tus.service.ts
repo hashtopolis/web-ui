@@ -156,7 +156,6 @@ export class UploadTUSService {
       const limitUpload = Date.now() - 3 * 60 * 60 * 1000;
       previousUploads = previousUploads
         .map((upload) => {
-          console.log('creationtome');
           upload.creationTime = new Date(upload.creationTime);
           return upload;
         })

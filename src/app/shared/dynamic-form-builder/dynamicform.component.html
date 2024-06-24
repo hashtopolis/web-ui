@@ -108,6 +108,7 @@
         [name]="buttonText"
         [disabled]="!formIsValid()"
       ></button-submit>
+      <mat-spinner *ngIf="isSubmitting" diameter="24"></mat-spinner>
       </grid-buttons>
     </div>
     <!-- </grid-autocol> -->

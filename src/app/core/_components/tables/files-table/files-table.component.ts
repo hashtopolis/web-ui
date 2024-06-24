@@ -215,12 +215,9 @@ export class FilesTableComponent
     }
   }
 
-  /**
-   * @todo Implement error handling.
-   */
   private bulkActionDelete(files: File[]): void {
     const requests = files.map((file: File) => {
-      return this.gs.delete(SERV.HASHLISTS, file._id);
+      return this.gs.delete(SERV.FILES, file._id);
     });
 
     this.subscriptions.push(

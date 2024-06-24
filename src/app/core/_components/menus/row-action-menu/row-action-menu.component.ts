@@ -29,10 +29,7 @@ export class RowActionMenuComponent
         RowActionMenuLabel.DELETE_ACCESSGROUP
       );
     } else if (this.isSuperHashlist()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_SUPERHASHLIST,
-        RowActionMenuLabel.DELETE_SUPERHASHLIST
-      );
+      this.setSuperHashlistMenu();
     } else if (this.isFile()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_FILE,
@@ -190,6 +187,22 @@ export class RowActionMenuComponent
   }
 
   /**
+   * Sets the context menu items for an Super-hashlist data row.
+   */
+  private setSuperHashlistMenu(): void {
+    this.setActionMenuItems(0, []);
+
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERHASHLIST),
+      this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLISTS),
+      this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLISTS)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERHASHLIST)
+    ]);
+  }
+
+  /**
    * Sets the context menu items for a user data row.
    */
   private setUserMenu(): void {
@@ -207,7 +220,6 @@ export class RowActionMenuComponent
       0,
       this.getEditMenuItem(RowActionMenuLabel.EDIT_USER)
     );
-
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)
     ]);
@@ -254,9 +266,15 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.COPY_TO_PRETASK,
       icon: RowActionMenuIcon.COPY
     });
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
-    ]);
+    if (!this.data.editst) {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
+      ]);
+    } else {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)
+      ]);
+    }
   }
 
   /**

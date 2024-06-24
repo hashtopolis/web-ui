@@ -18,6 +18,9 @@ export class SearchHashComponent implements OnInit, OnDestroy {
   /** Result of the search. */
   private _searchResults: any[] = [];
 
+  /** On form create show a spinner loading */
+  isCreatingLoading = false;
+
   constructor(
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
@@ -61,6 +64,7 @@ export class SearchHashComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isCreatingLoading = true;
       const currentSearchResult = this.form.value['hashes']
         .split(/(\s+)/)
         .filter(function (e) {
@@ -69,7 +73,7 @@ export class SearchHashComponent implements OnInit, OnDestroy {
 
       this.searchResults = [currentSearchResult];
       this.cdr.detectChanges();
-
+      this.isCreatingLoading = false;
       this.form.reset();
     }
   }

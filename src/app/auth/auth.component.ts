@@ -34,6 +34,9 @@ export class AuthComponent implements OnInit, OnDestroy {
   headerConfig: any;
   isDarkMode = false;
 
+  /** on loggin loading */
+  isLoading = false;
+
   constructor(
     private unsubscribeService: UnsubscribeService,
     private storage: LocalStorageService<UIConfig>,
@@ -91,6 +94,8 @@ export class AuthComponent implements OnInit, OnDestroy {
     const username = this.loginForm.value.username;
     const password = this.loginForm.value.password;
 
+    this.isLoading = true; // Show spinner
+
     let authObs: Observable<AuthResponseData>;
     authObs = this.authService.logIn(username, password);
 
@@ -100,7 +105,11 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.loginForm.reset();
       },
       (error) => {
+        this.isLoading = false;
         this.handleError('An error occurred. Please try again later.');
+      },
+      () => {
+        this.isLoading = false; // Hide spinner after attempting to log in
       }
     );
 
