@@ -17,6 +17,19 @@
         <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
       </div>
     </mat-step>
+    <mat-step label="Register the agent" state="register">
+      <button mat-flat-button (click)="copyAgentURL()">
+        <mat-icon>content_copy</mat-icon>
+        {{ agentURL }}
+      </button>
+      <div class="highlight-box">
+        <p><strong>Register the agent</strong> using the above URL</p>
+      </div>
+      <div>
+        <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
+        <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
+      </div>
+    </mat-step>
     <mat-step label="Generate Voucher" state="voucher">
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <br /><br />
@@ -46,19 +59,7 @@
       </div>
       <div>
         <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
-        <button-submit mat-button (click)="stepper.next()" name="Next"></button-submit>
-      </div>
-    </mat-step>
-    <mat-step label="Register the agent" state="register">
-      <button mat-flat-button (click)="copyAgentURL()">
-        <mat-icon>content_copy</mat-icon>
-        {{ agentURL }}
-      </button>
-      <div class="highlight-box">
-        <p><strong>Register the agent</strong> using the above URL</p>
-      </div>
-      <div>
-        <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
+        <button-submit mat-button (click)="done()" name="Finish"></button-submit>
       </div>
     </mat-step>
   </mat-stepper>
