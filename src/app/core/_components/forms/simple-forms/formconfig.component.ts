@@ -142,7 +142,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
           result[item.item] = item._id;
           return result;
         }, {});
-        console.log(result);
+
         this.isloaded = true; // Data is loaded and ready for form rendering
       });
   }
