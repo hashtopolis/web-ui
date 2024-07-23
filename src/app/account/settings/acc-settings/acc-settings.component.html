@@ -1,6 +1,7 @@
-<grid-main>
+<app-table>
 
-  <app-page-subtitle [subtitle]="'Account Settings'"></app-page-subtitle>
+  <app-page-title [title]="pageTitle"></app-page-title>
+  <br /><br />
   <form [formGroup]="form">
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
@@ -15,7 +16,9 @@
     </grid-buttons>
   </form>
 
-  <app-page-subtitle [subtitle]="'Password Update'"></app-page-subtitle>
+  <br />
+
+  <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
     <form [formGroup]="passform">
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
         <input-text title="Password" placeholder="Password" formControlName="password" inputType="password"  data-testid="input-password" [isRequired]="true"></input-text>
@@ -37,4 +40,4 @@
       </grid-buttons>
     </form>
 
-</grid-main>
+</app-table>
