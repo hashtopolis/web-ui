@@ -16,12 +16,12 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 @Component({
-  selector: 'app-edit-health-checks',
-  templateUrl: './edit-health-checks.component.html'
+  selector: 'app-view-health-checks',
+  templateUrl: './view-health-checks.component.html'
 })
-export class EditHealthChecksComponent implements OnInit, OnDestroy {
+export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   // The index of the edited health check.
-  editedHealthCIndex: number;
+  viewedHealthCIndex: number;
   // The health check object.
   public healthc: HealthCheck;
 
@@ -44,14 +44,14 @@ export class EditHealthChecksComponent implements OnInit, OnDestroy {
     private gs: GlobalService
   ) {
     this.onInitialize();
-    titleService.set(['Edit Health Checks']);
+    titleService.set(['View Health Checks']);
   }
 
   /**
    * Component initialization get ID to use in Table component
    */
   onInitialize(): void {
-    this.editedHealthCIndex = +this.route.snapshot.params['id'];
+    this.viewedHealthCIndex = +this.route.snapshot.params['id'];
     this.uiSettings = new UISettingsUtilityClass(this.settingsService);
     this.dateFormat = this.getDateFormat();
   }
@@ -76,7 +76,7 @@ export class EditHealthChecksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs
-      .get(SERV.HEALTH_CHECKS, this.editedHealthCIndex)
+      .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
       .subscribe((healthCheck: HealthCheck) => {
         this.healthc = healthCheck;
       });
