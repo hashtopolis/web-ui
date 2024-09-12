@@ -15,6 +15,7 @@ export class SearchHashComponent implements OnInit, OnDestroy {
   /** Form group for Search Hashes. */
   form: FormGroup;
 
+  pageTitle = "Hash Search";
   /** Result of the search. */
   private _searchResults: any[] = [];
 

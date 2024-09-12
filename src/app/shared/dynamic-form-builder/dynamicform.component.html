@@ -1,12 +1,12 @@
 <grid-main>
-  <app-page-subtitle [subtitle]="subtitle"></app-page-subtitle>
+  <app-page-title [title]="title"></app-page-title>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="custom-form">
     <div gdAlignColumns="start stretch">
     <!-- <grid-autocol [itemCount]="formMetadata.length"> -->
       <div *ngFor="let field of formMetadata">
         <div *ngIf="field.type !== 'hidden'">
           <ng-container *ngIf="field.isTitle">
-            <h4>{{ field.label }}</h4>
+            <h3>{{ field.label }}</h3>
           </ng-container>
           <ng-container *ngIf="!field.isTitle">
             <div *ngIf="field.type !== 'checkbox'">

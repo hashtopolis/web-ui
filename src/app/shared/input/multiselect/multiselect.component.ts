@@ -142,6 +142,8 @@ export class InputMultiSelectComponent
       // Add the removed item back to the unselected items
       this.items.push(item);
 
+      this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+
       // Remove the item from the selected items
       this.selectedItems.splice(index, 1);
 
@@ -178,6 +180,12 @@ export class InputMultiSelectComponent
    */
   public selected(event: MatAutocompleteSelectedEvent): void {
     if (!this.multiselectEnabled) {
+      // If an element has already been selected, it must be added to the list again
+      if (this.selectedItems.length > 0) {
+        this.items.push(this.selectedItems[0]);
+        this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+      }
+
       // For single-select, clear the selected items before adding the new one
       this.selectedItems = [];
       // If single-select, remove the selected item from the unselected items

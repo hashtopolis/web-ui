@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
   <div fxFlex="70" fxFlex.lt-md="100">
     <grid-main>
-      <app-page-title [title]="'New Task'" [subbutton]="false"></app-page-title>
+      <app-page-subtitle [subtitle]="'New Task'"></app-page-subtitle>
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <input-text title="Name" formControlName="taskName" [isRequired]="true"></input-text>

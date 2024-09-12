@@ -19,6 +19,8 @@ export class UiSettingsComponent implements OnInit {
   form!: FormGroup;
   util: UISettingsUtilityClass;
 
+  pageTitle = 'UI Settings';
+
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
 

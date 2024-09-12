@@ -244,6 +244,18 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
+
+    /**
+     * If no Preprocessor was selected ('disabled'),
+     * the value '0' must be used instead of 'null' for further processing
+     */
+    this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
+      if (newvalue === 'null') {
+        this.form.get('preprocessorId').patchValue(0);
+      } else {
+        this.form.get('preprocessorId').patchValue(newvalue);
+      }
+    });
   }
 
   /**

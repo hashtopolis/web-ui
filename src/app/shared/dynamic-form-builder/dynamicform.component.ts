@@ -39,10 +39,10 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
-   * The subtitle to display.
+   * The title to display.
    * @type {string}
    */
-  @Input() subtitle: string;
+  @Input() title: string;
 
   /**
    * An array of form field metadata that describes the form structure.

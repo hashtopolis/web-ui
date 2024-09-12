@@ -244,7 +244,7 @@ export class FilesTableComponent
   private rowActionDelete(files: File[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.HASHLISTS, files[0]._id)
+        .delete(SERV.FILES, files[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

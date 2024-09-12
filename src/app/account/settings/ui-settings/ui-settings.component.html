@@ -1,5 +1,6 @@
-<grid-main>
-  <app-page-subtitle subtitle="UI Settings"></app-page-subtitle>
+<app-table>
+  <app-page-title [title]="pageTitle"></app-page-title>
+  <br /><br />
   <form [formGroup]="form" (submit)="onSubmit()">
     <div class="form-field m-field">
       <label for="timeFormat">Time Format</label>
@@ -30,6 +31,6 @@
       <mat-spinner diameter="24" color="accent"></mat-spinner>
     </div>
   </form>
-</grid-main>
+</app-table>
 
 
