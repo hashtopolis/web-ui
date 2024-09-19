@@ -14,6 +14,8 @@ import { checkField, findEl } from 'src/app/spec-helpers/element.spec-helper';
 import { DebugElement } from '@angular/core';
 import { SERV } from 'src/app/core/_services/main.config';
 import { EditNotificationComponent } from './edit-notification.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 
 describe('EditNotificationComponent', () => {
@@ -31,7 +33,7 @@ describe('EditNotificationComponent', () => {
     'notificationSettingId': 1,
     'objectId': null,
     'receiver': 'asdasdasd',
-    'userId': 1
+    'userId': 1,
   }
 
   // Define a partial mock service to simulate service calls.
@@ -61,11 +63,13 @@ describe('EditNotificationComponent', () => {
         RouterModule,
         PipesModule,
         NgbModule,
+        MatSnackBarModule
       ],
       declarations: [
         EditNotificationComponent
       ],
       providers: [
+        provideAnimations(),
         {
           provide: GlobalService,
           useValue: mockService
@@ -171,9 +175,7 @@ describe('EditNotificationComponent', () => {
     expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, 1, jasmine.any(Object));
   });
 
-
   // --- Helper functions ---
-
 
   const expectFieldToBeDisabled = (testId: string): void => {
     const field: DebugElement = findEl(fixture, testId)
