@@ -35,6 +35,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     _id: action,
     name: action
   }));
+  maxResults: string | number;
   notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
   subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;

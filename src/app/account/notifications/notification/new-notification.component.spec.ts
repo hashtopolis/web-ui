@@ -16,6 +16,8 @@ import { ACTION, NOTIF } from 'src/app/core/_constants/notifications.config';
 import { DebugElement } from '@angular/core';
 import { SERV } from 'src/app/core/_services/main.config';
 import { By } from '@angular/platform-browser';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 describe('NewNotificationComponent', () => {
   let component: NewNotificationComponent;
@@ -78,11 +80,13 @@ describe('NewNotificationComponent', () => {
         RouterModule,
         PipesModule,
         NgbModule,
+        MatSnackBarModule
       ],
       declarations: [
         NewNotificationComponent
       ],
       providers: [
+        provideAnimations(),
         {
           provide: GlobalService,
           useValue: mockService
@@ -237,6 +241,7 @@ describe('NewNotificationComponent', () => {
 
   const setValidFormValues = (): void => {
     setAction(ACTION.NEW_TASK);
+    setFieldValue(fixture, 'select-action', '1');
     setFieldValue(fixture, 'select-action-filter', '1');
     setFieldValue(fixture, 'select-notification', NOTIF.EMAIL);
     setFieldValue(fixture, 'input-receiver', 'test@mail.com');
