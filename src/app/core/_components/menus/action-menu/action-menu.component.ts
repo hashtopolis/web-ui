@@ -244,7 +244,9 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
    */
   navigateToFirst(event: MouseEvent): void {
     event.stopPropagation();
-    if (this.actionMenuItems[0][0].routerLink) {
+    if (this.actionMenuItems[0][0].external) {
+      window.open(String(this.actionMenuItems[0][0].routerLink), '_blank');
+    } else if (this.actionMenuItems[0][0].routerLink) {
       this.router.navigate(this.actionMenuItems[0][0].routerLink);
     }
   }

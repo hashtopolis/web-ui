@@ -80,6 +80,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.getBinariesMenu(),
       this.getConfigMenu(),
       this.getUsersMenu(),
+      this.getHelpMenu(),
       this.getAdminMenu()
     ];
   }
@@ -222,20 +223,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: 'Notifications',
             routerLink: ['account', 'notifications']
-          },
-          {
-            label: 'Bug Report/Enhancement',
-            routerLink: [
-              'https://github.com/hashtopolis/server/issues/new/choose'
-            ],
-            external: true
-          },
-          {
-            label: 'Support',
-            routerLink: [
-              'https://discord.com/channels/419123475538509844/419123475538509846'
-            ],
-            external: true
           }
         ],
         [
@@ -328,6 +315,54 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: HeaderMenuLabel.AGENT_BINARIES,
             routerLink: ['config', 'engine', 'agent-binaries']
+          }
+        ]
+      ]
+    };
+  }
+
+  /**
+   * Retrieves the 'Help' menu item.
+   * @returns A MainMenuItem for the 'Help' menu.
+   */
+  getHelpMenu(): MainMenuItem {
+    return {
+      display: true,
+      icon: 'contact_support',
+      label: 'Help / Contact',
+      actions: [
+        [
+          {
+            label: 'Bug Report/Enhancement (Git)',
+            routerLink: [
+              'https://github.com/hashtopolis/server/issues/new/choose'
+            ],
+            icon: 'code',
+            external: true
+          },
+          {
+            label: 'Bug Report/Enhancement (Mail)',
+            icon: 'mail',
+            routerLink: [
+              'mailto:contact@hashtoplis.org',
+            ],
+            external: true
+          },
+          {
+            label: 'Support (Discord)',
+            icon: 'chat',
+            routerLink: [
+              'https://discord.com/invite/S2NTxbz'
+            ],
+            external: true
+          },
+          {
+            label: 'Hashtopolis Website',
+            icon: 'open_in_new',
+            routerLink: [
+              'https://hashtopolis.org/',
+            ],
+            external: true
           }
         ]
       ]
