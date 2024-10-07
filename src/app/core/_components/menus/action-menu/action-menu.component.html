@@ -30,16 +30,16 @@
 <!--          }}</mat-icon>-->
 
           <div *ngIf="iconContainsDiscord(item.icon)" style="display: inline; padding-right: 6px">
-            <fa-icon [icon]="faDiscord" style="color: white" aria-hidden="true"></fa-icon>
+            <fa-icon [icon]="faDiscord" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
           </div>
           <div *ngIf="iconContainsGithub(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faGithub" style="color: white" aria-hidden="true"></fa-icon>
+            <fa-icon [icon]="faGithub" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
           </div>
           <div *ngIf="iconContainsPaperplane(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faPaperplane" style="color: white" aria-hidden="true"></fa-icon>
+            <fa-icon [icon]="faPaperplane" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
           </div>
           <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faGlobe" style="color: white" aria-hidden="true"></fa-icon>
+            <fa-icon [icon]="faGlobe" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
           </div>
           {{ item.label }}
         </button>

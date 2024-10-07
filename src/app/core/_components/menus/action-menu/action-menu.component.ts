@@ -2,6 +2,7 @@ import { ActionMenuEvent, ActionMenuItem } from './action-menu.model';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { faPaperPlane, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @angular-eslint/component-selector */
@@ -16,6 +17,8 @@ import {
 
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Subscription } from 'rxjs';
+import { UISettingsUtilityClass } from '../../../../shared/utils/config';
+import { UIConfig } from '../../../_models/config-ui.model';
 
 /**
  * Component representing an action menu with a list of menu items.
@@ -49,6 +52,8 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   currentUrl: any[];
   isActive = false;
 
+  protected uiSettings: UISettingsUtilityClass;
+
   /** Icon to be displayed in the menu button. */
   @Input() icon: string;
   /** Label for the menu button. */
@@ -77,10 +82,22 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   faPaperplane = faPaperPlane;
   faGlobe = faGlobe;
 
+  isDarkMode = false;
+  faIconColor = "white";
+
   constructor(
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private storage: LocalStorageService<UIConfig>
+  ) {
+    this.uiSettings = new UISettingsUtilityClass(this.storage);
+    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
+    if (this.isDarkMode) {
+      this.faIconColor = "white";
+    } else {
+      this.faIconColor = "black";
+    }
+  }
 
   ngOnInit(): void {
     this.subscriptions.push(
@@ -98,7 +115,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
    **/
   iconContainsDiscord(name: string): boolean {
     if (name != undefined) {
-      return name.toLowerCase().includes('discord');
+      return name.toLowerCase() === 'fadiscord';
     } else {
       return false;
     }
@@ -106,7 +123,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   iconContainsGithub(name: string): boolean {
     if (name != undefined) {
-      return name.toLowerCase().includes('github');
+      return name.toLowerCase() === 'fagithub';
     } else {
       return false;
     }
@@ -114,8 +131,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   iconContainsPaperplane(name: string): boolean {
     if (name != undefined) {
-      console.log(name);
-      return name.toLowerCase().includes('paperplane');
+      return name.toLowerCase() === 'fapaperplane';
     } else {
       return false;
     }
@@ -123,8 +139,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   iconContainsGlobe(name: string): boolean {
     if (name != undefined) {
-      console.log(name);
-      return name.toLowerCase().includes('globe');
+      return name.toLowerCase() === 'faglobe';
     } else {
       return false;
     }
