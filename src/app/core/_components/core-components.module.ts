@@ -69,6 +69,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
 import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
 import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/tasks-supertasks-table.component';
 import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chunks-table.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -142,7 +143,8 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     MatDividerModule,
     MatSlideToggleModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    FontAwesomeModule
   ],
   exports: [
     BaseTableComponent,

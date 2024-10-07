@@ -1,5 +1,8 @@
 import { ActionMenuEvent, ActionMenuItem } from './action-menu.model';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { faPaperPlane, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @angular-eslint/component-selector */
 import {
@@ -69,6 +72,11 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   openSubmenus: MatMenuTrigger[] = [];
 
+  faDiscord = faDiscord;
+  faGithub = faGithub;
+  faPaperplane = faPaperPlane;
+  faGlobe = faGlobe;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute
@@ -83,6 +91,43 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  /**
+    *  Display fontawesome icons according to the icon name
+   **/
+  iconContainsDiscord(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase().includes('discord');
+    } else {
+      return false;
+    }
+  }
+
+  iconContainsGithub(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase().includes('github');
+    } else {
+      return false;
+    }
+  }
+
+  iconContainsPaperplane(name: string): boolean {
+    if (name != undefined) {
+      console.log(name);
+      return name.toLowerCase().includes('paperplane');
+    } else {
+      return false;
+    }
+  }
+
+  iconContainsGlobe(name: string): boolean {
+    if (name != undefined) {
+      console.log(name);
+      return name.toLowerCase().includes('globe');
+    } else {
+      return false;
+    }
   }
 
   ngOnDestroy(): void {

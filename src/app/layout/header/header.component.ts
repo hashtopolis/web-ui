@@ -333,35 +333,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions: [
         [
           {
-            label: 'Bug Report/Enhancement (Git)',
+            label: 'Bug Report / Enhancement',
             routerLink: [
               'https://github.com/hashtopolis/server/issues/new/choose'
             ],
-            icon: 'code',
+            icon: 'faGithub',
             external: true
           },
           {
-            label: 'Bug Report/Enhancement (Mail)',
-            icon: 'mail',
-            routerLink: [
-              'mailto:contact@hashtoplis.org',
-            ],
+            label: 'Bug Report / Enhancement',
+            icon: 'faPaperplane',
+            routerLink: ['mailto:contact@hashtoplis.org'],
             external: true
           },
           {
-            label: 'Support (Discord)',
-            icon: 'chat',
-            routerLink: [
-              'https://discord.com/invite/S2NTxbz'
-            ],
+            label: 'Support',
+            icon: 'faDiscord',
+            routerLink: ['https://discord.com/invite/S2NTxbz'],
             external: true
           },
           {
             label: 'Hashtopolis Website',
-            icon: 'open_in_new',
-            routerLink: [
-              'https://hashtopolis.org/',
-            ],
+            icon: 'faGlobe',
+            routerLink: ['https://hashtopolis.org/'],
             external: true
           }
         ]
