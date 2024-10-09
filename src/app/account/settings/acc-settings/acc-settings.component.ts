@@ -19,6 +19,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
   static readonly PWD_MAX = 12;
 
+  pageTitle = 'Account Settings';
+  pageSubtitlePassword = 'Password Update';
+
   /** Form group for main form. */
   form: FormGroup;
   passform: FormGroup;

@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
 
-import { EditHealthChecksComponent } from './health-checks/edit-health-check/edit-health-checks.component';
+import { ViewHealthChecksComponent } from './health-checks/view-health-check/view-health-checks.component';
 import { NewHealthChecksComponent } from './health-checks/new-health-check/new-health-checks.component';
 import { AgentBinariesComponent } from './engine/agent-binaries/agent-binaries.component';
 import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
@@ -146,11 +146,11 @@ const routes: MyRoute[] = [
         canActivate: [CheckPerm]
       },
       {
-        path: 'health-checks/:id/edit',
-        component: EditHealthChecksComponent,
+        path: 'health-checks/:id',
+        component: ViewHealthChecksComponent,
         data: {
-          kind: 'edit-health-checks',
-          breadcrumb: 'Edit Health Checks',
+          kind: 'view-health-checks',
+          breadcrumb: 'View Health Checks',
           permission: 'HealthCheck'
         },
         canActivate: [CheckPerm]

@@ -130,7 +130,7 @@ export class HealthChecksTableComponent
   async renderHealthCheckLink(hc: HealthCheck): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: ['/config/health-checks', hc._id, 'edit']
+        routerLink: ['/config/health-checks', hc._id]
       }
     ];
   }
@@ -184,8 +184,8 @@ export class HealthChecksTableComponent
           action: event.menuItem.action
         });
         break;
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
+      case RowActionMenuAction.VIEW:
+        this.rowActionView(event.data);
         break;
     }
   }
@@ -252,7 +252,7 @@ export class HealthChecksTableComponent
     );
   }
 
-  private rowActionEdit(healthCheck: HealthCheck): void {
-    this.router.navigate(['/config/health-checks', healthCheck._id, 'edit']);
+  private rowActionView(healthCheck: HealthCheck): void {
+    this.router.navigate(['/config/health-checks', healthCheck._id]);
   }
 }

@@ -134,6 +134,11 @@ export class FormConfigComponent implements OnInit, OnDestroy {
       .subscribe((result) => {
         // Transform the retrieved array of objects into the desired structure for form rendering
         this.formValues = result.values.reduce((result, item) => {
+          if (item.value === 'true') {
+            item.value = true;
+          } else if (item.value === 'false') {
+            item.value = false;
+          }
           result[item.item] = item.value;
           return result;
         }, {});

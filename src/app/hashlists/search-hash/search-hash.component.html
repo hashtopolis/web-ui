@@ -1,5 +1,5 @@
-<grid-main>
-  <app-page-subtitle [subtitle]="'Hash Search'"></app-page-subtitle>
+<app-table>
+  <app-page-title [title]="pageTitle"></app-page-title>
   <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="10px">
     <input-text-area title="Search Hashes" formControlName="hashes" [required]="true"></input-text-area>
     <button-submit [name]="'Search'" [disabled]="!form.valid"></button-submit>
@@ -7,7 +7,7 @@
       <mat-spinner diameter="24" color="accent"></mat-spinner>
     </div>
   </form>
-</grid-main>
+</app-table>
 <app-table *ngIf="searchResults && searchResults.length > 0">
   <search-hash-table [search]="searchResults"></search-hash-table>
 </app-table>

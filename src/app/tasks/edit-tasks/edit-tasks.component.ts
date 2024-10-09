@@ -219,7 +219,10 @@ export class EditTasksComponent implements OnInit {
           this.tkeyspace = result['keyspace'];
           this.tusepreprocessor = result['preprocessorId'];
           this.updateForm = new FormGroup({
-            taskId: new FormControl(result['taskId']),
+            taskId: new FormControl({
+              value: result['taskId'],
+              disabled: true
+            }),
             forcePipe: new FormControl({
               value: result['forcePipe'] == true ? 'Yes' : 'No',
               disabled: true

@@ -23,12 +23,12 @@ export const DEFAULT_CONFIG = {
       name: 'Github'
     },
     footer_link_two: {
-      link: 'https://discord.com/channels/419123475538509844/419123475538509846',
+      link: 'https://discord.com/invite/S2NTxbz',
       name: 'Discord'
     },
     footer_link_three: {
-      link: '',
-      name: 'Help'
+      link: 'https://hashtopolis.org/',
+      name: 'Hashtopolis'
     }
   },
   agents:{
