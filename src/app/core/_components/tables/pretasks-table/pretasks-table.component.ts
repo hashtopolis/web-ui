@@ -2,12 +2,14 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
+  HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '../ht-table/ht-table.models';
 import {
   PretasksTableCol,
-  PretasksTableColumnLabel
+  PretasksTableColumnLabel,
+  PretasksTableEditableAction
 } from './pretasks-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
@@ -105,26 +107,50 @@ export class PretasksTableComponent
         id: PretasksTableCol.FILES_SIZE,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        render: (pretask: Pretask) =>
-          formatFileSize(
-            pretask.pretaskFiles.reduce((sum, file) => sum + file.size, 0),
-            'short'
-          ),
-        export: async (pretask: Pretask) =>
-          formatFileSize(
-            pretask.pretaskFiles.reduce((sum, file) => sum + file.size, 0),
-            'short'
-          )
+        render: (pretask: Pretask) => {
+          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
+            if (file && typeof file.size === 'number' && !isNaN(file.size)) {
+              return sum + file.size;
+            } else {
+              return sum;
+            }
+          }, 0);
+          return formatFileSize(totalFileSize, 'short');
+        },
+        export: async (pretask: Pretask) => {
+          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
+            if (file && typeof file.size === 'number' && !isNaN(file.size)) {
+              return sum + file.size;
+            } else {
+              return sum;
+            }
+          }, 0);
+          return formatFileSize(totalFileSize, 'short');
+        }
       },
       {
         id: PretasksTableCol.PRIORITY,
         dataKey: 'priority',
+        editable: (pretask: Pretask) => {
+          return {
+            data: pretask,
+            value: pretask.priority + '',
+            action: PretasksTableEditableAction.CHANGE_PRIORITY
+          };
+        },
         isSortable: true,
         export: async (pretask: Pretask) => pretask.priority.toString()
       },
       {
         id: PretasksTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
+        editable: (pretask: Pretask) => {
+          return {
+            data: pretask,
+            value: pretask.maxAgents + '',
+            action: PretasksTableEditableAction.CHANGE_MAX_AGENTS
+          };
+        },
         isSortable: true,
         export: async (pretask: Pretask) => pretask.maxAgents.toString()
       }
@@ -218,19 +244,25 @@ export class PretasksTableComponent
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
-        console.log('Copy to Task clicked:', event.data);
         this.rowActionCopyToTask(event.data);
         break;
       case RowActionMenuAction.COPY_TO_PRETASK:
-        console.log('Copy to Pretask clicked:', event.data);
         this.rowActionCopyToPretask(event.data);
         break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting Pretask ${event.data.taskName} ...`,
+          title: `${
+            this.supertTaskId !== 0
+              ? `Unassigning Pretask ${event.data.taskName} ...`
+              : `Deleting Pretask ${event.data.taskName} ...`
+          }`,
           icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${
+            this.supertTaskId !== 0
+              ? `unassign it?`
+              : `delete it? Note that this action cannot be undone.`
+          } `,
           warn: true,
           action: event.menuItem.action
         });
@@ -361,6 +393,91 @@ export class PretasksTableComponent
   }
 
   /**
+   * Inline Editing
+   */
+
+  editableSaved(editable: HTTableEditable<Pretask>): void {
+    switch (editable.action) {
+      case PretasksTableEditableAction.CHANGE_PRIORITY:
+        this.changePriority(editable.data, editable.value);
+        break;
+      case PretasksTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
+        break;
+    }
+  }
+
+  private changePriority(pretask: Pretask, priority: string): void {
+    let val = 0;
+    try {
+      val = parseInt(priority);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || pretask.priority == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
+      priority: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update prio!`, 'Close');
+            console.error('Failed to update prio:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed prio to ${val} on Task #${pretask._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  private changeMaxAgents(pretask: Pretask, max: string): void {
+    let val = 0;
+    try {
+      val = parseInt(max);
+    } catch (error) {
+      // Do nothing
+    }
+
+    if (!val || pretask.maxAgents == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
+      maxAgents: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            console.error('Failed to update max agents:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            `Changed number of max agents to ${val} on Task #${pretask._id}!`,
+            'Close'
+          );
+          this.reload();
+        })
+    );
+  }
+
+  /**
    * @todo Implement error handling.
    */
   private rowActionDelete(pretasks: Pretask[]): void {
@@ -397,7 +514,7 @@ export class PretasksTableComponent
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.snackBar.open('Successfully unassigned pretask!', 'Close');
             this.reload();
           })
       );

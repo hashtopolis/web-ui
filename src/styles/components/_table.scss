@@ -392,3 +392,11 @@ div.table-actions {
     background-color: var(--mat-toolbar-container-background-color);
   }
 }
+
+// Table Spinner
+.spinner-table {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

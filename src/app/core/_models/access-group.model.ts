@@ -3,4 +3,6 @@ export interface AccessGroup {
   _self: string;
   accessGroupId: number;
   groupName: string;
+  userMembers?: [];
+  agentMembers?: [];
 }

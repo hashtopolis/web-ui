@@ -17,6 +17,8 @@ import { AgentStatusModalComponent } from './agent-status-modal/agent-status-mod
 @PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {
   public isCollapsed = true;
+  pageTitle = 'Agents Status';
+
 
   public statusOrderByName = environment.config.agents.statusOrderByName;
   public statusOrderBy = environment.config.agents.statusOrderBy;

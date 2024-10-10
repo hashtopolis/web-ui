@@ -1,5 +1,5 @@
-<grid-main>
-  <app-page-subtitle subtitle="Agents Status"></app-page-subtitle>
+<app-table>
+  <app-page-title [title]="pageTitle"></app-page-title>
   <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutWrap fxLayoutGap="20px" class="py-4">
     <div class="mb-4 mb-md-0">
       <div class="btn-group ms-2 ms-3">
@@ -116,7 +116,7 @@
   </div>
 </div>
 
-</grid-main>
+</app-table>
 <!-- Agent Activity Table -->
 <app-table>
   <agents-status-table></agents-status-table>

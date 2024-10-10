@@ -52,6 +52,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   updateForm: FormGroup;
   updateAssignForm: FormGroup;
 
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   /** Select Options. */
   selectUsers: any;
   selectIgnorerrors = ignoreErrors;
@@ -79,13 +82,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   // Calculations
   timespent: number;
   getchunks: any;
-
-  // Tables Code
-  @ViewChild(DataTableDirective)
-  dtElement: DataTableDirective;
-
-  dtTrigger: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -269,9 +265,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
         // Calculate and update timespent
         this.timeCalc(this.getchunks);
-
-        // Trigger DataTable reload
-        this.dtTrigger.next(void 0);
       });
     });
   }
@@ -284,11 +277,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.updateForm.valid) {
       this.onUpdateAssign(this.updateAssignForm.value);
+      this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
         .subscribe(() => {
           this.alert.okAlert('Agent saved!', '');
-          this.updateForm.reset(); // success, we reset form
+          this.isUpdatingLoading = false;
           this.router.navigate(['agents/show-agents']);
         });
       this.unsubscribeService.add(onSubmitSubscription$);
@@ -320,6 +314,29 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       this.unsubscribeService.add(onDeleteSubscription$);
     }
   }
+
+  // Render devices using count by device type
+  renderDevices(agent: any) {
+    const deviceList = agent.split('\n');
+    const deviceCountMap: { [key: string]: number } = {};
+
+    // Count occurrences of each device
+    deviceList.forEach((device) => {
+      if (deviceCountMap[device]) {
+        deviceCountMap[device]++;
+      } else {
+        deviceCountMap[device] = 1;
+      }
+    });
+
+    // Format the result string with HTML line breaks
+    const formattedDevices = Object.keys(deviceCountMap)
+      .map((device) => `${deviceCountMap[device]} x ${device}`)
+      .join('<br>');
+
+    return formattedDevices;
+  }
+
   // //
   //  GRAPHS SECTION
   // //
@@ -380,9 +397,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     if (ASC.CPU_UTIL === status) {
       templabel = '%';
     }
-
-    // console.log(this.getTemp1());  //Min temp
-    // console.log(this.getTemp2());  //Max temp
 
     const data: any = obj;
     const arr = [];

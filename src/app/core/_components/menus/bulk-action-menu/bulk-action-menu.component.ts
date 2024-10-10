@@ -63,6 +63,8 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_HASHLISTS,
         BulkActionMenuLabel.ARCHIVE_HASHLISTS
       );
+    } else if (this.dataType === 'superhashlists') {
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PRETASKS);
     } else if (this.dataType === 'tasks') {
@@ -81,6 +83,8 @@ export class BulkActionMenuComponent
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERTASKS);
     } else if (this.dataType === 'access-groups') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_ACCESSGROUPS);
+    } else if (this.dataType === 'access-groups-users') {
+      this.setDeleteMenu(BulkActionMenuLabel.UNASSIGN_ACCESSGROUP_USERS);
     } else if (this.dataType === 'permissions') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PERMISSIONS);
     } else if (this.dataType === 'hashtypes') {

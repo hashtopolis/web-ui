@@ -8,6 +8,12 @@ import { SERV } from '../_services/main.config';
 import { RequestParams } from '../_models/request-params.model';
 
 export class ChunksDataSource extends BaseDataSource<Chunk> {
+  private _agentId = 0;
+
+  setAgentId(agentId: number): void {
+    this._agentId = agentId;
+  }
+
   loadAll(): void {
     this.loading = true;
 
@@ -19,6 +25,10 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
       startsAt: startAt,
       expand: 'task'
     };
+
+    if (this._agentId) {
+      params.filter = `chunkId=${this._agentId}`;
+    }
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
@@ -47,7 +57,7 @@ export class ChunksDataSource extends BaseDataSource<Chunk> {
             if (chunk.task) {
               chunk.taskName = chunk.task.taskName;
             }
-
+            console.log(chunk);
             return chunk;
           });
 

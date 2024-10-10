@@ -73,7 +73,18 @@ a:link {
 
   .mat-button-toggle {
     font-size: 14px;
+    color: black
   }
 
 }
 
+.dark-theme {
+  .horizontalnav{
+
+    .mat-button-toggle {
+      font-size: 14px;
+      color: white;
+    }
+
+  }
+}

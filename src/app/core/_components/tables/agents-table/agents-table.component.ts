@@ -141,6 +141,7 @@ export class AgentsTableComponent
       {
         id: AgentsTableCol.GPUS_CPUS,
         dataKey: 'devices',
+        render: (agent: Agent) => this.renderDevices(agent),
         isSortable: true,
         export: async (agent: Agent) => agent.devices
       },
@@ -364,6 +365,27 @@ export class AgentsTableComponent
       'yyyy-MM-ddThh:mm:ss'
     )}">${formattedDate}</time>`;
     return this.sanitize(data);
+  }
+
+  renderDevices(agent: Agent): SafeHtml {
+    const deviceList = agent.devices.split('\n');
+    const deviceCountMap: { [key: string]: number } = {};
+
+    // Count occurrences of each device
+    deviceList.forEach((device) => {
+      if (deviceCountMap[device]) {
+        deviceCountMap[device]++;
+      } else {
+        deviceCountMap[device] = 1;
+      }
+    });
+
+    // Format the result string with HTML line breaks
+    const formattedDevices = Object.keys(deviceCountMap)
+      .map((device) => `${deviceCountMap[device]} x ${device}`)
+      .join('<br>');
+
+    return this.sanitize(formattedDevices);
   }
 
   private async getSpeed(agent: Agent): Promise<number> {

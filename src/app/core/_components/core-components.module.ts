@@ -5,6 +5,10 @@ import {
 } from '@angular/material/snack-bar';
 
 import { AccessGroupsTableComponent } from './tables/access-groups-table/access-groups-table.component';
+import { AccessGroupsUserTableComponent } from './tables/access-groups-users-table/access-groups-users-table.component';
+import { AccessGroupsAgentsTableComponent } from './tables/access-groups-agents-table/access-groups-agents-table.component';
+import { AccessPermissionGroupsUserTableComponent } from './tables/access-permission-groups-user-table/access-permission-groups-user-table.component';
+import { AccessPermissionGroupsUsersTableComponent } from './tables/access-permission-groups-users-table/access-permission-groups-users-table.component';
 import { ActionMenuComponent } from './menus/action-menu/action-menu.component';
 import { AgentBinariesTableComponent } from './tables/agent-binaries-table/agent-binaries-table.component';
 import { AgentsTableComponent } from './tables/agents-table/agents-table.component';
@@ -20,7 +24,8 @@ import { ExportMenuComponent } from './menus/export-menu/export-menu.component';
 import { FilesTableComponent } from './tables/files-table/files-table.component';
 import { HTTableComponent } from './tables/ht-table/ht-table.component';
 import { HTTableTypeDefaultComponent } from './tables/ht-table/type/default/ht-table-type-default.component';
-import { HTTableTypeEditableComponent } from './tables/ht-table/type/editable/ht-table-type-editable.component';
+import { HTTableTypeEditableComponent } from './tables/ht-table/type/editable/editable-text/ht-table-type-editable.component';
+import { HTTableTypeEditableCheckboxComponent } from './tables/ht-table/type/editable/editable-checkbox/ht-table-type-editable-checkbox.component';
 import { HTTableTypeLinkComponent } from './tables/ht-table/type/link/ht-table-type-link.component';
 import { HashlistsTableComponent } from './tables/hashlists-table/hashlists-table.component';
 import { HashesTableComponent } from './tables/hashes-table/hashes-table.component';
@@ -64,6 +69,7 @@ import { SuperTasksPretasksTableComponent } from './tables/supertasks-pretasks-t
 import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-status-table.component';
 import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/tasks-supertasks-table.component';
 import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chunks-table.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -74,6 +80,7 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     HTTableTypeLinkComponent,
     HTTableTypeDefaultComponent,
     HTTableTypeEditableComponent,
+    HTTableTypeEditableCheckboxComponent,
     BaseMenuComponent,
     ActionMenuComponent,
     RowActionMenuComponent,
@@ -100,6 +107,10 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
+    AccessGroupsUserTableComponent,
+    AccessGroupsAgentsTableComponent,
+    AccessPermissionGroupsUserTableComponent,
+    AccessPermissionGroupsUsersTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
     CracksTableComponent,
@@ -132,7 +143,8 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     MatDividerModule,
     MatSlideToggleModule,
     RouterModule,
-    FormsModule
+    FormsModule,
+    FontAwesomeModule
   ],
   exports: [
     BaseTableComponent,
@@ -141,6 +153,7 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     HTTableTypeLinkComponent,
     HTTableTypeDefaultComponent,
     HTTableTypeEditableComponent,
+    HTTableTypeEditableCheckboxComponent,
     ColumnSelectionDialogComponent,
     BaseMenuComponent,
     ActionMenuComponent,
@@ -167,6 +180,10 @@ import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chu
     LogsTableComponent,
     UsersTableComponent,
     AccessGroupsTableComponent,
+    AccessGroupsUserTableComponent,
+    AccessGroupsAgentsTableComponent,
+    AccessPermissionGroupsUserTableComponent,
+    AccessPermissionGroupsUsersTableComponent,
     NotificationsTableComponent,
     PermissionsTableComponent,
     CracksTableComponent,

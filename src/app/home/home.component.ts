@@ -53,7 +53,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   activeAgents = 0;
   totalAgents = 0;
   totalTasks = 0;
+  completedTasks = 0;
   totalCracks = 0;
+  completedSupertasks = 0;
   totalSupertasks = 0;
 
   lastUpdated: string;
@@ -179,13 +181,17 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of active agents.
    */
   private getAgents(): void {
-    const params = { maxResults: this.maxResults, filter: 'isActive=true' };
+    const params = { maxResults: this.maxResults };
     this.subscriptions.push(
       this.gs
         .getAll(SERV.AGENTS, params)
         .subscribe((response: ListResponseWrapper<Agent>) => {
           this.totalAgents = response.total | 0;
-          this.activeAgents = response.values.length | 0;
+          // Filter by Active agents
+          const activeAgents = response.values.filter(
+            (agent) => agent.isActive
+          );
+          this.activeAgents = activeAgents.length | 0;
         })
     );
   }
@@ -194,13 +200,29 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of tasks.
    */
   private getTasks(): void {
-    const params = { maxResults: this.maxResults, filter: 'isArchived=false' };
+    const params = {
+      maxResults: this.maxResults,
+      expand: 'tasks',
+      filter: 'isArchived=false,taskType=0'
+    };
 
     this.subscriptions.push(
       this.gs
-        .getAll(SERV.TASKS, params)
+        .getAll(SERV.TASKS_WRAPPER, params)
         .subscribe((response: ListResponseWrapper<Task>) => {
           this.totalTasks = response.values.length | 0;
+          // Filter and count completed tasks
+          let completedTasksCount = 0;
+          response.values.forEach((taskWrapper) => {
+            const completedTasks = taskWrapper['tasks'].filter(
+              (task) =>
+                task.keyspaceProgress === task.keyspace && task.keyspace > 0
+            );
+            completedTasksCount += completedTasks.length;
+          });
+
+          // Set the count of completed tasks
+          this.completedTasks = completedTasksCount || 0;
         })
     );
   }
@@ -209,13 +231,39 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of supertasks.
    */
   private getSuperTasks(): void {
-    const params = { maxResults: this.maxResults };
+    const params = {
+      maxResults: this.maxResults,
+      expand: 'tasks',
+      filter: 'isArchived=false,taskType=1'
+    };
 
     this.subscriptions.push(
       this.gs
-        .getAll(SERV.SUPER_TASKS, params)
+        .getAll(SERV.TASKS_WRAPPER, params)
         .subscribe((response: ListResponseWrapper<SuperTask>) => {
-          this.totalSupertasks = response.total | 0;
+          this.totalSupertasks = response.total || 0;
+          // Filter and count completed supertasks
+          let completedSTCount = 0;
+          response.values.forEach((taskWrapper) => {
+            const totalTasks = taskWrapper['tasks'].length;
+            let completedTasksCount = 0;
+
+            taskWrapper['tasks'].forEach((task) => {
+              console.log(task);
+              if (
+                task.keyspaceProgress === task.keyspace &&
+                task.keyspace > 0
+              ) {
+                completedTasksCount++;
+              }
+            });
+
+            if (completedTasksCount === totalTasks) {
+              completedSTCount++;
+            }
+          });
+          // Set the count of completed supertasks
+          this.completedSupertasks = completedSTCount || 0;
         })
     );
   }

@@ -29,10 +29,7 @@ export class RowActionMenuComponent
         RowActionMenuLabel.DELETE_ACCESSGROUP
       );
     } else if (this.isSuperHashlist()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_SUPERHASHLIST,
-        RowActionMenuLabel.DELETE_SUPERHASHLIST
-      );
+      this.setSuperHashlistMenu();
     } else if (this.isFile()) {
       this.setEditDeleteMenuItems(
         RowActionMenuLabel.EDIT_FILE,
@@ -44,8 +41,8 @@ export class RowActionMenuComponent
         RowActionMenuLabel.DELETE_PREPROCESSOR
       );
     } else if (this.isHealthCheck()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_HEALTHCHECK,
+      this.setViewDeleteMenuItems(
+        RowActionMenuLabel.VIEW_HEALTHCHECK,
         RowActionMenuLabel.DELETE_HEALTHCHECK
       );
     } else if (this.isPermission()) {
@@ -113,6 +110,16 @@ export class RowActionMenuComponent
    */
   private setEditDeleteMenuItems(editLabel: string, deleteLabel: string): void {
     this.setActionMenuItems(0, [this.getEditMenuItem(editLabel)]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
+  }
+
+  /**
+   * Sets context menu with view and delete action.
+   * @param viewLabel The label for the view action.
+   * @param deleteLabel The label for the delete action.
+   */
+  private setViewDeleteMenuItems(viewLabel: string, deleteLabel: string): void {
+    this.setActionMenuItems(0, [this.getViewMenuItem(viewLabel)]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
   }
 
@@ -190,6 +197,22 @@ export class RowActionMenuComponent
   }
 
   /**
+   * Sets the context menu items for an Super-hashlist data row.
+   */
+  private setSuperHashlistMenu(): void {
+    this.setActionMenuItems(0, []);
+
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERHASHLIST),
+      this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLISTS),
+      this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLISTS)
+    ]);
+    this.setActionMenuItems(1, [
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERHASHLIST)
+    ]);
+  }
+
+  /**
    * Sets the context menu items for a user data row.
    */
   private setUserMenu(): void {
@@ -207,7 +230,6 @@ export class RowActionMenuComponent
       0,
       this.getEditMenuItem(RowActionMenuLabel.EDIT_USER)
     );
-
     this.setActionMenuItems(1, [
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)
     ]);
@@ -254,9 +276,15 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.COPY_TO_PRETASK,
       icon: RowActionMenuIcon.COPY
     });
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
-    ]);
+    if (!this.data.editst) {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
+      ]);
+    } else {
+      this.setActionMenuItems(1, [
+        this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)
+      ]);
+    }
   }
 
   /**
@@ -402,6 +430,19 @@ export class RowActionMenuComponent
       label: label,
       action: RowActionMenuAction.COPY_LINK,
       icon: RowActionMenuIcon.COPY
+    };
+  }
+
+  /**
+   * Creates an ActionMenuItem with view action.
+   * @param label The label for the menu item.
+   * @returns The ActionMenuItem with view action.
+   */
+  private getViewMenuItem(label: string): ActionMenuItem {
+    return {
+      label: label,
+      action: RowActionMenuAction.VIEW,
+      icon: RowActionMenuIcon.VIEW
     };
   }
 

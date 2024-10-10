@@ -9,7 +9,7 @@ import { SERV } from '../../../core/_services/main.config';
       #myCanvas
       style="border: 1px solid;"
       width="{{ x }}"
-      height="32px"
+      height="{{ y }}"
       class="img-fluid"
     >
       Fallback content
@@ -32,10 +32,20 @@ export class TaskVisualomponent {
   public x: number = window.innerWidth; // Dynamic width
   public y = 32;
 
-  constructor(private gs: GlobalService) {}
+  getWidth(){
+    if (document.body.className.includes('fixed-width-layout')) {
+      this.x = 1467;
+    } else if (document.body.className.includes('full-width-layout')) {
+      this.x = $(window).width() - 50;
+    }
+  }
+
+  constructor(private gs: GlobalService) {
+    this.getWidth();
+  }
 
   onWindowResize(event) {
-    this.x = event.target.innerWidth;
+    this.getWidth();
   }
 
   ngAfterViewInit() {

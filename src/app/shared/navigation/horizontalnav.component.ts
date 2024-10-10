@@ -1,6 +1,5 @@
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { Component, Input, OnDestroy } from '@angular/core';
-import { takeUntil } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
