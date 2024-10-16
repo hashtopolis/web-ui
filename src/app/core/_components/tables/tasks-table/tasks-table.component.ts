@@ -128,8 +128,8 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.HASHLISTS,
-        dataKey: 'userId',
-        routerLink: (wrapper: TaskWrapper) => this.renderHashlistLinks(wrapper),
+        dataKey: 'hashlistId',
+        routerLink: (wrapper: TaskWrapper) => this.renderHashlistLink(wrapper),
         isSortable: false,
         export: async (wrapper: TaskWrapper) =>
           wrapper.hashlists.map((h) => h.name).join(', ')
@@ -456,6 +456,27 @@ export class TasksTableComponent
         label: taskWrapperName,
         routerLink: ['/tasks', 'show-subtasks', wrapper._id],
         tooltip: 'Supertask'
+      });
+    }
+
+    return links;
+  }
+
+  @Cacheable(['_id', 'taskType', 'hashlists'])
+  override async renderHashlistLink(
+    wrapper: TaskWrapper
+  ): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+
+    if (wrapper && wrapper['hashlists'] && wrapper['hashlists'].length) {
+      links.push({
+        label: wrapper['hashlists'][0].name,
+        routerLink: [
+          '/hashlists',
+          'hashlist',
+          wrapper['hashlists'][0]._id,
+          'edit'
+        ]
       });
     }
 
