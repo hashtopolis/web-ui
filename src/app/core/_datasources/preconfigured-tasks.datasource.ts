@@ -80,9 +80,9 @@ export class PreTasksDataSource extends BaseDataSource<
                   ...superTaskPretask,
                   pretaskFiles: pretaskFiles.filter(
                     (pf) => pf.pretaskId === superTaskPretask.pretaskId
-                  )
+                  ),
+                  editst: true // Editing Supertask, tracking data
                 }));
-
                 this.setData(pretasks);
               });
           }

@@ -33,6 +33,8 @@ export class FilesAttackTableComponent
   @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
+  @Input() customLabel: string;
+  @Input() bulkWordlistRule = false;
   @Input() checkboxChangedData: CheckboxChangeEvent;
   @Input() formData: {
     attackCmd: string;
@@ -122,12 +124,17 @@ export class FilesAttackTableComponent
     if (event.columnType === 'CMD') {
       currentCmd = form.attackCmd;
     } else {
-      currentCmd = form.preprocessorCommand;
+      currentCmd = form.preprocessorCommand || '';
     }
     const newCmdArray = currentCmd.split(' ');
     const fileName = event.row.filename;
     const fileId = event.row._id;
-    const newFileIds = [...form.files];
+    let newFileIds;
+    if (event.columnType === 'CMD') {
+      newFileIds = [...form.files];
+    } else {
+      newFileIds = form.otherFiles ? [...form.otherFiles] : [];
+    }
 
     if (!event.checked) {
       // Remove -r and filename from the command
@@ -164,6 +171,11 @@ export class FilesAttackTableComponent
 
     const newCmd = newCmdArray.join(' ').trim();
 
-    return { attackCmd: newCmd, files: newFileIds, type: event.columnType };
+    return {
+      attackCmd: newCmd,
+      files: newFileIds,
+      otherFiles: newFileIds,
+      type: event.columnType
+    };
   }
 }

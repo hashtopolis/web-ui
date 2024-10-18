@@ -34,4 +34,5 @@ export const HeaderMenuLabel = {
   CRACKERS: 'Crackers',
   PREPROCESSORS: 'Preprocessors',
   AGENT_BINARIES: 'Agent Binaries',
+  HELP_CONTACT: 'Help / Contact',
 }

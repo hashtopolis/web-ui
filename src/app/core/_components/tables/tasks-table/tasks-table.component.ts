@@ -27,9 +27,6 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { Task } from 'src/app/core/_models/task.model';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
-import { TasksSupertasksTableComponent } from '../tasks-supertasks-table/tasks-supertasks-table.component';
-import { SuperTask } from 'src/app/core/_models/supertask.model';
-import { ModalSubtasksComponent } from 'src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
   selector: 'tasks-table',
@@ -92,12 +89,11 @@ export class TasksTableComponent
         dataKey: 'taskName',
         routerLink: (wrapper: TaskWrapper) =>
           this.renderTaskWrapperLink(wrapper),
-        isSortable: true,
+        isSortable: false,
         export: async (wrapper: TaskWrapper) => wrapper.taskName
       },
       {
         id: TaskTableCol.STATUS,
-        dataKey: 'keyspaceProgress',
         async: (wrapper: TaskWrapper) => this.renderSpeed(wrapper),
         icons: (wrapper: TaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
@@ -117,28 +113,26 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.HASHTYPE,
-        dataKey: 'userId',
+        isSortable: false,
         render: (wrapper: any) => {
           const firstHashtype = wrapper.hashtypes[0];
           return firstHashtype
             ? `${firstHashtype.hashTypeId} - ${firstHashtype.description}`
             : 'No HashType';
-        },
-        isSortable: false
+        }
       },
       {
         id: TaskTableCol.HASHLISTS,
-        dataKey: 'userId',
-        routerLink: (wrapper: TaskWrapper) => this.renderHashlistLinks(wrapper),
+        dataKey: 'hashlistId',
+        routerLink: (wrapper: TaskWrapper) => this.renderHashlistLink(wrapper),
         isSortable: false,
         export: async (wrapper: TaskWrapper) =>
           wrapper.hashlists.map((h) => h.name).join(', ')
       },
       {
         id: TaskTableCol.DISPATCHED_SEARCHED,
-        dataKey: 'clientSignature',
         async: (wrapper: TaskWrapper) => this.renderDispatchedSearched(wrapper),
-        isSortable: true,
+        isSortable: false,
         export: async (wrapper: TaskWrapper) =>
           this.getDispatchedSearchedString(wrapper)
       },
@@ -151,7 +145,6 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.AGENTS,
-        dataKey: 'agents',
         async: (wrapper: TaskWrapper) => this.renderAgents(wrapper),
         isSortable: false,
         export: async (wrapper: TaskWrapper) =>
@@ -162,7 +155,7 @@ export class TasksTableComponent
         dataKey: 'accessGroupName',
         routerLink: (wrapper: TaskWrapper) =>
           this.renderAccessGroupLink(wrapper),
-        isSortable: true,
+        isSortable: false,
         export: async (wrapper: TaskWrapper) => wrapper.accessGroupName
       },
       {
@@ -193,12 +186,11 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.PREPROCESSOR,
-        dataKey: 'preprocessorId',
         render: (wrapper: TaskWrapper) =>
           wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1
             ? 'Prince'
             : '',
-        isSortable: true,
+        isSortable: false,
         export: async (wrapper: TaskWrapper) =>
           wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1
             ? 'Prince'
@@ -206,9 +198,8 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.IS_SMALL,
-        dataKey: 'isSmall',
         icons: (wrapper: TaskWrapper) => this.renderIsSmallIcon(wrapper),
-        isSortable: true,
+        isSortable: false,
         export: async (wrapper: TaskWrapper) =>
           wrapper.taskType === 0
             ? wrapper.tasks[0].isSmall
@@ -218,9 +209,8 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.IS_CPU_TASK,
-        dataKey: 'isCpuTask',
         icons: (wrapper: TaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
-        isSortable: true,
+        isSortable: false,
         export: async (wrapper: TaskWrapper) =>
           wrapper.taskType === 0
             ? wrapper.tasks[0].isCpuTask
@@ -244,9 +234,6 @@ export class TasksTableComponent
       case RowActionMenuAction.COPY_TO_PRETASK:
         this.rowActionCopyToPretask(event.data);
         break;
-      case RowActionMenuAction.EDIT_SUBTASKS:
-        this.rowActionEditSubtasks(event.data);
-        break;
       case RowActionMenuAction.ARCHIVE:
         this.rowActionArchive(event.data);
         break;
@@ -254,11 +241,12 @@ export class TasksTableComponent
         this.rowActionUnarchive(event.data);
         break;
       case RowActionMenuAction.DELETE:
+        const prodata = this.getRowDeleteLabel(event.data);
         this.openDialog({
-          rows: [event.data],
-          title: `Deleting ${event.data.taskName} ...`,
+          rows: [prodata],
+          title: `Deleting ${prodata.taskName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete ${event.data.taskName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete ${prodata.taskName}? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -266,12 +254,33 @@ export class TasksTableComponent
     }
   }
 
+  getRowDeleteLabel(data): any {
+    return {
+      ...data,
+      taskName: data.taskType === 1 ? data.taskWrapperName : data.taskName
+    };
+  }
+
   bulkActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
+    let tasksCount = 0;
+
+    // Preprocess the data and count the occurrences of each type
+    const updatedData = event.data.map((taskWrapper) => {
+      tasksCount++;
+      return taskWrapper;
+    });
+
+    // Construct the label with counts, also adding plural
+    const tasksLabel = tasksCount === 1 ? 'task' : 'tasks';
+
+    let label = '';
+    label = `${tasksCount} ${tasksLabel}`;
+
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
         this.openDialog({
-          rows: event.data,
-          title: `Archiving ${event.data.length} tasks ...`,
+          rows: updatedData,
+          title: `Archiving ${label} ...`,
           icon: 'info',
           listAttribute: 'taskName',
           action: event.menuItem.action
@@ -279,10 +288,10 @@ export class TasksTableComponent
         break;
       case BulkActionMenuAction.DELETE:
         this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} tasks ...`,
+          rows: updatedData,
+          title: `Deleting ${label} ...`,
           icon: 'warning',
-          body: `Are you sure you want to permanently delete the selected tasks? Note that this action cannot be undone.`,
+          body: `Are you sure you want to permanently delete the selected ${label}? Note that this action cannot be undone.`,
           warn: true,
           listAttribute: 'taskName',
           action: event.menuItem.action
@@ -427,32 +436,66 @@ export class TasksTableComponent
     return links;
   }
 
+  @Cacheable(['_id', 'taskType', 'hashlists'])
+  override async renderHashlistLink(
+    wrapper: TaskWrapper
+  ): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+
+    if (wrapper && wrapper['hashlists'] && wrapper['hashlists'].length) {
+      links.push({
+        label: wrapper['hashlists'][0].name,
+        routerLink: [
+          '/hashlists',
+          'hashlist',
+          wrapper['hashlists'][0]._id,
+          'edit'
+        ]
+      });
+    }
+
+    return links;
+  }
+
   @Cacheable(['_id', 'taskType', 'tasks'])
   async renderStatusIcons(wrapper: TaskWrapper): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     const status = await this.getTaskStatus(wrapper);
+    if (wrapper.taskType === 0) {
+      switch (status) {
+        case TaskStatus.RUNNING:
+          icons.push({
+            name: 'radio_button_checked',
+            cls: 'pulsing-progress',
+            tooltip: 'In Progress'
+          });
+          break;
+        case TaskStatus.COMPLETED:
+          icons.push({
+            name: 'check',
+            tooltip: 'Completed'
+          });
+          break;
+        case TaskStatus.IDLE:
+          icons.push({
+            name: 'radio_button_checked',
+            tooltip: 'Idle',
+            cls: 'text-primary'
+          });
+          break;
+      }
+    } else {
+      // Count the completed tasks in supertasks
+      const countCompleted = wrapper.tasks.reduce((count, task) => {
+        return count;
+      }, 0);
 
-    switch (status) {
-      case TaskStatus.RUNNING:
-        icons.push({
-          name: 'radio_button_checked',
-          cls: 'pulsing-progress',
-          tooltip: 'In Progress'
-        });
-        break;
-      case TaskStatus.COMPLETED:
+      if (wrapper.tasks.length === countCompleted) {
         icons.push({
           name: 'check',
           tooltip: 'Completed'
         });
-        break;
-      case TaskStatus.IDLE:
-        icons.push({
-          name: 'radio_button_checked',
-          tooltip: 'Idle',
-          cls: 'text-primary'
-        });
-        break;
+      }
     }
 
     return icons;
@@ -596,13 +639,9 @@ export class TasksTableComponent
     );
   }
 
-  /**
-   * @todo Implement delete, currently we need to update to delete
-   */
-
   private bulkActionDelete(wrapper: TaskWrapper[]): void {
     const requests = wrapper.map((w: TaskWrapper) => {
-      return this.gs.delete(SERV.TASKS, w.tasks[0]._id);
+      return this.gs.delete(SERV.TASKS_WRAPPER, w._id);
     });
 
     this.subscriptions.push(
@@ -626,7 +665,7 @@ export class TasksTableComponent
   private rowActionDelete(wrapper: TaskWrapper): void {
     console.log(wrapper);
     this.subscriptions.push(
-      this.gs.delete(SERV.TASKS, wrapper.tasks[0]._id).subscribe(() => {
+      this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted task!', 'Close');
         this.reload();
       })
@@ -644,18 +683,6 @@ export class TasksTableComponent
       wrapper.tasks[0]._id,
       'copytask'
     ]);
-  }
-
-  private rowActionEditSubtasks(wrapper: TaskWrapper): void {
-    const dialogRef = this.dialog.open(ModalSubtasksComponent, {
-      width: '100%',
-      data: {
-        supertaskId: wrapper._id,
-        supertaskName: wrapper.taskWrapperName
-      }
-    });
-
-    dialogRef.afterClosed().subscribe();
   }
 
   private rowActionArchive(wrapper: TaskWrapper): void {

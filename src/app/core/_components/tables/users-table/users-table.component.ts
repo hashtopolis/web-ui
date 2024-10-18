@@ -278,7 +278,7 @@ export class UsersTableComponent
    */
   private bulkActionDelete(users: User[]): void {
     const requests = users.map((user: User) => {
-      return this.gs.delete(SERV.HASHLISTS, user._id);
+      return this.gs.delete(SERV.USERS, user._id);
     });
 
     this.subscriptions.push(
@@ -333,7 +333,7 @@ export class UsersTableComponent
   private rowActionDelete(users: User[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.HASHLISTS, users[0]._id)
+        .delete(SERV.USERS, users[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -349,7 +349,7 @@ export class UsersTableComponent
 
   private rowActionEdit(user: User): void {
     this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
+      this.router.navigate(['/users', user._id, 'edit']);
     });
   }
 }

@@ -1,8 +1,12 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
+  OnChanges,
+  OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
   forwardRef
 } from '@angular/core';
@@ -32,13 +36,17 @@ import { map, startWith } from 'rxjs/operators';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputMultiSelectComponent extends AbstractInputComponent<any> {
+export class InputMultiSelectComponent
+  extends AbstractInputComponent<any>
+  implements AfterViewInit
+{
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
   @Input() items: SelectField[] = [];
   @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
+  @Input() initialHashlistId: any;
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
@@ -63,6 +71,27 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
           : this.getUnselectedItems();
       })
     );
+  }
+
+  ngAfterViewInit(): void {
+    // Check if initialHashlistId is provided
+    if (this.initialHashlistId != null) {
+      // Find the preselected item based on initialHashlistId
+      const preselectedItem = this.items.find(
+        (item) => item._id === this.initialHashlistId
+      );
+
+      // If the preselected item is found, add it to selectedItems
+      if (preselectedItem) {
+        this.selectedItems.push(preselectedItem);
+
+        // Optionally, remove the preselected item from the available items
+        const index = this.items.indexOf(preselectedItem);
+        if (index !== -1) {
+          this.items.splice(index, 1);
+        }
+      }
+    }
   }
 
   /**
@@ -113,6 +142,8 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
       // Add the removed item back to the unselected items
       this.items.push(item);
 
+      this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+
       // Remove the item from the selected items
       this.selectedItems.splice(index, 1);
 
@@ -149,6 +180,12 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> {
    */
   public selected(event: MatAutocompleteSelectedEvent): void {
     if (!this.multiselectEnabled) {
+      // If an element has already been selected, it must be added to the list again
+      if (this.selectedItems.length > 0) {
+        this.items.push(this.selectedItems[0]);
+        this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+      }
+
       // For single-select, clear the selected items before adding the new one
       this.selectedItems = [];
       // If single-select, remove the selected item from the unselected items

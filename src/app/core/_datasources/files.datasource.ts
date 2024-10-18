@@ -66,7 +66,6 @@ export class FilesDataSource extends BaseDataSource<File> {
 
           if (this.editType === 0) {
             files = response['files'];
-            console.log(files);
           } else if (this.editType === 1) {
             files = response['pretaskFiles'];
           } else {

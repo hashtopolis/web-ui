@@ -24,7 +24,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import * as echarts from 'echarts/core';
 
 import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
-import { PendingChangesGuard } from 'src/app/core/_guards/pendingchanges.guard';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -45,9 +44,13 @@ export class EditTasksComponent implements OnInit {
   editedTaskIndex: number;
   taskWrapperId: number;
   editedTask: any; // Change to Model
+  originalValue: any; // Change to Model
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
+  /** On form update show a spinner loading */
+  isUpdatingLoading = false;
+
   color = '';
   tusepreprocessor: any;
   hashlistDescrip: any;
@@ -134,18 +137,42 @@ export class EditTasksComponent implements OnInit {
 
   onSubmit() {
     if (this.updateForm.valid) {
-      this.gs
-        .update(
-          SERV.TASKS,
-          this.editedTaskIndex,
-          this.updateForm.value['updateData']
-        )
-        .subscribe(() => {
-          this.alert.okAlert('Task saved!', '');
-          this.updateForm.reset(); // success, we reset form
-          this.router.navigate(['tasks/show-tasks']);
+      // Check if attackCmd has been modified
+      if (
+        this.updateForm.value['updateData'].attackCmd !==
+        this.originalValue.attackCmd
+      ) {
+        const warning =
+          'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
+        this.alert.customConfirmation(warning).then((confirmed) => {
+          if (confirmed) {
+            this.updateTask();
+          } else {
+            // Handle cancellation
+            this.alert.okAlert(`Task Information has not been updated!`, '');
+          }
         });
+      } else {
+        this.updateTask();
+      }
     }
+  }
+
+  private updateTask() {
+    this.isUpdatingLoading = true;
+    this.gs
+      .update(
+        SERV.TASKS,
+        this.editedTaskIndex,
+        this.updateForm.value['updateData']
+      )
+      .subscribe(() => {
+        this.alert.okAlert('Task saved!', '');
+        this.isUpdatingLoading = false;
+        this.router.navigate(['tasks/show-tasks']).then(() => {
+          window.location.reload();
+        });
+      });
   }
 
   private initForm() {
@@ -155,7 +182,7 @@ export class EditTasksComponent implements OnInit {
           expand: 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
         })
         .subscribe((result) => {
-          console.log(result);
+          this.originalValue = result;
           this.color = result['color'];
           this.crackerinfo = result.crackerBinary;
           this.taskWrapperId - result.taskWrapperId;
@@ -167,8 +194,6 @@ export class EditTasksComponent implements OnInit {
           this.hashlistinform = '';
           if (result.hashlist && result.hashlist.length > 0) {
             this.hashlistinform = result.hashlist[0];
-            console.log('here');
-
             if (this.hashlistinform) {
               this.gs
                 .getAll(SERV.HASHTYPES, {
@@ -194,7 +219,10 @@ export class EditTasksComponent implements OnInit {
           this.tkeyspace = result['keyspace'];
           this.tusepreprocessor = result['preprocessorId'];
           this.updateForm = new FormGroup({
-            taskId: new FormControl(result['taskId']),
+            taskId: new FormControl({
+              value: result['taskId'],
+              disabled: true
+            }),
             forcePipe: new FormControl({
               value: result['forcePipe'] == true ? 'Yes' : 'No',
               disabled: true
@@ -341,8 +369,8 @@ export class EditTasksComponent implements OnInit {
             for (let i = 0; i < getchunks.length; i++) {
               if (
                 Date.now() / 1000 -
-                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
-                  chunktime &&
+                Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
+                chunktime &&
                 getchunks[i].progress < 10000
               ) {
                 this.isactive = 1;
@@ -386,24 +414,24 @@ export class EditTasksComponent implements OnInit {
     });
     Swal.fire({
       title: 'Are you sure?',
-      text: "It'll purge the Task!",
+      text: 'It\'ll purge the Task!',
       icon: 'warning',
       reverseButtons: true,
       showCancelButton: true,
       cancelButtonColor: this.alert.cancelButtonColor,
       confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.delconfirmText
+      confirmButtonText: this.alert.purgeText
     }).then((result) => {
       if (result.isConfirmed) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
-          this.alert.okAlert('Deleted ' + name + '', '');
+          this.alert.okAlert('Purged task id' + this.editedTaskIndex + '', '');
           this.ngOnInit();
         });
       } else {
         swalWithBootstrapButtons.fire({
           title: 'Cancelled',
-          text: 'Your Task is safe!',
+          text: 'Purge was cancelled!',
           icon: 'error',
           showConfirmButton: false,
           timer: 1500
@@ -446,7 +474,7 @@ export class EditTasksComponent implements OnInit {
     const max = [];
     const result = [];
 
-    data.reduce(function (res, value) {
+    data.reduce(function(res, value) {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -485,7 +513,7 @@ export class EditTasksComponent implements OnInit {
       },
       tooltip: {
         position: 'top',
-        formatter: function (p) {
+        formatter: function(p) {
           return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
         }
       },
@@ -494,7 +522,7 @@ export class EditTasksComponent implements OnInit {
         right: '4%'
       },
       xAxis: {
-        data: xAxis.map(function (item: any[] | any) {
+        data: xAxis.map(function(item: any[] | any) {
           return self.transDate(item);
         })
       },

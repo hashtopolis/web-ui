@@ -204,11 +204,9 @@ export class TasksSupertasksTableComponent
         this.rowActionEdit(event.data);
         break;
       case RowActionMenuAction.COPY_TO_TASK:
-        console.log('Copy to Task clicked:', event.data);
         this.rowActionCopyToTask(event.data);
         break;
       case RowActionMenuAction.COPY_TO_PRETASK:
-        console.log('Copy to Pretask clicked:', event.data);
         this.rowActionCopyToPretask(event.data);
         break;
       case RowActionMenuAction.ARCHIVE:
@@ -327,21 +325,16 @@ export class TasksSupertasksTableComponent
     return cd.agents.length;
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
   async renderAgents(task: Task): Promise<SafeHtml> {
     const numAgents = await this.getNumAgents(task);
     return this.sanitize(`${numAgents}`);
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
   async renderDispatchedSearched(task: Task): Promise<SafeHtml> {
     const html = await this.getDispatchedSearchedString(task);
     return this.sanitize(html);
   }
 
-  /**
-   * @todo Implement error handling.
-   */
   private rowActionDelete(tasks: TaskWrapper[]): void {
     //Get the IDs of tasks to be deleted
     const tasksIdsToDelete = tasks.map((tasks) => tasks._id);
