@@ -1,5 +1,9 @@
 import { ActionMenuEvent, ActionMenuItem } from './action-menu.model';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { faPaperPlane, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @angular-eslint/component-selector */
 import {
@@ -13,6 +17,8 @@ import {
 
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Subscription } from 'rxjs';
+import { UISettingsUtilityClass } from '../../../../shared/utils/config';
+import { UIConfig } from '../../../_models/config-ui.model';
 
 /**
  * Component representing an action menu with a list of menu items.
@@ -46,6 +52,8 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   currentUrl: any[];
   isActive = false;
 
+  protected uiSettings: UISettingsUtilityClass;
+
   /** Icon to be displayed in the menu button. */
   @Input() icon: string;
   /** Label for the menu button. */
@@ -69,10 +77,27 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   openSubmenus: MatMenuTrigger[] = [];
 
+  faDiscord = faDiscord;
+  faGithub = faGithub;
+  faPaperplane = faPaperPlane;
+  faGlobe = faGlobe;
+
+  isDarkMode = false;
+  faIconColor = "white";
+
   constructor(
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private storage: LocalStorageService<UIConfig>
+  ) {
+    this.uiSettings = new UISettingsUtilityClass(this.storage);
+    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
+    if (this.isDarkMode) {
+      this.faIconColor = "white";
+    } else {
+      this.faIconColor = "black";
+    }
+  }
 
   ngOnInit(): void {
     this.subscriptions.push(
@@ -83,6 +108,41 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  /**
+    *  Display fontawesome icons according to the icon name
+   **/
+  iconContainsDiscord(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase() === 'fadiscord';
+    } else {
+      return false;
+    }
+  }
+
+  iconContainsGithub(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase() === 'fagithub';
+    } else {
+      return false;
+    }
+  }
+
+  iconContainsPaperplane(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase() === 'fapaperplane';
+    } else {
+      return false;
+    }
+  }
+
+  iconContainsGlobe(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase() === 'faglobe';
+    } else {
+      return false;
+    }
   }
 
   ngOnDestroy(): void {
@@ -244,7 +304,9 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
    */
   navigateToFirst(event: MouseEvent): void {
     event.stopPropagation();
-    if (this.actionMenuItems[0][0].routerLink) {
+    if (this.actionMenuItems[0][0].external) {
+      window.open(String(this.actionMenuItems[0][0].routerLink), '_blank');
+    } else if (this.actionMenuItems[0][0].routerLink) {
       this.router.navigate(this.actionMenuItems[0][0].routerLink);
     }
   }

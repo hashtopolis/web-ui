@@ -69,7 +69,7 @@ export type HTTableColumnType = 'dafeult | link | editable';
 export interface HTTableColumn {
   type?: HTTableColumnType;
   id: number;
-  dataKey: string;
+  dataKey?: string;
   position?: 'right' | 'left';
   isSortable?: boolean;
   icons?: (data: any) => Promise<HTTableIcon[]>;
