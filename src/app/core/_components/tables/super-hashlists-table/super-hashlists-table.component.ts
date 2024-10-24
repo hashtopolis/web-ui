@@ -1,6 +1,6 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '../ht-table/ht-table.models';
 import {
   SuperHashlistsTableCol,
   SuperHashlistsTableColumnLabel
@@ -19,6 +19,8 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { SuperHashlistsDataSource } from 'src/app/core/_datasources/super-hashlists.datasource';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatPercentage } from 'src/app/shared/utils/util';
+import { TaskWrapper } from '../../../_models/task-wrapper.model';
+import { TaskTableCol } from '../tasks-table/tasks-table.constants';
 
 @Component({
   selector: 'super-hashlists-table',
@@ -135,6 +137,27 @@ export class SuperHashlistsTableComponent
   }
 
   // --- Render functions ---
+  @Cacheable(['_id', 'taskType', 'hashlists'])
+  async renderHashlistLinks(
+    superHashlist: Hashlist
+  ): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (superHashlist && superHashlist['hashlists'] && superHashlist['hashlists'].length) {
+      for (const entry of superHashlist['hashlists']) {
+        links.push({
+          label: entry.name,
+          routerLink: [
+            '/hashlists',
+            'hashlist',
+            entry._id,
+            'edit'
+          ]
+        });
+      }
+    }
+
+    return links;
+  }
 
   @Cacheable(['_id', 'isSecret'])
   async renderSecretIcon(superHashlist: Hashlist): Promise<HTTableIcon[]> {
