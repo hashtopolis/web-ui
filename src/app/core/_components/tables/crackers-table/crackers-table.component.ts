@@ -171,7 +171,7 @@ export class CrackersTableComponent
           icon: 'warning',
           body: `Are you sure you want to delete the above crackers? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'crackername',
+          listAttribute: 'typeName',
           action: event.menuItem.action
         });
         break;

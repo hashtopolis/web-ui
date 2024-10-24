@@ -1,4 +1,6 @@
 import { AccessGroupsTableCol } from '../_components/tables/access-groups-table/access-groups-table.constants';
+import { AccessGroupsUsersTableCol } from '../_components/tables/access-groups-users-table/access-groups-users-table.constants';
+import { AccessGroupsAgentsTableCol } from '../_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AgentBinariesTableCol } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsStatusTableCol } from '../_components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '../_components/tables/agents-table/agents-table.constants';
@@ -25,6 +27,9 @@ import { TasksChunksTableCol } from '../_components/tables/tasks-chunks-table/ta
 import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 import { VouchersTableCol } from '../_components/tables/vouchers-table/vouchers-table.constants';
+import { AccessPermissionGroupsUsersTableCol } from '../_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
+import { AccessPermissionGroupsUserTableCol } from '../_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+import { HashesTableCol } from '../_components/tables/hashes-table/hashes-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -224,6 +229,24 @@ export const uiConfigDefault: UIConfig = {
         HashlistsTableCol.ID,
         HashlistsTableCol.NAME,
         HashlistsTableCol.HASHTYPE,
+        HashlistsTableCol.FORMAT,
+        HashlistsTableCol.CRACKED,
+        HashlistsTableCol.HASH_COUNT
+      ],
+      order: {
+        id: HashlistsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    hashlistsInShTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HashlistsTableCol.ID,
+        HashlistsTableCol.NAME,
         HashlistsTableCol.FORMAT,
         HashlistsTableCol.CRACKED,
         HashlistsTableCol.HASH_COUNT
@@ -546,6 +569,25 @@ export const uiConfigDefault: UIConfig = {
       },
       search: ''
     },
+    hashesTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        HashesTableCol.HASHES,
+        HashesTableCol.PLAINTEXT,
+        HashesTableCol.SALT,
+        HashesTableCol.CRACK_POSITION,
+        HashesTableCol.ISCRACKED,
+        HashesTableCol.TIMECRACKED
+      ],
+      order: {
+        id: HashesTableCol.TIMECRACKED,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
     searchHashTable: {
       start: 0,
       page: 25,
@@ -600,9 +642,77 @@ export const uiConfigDefault: UIConfig = {
     accessGroupsTable: {
       start: 0,
       page: 25,
-      columns: [AccessGroupsTableCol.ID, AccessGroupsTableCol.NAME],
+      columns: [
+        AccessGroupsTableCol.ID,
+        AccessGroupsTableCol.NAME,
+        AccessGroupsTableCol.NUSERS,
+        AccessGroupsTableCol.NAGENTS
+      ],
       order: {
         id: AccessGroupsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessGroupsUsersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AccessGroupsUsersTableCol.ID,
+        AccessGroupsUsersTableCol.NAME,
+        AccessGroupsUsersTableCol.STATUS
+      ],
+      order: {
+        id: AccessGroupsUsersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessPermissionGroupsUserTable: {
+      start: 0,
+      page: 50,
+      columns: [
+        AccessPermissionGroupsUserTableCol.NAME,
+        AccessPermissionGroupsUserTableCol.CREATE,
+        AccessPermissionGroupsUserTableCol.READ,
+        AccessPermissionGroupsUserTableCol.UPDATE,
+        AccessPermissionGroupsUserTableCol.DELETE
+      ],
+      order: {
+        id: AccessPermissionGroupsUserTableCol.NAME,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessPermissionGroupsUsersTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AccessPermissionGroupsUsersTableCol.ID,
+        AccessPermissionGroupsUsersTableCol.NAME,
+        AccessPermissionGroupsUsersTableCol.STATUS,
+        AccessPermissionGroupsUsersTableCol.LAST_LOGIN
+      ],
+      order: {
+        id: AccessPermissionGroupsUsersTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    accessGroupsAgentsTable: {
+      start: 0,
+      page: 25,
+      columns: [AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME],
+      order: {
+        id: AccessGroupsAgentsTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'

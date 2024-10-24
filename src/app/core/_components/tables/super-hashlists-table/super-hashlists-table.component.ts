@@ -1,6 +1,6 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '../ht-table/ht-table.models';
 import {
   SuperHashlistsTableCol,
   SuperHashlistsTableColumnLabel
@@ -19,6 +19,8 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { SuperHashlistsDataSource } from 'src/app/core/_datasources/super-hashlists.datasource';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatPercentage } from 'src/app/shared/utils/util';
+import { TaskWrapper } from '../../../_models/task-wrapper.model';
+import { TaskTableCol } from '../tasks-table/tasks-table.constants';
 
 @Component({
   selector: 'super-hashlists-table',
@@ -125,9 +127,6 @@ export class SuperHashlistsTableComponent
             case RowActionMenuAction.DELETE:
               this.rowActionDelete(result.data);
               break;
-            case BulkActionMenuAction.ARCHIVE:
-              this.bulkActionArchive(result.data, true);
-              break;
             case BulkActionMenuAction.DELETE:
               this.bulkActionDelete(result.data);
               break;
@@ -138,6 +137,27 @@ export class SuperHashlistsTableComponent
   }
 
   // --- Render functions ---
+  @Cacheable(['_id', 'taskType', 'hashlists'])
+  async renderHashlistLinks(
+    superHashlist: Hashlist
+  ): Promise<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (superHashlist && superHashlist['hashlists'] && superHashlist['hashlists'].length) {
+      for (const entry of superHashlist['hashlists']) {
+        links.push({
+          label: entry.name,
+          routerLink: [
+            '/hashlists',
+            'hashlist',
+            entry._id,
+            'edit'
+          ]
+        });
+      }
+    }
+
+    return links;
+  }
 
   @Cacheable(['_id', 'isSecret'])
   async renderSecretIcon(superHashlist: Hashlist): Promise<HTTableIcon[]> {
@@ -219,9 +239,9 @@ export class SuperHashlistsTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting super hashlist with id ${event.data._id} (${event.data.hashTypeDescription}) ...`,
+          title: `Deleting Super-hashlist with id ${event.data._id} (${event.data.hashTypeDescription}) ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete it? Note: This action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -231,60 +251,18 @@ export class SuperHashlistsTableComponent
 
   bulkActionClicked(event: ActionMenuEvent<Hashlist[]>): void {
     switch (event.menuItem.action) {
-      case BulkActionMenuAction.ARCHIVE:
-        this.openDialog({
-          rows: event.data,
-          title: `Archiving ${event.data.length} super hashlists ...`,
-          icon: 'info',
-          listAttribute: 'name',
-          action: event.menuItem.action
-        });
-        break;
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} super hashlists ...`,
+          title: `Deleting ${event.data.length} Super-hashlists ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above super hashlists? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete the above Super-hashlist? Note: This action cannot be undone.`,
           warn: true,
           listAttribute: 'name',
           action: event.menuItem.action
         });
         break;
     }
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private bulkActionArchive(
-    superHashlists: Hashlist[],
-    isArchived: boolean
-  ): void {
-    const requests = superHashlists.map((superHashlist: Hashlist) => {
-      return this.gs.update(SERV.HASHLISTS, superHashlist._id, {
-        isArchived: isArchived
-      });
-    });
-
-    const action = isArchived ? 'archived' : 'unarchived';
-
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during archiving:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully ${action} ${results.length} super hashlists!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
   }
 
   /**
@@ -305,7 +283,7 @@ export class SuperHashlistsTableComponent
         )
         .subscribe((results) => {
           this.snackBar.open(
-            `Successfully deleted ${results.length} super hashlists!`,
+            `Successfully deleted ${results.length} Super-hashlists!`,
             'Close'
           );
           this.reload();
@@ -338,17 +316,36 @@ export class SuperHashlistsTableComponent
   }
 
   /**
-   * @todo Implement export action.
+   * Executes a row action to export cracked hashes from a superhashlist.
+   * @param {Hashlist} hashlist - The Superhaslist containing the cracked hashes to export.
+   * @private
+   * @returns {void}
    */
-  private rowActionExport(superHashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', superHashlist._id, 'copy']);
+  private rowActionExport(superhashlist: Hashlist): void {
+    const payload = { hashlistId: superhashlist._id };
+    this.subscriptions.push(
+      this.gs
+        .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during exporting:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            'Cracked hashes from Super-hashlist exported sucessfully!',
+            'Close'
+          );
+          this.reload();
+        })
+    );
   }
 
-  /**
-   * @todo Implement import action.
-   */
   private rowActionImport(superHashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', superHashlist._id, 'copy']);
+    this.router.navigate([
+      '/hashlists/hashlist/' + superHashlist._id + '/import-cracked-hashes'
+    ]);
   }
 
   setIsArchived(isArchived: boolean): void {

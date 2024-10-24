@@ -42,6 +42,7 @@ export class BaseTableComponent {
   @ViewChild('table') table: HTTableComponent;
 
   @Input() hashlistId: number;
+  @Input() shashlistId: number;
 
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
@@ -147,9 +148,8 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['userId'])
+  @Cacheable(['userId', '_id'])
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    console.log(obj);
     return [
       {
         routerLink: obj && obj['_id'] ? ['/users', obj['_id'], 'edit'] : []
@@ -179,22 +179,6 @@ export class BaseTableComponent {
             : []
       }
     ];
-  }
-
-  @Cacheable(['hashlists'])
-  async renderHashlistLinks(obj: unknown): Promise<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-
-    if (obj && obj['hashlists'] && obj['hashlists'].length) {
-      for (const hashlist of obj['hashlists']) {
-        links.push({
-          label: hashlist.name,
-          routerLink: ['/hashlists', 'hashlist', hashlist._id, 'edit']
-        });
-      }
-    }
-
-    return links;
   }
 
   @Cacheable(['hashlistId'])
@@ -236,7 +220,6 @@ export class BaseTableComponent {
   @Cacheable(['_id', 'accessGroups'])
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
-    console.log(obj);
     if (obj && obj['accessGroups'] && obj['accessGroups'].length) {
       links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
         return {

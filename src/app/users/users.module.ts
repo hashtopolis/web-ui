@@ -16,11 +16,13 @@ import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
 import { UsersRoutingModule } from './users-routing.module';
 import { CoreFormsModule } from '../shared/forms.module';
+import { EditGroupsComponent } from './edit-groups/edit-groups.component';
 
 @NgModule({
   declarations: [
     EditGlobalpermissionsgroupsComponent,
     GlobalpermissionsgroupsComponent,
+    EditGroupsComponent,
     EditUsersComponent,
     AllUsersComponent,
     GroupsComponent

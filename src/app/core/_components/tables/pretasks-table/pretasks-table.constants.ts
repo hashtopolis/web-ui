@@ -21,3 +21,8 @@ export const PretasksTableColumnLabel = {
   [PretasksTableCol.ESTIMATED_KEYSPACE]: 'Estimated Keyspace',
   [PretasksTableCol.ATTACK_RUNTIME]: 'Attack Runtime'
 };
+
+export const PretasksTableEditableAction = {
+  CHANGE_PRIORITY: 'change-priority',
+  CHANGE_MAX_AGENTS: 'change-max-agents'
+};

@@ -2,12 +2,12 @@
 	"name": "Hashtopolis Web UI Devcontainer",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "hashtopolis-web-ui-dev",
-			
+
 	"workspaceFolder": "/app",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
-	
+
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
@@ -35,5 +35,6 @@
 	"remoteEnv": {
 		"NODE_OPTIONS": "--use-openssl-ca"
 	},
+  "overrideCommand": false,
 	"remoteUser": "node"
 }

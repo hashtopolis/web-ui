@@ -124,7 +124,6 @@ export class UISettingsUtilityClass {
     try {
       return this.uiConfig[key];
     } catch (error) {
-      console.log(error);
       return undefined;
     }
   }

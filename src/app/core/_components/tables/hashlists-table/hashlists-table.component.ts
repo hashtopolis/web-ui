@@ -47,6 +47,9 @@ export class HashlistsTableComponent
     );
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    if (this.shashlistId) {
+      this.dataSource.setSHashlistId(this.shashlistId);
+    }
     this.dataSource.loadAll();
   }
 
@@ -68,7 +71,7 @@ export class HashlistsTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
         dataKey: '_id',
@@ -101,14 +104,6 @@ export class HashlistsTableComponent
           formatPercentage(hashlist.cracked, hashlist.hashCount)
       },
       {
-        id: HashlistsTableCol.HASHTYPE,
-        dataKey: 'hashTypeDescription',
-        isSortable: true,
-        render: (hashlist: Hashlist) =>
-          hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
-        export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
-      },
-      {
         id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
@@ -118,6 +113,17 @@ export class HashlistsTableComponent
           HashListFormatLabel[hashlist.format]
       }
     ];
+
+    if (!this.shashlistId) {
+      tableColumns.push({
+        id: HashlistsTableCol.HASHTYPE,
+        dataKey: 'hashTypeDescription',
+        isSortable: true,
+        render: (hashlist: Hashlist) =>
+          hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
+        export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
+      });
+    }
 
     return tableColumns;
   }
@@ -229,7 +235,9 @@ export class HashlistsTableComponent
           rows: [event.data],
           title: `Deleting hashlist with id ${event.data._id} (${event.data.hashTypeDescription}) ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete it? Note that this action cannot be undone. ${
+            this.shashlistId ? ' This action is deleting not unassigning.' : ''
+          }`,
           warn: true,
           action: event.menuItem.action
         });
@@ -238,11 +246,14 @@ export class HashlistsTableComponent
   }
 
   bulkActionClicked(event: ActionMenuEvent<Hashlist[]>): void {
+    const hashlistCount = event.data.length;
+    const label = hashlistCount > 1 ? 'hashlists' : 'hashlist';
+
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
         this.openDialog({
           rows: event.data,
-          title: `Archiving ${event.data.length} hashlists ...`,
+          title: `Archiving ${event.data.length} ${label} ...`,
           icon: 'info',
           listAttribute: 'name',
           action: event.menuItem.action
@@ -251,9 +262,11 @@ export class HashlistsTableComponent
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: event.data,
-          title: `Deleting ${event.data.length} hashlists ...`,
+          title: `Deleting ${event.data.length} ${label} ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete the above hashlists? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete the above ${label}? Note that this action cannot be undone. ${
+            this.shashlistId ? ' This action is deleting not unassigning.' : ''
+          }`,
           warn: true,
           listAttribute: 'name',
           action: event.menuItem.action
@@ -345,17 +358,36 @@ export class HashlistsTableComponent
   }
 
   /**
-   * @todo Implement export action.
+   * Executes a row action to export cracked hashes from a hashlist.
+   * @param {Hashlist} hashlist - The hashlist containing the cracked hashes to export.
+   * @private
+   * @returns {void}
    */
   private rowActionExport(hashlist: Hashlist): void {
-    this.router.navigate(['/hashlists/hashlist', hashlist._id, 'copy']);
+    const payload = { hashlistId: hashlist._id };
+    this.subscriptions.push(
+      this.gs
+        .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during exporting:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(
+            'Cracked hashes from hashlist exported sucessfully!',
+            'Close'
+          );
+          this.reload();
+        })
+    );
   }
 
-  /**
-   * @todo Implement import action.
-   */
   private rowActionImport(hashlist: Hashlist): void {
-    this.router.navigate(['/hashlists', hashlist._id, 'copy']);
+    this.router.navigate([
+      '/hashlists/hashlist/' + hashlist._id + '/import-cracked-hashes'
+    ]);
   }
 
   setIsArchived(isArchived: boolean): void {

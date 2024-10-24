@@ -39,10 +39,10 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
-   * The subtitle to display.
+   * The title to display.
    * @type {string}
    */
-  @Input() subtitle: string;
+  @Input() title: string;
 
   /**
    * An array of form field metadata that describes the form structure.
@@ -113,6 +113,12 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    * When true, it represents that options are being fetched; when false, loading is complete.
    */
   isLoadingSelect = true;
+
+  /**
+   * Indicates when a form is being submitted
+   *
+   */
+  isSubmitting = false;
 
   /**
    * Constructor for the DynamicFormComponent.
@@ -256,6 +262,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
+      this.isSubmitting = true;
       // Emit the form values to the parent component
       this.formSubmit.emit(this.form.value);
     }

@@ -11,6 +11,7 @@ import { Subscription } from 'rxjs';
 import { VoucherForm } from './new-agent.form';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { environment } from './../../../environments/environment';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-agent',
@@ -28,7 +29,8 @@ export class NewAgentComponent implements OnInit, OnDestroy {
     private clipboard: Clipboard,
     private snackBar: MatSnackBar,
     private cs: ConfigService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    private router: Router
   ) {
     this.titleService.set(['New Agent']);
     this.form = new FormGroup<VoucherForm>({
@@ -78,5 +80,12 @@ export class NewAgentComponent implements OnInit, OnDestroy {
           this.table.reload();
         });
     }
+  }
+
+  /**
+   * Navigates to the agent overview
+   **/
+  done(): void {
+    this.router.navigate(['/agents/show-agents']);
   }
 }

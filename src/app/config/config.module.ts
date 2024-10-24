@@ -7,7 +7,7 @@ import { ConfigRoutingModule } from './config-routing.module';
 import { CoreComponentsModule } from '../core/_components/core-components.module';
 import { CrackersComponent } from './engine/crackers/crackers.component';
 import { DataTablesModule } from 'angular-datatables';
-import { EditHealthChecksComponent } from './health-checks/edit-health-check/edit-health-checks.component';
+import { ViewHealthChecksComponent } from './health-checks/view-health-check/view-health-checks.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HashtypesComponent } from './hashtypes/hashtypes.component';
 import { HealthChecksComponent } from './health-checks/health-checks.component';
@@ -22,7 +22,7 @@ import { CoreFormsModule } from '../shared/forms.module';
 
 @NgModule({
   declarations: [
-    EditHealthChecksComponent,
+    ViewHealthChecksComponent,
     NewHealthChecksComponent,
     PreprocessorsComponent,
     AgentBinariesComponent,

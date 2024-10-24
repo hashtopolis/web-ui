@@ -18,7 +18,7 @@ export const RowActionMenuLabel = {
   EDIT_FILE: 'Edit File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
   EDIT_AGENTBINARY: 'Edit Agent Binary',
-  EDIT_HEALTHCHECK: 'Edit Health Check',
+  VIEW_HEALTHCHECK: 'View Health Check',
   EDIT_USER: 'Edit User',
   EDIT_ACCESSGROUP: 'Edit Access Group',
   EDIT_PERMISSION: 'Edit Permission Group',
@@ -43,12 +43,16 @@ export const RowActionMenuLabel = {
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',
   IMPORT_HASHLIST: 'Import Hashlist',
+  IMPORT_HASHLISTS: 'Import Hashlists',
   EXPORT_HASHLIST: 'Export Hashlist',
+  EXPORT_HASHLISTS: 'Export Hashlists',
   NEW_VERSION: 'Add Version',
   DOWNLOAD_AGENT: 'Download Agent Binary',
   COPY_LINK_BINARY: 'Copy link Agent Binary',
   UNARCHIVE_TASK: 'Unarchive Task',
   UNASSIGN_AGENT: 'Unassign Agent',
+  UNASSIGN_USER: 'Unassign User',
+  UNASSIGN_PRETASK: 'Unassign Pretask',
   RESET_CHUNK: 'Reset Task Chunk'
 };
 
@@ -69,7 +73,8 @@ export const RowActionMenuAction = {
   DEACTIVATE: 'deactivate',
   DOWNLOAD: 'download',
   UNARCHIVE: 'unrachive',
-  RESET: 'reset'
+  RESET: 'reset',
+  VIEW: 'view'
 };
 
 export const RowActionMenuIcon = {
@@ -84,5 +89,6 @@ export const RowActionMenuIcon = {
   ACTIVATE: 'check_circle',
   DEACTIVATE: 'remove_circle',
   DOWNLOAD: 'file_download',
-  RESET: 'restore'
+  RESET: 'restore',
+  VIEW: 'preview'
 };

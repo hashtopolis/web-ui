@@ -17,18 +17,18 @@ export const DEFAULT_CONFIG = {
     },
   },
   footer:{
-    copyright: 's3in!c Hashtopolis: 0.14.0',
+    copyright: 's3in!c Hashtopolis: 0.14.2',
     footer_link_one: {
       link: 'https://github.com/hashtopolis',
       name: 'Github'
     },
     footer_link_two: {
-      link: 'https://discord.com/channels/419123475538509844/419123475538509846',
+      link: 'https://discord.com/invite/S2NTxbz',
       name: 'Discord'
     },
     footer_link_three: {
-      link: '',
-      name: 'Help'
+      link: 'https://hashtopolis.org/',
+      name: 'Hashtopolis'
     }
   },
   agents:{

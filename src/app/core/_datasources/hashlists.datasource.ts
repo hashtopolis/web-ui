@@ -9,9 +9,14 @@ import { SERV } from '../_services/main.config';
 
 export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   private isArchived = false;
+  private _shashlistId = 0;
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+  }
+
+  setSHashlistId(shashlistId: number): void {
+    this._shashlistId = shashlistId;
   }
 
   loadAll(): void {
@@ -32,7 +37,15 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
       params.ordering = order;
     }
 
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
+    let hashLists$;
+
+    if (this._shashlistId) {
+      hashLists$ = this.service.get(SERV.HASHLISTS, this._shashlistId, {
+        expand: 'hashlists,hashType'
+      });
+    } else {
+      hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
+    }
 
     this.subscriptions.push(
       hashLists$
@@ -41,16 +54,20 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ListResponseWrapper<Hashlist>) => {
-          const rows: Hashlist[] = [];
-          response.values.forEach((value: Hashlist) => {
-            if (value.format !== HashListFormat.SUPERHASHLIST) {
-              const hashlist = value;
+          let rows: Hashlist[] = [];
+          if (this._shashlistId) {
+            rows = response['hashlists'];
+          } else {
+            response.values.forEach((value: Hashlist) => {
+              if (value.format !== HashListFormat.SUPERHASHLIST) {
+                const hashlist = value;
 
-              hashlist.hashTypeDescription = hashlist.hashType.description;
+                hashlist.hashTypeDescription = hashlist.hashType.description;
 
-              rows.push(hashlist);
-            }
-          });
+                rows.push(hashlist);
+              }
+            });
+          }
 
           this.setPaginationConfig(
             this.pageSize,
