@@ -15,6 +15,8 @@ import { Observable, of } from 'rxjs';
 import { findEl, setFieldValue } from 'src/app/spec-helpers/element.spec-helper';
 import { DebugElement } from '@angular/core';
 import { SERV } from 'src/app/core/_services/main.config';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
@@ -79,8 +81,10 @@ describe('AccountSettingsComponent', () => {
         PipesModule,
         NgbModule,
         RouterTestingModule,
+        MatSnackBarModule
       ],
       providers: [
+        provideAnimations(),
         {
           provide: GlobalService,
           useValue: mockService
