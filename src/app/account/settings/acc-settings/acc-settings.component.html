@@ -7,7 +7,7 @@
       <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
       <input-text title="Creation date" formControlName="registeredSince" data-testid="input-registered-since"></input-text>
     </div>
-    <input-text title="Email" formControlName="email" data-testid="input-email"></input-text>
+    <input-text title="Email" formControlName="email" data-testid="input-email" [isRequired]="true"></input-text>
     <grid-buttons>
       <button-submit [name]="'Update'" (click)="onSubmit()" data-testid="button-submit"></button-submit>
       <div *ngIf="isUpdatingLoading">

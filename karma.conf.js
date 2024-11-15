@@ -8,6 +8,7 @@ module.exports = function (config) {
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
+      require('karma-spec-reporter'),
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
@@ -27,6 +28,24 @@ module.exports = function (config) {
     jasmineHtmlReporter: {
       suppressAll: true // removes the duplicated traces
     },
+
+    specReporter: {
+      maxLogLines: 5,             // limit number of lines logged per test
+      suppressSummary: true,      // do not print summary
+      suppressErrorSummary: true, // do not print error summary
+      suppressFailed: false,      // do not print information about failed tests
+      suppressPassed: false,      // do not print information about passed tests
+      suppressSkipped: true,      // do not print information about skipped tests
+      showBrowser: false,         // print the browser for each spec
+      showSpecTiming: false,      // print the time elapsed for each spec
+      failFast: false,             // test would finish with error when a first fail occurs
+      prefixes: {
+        success: '    OK: ',      // override prefix for passed tests, default is '✓ '
+        failure: 'FAILED: ',      // override prefix for failed tests, default is '✗ '
+        skipped: 'SKIPPED: '      // override prefix for skipped tests, default is '- '
+      }
+    },
+
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/hashtopolis'),
       subdir: '.',
@@ -35,7 +54,7 @@ module.exports = function (config) {
         { type: 'text-summary' }
       ]
     },
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['spec', 'kjhtml'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
