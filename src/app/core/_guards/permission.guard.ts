@@ -27,11 +27,12 @@ export class PermissionGuard {
     state: RouterStateSnapshot
   ): Observable<boolean> {
     return this.gs
-      .get(SERV.USERS, this.gs.userId, { expand: 'globalPermissionGroup' })
+      .get(SERV.USERS, this.gs.userId, { include: 'globalPermissionGroup' })
       .pipe(
         take(1),
         map((perm) => {
-          const permissions = perm.globalPermissionGroup.permissions; //Check all permissions
+
+          const permissions = perm.included[0].attributes.permissions; //Check all permissions
           const permName = Perm[route.data['permission']].READ; //Get permission name
           const hasAccess = permissions[permName]; //returns true or false
           if (hasAccess || typeof hasAccess == 'undefined') {
