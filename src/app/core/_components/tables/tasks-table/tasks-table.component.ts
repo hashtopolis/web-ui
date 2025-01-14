@@ -17,7 +17,7 @@ import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { ChunkData } from 'src/app/core/_models/chunk.model';
+import { ChunkDataData } from 'src/app/core/_models/chunk.model';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
@@ -39,7 +39,7 @@ export class TasksTableComponent
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-  chunkData: { [key: number]: ChunkData } = {};
+  chunkData: { [key: number]: ChunkDataData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
@@ -367,7 +367,7 @@ export class TasksTableComponent
 
   private async getTaskStatus(wrapper: TaskWrapper): Promise<TaskStatus> {
     if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       const speed = cd.speed;
 
       if (speed > 0) {
@@ -389,7 +389,7 @@ export class TasksTableComponent
     if (wrapper.taskType === 0) {
       const task: Task = wrapper.tasks[0];
       if (task.keyspace > 0) {
-        const cd: ChunkData = await this.getChunkData(wrapper);
+        const cd: ChunkDataData = await this.getChunkData(wrapper);
         const disp = (cd.dispatched * 100).toFixed(2);
         const sear = (cd.searched * 100).toFixed(2);
 
@@ -568,7 +568,7 @@ export class TasksTableComponent
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       links.push({
         label: cd.cracked + '',
         routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0]._id]
@@ -580,7 +580,7 @@ export class TasksTableComponent
 
   async getNumAgents(wrapper: TaskWrapper): Promise<number> {
     if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       return cd.agents.length;
     }
 
@@ -597,7 +597,7 @@ export class TasksTableComponent
   async renderSpeed(wrapper: TaskWrapper): Promise<SafeHtml> {
     let html = '';
     if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       html = cd.speed > 0 ? `${cd.speed}&nbsp;H/s` : '';
     }
     return this.sanitize(html);
@@ -800,7 +800,7 @@ export class TasksTableComponent
    * the chunk data for the same task ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(wrapper: TaskWrapper): Promise<ChunkData> {
+  private async getChunkData(wrapper: TaskWrapper): Promise<ChunkDataData> {
     const task: Task = wrapper.tasks[0];
 
     if (!this.chunkDataLock[task._id]) {

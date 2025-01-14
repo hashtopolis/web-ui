@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { PipeTransform, Pipe } from '@angular/core';
 
 /**
  * This function takes the object access the key values annd returns the max value
@@ -24,7 +21,7 @@ export class MaximizePipe implements PipeTransform {
         return 'No data';
       }
 
-      value.sort((a, b) => b[name] - a[name]);
+      value.sort((a, b) => b["attributes"][name] - a["attributes"][name]);
 
       // Get maximum from array
       // var arr = [];
@@ -33,7 +30,7 @@ export class MaximizePipe implements PipeTransform {
       // }
       // var max = Math.max(...arr)
 
-      return Math.round(value[0][name]).toFixed(1);
+      return Math.round(value[0]["attributes"][name]).toFixed(1);
 
     }
 }

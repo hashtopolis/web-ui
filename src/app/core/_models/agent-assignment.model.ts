@@ -11,3 +11,35 @@ export interface AgentAssignment {
   taskId: number;
   task?: Task;
 }
+
+export interface AgentAssignmentData {
+  type: string;
+  id: number;
+  attributes: DataAttributes | undefined;
+  links?: DataLinks;
+  relationships?: AgentAssignmentRelationships;
+}
+
+export interface DataAttributes {
+  taskId: number;
+  agentId: number;
+  benchmark: string;
+}
+
+export interface DataLinks {
+  self: string;
+}
+
+export interface AgentAssignmentRelationships {
+  agent: AgentAssignmentRelationshipsLinks;
+  task: AgentAssignmentRelationshipsLinks;
+}
+
+export interface AgentAssignmentRelationshipsLinks {
+  links: Links;
+}
+
+export interface Links {
+  self: string;
+  related: string;
+}

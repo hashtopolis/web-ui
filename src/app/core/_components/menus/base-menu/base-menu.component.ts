@@ -22,7 +22,15 @@ export class BaseMenuComponent {
 
   private checkId(attribute: string): boolean {
     try {
-      return this.data['_id'] === this.data[attribute];
+      return this.data['id'] === this.data[attribute];
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private checkType(attribute: string): boolean {
+    try {
+      return this.data.type === attribute;
     } catch (error) {
       return false;
     }
@@ -33,7 +41,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    return this.checkId('agentId') && 'agentName' in this.data;
+    return this.checkType('agent') && 'agentName' in this.data.attributes;
   }
 
   /**

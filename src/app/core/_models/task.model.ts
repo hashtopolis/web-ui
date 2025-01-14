@@ -51,3 +51,63 @@ export interface Task {
   hashlist?: Hashlist[];
   taskType?: number;
 }
+
+export interface TaskData {
+  type: string;
+  id: number;
+  attributes: DataAttributes;
+  links?: DataLinks;
+  relationships?: Relationships;
+}
+
+export interface DataAttributes {
+  taskName: string;
+  attackCmd: string;
+  chunkTime: number;
+  statusTimer: number;
+  keyspace: number;
+  keyspaceProgress: number;
+  priority: number;
+  maxAgents: number;
+  color: null | string;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  useNewBench: boolean;
+  skipKeyspace: number;
+  crackerBinaryId: number;
+  crackerBinaryTypeId: number;
+  taskWrapperId: number;
+  isArchived: boolean;
+  notes: string;
+  staticChunks: number;
+  chunkSize: number;
+  forcePipe: boolean;
+  preprocessorId: number;
+  preprocessorCommand: string;
+}
+
+export interface DataLinks {
+  self: string;
+}
+
+export interface Relationships {
+  assignedAgents: AssignedAgents;
+  crackerBinary: AssignedAgents;
+  crackerBinaryType: AssignedAgents;
+  files: AssignedAgents;
+  hashlist: AssignedAgents;
+  speeds: AssignedAgents;
+}
+
+export interface AssignedAgents {
+  links: AssignedAgentsLinks;
+}
+
+export interface AssignedAgentsLinks {
+  self: string;
+  related: string;
+}
+
+
+
+
