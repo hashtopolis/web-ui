@@ -21,8 +21,8 @@ export function setParameter(
     }
   }
 
-  // If maxResults is not present, add it to queryParams
-  if (!queryParams.has('maxResults')) {
+  // If maxResults is not present, add it to queryParams only if it's defined
+  if (maxResults != undefined && !queryParams.has('maxResults')) {
     queryParams = queryParams.set('maxResults', maxResults);
   }
 

@@ -4,7 +4,7 @@ import {
   Subscription,
   firstValueFrom
 } from 'rxjs';
-import { Chunk, ChunkData } from '../_models/chunk.model';
+import { ChunkDataData, ChunkDataNew } from '../_models/chunk.model';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 
 import { ChangeDetectorRef } from '@angular/core';
@@ -363,7 +363,7 @@ export abstract class BaseDataSource<
     id: number,
     isAgent = true,
     keyspace = 0
-  ): Promise<ChunkData> {
+  ): Promise<ChunkDataData> {
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];
@@ -381,34 +381,34 @@ export abstract class BaseDataSource<
       filter: isAgent ? `agentId=${id}` : `taskId=${id}`
     };
 
-    const response: ListResponseWrapper<Chunk> = await firstValueFrom(
+    const response: ListResponseWrapper<ChunkDataNew> = await firstValueFrom(
       this.service.getAll(SERV.CHUNKS, params)
     );
 
-    for (const chunk of response.values) {
-      agents.push(chunk.agentId);
-      tasks.push(chunk.taskId);
+    for (const chunk of response.data) {
+      agents.push(chunk.id);
+      tasks.push(chunk.attributes.taskId);
 
       // If progress is 100%, add total chunk length to dispatched
-      if (chunk.progress >= 10000) {
-        dispatched.push(chunk.length);
+      if (chunk.attributes.progress >= 10000) {
+        dispatched.push(chunk.attributes.length);
       }
-      cracked.push(chunk.cracked);
-      searched.push(chunk.checkpoint - chunk.skip);
+      cracked.push(chunk.attributes.cracked);
+      searched.push(chunk.attributes.checkpoint - chunk.attributes.skip);
 
       // Calculate speed for chunks completed within the last chunktime
       if (
-        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
+        now / 1000 - Math.max(chunk.attributes.solveTime, chunk.attributes.dispatchTime) <
           chunktime &&
-        chunk.progress < 10000
+        chunk.attributes.progress < 10000
       ) {
-        speed.push(chunk.speed);
+        speed.push(chunk.attributes.speed);
       }
 
-      if (chunk.dispatchTime > current) {
-        timespent.push(chunk.solveTime - chunk.dispatchTime);
-      } else if (chunk.solveTime > current) {
-        timespent.push(chunk.solveTime - current);
+      if (chunk.attributes.dispatchTime > current) {
+        timespent.push(chunk.attributes.solveTime - chunk.attributes.dispatchTime);
+      } else if (chunk.attributes.solveTime > current) {
+        timespent.push(chunk.attributes.solveTime - current);
       }
     }
 

@@ -108,9 +108,10 @@ export class BaseTableComponent {
     return [
       {
         routerLink:
-          obj && obj['taskId']
-            ? ['/tasks', 'show-tasks', obj['taskId'], 'edit']
-            : []
+          obj && obj['attributes']['taskId']
+            ? ['/tasks', 'show-tasks', obj['attributes']['taskId'], 'edit']
+            : [],
+        label: obj['attributes']['taskName']
       }
     ];
   }
@@ -124,14 +125,15 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['agentId'])
+  @Cacheable(['id'])
   async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['agentId']
-            ? ['/agents', 'show-agents', obj['agentId'], 'edit']
-            : []
+          obj && obj['id']
+            ? ['/agents', 'show-agents', obj['id'], 'edit']
+            : [],
+        label: obj['attributes']['agentName']
       }
     ];
   }
@@ -162,9 +164,10 @@ export class BaseTableComponent {
     return [
       {
         routerLink:
-          obj && obj['chunkId']
-            ? ['/tasks', 'chunks', obj['chunkId'], 'view']
-            : []
+          obj && obj['attributes']['chunkId']
+            ? ['/tasks', 'chunks', obj['attributes']['chunkId'], 'view']
+            : [],
+        label: obj['attributes']['chunkId']
       }
     ];
   }
@@ -217,30 +220,31 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['_id', 'accessGroups'])
+  @Cacheable(['id', 'accessGroup'])
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
-    if (obj && obj['accessGroups'] && obj['accessGroups'].length) {
-      links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
-        return {
+    if (obj && obj['relationships']) {
+      links = [
+        {
           routerLink: [
             '/users',
             'access-groups',
-            accessGroup.accessGroupId,
+            obj['relationships']['accessGroups']['data'][0]['id'],
             'edit'
           ],
-          label: accessGroup.groupName
-        };
-      });
+          label: obj['attributes']['accessGroup']
+        }
+      ];
+      return links;
+    } else {
+      return links;
     }
-
-    return links;
   }
 
-  @Cacheable(['isActive'])
+  @Cacheable(['attributes']['isActive'])
   async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
     if (obj) {
-      return obj['isActive']
+      return obj['attributes']['isActive']
         ? [
             {
               name: 'check_circle',

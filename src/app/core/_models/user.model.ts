@@ -1,4 +1,5 @@
 import { GlobalPermissionGroup } from './global-permission-group.model';
+import { ChunkRelationshipsLinks } from './chunk.model';
 
 export interface BaseUser {
   userId: number;
@@ -37,4 +38,46 @@ export interface User {
   registeredSince: number;
   sessionLifetime: number;
   yubikey: string;
+}
+
+export interface UserData {
+  type: string;
+  id: number;
+  attributes: UserAttributes;
+  links?: DataLinks;
+  relationships?: UserRelationships;
+}
+
+export interface UserAttributes {
+  name: string;
+  email: string;
+  isValid: boolean;
+  isComputedPassword: boolean;
+  lastLoginDate: number;
+  registeredSince: number;
+  sessionLifetime: number;
+  globalPermissionGroupId: number;
+  yubikey: string;
+  otp1: string;
+  otp2: string;
+  otp3: string;
+  otp4: string;
+}
+
+export interface DataLinks {
+  self: string;
+}
+
+export interface UserRelationships {
+  accessGroups: UserRelationshipsLinks;
+  globalPermissionGroup: UserRelationshipsLinks;
+}
+
+export interface UserRelationshipsLinks {
+  links: Links;
+}
+
+export interface Links {
+  self: string;
+  related: string;
 }

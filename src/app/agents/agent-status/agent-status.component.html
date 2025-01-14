@@ -27,7 +27,8 @@
           <mat-card-header class="card-header-ag">
             <mat-icon *ngIf="a.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
             <mat-icon *ngIf="!a.isActive" class="inactive-icon" matTooltip="Inactive" class="text-critical">highlight_off</mat-icon>
-            <a [routerLink]="['/agents/show-agents',a.agentId,'edit']"> {{ a.agentName | shortenString:15 }} </a>
+            <p></p>
+            <a [routerLink]="['/agents/show-agents',a.agentId,'edit']"> {{ a.agentName | shortenString:28 }} </a>
           </mat-card-header>
             <div>
                 <div class="pull-left card-body-left-ag"></div>

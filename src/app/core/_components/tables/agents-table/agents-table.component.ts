@@ -25,7 +25,7 @@ import { AgentsDataSource } from 'src/app/core/_datasources/agents.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { ChunkData } from 'src/app/core/_models/chunk.model';
+import { ChunkDataData } from 'src/app/core/_models/chunk.model';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
@@ -47,7 +47,7 @@ export class AgentsTableComponent
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
+  chunkData: { [key: number]: ChunkDataData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
@@ -408,7 +408,7 @@ export class AgentsTableComponent
     agentId: number,
     key: string
   ): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(agentId);
+    const cd: ChunkDataData = await this.getChunkData(agentId);
     if (cd[key]) {
       return cd[key];
     }
@@ -623,7 +623,7 @@ export class AgentsTableComponent
    * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(agentId: number): Promise<ChunkData> {
+  private async getChunkData(agentId: number): Promise<ChunkDataData> {
     if (!this.chunkDataLock[agentId]) {
       // If there is no lock, create a new one
       this.chunkDataLock[agentId] = (async () => {

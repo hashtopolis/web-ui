@@ -58,17 +58,23 @@ export class GlobalService {
     let fixedMaxResults: boolean;
 
     // Check if routerParams exist
-    if (routerParams) {
-      // Check if 'maxResults' is not present in routerParams
-      if (!('maxResults' in routerParams)) {
+      if (routerParams) {
+        // Check if 'maxResults' is not present in routerParams
+        if (!('maxResults' in routerParams)) {
+          fixedMaxResults = true;
+        }
+        if (!methodUrl.includes('count')) {
+          // Set queryParams using setParameter utility function
+          queryParams = setParameter(routerParams, this.maxResults);
+        }
+        else {
+          // Set queryParams using setParameter utility function
+          queryParams = setParameter(routerParams);
+        }
+      } else {
         fixedMaxResults = true;
+        queryParams = setParameter({}, this.maxResults);
       }
-      // Set queryParams using setParameter utility function
-      queryParams = setParameter(routerParams, this.maxResults);
-    } else {
-      fixedMaxResults = true;
-      queryParams = setParameter({}, this.maxResults);
-    }
 
     return this.http
       .get(this.cs.getEndpoint() + methodUrl, { params: queryParams })
