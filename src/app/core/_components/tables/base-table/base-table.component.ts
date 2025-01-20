@@ -13,7 +13,6 @@ import {
   uiConfigDefault
 } from 'src/app/core/_models/config-ui.model';
 
-import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
@@ -103,7 +102,7 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['taskId'])
+  @Cacheable(['attributes']['taskId'])
   async renderTaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
@@ -150,16 +149,16 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['userId', '_id'])
+  @Cacheable(['id'])
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj && obj['_id'] ? ['/users', obj['_id'], 'edit'] : []
+        routerLink: obj && obj['id'] ? ['/users', obj['id'], 'edit'] : []
       }
     ];
   }
 
-  @Cacheable(['chunkId'])
+  @Cacheable(['attributes']['chunkId'])
   async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
