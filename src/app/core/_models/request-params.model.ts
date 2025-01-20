@@ -1,7 +1,10 @@
 export interface RequestParams {
   maxResults: number;
   startsAt: number;
-  expand?: string;
+  include?: string;
   filter?: string;
   ordering?: string;
+
+// OLD remove later
+  expand?: string;
 }

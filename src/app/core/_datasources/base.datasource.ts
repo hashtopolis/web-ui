@@ -11,13 +11,12 @@ import { ChangeDetectorRef } from '@angular/core';
 import { GlobalService } from '../_services/main.service';
 import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
 import { ListResponseWrapper } from '../_models/response.model';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
-import { environment } from './../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -375,11 +374,13 @@ export abstract class BaseDataSource<
     const tasks: number[] = !isAgent ? [id] : [];
     const agents: number[] = isAgent ? [id] : [];
     const current = 0;
+    let params = {};
 
-    const params = {
-      maxResults: this.maxResults,
-      filter: isAgent ? `agentId=${id}` : `taskId=${id}`
-    };
+    if (isAgent) {
+      params = { 'filter[agentId__eq]': id };
+    } else {
+      params = { 'filter[taskId__eq]': id };
+    }
 
     const response: ListResponseWrapper<ChunkDataNew> = await firstValueFrom(
       this.service.getAll(SERV.CHUNKS, params)

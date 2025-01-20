@@ -1,5 +1,5 @@
-import { Agent } from './agent.model';
-import { Task } from './task.model';
+import { Agent, AgentData } from './agent.model';
+import { Task, TaskData } from './task.model';
 
 export interface AgentAssignment {
   _id: number;
@@ -24,6 +24,8 @@ export interface DataAttributes {
   taskId: number;
   agentId: number;
   benchmark: string;
+  agent?: AgentData;
+  task?: TaskData;
 }
 
 export interface DataLinks {
