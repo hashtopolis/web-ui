@@ -2,12 +2,12 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
-import { Hashlist } from '../_models/hashlist.model';
+import { HashlistData } from '../_models/hashlist.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class HashlistsDataSource extends BaseDataSource<Hashlist> {
+export class HashlistsDataSource extends BaseDataSource<HashlistData> {
   private isArchived = false;
   private _shashlistId = 0;
 
@@ -28,8 +28,8 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'hashType,accessGroup',
-      filter: `isArchived=${this.isArchived}`
+      include: 'hashType,accessGroup',
+      filter: `filter[isArchived__eq]=${this.isArchived}`
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -41,7 +41,7 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
 
     if (this._shashlistId) {
       hashLists$ = this.service.get(SERV.HASHLISTS, this._shashlistId, {
-        expand: 'hashlists,hashType'
+        include: 'hashlists,hashType'
       });
     } else {
       hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
@@ -53,16 +53,17 @@ export class HashlistsDataSource extends BaseDataSource<Hashlist> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hashlist>) => {
-          let rows: Hashlist[] = [];
+        .subscribe((response: ListResponseWrapper<HashlistData>) => {
+          let rows: HashlistData[] = [];
           if (this._shashlistId) {
             rows = response['hashlists'];
           } else {
-            response.values.forEach((value: Hashlist) => {
-              if (value.format !== HashListFormat.SUPERHASHLIST) {
-                const hashlist = value;
+            response.data.forEach((value: HashlistData) => {
+              if (value.attributes.format !== HashListFormat.SUPERHASHLIST) {
+                const hashlist: HashlistData = value;
 
-                hashlist.hashTypeDescription = hashlist.hashType.description;
+                let hashlistId: number = value.attributes.hashTypeId;
+                hashlist.attributes.hashTypeDescription = response.included.find((inc) => inc.type === "hashType" && inc.id === hashlistId)?.attributes.description;
 
                 rows.push(hashlist);
               }

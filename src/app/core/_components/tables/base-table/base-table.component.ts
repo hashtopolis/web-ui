@@ -171,26 +171,28 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['hashlistId'])
+  @Cacheable(['id'])
   async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['hashlistId']
-            ? ['/hashlists', 'hashlist', obj['hashlistId'], 'edit']
-            : []
+          obj && obj['id']
+            ? ['/hashlists', 'hashlist', obj['id'], 'edit']
+            : [],
+        label: obj['attributes']['name']
       }
     ];
   }
 
-  @Cacheable(['hashlistId'])
+  @Cacheable(['id'])
   async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['hashlistId']
-            ? ['/hashlists', 'hashes', 'hashlists', obj['hashlistId']]
-            : []
+          obj && obj['id']
+            ? ['/hashlists', 'hashes', 'hashlists', obj['id']]
+            : [],
+        label: obj['attributes']['hashCount']
       }
     ];
   }
