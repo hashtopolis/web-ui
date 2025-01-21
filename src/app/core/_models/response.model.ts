@@ -1,5 +1,3 @@
-import { AgentStats } from './agent.model';
-
 export interface ListResponseWrapper<T> {
   jsonapi?: Jsonapi;
   links?: Links;
@@ -67,6 +65,9 @@ export interface IncludedAttributes {
   forcePipe?: boolean;
   preprocessorId?: number;
   preprocessorCommand?: string;
+  description?: string;
+  isSalted?: boolean;
+  isSlowHash?: boolean;
 }
 
 export interface DataLinks {

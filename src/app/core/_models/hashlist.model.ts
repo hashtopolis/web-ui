@@ -52,3 +52,54 @@ export interface Hashlist {
   sourceData: string;
   hashlists?: Hashlist[];
 }
+
+
+
+export interface HashlistData {
+  type: string;
+  id: number;
+  attributes: DataAttributes;
+  links: DataLinks;
+  relationships: HashlistRelationships;
+}
+
+export interface DataAttributes {
+  name: string;
+  format: number;
+  hashTypeId: number;
+  hashCount: number;
+  separator: string;
+  cracked: number;
+  isSecret: boolean;
+  isHexSalt: boolean;
+  isSalted: boolean;
+  accessGroupId: number;
+  notes: string;
+  useBrain: boolean;
+  brainFeatures: number;
+  isArchived: boolean;
+  hashTypeDescription?: string;
+}
+
+export interface DataLinks {
+  self: string;
+}
+
+export interface HashlistRelationships {
+  accessGroup: HashlistRelationshipAttributes;
+  hashType: HashlistRelationshipAttributes;
+  hashes: HashlistRelationshipAttributes;
+  hashlists: HashlistRelationshipAttributes;
+  tasks: HashlistRelationshipAttributes;
+}
+
+export interface HashlistRelationshipAttributes {
+  links: HashlistRelationshipLinks;
+}
+
+export interface HashlistRelationshipLinks {
+  self: string;
+  related: string;
+}
+
+

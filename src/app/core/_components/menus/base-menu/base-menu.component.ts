@@ -187,9 +187,9 @@ export class BaseMenuComponent {
   protected isHashlist(): boolean {
     try {
       return (
-        this.data['_id'] === this.data['hashlistId'] &&
-        'brainFeatures' in this.data &&
-        this.data['format'] !== HashListFormat.SUPERHASHLIST
+        this.checkType('hashlist') &&
+        'brainFeatures' in this.data["attributes"] &&
+        this.data["attributes"]['format'] !== HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
       return false;
