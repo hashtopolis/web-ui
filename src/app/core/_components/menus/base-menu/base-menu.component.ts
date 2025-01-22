@@ -203,8 +203,8 @@ export class BaseMenuComponent {
   protected isSuperHashlist(): boolean {
     try {
       return (
-        this.data['_id'] === this.data['hashlistId'] &&
-        this.data['format'] === HashListFormat.SUPERHASHLIST
+        this.checkType('hashlist') &&
+        this.data["attributes"]['format'] === HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
       return false;

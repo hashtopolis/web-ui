@@ -4,7 +4,7 @@ import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { AgentData } from '../_models/agent.model';
 import { AgentAssignmentData } from '../_models/agent-assignment.model';
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
+import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { TaskData } from '../_models/task.model';
@@ -70,7 +70,8 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
             agent.attributes.user = users.find((e: UserData) => e.id === agent.attributes.userId);
 
             let accessGroupId:number = agent.relationships?.accessGroups?.data[0]?.id;
-            agent.attributes.accessGroup = a.included.find((e) => e.type === "accessGroup" && e.id === accessGroupId)?.attributes.groupName;
+            let includedAccessGroup: IncludedAttributes = a.included.find((e) => e.type === "accessGroup" && e.id === accessGroupId)?.attributes;
+            agent.attributes.accessGroup = includedAccessGroup.groupName;
 
             agent.attributes.taskId = assignments.find((e) => e.attributes.agentId === agent.id)?.attributes.taskId;
             if (agent.attributes.taskId) {

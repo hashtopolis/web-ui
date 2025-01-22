@@ -58,12 +58,12 @@ export interface Hashlist {
 export interface HashlistData {
   type: string;
   id: number;
-  attributes: DataAttributes;
-  links: DataLinks;
-  relationships: HashlistRelationships;
+  attributes: HashlistDataAttributes;
+  links?: DataLinks;
+  relationships?: HashlistRelationships;
 }
 
-export interface DataAttributes {
+export interface HashlistDataAttributes {
   name: string;
   format: number;
   hashTypeId: number;
@@ -79,6 +79,7 @@ export interface DataAttributes {
   brainFeatures: number;
   isArchived: boolean;
   hashTypeDescription?: string;
+  hashlists?: HashlistData[];
 }
 
 export interface DataLinks {
@@ -95,6 +96,7 @@ export interface HashlistRelationships {
 
 export interface HashlistRelationshipAttributes {
   links: HashlistRelationshipLinks;
+  data: HashlistRelationshipAttributesData[];
 }
 
 export interface HashlistRelationshipLinks {
@@ -102,4 +104,7 @@ export interface HashlistRelationshipLinks {
   related: string;
 }
 
-
+export interface HashlistRelationshipAttributesData {
+  type: string;
+  id: number;
+}

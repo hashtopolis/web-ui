@@ -3,7 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
 import { HashlistData } from '../_models/hashlist.model';
-import { ListResponseWrapper } from '../_models/response.model';
+import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
@@ -63,7 +63,8 @@ export class HashlistsDataSource extends BaseDataSource<HashlistData> {
                 const hashlist: HashlistData = value;
 
                 let hashlistId: number = value.attributes.hashTypeId;
-                hashlist.attributes.hashTypeDescription = response.included.find((inc) => inc.type === "hashType" && inc.id === hashlistId)?.attributes.description;
+                let includedHashType: IncludedAttributes = response.included.find((inc) => inc.type === "hashType" && inc.id === hashlistId)?.attributes;
+                hashlist.attributes.hashTypeDescription = includedHashType.description;
 
                 rows.push(hashlist);
               }
