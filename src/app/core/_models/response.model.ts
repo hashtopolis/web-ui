@@ -1,3 +1,5 @@
+import { HashlistDataAttributes } from './hashlist.model';
+
 export interface ListResponseWrapper<T> {
   jsonapi?: Jsonapi;
   links?: Links;
@@ -35,7 +37,7 @@ export interface Links {
 export interface Included {
   type: string;
   id: number;
-  attributes: IncludedAttributes;
+  attributes: IncludedAttributes | HashlistDataAttributes;
   links: DataLinks;
   relationships: IncludedRelationships;
 }
@@ -84,6 +86,7 @@ export interface IncludedRelationshipLinks {
   self: string;
   related: string;
 }
+
 
 export interface Meta {
   count?: number;
