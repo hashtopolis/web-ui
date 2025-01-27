@@ -43,7 +43,7 @@ export interface HTTableIcon {
 }
 
 export interface HTTableRouterLink {
-  label?: string;
+  label?: string | number;
   routerLink: any[];
   tooltip?: string;
 }

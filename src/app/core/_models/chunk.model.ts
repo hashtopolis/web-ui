@@ -36,20 +36,12 @@ export interface ChunkData {
 export interface ChunkDataNew {
   type: string;
   id: number;
-  attributes: ChunkAttributes;
+  attributes: ChunkDataAttributes;
   links?: DataLinks;
   relationships?: ChunkRelationships;
-
-  dispatched: number;
-  searched: number;
-  cracked: number;
-  speed: number;
-  timeSpent: number;
-  agents: number[];
-  tasks: number[];
 }
 
-export interface ChunkAttributes {
+export interface ChunkDataAttributes {
   taskId: number;
   skip: number;
   length: number;
