@@ -1,5 +1,5 @@
-import { Chunk } from './chunk.model';
-import { Hashlist } from './hashlist.model';
+import { Chunk, ChunkDataAttributes } from './chunk.model';
+import { Hashlist, HashlistDataAttributes } from './hashlist.model';
 
 export interface Hash {
   _id: number;
@@ -36,6 +36,8 @@ export interface DataAttributes {
   chunkId: number;
   isCracked: boolean;
   crackPos: number;
+  chunk?: ChunkDataAttributes;
+  hashlist?: HashlistDataAttributes
 }
 
 export interface DataLinks {
