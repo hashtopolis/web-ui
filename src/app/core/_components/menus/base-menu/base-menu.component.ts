@@ -177,7 +177,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a file; otherwise, `false`.
    */
   protected isFile(): boolean {
-    return this.checkId('fileId');
+    return this.checkType('file');
   }
 
   /**
