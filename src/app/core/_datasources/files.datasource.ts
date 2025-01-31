@@ -74,35 +74,6 @@ export class FilesDataSource extends BaseDataSource<FileData> {
               files.push(file);
             });
 
-
-
-          // let files: FileData[];
-
-          // if (this.editType === 0) {
-          //   files = response['files'];
-          // } else if (this.editType === 1) {
-          //   files = response['pretaskFiles'];
-          // } else {
-          //   files = response.values;
-          // }
-
-          // files.map((file: File) => {
-          //   if (file.accessGroup) {
-          //     file.accessGroupId = file.accessGroup.accessGroupId;
-          //     file.accessGroupName = file.accessGroup.groupName;
-          //   } else {
-          //     const accessGroups$ = this.service.get(
-          //       SERV.ACCESS_GROUPS,
-          //       file.accessGroupId
-          //     );
-          //     forkJoin(accessGroups$).subscribe(
-          //       (accessGroupResponses: any[]) => {
-          //         file.accessGroupName = accessGroupResponses['GroupName'];
-          //       }
-          //     );
-          //   }
-          // });
-
           if (!this.editType) {
             this.setPaginationConfig(
               this.pageSize,

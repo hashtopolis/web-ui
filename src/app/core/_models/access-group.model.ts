@@ -1,5 +1,3 @@
-import { RelationshipAttributes } from './hash.model';
-
 export interface AccessGroup {
   _id: number;
   _self: string;
@@ -8,8 +6,6 @@ export interface AccessGroup {
   userMembers?: [];
   agentMembers?: [];
 }
-
-
 
 export interface AccessGroupData {
   type: string;
@@ -21,6 +17,8 @@ export interface AccessGroupData {
 
 export interface AccessGroupDataAttributes {
   groupName: string;
+  userMembers?: number;
+  agentMembers?: number;
 }
 
 export interface AccessGroupDataLinks {
@@ -28,15 +26,21 @@ export interface AccessGroupDataLinks {
 }
 
 export interface AccessGroupRelationships {
-  agentMembers: AccessGroupRelationshipAttributes;
-  userMembers: AccessGroupRelationshipAttributes;
+  agentMembers: AccGrpRelationshipAttributes;
+  userMembers: AccGrpRelationshipAttributes;
 }
 
-export interface AccessGroupRelationshipAttributes {
-  links: AccessGroupAttributesLinks;
+export interface AccGrpRelationshipAttributes {
+  links: AccGrpAttributesLinks;
+  data?: AccGrpRelAttrDataAttributes[];
 }
 
-export interface AccessGroupAttributesLinks {
+export interface AccGrpAttributesLinks {
   self: string;
   related: string;
+}
+
+export interface AccGrpRelAttrDataAttributes {
+  type: string;
+  id: number;
 }
