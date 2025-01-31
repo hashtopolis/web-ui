@@ -57,7 +57,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an access group; otherwise, `false`.
    */
   protected isAccessGroup(): boolean {
-    return this.checkId('accessGroupId') && 'groupName' in this.data;
+    return this.checkType('accessGroup') && 'groupName' in this.data.attributes;
   }
 
   /**
