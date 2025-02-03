@@ -21,7 +21,7 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { User } from 'src/app/core/_models/user.model';
+import { UserData } from 'src/app/core/_models/user.model';
 import { UsersDataSource } from 'src/app/core/_datasources/users.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
@@ -50,10 +50,10 @@ export class UsersTableComponent
     }
   }
 
-  filter(item: User, filterValue: string): boolean {
+  filter(item: UserData, filterValue: string): boolean {
     if (
-      item.name.toLowerCase().includes(filterValue) ||
-      item.email.toLowerCase().includes(filterValue)
+      item.attributes.name.toLowerCase().includes(filterValue) ||
+      item.attributes.email.toLowerCase().includes(filterValue)
     ) {
       return true;
     }
@@ -65,73 +65,76 @@ export class UsersTableComponent
     const tableColumns = [
       {
         id: UsersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (user: User) => user._id + ''
+        export: async (user: UserData) => user.id + ''
       },
       {
         id: UsersTableCol.NAME,
         dataKey: 'name',
-        routerLink: (user: User) => this.renderUserLink(user),
+        routerLink: (user: UserData) => this.renderUserLink(user),
         isSortable: true,
-        export: async (user: User) => user.name
+        export: async (user: UserData) => user.attributes.name
       },
       {
         id: UsersTableCol.REGISTERED,
         dataKey: 'registeredSince',
-        render: (user: User) =>
-          formatUnixTimestamp(user.registeredSince, this.dateFormat),
+        render: (user: UserData) =>
+          formatUnixTimestamp(user.attributes.registeredSince, this.dateFormat),
         isSortable: true,
-        export: async (user: User) =>
-          formatUnixTimestamp(user.registeredSince, this.dateFormat)
+        export: async (user: UserData) =>
+          formatUnixTimestamp(user.attributes.registeredSince, this.dateFormat)
       },
       {
         id: UsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
-        render: (user: User) =>
-          user.lastLoginDate
-            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
+        render: (user: UserData) =>
+          user.attributes.lastLoginDate
+            ? formatUnixTimestamp(user.attributes.lastLoginDate, this.dateFormat)
             : 'Never',
         isSortable: true,
-        export: async (user: User) =>
-          user.lastLoginDate
-            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
+        export: async (user: UserData) =>
+          user.attributes.lastLoginDate
+            ? formatUnixTimestamp(user.attributes.lastLoginDate, this.dateFormat)
             : 'Never'
       },
       {
         id: UsersTableCol.EMAIL,
         dataKey: 'email',
         isSortable: true,
-        export: async (user: User) => user.email
+        render: (user: UserData) => user.attributes.email,
+        export: async (user: UserData) => user.attributes.email
       },
       {
         id: UsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: User) => this.renderIsValidIcon(user),
-        render: (user: User) =>
-          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
+        icons: (user: UserData) => this.renderIsValidIcon(user),
+        render: (user: UserData) =>
+          user.attributes.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
         isSortable: true,
-        export: async (user: User) =>
-          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
+        export: async (user: UserData) =>
+          user.attributes.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
       },
       {
         id: UsersTableCol.SESSION,
         dataKey: 'sessionLifetime',
         isSortable: true,
-        export: async (user: User) => user.sessionLifetime + ''
+        render: (user: UserData) => user.attributes.sessionLifetime,
+        export: async (user: UserData) => user.attributes.sessionLifetime + ''
       },
       {
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: true,
-        export: async (user: User) => user.globalPermissionGroupName
+        render: (user: UserData) => user.attributes.globalPermissionGroupName,
+        export: async (user: UserData) => user.attributes.globalPermissionGroupName
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<User>) {
+  openDialog(data: DialogData<UserData>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -161,9 +164,9 @@ export class UsersTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['_id', 'isValid'])
-  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
-    return user.isValid
+  @Cacheable(['id', 'isValid'])
+  async renderIsValidIcon(user: UserData): Promise<HTTableIcon[]> {
+    return user.attributes.isValid
       ? [
           {
             name: 'check_circle',
@@ -180,10 +183,10 @@ export class UsersTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<User[]>): void {
+  exportActionClicked(event: ActionMenuEvent<UserData[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<User>(
+        this.exportService.toExcel<UserData>(
           'hashtopolis-users',
           this.tableColumns,
           event.data,
@@ -191,7 +194,7 @@ export class UsersTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<User>(
+        this.exportService.toCsv<UserData>(
           'hashtopolis-users',
           this.tableColumns,
           event.data,
@@ -200,7 +203,7 @@ export class UsersTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<User>(
+          .toClipboard<UserData>(
             this.tableColumns,
             event.data,
             UsersTableColumnLabel
@@ -215,7 +218,7 @@ export class UsersTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<User>): void {
+  rowActionClicked(event: ActionMenuEvent<UserData>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -229,7 +232,7 @@ export class UsersTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting user ${event.data.name} ...`,
+          title: `Deleting user ${event.data.attributes.name} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -239,7 +242,7 @@ export class UsersTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<User[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<UserData[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -276,9 +279,9 @@ export class UsersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(users: User[]): void {
-    const requests = users.map((user: User) => {
-      return this.gs.delete(SERV.USERS, user._id);
+  private bulkActionDelete(users: UserData[]): void {
+    const requests = users.map((user: UserData) => {
+      return this.gs.delete(SERV.USERS, user.id);
     });
 
     this.subscriptions.push(
@@ -302,9 +305,9 @@ export class UsersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionActivate(users: User[], isValid: boolean): void {
-    const requests = users.map((user: User) => {
-      return this.gs.update(SERV.USERS, user._id, { isValid: isValid });
+  private bulkActionActivate(users: UserData[], isValid: boolean): void {
+    const requests = users.map((user: UserData) => {
+      return this.gs.update(SERV.USERS, user.id, { isValid: isValid });
     });
 
     const action = isValid ? 'activated' : 'deactivated';
@@ -330,10 +333,10 @@ export class UsersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(users: User[]): void {
+  private rowActionDelete(users: UserData[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.USERS, users[0]._id)
+        .delete(SERV.USERS, users[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -347,9 +350,9 @@ export class UsersTableComponent
     );
   }
 
-  private rowActionEdit(user: User): void {
+  private rowActionEdit(user: UserData): void {
     this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(['/users', user._id, 'edit']);
+      this.router.navigate(['/users', user.id, 'edit']);
     });
   }
 }
