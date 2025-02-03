@@ -1,12 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { GlobalPermissionGroup } from '../_models/global-permission-group.model';
+import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { UserData } from '../_models/user.model';
 
-export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup> {
+export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroupData> {
   loadAll(): void {
     this.loading = true;
 
@@ -16,7 +17,7 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup>
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'user'
+      include: 'userMembers'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -35,8 +36,19 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup>
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<GlobalPermissionGroup>) => {
-          const permissions: GlobalPermissionGroup[] = response.values;
+        .subscribe((response: ListResponseWrapper<GlobalPermissionGroupData>) => {
+          const permissions: GlobalPermissionGroupData[] = [];
+
+          response.data.forEach((value: GlobalPermissionGroupData) => {
+            const permission: GlobalPermissionGroupData = value;
+
+            let globalPermissionGroupId: number = value.id;
+            let includedUser: object[] = response.included.filter((inc) => inc.type === "user");
+
+            permission.attributes.userCount = (includedUser as UserData[]).filter((incUser: UserData) => incUser.attributes.globalPermissionGroupId === globalPermissionGroupId).length;
+
+            permissions.push(permission);
+          });
 
           this.setPaginationConfig(
             this.pageSize,

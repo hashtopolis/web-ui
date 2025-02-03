@@ -150,7 +150,7 @@ export class BaseMenuComponent {
    */
   protected isPermission(): boolean {
     try {
-      return this.data['_id'] === this.data['id'] && 'permissions' in this.data;
+      return this.checkType("globalPermissionGroup") && 'permissions' in this.data.attributes;
     } catch (error) {
       return false;
     }
