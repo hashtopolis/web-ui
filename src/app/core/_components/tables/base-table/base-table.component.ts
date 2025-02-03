@@ -27,6 +27,7 @@ import { Subscription } from 'rxjs';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { UtilService } from 'src/app/core/_services/shared/util.service';
+import { GlobalPermissionGroupData } from '../../../_models/global-permission-group.model';
 
 @Component({
   selector: 'base-table',
@@ -198,13 +199,14 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id'])
-  async renderPermissionLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  async renderPermissionLink(obj: GlobalPermissionGroupData): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
           obj && obj['id']
             ? ['/users', 'global-permissions-groups', obj['id'], 'edit']
-            : []
+            : [],
+        label: obj['attributes']['name']
       }
     ];
   }
