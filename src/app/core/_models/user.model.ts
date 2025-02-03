@@ -62,6 +62,7 @@ export interface UserAttributes {
   otp2: string;
   otp3: string;
   otp4: string;
+  globalPermissionGroupName?: string;
 }
 
 export interface DataLinks {

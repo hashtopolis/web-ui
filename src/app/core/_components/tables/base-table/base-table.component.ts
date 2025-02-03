@@ -154,7 +154,8 @@ export class BaseTableComponent {
   async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: obj && obj['id'] ? ['/users', obj['id'], 'edit'] : []
+        routerLink: obj && obj['id'] ? ['/users', obj['id'], 'edit'] : [],
+        label: obj['attributes']['name']
       }
     ];
   }
