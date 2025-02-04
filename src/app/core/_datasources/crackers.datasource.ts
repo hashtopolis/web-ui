@@ -1,12 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { CrackerBinaryType } from '../_models/cracker-binary.model';
+import { CrackerBinaryData, CrackerBinaryTypeData } from '../_models/cracker-binary.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class CrackersDataSource extends BaseDataSource<CrackerBinaryType> {
+export class CrackersDataSource extends BaseDataSource<CrackerBinaryTypeData> {
   loadAll(): void {
     this.loading = true;
 
@@ -16,7 +16,7 @@ export class CrackersDataSource extends BaseDataSource<CrackerBinaryType> {
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'crackerVersions'
+      include: 'crackerVersions'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -32,8 +32,20 @@ export class CrackersDataSource extends BaseDataSource<CrackerBinaryType> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<CrackerBinaryType>) => {
-          const crackers: CrackerBinaryType[] = response.values;
+        .subscribe((response: ListResponseWrapper<CrackerBinaryTypeData>) => {
+
+          const crackers: CrackerBinaryTypeData[] = [];
+
+          response.data.forEach((value: CrackerBinaryTypeData) => {
+            const cracker: CrackerBinaryTypeData = value;
+
+            let crackerBinaryTypeId: number = cracker.id;
+            let crackerBinary: object[] = response.included.filter((inc) => inc.type === "crackerBinary" && inc.attributes.crackerBinaryTypeId === crackerBinaryTypeId);
+
+            cracker.attributes.crackerVersions = crackerBinary as CrackerBinaryData[];
+
+            crackers.push(cracker);
+          });
 
           this.setPaginationConfig(
             this.pageSize,

@@ -81,7 +81,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    return this.checkId('crackerBinaryTypeId') && 'typeName' in this.data;
+    return this.checkType("crackerBinaryType") && 'typeName' in this.data.attributes;
   }
 
   /**
