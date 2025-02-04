@@ -73,7 +73,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
   protected isPreprocessor(): boolean {
-    return this.checkId('preprocessorId') && 'binaryName' in this.data;
+    return this.checkType("preprocessor") && 'binaryName' in this.data.attributes;
   }
 
   /**
