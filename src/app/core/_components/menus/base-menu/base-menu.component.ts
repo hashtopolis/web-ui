@@ -65,7 +65,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent binary; otherwise, `false`.
    */
   protected isAgentBinary(): boolean {
-    return this.checkId('agentBinaryId') && 'filename' in this.data;
+    return this.checkType("agentBinary") && 'filename' in this.data.attributes;
   }
 
   /**
