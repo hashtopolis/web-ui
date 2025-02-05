@@ -1,12 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hashtype } from '../_models/hashtype.model';
+import { HashtypeData } from '../_models/hashtype.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class HashtypesDataSource extends BaseDataSource<Hashtype> {
+export class HashtypesDataSource extends BaseDataSource<HashtypeData> {
   loadAll(): void {
     this.loading = true;
 
@@ -31,13 +31,13 @@ export class HashtypesDataSource extends BaseDataSource<Hashtype> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hashtype>) => {
+        .subscribe((response: ListResponseWrapper<HashtypeData>) => {
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
             response.total
           );
-          this.setData(response.values);
+          this.setData(response.data);
         })
     );
   }

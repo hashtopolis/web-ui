@@ -212,7 +212,7 @@ export class BaseMenuComponent {
   }
 
   protected isHashtype(): boolean {
-    return 'hashTypeId' && 'description' in this.data;
+    return this.checkType("hashType") && 'description' in this.data.attributes;
   }
 
   /**
