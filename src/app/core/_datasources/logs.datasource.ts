@@ -2,11 +2,11 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
-import { Log } from '../_models/log.model';
+import { LogData } from '../_models/log.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class LogsDataSource extends BaseDataSource<Log> {
+export class LogsDataSource extends BaseDataSource<LogData> {
   loadAll(): void {
     this.loading = true;
 
@@ -31,8 +31,8 @@ export class LogsDataSource extends BaseDataSource<Log> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Log>) => {
-          const logs: Log[] = response.values;
+        .subscribe((response: ListResponseWrapper<LogData>) => {
+          const logs: LogData[] = response.data;
 
           if (startAt >= response.total) {
             this.currentPage = 0;
