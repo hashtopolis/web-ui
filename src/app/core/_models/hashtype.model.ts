@@ -11,16 +11,16 @@ export interface Hashtype {
 export interface HashtypeData {
   type: string;
   id: number;
-  attributes: DataAttributes;
-  links: DataLinks;
+  attributes: HashtypeDataAttributes;
+  links: HashtypeDataLinks;
 }
 
-export interface DataAttributes {
+export interface HashtypeDataAttributes {
   description: string;
   isSalted: boolean;
   isSlowHash: boolean;
 }
 
-export interface DataLinks {
+export interface HashtypeDataLinks {
   self: string;
 }
