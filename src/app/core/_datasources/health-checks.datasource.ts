@@ -1,13 +1,13 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hashtype } from '../_models/hashtype.model';
-import { HealthCheck } from '../_models/health-check.model';
+import { HashtypeDataAttributes } from '../_models/hashtype.model';
+import { HealthCheckData } from '../_models/health-check.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
+export class HealthChecksDataSource extends BaseDataSource<HealthCheckData> {
   loadAll(): void {
     this.loading = true;
 
@@ -16,7 +16,8 @@ export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
 
     const params: RequestParams = {
       maxResults: this.pageSize,
-      startsAt: startAt
+      startsAt: startAt,
+      include: 'hashType'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -26,36 +27,33 @@ export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
 
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
 
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      maxResults: this.maxResults
-    });
-
     this.subscriptions.push(
-      forkJoin([healthChecks$, hashTypes$])
+      forkJoin([healthChecks$])
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
         .subscribe(
-          ([healthCheckResponse, hashTypesResponse]: [
-            ListResponseWrapper<HealthCheck>,
-            ListResponseWrapper<Hashtype>
+          ([response]: [
+            ListResponseWrapper<HealthCheckData>
           ]) => {
-            const healthChecks: HealthCheck[] = healthCheckResponse.values;
-            const hashTypes: Hashtype[] = hashTypesResponse.values;
 
-            healthChecks.map((healthCheck: HealthCheck) => {
-              healthCheck.hashtype = hashTypes.find(
-                (el: Hashtype) => el._id === healthCheck.hashtypeId
-              );
-              healthCheck.hashtypeDescription =
-                healthCheck.hashtype.description;
+            let healthChecks: HealthCheckData[] = [];
+
+            response.data.forEach((value: HealthCheckData) => {
+              const healthCheck: HealthCheckData = value;
+
+              let hashTypeId: number = value.attributes.hashtypeId;
+              let includedhashType = response.included.find((inc) => inc.type === "hashType" && inc.id === hashTypeId);
+              healthCheck.attributes.hashtype = includedhashType.attributes as HashtypeDataAttributes;
+
+              healthChecks.push(healthCheck);
             });
 
             this.setPaginationConfig(
               this.pageSize,
               this.currentPage,
-              healthCheckResponse.total
+              response.total
             );
             this.setData(healthChecks);
           }

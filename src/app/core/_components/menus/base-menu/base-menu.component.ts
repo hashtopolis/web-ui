@@ -161,7 +161,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a health check; otherwise, `false`.
    */
   protected isHealthCheck(): boolean {
-    return this.checkId('healthCheckId');
+    return this.checkType("healthCheck");
   }
 
   /**
