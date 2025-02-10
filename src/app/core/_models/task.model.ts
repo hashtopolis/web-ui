@@ -55,12 +55,12 @@ export interface Task {
 export interface TaskData {
   type: string;
   id: number;
-  attributes: DataAttributes;
-  links?: DataLinks;
-  relationships?: Relationships;
+  attributes: TaskDataAttributes;
+  links?: TaskDataLinks;
+  relationships?: TaskRelationships;
 }
 
-export interface DataAttributes {
+export interface TaskDataAttributes {
   taskName: string;
   attackCmd: string;
   chunkTime: number;
@@ -86,11 +86,11 @@ export interface DataAttributes {
   preprocessorCommand: string;
 }
 
-export interface DataLinks {
+export interface TaskDataLinks {
   self: string;
 }
 
-export interface Relationships {
+export interface TaskRelationships {
   assignedAgents: AssignedAgents;
   crackerBinary: AssignedAgents;
   crackerBinaryType: AssignedAgents;

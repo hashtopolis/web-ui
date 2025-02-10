@@ -28,6 +28,7 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { UtilService } from 'src/app/core/_services/shared/util.service';
 import { GlobalPermissionGroupData } from '../../../_models/global-permission-group.model';
+import { AccessGroupData } from '../../../_models/access-group.model';
 
 @Component({
   selector: 'base-table',
@@ -213,14 +214,14 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id'])
-  async renderAccessGroupLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  async renderAccessGroupLink(obj: AccessGroupData): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['id']
-            ? ['/users', 'access-groups', obj['id'], 'edit']
+          obj && obj.id
+            ? ['/users', 'access-groups', obj.id, 'edit']
             : [],
-        label: obj['attributes']['groupName']
+        label: obj.attributes.groupName
       }
     ];
   }

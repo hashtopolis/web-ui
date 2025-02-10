@@ -97,7 +97,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskWrapper(): boolean {
-    return this.checkId('taskWrapperId') && 'priority' in this.data;
+    return this.checkType('taskWrapper') && 'priority' in this.data.attributes;
   }
 
   /**
