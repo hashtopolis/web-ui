@@ -1,15 +1,18 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hashlist } from 'src/app/hashlists/hashlist.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
-import { TaskWrapper } from '../_models/task-wrapper.model';
-import { Hashtype } from '../_models/hashtype.model';
+import { TaskWrapperData, TaskWrapperRelationshipAttributesData } from '../_models/task-wrapper.model';
+import { HashtypeData } from '../_models/hashtype.model';
+import { TaskData } from '../_models/task.model';
 import { RequestParams } from '../_models/request-params.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { HashlistData } from '../_models/hashlist.model';
+import { AccessGroupData } from '../_models/access-group.model';
 
 export class TasksDataSource extends BaseDataSource<
-  TaskWrapper,
+  TaskWrapperData,
   MatTableDataSourcePaginator
 > {
   private _isArchived = false;
@@ -36,8 +39,8 @@ export class TasksDataSource extends BaseDataSource<
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}${additionalFilter}`
+      include: 'accessGroup,tasks',
+      filter: `filter[isArchived__eq]=${this._isArchived}${additionalFilter}`
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -59,31 +62,42 @@ export class TasksDataSource extends BaseDataSource<
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]) => {
-          const wrappers: TaskWrapper[] = taskWrapperResponse.values.map(
-            (wrapper: TaskWrapper) => {
-              const matchingHashList = hashlistResponse.values.find(
-                (hashlist: Hashlist) => hashlist._id === wrapper.hashlistId
-              );
-              const matchingHashTypes = hashtypeResponse.values.find(
-                (hashtype: Hashtype) =>
-                  hashtype._id === matchingHashList.hashTypeId
-              );
-              wrapper.hashlists = [matchingHashList];
-              wrapper.hashtypes = [matchingHashTypes];
-              wrapper.taskName = wrapper.tasks[0]?.taskName;
-              wrapper.accessGroupName = wrapper.accessGroup?.groupName;
-              return wrapper;
-            }
-          );
+        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]:[ListResponseWrapper<TaskWrapperData>, ListResponseWrapper<HashlistData>, ListResponseWrapper<HashtypeData>]) => {
+
+          let taskWrappers: TaskWrapperData[] = [];
+
+          taskWrapperResponse.data.forEach((value: TaskWrapperData) => {
+            const taskWrapper: TaskWrapperData = value;
+
+            let taskId: number = value.relationships.tasks.data[0].id;
+            let includedTask: object[] = taskWrapperResponse.included.filter((inc) => inc.type === "task" && inc.id === taskId);
+            taskWrapper.attributes.tasks = includedTask as TaskData[];
+            taskWrapper.attributes.taskName = taskWrapper.attributes.tasks[0].attributes.taskName;
+
+            let accessGroupId: number = (value.relationships.accessGroup.data as TaskWrapperRelationshipAttributesData).id;
+            let includedAccessGroup: object = taskWrapperResponse.included.filter((inc) => inc.type === "accessGroup" && inc.id === accessGroupId);
+            taskWrapper.attributes.accessgroup = includedAccessGroup as AccessGroupData;
+
+            const matchingHashList = hashlistResponse.data.find(
+                      (hashlist: HashlistData) => hashlist.id === taskWrapper.attributes.hashlistId
+                    );
+            taskWrapper.attributes.hashlists = [matchingHashList];
+
+            const matchingHashTypes = hashtypeResponse.data.find(
+                      (hashtype: HashtypeData) =>
+                        hashtype.id === matchingHashList.attributes.hashTypeId
+                    );
+            taskWrapper.attributes.hashtypes = [matchingHashTypes];
+
+            taskWrappers.push(taskWrapper);
+          });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
             taskWrapperResponse.total
           );
-          console.log(wrappers);
-          this.setData(wrappers);
+          this.setData(taskWrappers);
         }
       );
   }
