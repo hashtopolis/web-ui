@@ -75,12 +75,12 @@ export interface IAgents {
 export interface AgentData {
   type: string;
   id: number;
-  attributes: DataAttributes;
-  links?: DataLinks;
-  relationships?: DataRelationships;
+  attributes: AgentDataAttributes;
+  links?: AgentDataLinks;
+  relationships?: AgentDataRelationships;
 }
 
-export interface DataAttributes {
+export interface AgentDataAttributes {
   agentName: string;
   uid: string;
   os: number;
@@ -113,11 +113,11 @@ export interface DataAttributes {
   assignmentId?: number;
 }
 
-export interface DataLinks {
+export interface AgentDataLinks {
   self: string;
 }
 
-export interface DataRelationships {
+export interface AgentDataRelationships {
   accessGroups: AccessGroups;
   agentStats: AgentStats;
 }

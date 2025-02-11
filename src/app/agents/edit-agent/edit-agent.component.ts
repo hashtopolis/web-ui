@@ -39,6 +39,8 @@ import {
   TASKS_FIELD_MAPPING,
   USER_AGP_FIELD_MAPPING
 } from 'src/app/core/_constants/select.config';
+import { ListResponseWrapper } from '../../core/_models/response.model';
+import { AgentData } from '../../core/_models/agent.model';
 
 @Component({
   selector: 'app-edit-agent',
@@ -148,16 +150,16 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadAgentsSubscription$ = this.gs
       .get(SERV.AGENTS, this.editedAgentIndex, {
-        expand: 'agentstats,accessGroups'
+        include: 'agentStats,accessGroups'
       })
-      .subscribe((agent: any) => {
-        this.showagent = agent;
-        const transformedOptions = transformSelectOptions(
-          agent.accessGroups,
-          this.selectUserAgpMap
-        );
-        this.selectuserAgps = transformedOptions;
-        this.agentStats(agent.agentstats);
+      .subscribe((agent: ListResponseWrapper<AgentData>) => {
+        this.showagent = agent.data;
+        // const transformedOptions = transformSelectOptions(
+        //   agent.accessGroups,
+        //   this.selectUserAgpMap
+        // );
+        // this.selectuserAgps = transformedOptions;
+        // this.agentStats(agent.agentstats);
       });
     this.unsubscribeService.add(loadAgentsSubscription$);
 
@@ -198,16 +200,20 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Initializes the form with user data retrieved from the server.
    */
   private initForm() {
-    this.gs.get(SERV.AGENTS, this.editedAgentIndex).subscribe((result) => {
+    this.gs.get(SERV.AGENTS, this.editedAgentIndex).subscribe((result: ListResponseWrapper<AgentData>) => {
+
+      let obj = result.data as object;
+      let data = obj as AgentData;
+
       this.updateForm = new FormGroup({
-        isActive: new FormControl(result['isActive'], [Validators.required]),
-        userId: new FormControl(result['userId']),
-        agentName: new FormControl(result['agentName'], [Validators.required]),
-        token: new FormControl(result['token']),
-        cpuOnly: new FormControl(result['cpuOnly']),
-        cmdPars: new FormControl(result['cmdPars']),
-        ignoreErrors: new FormControl(result['ignoreErrors']),
-        isTrusted: new FormControl(result['isTrusted'])
+        isActive: new FormControl(data.attributes.isActive, [Validators.required]),
+        userId: new FormControl(data.attributes.userId),
+        agentName: new FormControl(data.attributes.agentName, [Validators.required]),
+        token: new FormControl(data.attributes.token),
+        cpuOnly: new FormControl(data.attributes.cpuOnly),
+        cmdPars: new FormControl(data.attributes.cmdPars),
+        ignoreErrors: new FormControl(data.attributes.ignoreErrors),
+        isTrusted: new FormControl(data.attributes.isTrusted)
       });
     });
     this.gs
