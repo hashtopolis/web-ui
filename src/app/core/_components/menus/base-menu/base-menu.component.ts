@@ -121,7 +121,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a supertask; otherwise, `false`.
    */
   protected isSupertask(): boolean {
-    return this.checkId('supertaskId');
+    return this.checkType('supertask');
   }
 
   /**

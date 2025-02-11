@@ -29,6 +29,7 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { UtilService } from 'src/app/core/_services/shared/util.service';
 import { GlobalPermissionGroupData } from '../../../_models/global-permission-group.model';
 import { AccessGroupData } from '../../../_models/access-group.model';
+import { SuperTaskData } from '../../../_models/supertask.model';
 
 @Component({
   selector: 'base-table',
@@ -117,11 +118,12 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['supertaskId'])
-  async renderSupertaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id'])
+  async renderSupertaskLink(obj: SuperTaskData): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: ['/tasks/', obj['_id'], 'edit']
+        routerLink: ['/tasks/', obj.id, 'edit'],
+        label: obj.attributes.supertaskName
       }
     ];
   }
