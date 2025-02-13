@@ -81,7 +81,7 @@ export class TasksSupertasksTableComponent
       {
         id: TasksSupertasksDataSourceTableCol.NAME,
         dataKey: 'taskName',
-        routerLink: (wrapper: TaskWrapper) => this.renderTaskLink(wrapper),
+        //routerLink: (wrapper: TaskWrapper) => this.renderTaskLink(wrapper),
         isSortable: true,
         export: async (wrapper: TaskWrapper) => wrapper.taskName + ''
       },

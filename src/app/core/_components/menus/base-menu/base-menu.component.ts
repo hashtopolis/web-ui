@@ -113,7 +113,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskChunks(): boolean {
-    return this.checkId('chunkId') && 'skip' in this.data;
+    return this.checkType('chunk') && 'skip' in this.data.attributes;
   }
 
   /**

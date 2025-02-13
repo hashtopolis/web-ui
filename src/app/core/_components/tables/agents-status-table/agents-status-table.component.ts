@@ -117,7 +117,7 @@ export class AgentsStatusTableComponent
         dataKey: 'taskName',
         isSortable: true,
         render: (agent: AgentData) => agent.attributes.taskName,
-        routerLink: (agent: AgentData) => this.renderTaskLink(agent),
+        routerLink: (agent: AgentData) => this.renderTaskLink(agent.attributes.task),
         export: async (agent: AgentData) => agent.attributes.taskName
       },
       {
