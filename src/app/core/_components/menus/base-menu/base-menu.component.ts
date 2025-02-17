@@ -49,7 +49,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an notification; otherwise, `false`.
    */
   protected isNotification(): boolean {
-    return this.checkId('notificationSettingId');
+    return this.checkType('notificationSetting');
   }
 
   /**
