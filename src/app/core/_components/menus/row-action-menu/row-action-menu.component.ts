@@ -239,7 +239,7 @@ export class RowActionMenuComponent
    * Sets the context menu items for a user data row.
    */
   private setNotificationMenu(): void {
-    if (this.data['isActive']) {
+    if (this.data['attributes']['isActive']) {
       this.setActionMenuItems(0, [
         this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_NOTIFICATION)
       ]);
