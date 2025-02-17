@@ -5,6 +5,6 @@ export const staticChunking = [
 ];
 
 export const benchmarkType = [
-  { _id: false, name: 'Runtime Benchmark' },
-  { _id: true, name: 'Speed Test' }
+  { id: false, name: 'Runtime Benchmark' },
+  { id: true, name: 'Speed Test' }
 ];

@@ -14,6 +14,8 @@ import { OnDestroy } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { ListResponseWrapper } from '../../../core/_models/response.model';
+import { CrackerBinaryTypeData } from '../../../core/_models/cracker-binary.model';
 
 @Component({
   selector: 'app-wrbulk',
@@ -108,9 +110,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   loadData() {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: any) => {
+      .subscribe((response: ListResponseWrapper<CrackerBinaryTypeData>) => {
         const transformedOptions = transformSelectOptions(
-          response.values,
+          response.data,
           this.selectCrackertypeMap
         );
         this.selectCrackertype = transformedOptions;
