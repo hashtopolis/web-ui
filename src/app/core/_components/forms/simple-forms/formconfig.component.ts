@@ -133,18 +133,18 @@ export class FormConfigComponent implements OnInit, OnDestroy {
       .getAll(this.apiPath, { maxResults: 500 })
       .subscribe((result) => {
         // Transform the retrieved array of objects into the desired structure for form rendering
-        this.formValues = result.values.reduce((result, item) => {
-          if (item.value === 'true') {
-            item.value = true;
-          } else if (item.value === 'false') {
-            item.value = false;
+        this.formValues = result.data.reduce((result, item) => {
+          if (item.attributes.value === 'true') {
+            item.attributes.value = true;
+          } else if (item.attributes.value === 'false') {
+            item.attributes.value = false;
           }
-          result[item.item] = item.value;
+          result[item.attributes.item] = item.attributes.value;
           return result;
         }, {});
         // Maps the item with the id, so can be used for update
-        this.formIds = result.values.reduce((result, item) => {
-          result[item.item] = item._id;
+        this.formIds = result.data.reduce((result, item) => {
+          result[item.attributes.item] = item.id;
           return result;
         }, {});
 
