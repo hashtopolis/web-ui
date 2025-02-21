@@ -1,0 +1,19 @@
+<ht-table
+  #table
+  name="agentViewTable"
+  [columnLabels]="columnLabels"
+  dataType="agents-status"
+  [dataSource]="dataSource"
+  [hasBulkActions]="!hasBulkActions"
+  [tableColumns]="tableColumns"
+  [isSelectable]="isSelectable"
+  [isFilterable]="isFilterable"
+  [hasRowAction]="hasRowAction"
+  [isPageable]="true"
+/>
+
+<!-- 
+  [filterFn]="filter"  
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)" -->
