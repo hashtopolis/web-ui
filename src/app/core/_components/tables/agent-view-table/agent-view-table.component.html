@@ -1,19 +1,17 @@
 <ht-table
   #table
-  name="agentViewTable"
+  name="agentStatusTable"
   [columnLabels]="columnLabels"
   dataType="agents-status"
   [dataSource]="dataSource"
-  [hasBulkActions]="!hasBulkActions"
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [isFilterable]="isFilterable"
   [hasRowAction]="hasRowAction"
+  [hasBulkActions]="hasBulkActions"
+  [filterFn]="filter"
   [isPageable]="true"
-/>
-
-<!-- 
-  [filterFn]="filter"  
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
-  (exportActionClicked)="exportActionClicked($event)" -->
+  (exportActionClicked)="exportActionClicked($event)"
+/>
