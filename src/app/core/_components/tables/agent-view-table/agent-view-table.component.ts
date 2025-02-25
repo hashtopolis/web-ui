@@ -82,19 +82,19 @@ export class AgentViewTableComponent
         export: async (agent: Agent) => agent._id + ''
       },
       {
-        id: AgentsViewTableCol.STATUS,
-        dataKey: 'status',
-        isSortable: true,
-        async: (agent: Agent) => this.renderActiveAgent(agent),
-        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
-      },
-      {
         id: AgentsViewTableCol.NAME,
         dataKey: 'agentName',
         render: (agent: Agent) => this.renderName(agent),
         routerLink: (agent: Agent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: Agent) => agent.agentName
+      },
+      {
+        id: AgentsViewTableCol.STATUS,
+        dataKey: 'status',
+        isSortable: true,
+        async: (agent: Agent) => this.renderActiveAgent(agent),
+        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
         id: AgentsViewTableCol.AGENT_STATUS,
@@ -109,8 +109,8 @@ export class AgentViewTableComponent
         async: (agent: Agent) => this.renderWorkingOn(agent),
         isSortable: false,
         export: async (agent: Agent) => (await this.renderWorkingOn(agent)) + ''
-      },
-      {
+      }
+      /*       {
         id: AgentsViewTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
@@ -125,7 +125,7 @@ export class AgentViewTableComponent
         isSortable: true,
         export: async (agent: Agent) =>
           formatUnixTimestamp(agent.lastTime, this.dateFormat)
-      }
+      } */
     ];
 
     return tableColumns;
