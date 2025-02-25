@@ -1,14 +1,15 @@
-import { ASC } from '../../core/_constants/agentsc.config';
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+
+import { ASC } from '../../core/_constants/agentsc.config';
+import { AgentStatusModalComponent } from './agent-status-modal/agent-status-modal.component';
 import { CookieService } from 'src/app/core/_services/shared/cookies.service';
 import { FilterService } from 'src/app/core/_services/shared/filter.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { MatDialog } from '@angular/material/dialog';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { environment } from 'src/environments/environment';
 import { SERV } from '../../core/_services/main.config';
-import { AgentStatusModalComponent } from './agent-status-modal/agent-status-modal.component';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-agent-status',
@@ -114,6 +115,7 @@ export class AgentStatusComponent implements OnInit {
     const paramsstat = { maxResults: this.maxResults };
     this.gs.getAll(SERV.AGENTS_STATS, paramsstat).subscribe((stats: any) => {
       const tempDateFilter = stats.values.filter((u) => u.time > 10000000); // Temp
+      // console.log('tempDateFilter', tempDateFilter);
       // const tempDateFilter = stats.values.filter(u=> u.time > this.gettime()); // Temp
       this.statTemp = tempDateFilter.filter((u) => u.statType == ASC.GPU_TEMP); // Temp
       this.statDevice = tempDateFilter.filter(

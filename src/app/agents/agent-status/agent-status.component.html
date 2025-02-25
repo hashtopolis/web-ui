@@ -21,7 +21,7 @@
   </div>
 <app-agent-view-table></app-agent-view-table> 
 <!-- Agent View -->
-<!-- <div class="row card-container-ag" *ngIf="view == 0">
+<div class="row card-container-ag" *ngIf="view == 0">
   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
     <mat-card class="card card-ag overflowAuto">
           <mat-card-header class="card-header-ag">
@@ -67,7 +67,7 @@
       No Records Found
   </div>
 </div>
- -->
+
 <!-- Rack View -->
 <!-- <div class="row card-container-ag" *ngIf="view == 1">
   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let gname of _filteresAgents | groupBy:'agentName' | sort:'asc':'agentName'">

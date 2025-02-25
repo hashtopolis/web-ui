@@ -15,20 +15,30 @@ export const AgentsViewTableColumnLabel = {
 }; */
 export enum AgentsViewTableCol {
   ID,
-  NAME,
-  STATUS,
-  AGENT_STATUS,
-  WORKING_ON,
-  ASSIGNED,
-  LAST_ACTIVITY
+  START,
+  LENGTH,
+  CHECKPOINT,
+  PROGRESS,
+  TASK,
+  AGENT,
+  DISPATCH_TIME,
+  LAST_ACTIVITY,
+  TIME_SPENT,
+  STATE,
+  CRACKED
 }
 
 export const AgentsViewTableColumnLabel = {
   [AgentsViewTableCol.ID]: 'ID',
-  [AgentsViewTableCol.NAME]: 'Name',
-  [AgentsViewTableCol.STATUS]: 'Device Utilisation',
-  [AgentsViewTableCol.AGENT_STATUS]: 'Temperature',
-  [AgentsViewTableCol.WORKING_ON]: 'CPU Utilisation',
-  [AgentsViewTableCol.ASSIGNED]: 'Assigned to',
-  [AgentsViewTableCol.LAST_ACTIVITY]: 'Last Activity'
+  [AgentsViewTableCol.START]: 'Start',
+  [AgentsViewTableCol.LENGTH]: 'Length',
+  [AgentsViewTableCol.CHECKPOINT]: 'Checkpoint',
+  [AgentsViewTableCol.PROGRESS]: 'Progress',
+  [AgentsViewTableCol.TASK]: 'Task',
+  [AgentsViewTableCol.AGENT]: 'Agent',
+  [AgentsViewTableCol.DISPATCH_TIME]: 'Dispatch Time',
+  [AgentsViewTableCol.LAST_ACTIVITY]: 'Last Activity',
+  [AgentsViewTableCol.TIME_SPENT]: 'Time Spent',
+  [AgentsViewTableCol.STATE]: 'State',
+  [AgentsViewTableCol.CRACKED]: 'Cracked'
 };

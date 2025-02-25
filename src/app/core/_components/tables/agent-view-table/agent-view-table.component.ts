@@ -2,31 +2,25 @@ import {
   AgentsViewTableCol,
   AgentsViewTableColumnLabel
 } from './agents-view-table.constants';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+/* eslint-disable @angular-eslint/component-selector */
 import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnInit
+} from '@angular/core';
 import {
   formatSeconds,
   formatUnixTimestamp
 } from 'src/app/shared/utils/datetime';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { Agent } from 'src/app/core/_models/agent.model';
-import { AgentsStatusDataSource } from 'src/app/core/_datasources/agents-status.datasource';
+import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { ChunkData } from 'src/app/core/_models/chunk.model';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
+import { Cacheable } from '../../../_decorators/cacheable';
+import { Chunk } from '../../../_models/chunk.model';
+import { HTTableColumn } from '../../tables/ht-table/ht-table.models';
 import { SafeHtml } from '@angular/platform-browser';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { chunkStates } from '../../../_constants/chunks.config';
 
 @Component({
   selector: 'app-agent-view-table',
@@ -35,497 +29,199 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 })
 export class AgentViewTableComponent
   extends BaseTableComponent
-  implements OnInit, OnDestroy
+  implements OnInit
 {
-  tableColumns: HTTableColumn[] = [];
-  dataSource: AgentsStatusDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
-  private chunkDataLock: { [key: string]: Promise<void> } = {};
+  // Input property to specify an agent ID for filtering chunks.
+  @Input() agentId: number;
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
+  tableColumns: HTTableColumn[] = [];
+  dataSource: AgentsViewDataSource;
 
   ngOnInit(): void {
     this.setColumnLabels(AgentsViewTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsStatusDataSource(
+    this.dataSource = new AgentsViewDataSource(
       this.cdr,
       this.gs,
       this.uiService
     );
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.reload();
-  }
-
-  filter(item: Agent, filterValue: string): boolean {
-    if (
-      item.agentName.toLowerCase().includes(filterValue) ||
-      item.clientSignature.toLowerCase().includes(filterValue) ||
-      item.devices.toLowerCase().includes(filterValue)
-    ) {
-      return true;
+    if (this.agentId) {
+      this.dataSource.setAgentId(this.agentId);
     }
-
-    return false;
+    this.dataSource.loadAll();
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns: HTTableColumn[] = [
+    const tableColumns = [
       {
         id: AgentsViewTableCol.ID,
         dataKey: '_id',
-        isSortable: true,
-        render: (agent: Agent) => agent._id,
-        export: async (agent: Agent) => agent._id + ''
-      },
-      {
-        id: AgentsViewTableCol.NAME,
-        dataKey: 'agentName',
-        render: (agent: Agent) => this.renderName(agent),
-        routerLink: (agent: Agent) => this.renderAgentLink(agent),
-        isSortable: true,
-        export: async (agent: Agent) => agent.agentName
-      },
-      {
-        id: AgentsViewTableCol.STATUS,
-        dataKey: 'status',
-        isSortable: true,
-        async: (agent: Agent) => this.renderActiveAgent(agent),
-        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
-      },
-      {
-        id: AgentsViewTableCol.AGENT_STATUS,
-        dataKey: 'isActive',
-        icons: (agent: Agent) => this.renderStatusIcon(agent),
-        render: (agent: Agent) => this.renderStatus(agent),
         isSortable: true
       },
       {
-        id: AgentsViewTableCol.WORKING_ON,
-        dataKey: 'status',
-        async: (agent: Agent) => this.renderWorkingOn(agent),
-        isSortable: false,
-        export: async (agent: Agent) => (await this.renderWorkingOn(agent)) + ''
+        id: AgentsViewTableCol.START,
+        dataKey: 'skip',
+        isSortable: true
       },
       {
-        id: AgentsViewTableCol.ASSIGNED,
+        id: AgentsViewTableCol.LENGTH,
+        dataKey: 'length',
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.CHECKPOINT,
+        dataKey: 'checkpoint',
+        render: (chunk: Chunk) => this.renderCheckpoint(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.PROGRESS,
+        dataKey: 'progress',
+        render: (chunk: Chunk) => this.renderProgress(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.TASK,
         dataKey: 'taskName',
-        isSortable: true,
-        render: (agent: Agent) => agent.taskName,
-        routerLink: (agent: Agent) => this.renderTaskLink(agent),
-        export: async (agent: Agent) => agent.taskName
+        routerLink: (chunk: Chunk) => this.renderTaskLink(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.AGENT,
+        dataKey: 'agentName',
+        render: (chunk: Chunk) => this.renderAgent(chunk),
+        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.DISPATCH_TIME,
+        dataKey: 'dispatchTime',
+        render: (chunk: Chunk) => this.renderDispatchTime(chunk),
+        isSortable: true
       },
       {
         id: AgentsViewTableCol.LAST_ACTIVITY,
-        dataKey: 'lastTime',
-        render: (agent: Agent) => this.renderLastActivity(agent),
-        isSortable: true,
-        export: async (agent: Agent) =>
-          formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        dataKey: 'solveTime',
+        render: (chunk: Chunk) => this.renderLastActivity(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.TIME_SPENT,
+        dataKey: 'timeSpent',
+        render: (chunk: Chunk) => this.renderTimeSpent(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.STATE,
+        dataKey: 'state',
+        render: (chunk: Chunk) => this.renderState(chunk),
+        isSortable: true
+      },
+      {
+        id: AgentsViewTableCol.CRACKED,
+        dataKey: 'cracked',
+        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk),
+        isSortable: true
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Agent>) {
-    const dialogRef = this.dialog.open(TableDialogComponent, {
-      data: data,
-      width: '450px'
-    });
-
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result && result.action) {
-          switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
-              break;
-            case BulkActionMenuAction.ACTIVATE:
-              this.bulkActionActivate(result.data, true);
-              break;
-            case BulkActionMenuAction.DEACTIVATE:
-              this.bulkActionActivate(result.data, false);
-              break;
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionDelete(result.data);
-              break;
-          }
-        }
-      })
-    );
-  }
-
   // --- Render functions ---
 
-  @Cacheable(['_id'])
-  async renderActiveAgent(agent: Agent): Promise<SafeHtml> {
-    const agentSpeed = await this.utilService
-      .calculateSpeed(agent.agentId, true)
-      .toPromise();
-    const result = agentSpeed > 0 ? 'Running task' : 'Stopped task';
-    return this.sanitize(`${result}`);
-  }
-
-  @Cacheable(['_id', 'agentName'])
-  renderName(agent: Agent): SafeHtml {
-    const agentName =
-      agent.agentName?.length > 40
-        ? `${agent.agentName.substring(40)}...`
-        : agent.agentName;
-    const isTrusted = agent.isTrusted
-      ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
-      : '';
-
-    return this.sanitize(`<a>${agentName}</a>${isTrusted}`);
-  }
-
-  @Cacheable(['_id'])
-  async renderCurrentSpeed(agent: Agent): Promise<SafeHtml> {
-    let html = '-';
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      html = `${speed} H/s`;
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['_id'])
-  async renderTimeSpent(agent: Agent): Promise<SafeHtml> {
-    let html = '-';
-    const timeSpent = await this.getTimeSpent(agent);
-    if (timeSpent) {
-      html = `${formatSeconds(timeSpent)}`;
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['_id'])
-  async renderSearched(agent: Agent): Promise<SafeHtml> {
-    let html = '-';
-    const searched = await this.getSearched(agent);
-    if (searched) {
-      html = `${searched}`;
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['_id'])
-  async renderCracked(agent: Agent): Promise<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    const cracked = await this.getCracked(agent);
-
-    if (cracked) {
-      links.push({
-        label: cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId]
-      });
-    }
-
-    return links;
-  }
-
-  @Cacheable(['_id'])
-  async renderProgressIcon(agent: Agent): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      icons.push({
-        name: 'radio_button_checked',
-        cls: 'pulsing-progress'
-      });
-    }
-
-    return icons;
-  }
-
-  @Cacheable(['_id', 'isActive'])
-  renderStatus(agent: Agent): SafeHtml {
-    let html: string;
-    if (agent.isActive) {
-      html = '<span class="pill pill-active">Active</span>';
-    } else {
-      html = '<span class="pill pill-inactive">Inactive</span>';
+  @Cacheable(['_id', 'cracked'])
+  renderCracked(chunk: Chunk): SafeHtml {
+    let html = `${chunk.cracked}`;
+    if (chunk.cracked && chunk.cracked > 0) {
+      html = `<a data-view-hashes-task-id="${chunk.task._id}">${chunk.cracked}</a>`;
     }
 
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'speed'])
-  async renderWorkingOn(agent: Agent): Promise<SafeHtml> {
-    let html = '';
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      html = `
-        <div>
-        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
-        <div>at ${speed} H/s,<br></div>
-        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
-        </div>
-      `;
+  @Cacheable(['_id', 'state'])
+  renderState(chunk: Chunk): SafeHtml {
+    let html = `${chunk.state}`;
+    if (chunk.state && chunk.state in chunkStates) {
+      html = `<span class="pill pill-${chunkStates[
+        chunk.state
+      ].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
     }
 
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'userId'])
-  renderOwner(agent: Agent): SafeHtml {
-    if (agent.user) {
-      return this.sanitize(agent.user.name);
+  @Cacheable(['_id', 'solveTime', 'dispatchTime'])
+  renderTimeSpent(chunk: Chunk): SafeHtml {
+    const seconds = chunk.solveTime - chunk.dispatchTime;
+    if (seconds) {
+      return this.sanitize(formatSeconds(seconds));
     }
-    return '';
+
+    return this.sanitize('0');
   }
 
-  @Cacheable(['_id', 'clientSignature'])
-  renderClient(agent: Agent): SafeHtml {
-    if (agent.clientSignature) {
-      return agent.clientSignature;
-    }
-    return '';
-  }
+  @Cacheable(['_id', 'progress', 'checkpoint', 'skip', 'length'])
+  renderCheckpoint(chunk: Chunk): SafeHtml {
+    const percent = chunk.progress
+      ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2)
+      : 0;
+    const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
 
-  @Cacheable(['_id', 'lastTime'])
-  renderLastActivity(agent: Agent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    const action = `Action: ${agent.lastAct}<br>`;
-    const time = `Time: ${formattedDate}<br>`;
-    const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : '';
-
-    const data = `${action}${time}${ip}`;
     return this.sanitize(data);
   }
 
-  private async getSpeed(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'speed');
-  }
-
-  private async getSearched(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'searched');
-  }
-
-  private async getTimeSpent(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'timeSpent');
-  }
-
-  private async getCracked(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'cracked');
-  }
-
-  private async getChunkDataParam(
-    agentId: number,
-    key: string
-  ): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(agentId);
-    if (cd[key]) {
-      return cd[key];
+  @Cacheable(['_id', 'progress'])
+  renderProgress(chunk: Chunk): SafeHtml {
+    if (chunk.progress === undefined) {
+      return this.sanitize('N/A');
+    } else if (chunk.progress > 0) {
+      return this.sanitize(`${chunk.progress / 100}%`);
     }
 
-    return 0;
+    return `${chunk.progress ? chunk.progress : 0}`;
   }
 
-  // --- Action functions ---
-
-  exportActionClicked(event: ActionMenuEvent<Agent[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Agent>(
-          'hashtopolis-agents',
-          this.tableColumns,
-          event.data,
-          AgentsViewTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Agent>(
-          'hashtopolis-agents',
-          this.tableColumns,
-          event.data,
-          AgentsViewTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Agent>(
-            this.tableColumns,
-            event.data,
-            AgentsViewTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
+  @Cacheable(['_id', 'taskId'])
+  renderTask(chunk: Chunk): SafeHtml {
+    if (chunk.task) {
+      return this.sanitize(chunk.task.taskName);
     }
+
+    return this.sanitize(`${chunk.taskId}`);
   }
 
-  rowActionClicked(event: ActionMenuEvent<Agent>): void {
-    switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
-      case RowActionMenuAction.ACTIVATE:
-        this.bulkActionActivate([event.data], true);
-        break;
-      case RowActionMenuAction.DEACTIVATE:
-        this.bulkActionActivate([event.data], false);
-        break;
-
-      case RowActionMenuAction.DELETE:
-        this.openDialog({
-          rows: [event.data],
-          title: `Deleting ${event.data.agentName} ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete ${event.data.agentName}? Note that this action cannot be undone.`,
-          warn: true,
-          action: event.menuItem.action
-        });
-        break;
+  @Cacheable(['_id', 'agentId'])
+  renderAgent(chunk: Chunk): SafeHtml {
+    if (chunk.agent) {
+      return this.sanitize(chunk.agent.agentName);
     }
+
+    return `${chunk.agentId}`;
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Agent[]>): void {
-    switch (event.menuItem.action) {
-      case BulkActionMenuAction.ACTIVATE:
-        this.openDialog({
-          rows: event.data,
-          title: `Activating ${event.data.length} agents ...`,
-          icon: 'info',
-          listAttribute: 'agentName',
-          action: event.menuItem.action
-        });
-        break;
-      case BulkActionMenuAction.DEACTIVATE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deactivating ${event.data.length} agents ...`,
-          icon: 'info',
-          listAttribute: 'agentName',
-          action: event.menuItem.action
-        });
-        break;
-      case BulkActionMenuAction.DELETE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} agents ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete the above agents? Note that this action cannot be undone.`,
-          warn: true,
-          listAttribute: 'agentName',
-          action: event.menuItem.action
-        });
-        break;
-    }
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private bulkActionActivate(agents: Agent[], isActive: boolean): void {
-    const requests = agents.map((agent: Agent) => {
-      return this.gs.update(SERV.AGENTS, agent._id, { isActive: isActive });
-    });
-
-    const action = isActive ? 'activated' : 'deactivated';
-
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during activation:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully ${action} ${results.length} agents!`,
-            'Close'
-          );
-          this.dataSource.reload();
-        })
+  @Cacheable(['_id', 'dispatchTime'])
+  renderDispatchTime(chunk: Chunk): SafeHtml {
+    const formattedDate = formatUnixTimestamp(
+      chunk.dispatchTime,
+      this.dateFormat
     );
+
+    return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
 
-  /**
-   * @todo Implement error handling.
-   */
-  private bulkActionDelete(agents: Agent[]): void {
-    const requests = agents.map((agent: Agent) => {
-      return this.gs.delete(SERV.AGENTS, agent._id);
-    });
-
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} agents!`,
-            'Close'
-          );
-          this.dataSource.reload();
-        })
-    );
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(agent: Agent): void {
-    this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
-        this.snackBar.open('Successfully deleted agent!', 'Close');
-        this.dataSource.reload();
-      })
-    );
-  }
-
-  private rowActionEdit(agent: Agent): void {
-    this.renderAgentLink(agent).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
-  }
-
-  /**
-   * Retrieves or fetches chunk data associated with a given agent from the data source.
-   * If the chunk data for the specified agent ID is not already cached, it is fetched
-   * asynchronously from the data source and stored in the cache for future use.
-   *
-   * @param {number} agentId - The ID of the agent for which chunk data is requested.
-   * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified agent.
-   *
-   * @remarks
-   * This function uses a locking mechanism to ensure that concurrent calls for the same agent ID
-   * do not interfere with each other. If another call is already fetching or has fetched
-   * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
-   * before proceeding.
-   */
-  private async getChunkData(agentId: number): Promise<ChunkData> {
-    if (!this.chunkDataLock[agentId]) {
-      // If there is no lock, create a new one
-      this.chunkDataLock[agentId] = (async () => {
-        if (!(agentId in this.chunkData)) {
-          // Inside the lock, await the asynchronous operation
-          this.chunkData[agentId] = await this.dataSource.getChunkData(agentId);
-        }
-
-        // Release the lock when the operation is complete
-        delete this.chunkDataLock[agentId];
-      })();
+  @Cacheable(['_id', 'solveTime'])
+  renderLastActivity(chunk: Chunk): SafeHtml {
+    if (chunk.solveTime === 0) {
+      return '(No activity)';
+    } else if (chunk.solveTime > 0) {
+      return this.sanitize(
+        formatUnixTimestamp(chunk.solveTime, this.dateFormat)
+      );
     }
 
-    // Wait for the lock to be released before returning the data
-    await this.chunkDataLock[agentId];
-
-    return this.chunkData[agentId];
+    return this.sanitize(`${chunk.solveTime}`);
   }
 }

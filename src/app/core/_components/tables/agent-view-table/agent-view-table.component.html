@@ -1,17 +1,11 @@
 <ht-table
   #table
-  name="agentStatusTable"
+  name="chunksTable"
   [columnLabels]="columnLabels"
-  dataType="agents-status"
+  dataType="chunks"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
-  [isSelectable]="isSelectable"
-  [isFilterable]="isFilterable"
-  [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
-  [filterFn]="filter"
+  [hasRowAction]="hasRowAction"
   [isPageable]="true"
-  (bulkActionClicked)="bulkActionClicked($event)"
-  (rowActionClicked)="rowActionClicked($event)"
-  (exportActionClicked)="exportActionClicked($event)"
 />
