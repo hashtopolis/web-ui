@@ -18,9 +18,9 @@ export enum AgentsViewTableCol {
   NAME,
   STATUS,
   AGENT_STATUS,
-  WORKING_ON
-  /*   ASSIGNED,
-  LAST_ACTIVITY */
+  WORKING_ON,
+  ASSIGNED,
+  LAST_ACTIVITY
 }
 
 export const AgentsViewTableColumnLabel = {
@@ -28,7 +28,7 @@ export const AgentsViewTableColumnLabel = {
   [AgentsViewTableCol.NAME]: 'Name',
   [AgentsViewTableCol.STATUS]: 'Device Utilisation',
   [AgentsViewTableCol.AGENT_STATUS]: 'Temperature',
-  [AgentsViewTableCol.WORKING_ON]: 'CPU Utilisation'
-  /*   [AgentsViewTableCol.ASSIGNED]: 'Assigned to',
-  [AgentsViewTableCol.LAST_ACTIVITY]: 'Last Activity' */
+  [AgentsViewTableCol.WORKING_ON]: 'CPU Utilisation',
+  [AgentsViewTableCol.ASSIGNED]: 'Assigned to',
+  [AgentsViewTableCol.LAST_ACTIVITY]: 'Last Activity'
 };

@@ -109,8 +109,8 @@ export class AgentViewTableComponent
         async: (agent: Agent) => this.renderWorkingOn(agent),
         isSortable: false,
         export: async (agent: Agent) => (await this.renderWorkingOn(agent)) + ''
-      }
-      /*       {
+      },
+      {
         id: AgentsViewTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
@@ -125,7 +125,7 @@ export class AgentViewTableComponent
         isSortable: true,
         export: async (agent: Agent) =>
           formatUnixTimestamp(agent.lastTime, this.dateFormat)
-      } */
+      }
     ];
 
     return tableColumns;
