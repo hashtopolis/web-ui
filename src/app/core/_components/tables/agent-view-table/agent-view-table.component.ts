@@ -48,6 +48,7 @@ export class AgentViewTableComponent
       {
         id: AgentsViewTableCol.NAME,
         dataKey: 'agentName',
+        routerLink: (agent: Agent) => this.renderAgentLink(agent),
         render: (agent: Agent) => agent.agentName
       },
       {
