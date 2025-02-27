@@ -45,44 +45,48 @@ export class AgentsViewDataSource extends BaseDataSource<Chunk> {
     const agentParams = { maxResults: this.maxResults };
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams2);
-    const agentsStat$ = this.service.getAll(SERV.AGENTS_STATS, agentParams);
 
-    forkJoin([chunks$, agents$, agentsStat$])
+    forkJoin([chunks$, agents$])
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([c, a, as]: [
-          ListResponseWrapper<Chunk>,
-          ListResponseWrapper<Agent>,
-          ListResponseWrapper<AgentStats>
-        ]) => {
-          const agentStats: AgentStats[] = as.values;
+        ([c, a]: [ListResponseWrapper<Chunk>, ListResponseWrapper<Agent>]) => {
           const assignedChunks: Chunk[] = c.values;
           const agents: Agent[] = a.values;
-          agents.map((agent: Agent) => {
-            const temp = agent.agentstats.filter((u) => u.time > 10000000);
-            console.log(temp);
-          });
-          // console.log('HEJ', agentStats);
-          const tempDateFilter = agentStats.filter((u) => u.time > 10000000);
-          const statTemp = tempDateFilter.filter(
-            (u) => u.statType == ASC.GPU_TEMP
-          );
-          const statDevice = tempDateFilter.filter(
-            (u) => u.statType == ASC.GPU_UTIL
-          ); // Temp
-          const statCpu = tempDateFilter.filter(
-            (u) => u.statType == ASC.CPU_UTIL
-          ); // Temp
 
-          console.log('HEJ', statTemp, statDevice, statCpu);
-          /*           agentStats.map((agentStat: AgentStats) => {
-            console.log(agentStat);
-            agentStat.value.filter((u) => u > 10000000);
-            // console.log(agg);
-          }); */
+          agents.map((agent: Agent) => {
+            const tempDateFilter = agent.agentstats.filter(
+              (u) => u.time > 10000000
+            );
+            const statTemp = tempDateFilter.filter(
+              (u) => u.statType == ASC.GPU_TEMP
+            );
+            const statDevice = tempDateFilter.filter(
+              (u) => u.statType == ASC.GPU_UTIL
+            ); // Temp
+            const statCpu = tempDateFilter.filter(
+              (u) => u.statType == ASC.CPU_UTIL
+            ); // Temp
+            agent.maxTemp = statTemp.reduce((prev, current) =>
+              prev.value > current.value ? prev : current
+            ).value[0];
+            agent.avgCpu =
+              statCpu.reduce(
+                (sum, current) =>
+                  sum + current.value.reduce((a, b) => a + b, 0),
+                0
+              ) / statCpu.length;
+            agent.avgDevice =
+              statDevice.reduce(
+                (sum, current) =>
+                  sum + current.value.reduce((a, b) => a + b, 0),
+                0
+              ) / statDevice.length;
+          });
+          console.log(agents);
+
           assignedChunks.map((chunk: Chunk) => {
             chunk.agent = a.values.find((e: Agent) => e._id === chunk.agentId);
             // Flatten row so that we can access agent name and task name by key when rendering the table.
@@ -92,7 +96,7 @@ export class AgentsViewDataSource extends BaseDataSource<Chunk> {
             if (chunk.task) {
               chunk.taskName = chunk.task.taskName;
             }
-            // console.log(chunk);
+            //  console.log(chunk);
             return chunk;
           });
 

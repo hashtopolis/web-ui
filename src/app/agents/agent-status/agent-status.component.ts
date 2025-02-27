@@ -115,8 +115,6 @@ export class AgentStatusComponent implements OnInit {
     const paramsstat = { maxResults: this.maxResults };
     this.gs.getAll(SERV.AGENTS_STATS, paramsstat).subscribe((stats: any) => {
       const tempDateFilter = stats.values.filter((u) => u.time > 10000000); // Temp
-      // console.log('tempDateFilter', tempDateFilter);
-      // const tempDateFilter = stats.values.filter(u=> u.time > this.gettime()); // Temp
       this.statTemp = tempDateFilter.filter((u) => u.statType == ASC.GPU_TEMP); // Temp
       this.statDevice = tempDateFilter.filter(
         (u) => u.statType == ASC.GPU_UTIL
