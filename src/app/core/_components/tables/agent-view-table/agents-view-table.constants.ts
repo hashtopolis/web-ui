@@ -1,8 +1,8 @@
 export enum AgentsViewTableCol {
   ID,
   NAME,
-  TEMPERATURE,
   DEVICE_UTILISATION,
+  TEMPERATURE,
   CPU_UTILISATION
 }
 

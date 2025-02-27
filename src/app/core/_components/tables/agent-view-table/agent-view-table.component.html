@@ -1,1 +1,15 @@
 HELLO
+
+<ht-table
+  #table
+  name="agentViewTable"
+  [columnLabels]="columnLabels"
+  dataType="agents"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="!isSelectable"
+  [isFilterable]="false"
+  [hasRowAction]="false"
+  [hasBulkActions]="false"
+  [isPageable]="false"
+/>
