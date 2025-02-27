@@ -9,7 +9,7 @@ import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { time } from 'console';
 
-export class AgentsViewDataSource extends BaseDataSource<Chunk> {
+export class AgentsViewDataSource extends BaseDataSource<Agent> {
   private _agentId = 0;
 
   setAgentId(agentId: number): void {
@@ -27,24 +27,24 @@ export class AgentsViewDataSource extends BaseDataSource<Chunk> {
       startsAt: startAt,
       expand: 'task'
     };
-    const agentParams2: RequestParams = {
+    const agentParams: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
       expand: 'agentstats'
     };
 
     if (this._agentId) {
-      params.filter = `chunkId=${this._agentId}`;
+      // params.filter = `chunkId=${this._agentId}`;
     }
 
-    if (sorting.dataKey && sorting.isSortable) {
+    /*     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
       params.ordering = order;
-    }
+    } */
 
-    const agentParams = { maxResults: this.maxResults };
+    // const agentParams = { maxResults: this.maxResults };
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
-    const agents$ = this.service.getAll(SERV.AGENTS, agentParams2);
+    const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
     forkJoin([chunks$, agents$])
       .pipe(
@@ -53,7 +53,6 @@ export class AgentsViewDataSource extends BaseDataSource<Chunk> {
       )
       .subscribe(
         ([c, a]: [ListResponseWrapper<Chunk>, ListResponseWrapper<Agent>]) => {
-          const assignedChunks: Chunk[] = c.values;
           const agents: Agent[] = a.values;
 
           agents.map((agent: Agent) => {
@@ -87,20 +86,7 @@ export class AgentsViewDataSource extends BaseDataSource<Chunk> {
           });
           console.log(agents);
 
-          assignedChunks.map((chunk: Chunk) => {
-            chunk.agent = a.values.find((e: Agent) => e._id === chunk.agentId);
-            // Flatten row so that we can access agent name and task name by key when rendering the table.
-            if (chunk.agent) {
-              chunk.agentName = chunk.agent.agentName;
-            }
-            if (chunk.task) {
-              chunk.taskName = chunk.task.taskName;
-            }
-            //  console.log(chunk);
-            return chunk;
-          });
-
-          this.setData(assignedChunks);
+          this.setData(agents);
         }
       );
   }
