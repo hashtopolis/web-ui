@@ -1,6 +1,12 @@
 <app-table>
   <app-page-title [title]="pageTitle"></app-page-title>
-  <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutWrap fxLayoutGap="20px" class="py-4">
+  <div
+    fxLayout="row"
+    fxLayoutAlign="space-between center"
+    fxLayoutWrap
+    fxLayoutGap="20px"
+    class="py-4"
+  >
     <div class="mb-4 mb-md-0">
       <div class="btn-group ms-2 ms-3">
         <button mat-button (click)="setView('0')" *ngIf="view == 1">
@@ -13,18 +19,21 @@
         </button>
       </div>
     </div>
-<!--     <div class="btn-toolbar">
+    <!--     <div class="btn-toolbar">
       <div class="btn-group ms-2 ms-3">
         <cm-filter-textbox (changed)="filterChanged($event)"></cm-filter-textbox>
       </div>
     </div> -->
   </div>
-  <app-table>
-<app-agent-view-table></app-agent-view-table> 
-</app-table>
-<!-- Agent View -->
-<div class="row card-container-ag" *ngIf="view == 0">
-  <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
+  <!--   <app-table>
+ -->
+  <!-- </app-table> -->
+  <!-- Agent View -->
+  <div class="" *ngIf="view == 0">
+    <!--   <div class="row card-container-ag" *ngIf="view == 0"></div>
+ -->
+    <app-agent-view-table></app-agent-view-table>
+    <!--   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
     <mat-card class="card card-ag overflowAuto">
           <mat-card-header class="card-header-ag">
             <mat-icon *ngIf="a.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
@@ -64,15 +73,14 @@
                 </div>
             </div>
       </mat-card>
+  </div> -->
+    <div *ngIf="!showagents.length">No Records Found</div>
   </div>
-  <div *ngIf="!showagents.length">
-      No Records Found
-  </div>
-</div>
 
-<!-- Rack View -->
-<!-- <div class="row card-container-ag" *ngIf="view == 1">
-  <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let gname of _filteresAgents | groupBy:'agentName' | sort:'asc':'agentName'">
+  <!-- Rack View -->
+  <div class="row card-container-ag" *ngIf="view == 1">
+    RACK CITY TBD
+    <!-- <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let gname of _filteresAgents | groupBy:'agentName' | sort:'asc':'agentName'">
     <mat-card class="card card-ag-rack overflowAuto">
       <mat-card-header class="card-header-ag">
         <mat-icon *ngIf="gname.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
@@ -115,9 +123,8 @@
         </div>
       </div>
     </mat-card>
+  </div>-->
   </div>
-</div> -->
-
 </app-table>
 <!-- Agent Activity Table -->
 <app-table>
