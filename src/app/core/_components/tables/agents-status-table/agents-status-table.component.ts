@@ -19,6 +19,7 @@ import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { Agent } from 'src/app/core/_models/agent.model';
 import { AgentsDataSource } from 'src/app/core/_datasources/agents.datasource';
+import { AgentsStatusDataSource } from 'src/app/core/_datasources/agents-status.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
@@ -29,7 +30,6 @@ import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu
 import { SERV } from 'src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { AgentsStatusDataSource } from 'src/app/core/_datasources/agents-status.datasource';
 
 @Component({
   selector: 'agents-status-table',
