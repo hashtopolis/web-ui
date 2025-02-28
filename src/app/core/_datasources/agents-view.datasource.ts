@@ -7,7 +7,6 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { time } from 'console';
 
 export class AgentsViewDataSource extends BaseDataSource<Agent> {
   private _agentId = 0;
@@ -76,7 +75,7 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
             ) / statDevice.length
           );
         });
-
+        this.setPaginationConfig(this.pageSize, this.currentPage, a.total);
         this.setData(agents);
       });
   }
