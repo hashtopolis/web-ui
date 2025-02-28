@@ -1,14 +1,18 @@
+import { AccessGroupsAgentsTableCol } from '../_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '../_components/tables/access-groups-table/access-groups-table.constants';
 import { AccessGroupsUsersTableCol } from '../_components/tables/access-groups-users-table/access-groups-users-table.constants';
-import { AccessGroupsAgentsTableCol } from '../_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
+import { AccessPermissionGroupsUserTableCol } from '../_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+import { AccessPermissionGroupsUsersTableCol } from '../_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 import { AgentBinariesTableCol } from '../_components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsStatusTableCol } from '../_components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '../_components/tables/agents-table/agents-table.constants';
+import { AgentsViewTableCol } from '../_components/tables/agent-view-table/agents-view-table.constants';
 import { ChunksTableCol } from '../_components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '../_components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '../_components/tables/cracks-table/cracks-table.constants';
 import { FilesAttackTableCol } from '../_components/tables/files-attack-table/files-attack-table.constants';
 import { FilesTableCol } from '../_components/tables/files-table/files-table.constants';
+import { HashesTableCol } from '../_components/tables/hashes-table/hashes-table.constants';
 import { HashlistsTableCol } from '../_components/tables/hashlists-table/hashlists-table.constants';
 import { HashtypesTableCol } from '../_components/tables/hashtypes-table/hashtypes-table.constants';
 import { HealthCheckAgentsTableCol } from '../_components/tables/health-check-agents-table/health-check-agents-table.constants';
@@ -17,19 +21,16 @@ import { LogsTableCol } from '../_components/tables/logs-table/logs-table.consta
 import { NotificationsTableCol } from '../_components/tables/notifications-table/notifications-table.constants';
 import { PermissionsTableCol } from '../_components/tables/permissions-table/permissions-table.constants';
 import { PreprocessorsTableCol } from '../_components/tables/preprocessors-table/preprocessors-table.constants';
-import { SearchHashTableCol } from '../_components/tables/search-hash-table/search-hash-table.constants';
 import { PretasksTableCol } from '../_components/tables/pretasks-table/pretasks-table.constants';
+import { SearchHashTableCol } from '../_components/tables/search-hash-table/search-hash-table.constants';
 import { SuperHashlistsTableCol } from '../_components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '../_components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '../_components/tables/supertasks-table/supertasks-table.constants';
 import { TaskTableCol } from '../_components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '../_components/tables/tasks-chunks-table/tasks-chunks-table.constants';
-import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '../_components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
+import { UsersTableCol } from '../_components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '../_components/tables/vouchers-table/vouchers-table.constants';
-import { AccessPermissionGroupsUsersTableCol } from '../_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
-import { AccessPermissionGroupsUserTableCol } from '../_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
-import { HashesTableCol } from '../_components/tables/hashes-table/hashes-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -172,6 +173,24 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentsStatusTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    agentViewTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentsViewTableCol.ID,
+        AgentsViewTableCol.NAME,
+        AgentsViewTableCol.CPU_UTILISATION,
+        AgentsViewTableCol.TEMPERATURE,
+        AgentsViewTableCol.DEVICE_UTILISATION
+      ],
+      order: {
+        id: AgentsViewTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'

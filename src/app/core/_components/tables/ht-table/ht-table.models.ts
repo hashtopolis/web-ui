@@ -5,6 +5,7 @@ export type DataType =
   | 'agents'
   | 'agents-status'
   | 'agents-assign'
+  | 'agents-view'
   | 'access-groups'
   | 'access-groups-users'
   | 'access-permission-groups-user'

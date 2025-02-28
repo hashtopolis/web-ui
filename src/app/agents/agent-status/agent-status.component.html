@@ -19,7 +19,9 @@
       </div>
     </div> -->
   </div>
+  <app-table>
 <app-agent-view-table></app-agent-view-table> 
+</app-table>
 <!-- Agent View -->
 <div class="row card-container-ag" *ngIf="view == 0">
   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
