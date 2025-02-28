@@ -76,7 +76,6 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
             ) / statDevice.length
           );
         });
-        console.log(agents);
 
         this.setData(agents);
       });

@@ -9,7 +9,7 @@ export enum AgentsViewTableCol {
 export const AgentsViewTableColumnLabel = {
   [AgentsViewTableCol.ID]: 'ID',
   [AgentsViewTableCol.NAME]: 'Name',
-  [AgentsViewTableCol.DEVICE_UTILISATION]: 'Device Utilisation',
-  [AgentsViewTableCol.TEMPERATURE]: 'Temperature',
-  [AgentsViewTableCol.CPU_UTILISATION]: 'CPU Utilisation'
+  [AgentsViewTableCol.DEVICE_UTILISATION]: 'Average Device Utilisation',
+  [AgentsViewTableCol.TEMPERATURE]: 'Max Temperature',
+  [AgentsViewTableCol.CPU_UTILISATION]: 'Average CPU Utilisation'
 };
