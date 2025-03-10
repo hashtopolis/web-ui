@@ -11,23 +11,3 @@ export interface Log {
   message: string;
   time: number;
 }
-
-
-export interface LogData {
-  type: string;
-  id: number;
-  attributes: LogDataAttributes;
-  links: LogDataLinks;
-}
-
-export interface LogDataAttributes {
-  issuer: string;
-  issuerId: string;
-  level: string;
-  message: string;
-  time: number;
-}
-
-export interface LogDataLinks {
-  self: string;
-}

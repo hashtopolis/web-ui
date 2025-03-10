@@ -17,12 +17,12 @@ import {
 
 import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { AgentData } from 'src/app/core/_models/agent.model';
+import { Agent } from 'src/app/core/_models/agent.model';
 import { AgentsDataSource } from 'src/app/core/_datasources/agents.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import {  ChunkDataData } from 'src/app/core/_models/chunk.model';
+import { ChunkData } from 'src/app/core/_models/chunk.model';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
@@ -41,7 +41,7 @@ export class AgentsStatusTableComponent
 {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsStatusDataSource;
-  chunkData: { [key: number]: ChunkDataData } = {};
+  chunkData: { [key: number]: ChunkData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
@@ -62,11 +62,11 @@ export class AgentsStatusTableComponent
     this.dataSource.reload();
   }
 
-  filter(item: AgentData, filterValue: string): boolean {
+  filter(item: Agent, filterValue: string): boolean {
     if (
-      item.attributes.agentName.toLowerCase().includes(filterValue) ||
-      item.attributes.clientSignature.toLowerCase().includes(filterValue) ||
-      item.attributes.devices.toLowerCase().includes(filterValue)
+      item.agentName.toLowerCase().includes(filterValue) ||
+      item.clientSignature.toLowerCase().includes(filterValue) ||
+      item.devices.toLowerCase().includes(filterValue)
     ) {
       return true;
     }
@@ -78,62 +78,62 @@ export class AgentsStatusTableComponent
     const tableColumns: HTTableColumn[] = [
       {
         id: AgentsStatusTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        render: (agent: AgentData) => agent.id,
-        export: async (agent: AgentData) => agent.id + ''
+        render: (agent: Agent) => agent._id,
+        export: async (agent: Agent) => agent._id + ''
       },
       {
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: true,
-        async: (agent: AgentData) => this.renderActiveAgent(agent),
-        export: async (agent: AgentData) => (agent.attributes.isActive ? 'Active' : 'Inactive')
+        async: (agent: Agent) => this.renderActiveAgent(agent),
+        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
-        render: (agent: AgentData) => this.renderName(agent),
-        routerLink: (agent: AgentData) => this.renderAgentLink(agent),
+        render: (agent: Agent) => this.renderName(agent),
+        routerLink: (agent: Agent) => this.renderAgentLink(agent),
         isSortable: true,
-        export: async (agent: AgentData) => agent.attributes.agentName
+        export: async (agent: Agent) => agent.agentName
       },
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
         dataKey: 'isActive',
-        icons: (agent: AgentData) => this.renderStatusIcon(agent),
-        render: (agent: AgentData) => this.renderStatus(agent),
+        icons: (agent: Agent) => this.renderStatusIcon(agent),
+        render: (agent: Agent) => this.renderStatus(agent),
         isSortable: true
       },
       {
         id: AgentsStatusTableCol.WORKING_ON,
         dataKey: 'status',
-        async: (agent: AgentData) => this.renderWorkingOn(agent),
+        async: (agent: Agent) => this.renderWorkingOn(agent),
         isSortable: false,
-        export: async (agent: AgentData) => (await this.renderWorkingOn(agent)) + ''
+        export: async (agent: Agent) => (await this.renderWorkingOn(agent)) + ''
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
-        render: (agent: AgentData) => agent.attributes.taskName,
-        routerLink: (agent: AgentData) => this.renderTaskLink(agent.attributes.task),
-        export: async (agent: AgentData) => agent.attributes.taskName
+        render: (agent: Agent) => agent.taskName,
+        routerLink: (agent: Agent) => this.renderTaskLink(agent),
+        export: async (agent: Agent) => agent.taskName
       },
       {
         id: AgentsStatusTableCol.LAST_ACTIVITY,
         dataKey: 'lastTime',
-        render: (agent: AgentData) => this.renderLastActivity(agent),
+        render: (agent: Agent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: AgentData) =>
-          formatUnixTimestamp(agent.attributes.lastTime, this.dateFormat)
+        export: async (agent: Agent) =>
+          formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<AgentData>) {
+  openDialog(data: DialogData<Agent>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -163,30 +163,30 @@ export class AgentsStatusTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['id'])
-  async renderActiveAgent(agent: AgentData): Promise<SafeHtml> {
+  @Cacheable(['_id'])
+  async renderActiveAgent(agent: Agent): Promise<SafeHtml> {
     const agentSpeed = await this.utilService
-      .calculateSpeed(agent.id, true)
+      .calculateSpeed(agent.agentId, true)
       .toPromise();
     const result = agentSpeed > 0 ? 'Running task' : 'Stopped task';
     return this.sanitize(`${result}`);
   }
 
-  @Cacheable(['id', 'agentName'])
-  renderName(agent: AgentData): SafeHtml {
+  @Cacheable(['_id', 'agentName'])
+  renderName(agent: Agent): SafeHtml {
     const agentName =
-      agent.attributes.agentName?.length > 40
-        ? `${agent.attributes.agentName.substring(40)}...`
-        : agent.attributes.agentName;
-    const isTrusted = agent.attributes.isTrusted
+      agent.agentName?.length > 40
+        ? `${agent.agentName.substring(40)}...`
+        : agent.agentName;
+    const isTrusted = agent.isTrusted
       ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
       : '';
 
     return this.sanitize(`<a>${agentName}</a>${isTrusted}`);
   }
 
-  @Cacheable(['id'])
-  async renderCurrentSpeed(agent: AgentData): Promise<SafeHtml> {
+  @Cacheable(['_id'])
+  async renderCurrentSpeed(agent: Agent): Promise<SafeHtml> {
     let html = '-';
     const speed = await this.getSpeed(agent);
     if (speed) {
@@ -195,8 +195,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['id'])
-  async renderTimeSpent(agent: AgentData): Promise<SafeHtml> {
+  @Cacheable(['_id'])
+  async renderTimeSpent(agent: Agent): Promise<SafeHtml> {
     let html = '-';
     const timeSpent = await this.getTimeSpent(agent);
     if (timeSpent) {
@@ -205,8 +205,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['id'])
-  async renderSearched(agent: AgentData): Promise<SafeHtml> {
+  @Cacheable(['_id'])
+  async renderSearched(agent: Agent): Promise<SafeHtml> {
     let html = '-';
     const searched = await this.getSearched(agent);
     if (searched) {
@@ -215,23 +215,23 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['id'])
-  async renderCracked(agent: AgentData): Promise<HTTableRouterLink[]> {
+  @Cacheable(['_id'])
+  async renderCracked(agent: Agent): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     const cracked = await this.getCracked(agent);
 
     if (cracked) {
       links.push({
         label: cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', agent.attributes.taskId]
+        routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId]
       });
     }
 
     return links;
   }
 
-  @Cacheable(['id'])
-  async renderProgressIcon(agent: AgentData): Promise<HTTableIcon[]> {
+  @Cacheable(['_id'])
+  async renderProgressIcon(agent: Agent): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
 
     const speed = await this.getSpeed(agent);
@@ -245,10 +245,10 @@ export class AgentsStatusTableComponent
     return icons;
   }
 
-  @Cacheable(['id', 'isActive'])
-  renderStatus(agent: AgentData): SafeHtml {
+  @Cacheable(['_id', 'isActive'])
+  renderStatus(agent: Agent): SafeHtml {
     let html: string;
-    if (agent.attributes.isActive) {
+    if (agent.isActive) {
       html = '<span class="pill pill-active">Active</span>';
     } else {
       html = '<span class="pill pill-inactive">Inactive</span>';
@@ -257,16 +257,16 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['id', 'speed'])
-  async renderWorkingOn(agent: AgentData): Promise<SafeHtml> {
+  @Cacheable(['_id', 'speed'])
+  async renderWorkingOn(agent: Agent): Promise<SafeHtml> {
     let html = '';
     const speed = await this.getSpeed(agent);
     if (speed) {
       html = `
         <div>
-        <div>Task: <a href="/tasks/show-tasks/${agent.attributes.taskId}/edit">${agent.attributes.taskName}</a></div>
+        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
         <div>at ${speed} H/s,<br></div>
-        <div>working on chunk <a href="/tasks/chunks/${agent.attributes.chunkId}/view">${agent.attributes.chunkId}</a></div>
+        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
         </div>
       `;
     }
@@ -274,41 +274,54 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['id', 'lastTime'])
-  renderLastActivity(agent: AgentData): SafeHtml {
-    const formattedDate = formatUnixTimestamp(
-      agent.attributes.lastTime,
-      this.dateFormat
-    );
-    const action = `Action: ${agent.attributes.lastAct}<br>`;
+  @Cacheable(['_id', 'userId'])
+  renderOwner(agent: Agent): SafeHtml {
+    if (agent.user) {
+      return this.sanitize(agent.user.name);
+    }
+    return '';
+  }
+
+  @Cacheable(['_id', 'clientSignature'])
+  renderClient(agent: Agent): SafeHtml {
+    if (agent.clientSignature) {
+      return agent.clientSignature;
+    }
+    return '';
+  }
+
+  @Cacheable(['_id', 'lastTime'])
+  renderLastActivity(agent: Agent): SafeHtml {
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
+    const action = `Action: ${agent.lastAct}<br>`;
     const time = `Time: ${formattedDate}<br>`;
-    const ip = agent.attributes.lastIp ? `<div>IP: ${agent.attributes.lastIp}</div>` : '';
+    const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : '';
 
     const data = `${action}${time}${ip}`;
     return this.sanitize(data);
   }
 
-  private async getSpeed(agent: AgentData): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'speed');
+  private async getSpeed(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'speed');
   }
 
-  private async getSearched(agent: AgentData): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'searched');
+  private async getSearched(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'searched');
   }
 
-  private async getTimeSpent(agent: AgentData): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'timeSpent');
+  private async getTimeSpent(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'timeSpent');
   }
 
-  private async getCracked(agent: AgentData): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'cracked');
+  private async getCracked(agent: Agent): Promise<number> {
+    return this.getChunkDataParam(agent._id, 'cracked');
   }
 
   private async getChunkDataParam(
     agentId: number,
     key: string
   ): Promise<number> {
-    const cd: ChunkDataData = await this.getChunkData(agentId);
+    const cd: ChunkData = await this.getChunkData(agentId);
     if (cd[key]) {
       return cd[key];
     }
@@ -318,10 +331,10 @@ export class AgentsStatusTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AgentData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Agent[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AgentData>(
+        this.exportService.toExcel<Agent>(
           'hashtopolis-agents',
           this.tableColumns,
           event.data,
@@ -329,7 +342,7 @@ export class AgentsStatusTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<AgentData>(
+        this.exportService.toCsv<Agent>(
           'hashtopolis-agents',
           this.tableColumns,
           event.data,
@@ -338,7 +351,7 @@ export class AgentsStatusTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AgentData>(
+          .toClipboard<Agent>(
             this.tableColumns,
             event.data,
             AgentsStatusTableColumnLabel
@@ -353,7 +366,7 @@ export class AgentsStatusTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<AgentData>): void {
+  rowActionClicked(event: ActionMenuEvent<Agent>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -368,9 +381,9 @@ export class AgentsStatusTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting '${event.data.attributes.agentName}' ...`,
+          title: `Deleting ${event.data.agentName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete '${event.data.attributes.agentName}'? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete ${event.data.agentName}? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -378,7 +391,7 @@ export class AgentsStatusTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AgentData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<Agent[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -415,9 +428,9 @@ export class AgentsStatusTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionActivate(agents: AgentData[], isActive: boolean): void {
-    const requests = agents.map((agent: AgentData) => {
-      return this.gs.update(SERV.AGENTS, agent.id, { isActive: isActive });
+  private bulkActionActivate(agents: Agent[], isActive: boolean): void {
+    const requests = agents.map((agent: Agent) => {
+      return this.gs.update(SERV.AGENTS, agent._id, { isActive: isActive });
     });
 
     const action = isActive ? 'activated' : 'deactivated';
@@ -443,9 +456,9 @@ export class AgentsStatusTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agents: AgentData[]): void {
-    const requests = agents.map((agent: AgentData) => {
-      return this.gs.delete(SERV.AGENTS, agent.id);
+  private bulkActionDelete(agents: Agent[]): void {
+    const requests = agents.map((agent: Agent) => {
+      return this.gs.delete(SERV.AGENTS, agent._id);
     });
 
     this.subscriptions.push(
@@ -469,16 +482,16 @@ export class AgentsStatusTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: AgentData): void {
+  private rowActionDelete(agent: Agent): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+      this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
         this.snackBar.open('Successfully deleted agent!', 'Close');
         this.dataSource.reload();
       })
     );
   }
 
-  private rowActionEdit(agent: AgentData): void {
+  private rowActionEdit(agent: Agent): void {
     this.renderAgentLink(agent).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });
@@ -498,7 +511,7 @@ export class AgentsStatusTableComponent
    * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(agentId: number): Promise<ChunkDataData> {
+  private async getChunkData(agentId: number): Promise<ChunkData> {
     if (!this.chunkDataLock[agentId]) {
       // If there is no lock, create a new one
       this.chunkDataLock[agentId] = (async () => {

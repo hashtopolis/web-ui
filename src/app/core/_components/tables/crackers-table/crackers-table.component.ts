@@ -1,8 +1,8 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
-  CrackerBinaryData,
-  CrackerBinaryTypeData
+  CrackerBinary,
+  CrackerBinaryType
 } from 'src/app/core/_models/cracker-binary.model';
 import {
   CrackersTableCol,
@@ -47,8 +47,8 @@ export class CrackersTableComponent
     }
   }
 
-  filter(item: CrackerBinaryTypeData, filterValue: string): boolean {
-    if (item.attributes.typeName.toLowerCase().includes(filterValue)) {
+  filter(item: CrackerBinaryType, filterValue: string): boolean {
+    if (item.typeName.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -59,26 +59,25 @@ export class CrackersTableComponent
     const tableColumns = [
       {
         id: CrackersTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (cracker: CrackerBinaryTypeData) => cracker.id + ''
+        export: async (cracker: CrackerBinaryType) => cracker._id + ''
       },
       {
         id: CrackersTableCol.NAME,
         dataKey: 'typeName',
         isSortable: true,
-        render: (cracker: CrackerBinaryTypeData) => cracker.attributes.typeName,
-        export: async (cracker: CrackerBinaryTypeData) => cracker.attributes.typeName
+        export: async (cracker: CrackerBinaryType) => cracker.typeName
       },
       {
         id: CrackersTableCol.VERSIONS,
         dataKey: 'crackerVersions',
-        routerLink: (cracker: CrackerBinaryTypeData) =>
+        routerLink: (cracker: CrackerBinaryType) =>
           this.renderVersions(cracker),
         isSortable: false,
-        export: async (cracker: CrackerBinaryTypeData) =>
-          cracker.attributes.crackerVersions
-            .map((bin: CrackerBinaryData) => bin.attributes.version)
+        export: async (cracker: CrackerBinaryType) =>
+          cracker.crackerVersions
+            .map((bin: CrackerBinary) => bin.version)
             .join(', ')
       }
     ];
@@ -86,7 +85,7 @@ export class CrackersTableComponent
     return tableColumns;
   }
 
-  openDialog(data: DialogData<CrackerBinaryTypeData>) {
+  openDialog(data: DialogData<CrackerBinaryType>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -110,10 +109,10 @@ export class CrackersTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<CrackerBinaryTypeData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<CrackerBinaryType[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<CrackerBinaryTypeData>(
+        this.exportService.toExcel<CrackerBinaryType>(
           'hashtopolis-crackers',
           this.tableColumns,
           event.data,
@@ -121,7 +120,7 @@ export class CrackersTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<CrackerBinaryTypeData>(
+        this.exportService.toCsv<CrackerBinaryType>(
           'hashtopolis-crackers',
           this.tableColumns,
           event.data,
@@ -130,7 +129,7 @@ export class CrackersTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<CrackerBinaryTypeData>(
+          .toClipboard<CrackerBinaryType>(
             this.tableColumns,
             event.data,
             CrackersTableColumnLabel
@@ -145,12 +144,12 @@ export class CrackersTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<CrackerBinaryTypeData>): void {
+  rowActionClicked(event: ActionMenuEvent<CrackerBinaryType>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting cracker ${event.data.attributes.typeName} ...`,
+          title: `Deleting cracker ${event.data.typeName} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -163,7 +162,7 @@ export class CrackersTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<CrackerBinaryTypeData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<CrackerBinaryType[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -182,9 +181,9 @@ export class CrackersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(crackers: CrackerBinaryTypeData[]): void {
-    const requests = crackers.map((cracker: CrackerBinaryTypeData) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, cracker.id);
+  private bulkActionDelete(crackers: CrackerBinaryType[]): void {
+    const requests = crackers.map((cracker: CrackerBinaryType) => {
+      return this.gs.delete(SERV.CRACKERS_TYPES, cracker._id);
     });
 
     this.subscriptions.push(
@@ -208,10 +207,10 @@ export class CrackersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(crackers: CrackerBinaryTypeData[]): void {
+  private rowActionDelete(crackers: CrackerBinaryType[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, crackers[0].id)
+        .delete(SERV.CRACKERS_TYPES, crackers[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -225,25 +224,25 @@ export class CrackersTableComponent
     );
   }
 
-  private rowActionAddVersion(cracker: CrackerBinaryTypeData): void {
+  private rowActionAddVersion(cracker: CrackerBinaryType): void {
     this.router.navigate([
       '/config',
       'engine',
       'crackers',
-      cracker.id,
+      cracker.crackerBinaryTypeId,
       'new'
     ]);
   }
 
-  @Cacheable(['id', 'crackerVersions'])
+  @Cacheable(['_id', 'crackerVersions'])
   async renderVersions(
-    cracker: CrackerBinaryTypeData
+    cracker: CrackerBinaryType
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    for (const link of cracker.attributes.crackerVersions) {
+    for (const link of cracker.crackerVersions) {
       links.push({
-        label: link.attributes.version,
-        routerLink: ['/config', 'engine', 'crackers', link.id, 'edit']
+        label: link.version,
+        routerLink: ['/config', 'engine', 'crackers', link._id, 'edit']
       });
     }
 

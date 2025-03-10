@@ -12,7 +12,7 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { PreprocessorData } from 'src/app/core/_models/preprocessor.model';
+import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
 import { PreprocessorsDataSource } from 'src/app/core/_datasources/preprocessors.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -48,8 +48,8 @@ export class PreprocessorsTableComponent
     }
   }
 
-  filter(item: PreprocessorData, filterValue: string): boolean {
-    if (item.attributes.name.toLowerCase().includes(filterValue)) {
+  filter(item: Preprocessor, filterValue: string): boolean {
+    if (item.name.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -60,24 +60,24 @@ export class PreprocessorsTableComponent
     const tableColumns = [
       {
         id: PreprocessorsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (preprocessor: PreprocessorData) => preprocessor.id + ''
+        export: async (preprocessor: Preprocessor) => preprocessor._id + ''
       },
       {
         id: PreprocessorsTableCol.NAME,
         dataKey: 'name',
-        routerLink: (preprocessor: PreprocessorData) =>
+        routerLink: (preprocessor: Preprocessor) =>
           this.renderPreproLink(preprocessor),
         isSortable: true,
-        export: async (preprocessor: PreprocessorData) => preprocessor.attributes.name
+        export: async (preprocessor: Preprocessor) => preprocessor.name
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<PreprocessorData>) {
+  openDialog(data: DialogData<Preprocessor>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -101,15 +101,15 @@ export class PreprocessorsTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['id'])
+  @Cacheable(['_id'])
   async renderPreproLink(
-    preprocessor: PreprocessorData
+    preprocessor: Preprocessor
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
     links.push({
-      label: preprocessor.attributes.name,
-      routerLink: ['/config/engine/preprocessors', preprocessor.id, 'edit'],
+      label: preprocessor.name,
+      routerLink: ['/config/engine/preprocessors', preprocessor._id, 'edit'],
       tooltip: 'Preprocessor Name'
     });
 
@@ -118,10 +118,10 @@ export class PreprocessorsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<PreprocessorData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Preprocessor[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<PreprocessorData>(
+        this.exportService.toExcel<Preprocessor>(
           'hashtopolis-preprocessors',
           this.tableColumns,
           event.data,
@@ -129,7 +129,7 @@ export class PreprocessorsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<PreprocessorData>(
+        this.exportService.toCsv<Preprocessor>(
           'hashtopolis-preprocessors',
           this.tableColumns,
           event.data,
@@ -138,7 +138,7 @@ export class PreprocessorsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<PreprocessorData>(
+          .toClipboard<Preprocessor>(
             this.tableColumns,
             event.data,
             PreprocessorsTableColumnLabel
@@ -153,12 +153,12 @@ export class PreprocessorsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<PreprocessorData>): void {
+  rowActionClicked(event: ActionMenuEvent<Preprocessor>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting preprocessor ${event.data.attributes.name} ...`,
+          title: `Deleting preprocessor ${event.data.name} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -171,7 +171,7 @@ export class PreprocessorsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<PreprocessorData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<Preprocessor[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -190,9 +190,9 @@ export class PreprocessorsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(preprocessors: PreprocessorData[]): void {
-    const requests = preprocessors.map((preprocessor: PreprocessorData) => {
-      return this.gs.delete(SERV.PREPROCESSORS, preprocessor.id);
+  private bulkActionDelete(preprocessors: Preprocessor[]): void {
+    const requests = preprocessors.map((preprocessor: Preprocessor) => {
+      return this.gs.delete(SERV.PREPROCESSORS, preprocessor._id);
     });
 
     this.subscriptions.push(
@@ -216,10 +216,10 @@ export class PreprocessorsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(preprocessors: PreprocessorData[]): void {
+  private rowActionDelete(preprocessors: Preprocessor[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.PREPROCESSORS, preprocessors[0].id)
+        .delete(SERV.PREPROCESSORS, preprocessors[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -233,12 +233,12 @@ export class PreprocessorsTableComponent
     );
   }
 
-  private rowActionEdit(preprocessor: PreprocessorData): void {
+  private rowActionEdit(preprocessor: Preprocessor): void {
     this.router.navigate([
       '/config',
       'engine',
       'preprocessors',
-      preprocessor.id,
+      preprocessor._id,
       'edit'
     ]);
   }

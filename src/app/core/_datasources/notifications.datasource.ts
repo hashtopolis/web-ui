@@ -2,11 +2,11 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
-import { NotificationData } from '../_models/notification.model';
+import { Notification } from '../_models/notification.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class NotificationsDataSource extends BaseDataSource<NotificationData> {
+export class NotificationsDataSource extends BaseDataSource<Notification> {
   loadAll(): void {
     this.loading = true;
 
@@ -31,8 +31,8 @@ export class NotificationsDataSource extends BaseDataSource<NotificationData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<NotificationData>) => {
-          const notifications: NotificationData[] = response.data;
+        .subscribe((response: ListResponseWrapper<Notification>) => {
+          const notifications: Notification[] = response.values;
 
           this.setPaginationConfig(
             this.pageSize,

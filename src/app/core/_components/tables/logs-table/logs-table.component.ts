@@ -6,7 +6,7 @@ import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn } from '../ht-table/ht-table.models';
-import { LogData } from 'src/app/core/_models/log.model';
+import { Log } from 'src/app/core/_models/log.model';
 import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
@@ -35,11 +35,11 @@ export class LogsTableComponent
     }
   }
 
-  filter(item: LogData, filterValue: string): boolean {
+  filter(item: Log, filterValue: string): boolean {
     if (
-      item.attributes.message.toLowerCase().includes(filterValue) ||
-      item.attributes.level.toLowerCase().includes(filterValue) ||
-      item.attributes.issuer.toLowerCase().includes(filterValue)
+      item.message.toLowerCase().includes(filterValue) ||
+      item.level.toLowerCase().includes(filterValue) ||
+      item.issuer.toLowerCase().includes(filterValue)
     ) {
       return true;
     }
@@ -51,40 +51,39 @@ export class LogsTableComponent
     const tableColumns = [
       {
         id: LogsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (log: LogData) => log.id + ''
+        export: async (log: Log) => log._id + ''
       },
       {
         id: LogsTableCol.TIME,
         dataKey: 'time',
         isSortable: true,
-        render: (log: LogData) => formatUnixTimestamp(log.attributes.time, this.dateFormat),
-        export: async (log: LogData) =>
-          formatUnixTimestamp(log.attributes.time, this.dateFormat)
+        render: (log: Log) => formatUnixTimestamp(log.time, this.dateFormat),
+        export: async (log: Log) =>
+          formatUnixTimestamp(log.time, this.dateFormat)
       },
       {
         id: LogsTableCol.LEVEL,
         dataKey: 'level',
         isSortable: true,
-        render: (log: LogData) =>
-          log.attributes.level.charAt(0).toUpperCase() + log.attributes.level.slice(1).toLowerCase(),
-        export: async (log: LogData) =>
-          log.attributes.level.charAt(0).toUpperCase() + log.attributes.level.slice(1).toLowerCase()
+        render: (log: Log) =>
+          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
+        export: async (log: Log) =>
+          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
         id: LogsTableCol.ISSUER,
         dataKey: 'issuer',
         isSortable: true,
-        render: (log: LogData) => `${log.attributes.issuer}-ID-${log.attributes.issuerId}`,
-        export: async (log: LogData) => `${log.attributes.issuer}-ID-${log.attributes.issuerId}`
+        render: (log: Log) => `${log.issuer}-ID-${log.issuerId}`,
+        export: async (log: Log) => `${log.issuer}-ID-${log.issuerId}`
       },
       {
         id: LogsTableCol.MESSAGE,
         dataKey: 'message',
         isSortable: true,
-        render: (log: LogData) => log.attributes.message,
-        export: async (log: LogData) => log.attributes.message
+        export: async (log: Log) => log.message
       }
     ];
 
@@ -93,10 +92,10 @@ export class LogsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<LogData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Log[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<LogData>(
+        this.exportService.toExcel<Log>(
           'hashtopolis-logs',
           this.tableColumns,
           event.data,
@@ -104,7 +103,7 @@ export class LogsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<LogData>(
+        this.exportService.toCsv<Log>(
           'hashtopolis-logs',
           this.tableColumns,
           event.data,
@@ -113,7 +112,7 @@ export class LogsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<LogData>(this.tableColumns, event.data, LogsTableColumnLabel)
+          .toClipboard<Log>(this.tableColumns, event.data, LogsTableColumnLabel)
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

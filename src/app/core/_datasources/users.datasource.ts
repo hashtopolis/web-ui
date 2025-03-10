@@ -4,10 +4,9 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { UserData } from '../_models/user.model';
-import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
+import { User } from '../_models/user.model';
 
-export class UsersDataSource extends BaseDataSource<UserData> {
+export class UsersDataSource extends BaseDataSource<User> {
   loadAll(): void {
     this.loading = true;
 
@@ -17,7 +16,7 @@ export class UsersDataSource extends BaseDataSource<UserData> {
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      include: 'globalPermissionGroup'
+      expand: 'globalPermissionGroup'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -33,18 +32,11 @@ export class UsersDataSource extends BaseDataSource<UserData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<UserData>) => {
-          const users: UserData[] = [];
+        .subscribe((response: ListResponseWrapper<User>) => {
+          const users: User[] = response.values;
 
-          response.data.forEach((value: UserData) => {
-            const user: UserData = value;
-
-            let globalPermissionGroupId: number = user.attributes.globalPermissionGroupId;
-            let includedGlobalPermissionGroup: object[] = response.included.filter((inc) => inc.type === "globalPermissionGroup");
-
-            user.attributes.globalPermissionGroupName = (includedGlobalPermissionGroup as GlobalPermissionGroupData[]).find((incPerm: GlobalPermissionGroupData) => incPerm.id === globalPermissionGroupId)?.attributes?.name;
-
-            users.push(user);
+          users.map((user: User) => {
+            user.globalPermissionGroupName = user.globalPermissionGroup.name;
           });
 
           this.setPaginationConfig(

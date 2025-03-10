@@ -21,10 +21,9 @@ export class FilterItemPipe implements PipeTransform {
 
   transform(list: any, key:string, value:number) {
     // use the id
-    if(value === undefined  || value === null){
-      value = 0;
-    }
-    return list.filter(i => i["attributes"][key] === +value);
+    if(value === undefined  || value === null) return value;
+
+    return list.filter(i => i[key] === +value);
 }
 
 }

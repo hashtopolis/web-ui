@@ -13,7 +13,6 @@ export class SERV {
   public static AGENTS = '/ui/agents';
   public static AGENTS_STATS = '/ui/agentstats';
   public static AGENT_ASSIGN = '/ui/agentassignments';
-  public static AGENTS_COUNT = '/ui/agents/count';
   public static VOUCHER = '/ui/vouchers';
   // CONFIGURATION
   public static AGENT_BINARY = '/ui/agentbinaries';
@@ -31,7 +30,6 @@ export class SERV {
   public static HASHES = '/ui/hashes';
   public static HASHLISTS = '/ui/hashlists';
   public static SUPER_HASHLISTS = '/ui/superhashlists';
-  public static HASHES_COUNT = '/ui/hashes/count';
   // TASKS
   public static CHUNKS = '/ui/chunks';
   public static PRETASKS = '/ui/pretasks';
@@ -39,7 +37,6 @@ export class SERV {
   public static SUPER_TASKS = '/ui/supertasks';
   public static TASKS = '/ui/tasks';
   public static TASKS_WRAPPER = '/ui/taskwrappers';
-  public static TASKS_WRAPPER_COUNT = '/ui/taskwrappers/count';
   // USERS
   public static NOTIFICATIONS = '/ui/notifications';
   public static USERS = '/ui/users';

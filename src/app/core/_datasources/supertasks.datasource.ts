@@ -5,10 +5,10 @@ import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { SuperTaskData } from '../_models/supertask.model';
+import { SuperTask } from '../_models/supertask.model';
 
 export class SuperTasksDataSource extends BaseDataSource<
-  SuperTaskData,
+  SuperTask,
   MatTableDataSourcePaginator
 > {
   loadAll(): void {
@@ -20,7 +20,7 @@ export class SuperTasksDataSource extends BaseDataSource<
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      include: 'pretasks'
+      expand: 'pretasks'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -36,8 +36,8 @@ export class SuperTasksDataSource extends BaseDataSource<
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<SuperTaskData>) => {
-          const supertasks: SuperTaskData[] = response.data;
+        .subscribe((response: ListResponseWrapper<SuperTask>) => {
+          const supertasks: SuperTask[] = response.values;
 
           this.setPaginationConfig(
             this.pageSize,

@@ -45,11 +45,7 @@ export function transformSelectOptions(apiOptions: any[], field: any): any[] {
     for (const formField of Object.keys(field.fieldMapping)) {
       const apiField = field.fieldMapping[formField];
 
-      if (Object.prototype.hasOwnProperty.call(apiOption['attributes'], apiField)) {
-        transformedOption[formField] = apiOption['attributes'][apiField];
-      } else if (apiField == "id" && Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
-        transformedOption[formField] = apiOption[apiField];
-      } else if (apiField == "id" && Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
+      if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
         transformedOption[formField] = apiOption[apiField];
       } else {
         // Handle the case where the API field doesn't exist in the response

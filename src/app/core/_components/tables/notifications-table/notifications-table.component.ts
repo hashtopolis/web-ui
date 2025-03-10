@@ -14,7 +14,7 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { NotificationData } from 'src/app/core/_models/notification.model';
+import { Notification } from 'src/app/core/_models/notification.model';
 import { NotificationsDataSource } from 'src/app/core/_datasources/notifications.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -49,8 +49,8 @@ export class NotificationsTableComponent
     }
   }
 
-  filter(item: NotificationData, filterValue: string): boolean {
-    if (item.attributes.notification.toLowerCase().includes(filterValue)) {
+  filter(item: Notification, filterValue: string): boolean {
+    if (item.notification.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -61,55 +61,52 @@ export class NotificationsTableComponent
     const tableColumns = [
       {
         id: NotificationsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (notification: NotificationData) => notification.id + ''
+        export: async (notification: Notification) => notification._id + ''
       },
       {
         id: NotificationsTableCol.STATUS,
         dataKey: 'isActive',
-        render: (notification: NotificationData) =>
-          notification.attributes.isActive ? 'Active' : 'Inactive',
-        icons: (notification: NotificationData) =>
+        render: (notification: Notification) =>
+          notification.isActive ? 'Active' : 'Inactive',
+        icons: (notification: Notification) =>
           this.renderStatusIcon(notification),
         isSortable: true,
-        export: async (notification: NotificationData) => notification.attributes.isActive + ''
+        export: async (notification: Notification) => notification.isActive + ''
       },
       {
         id: NotificationsTableCol.ACTION,
         dataKey: 'action',
         isSortable: true,
-        render: (notification: NotificationData) => notification.attributes.action,
-        export: async (notification: NotificationData) => notification.attributes.action
+        export: async (notification: Notification) => notification.action
       },
       {
         id: NotificationsTableCol.APPLIED_TO,
         dataKey: 'appliedTo',
-        routerLink: (notification: NotificationData) =>
+        routerLink: (notification: Notification) =>
           this.renderAppliedToLink(notification),
         isSortable: true,
-        export: async (notification: NotificationData) => notification.attributes.action
+        export: async (notification: Notification) => notification.action
       },
       {
         id: NotificationsTableCol.NOTIFICATION,
         dataKey: 'notification',
         isSortable: true,
-        render: (notification: NotificationData) => notification.attributes.notification,
-        export: async (notification: NotificationData) => notification.attributes.notification
+        export: async (notification: Notification) => notification.notification
       },
       {
         id: NotificationsTableCol.RECEIVER,
         dataKey: 'receiver',
         isSortable: true,
-        render: (notification: NotificationData) => notification.attributes.receiver,
-        export: async (notification: NotificationData) => notification.attributes.receiver
+        export: async (notification: Notification) => notification.receiver
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<NotificationData>) {
+  openDialog(data: DialogData<Notification>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -139,10 +136,10 @@ export class NotificationsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<NotificationData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Notification[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<NotificationData>(
+        this.exportService.toExcel<Notification>(
           'hashtopolis-notifications',
           this.tableColumns,
           event.data,
@@ -150,7 +147,7 @@ export class NotificationsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<NotificationData>(
+        this.exportService.toCsv<Notification>(
           'hashtopolis-notifications',
           this.tableColumns,
           event.data,
@@ -159,7 +156,7 @@ export class NotificationsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<NotificationData>(
+          .toClipboard<Notification>(
             this.tableColumns,
             event.data,
             NotificationsTableColumnLabel
@@ -174,12 +171,12 @@ export class NotificationsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<NotificationData>): void {
+  rowActionClicked(event: ActionMenuEvent<Notification>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting notification ${event.data.attributes.action} (${event.data.id}) ...`,
+          title: `Deleting notification ${event.data.action} (${event.data._id}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -198,7 +195,7 @@ export class NotificationsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<NotificationData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<Notification[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -235,9 +232,9 @@ export class NotificationsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(notifications: NotificationData[]): void {
-    const requests = notifications.map((notification: NotificationData) => {
-      return this.gs.delete(SERV.NOTIFICATIONS, notification.id);
+  private bulkActionDelete(notifications: Notification[]): void {
+    const requests = notifications.map((notification: Notification) => {
+      return this.gs.delete(SERV.NOTIFICATIONS, notification._id);
     });
 
     this.subscriptions.push(
@@ -262,11 +259,11 @@ export class NotificationsTableComponent
    * @todo Implement error handling.
    */
   private bulkActionActivate(
-    notifications: NotificationData[],
+    notifications: Notification[],
     isActive: boolean
   ): void {
-    const requests = notifications.map((notification: NotificationData) => {
-      return this.gs.update(SERV.NOTIFICATIONS, notification.id, {
+    const requests = notifications.map((notification: Notification) => {
+      return this.gs.update(SERV.NOTIFICATIONS, notification._id, {
         isActive: isActive
       });
     });
@@ -294,10 +291,10 @@ export class NotificationsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(notifications: NotificationData[]): void {
+  private rowActionDelete(notifications: Notification[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.NOTIFICATIONS, notifications[0].id)
+        .delete(SERV.NOTIFICATIONS, notifications[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -311,28 +308,28 @@ export class NotificationsTableComponent
     );
   }
 
-  private rowActionEdit(notification: NotificationData): void {
+  private rowActionEdit(notification: Notification): void {
     this.router.navigate([
       '/account',
       'notifications',
-      notification.id,
+      notification._id,
       'edit'
     ]);
   }
 
-  @Cacheable(['id', 'actions', 'objectId'])
+  @Cacheable(['_id', 'actions', 'objectId'])
   async renderAppliedToLink(
-    notification: NotificationData
+    notification: Notification
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
-    switch (notification.attributes.action) {
+    switch (notification.action) {
       case ACTION.AGENT_ERROR:
       case ACTION.OWN_AGENT_ERROR:
       case ACTION.DELETE_AGENT:
         links.push({
-          label: `Agent: ${notification.attributes.objectId}`,
-          routerLink: ['/agents', 'show-agents', notification.attributes.objectId, 'edit']
+          label: `Agent: ${notification.objectId}`,
+          routerLink: ['/agents', 'show-agents', notification.objectId, 'edit']
         });
         break;
 
@@ -340,8 +337,8 @@ export class NotificationsTableComponent
       case ACTION.TASK_COMPLETE:
       case ACTION.DELETE_TASK:
         links.push({
-          label: `Task: ${notification.attributes.objectId}`,
-          routerLink: ['/tasks', 'show-tasks', notification.attributes.objectId, 'edit']
+          label: `Task: ${notification.objectId}`,
+          routerLink: ['/tasks', 'show-tasks', notification.objectId, 'edit']
         });
         break;
 
@@ -349,8 +346,8 @@ export class NotificationsTableComponent
       case ACTION.HASHLIST_ALL_CRACKED:
       case ACTION.HASHLIST_CRACKED_HASH:
         links.push({
-          label: `Hashlist: ${notification.attributes.objectId}`,
-          routerLink: ['/hashlists', 'hashlist', notification.attributes.objectId, 'edit']
+          label: `Hashlist: ${notification.objectId}`,
+          routerLink: ['/hashlists', 'hashlist', notification.objectId, 'edit']
         });
         break;
 
@@ -358,8 +355,8 @@ export class NotificationsTableComponent
       case ACTION.USER_DELETED:
       case ACTION.USER_LOGIN_FAILED:
         links.push({
-          label: `User: ${notification.attributes.objectId}`,
-          routerLink: ['/users', notification.attributes.objectId]
+          label: `User: ${notification.objectId}`,
+          routerLink: ['/users', notification.objectId]
         });
         break;
     }

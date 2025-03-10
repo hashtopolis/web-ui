@@ -18,37 +18,3 @@ export interface Notification {
   notificationSettingId?: number;
   objectId?: number;
 }
-
-export interface NotificationData {
-  type: string;
-  id: number;
-  attributes: NotificationAttributes;
-  links: NotificationDataLinks;
-  relationships: NotificationRelationships;
-}
-
-export interface NotificationAttributes {
-  action: string;
-  objectId: null;
-  notification: string;
-  userId: number;
-  receiver: string;
-  isActive: boolean;
-}
-
-export interface NotificationDataLinks {
-  self: string;
-}
-
-export interface NotificationRelationships {
-  user: NotificationRelationshipAttributes;
-}
-
-export interface NotificationRelationshipAttributes {
-  links: NotificationRelationshipsLinks;
-}
-
-export interface NotificationRelationshipsLinks {
-  self: string;
-  related: string;
-}
