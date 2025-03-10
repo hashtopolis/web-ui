@@ -91,7 +91,7 @@ export class CracksTableComponent
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: true,
-        routerLink: (crack: HashData) => this.renderTaskLink(crack),
+        routerLink: (crack: HashData) => this.renderTaskLinkId(crack),
         export: async (crack: HashData) => crack.attributes.chunk.taskId + ''
       },
       {
@@ -155,7 +155,7 @@ export class CracksTableComponent
   }
 
   @Cacheable(['id'])
-  override async renderTaskLink(obj: HashData): Promise<HTTableRouterLink[]> {
+  async renderTaskLinkId(obj: HashData): Promise<HTTableRouterLink[]> {
   return [
     {
       routerLink:

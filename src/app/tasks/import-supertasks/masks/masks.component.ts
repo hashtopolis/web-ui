@@ -17,6 +17,8 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ListResponseWrapper } from '../../../core/_models/response.model';
+import { CrackerBinaryTypeData } from '../../../core/_models/cracker-binary.model';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -114,9 +116,9 @@ export class MasksComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: any) => {
+      .subscribe((response: ListResponseWrapper<CrackerBinaryTypeData>) => {
         const transformedOptions = transformSelectOptions(
-          response.values,
+          response.data,
           this.selectCrackertypeMap
         );
         this.selectCrackertype = transformedOptions;

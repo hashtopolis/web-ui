@@ -167,7 +167,7 @@ export class AgentsTableComponent
       tableColumns.push({
         id: AgentsTableCol.CURRENT_TASK,
         dataKey: 'taskName',
-        routerLink: (agent: AgentData) => this.renderTaskLink(agent),
+        routerLink: (agent: AgentData) => this.renderTaskLink(agent.attributes.task),
         isSortable: true,
         export: async (agent: AgentData) => (agent.attributes.task ? agent.attributes.taskName : '')
       });

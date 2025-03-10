@@ -30,6 +30,7 @@ import { UtilService } from 'src/app/core/_services/shared/util.service';
 import { GlobalPermissionGroupData } from '../../../_models/global-permission-group.model';
 import { AccessGroupData } from '../../../_models/access-group.model';
 import { SuperTaskData } from '../../../_models/supertask.model';
+import { TaskData } from '../../../_models/task.model';
 
 @Component({
   selector: 'base-table',
@@ -105,15 +106,15 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['attributes']['taskId'])
-  async renderTaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id'])
+  async renderTaskLink(obj: TaskData): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['attributes']['taskId']
-            ? ['/tasks', 'show-tasks', obj['attributes']['taskId'], 'edit']
+          obj && obj.id
+            ? ['/tasks', 'show-tasks', obj.id, 'edit']
             : [],
-        label: obj['attributes']['taskName']
+        label: obj.attributes.taskName
       }
     ];
   }
@@ -128,7 +129,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
+  @Cacheable(['attributes']['agentId'])
   async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
@@ -141,14 +142,15 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['taskId'])
+  @Cacheable(['attributes']['taskId'])
   async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['taskId']
-            ? ['/hashlists', 'hashes', 'tasks', obj['taskId']]
-            : []
+          obj && obj['attributes']['taskId']
+            ? ['/hashlists', 'hashes', 'tasks', obj['attributes']['taskId']]
+            : [],
+        label: obj['attributes']['cracked']
       }
     ];
   }

@@ -1,6 +1,10 @@
+
 import { Agent } from './agent.model';
 import { Task } from './task.model';
 import { BaseModel } from './base.model';
+import { Agent, AgentData } from './agent.model';
+import { Task, TaskData } from './task.model';
+
 
 export interface Chunk {
   _id: number;
@@ -68,6 +72,8 @@ export interface ChunkDataAttributes {
   state: number;
   cracked: number;
   speed: number;
+  agent?: AgentData;
+  task?: TaskData;
 }
 
 export interface DataLinks {

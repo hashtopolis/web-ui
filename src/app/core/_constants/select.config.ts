@@ -5,7 +5,7 @@ export const ACCESS_GROUP_FIELD_MAPPING = {
 
 export const CRACKER_TYPE_FIELD_MAPPING = {
   name: 'typeName',
-  _id: 'crackerBinaryTypeId'
+  id: 'id'
 };
 
 export const CRACKER_VERSION_FIELD_MAPPING = {

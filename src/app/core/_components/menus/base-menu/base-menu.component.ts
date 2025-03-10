@@ -49,7 +49,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an notification; otherwise, `false`.
    */
   protected isNotification(): boolean {
-    return this.checkId('notificationSettingId');
+    return this.checkType('notificationSetting');
   }
 
   /**
@@ -113,7 +113,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskChunks(): boolean {
-    return this.checkId('chunkId') && 'skip' in this.data;
+    return this.checkType('chunk') && 'skip' in this.data.attributes;
   }
 
   /**
