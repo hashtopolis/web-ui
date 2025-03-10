@@ -1,6 +1,6 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FileData, FileType } from 'src/app/core/_models/file.model';
+import { File, FileType } from 'src/app/core/_models/file.model';
 import { FilesTableCol, FilesTableColumnLabel } from './files-table.constants';
 import {
   HTTableColumn,
@@ -57,8 +57,8 @@ export class FilesTableComponent
     }
   }
 
-  filter(item: FileData, filterValue: string): boolean {
-    if (item.attributes.filename.toLowerCase().includes(filterValue)) {
+  filter(item: File, filterValue: string): boolean {
+    if (item.filename.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -69,46 +69,45 @@ export class FilesTableComponent
     const tableColumns = [
       {
         id: FilesTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (file: FileData) => file.id + ''
+        export: async (file: File) => file._id + ''
       },
       {
         id: FilesTableCol.NAME,
         dataKey: 'filename',
-        icons: (file: FileData) => this.renderSecretIcon(file),
-        routerLink: (file: FileData) => this.renderFileLink(file),
+        icons: (file: File) => this.renderSecretIcon(file),
+        routerLink: (file: File) => this.renderFileLink(file),
         isSortable: true,
-        export: async (file: FileData) => file.attributes.filename
+        export: async (file: File) => file.filename
       },
       {
         id: FilesTableCol.SIZE,
         dataKey: 'size',
-        render: (file: FileData) => formatFileSize(file.attributes.size, 'short'),
+        render: (file: File) => formatFileSize(file.size, 'short'),
         isSortable: true,
-        export: async (file: FileData) => formatFileSize(file.attributes.size, 'short')
+        export: async (file: File) => formatFileSize(file.size, 'short')
       },
       {
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
-        render: (file: FileData) => file.attributes.lineCount,
-        export: async (file: FileData) => file.attributes.lineCount + ''
+        export: async (file: File) => file.lineCount + ''
       },
       {
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
-        render: (file: FileData) =>
-          file.attributes.accessGroup.groupName ? file.attributes.accessGroup.groupName : file.id,
-        export: async (file: FileData) => file.attributes.accessGroup.groupName
+        render: (file: File) =>
+          file.accessGroupName ? file.accessGroupName : file._id,
+        export: async (file: File) => file.accessGroupName
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<FileData>) {
+  openDialog(data: DialogData<File>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -132,10 +131,10 @@ export class FilesTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(file: FileData): Promise<HTTableIcon[]> {
+  @Cacheable(['_id', 'isSecret'])
+  async renderSecretIcon(file: File): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
-    if (file.attributes.isSecret) {
+    if (file.isSecret) {
       icons.push({
         name: 'lock',
         tooltip: 'Secret'
@@ -147,10 +146,10 @@ export class FilesTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<FileData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<File[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<FileData>(
+        this.exportService.toExcel<File>(
           'hashtopolis-files',
           this.tableColumns,
           event.data,
@@ -158,7 +157,7 @@ export class FilesTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<FileData>(
+        this.exportService.toCsv<File>(
           'hashtopolis-files',
           this.tableColumns,
           event.data,
@@ -167,7 +166,7 @@ export class FilesTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<FileData>(
+          .toClipboard<File>(
             this.tableColumns,
             event.data,
             FilesTableColumnLabel
@@ -182,7 +181,7 @@ export class FilesTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<FileData>): void {
+  rowActionClicked(event: ActionMenuEvent<File>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -190,7 +189,7 @@ export class FilesTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting file ${event.data.attributes.filename} ...`,
+          title: `Deleting file ${event.data.filename} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -200,7 +199,7 @@ export class FilesTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<FileData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<File[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -216,9 +215,9 @@ export class FilesTableComponent
     }
   }
 
-  private bulkActionDelete(files: FileData[]): void {
-    const requests = files.map((file: FileData) => {
-      return this.gs.delete(SERV.FILES, file.id);
+  private bulkActionDelete(files: File[]): void {
+    const requests = files.map((file: File) => {
+      return this.gs.delete(SERV.FILES, file._id);
     });
 
     this.subscriptions.push(
@@ -242,10 +241,10 @@ export class FilesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(files: FileData[]): void {
+  private rowActionDelete(files: File[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.FILES, files[0].id)
+        .delete(SERV.FILES, files[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -259,17 +258,16 @@ export class FilesTableComponent
     );
   }
 
-  @Cacheable(['id', 'fileType'])
-  async renderFileLink(file: FileData): Promise<HTTableRouterLink[]> {
+  @Cacheable(['_id', 'fileType'])
+  async renderFileLink(file: File): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: ['/files', file.id, this.editPath],
-        label: file['attributes']['filename']
+        routerLink: ['/files', file._id, this.editPath]
       }
     ];
   }
 
-  private rowActionEdit(file: FileData): void {
+  private rowActionEdit(file: File): void {
     this.renderFileLink(file).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });

@@ -18,7 +18,10 @@ import { UIConfig } from '../core/_models/config-ui.model';
 import { UISettingsUtilityClass } from '../shared/utils/config';
 import { Subscription } from 'rxjs';
 import { ListResponseWrapper } from '../core/_models/response.model';
-import { Hash, HashData } from '../core/_models/hash.model';
+import { Agent } from '../core/_models/agent.model';
+import { Task } from '../core/_models/task.model';
+import { SuperTask } from '../core/_models/supertask.model';
+import { Hash } from '../core/_models/hash.model';
 import {
   formatDate,
   formatUnixTimestamp,
@@ -178,13 +181,17 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of active agents.
    */
   private getAgents(): void {
-    const params = { 'filter[isActive__eq]': true, include_total: true };
+    const params = { maxResults: this.maxResults };
     this.subscriptions.push(
       this.gs
-        .getAll(SERV.AGENTS_COUNT, params)
-        .subscribe((response) => {
-          this.totalAgents = response.meta.total_count;
-          this.activeAgents = response.meta.count;
+        .getAll(SERV.AGENTS, params)
+        .subscribe((response: ListResponseWrapper<Agent>) => {
+          this.totalAgents = response.total | 0;
+          // Filter by Active agents
+          const activeAgents = response.values.filter(
+            (agent) => agent.isActive
+          );
+          this.activeAgents = activeAgents.length | 0;
         })
     );
   }
@@ -193,21 +200,29 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of tasks.
    */
   private getTasks(): void {
-    const paramsTotalTasks = { include: 'tasks', 'filter[taskType__eq]': 0, 'filter[isArchived__eq]': 0 };
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
-        .subscribe((response) => {
-          this.totalTasks = response.meta.count;
-        })
-    );
+    const params = {
+      maxResults: this.maxResults,
+      expand: 'tasks',
+      filter: 'isArchived=false,taskType=0'
+    };
 
-    const paramsCompletedTasks = { include: 'tasks', 'filter[keyspace__eq]': 'keyspaceProgress', 'filter[keyspace__gt]': 0, 'filter[taskType__eq]': 0 };
     this.subscriptions.push(
       this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
-        .subscribe((response) => {
-          this.completedTasks = response.meta.count;
+        .getAll(SERV.TASKS_WRAPPER, params)
+        .subscribe((response: ListResponseWrapper<Task>) => {
+          this.totalTasks = response.values.length | 0;
+          // Filter and count completed tasks
+          let completedTasksCount = 0;
+          response.values.forEach((taskWrapper) => {
+            const completedTasks = taskWrapper['tasks'].filter(
+              (task) =>
+                task.keyspaceProgress === task.keyspace && task.keyspace > 0
+            );
+            completedTasksCount += completedTasks.length;
+          });
+
+          // Set the count of completed tasks
+          this.completedTasks = completedTasksCount || 0;
         })
     );
   }
@@ -216,21 +231,39 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of supertasks.
    */
   private getSuperTasks(): void {
-    const paramsTotalTasks = { include: 'tasks', 'filter[taskType__eq]': 1 };
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
-        .subscribe((response) => {
-          this.totalSupertasks = response.meta.count;
-        })
-    );
+    const params = {
+      maxResults: this.maxResults,
+      expand: 'tasks',
+      filter: 'isArchived=false,taskType=1'
+    };
 
-    const paramsCompletedTasks = { include: 'tasks', 'filter[keyspace__eq]': 'keyspaceProgress', 'filter[keyspace__gt]': 0, 'filter[taskType__eq]': 1 };
     this.subscriptions.push(
       this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
-        .subscribe((response) => {
-          this.completedSupertasks = response.meta.count;
+        .getAll(SERV.TASKS_WRAPPER, params)
+        .subscribe((response: ListResponseWrapper<SuperTask>) => {
+          this.totalSupertasks = response.total || 0;
+          // Filter and count completed supertasks
+          let completedSTCount = 0;
+          response.values.forEach((taskWrapper) => {
+            const totalTasks = taskWrapper['tasks'].length;
+            let completedTasksCount = 0;
+
+            taskWrapper['tasks'].forEach((task) => {
+              console.log(task);
+              if (
+                task.keyspaceProgress === task.keyspace &&
+                task.keyspace > 0
+              ) {
+                completedTasksCount++;
+              }
+            });
+
+            if (completedTasksCount === totalTasks) {
+              completedSTCount++;
+            }
+          });
+          // Set the count of completed supertasks
+          this.completedSupertasks = completedSTCount || 0;
         })
     );
   }
@@ -240,14 +273,20 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   private getCracks(): void {
     const timestampInPast = unixTimestampInPast(7);
-    const params = { 'filter[timeCracked__gt]': timestampInPast };
+    const params = {
+      maxResults: this.maxResults,
+      filter: 'isCracked=true'
+    };
 
     this.subscriptions.push(
       this.gs
-        .getAll(SERV.HASHES_COUNT, params)
+        .getAll(SERV.HASHES, params)
         .subscribe((response: ListResponseWrapper<Hash>) => {
-          this.totalCracks = response.meta.count;
-          this.updateChart();
+          const lastsevenObject = response.values.filter(
+            (u) => u.isCracked == true && u.timeCracked > timestampInPast
+          );
+          this.totalCracks = lastsevenObject.length | 0;
+          this.updateChart(response.values);
         })
     );
   }
@@ -287,84 +326,76 @@ export class HomeComponent implements OnInit, OnDestroy {
    *
    * @param data - Hash data used for the chart.
    */
-  updateChart(): void {
-    const params = { 'filter[isCracked__eq]': 1 };
+  updateChart(data: Hash[]): void {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
 
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.HASHES, params)
-        .subscribe((response: ListResponseWrapper<HashData>) => {
-          const currentDate = new Date();
-          const currentYear = currentDate.getFullYear();
-
-          // Extract and format cracked dates
-          const formattedDates: string[] = response.data.map((item) =>
-            formatUnixTimestamp(item.attributes.timeCracked, 'yyyy-MM-dd')
-          );
-
-          // Count occurrences of each date
-          const dateCounts: { [key: string]: number } =
-            this.countOccurrences(formattedDates);
-
-          // Convert date counts to the required format
-          const countsExtended = Object.keys(dateCounts).map((date) => [
-            date,
-            dateCounts[date]
-          ]);
-
-          // DarkMode
-          const backgroundColor = this.isDarkMode ? '#212121' : '';
-
-          const option = {
-            darkMode: true,
-            title: {},
-            tooltip: {
-              position: 'top',
-              formatter: function (p) {
-                const format = echarts.time.format(
-                  p.data[0],
-                  '{dd}-{MM}-{yyyy}',
-                  false
-                );
-                return format + ': ' + p.data[1];
-              }
-            },
-            backgroundColor: backgroundColor,
-            visualMap: {
-              min: 0,
-              max: 300,
-              type: 'piecewise',
-              orient: 'horizontal',
-              left: 'center',
-              top: 65
-            },
-            calendar: {
-              top: 120,
-              left: 30,
-              right: 30,
-              cellSize: ['auto', 13],
-              range: currentYear,
-              itemStyle: {
-                borderWidth: 0.5
-              },
-              yearLabel: { show: false }
-            },
-            series: {
-              type: 'heatmap',
-              coordinateSystem: 'calendar',
-              data: countsExtended,
-              label: {
-                show: true,
-                formatter: function (params) {
-                  return currentDate.getDate() === params.data[0] ? 'X' : '';
-                }
-              }
-            }
-          };
-
-          this.crackedChart.setOption(option);
-          this.lastUpdated = formatDate(new Date(), this.util.getSetting('timefmt'));
-        })
+    // Extract and format cracked dates
+    const formattedDates: string[] = data.map((item) =>
+      formatUnixTimestamp(item.timeCracked, 'yyyy-MM-dd')
     );
+
+    // Count occurrences of each date
+    const dateCounts: { [key: string]: number } =
+      this.countOccurrences(formattedDates);
+
+    // Convert date counts to the required format
+    const countsExtended = Object.keys(dateCounts).map((date) => [
+      date,
+      dateCounts[date]
+    ]);
+
+    // DarkMode
+    const backgroundColor = this.isDarkMode ? '#212121' : '';
+
+    const option = {
+      darkMode: true,
+      title: {},
+      tooltip: {
+        position: 'top',
+        formatter: function (p) {
+          const format = echarts.time.format(
+            p.data[0],
+            '{dd}-{MM}-{yyyy}',
+            false
+          );
+          return format + ': ' + p.data[1];
+        }
+      },
+      backgroundColor: backgroundColor,
+      visualMap: {
+        min: 0,
+        max: 300,
+        type: 'piecewise',
+        orient: 'horizontal',
+        left: 'center',
+        top: 65
+      },
+      calendar: {
+        top: 120,
+        left: 30,
+        right: 30,
+        cellSize: ['auto', 13],
+        range: currentYear,
+        itemStyle: {
+          borderWidth: 0.5
+        },
+        yearLabel: { show: false }
+      },
+      series: {
+        type: 'heatmap',
+        coordinateSystem: 'calendar',
+        data: countsExtended,
+        label: {
+          show: true,
+          formatter: function (params) {
+            return currentDate.getDate() === params.data[0] ? 'X' : '';
+          }
+        }
+      }
+    };
+
+    this.crackedChart.setOption(option);
+    this.lastUpdated = formatDate(new Date(), this.util.getSetting('timefmt'));
   }
 }

@@ -93,8 +93,8 @@
         mat-cell
         *matCellDef="let row"
         [ngStyle]="{
-          'border-left': (row.attributes.tasks && row.attributes.tasks.length > 0 && row.attributes.tasks[0].attributes.color) || (row && row.attributes.color) ? '8px solid ' + (row.attributes.tasks && row.attributes.tasks.length > 0 ? row.attributes.tasks[0].attributes.color : row.attributes.color) : '',
-          'padding-left': (row.attributes.tasks && row.attributes.tasks.length > 0 && row.attributes.tasks[0].attributes.color) || (row.attributes.color) ? '8px' : '16px'
+          'border-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row && row.color) ? '8px solid ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color) : '',
+          'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row.color) ? '8px' : '16px'
         }"
       >
         <ng-container *ngIf="!isCmdTask; else defaultCell">
@@ -175,8 +175,7 @@
         >
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate
-            [text]="element"
-            [path]="tableColumn.dataKey"
+              [text]="element[tableColumn.dataKey]"
             ></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">

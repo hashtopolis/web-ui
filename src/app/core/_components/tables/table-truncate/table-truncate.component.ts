@@ -10,19 +10,12 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class TableTruncateComponent implements OnInit {
   @Input() text: string;
-  @Input() path: string;
   @Input() maxLength = 40;
 
   expanded = false;
   abbr: string;
 
   ngOnInit(): void {
-
-    if(this.path!= undefined && this.path == "['attributes']['hash']") {
-      let objText: string = this.text['attributes']['hash'];
-      this.text = objText;
-    }
-
     if (this.text.length > this.maxLength) {
       this.abbr = `${this.text.substring(0, this.maxLength)} [...]`;
     } else {

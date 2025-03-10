@@ -1,12 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AgentBinaryData } from '../_models/agent-binary.model';
+import { AgentBinary } from '../_models/agent-binary.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class AgentBinariesDataSource extends BaseDataSource<AgentBinaryData> {
+export class AgentBinariesDataSource extends BaseDataSource<AgentBinary> {
   loadAll(): void {
     this.loading = true;
 
@@ -31,8 +31,8 @@ export class AgentBinariesDataSource extends BaseDataSource<AgentBinaryData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AgentBinaryData>) => {
-          const agentBinaries: AgentBinaryData[] = response.data;
+        .subscribe((response: ListResponseWrapper<AgentBinary>) => {
+          const agentBinaries: AgentBinary[] = response.values;
 
           this.setPaginationConfig(
             this.pageSize,

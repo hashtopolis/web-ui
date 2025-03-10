@@ -5,7 +5,7 @@ export const ACCESS_GROUP_FIELD_MAPPING = {
 
 export const CRACKER_TYPE_FIELD_MAPPING = {
   name: 'typeName',
-  id: 'id'
+  _id: 'crackerBinaryTypeId'
 };
 
 export const CRACKER_VERSION_FIELD_MAPPING = {
@@ -30,21 +30,11 @@ export const SUPER_TASK_FIELD_MAPPING = {
 
 export const TASKS_FIELD_MAPPING = {
   name: 'taskName',
-  id: 'id'
-};
-
-export const USER_FIELD_MAPPING = {
-  name: 'name',
-  _id: 'id'
+  _id: 'taskId'
 };
 
 // Access Group Permission
 export const USER_AGP_FIELD_MAPPING = {
   name: 'groupName',
-  id: 'id'
-};
-
-export const AGENT_STATS_FIELD_MAPPING = {
-  name: 'name',
-  _id: 'id'
+  _id: '_id'
 };

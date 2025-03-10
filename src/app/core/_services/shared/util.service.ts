@@ -29,14 +29,14 @@ export class UtilService {
 
     return from(firstValueFrom(this.gs.getAll(SERV.CHUNKS, params))).pipe(
       map((res) => {
-        for (let i = 0; i < res.data.length; i++) {
+        for (let i = 0; i < res.values.length; i++) {
           if (
             Date.now() / 1000 -
-              Math.max(res.data[i].attributes.solveTime, res.data[i].attributes.dispatchTime) <
+              Math.max(res.values[i].solveTime, res.values[i].dispatchTime) <
               chunktime &&
-            res.data[i].attributes.progress < 10000
+            res.values[i].progress < 10000
           ) {
-            cspeed.push(res.data[i].attributes.speed);
+            cspeed.push(res.values[i].speed);
           }
         }
 

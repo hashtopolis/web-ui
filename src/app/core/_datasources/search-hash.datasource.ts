@@ -4,8 +4,6 @@ import { ListResponseWrapper } from '../_models/response.model';
 import { Log } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
 import { RequestParams } from '../_models/request-params.model';
-import { HashData } from '../_models/hash.model';
-import { HashlistDataAttributes } from '../_models/hashlist.model';
 
 export class SearchHashDataSource extends BaseDataSource<Log> {
   private _search: string[];
@@ -25,8 +23,7 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
       const params: RequestParams = {
         maxResults: this.pageSize,
         startsAt: startAt,
-        filter: `filter[hash__eq]=${this._search[i]}`,
-        include: "hashlist"
+        filter: `hash=${this._search[i]}`
       };
 
       if (sorting.dataKey && sorting.isSortable) {
@@ -50,18 +47,14 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
               }
             })
           )
-          .subscribe((response: ListResponseWrapper<HashData>) => {
-            const hashs: HashData[] = response.data;
+          .subscribe((response: ListResponseWrapper<any>) => {
+            const hashs: any[] = response.values;
 
             if (hashs[0]) {
-              let includedAttributes = response.included.find((item) => item.id === hashs[0].attributes.hashlistId).attributes as HashlistDataAttributes;
-              hashs[0].attributes.hashlist = includedAttributes;
+              arr.push(hashs[0]);
             } else {
-              hashs.push({ type: 'hash', id: undefined, attributes: {hashlistId: undefined, hash: this._search[i][0], salt: undefined, plaintext: undefined, timeCracked: undefined, chunkId: undefined, isCracked: undefined, crackPos: undefined } });
+              arr.push({ hash: this._search[i], isCracked: 3 });
             }
-
-            arr.push(hashs[0]);
-
             this.setPaginationConfig(
               this.pageSize,
               this.currentPage,

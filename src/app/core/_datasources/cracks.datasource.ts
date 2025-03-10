@@ -1,14 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { HashData } from '../_models/hash.model';
-import { Included, ListResponseWrapper } from '../_models/response.model';
+import { Hash } from '../_models/hash.model';
+import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { ChunkDataAttributes } from '../_models/chunk.model';
-import { HashlistDataAttributes } from '../_models/hashlist.model';
 
-export class CracksDataSource extends BaseDataSource<HashData> {
+export class CracksDataSource extends BaseDataSource<Hash> {
   loadAll(): void {
     this.loading = true;
 
@@ -18,8 +16,8 @@ export class CracksDataSource extends BaseDataSource<HashData> {
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      filter: 'filter[isCracked__eq]=true',
-      include: 'hashlist,chunk'
+      filter: 'isCracked=1',
+      expand: 'hashlist,chunk'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -35,20 +33,14 @@ export class CracksDataSource extends BaseDataSource<HashData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<HashData>) => {
-          const rows: HashData[] = [];
-          response.data.forEach((value: HashData) => {
-            const hashlist: HashData = value;
+        .subscribe((response: ListResponseWrapper<Hash>) => {
+          const cracks: Hash[] = response.values;
 
-            let chunkId: number = value.attributes.chunkId;
-            let includedChunks: Included[] = response.included.filter((inc) => inc.type === "chunk" && inc.id === chunkId);
-            hashlist.attributes.chunk = includedChunks[0].attributes as ChunkDataAttributes;
-
-            let hashlistId: number = value.attributes.hashlistId;
-            let includedHashlist: Included[] = response.included.filter((inc) => inc.type === "hashlist" && inc.id === hashlistId);
-            hashlist.attributes.hashlist = includedHashlist[0].attributes as HashlistDataAttributes;
-
-            rows.push(hashlist);
+          cracks.map((crack: Hash) => {
+            if (crack.chunk) {
+              crack.agentId = crack.chunk.agentId;
+              crack.taskId = crack.chunk.taskId;
+            }
           });
 
           this.setPaginationConfig(
@@ -56,7 +48,7 @@ export class CracksDataSource extends BaseDataSource<HashData> {
             this.currentPage,
             response.total
           );
-          this.setData(rows);
+          this.setData(cracks);
         })
     );
   }
