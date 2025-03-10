@@ -14,7 +14,7 @@ import {
 } from 'echarts/components';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { ASC } from '../../core/_constants/agentsc.config';
 import { UniversalTransition } from 'echarts/features';
 import { DataTableDirective } from 'angular-datatables';
@@ -37,10 +37,17 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { OnDestroy } from '@angular/core';
 import {
   TASKS_FIELD_MAPPING,
-  USER_AGP_FIELD_MAPPING
+  USER_AGP_FIELD_MAPPING,
+  USER_FIELD_MAPPING
 } from 'src/app/core/_constants/select.config';
-import { ListResponseWrapper } from '../../core/_models/response.model';
-import { AgentData } from '../../core/_models/agent.model';
+import { ListResponseWrapper, ResponseWrapper } from '../../core/_models/response.model';
+import { AgentData, AgentStats, JAgent } from '../../core/_models/agent.model';
+import { JUser, UserData } from '../../core/_models/user.model';
+import { JsonAPISerializer } from '../../core/_services/api/serializer-service';
+import { User } from '../../users/user.model';
+import { JTask, TaskData } from '../../core/_models/task.model';
+import { JChunk } from '../../core/_models/chunk.model';
+import { JAgentAssignment } from '../../core/_models/agent-assignment.model';
 
 @Component({
   selector: 'app-edit-agent',
@@ -65,6 +72,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   /** Select Options Mapping */
   selectUserAgpMap = {
     fieldMapping: USER_AGP_FIELD_MAPPING
+  };
+
+  selectUserMap = {
+    fieldMapping: USER_FIELD_MAPPING
   };
 
   selectAssignMap = {
@@ -93,7 +104,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.onInitialize();
     this.buildForm();
@@ -152,14 +164,17 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .get(SERV.AGENTS, this.editedAgentIndex, {
         include: 'agentStats,accessGroups'
       })
-      .subscribe((agent: ListResponseWrapper<AgentData>) => {
-        this.showagent = agent.data;
-        // const transformedOptions = transformSelectOptions(
-        //   agent.accessGroups,
-        //   this.selectUserAgpMap
-        // );
-        // this.selectuserAgps = transformedOptions;
-        // this.agentStats(agent.agentstats);
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+
+        const agent = this.serializer.deserialize<JAgent>(responseBody);
+
+        this.showagent = agent;
+
+        const transformedOptions = transformSelectOptions(agent.accessGroups, this.selectUserAgpMap);
+        this.selectuserAgps = transformedOptions;
+
+        this.drawGraphs(agent.agentStats);
       });
     this.unsubscribeService.add(loadAgentsSubscription$);
 
@@ -168,15 +183,14 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .getAll(SERV.TASKS, {
         filter: 'isArchived=false'
       })
-      .subscribe((tasks: any) => {
-        const filterTasks = tasks.values.filter(
-          (u) =>
-            u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+
+        const filterTasks = tasks.filter(
+          (u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0
         ); //Remove completed tasks
-        const transformedOptions = transformSelectOptions(
-          filterTasks,
-          this.selectAssignMap
-        );
+        const transformedOptions = transformSelectOptions(filterTasks, this.selectAssignMap);
         this.assignTasks = transformedOptions;
       });
 
@@ -185,8 +199,14 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     // Load select Users
     const loadUsersSubscription$ = this.gs
       .getAll(SERV.USERS)
-      .subscribe((user: any) => {
-        this.selectUsers = user.values;
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const users = this.serializer.deserialize<JUser[]>(responseBody);
+        const transformedOptions = transformSelectOptions(
+          users,
+          this.selectUserMap
+        );
+        this.selectUsers = transformedOptions;
       });
 
     this.unsubscribeService.add(loadUsersSubscription$);
@@ -218,14 +238,18 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     });
     this.gs
       .getAll(SERV.AGENT_ASSIGN, {
-        filter: 'agentId=' + this.editedAgentIndex + ''
+        filter: `filter[agentId__eq]=${this.editedAgentIndex}`
       })
-      .subscribe((assign: any) => {
-        this.assignNew = assign?.values[0]['taskId'] ? true : false;
-        this.assignId = assign?.values[0]['assignmentId'];
-        this.updateAssignForm = new FormGroup({
-          taskId: new FormControl(assign?.values[0]['taskId'])
-        });
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const assignmentList = this.serializer.deserialize<JAgentAssignment[]>(responseBody);
+        if (assignmentList.length) {
+          this.assignNew = !!assignmentList?.[0]['taskId'];
+          this.assignId = assignmentList?.[0]['assignmentId'];
+          this.updateAssignForm = new FormGroup({
+            taskId: new FormControl(assignmentList?.[0]['taskId'])
+          });
+        }
       });
   }
 
@@ -256,16 +280,20 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const params = { maxResults: 999999 };
 
     // Retrieve chunks associated with the agent
-    this.gs.getAll(SERV.CHUNKS, params).subscribe((c: any) => {
-      const getchunks = c.values.filter((u) => u.agentId == id);
+    this.gs.getAll(SERV.CHUNKS, params).subscribe((response: ResponseWrapper) => {
+      const responseBody = { data: response.data, included: response.included };
+      const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
+
+      const getchunks = chunks.filter((u) => u.agentId == id);
 
       // Retrieve tasks information
-      this.gs.getAll(SERV.TASKS, params).subscribe((t: any) => {
+      this.gs.getAll(SERV.TASKS, params).subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const tasks = this.serializer.deserialize<JTask[]>(responseBody);
+
         // Combine chunks and tasks information
         this.getchunks = getchunks.map((mainObject) => {
-          const matchObjectAgents = t.values.find(
-            (e) => e.taskId === mainObject.taskId
-          );
+          const matchObjectAgents = tasks.find((task) => task.id === mainObject.id);
           return { ...mainObject, ...matchObjectAgents };
         });
 
@@ -323,50 +351,62 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   // Render devices using count by device type
   renderDevices(agent: any) {
-    const deviceList = agent.split('\n');
-    const deviceCountMap: { [key: string]: number } = {};
+    if (agent) {
+      const deviceList = agent.split('\n');
+      const deviceCountMap: { [key: string]: number } = {};
 
-    // Count occurrences of each device
-    deviceList.forEach((device) => {
-      if (deviceCountMap[device]) {
-        deviceCountMap[device]++;
-      } else {
-        deviceCountMap[device] = 1;
-      }
-    });
+      // Count occurrences of each device
+      deviceList.forEach((device) => {
+        if (deviceCountMap[device]) {
+          deviceCountMap[device]++;
+        } else {
+          deviceCountMap[device] = 1;
+        }
+      });
 
-    // Format the result string with HTML line breaks
-    const formattedDevices = Object.keys(deviceCountMap)
-      .map((device) => `${deviceCountMap[device]} x ${device}`)
-      .join('<br>');
+      // Format the result string with HTML line breaks
+      const formattedDevices = Object.keys(deviceCountMap)
+        .map((device) => `${deviceCountMap[device]} x ${device}`)
+        .join('<br>');
 
-    return formattedDevices;
+      return formattedDevices;
+    }
+    return undefined;
   }
 
   // //
   //  GRAPHS SECTION
   // //
 
-  agentStats(obj: any) {
-    this.getGraph(
-      obj.filter((u) => u.statType == ASC.GPU_TEMP),
+  /**
+   * Draw all graphs for GPU temperature and utilisation and CPU utilisation
+   * @param agentStatList List of agentStats objects
+   */
+  drawGraphs(agentStatList: AgentStats[]) {
+    this.drawGraph(
+      agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_TEMP),
       ASC.GPU_TEMP,
       'tempgraph'
     ); // filter Device Temperature
-    this.getGraph(
-      obj.filter((u) => u.statType == ASC.GPU_UTIL),
+    this.drawGraph(
+      agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_UTIL),
       ASC.GPU_UTIL,
       'devicegraph'
     ); // filter Device Utilization
-    this.getGraph(
-      obj.filter((u) => u.statType == ASC.CPU_UTIL),
+    this.drawGraph(
+      agentStatList.filter((agentStat) => agentStat.statType == ASC.CPU_UTIL),
       ASC.CPU_UTIL,
       'cpugraph'
     ); // filter CPU utilization
   }
 
-  // Temperature Graph
-  getGraph(obj: object, status: number, name: string) {
+  /**
+   * Draw single Graph from AgentStats
+   * @param agentStatList List of AgentStats objects
+   * @param status Number to determine device and displayed stats (GPU_TEMP: 1, GPU_UTIL: 2, CPU_UTIL: 3)
+   * @param name Name of Graph
+   */
+  drawGraph(agentStatList: AgentStats[], status: number, name: string) {
     echarts.use([
       TitleComponent,
       ToolboxComponent,
@@ -404,18 +444,18 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       templabel = '%';
     }
 
-    const data: any = obj;
+    const data: any = agentStatList;
     const arr = [];
     const max = [];
     const devlabels = [];
-    const result: any = obj;
+    const result: any = agentStatList;
 
     for (let i = 0; i < result.length; i++) {
       const val = result[i].value;
       for (let i = 0; i < val.length; i++) {
-        const iso = this.transDate(result[i]['time']);
+        const iso = this.transDate(result[i].time);
         arr.push({ time: iso, value: val[i], device: i });
-        max.push(result[i]['time']);
+        max.push(result[i].time);
         devlabels.push('Device ' + i + '');
       }
     }

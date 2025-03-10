@@ -30,11 +30,21 @@ export const SUPER_TASK_FIELD_MAPPING = {
 
 export const TASKS_FIELD_MAPPING = {
   name: 'taskName',
-  _id: 'taskId'
+  id: 'id'
+};
+
+export const USER_FIELD_MAPPING = {
+  name: 'name',
+  _id: 'id'
 };
 
 // Access Group Permission
 export const USER_AGP_FIELD_MAPPING = {
   name: 'groupName',
-  _id: '_id'
+  id: 'id'
+};
+
+export const AGENT_STATS_FIELD_MAPPING = {
+  name: 'name',
+  _id: 'id'
 };
