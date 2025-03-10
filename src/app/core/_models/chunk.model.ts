@@ -1,10 +1,6 @@
-
-import { Agent } from './agent.model';
-import { Task } from './task.model';
-import { BaseModel } from './base.model';
 import { Agent, AgentData } from './agent.model';
 import { Task, TaskData } from './task.model';
-
+import { BaseModel } from './base.model';
 
 export interface Chunk {
   _id: number;
