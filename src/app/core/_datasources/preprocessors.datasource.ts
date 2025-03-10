@@ -2,11 +2,11 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
-import { Preprocessor } from '../_models/preprocessor.model';
+import { PreprocessorData } from '../_models/preprocessor.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
+export class PreprocessorsDataSource extends BaseDataSource<PreprocessorData> {
   loadAll(): void {
     this.loading = true;
 
@@ -31,8 +31,8 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Preprocessor>) => {
-          const preprocessors: Preprocessor[] = response.values;
+        .subscribe((response: ListResponseWrapper<PreprocessorData>) => {
+          const preprocessors: PreprocessorData[] = response.data;
 
           this.setPaginationConfig(
             this.pageSize,

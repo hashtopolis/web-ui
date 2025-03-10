@@ -9,6 +9,13 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { environment } from 'src/environments/environment';
 import { SERV } from '../../core/_services/main.config';
 import { AgentStatusModalComponent } from './agent-status-modal/agent-status-modal.component';
+import { ListResponseWrapper } from '../../core/_models/response.model';
+import { AgentData } from '../../core/_models/agent.model';
+import { AgentAssignmentData } from '../../core/_models/agent-assignment.model';
+import { ChunkDataNew } from '../../core/_models/chunk.model';
+import { TaskData } from '../../core/_models/task.model';
+import { AgentStatsData } from '../../core/_models/agent_stats.model';
+
 
 @Component({
   selector: 'app-agent-status',
@@ -72,30 +79,52 @@ export class AgentStatusComponent implements OnInit {
 
   getAgentsPage(page: number) {
     const params = { maxResults: this.maxResults };
-    this.gs.getAll(SERV.AGENTS, params).subscribe((a: any) => {
-      this.gs.getAll(SERV.AGENT_ASSIGN, params).subscribe((assign: any) => {
-        this.gs.getAll(SERV.TASKS, params).subscribe((t: any) => {
-          this.gs.getAll(SERV.CHUNKS, params).subscribe((c: any) => {
-            const getAData = a.values.map((mainObject) => {
-              const matchObjectTask = assign.values.find(
-                (e) => e.agentId === mainObject.agentId
+    this.gs.getAll(SERV.AGENTS, params).subscribe((a: ListResponseWrapper<AgentData>) => {
+      this.gs.getAll(SERV.AGENT_ASSIGN, params).subscribe((assign: ListResponseWrapper<AgentAssignmentData>) => {
+        this.gs.getAll(SERV.TASKS, params).subscribe((t: ListResponseWrapper<TaskData>) => {
+          this.gs.getAll(SERV.CHUNKS, params).subscribe((c: ListResponseWrapper<ChunkDataNew>) => {
+            const getAData = a.data.map((mainObject) => {
+              const matchObjectTask = assign.data.find(
+                (e) => e.attributes.agentId === mainObject.id
               );
-              return { ...mainObject, ...matchObjectTask };
+
+              if (matchObjectTask != undefined) {
+                let obj: any = { ...mainObject["attributes"], ...matchObjectTask["attributes"]};
+                return obj;
+              }
+              else {
+                let obj: any = { ...mainObject["attributes"]};
+                return obj;
+              }
             });
-            this.totalRecords = a.total;
             const jointasks = getAData.map((mainObject) => {
-              const matchObjectTask = t.values.find(
-                (e) => e.taskId === mainObject.taskId
+              const matchObjectTask = t.data.find(
+                (e) => e.id === mainObject.taskId
               );
-              return { ...mainObject, ...matchObjectTask };
+              if (matchObjectTask != undefined) {
+                let obj: any = { ...mainObject, ...matchObjectTask["attributes"]};
+                return obj;
+              }
+              else {
+                let obj: any = { ...mainObject};
+                return obj;
+              }
             });
 
             this.showagents = this.filteredAgents = jointasks.map(
               (mainObject) => {
-                const matchObjectAgents = c.values.find(
-                  (e) => e.agentId === mainObject.agentId
+                const matchObjectAgents = c.data.find(
+                  (e) => e.attributes.agentId === mainObject.agentId
                 );
-                return { ...mainObject, ...matchObjectAgents };
+
+                if (matchObjectAgents != undefined) {
+                  let obj: any = { ...mainObject, ...matchObjectAgents["attributes"]};
+                  return obj;
+                }
+                else {
+                  let obj: any = { ...mainObject};
+                  return obj;
+                }
               }
             );
           });
@@ -112,14 +141,14 @@ export class AgentStatusComponent implements OnInit {
   getAgentStats() {
     // const paramsstat = {'maxResults': this.maxResults, 'filter': 'time>'+this.gettime()+''}; //Waiting for API date filters
     const paramsstat = { maxResults: this.maxResults };
-    this.gs.getAll(SERV.AGENTS_STATS, paramsstat).subscribe((stats: any) => {
-      const tempDateFilter = stats.values.filter((u) => u.time > 10000000); // Temp
+    this.gs.getAll(SERV.AGENTS_STATS, paramsstat).subscribe((stats: ListResponseWrapper<AgentStatsData>) => {
+      const tempDateFilter = stats.data.filter((u) => u.attributes.time > 10000000); // Temp
       // const tempDateFilter = stats.values.filter(u=> u.time > this.gettime()); // Temp
-      this.statTemp = tempDateFilter.filter((u) => u.statType == ASC.GPU_TEMP); // Temp
+      this.statTemp = tempDateFilter.filter((u) => u.attributes.statType == ASC.GPU_TEMP); // Temp
       this.statDevice = tempDateFilter.filter(
-        (u) => u.statType == ASC.GPU_UTIL
+        (u) => u.attributes.statType == ASC.GPU_UTIL
       ); // Temp
-      this.statCpu = tempDateFilter.filter((u) => u.statType == ASC.CPU_UTIL); // Temp
+      this.statCpu = tempDateFilter.filter((u) => u.attributes.statType == ASC.CPU_UTIL); // Temp
     });
   }
 

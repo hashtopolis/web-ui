@@ -12,13 +12,14 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { CracksDataSource } from 'src/app/core/_datasources/cracks.datasource';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { Hash } from 'src/app/core/_models/hash.model';
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
+import { HashData } from 'src/app/core/_models/hash.model';
 import { HashListFormatLabel } from 'src/app/core/_constants/hashlist.config';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { Cacheable } from '../../../_decorators/cacheable';
 
 @Component({
   selector: 'cracks-table',
@@ -45,8 +46,8 @@ export class CracksTableComponent
     }
   }
 
-  filter(item: Hash, filterValue: string): boolean {
-    if (item.plaintext.toLowerCase().includes(filterValue)) {
+  filter(item: HashData, filterValue: string): boolean {
+    if (item.attributes.plaintext.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -58,61 +59,63 @@ export class CracksTableComponent
       {
         id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
-        render: (crack: Hash) =>
-          formatUnixTimestamp(crack.timeCracked, this.dateFormat),
+        render: (crack: HashData) =>
+          formatUnixTimestamp(crack.attributes.timeCracked, this.dateFormat),
         isSortable: true,
-        export: async (crack: Hash) =>
-          formatUnixTimestamp(crack.timeCracked, this.dateFormat)
+        export: async (crack: HashData) =>
+          formatUnixTimestamp(crack.attributes.timeCracked, this.dateFormat)
       },
       {
         id: CracksTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        export: async (crack: Hash) => crack.plaintext
+        render: (crack: HashData) => crack.attributes.plaintext,
+        export: async (crack: HashData) => crack.attributes.plaintext
       },
       {
         id: CracksTableCol.HASH,
-        dataKey: 'hash',
+        dataKey: "['attributes']['hash']",
         isSortable: true,
         truncate: true,
-        export: async (crack: Hash) => crack.hash
+        render: (crack: HashData) => crack.attributes.hash,
+        export: async (crack: HashData) => crack.attributes.hash
       },
       {
         id: CracksTableCol.AGENT,
         dataKey: 'agentId',
         isSortable: true,
-        routerLink: (crack: Hash) => this.renderAgentLink(crack),
-        export: async (crack: Hash) => crack.agentId + ''
+        routerLink: (crack: HashData) => this.renderAgentLink(crack),
+        export: async (crack: HashData) => crack.attributes.chunk.agentId + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: true,
-        routerLink: (crack: Hash) => this.renderTaskLink(crack),
-        export: async (crack: Hash) => crack.taskId + ''
+        routerLink: (crack: HashData) => this.renderTaskLinkId(crack),
+        export: async (crack: HashData) => crack.attributes.chunk.taskId + ''
       },
       {
         id: CracksTableCol.CHUNK,
         dataKey: 'chunkId',
         isSortable: true,
-        routerLink: (crack: Hash) => this.renderChunkLink(crack),
-        export: async (crack: Hash) => crack.chunkId + ''
+        routerLink: (crack: HashData) => this.renderChunkLink(crack),
+        export: async (crack: HashData) => crack.attributes.chunkId + ''
       },
       {
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: Hash) =>
-          crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '',
-        export: async (crack: Hash) =>
-          crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''
+        render: (crack: HashData) =>
+          crack.attributes.hashlist ? HashListFormatLabel[crack.attributes.hashlist.format] : '',
+        export: async (crack: HashData) =>
+          crack.attributes.hashlist ? HashListFormatLabel[crack.attributes.hashlist.format] : ''
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Hash>) {
+  openDialog(data: DialogData<HashData>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -134,12 +137,43 @@ export class CracksTableComponent
     );
   }
 
+
+
+  // --- Render functions ---
+  @Cacheable(['id'])
+ override async renderAgentLink(obj: HashData): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        //crack.attributes.chunk.agentId
+        routerLink:
+          obj && obj['attributes']['chunk']['agentId']
+            ? ['/agents', 'show-agents', obj['attributes']['chunk']['agentId'], 'edit']
+            : [],
+        label: obj['attributes']['chunk']['agentId']
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderTaskLinkId(obj: HashData): Promise<HTTableRouterLink[]> {
+  return [
+    {
+      routerLink:
+        obj && obj['attributes']['chunk']['taskId']
+          ? ['/tasks', 'show-tasks', obj['attributes']['chunk']['taskId'], 'edit']
+          : [],
+      label: obj['attributes']['chunk']['taskId']
+    }
+  ];
+}
+
+
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Hash[]>): void {
+  exportActionClicked(event: ActionMenuEvent<HashData[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Hash>(
+        this.exportService.toExcel<HashData>(
           'hashtopolis-cracks',
           this.tableColumns,
           event.data,
@@ -147,7 +181,7 @@ export class CracksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Hash>(
+        this.exportService.toCsv<HashData>(
           'hashtopolis-cracks',
           this.tableColumns,
           event.data,
@@ -156,7 +190,7 @@ export class CracksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hash>(
+          .toClipboard<HashData>(
             this.tableColumns,
             event.data,
             CracksTableColumnLabel
@@ -171,12 +205,12 @@ export class CracksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Hash>): void {
+  rowActionClicked(event: ActionMenuEvent<HashData>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting crack ${event.data._id} ...`,
+          title: `Deleting crack ${event.data.id} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -189,7 +223,7 @@ export class CracksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Hash[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<HashData[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -208,9 +242,9 @@ export class CracksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(cracks: Hash[]): void {
-    const requests = cracks.map((crack: Hash) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, crack._id);
+  private bulkActionDelete(cracks: HashData[]): void {
+    const requests = cracks.map((crack: HashData) => {
+      return this.gs.delete(SERV.CRACKERS_TYPES, crack.id);
     });
 
     this.subscriptions.push(
@@ -234,10 +268,10 @@ export class CracksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(cracks: Hash[]): void {
+  private rowActionDelete(cracks: HashData[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, cracks[0]._id)
+        .delete(SERV.CRACKERS_TYPES, cracks[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -251,7 +285,7 @@ export class CracksTableComponent
     );
   }
 
-  private rowActionEdit(crack: Hash): void {
-    this.router.navigate(['/config', 'engine', 'cracks', crack._id, 'edit']);
+  private rowActionEdit(crack: HashData): void {
+    this.router.navigate(['/config', 'engine', 'cracks', crack.id, 'edit']);
   }
 }

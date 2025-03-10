@@ -3,9 +3,10 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { File, FileType } from '../_models/file.model';
+import { FileData, FileType } from '../_models/file.model';
+import { AccessGroupDataAttributes } from '../_models/access-group.model';
 
-export class FilesDataSource extends BaseDataSource<File> {
+export class FilesDataSource extends BaseDataSource<FileData> {
   private fileType: FileType = 0;
   private editIndex?: number;
   private editType?: number;
@@ -45,8 +46,8 @@ export class FilesDataSource extends BaseDataSource<File> {
       const params: RequestParams = {
         maxResults: this.pageSize,
         startsAt: startAt,
-        expand: 'accessGroup',
-        filter: `fileType=${this.fileType}`
+        include: 'accessGroup',
+        filter: `filter[fileType__eq]=${this.fileType}`
       };
       if (sorting.dataKey && sorting.isSortable) {
         const order = this.buildSortingParams(sorting);
@@ -61,33 +62,17 @@ export class FilesDataSource extends BaseDataSource<File> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<File>) => {
-          let files: File[];
+        .subscribe((response: ListResponseWrapper<FileData>) => {
+          let files: FileData[] = [];
 
-          if (this.editType === 0) {
-            files = response['files'];
-          } else if (this.editType === 1) {
-            files = response['pretaskFiles'];
-          } else {
-            files = response.values;
-          }
+            response.data.forEach((value: FileData) => {
+                const file: FileData = value;
+                let accessGroupId: number = value.attributes.accessGroupId;
+                let includedAccessGroup = response.included.find((inc) => inc.type === "accessGroup" && inc.id === accessGroupId);
+                file.attributes.accessGroup = includedAccessGroup.attributes as AccessGroupDataAttributes;
 
-          files.map((file: File) => {
-            if (file.accessGroup) {
-              file.accessGroupId = file.accessGroup.accessGroupId;
-              file.accessGroupName = file.accessGroup.groupName;
-            } else {
-              const accessGroups$ = this.service.get(
-                SERV.ACCESS_GROUPS,
-                file.accessGroupId
-              );
-              forkJoin(accessGroups$).subscribe(
-                (accessGroupResponses: any[]) => {
-                  file.accessGroupName = accessGroupResponses['GroupName'];
-                }
-              );
-            }
-          });
+              files.push(file);
+            });
 
           if (!this.editType) {
             this.setPaginationConfig(

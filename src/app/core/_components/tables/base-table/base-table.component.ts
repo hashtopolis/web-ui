@@ -13,7 +13,6 @@ import {
   uiConfigDefault
 } from 'src/app/core/_models/config-ui.model';
 
-import { AccessGroup } from 'src/app/core/_models/access-group.model';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
@@ -28,6 +27,10 @@ import { Subscription } from 'rxjs';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { UtilService } from 'src/app/core/_services/shared/util.service';
+import { GlobalPermissionGroupData } from '../../../_models/global-permission-group.model';
+import { AccessGroupData } from '../../../_models/access-group.model';
+import { SuperTaskData } from '../../../_models/supertask.model';
+import { TaskData } from '../../../_models/task.model';
 
 @Component({
   selector: 'base-table',
@@ -103,144 +106,155 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['taskId'])
-  async renderTaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id'])
+  async renderTaskLink(obj: TaskData): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['taskId']
-            ? ['/tasks', 'show-tasks', obj['taskId'], 'edit']
-            : []
-      }
-    ];
-  }
-
-  @Cacheable(['supertaskId'])
-  async renderSupertaskLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/tasks/', obj['_id'], 'edit']
-      }
-    ];
-  }
-
-  @Cacheable(['agentId'])
-  async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink:
-          obj && obj['agentId']
-            ? ['/agents', 'show-agents', obj['agentId'], 'edit']
-            : []
-      }
-    ];
-  }
-
-  @Cacheable(['taskId'])
-  async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink:
-          obj && obj['taskId']
-            ? ['/hashlists', 'hashes', 'tasks', obj['taskId']]
-            : []
-      }
-    ];
-  }
-
-  @Cacheable(['userId', '_id'])
-  async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['_id'] ? ['/users', obj['_id'], 'edit'] : []
-      }
-    ];
-  }
-
-  @Cacheable(['chunkId'])
-  async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink:
-          obj && obj['chunkId']
-            ? ['/tasks', 'chunks', obj['chunkId'], 'view']
-            : []
-      }
-    ];
-  }
-
-  @Cacheable(['hashlistId'])
-  async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink:
-          obj && obj['hashlistId']
-            ? ['/hashlists', 'hashlist', obj['hashlistId'], 'edit']
-            : []
-      }
-    ];
-  }
-
-  @Cacheable(['hashlistId'])
-  async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink:
-          obj && obj['hashlistId']
-            ? ['/hashlists', 'hashes', 'hashlists', obj['hashlistId']]
-            : []
+          obj && obj.id
+            ? ['/tasks', 'show-tasks', obj.id, 'edit']
+            : [],
+        label: obj.attributes.taskName
       }
     ];
   }
 
   @Cacheable(['id'])
-  async renderPermissionLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  async renderSupertaskLink(obj: SuperTaskData): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: ['/tasks/', obj.id, 'edit'],
+        label: obj.attributes.supertaskName
+      }
+    ];
+  }
+
+  @Cacheable(['attributes']['agentId'])
+  async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['id']
+            ? ['/agents', 'show-agents', obj['id'], 'edit']
+            : [],
+        label: obj['attributes']['agentName']
+      }
+    ];
+  }
+
+  @Cacheable(['attributes']['taskId'])
+  async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['attributes']['taskId']
+            ? ['/hashlists', 'hashes', 'tasks', obj['attributes']['taskId']]
+            : [],
+        label: obj['attributes']['cracked']
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderUserLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj && obj['id'] ? ['/users', obj['id'], 'edit'] : [],
+        label: obj['attributes']['name']
+      }
+    ];
+  }
+
+  @Cacheable(['attributes']['chunkId'])
+  async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['attributes']['chunkId']
+            ? ['/tasks', 'chunks', obj['attributes']['chunkId'], 'view']
+            : [],
+        label: obj['attributes']['chunkId']
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['id']
+            ? ['/hashlists', 'hashlist', obj['id'], 'edit']
+            : [],
+        label: obj['attributes']['name']
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink:
+          obj && obj['id']
+            ? ['/hashlists', 'hashes', 'hashlists', obj['id']]
+            : [],
+        label: obj['attributes']['hashCount']
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderPermissionLink(obj: GlobalPermissionGroupData): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
           obj && obj['id']
             ? ['/users', 'global-permissions-groups', obj['id'], 'edit']
-            : []
+            : [],
+        label: obj['attributes']['name']
       }
     ];
   }
 
-  @Cacheable(['accessGroupId'])
-  async renderAccessGroupLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id'])
+  async renderAccessGroupLink(obj: AccessGroupData): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['accessGroupId']
-            ? ['/users', 'access-groups', obj['accessGroupId'], 'edit']
-            : []
+          obj && obj.id
+            ? ['/users', 'access-groups', obj.id, 'edit']
+            : [],
+        label: obj.attributes.groupName
       }
     ];
   }
 
-  @Cacheable(['_id', 'accessGroups'])
+  @Cacheable(['id', 'accessGroup'])
   async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
-    if (obj && obj['accessGroups'] && obj['accessGroups'].length) {
-      links = obj['accessGroups'].map((accessGroup: AccessGroup) => {
-        return {
+    if (obj && obj['relationships']) {
+      links = [
+        {
           routerLink: [
             '/users',
             'access-groups',
-            accessGroup.accessGroupId,
+            obj['relationships']['accessGroups']['data'][0]['id'],
             'edit'
           ],
-          label: accessGroup.groupName
-        };
-      });
+          label: obj['attributes']['accessGroup']
+        }
+      ];
+      return links;
+    } else {
+      return links;
     }
-
-    return links;
   }
 
-  @Cacheable(['isActive'])
+  @Cacheable(['attributes']['isActive'])
   async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
     if (obj) {
-      return obj['isActive']
+      return obj['attributes']['isActive']
         ? [
             {
               name: 'check_circle',

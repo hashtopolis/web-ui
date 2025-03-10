@@ -2,6 +2,8 @@ import { environment } from '../../../../environments/environment';
 import { Injectable } from "@angular/core";
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
+import { ListResponseWrapper } from '../../_models/response.model';
+import { ConfigsData } from '../../_models/configs.model';
 
 @Injectable({
   providedIn: 'root'
@@ -57,14 +59,14 @@ export class UIConfigService {
 
   public storeDefault() {
     const params = { 'maxResults': this.maxResults }
-    this.gs.getAll(SERV.CONFIGS, params).subscribe((result) => {
+    this.gs.getAll(SERV.CONFIGS, params).subscribe((result:ListResponseWrapper<ConfigsData>) => {
 
       const post_data = [];
 
       this.cachevar.forEach((data) => {
         const name = data.name;
-        let value = result.values.find(obj => obj.item === data.name).value;
-        value = { name: name, value: value }
+        let value:any = result.data.find(obj => obj.attributes.item === data.name).attributes;
+        value = { name: name, value: value.value }
         post_data.push(value);
       });
       const timeinfo = [{ name: '_timestamp', value: Date.now() }, { name: '_expiresin', value: this.cexprity }];

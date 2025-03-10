@@ -17,16 +17,17 @@ import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { ChunkData } from 'src/app/core/_models/chunk.model';
+import { ChunkDataData } from 'src/app/core/_models/chunk.model';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { Task } from 'src/app/core/_models/task.model';
-import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
+import { TaskData } from 'src/app/core/_models/task.model';
+import { TaskWrapperData } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
+import { HashlistData } from '../../../_models/hashlist.model';
 
 @Component({
   selector: 'tasks-table',
@@ -39,7 +40,7 @@ export class TasksTableComponent
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-  chunkData: { [key: number]: ChunkData } = {};
+  chunkData: { [key: number]: ChunkDataData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
@@ -60,8 +61,8 @@ export class TasksTableComponent
     }
   }
 
-  filter(item: TaskWrapper, filterValue: string): boolean {
-    if (item.taskName.toLowerCase().includes(filterValue)) {
+  filter(item: TaskWrapperData, filterValue: string): boolean {
+    if (item.attributes.tasks[0].attributes.taskName.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -72,32 +73,33 @@ export class TasksTableComponent
     const tableColumns = [
       {
         id: TaskTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (wrapper: TaskWrapper) => wrapper._id + ''
+        export: async (wrapper: TaskWrapperData) => wrapper.id + ''
       },
       {
         id: TaskTableCol.TASK_TYPE,
         dataKey: 'taskType',
-        render: (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0 ? 'Task' : '<b>SuperTask</b>',
-        export: async (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0 ? 'Task' : 'Supertask' + ''
+        render: (wrapper: TaskWrapperData) =>
+          wrapper.attributes.taskType === 0 ? 'Task' : '<b>SuperTask</b>',
+        export: async (wrapper: TaskWrapperData) =>
+          wrapper.attributes.taskType === 0 ? 'Task' : 'Supertask' + ''
       },
       {
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
-        routerLink: (wrapper: TaskWrapper) =>
+        routerLink: (wrapper: TaskWrapperData) =>
           this.renderTaskWrapperLink(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) => wrapper.taskName
+        export: async (wrapper: TaskWrapperData) => wrapper.attributes.tasks[0]?.attributes.taskName
       },
       {
         id: TaskTableCol.STATUS,
-        async: (wrapper: TaskWrapper) => this.renderSpeed(wrapper),
-        icons: (wrapper: TaskWrapper) => this.renderStatusIcons(wrapper),
+        dataKey: 'keyspaceProgress',
+        async: (wrapper: TaskWrapperData) => this.renderSpeed(wrapper),
+        icons: (wrapper: TaskWrapperData) => this.renderStatusIcons(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) => {
+        export: async (wrapper: TaskWrapperData) => {
           const status = await this.getTaskStatus(wrapper);
           switch (status) {
             case TaskStatus.RUNNING:
@@ -113,107 +115,119 @@ export class TasksTableComponent
       },
       {
         id: TaskTableCol.HASHTYPE,
+        dataKey: 'hashtype',
         isSortable: false,
-        render: (wrapper: any) => {
-          const firstHashtype = wrapper.hashtypes[0];
+        render: (wrapper: TaskWrapperData) => {
+          const firstHashtype = wrapper.attributes.hashtypes[0];
           return firstHashtype
-            ? `${firstHashtype.hashTypeId} - ${firstHashtype.description}`
+            ? `${firstHashtype.id} - ${firstHashtype.attributes.description}`
+            : 'No HashType';
+        },
+        export: async (wrapper: TaskWrapperData) =>{
+          const firstHashtype = wrapper.attributes.hashtypes[0];
+          return firstHashtype
+            ? `${firstHashtype.id} - ${firstHashtype.attributes.description}`
             : 'No HashType';
         }
       },
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
-        routerLink: (wrapper: TaskWrapper) => this.renderHashlistLink(wrapper),
+        routerLink: (wrapper: TaskWrapperData) => this.renderHashlistLink(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) =>
-          wrapper.hashlists.map((h) => h.name).join(', ')
+        export: async (wrapper: TaskWrapperData) =>
+          wrapper.attributes.hashlists.map((h: HashlistData) => h.attributes.name).join(', ')
       },
       {
         id: TaskTableCol.DISPATCHED_SEARCHED,
-        async: (wrapper: TaskWrapper) => this.renderDispatchedSearched(wrapper),
+        dataKey: 'clientSignature',
+        async: (wrapper: TaskWrapperData) => this.renderDispatchedSearched(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) =>
+        export: async (wrapper: TaskWrapperData) =>
           this.getDispatchedSearchedString(wrapper)
       },
       {
         id: TaskTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (wrapper: TaskWrapper) => this.renderCrackedLink(wrapper),
+        routerLink: (wrapper: TaskWrapperData) => this.renderCrackedLink(wrapper),
         isSortable: true,
-        export: async (wrapper: TaskWrapper) => wrapper.cracked + ''
+        export: async (wrapper: TaskWrapperData) => wrapper.attributes.cracked + ''
       },
       {
         id: TaskTableCol.AGENTS,
-        async: (wrapper: TaskWrapper) => this.renderAgents(wrapper),
+        dataKey: 'agents',
+        async: (wrapper: TaskWrapperData) => this.renderAgents(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) =>
+        export: async (wrapper: TaskWrapperData) =>
           (await this.getNumAgents(wrapper)) + ''
       },
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
-        routerLink: (wrapper: TaskWrapper) =>
-          this.renderAccessGroupLink(wrapper),
+        routerLink: (wrapper: TaskWrapperData) =>
+          this.renderAccessGroupLink(wrapper.attributes.accessgroup[0]),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) => wrapper.accessGroupName
+        export: async (wrapper: TaskWrapperData) => wrapper.attributes.accessgroup[0].attributes.groupName
       },
       {
         id: TaskTableCol.PRIORITY,
         dataKey: 'priority',
-        editable: (wrapper: TaskWrapper) => {
+        editable: (wrapper: TaskWrapperData) => {
           return {
             data: wrapper,
-            value: wrapper.priority + '',
+            value: wrapper.attributes.priority + '',
             action: TaskTableEditableAction.CHANGE_PRIORITY
           };
         },
         isSortable: true,
-        export: async (wrapper: TaskWrapper) => wrapper.priority + ''
+        export: async (wrapper: TaskWrapperData) => wrapper.attributes.priority + ''
       },
       {
         id: TaskTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
-        editable: (wrapper: TaskWrapper) => {
+        editable: (wrapper: TaskWrapperData) => {
           return {
             data: wrapper,
-            value: wrapper.maxAgents + '',
+            value: wrapper.attributes.maxAgents + '',
             action: TaskTableEditableAction.CHANGE_MAX_AGENTS
           };
         },
         isSortable: true,
-        export: async (wrapper: TaskWrapper) => wrapper.maxAgents + ''
+        export: async (wrapper: TaskWrapperData) => wrapper.attributes.maxAgents + ''
       },
       {
         id: TaskTableCol.PREPROCESSOR,
-        render: (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1
+        dataKey: 'preprocessorId',
+        render: (wrapper: TaskWrapperData) =>
+          wrapper.attributes.taskType === 0 && wrapper.attributes.tasks[0].attributes.preprocessorId === 1
             ? 'Prince'
             : '',
         isSortable: false,
-        export: async (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1
+        export: async (wrapper: TaskWrapperData) =>
+          wrapper.attributes.taskType === 0 && wrapper.attributes.tasks[0].attributes.preprocessorId === 1
             ? 'Prince'
             : ''
       },
       {
         id: TaskTableCol.IS_SMALL,
-        icons: (wrapper: TaskWrapper) => this.renderIsSmallIcon(wrapper),
+        dataKey: 'isSmall',
+        icons: (wrapper: TaskWrapperData) => this.renderIsSmallIcon(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0
-            ? wrapper.tasks[0].isSmall
+        export: async (wrapper: TaskWrapperData) =>
+          wrapper.attributes.taskType === 0
+            ? wrapper.attributes.tasks[0].attributes.isSmall
               ? 'Yes'
               : 'No'
             : ''
       },
       {
         id: TaskTableCol.IS_CPU_TASK,
-        icons: (wrapper: TaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
+        dataKey: 'isCpuTask',
+        icons: (wrapper: TaskWrapperData) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: false,
-        export: async (wrapper: TaskWrapper) =>
-          wrapper.taskType === 0
-            ? wrapper.tasks[0].isCpuTask
+        export: async (wrapper: TaskWrapperData) =>
+          wrapper.attributes.taskType === 0
+            ? wrapper.attributes.tasks[0].attributes.isCpuTask
               ? 'Yes'
               : 'No'
             : ''
@@ -223,7 +237,7 @@ export class TasksTableComponent
     return tableColumns;
   }
 
-  rowActionClicked(event: ActionMenuEvent<TaskWrapper>): void {
+  rowActionClicked(event: ActionMenuEvent<TaskWrapperData>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
@@ -254,27 +268,40 @@ export class TasksTableComponent
     }
   }
 
-  getRowDeleteLabel(data): any {
+  getRowDeleteLabel(data: TaskWrapperData): any {
     return {
       ...data,
-      taskName: data.taskType === 1 ? data.taskWrapperName : data.taskName
+      taskName: data.attributes.taskType === 1 ? data.attributes.taskWrapperName : data.attributes.tasks[0].attributes.taskName
     };
   }
 
-  bulkActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<TaskWrapperData[]>): void {
+    let superTasksCount = 0;
     let tasksCount = 0;
 
     // Preprocess the data and count the occurrences of each type
-    const updatedData = event.data.map((taskWrapper) => {
-      tasksCount++;
-      return taskWrapper;
+    const updatedData:TaskWrapperData[] = event.data.map((taskWrapper: TaskWrapperData) => {
+      if (taskWrapper.attributes.taskType === 1) {
+        superTasksCount++;
+        return { ...taskWrapper, taskName: taskWrapper.attributes.taskWrapperName };
+      } else {
+        tasksCount++;
+        return taskWrapper;
+      }
     });
 
     // Construct the label with counts, also adding plural
+    const superTasksLabel = superTasksCount === 1 ? 'supertask' : 'supertasks';
     const tasksLabel = tasksCount === 1 ? 'task' : 'tasks';
 
     let label = '';
-    label = `${tasksCount} ${tasksLabel}`;
+    if (superTasksCount > 0 && tasksCount > 0) {
+      label = `${tasksCount} ${tasksLabel} and ${superTasksCount} ${superTasksLabel}`;
+    } else if (superTasksCount > 0) {
+      label = `${superTasksCount} ${superTasksLabel}`;
+    } else if (tasksCount > 0) {
+      label = `${tasksCount} ${tasksLabel}`;
+    }
 
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
@@ -300,10 +327,10 @@ export class TasksTableComponent
     }
   }
 
-  exportActionClicked(event: ActionMenuEvent<TaskWrapper[]>): void {
+  exportActionClicked(event: ActionMenuEvent<TaskWrapperData[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<TaskWrapper>(
+        this.exportService.toExcel<TaskWrapperData>(
           'hashtopolis-tasks',
           this.tableColumns,
           event.data,
@@ -311,7 +338,7 @@ export class TasksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<TaskWrapper>(
+        this.exportService.toCsv<TaskWrapperData>(
           'hashtopolis-tasks',
           this.tableColumns,
           event.data,
@@ -320,7 +347,7 @@ export class TasksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<TaskWrapper>(
+          .toClipboard<TaskWrapperData>(
             this.tableColumns,
             event.data,
             TaskTableColumnLabel
@@ -335,7 +362,7 @@ export class TasksTableComponent
     }
   }
 
-  openDialog(data: DialogData<TaskWrapper>) {
+  openDialog(data: DialogData<TaskWrapperData>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -365,16 +392,16 @@ export class TasksTableComponent
     this.dataSource.setIsArchived(isArchived);
   }
 
-  private async getTaskStatus(wrapper: TaskWrapper): Promise<TaskStatus> {
-    if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+  private async getTaskStatus(wrapper: TaskWrapperData): Promise<TaskStatus> {
+    if (wrapper.attributes.taskType === 0 && wrapper.attributes.tasks.length > 0) {
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       const speed = cd.speed;
 
       if (speed > 0) {
         return TaskStatus.RUNNING;
       } else if (
-        wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
-        wrapper.tasks[0].keyspaceProgress > 0
+        wrapper.attributes.tasks[0].attributes.keyspaceProgress >= wrapper.attributes.tasks[0].attributes.keyspace &&
+        wrapper.attributes.tasks[0].attributes.keyspaceProgress > 0
       ) {
         return TaskStatus.COMPLETED;
       } else {
@@ -385,11 +412,11 @@ export class TasksTableComponent
     return TaskStatus.INVALID;
   }
 
-  async getDispatchedSearchedString(wrapper: TaskWrapper): Promise<string> {
-    if (wrapper.taskType === 0) {
-      const task: Task = wrapper.tasks[0];
-      if (task.keyspace > 0) {
-        const cd: ChunkData = await this.getChunkData(wrapper);
+  async getDispatchedSearchedString(wrapper: TaskWrapperData): Promise<string> {
+    if (wrapper.attributes.taskType === 0) {
+      const task: TaskData = wrapper.attributes.tasks[0];
+      if (task.attributes.keyspace > 0) {
+        const cd: ChunkDataData = await this.getChunkData(wrapper);
         const disp = (cd.dispatched * 100).toFixed(2);
         const sear = (cd.searched * 100).toFixed(2);
 
@@ -401,34 +428,34 @@ export class TasksTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['_id', 'taskType'])
+  @Cacheable(['id', 'taskType'])
   async renderTaskWrapperLink(
-    wrapper: TaskWrapper
+    wrapper: TaskWrapperData
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
-    if (wrapper.taskType === 0) {
-      for (const task of wrapper.tasks) {
+    if (wrapper.attributes.taskType === 0) {
+      for (const task of wrapper.attributes.tasks) {
         const taskName =
-          task.taskName?.length > 40
-            ? `${task.taskName.substring(40)}...`
-            : task.taskName;
+          task.attributes.taskName?.length > 40
+            ? `${task.attributes.taskName.substring(40)}...`
+            : task.attributes.taskName;
 
         links.push({
           label: taskName,
-          routerLink: ['/tasks', 'show-tasks', task._id, 'edit'],
-          tooltip: task.attackCmd
+          routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
+          tooltip: task.attributes.attackCmd
         });
       }
-    } else if (wrapper.taskType === 1) {
+    } else if (wrapper.attributes.taskType === 1) {
       const taskWrapperName =
-        wrapper.taskWrapperName.length > 40
-          ? `${wrapper.taskWrapperName.substring(40)}...`
-          : wrapper.taskWrapperName;
+        wrapper.attributes.taskWrapperName.length > 40
+          ? `${wrapper.attributes.taskWrapperName.substring(40)}...`
+          : wrapper.attributes.taskWrapperName;
 
       links.push({
         label: taskWrapperName,
-        routerLink: ['/tasks', 'show-subtasks', wrapper._id],
+        routerLink: ['/tasks', 'show-subtasks', wrapper.id],
         tooltip: 'Supertask'
       });
     }
@@ -436,19 +463,19 @@ export class TasksTableComponent
     return links;
   }
 
-  @Cacheable(['_id', 'taskType', 'hashlists'])
+  @Cacheable(['id', 'taskType', 'hashlists'])
   override async renderHashlistLink(
-    wrapper: TaskWrapper
+    wrapper: TaskWrapperData
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
-    if (wrapper && wrapper['hashlists'] && wrapper['hashlists'].length) {
+    if (wrapper && wrapper.attributes.hashlists && wrapper.attributes.hashlists.length > 0) {
       links.push({
-        label: wrapper['hashlists'][0].name,
+        label: wrapper.attributes.hashlists[0].attributes.name,
         routerLink: [
           '/hashlists',
           'hashlist',
-          wrapper['hashlists'][0]._id,
+          wrapper.attributes.hashlists[0].id,
           'edit'
         ]
       });
@@ -457,11 +484,11 @@ export class TasksTableComponent
     return links;
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
-  async renderStatusIcons(wrapper: TaskWrapper): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'taskType', 'tasks'])
+  async renderStatusIcons(wrapper: TaskWrapperData): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     const status = await this.getTaskStatus(wrapper);
-    if (wrapper.taskType === 0) {
+    if (wrapper.attributes.taskType === 0) {
       switch (status) {
         case TaskStatus.RUNNING:
           icons.push({
@@ -486,11 +513,11 @@ export class TasksTableComponent
       }
     } else {
       // Count the completed tasks in supertasks
-      const countCompleted = wrapper.tasks.reduce((count, task) => {
+      const countCompleted = wrapper.attributes.tasks.reduce((count, task) => {
         return count;
       }, 0);
 
-      if (wrapper.tasks.length === countCompleted) {
+      if (wrapper.attributes.tasks.length === countCompleted) {
         icons.push({
           name: 'check',
           tooltip: 'Completed'
@@ -502,28 +529,28 @@ export class TasksTableComponent
   }
 
   @Cacheable(['_id', 'isSmall'])
-  async renderIsSmallIcon(wrapper: TaskWrapper): Promise<HTTableIcon[]> {
+  async renderIsSmallIcon(wrapper: TaskWrapperData): Promise<HTTableIcon[]> {
     return this.renderBoolIcon(wrapper, 'isSmall');
   }
 
-  @Cacheable(['_id', 'isCpuTask'])
-  async renderIsCpuTaskIcon(wrapper: TaskWrapper): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'isCpuTask'])
+  async renderIsCpuTaskIcon(wrapper: TaskWrapperData): Promise<HTTableIcon[]> {
     return this.renderBoolIcon(wrapper, 'isCpuTask');
   }
 
-  @Cacheable(['_id', 'taskType'])
-  async renderTaskTypeIcon(wrapper: TaskWrapper): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'taskType'])
+  async renderTaskTypeIcon(wrapper: TaskWrapperData): Promise<HTTableIcon[]> {
     return this.renderBoolIcon(wrapper, 'taskType', 1);
   }
 
   private renderBoolIcon(
-    wrapper: TaskWrapper,
+    wrapper: TaskWrapperData,
     key: string,
     equals: any = ''
   ): HTTableIcon[] {
     const icons: HTTableIcon[] = [];
-    if (wrapper.taskType === 0) {
-      const task: Task = wrapper.tasks[0];
+    if (wrapper.attributes.taskType === 0) {
+      const task: TaskData = wrapper.attributes.tasks[0];
       if (equals === '') {
         if (task[key] === true) {
           icons.push({
@@ -556,48 +583,48 @@ export class TasksTableComponent
     return icons;
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
-  async renderDispatchedSearched(wrapper: TaskWrapper): Promise<SafeHtml> {
+  @Cacheable(['id', 'taskType', 'tasks'])
+  async renderDispatchedSearched(wrapper: TaskWrapperData): Promise<SafeHtml> {
     const html = await this.getDispatchedSearchedString(wrapper);
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
+  @Cacheable(['id', 'taskType', 'tasks'])
   override async renderCrackedLink(
-    wrapper: TaskWrapper
+    wrapper: TaskWrapperData
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+    if (wrapper.attributes.taskType === 0) {
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       links.push({
         label: cd.cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0]._id]
+        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.attributes.tasks[0].id]
       });
     }
 
     return links;
   }
 
-  async getNumAgents(wrapper: TaskWrapper): Promise<number> {
-    if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+  async getNumAgents(wrapper: TaskWrapperData): Promise<number> {
+    if (wrapper.attributes.taskType === 0) {
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       return cd.agents.length;
     }
 
     return 0;
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
-  async renderAgents(wrapper: TaskWrapper): Promise<SafeHtml> {
+  @Cacheable(['id', 'taskType', 'tasks'])
+  async renderAgents(wrapper: TaskWrapperData): Promise<SafeHtml> {
     const numAgents = await this.getNumAgents(wrapper);
     return this.sanitize(`${numAgents}`);
   }
 
-  @Cacheable(['_id', 'taskType', 'tasks'])
-  async renderSpeed(wrapper: TaskWrapper): Promise<SafeHtml> {
+  @Cacheable(['id', 'taskType', 'tasks'])
+  async renderSpeed(wrapper: TaskWrapperData): Promise<SafeHtml> {
     let html = '';
-    if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+    if (wrapper.attributes.taskType === 0) {
+      const cd: ChunkDataData = await this.getChunkData(wrapper);
       html = cd.speed > 0 ? `${cd.speed}&nbsp;H/s` : '';
     }
     return this.sanitize(html);
@@ -605,16 +632,16 @@ export class TasksTableComponent
 
   // --- Action functions ---
 
-  private rowActionEdit(task: TaskWrapper): void {
-    this.router.navigate(['tasks', 'show-tasks', task.tasks[0]._id, 'edit']);
+  private rowActionEdit(task: TaskWrapperData): void {
+    this.router.navigate(['tasks', 'show-tasks', task.attributes.tasks[0].id, 'edit']);
   }
 
   /**
    * @todo Implement error handling.
    */
-  private bulkActionArchive(wrapper: TaskWrapper[], isArchived: boolean): void {
-    const requests = wrapper.map((w: TaskWrapper) => {
-      return this.gs.update(SERV.TASKS, w.tasks[0]._id, {
+  private bulkActionArchive(wrapper: TaskWrapperData[], isArchived: boolean): void {
+    const requests = wrapper.map((w: TaskWrapperData) => {
+      return this.gs.update(SERV.TASKS, w.attributes.tasks[0].id, {
         isArchived: isArchived
       });
     });
@@ -639,9 +666,9 @@ export class TasksTableComponent
     );
   }
 
-  private bulkActionDelete(wrapper: TaskWrapper[]): void {
-    const requests = wrapper.map((w: TaskWrapper) => {
-      return this.gs.delete(SERV.TASKS_WRAPPER, w._id);
+  private bulkActionDelete(wrapper: TaskWrapperData[]): void {
+    const requests = wrapper.map((w: TaskWrapperData) => {
+      return this.gs.delete(SERV.TASKS_WRAPPER, w.id);
     });
 
     this.subscriptions.push(
@@ -662,35 +689,35 @@ export class TasksTableComponent
     );
   }
 
-  private rowActionDelete(wrapper: TaskWrapper): void {
+  private rowActionDelete(wrapper: TaskWrapperData): void {
     console.log(wrapper);
     this.subscriptions.push(
-      this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0]._id).subscribe(() => {
+      this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0].id).subscribe(() => {
         this.snackBar.open('Successfully deleted task!', 'Close');
         this.reload();
       })
     );
   }
 
-  private rowActionCopyToTask(wrapper: TaskWrapper): void {
-    this.router.navigate(['tasks', 'new-tasks', wrapper.tasks[0]._id, 'copy']);
+  private rowActionCopyToTask(wrapper: TaskWrapperData): void {
+    this.router.navigate(['tasks', 'new-tasks', wrapper.attributes.tasks[0].id, 'copy']);
   }
 
-  private rowActionCopyToPretask(wrapper: TaskWrapper): void {
+  private rowActionCopyToPretask(wrapper: TaskWrapperData): void {
     this.router.navigate([
       'tasks',
       'preconfigured-tasks',
-      wrapper.tasks[0]._id,
+      wrapper.attributes.tasks[0].id,
       'copytask'
     ]);
   }
 
-  private rowActionArchive(wrapper: TaskWrapper): void {
-    this.updateIsArchived(wrapper.tasks[0]._id, true);
+  private rowActionArchive(wrapper: TaskWrapperData): void {
+    this.updateIsArchived(wrapper.attributes.tasks[0].id, true);
   }
 
-  private rowActionUnarchive(wrapper: TaskWrapper): void {
-    this.updateIsArchived(wrapper.tasks[0]._id, false);
+  private rowActionUnarchive(wrapper: TaskWrapperData): void {
+    this.updateIsArchived(wrapper.attributes.tasks[0].id, false);
   }
 
   private updateIsArchived(taskId: number, isArchived: boolean): void {
@@ -705,7 +732,7 @@ export class TasksTableComponent
     );
   }
 
-  editableSaved(editable: HTTableEditable<TaskWrapper>): void {
+  editableSaved(editable: HTTableEditable<TaskWrapperData>): void {
     switch (editable.action) {
       case TaskTableEditableAction.CHANGE_PRIORITY:
         this.changePriority(editable.data, editable.value);
@@ -716,7 +743,7 @@ export class TasksTableComponent
     }
   }
 
-  private changePriority(wrapper: TaskWrapper, priority: string): void {
+  private changePriority(wrapper: TaskWrapperData, priority: string): void {
     let val = 0;
     try {
       val = parseInt(priority);
@@ -724,12 +751,12 @@ export class TasksTableComponent
       // Do nothing
     }
 
-    if (!val || wrapper.priority == val) {
+    if (!val || wrapper.attributes.priority == val) {
       this.snackBar.open('Nothing changed!', 'Close');
       return;
     }
 
-    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper._id, {
+    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper.id, {
       priority: val
     });
     this.subscriptions.push(
@@ -743,7 +770,7 @@ export class TasksTableComponent
         )
         .subscribe(() => {
           this.snackBar.open(
-            `Changed prio to ${val} on Task #${wrapper.tasks[0]._id}!`,
+            `Changed prio to ${val} on Task #${wrapper.attributes.tasks[0].id}!`,
             'Close'
           );
           this.reload();
@@ -751,7 +778,7 @@ export class TasksTableComponent
     );
   }
 
-  private changeMaxAgents(wrapper: TaskWrapper, max: string): void {
+  private changeMaxAgents(wrapper: TaskWrapperData, max: string): void {
     let val = 0;
     try {
       val = parseInt(max);
@@ -759,12 +786,12 @@ export class TasksTableComponent
       // Do nothing
     }
 
-    if (!val || wrapper.maxAgents == val) {
+    if (!val || wrapper.attributes.maxAgents == val) {
       this.snackBar.open('Nothing changed!', 'Close');
       return;
     }
 
-    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper._id, {
+    const request$ = this.gs.update(SERV.TASKS_WRAPPER, wrapper.id, {
       maxAgents: val
     });
     this.subscriptions.push(
@@ -778,7 +805,7 @@ export class TasksTableComponent
         )
         .subscribe(() => {
           this.snackBar.open(
-            `Changed number of max agents to ${val} on Task #${wrapper.tasks[0]._id}!`,
+            `Changed number of max agents to ${val} on Task #${wrapper.attributes.tasks[0].id}!`,
             'Close'
           );
           this.reload();
@@ -791,7 +818,7 @@ export class TasksTableComponent
    * If the chunk data for the specified task ID is not already cached, it is fetched
    * asynchronously from the data source and stored in the cache for future use.
    *
-   * @param {TaskWrapper} wrapper - The task wrapper containing the task for which chunk data is requested.
+   * @param {TaskWrapperData} wrapper - The task wrapper containing the task for which chunk data is requested.
    * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified task.
    *
    * @remarks
@@ -800,28 +827,28 @@ export class TasksTableComponent
    * the chunk data for the same task ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(wrapper: TaskWrapper): Promise<ChunkData> {
-    const task: Task = wrapper.tasks[0];
+  private async getChunkData(wrapper: TaskWrapperData): Promise<ChunkDataData> {
+    const task: TaskData = wrapper.attributes.tasks[0];
 
-    if (!this.chunkDataLock[task._id]) {
+    if (!this.chunkDataLock[task.id]) {
       // If there is no lock, create a new one
-      this.chunkDataLock[task._id] = (async () => {
-        if (!(task._id in this.chunkData)) {
+      this.chunkDataLock[task.id] = (async () => {
+        if (!(task.id in this.chunkData)) {
           // Inside the lock, await the asynchronous operation
-          this.chunkData[task._id] = await this.dataSource.getChunkData(
-            task._id,
+          this.chunkData[task.id] = await this.dataSource.getChunkData(
+            task.id,
             false,
-            task.keyspace
+            task.attributes.keyspace
           );
         }
 
         // Release the lock when the operation is complete
-        delete this.chunkDataLock[task._id];
+        delete this.chunkDataLock[task.id];
       })();
     }
 
     // Wait for the lock to be released before returning the data
-    await this.chunkDataLock[task._id];
-    return this.chunkData[task._id];
+    await this.chunkDataLock[task.id];
+    return this.chunkData[task.id];
   }
 }

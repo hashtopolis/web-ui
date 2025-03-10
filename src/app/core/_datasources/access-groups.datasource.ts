@@ -1,12 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroup } from '../_models/access-group.model';
+import { AccessGroupData } from '../_models/access-group.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
+export class AccessGroupsDataSource extends BaseDataSource<AccessGroupData> {
   loadAll(): void {
     this.loading = true;
 
@@ -16,7 +16,7 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'userMembers,agentMembers'
+      include: 'userMembers,agentMembers'
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -32,14 +32,25 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
-          const accessGroups: AccessGroup[] = response.values;
+        .subscribe((response: ListResponseWrapper<AccessGroupData>) => {
+
+          let accessgroups: AccessGroupData[] = [];
+
+          response.data.forEach((value: AccessGroupData) => {
+            const accessgroup: AccessGroupData = value;
+
+            accessgroup.attributes.agentMembers = value.relationships.agentMembers.data.length;
+            accessgroup.attributes.userMembers = value.relationships.userMembers.data.length;
+
+            accessgroups.push(accessgroup);
+          });
+
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
             response.total
           );
-          this.setData(accessGroups);
+          this.setData(accessgroups);
         })
     );
   }

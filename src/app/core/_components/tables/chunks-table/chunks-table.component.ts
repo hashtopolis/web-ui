@@ -16,11 +16,12 @@ import {
 
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { Cacheable } from '../../../_decorators/cacheable';
-import { Chunk } from '../../../_models/chunk.model';
+import { ChunkDataNew } from '../../../_models/chunk.model';
 import { ChunksDataSource } from '../../../_datasources/chunks.datasource';
 import { HTTableColumn } from '../../tables/ht-table/ht-table.models';
 import { SafeHtml } from '@angular/platform-browser';
 import { chunkStates } from '../../../_constants/chunks.config';
+import { AgentData } from '../../../_models/agent.model';
 
 @Component({
   selector: 'chunks-table',
@@ -49,72 +50,75 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     const tableColumns = [
       {
         id: ChunksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true
       },
       {
         id: ChunksTableCol.START,
         dataKey: 'skip',
+        render: (chunk: ChunkDataNew) => chunk.attributes.skip,
         isSortable: true
       },
       {
         id: ChunksTableCol.LENGTH,
         dataKey: 'length',
+        render: (chunk: ChunkDataNew) => chunk.attributes.length,
         isSortable: true
       },
       {
         id: ChunksTableCol.CHECKPOINT,
         dataKey: 'checkpoint',
-        render: (chunk: Chunk) => this.renderCheckpoint(chunk),
+        render: (chunk: ChunkDataNew) => this.renderCheckpoint(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.PROGRESS,
         dataKey: 'progress',
-        render: (chunk: Chunk) => this.renderProgress(chunk),
+        render: (chunk: ChunkDataNew) => this.renderProgress(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
-        routerLink: (chunk: Chunk) => this.renderTaskLink(chunk),
+        routerLink: (chunk: ChunkDataNew) => this.renderTaskLink(chunk.attributes.task),
         isSortable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
-        render: (chunk: Chunk) => this.renderAgent(chunk),
-        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk),
+        // render: (chunk: ChunkDataNew) => this.renderAgent(chunk.attributes.agent),
+        routerLink: (chunk: ChunkDataNew) => this.renderAgentLink(chunk.attributes.agent),
         isSortable: true
       },
       {
         id: ChunksTableCol.DISPATCH_TIME,
         dataKey: 'dispatchTime',
-        render: (chunk: Chunk) => this.renderDispatchTime(chunk),
+        render: (chunk: ChunkDataNew) => this.renderDispatchTime(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.LAST_ACTIVITY,
         dataKey: 'solveTime',
-        render: (chunk: Chunk) => this.renderLastActivity(chunk),
+        render: (chunk: ChunkDataNew) => this.renderLastActivity(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.TIME_SPENT,
         dataKey: 'timeSpent',
-        render: (chunk: Chunk) => this.renderTimeSpent(chunk),
+        render: (chunk: ChunkDataNew) => this.renderTimeSpent(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.STATE,
         dataKey: 'state',
-        render: (chunk: Chunk) => this.renderState(chunk),
+        render: (chunk: ChunkDataNew) => this.renderState(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk),
+        render: (chunk: ChunkDataNew) => chunk.attributes.cracked,
+        routerLink: (chunk: ChunkDataNew) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];
@@ -125,30 +129,30 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   // --- Render functions ---
 
   @Cacheable(['_id', 'cracked'])
-  renderCracked(chunk: Chunk): SafeHtml {
-    let html = `${chunk.cracked}`;
-    if (chunk.cracked && chunk.cracked > 0) {
-      html = `<a data-view-hashes-task-id="${chunk.task._id}">${chunk.cracked}</a>`;
+  renderCracked(chunk: ChunkDataNew): SafeHtml {
+    let html = `${chunk.attributes.cracked}`;
+    if (chunk.attributes.cracked && chunk.attributes.cracked > 0) {
+      html = `<a data-view-hashes-task-id="${chunk.attributes.task.id}">${chunk.attributes.cracked}</a>`;
     }
 
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'state'])
-  renderState(chunk: Chunk): SafeHtml {
-    let html = `${chunk.state}`;
-    if (chunk.state && chunk.state in chunkStates) {
+  @Cacheable(['id', 'state'])
+  renderState(chunk: ChunkDataNew): SafeHtml {
+    let html = `${chunk.attributes.state}`;
+    if (chunk.attributes.state && chunk.attributes.state in chunkStates) {
       html = `<span class="pill pill-${chunkStates[
-        chunk.state
-      ].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
+        chunk.attributes.state
+      ].toLowerCase()}">${chunkStates[chunk.attributes.state]}</span>`;
     }
 
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'solveTime', 'dispatchTime'])
-  renderTimeSpent(chunk: Chunk): SafeHtml {
-    const seconds = chunk.solveTime - chunk.dispatchTime;
+  @Cacheable(['id', 'solveTime', 'dispatchTime'])
+  renderTimeSpent(chunk: ChunkDataNew): SafeHtml {
+    const seconds = chunk.attributes.solveTime - chunk.attributes.dispatchTime;
     if (seconds) {
       return this.sanitize(formatSeconds(seconds));
     }
@@ -156,65 +160,65 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     return this.sanitize('0');
   }
 
-  @Cacheable(['_id', 'progress', 'checkpoint', 'skip', 'length'])
-  renderCheckpoint(chunk: Chunk): SafeHtml {
-    const percent = chunk.progress
-      ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2)
+  @Cacheable(['id', 'progress', 'checkpoint', 'skip', 'length'])
+  renderCheckpoint(chunk: ChunkDataNew): SafeHtml {
+    const percent = chunk.attributes.progress
+      ? (((chunk.attributes.checkpoint - chunk.attributes.skip) / chunk.attributes.length) * 100).toFixed(2)
       : 0;
-    const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
+    const data = chunk.attributes.checkpoint ? `${chunk.attributes.checkpoint} (${percent}%)` : '0';
 
     return this.sanitize(data);
   }
 
-  @Cacheable(['_id', 'progress'])
-  renderProgress(chunk: Chunk): SafeHtml {
-    if (chunk.progress === undefined) {
+  @Cacheable(['id', 'progress'])
+  renderProgress(chunk: ChunkDataNew): SafeHtml {
+    if (chunk.attributes.progress === undefined) {
       return this.sanitize('N/A');
-    } else if (chunk.progress > 0) {
-      return this.sanitize(`${chunk.progress / 100}%`);
+    } else if (chunk.attributes.progress > 0) {
+      return this.sanitize(`${chunk.attributes.progress / 100}%`);
     }
 
-    return `${chunk.progress ? chunk.progress : 0}`;
+    return `${chunk.attributes.progress ? chunk.attributes.progress : 0}`;
   }
 
-  @Cacheable(['_id', 'taskId'])
-  renderTask(chunk: Chunk): SafeHtml {
-    if (chunk.task) {
-      return this.sanitize(chunk.task.taskName);
+  @Cacheable(['id', 'taskId'])
+  renderTask(chunk: ChunkDataNew): SafeHtml {
+    if (chunk.attributes.task) {
+      return this.sanitize(chunk.attributes.task[0].taskName);
     }
 
-    return this.sanitize(`${chunk.taskId}`);
+    return this.sanitize(`${chunk.attributes.task.id}`);
   }
 
-  @Cacheable(['_id', 'agentId'])
-  renderAgent(chunk: Chunk): SafeHtml {
-    if (chunk.agent) {
-      return this.sanitize(chunk.agent.agentName);
+  @Cacheable(['id'])
+  renderAgent(agent: AgentData): SafeHtml {
+    if (agent.attributes) {
+      return this.sanitize(agent.attributes.agentName);
     }
 
-    return `${chunk.agentId}`;
+    return `${agent.id}`;
   }
 
-  @Cacheable(['_id', 'dispatchTime'])
-  renderDispatchTime(chunk: Chunk): SafeHtml {
+  @Cacheable(['id', 'dispatchTime'])
+  renderDispatchTime(chunk: ChunkDataNew): SafeHtml {
     const formattedDate = formatUnixTimestamp(
-      chunk.dispatchTime,
+      chunk.attributes.dispatchTime,
       this.dateFormat
     );
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
 
-  @Cacheable(['_id', 'solveTime'])
-  renderLastActivity(chunk: Chunk): SafeHtml {
-    if (chunk.solveTime === 0) {
+  @Cacheable(['id', 'solveTime'])
+  renderLastActivity(chunk: ChunkDataNew): SafeHtml {
+    if (chunk.attributes.solveTime === 0) {
       return '(No activity)';
-    } else if (chunk.solveTime > 0) {
+    } else if (chunk.attributes.solveTime > 0) {
       return this.sanitize(
-        formatUnixTimestamp(chunk.solveTime, this.dateFormat)
+        formatUnixTimestamp(chunk.attributes.solveTime, this.dateFormat)
       );
     }
 
-    return this.sanitize(`${chunk.solveTime}`);
+    return this.sanitize(`${chunk.attributes.solveTime}`);
   }
 }

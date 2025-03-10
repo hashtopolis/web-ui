@@ -1,5 +1,4 @@
-import { Agent } from 'http';
-import { Hashtype } from './hashtype.model';
+import { Hashtype, HashtypeDataAttributes } from './hashtype.model';
 
 export enum HealthCheckType {
   BRUTE_FORCE
@@ -42,4 +41,45 @@ export interface HealthCheckAgent {
   end: number;
   errors: string;
   agentName?: string;
+}
+
+
+
+
+
+export interface HealthCheckData {
+  type: string;
+  id: number;
+  attributes: HealthCheckAttributes;
+  links: HealthCheckDataLinks;
+  relationships: HealthCheckRelationships;
+}
+
+export interface HealthCheckAttributes {
+  time: number;
+  status: number;
+  checkType: number;
+  hashtypeId: number;
+  crackerBinaryId: number;
+  expectedCracks: number;
+  attackCmd: string;
+  hashtype?: HashtypeDataAttributes;
+}
+
+export interface HealthCheckDataLinks {
+  self: string;
+}
+
+export interface HealthCheckRelationships {
+  crackerBinary: HealthCheckRelationshipsAttributes;
+  healthCheckAgents: HealthCheckRelationshipsAttributes;
+}
+
+export interface HealthCheckRelationshipsAttributes {
+  links: HealthCheckRelationshipsAttributesLinks;
+}
+
+export interface HealthCheckRelationshipsAttributesLinks {
+  self: string;
+  related: string;
 }

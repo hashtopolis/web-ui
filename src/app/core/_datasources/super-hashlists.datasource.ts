@@ -2,12 +2,12 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
-import { Hashlist } from '../_models/hashlist.model';
-import { ListResponseWrapper } from '../_models/response.model';
+import { HashlistData, HashlistRelationshipAttributesData } from '../_models/hashlist.model';
+import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
+export class SuperHashlistsDataSource extends BaseDataSource<HashlistData> {
   private isArchived = false;
 
   setIsArchived(isArchived: boolean): void {
@@ -23,8 +23,8 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
     const params: RequestParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'hashType,hashlists',
-      filter: `format=${HashListFormat.SUPERHASHLIST}`
+      include: 'hashType,hashlists',
+      filter: `filter[format__eq]=${HashListFormat.SUPERHASHLIST}`
     };
 
     if (sorting.dataKey && sorting.isSortable) {
@@ -40,11 +40,24 @@ export class SuperHashlistsDataSource extends BaseDataSource<Hashlist> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hashlist>) => {
-          const rows: Hashlist[] = [];
-          response.values.forEach((value: Hashlist) => {
-            const hashlist = value;
-            hashlist.hashTypeDescription = hashlist.hashType.description;
+        .subscribe((response: ListResponseWrapper<HashlistData>) => {
+          const rows: HashlistData[] = [];
+          response.data.forEach((value: HashlistData) => {
+            const hashlist:HashlistData = value;
+
+            let hashTypeId: number = value.attributes.hashTypeId;
+
+            let includedHashType: IncludedAttributes = response.included.find((inc) => inc.type === "hashType" && inc.id === hashTypeId)?.attributes;
+            hashlist.attributes.hashTypeDescription = includedHashType.description;
+
+            //Resolve hashlist information from the relationships section
+            let relationshipsHashlistData: HashlistRelationshipAttributesData[] = value.relationships.hashlists.data;
+            let includedHashlistInformations = [];
+            relationshipsHashlistData.forEach((value: HashlistRelationshipAttributesData) => {
+              includedHashlistInformations.push(response.included.find((inc) => inc.type === "hashlist" && inc.id === value.id));
+            });
+            hashlist.attributes.hashlists = includedHashlistInformations;
+
             rows.push(hashlist);
           });
 

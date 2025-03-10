@@ -1,16 +1,16 @@
-import { Chunk, ChunkData } from '../_models/chunk.model';
+import { ChunkDataNew } from '../_models/chunk.model';
 import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
 
-import { Agent } from '../_models/agent.model';
-import { AgentAssignment } from '../_models/agent-assignment.model';
+import { AgentData } from '../_models/agent.model';
+import { AgentAssignmentData } from '../_models/agent-assignment.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { Task } from '../_models/task.model';
-import { User } from '../_models/user.model';
+import { TaskData } from '../_models/task.model';
+import { UserData } from '../_models/user.model';
 
-export class AgentsStatusDataSource extends BaseDataSource<Agent> {
+export class AgentsStatusDataSource extends BaseDataSource<AgentData> {
   loadAll(): void {
     this.loading = true;
 
@@ -42,28 +42,28 @@ export class AgentsStatusDataSource extends BaseDataSource<Agent> {
       )
       .subscribe(
         ([a, u, aa, t, c]: [
-          ListResponseWrapper<Agent>,
-          ListResponseWrapper<User>,
-          ListResponseWrapper<AgentAssignment>,
-          ListResponseWrapper<Task>,
-          ListResponseWrapper<Chunk>
+          ListResponseWrapper<AgentData>,
+          ListResponseWrapper<UserData>,
+          ListResponseWrapper<AgentAssignmentData>,
+          ListResponseWrapper<TaskData>,
+          ListResponseWrapper<ChunkDataNew>
         ]) => {
-          const agents: Agent[] = a.values;
-          const users: User[] = u.values;
-          const assignments: AgentAssignment[] = aa.values;
-          const tasks: Task[] = t.values;
-          const chunks: Chunk[] = c.values;
+          const agents: AgentData[] = a.data;
+          const users: UserData[] = u.data;
+          const assignments: AgentAssignmentData[] = aa.data;
+          const tasks: TaskData[] = t.data;
+          const chunks: ChunkDataNew[] = c.data;
 
-          agents.map((agent: Agent) => {
-            agent.user = users.find((e: User) => e._id === agent.userId);
-            agent.taskId = assignments.find((e) => e.agentId === agent._id)
-              ?.taskId;
-            if (agent.taskId) {
-              agent.task = tasks.find((e) => e._id === agent.taskId);
-              agent.taskName = agent.task.taskName;
-              agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
-              if (agent.chunk) {
-                agent.chunkId = agent.chunk._id;
+          agents.map((agent: AgentData) => {
+            agent.attributes.user = users.find((e: UserData) => e.id === agent.attributes.userId);
+
+            agent.attributes.taskId = assignments.find((e) => e.attributes.agentId === agent.id)?.attributes.taskId;
+            if (agent.attributes.taskId) {
+              agent.attributes.task = tasks.find((e) => e.id === agent.attributes.taskId);
+              agent.attributes.taskName = agent.attributes.task.attributes.taskName;
+              agent.attributes.chunk = chunks.find((e) => e.attributes.agentId === agent.id);
+              if (agent.attributes.chunk) {
+                agent.attributes.chunkId = agent.attributes.chunk.id;
               }
             }
 
