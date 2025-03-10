@@ -59,6 +59,7 @@
     "exceljs": "^4.4.0",
     "hashtype-detector": "^0.0.6",
     "jquery": "^3.7.0",
+    "jsona": "^1.12.1",
     "jspdf": "^2.5.1",
     "jszip": "^3.10.1",
     "lightstep-tracer": "^0.35.0-no-protobuf",

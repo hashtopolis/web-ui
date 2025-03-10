@@ -1,13 +1,11 @@
+import { TJsonApiBody } from 'jsona/lib/JsonaTypes';
+
 export interface ListResponseWrapper<T> {
   jsonapi?: Jsonapi;
   links?: Links;
   meta?: Meta;
   data: T[];
   included?: Included[];
-
-
-
-
 
   // OLD
   _expandable: string;
@@ -17,6 +15,12 @@ export interface ListResponseWrapper<T> {
   isLast: number;
   values: T[];
   pretasks?: T[];
+}
+
+export interface ResponseWrapper extends TJsonApiBody {
+  jsonapi?: Jsonapi;
+  links?: Links;
+  meta?: Meta;
 }
 
 export interface Jsonapi {
@@ -74,7 +78,6 @@ export interface DataLinks {
   self: string;
 }
 
-
 export interface IncludedRelationships {
   agentMembers: IncludedRelationshipLinks;
   userMembers: IncludedRelationshipLinks;
@@ -84,7 +87,6 @@ export interface IncludedRelationshipLinks {
   self: string;
   related: string;
 }
-
 
 export interface Meta {
   count?: number;
