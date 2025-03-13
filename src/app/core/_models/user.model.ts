@@ -58,6 +58,27 @@ export interface User {
   yubikey: string;
 }
 
+
+export interface JUser {
+  email: string;
+  globalPermissionGroupId: number;
+  globalPermissionGroupName?: string;
+  globalPermissionGroup?: GlobalPermissionGroup;
+  id: number;
+  isComputedPassword: boolean;
+  isValid: boolean;
+  lastLoginDate: number;
+  name: string;
+  otp1: string;
+  otp2: string;
+  otp3: string;
+  otp4: string;
+  registeredSince: number;
+  sessionLifetime: number;
+  yubikey: string;
+}
+
+
 export interface UserData {
   type: string;
   id: number;

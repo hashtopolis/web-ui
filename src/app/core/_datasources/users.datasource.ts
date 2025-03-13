@@ -1,13 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { UserData } from '../_models/user.model';
-import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
+import { JUser } from '../_models/user.model';
 
-export class UsersDataSource extends BaseDataSource<UserData> {
+export class UsersDataSource extends BaseDataSource<JUser> {
   loadAll(): void {
     this.loading = true;
 
@@ -33,24 +32,16 @@ export class UsersDataSource extends BaseDataSource<UserData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<UserData>) => {
-          const users: UserData[] = [];
+        .subscribe((response: ResponseWrapper) => {
 
-          response.data.forEach((value: UserData) => {
-            const user: UserData = value;
+          const responseBody = { data: response.data, included: response.included };
 
-            let globalPermissionGroupId: number = user.attributes.globalPermissionGroupId;
-            let includedGlobalPermissionGroup: object[] = response.included.filter((inc) => inc.type === "globalPermissionGroup");
-
-            user.attributes.globalPermissionGroupName = (includedGlobalPermissionGroup as GlobalPermissionGroupData[]).find((incPerm: GlobalPermissionGroupData) => incPerm.id === globalPermissionGroupId)?.attributes?.name;
-
-            users.push(user);
-          });
+          const users = this.serializer.deserialize<JUser[]>(responseBody);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            users.length,
           );
           this.setData(users);
         })
