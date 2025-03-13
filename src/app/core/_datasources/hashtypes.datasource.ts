@@ -5,7 +5,6 @@ import { JHashtype } from '../_models/hashtype.model';
 import { ResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { JTaskWrapper } from '../_models/task-wrapper.model';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
   loadAll(): void {

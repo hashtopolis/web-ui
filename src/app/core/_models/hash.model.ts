@@ -1,5 +1,6 @@
-import { Chunk, ChunkDataAttributes } from './chunk.model';
-import { Hashlist, HashlistDataAttributes } from './hashlist.model';
+import { Chunk, ChunkDataAttributes, JChunk } from './chunk.model';
+import { Hashlist, HashlistDataAttributes, JHashlist } from './hashlist.model';
+import { BaseModel } from './base.model';
 
 export interface Hash {
   _id: number;
@@ -17,6 +18,19 @@ export interface Hash {
   plaintext: string;
   salt: string;
   timeCracked: number;
+}
+
+export interface JHash extends BaseModel {
+  hashlistId: number;
+  hash: string;
+  salt: string;
+  plaintext: string;
+  timeCracked: number;
+  chunkId: number;
+  isCracked: boolean;
+  crackPos: number;
+  chunk?: JChunk;
+  hashlist?: JHashlist;
 }
 
 export interface HashData {

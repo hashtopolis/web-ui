@@ -1,14 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { HashData } from '../_models/hash.model';
-import { Included, ListResponseWrapper } from '../_models/response.model';
+import { JHash } from '../_models/hash.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { RequestParams } from '../_models/request-params.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
-import { ChunkDataAttributes } from '../_models/chunk.model';
-import { HashlistDataAttributes } from '../_models/hashlist.model';
 
-export class CracksDataSource extends BaseDataSource<HashData> {
+export class CracksDataSource extends BaseDataSource<JHash> {
   loadAll(): void {
     this.loading = true;
 
@@ -35,26 +34,19 @@ export class CracksDataSource extends BaseDataSource<HashData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<HashData>) => {
-          const rows: HashData[] = [];
-          response.data.forEach((value: HashData) => {
-            const hashlist: HashData = value;
-
-            let chunkId: number = value.attributes.chunkId;
-            let includedChunks: Included[] = response.included.filter((inc) => inc.type === "chunk" && inc.id === chunkId);
-            hashlist.attributes.chunk = includedChunks[0].attributes as ChunkDataAttributes;
-
-            let hashlistId: number = value.attributes.hashlistId;
-            let includedHashlist: Included[] = response.included.filter((inc) => inc.type === "hashlist" && inc.id === hashlistId);
-            hashlist.attributes.hashlist = includedHashlist[0].attributes as HashlistDataAttributes;
-
-            rows.push(hashlist);
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const crackedHashes = serializer.deserialize<JHash[]>(responseData);
+          const rows: JHash[] = [];
+          crackedHashes.forEach((crackedHash) => {
+            rows.push(crackedHash);
           });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            crackedHashes.length
           );
           this.setData(rows);
         })
