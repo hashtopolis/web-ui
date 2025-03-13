@@ -142,8 +142,8 @@ export class SuperHashlistsTableComponent
     superHashlist: JHashlist
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (superHashlist && superHashlist['attributes']['hashlists'] && superHashlist['attributes']['hashlists'].length) {
-      for (const entry of superHashlist['attributes']['hashlists']) {
+    if (superHashlist && superHashlist.hashlists && superHashlist.hashlists.length) {
+      for (const entry of superHashlist.hashlists) {
         links.push({
           label: entry.name,
           routerLink: [
@@ -155,7 +155,6 @@ export class SuperHashlistsTableComponent
         });
       }
     }
-
     return links;
   }
 
