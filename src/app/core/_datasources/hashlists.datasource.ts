@@ -67,7 +67,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
               if (value.format !== HashListFormat.SUPERHASHLIST) {
                 const hashlist = value;
                 hashlist.hashTypeDescription = hashlist.hashType.description;
-                hashlist.hashTypeId = hashlist.hashType.id;
+                hashlist.hashTypeId = hashlist.hashType.id
                 rows.push(hashlist);
               }
             });

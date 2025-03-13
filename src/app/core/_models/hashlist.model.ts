@@ -1,3 +1,4 @@
+
 import { Hashtype, JHashtype } from './hashtype.model';
 import { BaseModel } from './base.model';
 

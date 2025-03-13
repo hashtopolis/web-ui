@@ -15,7 +15,6 @@ export interface JHashtype extends BaseModel {
   isSlowHash: boolean;
 }
 
-
 export interface HashtypeData {
   type: string;
   id: number;
