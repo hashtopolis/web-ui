@@ -66,11 +66,8 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             hashlists.forEach((value) => {
               if (value.format !== HashListFormat.SUPERHASHLIST) {
                 const hashlist = value;
-
-                const hashlistId = value.hashTypeId;
-                //const includedHashType: IncludedAttributes = response.included.find((inc) => inc.type === "hashType" && inc.id === hashlistId)?;
                 hashlist.hashTypeDescription = hashlist.hashType.description;
-
+                hashlist.hashTypeId = hashlist.hashType.id;
                 rows.push(hashlist);
               }
             });
