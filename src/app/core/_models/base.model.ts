@@ -4,4 +4,5 @@ export interface BaseModel {
   id: number;
   type: string;
   links?: TJsonApiLinks;
+  relationshipNames?: string[];
 }
