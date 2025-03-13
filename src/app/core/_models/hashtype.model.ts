@@ -10,15 +10,10 @@ export interface Hashtype {
 }
 
 export interface JHashtype extends BaseModel {
-  id: number;
-  hashTypeId: number;
   description: string;
   isSalted: boolean;
   isSlowHash: boolean;
 }
-
-
-
 
 export interface HashtypeData {
   type: string;
