@@ -2,12 +2,13 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
-import { HashlistData } from '../_models/hashlist.model';
-import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
+import { HashlistData, JHashlist } from '../_models/hashlist.model';
+import {  ResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
 
-export class HashlistsDataSource extends BaseDataSource<HashlistData> {
+export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private _shashlistId = 0;
 
@@ -53,18 +54,22 @@ export class HashlistsDataSource extends BaseDataSource<HashlistData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<HashlistData>) => {
-          let rows: HashlistData[] = [];
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const hashlists = serializer.deserialize<JHashlist[]>(responseData);
+
+          let rows: JHashlist[] = [];
           if (this._shashlistId) {
             rows = response['hashlists'];
           } else {
-            response.data.forEach((value: HashlistData) => {
-              if (value.attributes.format !== HashListFormat.SUPERHASHLIST) {
-                const hashlist: HashlistData = value;
+            hashlists.forEach((value) => {
+              if (value.format !== HashListFormat.SUPERHASHLIST) {
+                const hashlist = value;
 
-                let hashlistId: number = value.attributes.hashTypeId;
-                let includedHashType: IncludedAttributes = response.included.find((inc) => inc.type === "hashType" && inc.id === hashlistId)?.attributes;
-                hashlist.attributes.hashTypeDescription = includedHashType.description;
+                const hashlistId = value.hashTypeId;
+                //const includedHashType: IncludedAttributes = response.included.find((inc) => inc.type === "hashType" && inc.id === hashlistId)?;
+                hashlist.hashTypeDescription = hashlist.hashType.description;
 
                 rows.push(hashlist);
               }
@@ -74,7 +79,7 @@ export class HashlistsDataSource extends BaseDataSource<HashlistData> {
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total // TODO: This is incorrect because we exclude superhashlists
+            hashlists.length // TODO: This is incorrect because we exclude superhashlists
           );
           this.setData(rows);
         })

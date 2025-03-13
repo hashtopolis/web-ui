@@ -186,7 +186,7 @@ export class BaseTableComponent {
           obj && obj['id']
             ? ['/hashlists', 'hashlist', obj['id'], 'edit']
             : [],
-        label: obj['attributes']['name']
+        label: obj['name']
       }
     ];
   }
@@ -199,7 +199,7 @@ export class BaseTableComponent {
           obj && obj['id']
             ? ['/hashlists', 'hashes', 'hashlists', obj['id']]
             : [],
-        label: obj['attributes']['hashCount']
+        label: obj['hashCount']
       }
     ];
   }

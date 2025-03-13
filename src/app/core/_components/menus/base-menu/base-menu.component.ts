@@ -188,8 +188,8 @@ export class BaseMenuComponent {
     try {
       return (
         this.checkType('hashlist') &&
-        'brainFeatures' in this.data["attributes"] &&
-        this.data["attributes"]['format'] !== HashListFormat.SUPERHASHLIST
+        'brainFeatures' in this.data &&
+        this.data['format'] !== HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
       return false;
@@ -204,7 +204,7 @@ export class BaseMenuComponent {
     try {
       return (
         this.checkType('hashlist') &&
-        this.data["attributes"]['format'] === HashListFormat.SUPERHASHLIST
+        this.data['format'] === HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
       return false;
@@ -212,7 +212,7 @@ export class BaseMenuComponent {
   }
 
   protected isHashtype(): boolean {
-    return this.checkType("hashType") && 'description' in this.data.attributes;
+    return this.checkType("hashType") && 'description' in this.data;
   }
 
   /**
