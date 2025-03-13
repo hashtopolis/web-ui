@@ -1,3 +1,5 @@
+import { BaseModel } from './base.model';
+
 export interface Hashtype {
   _id: number;
   _self: string;
@@ -6,6 +8,16 @@ export interface Hashtype {
   isSalted: boolean;
   isSlowHash: boolean;
 }
+
+export interface JHashtype extends BaseModel {
+  id: number;
+  hashTypeId: number;
+  description: string;
+  isSalted: boolean;
+  isSlowHash: boolean;
+}
+
+
 
 
 export interface HashtypeData {
