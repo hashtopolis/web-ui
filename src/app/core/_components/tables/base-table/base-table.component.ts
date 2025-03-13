@@ -160,7 +160,7 @@ export class BaseTableComponent {
     return [
       {
         routerLink: obj && obj['id'] ? ['/users', obj['id'], 'edit'] : [],
-        label: obj['attributes']['name']
+        label: obj['name']
       }
     ];
   }

@@ -138,7 +138,7 @@ export class BaseMenuComponent {
    */
   protected isUser(): boolean {
     try {
-      return this.checkType("user") && 'email' in this.data.attributes;
+      return this.checkType("user") && 'email' in this.data;
     } catch (error) {
       return false;
     }

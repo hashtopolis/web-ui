@@ -17,6 +17,8 @@ import { SERV } from '../_services/main.config';
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
 import { environment } from '../../../environments/environment';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { checkForPrivateExports } from '@angular/compiler-cli/src/ngtsc/entry_point';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -85,12 +87,15 @@ export abstract class BaseDataSource<
    * Reference to MatSort for sorting support.
    */
   public sort: MatSort;
+  public serializer: JsonAPISerializer;
 
   constructor(
     protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
     protected uiService: UIConfigService
-  ) {}
+  ) {
+    this.serializer = new JsonAPISerializer();
+  }
 
   /**
    * Gets the observable for the loading state.
