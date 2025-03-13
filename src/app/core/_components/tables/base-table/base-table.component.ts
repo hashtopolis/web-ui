@@ -165,15 +165,15 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['attributes']['chunkId'])
+  @Cacheable(['chunkId'])
   async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['attributes']['chunkId']
-            ? ['/tasks', 'chunks', obj['attributes']['chunkId'], 'view']
+          obj && obj['chunkId']
+            ? ['/tasks', 'chunks', obj['chunkId'], 'view']
             : [],
-        label: obj['attributes']['chunkId']
+        label: obj['chunkId']
       }
     ];
   }
