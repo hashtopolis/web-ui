@@ -1,7 +1,8 @@
-import { AccessGroup, AccessGroupData } from './access-group.model';
-import { Hashlist, HashlistData } from './hashlist.model';
-import { Hashtype, HashtypeData } from './hashtype.model';
-import { Task, TaskData } from './task.model';
+import { AccessGroup, AccessGroupData, JAccessGroup } from './access-group.model';
+import { Hashlist, HashlistData, JHashlist } from './hashlist.model';
+import { Hashtype, HashtypeData, JHashtype } from './hashtype.model';
+import { JTask, Task, TaskData } from './task.model';
+import { BaseModel } from './base.model';
 
 export interface TaskWrapper {
   _id: number;
@@ -23,6 +24,24 @@ export interface TaskWrapper {
   taskName?: string;
 }
 
+
+export interface JTaskWrapper extends BaseModel  {
+  accessGroupId: number;
+  accessGroup?: JAccessGroup;
+  accessGroupName?: string;
+  cracked: number;
+  hashlistId: number;
+  hashlists?: JHashlist[];
+  hashtypes?: JHashtype[];
+  isArchived: boolean;
+  maxAgents: number;
+  priority: number;
+  taskType: number;
+  taskWrapperId: number;
+  taskWrapperName: string;
+  tasks?: JTask[];
+  taskName?: string;
+}
 
 export interface TaskWrapperData {
   type: string;

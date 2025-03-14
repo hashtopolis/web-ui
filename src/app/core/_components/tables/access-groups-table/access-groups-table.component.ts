@@ -7,7 +7,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
-import { AccessGroupData } from 'src/app/core/_models/access-group.model';
+import { AccessGroupData, JAccessGroup } from 'src/app/core/_models/access-group.model';
 import { AccessGroupsDataSource } from 'src/app/core/_datasources/access-groups.datasource';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
@@ -66,10 +66,10 @@ export class AccessGroupsTableComponent
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLink: (accessGroup: AccessGroupData) =>
+        routerLink: (accessGroup: JAccessGroup) =>
           this.renderAccessGroupLink(accessGroup),
         isSortable: true,
-        export: async (accessGroup: AccessGroupData) => accessGroup.attributes.groupName
+        export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
       {
         id: AccessGroupsTableCol.NUSERS,
@@ -236,10 +236,10 @@ export class AccessGroupsTableComponent
   }
 
   private rowActionEdit(accessGroup: AccessGroupData): void {
-    this.renderAccessGroupLink(accessGroup).then(
-      (links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink);
-      }
-    );
+    // this.renderAccessGroupLink(accessGroup).then(
+    //   (links: HTTableRouterLink[]) => {
+    //     this.router.navigate(links[0].routerLink);
+    //   }
+    // );
   }
 }
