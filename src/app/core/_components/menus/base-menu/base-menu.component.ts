@@ -57,7 +57,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an access group; otherwise, `false`.
    */
   protected isAccessGroup(): boolean {
-    return this.checkType('accessGroup') && 'groupName' in this.data.attributes;
+    return this.checkType('accessGroup') && 'groupName' in this.data;
   }
 
   /**
@@ -97,7 +97,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskWrapper(): boolean {
-    return this.checkType('taskWrapper') && 'priority' in this.data.attributes;
+    return this.checkType('taskWrapper') && 'priority' in this.data;
   }
 
   /**
@@ -113,7 +113,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskChunks(): boolean {
-    return this.checkType('chunk') && 'skip' in this.data.attributes;
+    return this.checkType('chunk') && 'skip' in this.data;
   }
 
   /**
