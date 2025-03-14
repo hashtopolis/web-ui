@@ -1,5 +1,5 @@
-import { Agent, AgentData } from './agent.model';
-import { Task, TaskData } from './task.model';
+import { Agent, AgentData, JAgent } from './agent.model';
+import { JTask, Task, TaskData } from './task.model';
 import { BaseModel } from './base.model';
 
 export interface Chunk {
@@ -26,9 +26,14 @@ export interface Chunk {
 
 export interface JChunk extends BaseModel {
   taskId: number;
+  taskName?: string;
+  task?: JTask;
+  format: string;
   skip: number;
   length: number;
   agentId: number;
+  agent?: JAgent;
+  agentName?: string;
   dispatchTime: number;
   solveTime: number;
   checkpoint: number;
