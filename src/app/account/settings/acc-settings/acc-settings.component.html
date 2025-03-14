@@ -17,7 +17,26 @@
   </form>
 
   <br />
-
+  <form [formGroup]="changepasswordFormGroup">
+    <mat-form-field>
+      <input matInput placeholder="Old Password" formControlName="oldPassword" data-testid="input-oldPassword" type="password">
+      <mat-error *ngIf="changepasswordFormGroup.controls['oldPassword'].hasError('required')">
+        Old Password is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="New Password" formControlName="newPassword" data-testid="input-newPassword" type="password">
+      <mat-error *ngIf="changepasswordFormGroup.controls['newPassword'].hasError('required')">
+        New Password is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Confirm Password" formControlName="confirmNewPassword" data-testid="input-confirmNewPassword" type="password">
+      <mat-error *ngIf="changepasswordFormGroup.controls['confirmNewPassword'].hasError('required')">
+        New Password is required
+      </mat-error>
+    </mat-form-field>
+  </form>
   <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
     <form [formGroup]="passform">
       <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">

@@ -1,14 +1,19 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 
-import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { Router } from '@angular/router';
 import { SERV } from '../../../core/_services/main.config';
-import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { Subscription } from 'rxjs';
+import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
+import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
 @Component({
   selector: 'app-acc-settings',
@@ -18,6 +23,7 @@ import { Subscription } from 'rxjs';
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
   static readonly PWD_MAX = 12;
+  private formBuilder = inject(FormBuilder);
 
   pageTitle = 'Account Settings';
   pageSubtitlePassword = 'Password Update';
@@ -25,6 +31,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /** Form group for main form. */
   form: FormGroup;
   passform: FormGroup;
+  changepasswordFormGroup = this.formBuilder.group({
+    oldPassword: ['', Validators.required],
+    newPassword: ['', Validators.required],
+    confirmNewPassword: ['', Validators.required]
+  });
 
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
@@ -60,7 +71,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       sub.unsubscribe();
     }
   }
-
   /**
    * Creates and configures basic controls
    *
