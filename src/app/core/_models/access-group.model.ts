@@ -11,7 +11,6 @@ export interface AccessGroup {
 
 
 export interface JAccessGroup extends BaseModel  {
-  accessGroupId: number;
   groupName: string;
   userMembers?: [];
   agentMembers?: [];

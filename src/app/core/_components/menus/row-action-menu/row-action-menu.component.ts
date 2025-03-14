@@ -299,7 +299,7 @@ export class RowActionMenuComponent
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)
     ]);
 
-    if (this.data.attributes.taskType === 0) {
+    if (this.data.taskType === 0) {
       this.addActionMenuItem(0, {
         label: RowActionMenuLabel.EDIT_TASK,
         action: RowActionMenuAction.EDIT_TASKS,
