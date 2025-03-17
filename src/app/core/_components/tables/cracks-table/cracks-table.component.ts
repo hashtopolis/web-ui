@@ -13,7 +13,7 @@ import { CracksDataSource } from 'src/app/core/_datasources/cracks.datasource';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { HashData } from 'src/app/core/_models/hash.model';
+import { JHash } from 'src/app/core/_models/hash.model';
 import { HashListFormatLabel } from 'src/app/core/_constants/hashlist.config';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -46,8 +46,8 @@ export class CracksTableComponent
     }
   }
 
-  filter(item: HashData, filterValue: string): boolean {
-    if (item.attributes.plaintext.toLowerCase().includes(filterValue)) {
+  filter(item: JHash, filterValue: string): boolean {
+    if (item.plaintext.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -59,63 +59,63 @@ export class CracksTableComponent
       {
         id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
-        render: (crack: HashData) =>
-          formatUnixTimestamp(crack.attributes.timeCracked, this.dateFormat),
+        render: (crack: JHash) =>
+          formatUnixTimestamp(crack.timeCracked, this.dateFormat),
         isSortable: true,
-        export: async (crack: HashData) =>
-          formatUnixTimestamp(crack.attributes.timeCracked, this.dateFormat)
+        export: async (crack: JHash) =>
+          formatUnixTimestamp(crack.timeCracked, this.dateFormat)
       },
       {
         id: CracksTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        render: (crack: HashData) => crack.attributes.plaintext,
-        export: async (crack: HashData) => crack.attributes.plaintext
+        render: (crack: JHash) => crack.plaintext,
+        export: async (crack: JHash) => crack.plaintext
       },
       {
         id: CracksTableCol.HASH,
-        dataKey: "['attributes']['hash']",
+        dataKey: 'hash',
         isSortable: true,
         truncate: true,
-        render: (crack: HashData) => crack.attributes.hash,
-        export: async (crack: HashData) => crack.attributes.hash
+        render: (crack: JHash) => crack.hash,
+        export: async (crack: JHash) => crack.hash
       },
       {
         id: CracksTableCol.AGENT,
         dataKey: 'agentId',
         isSortable: true,
-        routerLink: (crack: HashData) => this.renderAgentLink(crack),
-        export: async (crack: HashData) => crack.attributes.chunk.agentId + ''
+        routerLink: (crack: JHash) => this.renderAgentLink(crack),
+        export: async (crack: JHash) => crack.chunk.agentId + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: true,
-        routerLink: (crack: HashData) => this.renderTaskLinkId(crack),
-        export: async (crack: HashData) => crack.attributes.chunk.taskId + ''
+        routerLink: (crack: JHash) => this.renderTaskLinkId(crack),
+        export: async (crack: JHash) => crack.chunk.taskId + ''
       },
       {
         id: CracksTableCol.CHUNK,
         dataKey: 'chunkId',
         isSortable: true,
-        routerLink: (crack: HashData) => this.renderChunkLink(crack),
-        export: async (crack: HashData) => crack.attributes.chunkId + ''
+        routerLink: (crack: JHash) => this.renderChunkLink(crack),
+        export: async (crack: JHash) => crack.chunkId + ''
       },
       {
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: HashData) =>
-          crack.attributes.hashlist ? HashListFormatLabel[crack.attributes.hashlist.format] : '',
-        export: async (crack: HashData) =>
-          crack.attributes.hashlist ? HashListFormatLabel[crack.attributes.hashlist.format] : ''
+        render: (crack: JHash) =>
+          crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '',
+        export: async (crack: JHash) =>
+          crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<HashData>) {
+  openDialog(data: DialogData<JHash>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -141,28 +141,28 @@ export class CracksTableComponent
 
   // --- Render functions ---
   @Cacheable(['id'])
- override async renderAgentLink(obj: HashData): Promise<HTTableRouterLink[]> {
+ override async renderAgentLink(obj: JHash): Promise<HTTableRouterLink[]> {
     return [
       {
-        //crack.attributes.chunk.agentId
+        //crack.chunk.agentId
         routerLink:
-          obj && obj['attributes']['chunk']['agentId']
-            ? ['/agents', 'show-agents', obj['attributes']['chunk']['agentId'], 'edit']
+          obj && obj['chunk']['agentId']
+            ? ['/agents', 'show-agents', obj['chunk']['agentId'], 'edit']
             : [],
-        label: obj['attributes']['chunk']['agentId']
+        label: obj['chunk']['agentId']
       }
     ];
   }
 
   @Cacheable(['id'])
-  async renderTaskLinkId(obj: HashData): Promise<HTTableRouterLink[]> {
+  async renderTaskLinkId(obj: JHash): Promise<HTTableRouterLink[]> {
   return [
     {
       routerLink:
-        obj && obj['attributes']['chunk']['taskId']
-          ? ['/tasks', 'show-tasks', obj['attributes']['chunk']['taskId'], 'edit']
+        obj && obj['chunk']['taskId']
+          ? ['/tasks', 'show-tasks', obj['chunk']['taskId'], 'edit']
           : [],
-      label: obj['attributes']['chunk']['taskId']
+      label: obj['chunk']['taskId']
     }
   ];
 }
@@ -170,10 +170,10 @@ export class CracksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<HashData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<HashData>(
+        this.exportService.toExcel<JHash>(
           'hashtopolis-cracks',
           this.tableColumns,
           event.data,
@@ -181,7 +181,7 @@ export class CracksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<HashData>(
+        this.exportService.toCsv<JHash>(
           'hashtopolis-cracks',
           this.tableColumns,
           event.data,
@@ -190,7 +190,7 @@ export class CracksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<HashData>(
+          .toClipboard<JHash>(
             this.tableColumns,
             event.data,
             CracksTableColumnLabel
@@ -205,7 +205,7 @@ export class CracksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<HashData>): void {
+  rowActionClicked(event: ActionMenuEvent<JHash>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -223,7 +223,7 @@ export class CracksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<HashData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JHash[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -242,8 +242,8 @@ export class CracksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(cracks: HashData[]): void {
-    const requests = cracks.map((crack: HashData) => {
+  private bulkActionDelete(cracks: JHash[]): void {
+    const requests = cracks.map((crack: JHash) => {
       return this.gs.delete(SERV.CRACKERS_TYPES, crack.id);
     });
 
@@ -268,7 +268,7 @@ export class CracksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(cracks: HashData[]): void {
+  private rowActionDelete(cracks: JHash[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.CRACKERS_TYPES, cracks[0].id)
@@ -285,7 +285,7 @@ export class CracksTableComponent
     );
   }
 
-  private rowActionEdit(crack: HashData): void {
+  private rowActionEdit(crack: JHash): void {
     this.router.navigate(['/config', 'engine', 'cracks', crack.id, 'edit']);
   }
 }

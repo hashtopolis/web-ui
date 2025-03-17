@@ -18,8 +18,8 @@ export class TableTruncateComponent implements OnInit {
 
   ngOnInit(): void {
 
-    if(this.path!= undefined && this.path == "['attributes']['hash']") {
-      let objText: string = this.text['attributes']['hash'];
+    if(this.path!= undefined && this.path == 'hash') {
+      let objText: string = this.text['hash'];
       this.text = objText;
     }
 

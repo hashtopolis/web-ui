@@ -3,6 +3,10 @@ import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
+import { JTaskWrapper } from '../_models/task-wrapper.model';
+import { JHashtype } from '../_models/hashtype.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { JHashlist } from '../_models/hashlist.model';
 import { TaskWrapperData, TaskWrapperRelationshipAttributesData } from '../_models/task-wrapper.model';
 import { HashtypeData } from '../_models/hashtype.model';
 import { TaskData } from '../_models/task.model';
@@ -12,7 +16,7 @@ import { HashlistData } from '../_models/hashlist.model';
 import { AccessGroupData } from '../_models/access-group.model';
 
 export class TasksDataSource extends BaseDataSource<
-  TaskWrapperData,
+  JTaskWrapper,
   MatTableDataSourcePaginator
 > {
   private _isArchived = false;
@@ -69,32 +73,32 @@ export class TasksDataSource extends BaseDataSource<
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]:[ListResponseWrapper<TaskWrapperData>, ListResponseWrapper<HashlistData>, ListResponseWrapper<HashtypeData>]) => {
+        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]:[ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
 
-          let taskWrappers: TaskWrapperData[] = [];
+          const taskWrapperResponseBody = { data: taskWrapperResponse.data, included: taskWrapperResponse.included };
+          const taskWrappersDeserialized = this.serializer.deserialize<JTaskWrapper[]>(taskWrapperResponseBody);
 
-          taskWrapperResponse.data.forEach((value: TaskWrapperData) => {
-            const taskWrapper: TaskWrapperData = value;
+          const hashlistResponseBody = { data: hashlistResponse.data, included: hashlistResponse.included };
+          const hashlists = this.serializer.deserialize<JHashlist[]>(hashlistResponseBody);
 
-            let taskId: number = value.relationships.tasks.data[0].id;
-            let includedTask: object[] = taskWrapperResponse.included.filter((inc) => inc.type === "task" && inc.id === taskId);
-            taskWrapper.attributes.tasks = includedTask as TaskData[];
-            taskWrapper.attributes.taskName = taskWrapper.attributes.tasks[0].attributes.taskName;
+          const hashtypeResponseBody = { data: hashtypeResponse.data, included: hashtypeResponse.included };
+          const hashtypes = this.serializer.deserialize<JHashtype[]>(hashtypeResponseBody);
 
-            let accessGroupId: number = (value.relationships.accessGroup.data as TaskWrapperRelationshipAttributesData).id;
-            let includedAccessGroup: object = taskWrapperResponse.included.filter((inc) => inc.type === "accessGroup" && inc.id === accessGroupId);
-            taskWrapper.attributes.accessgroup = includedAccessGroup as AccessGroupData;
+          let taskWrappers: JTaskWrapper[] = [];
 
-            const matchingHashList = hashlistResponse.data.find(
-                      (hashlist: HashlistData) => hashlist.id === taskWrapper.attributes.hashlistId
-                    );
-            taskWrapper.attributes.hashlists = [matchingHashList];
+          taskWrappersDeserialized.forEach((value: JTaskWrapper) => {
+            const taskWrapper: JTaskWrapper = value;
 
-            const matchingHashTypes = hashtypeResponse.data.find(
-                      (hashtype: HashtypeData) =>
-                        hashtype.id === matchingHashList.attributes.hashTypeId
-                    );
-            taskWrapper.attributes.hashtypes = [matchingHashTypes];
+              const matchingHashList = hashlists.find(
+                        (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
+                      );
+              taskWrapper.hashlists = [matchingHashList];
+
+              const matchingHashTypes = hashtypes.find(
+                        (hashtype: JHashtype) =>
+                          hashtype.id === matchingHashList.hashTypeId
+                      );
+              taskWrapper.hashtypes = [matchingHashTypes];
 
             taskWrappers.push(taskWrapper);
           });
@@ -102,7 +106,7 @@ export class TasksDataSource extends BaseDataSource<
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            taskWrapperResponse.total
+            taskWrappers.length
           );
           this.setData(taskWrappers);
         }

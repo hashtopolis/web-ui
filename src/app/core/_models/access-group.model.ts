@@ -1,6 +1,15 @@
+import { BaseModel } from './base.model';
+
 export interface AccessGroup {
   _id: number;
   _self: string;
+  accessGroupId: number;
+  groupName: string;
+  userMembers?: [];
+  agentMembers?: [];
+}
+
+export interface JAccessGroup extends BaseModel  {
   accessGroupId: number;
   groupName: string;
   userMembers?: [];

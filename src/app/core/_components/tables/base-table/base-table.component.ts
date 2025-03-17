@@ -28,7 +28,7 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { UtilService } from 'src/app/core/_services/shared/util.service';
 import { GlobalPermissionGroupData } from '../../../_models/global-permission-group.model';
-import { AccessGroupData } from '../../../_models/access-group.model';
+import { JAccessGroup } from '../../../_models/access-group.model';
 import { SuperTaskData } from '../../../_models/supertask.model';
 import { TaskData } from '../../../_models/task.model';
 
@@ -160,20 +160,20 @@ export class BaseTableComponent {
     return [
       {
         routerLink: obj && obj['id'] ? ['/users', obj['id'], 'edit'] : [],
-        label: obj['attributes']['name']
+        label: obj['name']
       }
     ];
   }
 
-  @Cacheable(['attributes']['chunkId'])
+  @Cacheable(['chunkId'])
   async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
-          obj && obj['attributes']['chunkId']
-            ? ['/tasks', 'chunks', obj['attributes']['chunkId'], 'view']
+          obj && obj['chunkId']
+            ? ['/tasks', 'chunks', obj['chunkId'], 'view']
             : [],
-        label: obj['attributes']['chunkId']
+        label: obj['chunkId']
       }
     ];
   }
@@ -186,7 +186,7 @@ export class BaseTableComponent {
           obj && obj['id']
             ? ['/hashlists', 'hashlist', obj['id'], 'edit']
             : [],
-        label: obj['attributes']['name']
+        label: obj['name']
       }
     ];
   }
@@ -199,7 +199,7 @@ export class BaseTableComponent {
           obj && obj['id']
             ? ['/hashlists', 'hashes', 'hashlists', obj['id']]
             : [],
-        label: obj['attributes']['hashCount']
+        label: obj['hashCount']
       }
     ];
   }
@@ -218,14 +218,14 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id'])
-  async renderAccessGroupLink(obj: AccessGroupData): Promise<HTTableRouterLink[]> {
+  async renderAccessGroupLink(obj: JAccessGroup): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink:
           obj && obj.id
             ? ['/users', 'access-groups', obj.id, 'edit']
             : [],
-        label: obj.attributes.groupName
+        label: obj.groupName
       }
     ];
   }

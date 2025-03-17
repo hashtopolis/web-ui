@@ -1,16 +1,29 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+/**
+ * Contains datasource definition for files
+ * @module
+ */
+
+import { catchError, finalize, of } from 'rxjs';
+import { FileType, JFile } from '../_models/file.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { Filter, RequestParams } from '../_models/request-params.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
-import { FileData, FileType } from '../_models/file.model';
-import { AccessGroupDataAttributes } from '../_models/access-group.model';
 
-export class FilesDataSource extends BaseDataSource<FileData> {
+/**
+ * Data source class definition for files
+ */
+export class FilesDataSource extends BaseDataSource<JFile> {
   private fileType: FileType = 0;
   private editIndex?: number;
   private editType?: number;
 
+  /**
+   * Set file type
+   * @param fileType
+   */
   setFileType(fileType: FileType): void {
     this.fileType = fileType;
   }
@@ -19,11 +32,19 @@ export class FilesDataSource extends BaseDataSource<FileData> {
     return this.fileType;
   }
 
+  /**
+   * Set edit values
+   * @param index
+   * @param editType
+   */
   setEditValues(index: number, editType: number): void {
     this.editIndex = index;
     this.editType = editType;
   }
 
+  /**
+   * Load all files from server
+   */
   loadAll(): void {
     this.loading = true;
 
@@ -64,24 +85,16 @@ export class FilesDataSource extends BaseDataSource<FileData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<FileData>) => {
-          let files: FileData[] = [];
-
-            response.data.forEach((value: FileData) => {
-                const file: FileData = value;
-                let accessGroupId: number = value.attributes.accessGroupId;
-                let includedAccessGroup = response.included.find((inc) => inc.type === "accessGroup" && inc.id === accessGroupId);
-                file.attributes.accessGroup = includedAccessGroup.attributes as AccessGroupDataAttributes;
-
-              files.push(file);
-            });
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const files = serializer.deserialize<JFile[]>(responseData);
+          files.forEach((file) => {
+            files.push(file);
+          });
 
           if (!this.editType) {
-            this.setPaginationConfig(
-              this.pageSize,
-              this.currentPage,
-              response.total
-            );
+            this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
           }
 
           this.setData(files);

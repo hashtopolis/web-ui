@@ -2,12 +2,13 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
-import { HashlistData, HashlistRelationshipAttributesData } from '../_models/hashlist.model';
-import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
+import { JHashlist, HashlistRelationshipAttributesData } from '../_models/hashlist.model';
+import { IncludedAttributes, ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
 import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
 
-export class SuperHashlistsDataSource extends BaseDataSource<HashlistData> {
+export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
 
   setIsArchived(isArchived: boolean): void {
@@ -42,31 +43,22 @@ export class SuperHashlistsDataSource extends BaseDataSource<HashlistData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<HashlistData>) => {
-          const rows: HashlistData[] = [];
-          response.data.forEach((value: HashlistData) => {
-            const hashlist:HashlistData = value;
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const superHashlists = serializer.deserialize<JHashlist[]>(responseData);
 
-            let hashTypeId: number = value.attributes.hashTypeId;
-
-            let includedHashType: IncludedAttributes = response.included.find((inc) => inc.type === "hashType" && inc.id === hashTypeId)?.attributes;
-            hashlist.attributes.hashTypeDescription = includedHashType.description;
-
-            //Resolve hashlist information from the relationships section
-            let relationshipsHashlistData: HashlistRelationshipAttributesData[] = value.relationships.hashlists.data;
-            let includedHashlistInformations = [];
-            relationshipsHashlistData.forEach((value: HashlistRelationshipAttributesData) => {
-              includedHashlistInformations.push(response.included.find((inc) => inc.type === "hashlist" && inc.id === value.id));
-            });
-            hashlist.attributes.hashlists = includedHashlistInformations;
-
-            rows.push(hashlist);
+          const rows: JHashlist[] = [];
+          superHashlists.forEach((value) => {
+            const superHashlist = value;
+            superHashlist.hashTypeDescription = superHashlist.hashType.description;
+            rows.push(superHashlist);
           });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            superHashlists.length
           );
           this.setData(rows);
         })

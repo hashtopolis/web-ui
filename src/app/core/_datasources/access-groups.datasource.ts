@@ -1,12 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroupData } from '../_models/access-group.model';
+import { JAccessGroup } from '../_models/access-group.model';
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class AccessGroupsDataSource extends BaseDataSource<AccessGroupData> {
+export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
   loadAll(): void {
     this.loading = true;
 
@@ -34,23 +34,16 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroupData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AccessGroupData>) => {
+        .subscribe((response: ResponseWrapper) => {
 
-          let accessgroups: AccessGroupData[] = [];
+          const responseBody = { data: response.data, included: response.included };
 
-          response.data.forEach((value: AccessGroupData) => {
-            const accessgroup: AccessGroupData = value;
-
-            accessgroup.attributes.agentMembers = value.relationships.agentMembers.data.length;
-            accessgroup.attributes.userMembers = value.relationships.userMembers.data.length;
-
-            accessgroups.push(accessgroup);
-          });
+          const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            accessgroups.length
           );
           this.setData(accessgroups);
         })

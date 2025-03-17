@@ -4,19 +4,20 @@ import {
   Subscription,
   firstValueFrom
 } from 'rxjs';
-import { ChunkDataData, ChunkDataNew } from '../_models/chunk.model';
+import { ChunkData, JChunk } from '../_models/chunk.model';
 import { CollectionViewer, DataSource } from '@angular/cdk/collections';
-
 import { ChangeDetectorRef } from '@angular/core';
 import { GlobalService } from '../_services/main.service';
 import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
-import { ListResponseWrapper } from '../_models/response.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
 import { environment } from '../../../environments/environment';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { checkForPrivateExports } from '@angular/compiler-cli/src/ngtsc/entry_point';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -85,12 +86,15 @@ export abstract class BaseDataSource<
    * Reference to MatSort for sorting support.
    */
   public sort: MatSort;
+  public serializer: JsonAPISerializer;
 
   constructor(
     protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
     protected uiService: UIConfigService
-  ) {}
+  ) {
+    this.serializer = new JsonAPISerializer();
+  }
 
   /**
    * Gets the observable for the loading state.
@@ -362,7 +366,7 @@ export abstract class BaseDataSource<
     id: number,
     isAgent = true,
     keyspace = 0
-  ): Promise<ChunkDataData> {
+  ): Promise<ChunkData> {
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];
@@ -382,34 +386,37 @@ export abstract class BaseDataSource<
       params = { 'filter[taskId__eq]': id };
     }
 
-    const response: ListResponseWrapper<ChunkDataNew> = await firstValueFrom(
+    const response: ResponseWrapper = await firstValueFrom(
       this.service.getAll(SERV.CHUNKS, params)
     );
 
-    for (const chunk of response.data) {
-      agents.push(chunk.id);
-      tasks.push(chunk.attributes.taskId);
+    const responseBody = { data: response.data, included: response.included };
+    const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
+
+    for (const chunk of chunks) {
+      agents.push(chunk.agentId);
+      tasks.push(chunk.taskId);
 
       // If progress is 100%, add total chunk length to dispatched
-      if (chunk.attributes.progress >= 10000) {
-        dispatched.push(chunk.attributes.length);
+      if (chunk.progress >= 10000) {
+        dispatched.push(chunk.length);
       }
-      cracked.push(chunk.attributes.cracked);
-      searched.push(chunk.attributes.checkpoint - chunk.attributes.skip);
+      cracked.push(chunk.cracked);
+      searched.push(chunk.checkpoint - chunk.skip);
 
       // Calculate speed for chunks completed within the last chunktime
       if (
-        now / 1000 - Math.max(chunk.attributes.solveTime, chunk.attributes.dispatchTime) <
-          chunktime &&
-        chunk.attributes.progress < 10000
+        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
+        chunktime &&
+        chunk.progress < 10000
       ) {
-        speed.push(chunk.attributes.speed);
+        speed.push(chunk.speed);
       }
 
-      if (chunk.attributes.dispatchTime > current) {
-        timespent.push(chunk.attributes.solveTime - chunk.attributes.dispatchTime);
-      } else if (chunk.attributes.solveTime > current) {
-        timespent.push(chunk.attributes.solveTime - current);
+      if (chunk.dispatchTime > current) {
+        timespent.push(chunk.solveTime - chunk.dispatchTime);
+      } else if (chunk.solveTime > current) {
+        timespent.push(chunk.solveTime - current);
       }
     }
 

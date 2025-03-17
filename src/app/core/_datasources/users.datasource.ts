@@ -1,13 +1,20 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
+<<<<<<< HEAD
 import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { UserData } from '../_models/user.model';
+=======
+import { ResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
+import { SERV } from '../_services/main.config';
+import { JUser } from '../_models/user.model';
+>>>>>>> origin/dev
 
-export class UsersDataSource extends BaseDataSource<UserData> {
+export class UsersDataSource extends BaseDataSource<JUser> {
   loadAll(): void {
     this.loading = true;
 
@@ -35,12 +42,11 @@ export class UsersDataSource extends BaseDataSource<UserData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<UserData>) => {
-          const users: UserData[] = [];
+        .subscribe((response: ResponseWrapper) => {
 
-          response.data.forEach((value: UserData) => {
-            const user: UserData = value;
+          const responseBody = { data: response.data, included: response.included };
 
+<<<<<<< HEAD
             let globalPermissionGroupId: number =
               user.attributes.globalPermissionGroupId;
             let includedGlobalPermissionGroup: object[] =
@@ -57,11 +63,14 @@ export class UsersDataSource extends BaseDataSource<UserData> {
 
             users.push(user);
           });
+=======
+          const users = this.serializer.deserialize<JUser[]>(responseBody);
+>>>>>>> origin/dev
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            users.length,
           );
           this.setData(users);
         })

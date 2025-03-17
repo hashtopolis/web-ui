@@ -1,4 +1,5 @@
 import { AccessGroup, AccessGroupDataAttributes } from './access-group.model';
+import { BaseModel } from './base.model';
 
 export enum FileType {
   WORDLIST,
@@ -49,13 +50,17 @@ export interface File {
   isSecret: boolean;
   lineCount: number;
   size: number;
-
 }
 
-
-
-
-
+export interface JFile extends BaseModel {
+  filename: string;
+  size: number;
+  isSecret: boolean;
+  fileType: number;
+  accessGroupId: number;
+  lineCount: number;
+  accessGroup?: AccessGroup;
+}
 
 export interface FileData {
   type: string;

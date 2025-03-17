@@ -21,7 +21,7 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HashtypeData } from '../../../_models/hashtype.model';
+import { JHashtype } from '../../../_models/hashtype.model';
 import { HashtypesDataSource } from '../../../_datasources/hashtypes.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -61,40 +61,40 @@ export class HashtypesTableComponent
         id: HashtypesTableCol.HASHTYPE,
         dataKey: 'hashTypeId',
         isSortable: true,
-        render: (hashtype: HashtypeData) => hashtype.id,
-        export: async (hashtype: HashtypeData) => hashtype.id + ''
+        render: (hashtype: JHashtype) => hashtype.id,
+        export: async (hashtype: JHashtype) => hashtype.id + ''
       },
       {
         id: HashtypesTableCol.DESCRIPTION,
         dataKey: 'description',
         isSortable: true,
-        render: (hashtype: HashtypeData) => hashtype.attributes.description,
-        export: async (hashtype: HashtypeData) => hashtype.attributes.description
+        render: (hashtype: JHashtype) => hashtype.description,
+        export: async (hashtype: JHashtype) => hashtype.description
       },
       {
         id: HashtypesTableCol.SALTED,
         dataKey: 'isSalted',
-        icons: (hashtype: HashtypeData) => this.renderIsSaltedIcon(hashtype),
+        icons: (hashtype: JHashtype) => this.renderIsSaltedIcon(hashtype),
         isSortable: true,
-        export: async (hashtype: HashtypeData) => (hashtype.attributes.isSalted ? 'Yes' : 'No')
+        export: async (hashtype: JHashtype) => (hashtype.isSalted ? 'Yes' : 'No')
       },
       {
         id: HashtypesTableCol.SLOW_HASH,
         dataKey: 'isSlowHash',
-        icons: (hashtype: HashtypeData) => this.renderIsSlowIcon(hashtype),
+        icons: (hashtype: JHashtype) => this.renderIsSlowIcon(hashtype),
         isSortable: true,
-        export: async (hashtype: HashtypeData) =>
-          hashtype.attributes.isSlowHash ? 'Yes' : 'No'
+        export: async (hashtype: JHashtype) =>
+          hashtype.isSlowHash ? 'Yes' : 'No'
       }
     ];
 
     return tableColumns;
   }
 
-  filter(item: HashtypeData, filterValue: string): boolean {
+  filter(item: JHashtype, filterValue: string): boolean {
     if (
       item.id.toString().toLowerCase().includes(filterValue) ||
-      item.attributes.description.toLowerCase().includes(filterValue)
+      item.description.toLowerCase().includes(filterValue)
     ) {
       return true;
     }
@@ -102,7 +102,7 @@ export class HashtypesTableComponent
     return false;
   }
 
-  openDialog(data: DialogData<HashtypeData>) {
+  openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -124,7 +124,7 @@ export class HashtypesTableComponent
     );
   }
 
-  rowActionClicked(event: ActionMenuEvent<HashtypeData>): void {
+  rowActionClicked(event: ActionMenuEvent<JHashtype>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -142,7 +142,7 @@ export class HashtypesTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<HashtypeData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JHashtype[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -161,8 +161,8 @@ export class HashtypesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(hashtypes: HashtypeData[]): void {
-    const requests = hashtypes.map((hashtype: HashtypeData) => {
+  private bulkActionDelete(hashtypes: JHashtype[]): void {
+    const requests = hashtypes.map((hashtype: JHashtype) => {
       return this.gs.delete(SERV.HASHTYPES, hashtype.id);
     });
 
@@ -187,7 +187,7 @@ export class HashtypesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(hashtypes: HashtypeData[]): void {
+  private rowActionDelete(hashtypes: JHashtype[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.HASHTYPES, hashtypes[0].id)
@@ -204,14 +204,14 @@ export class HashtypesTableComponent
     );
   }
 
-  private rowActionEdit(hashtype: HashtypeData): void {
+  private rowActionEdit(hashtype: JHashtype): void {
     this.router.navigate(['/config', 'hashtypes', hashtype.id, 'edit']);
   }
 
-  exportActionClicked(event: ActionMenuEvent<HashtypeData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JHashtype[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<HashtypeData>(
+        this.exportService.toExcel<JHashtype>(
           'hashtopolis-hashtypes',
           this.tableColumns,
           event.data,
@@ -219,7 +219,7 @@ export class HashtypesTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<HashtypeData>(
+        this.exportService.toCsv<JHashtype>(
           'hashtopolis-hashtypes',
           this.tableColumns,
           event.data,
@@ -228,7 +228,7 @@ export class HashtypesTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<HashtypeData>(
+          .toClipboard<JHashtype>(
             this.tableColumns,
             event.data,
             HashtypesTableColumnLabel
@@ -244,9 +244,9 @@ export class HashtypesTableComponent
   }
 
   @Cacheable(['id', 'isSalted'])
-  async renderIsSaltedIcon(hashtype: HashtypeData): Promise<HTTableIcon[]> {
+  async renderIsSaltedIcon(hashtype: JHashtype): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
-    if (hashtype.attributes.isSalted) {
+    if (hashtype.isSalted) {
       icons.push({
         name: 'check_circle',
         tooltip: 'Salted Hash',
@@ -258,9 +258,9 @@ export class HashtypesTableComponent
   }
 
   @Cacheable(['hashTypeId', 'isSlowHash'])
-  async renderIsSlowIcon(hashtype: HashtypeData): Promise<HTTableIcon[]> {
+  async renderIsSlowIcon(hashtype: JHashtype): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
-    if (hashtype.attributes.isSlowHash) {
+    if (hashtype.isSlowHash) {
       icons.push({
         name: 'check_circle',
         tooltip: 'Slow Hash',

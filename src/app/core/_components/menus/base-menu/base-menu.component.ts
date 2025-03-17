@@ -57,7 +57,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an access group; otherwise, `false`.
    */
   protected isAccessGroup(): boolean {
-    return this.checkType('accessGroup') && 'groupName' in this.data.attributes;
+    return this.checkType('accessGroup') && 'groupName' in this.data;
   }
 
   /**
@@ -97,7 +97,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskWrapper(): boolean {
-    return this.checkType('taskWrapper') && 'priority' in this.data.attributes;
+    return this.checkType('taskWrapper') && 'priority' in this.data;
   }
 
   /**
@@ -113,7 +113,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskChunks(): boolean {
-    return this.checkType('chunk') && 'skip' in this.data.attributes;
+    return this.checkType('chunk') && 'skip' in this.data;
   }
 
   /**
@@ -138,7 +138,7 @@ export class BaseMenuComponent {
    */
   protected isUser(): boolean {
     try {
-      return this.checkType("user") && 'email' in this.data.attributes;
+      return this.checkType("user") && 'email' in this.data;
     } catch (error) {
       return false;
     }
@@ -188,8 +188,8 @@ export class BaseMenuComponent {
     try {
       return (
         this.checkType('hashlist') &&
-        'brainFeatures' in this.data["attributes"] &&
-        this.data["attributes"]['format'] !== HashListFormat.SUPERHASHLIST
+        'brainFeatures' in this.data &&
+        this.data['format'] !== HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
       return false;
@@ -204,7 +204,7 @@ export class BaseMenuComponent {
     try {
       return (
         this.checkType('hashlist') &&
-        this.data["attributes"]['format'] === HashListFormat.SUPERHASHLIST
+        this.data['format'] === HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
       return false;
@@ -212,7 +212,7 @@ export class BaseMenuComponent {
   }
 
   protected isHashtype(): boolean {
-    return this.checkType("hashType") && 'description' in this.data.attributes;
+    return this.checkType("hashType") && 'description' in this.data;
   }
 
   /**

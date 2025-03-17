@@ -7,7 +7,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
-import { AccessGroupData } from 'src/app/core/_models/access-group.model';
+import { JAccessGroup } from 'src/app/core/_models/access-group.model';
 import { AccessGroupsDataSource } from 'src/app/core/_datasources/access-groups.datasource';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
@@ -47,8 +47,8 @@ export class AccessGroupsTableComponent
     }
   }
 
-  filter(item: AccessGroupData, filterValue: string): boolean {
-    if (item.attributes.groupName.toLowerCase().includes(filterValue)) {
+  filter(item: JAccessGroup, filterValue: string): boolean {
+    if (item.groupName.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -61,42 +61,42 @@ export class AccessGroupsTableComponent
         id: AccessGroupsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        export: async (accessGroup: AccessGroupData) => accessGroup.id + ''
+        export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLink: (accessGroup: AccessGroupData) =>
+        routerLink: (accessGroup: JAccessGroup) =>
           this.renderAccessGroupLink(accessGroup),
         isSortable: true,
-        export: async (accessGroup: AccessGroupData) => accessGroup.attributes.groupName
+        export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
       {
         id: AccessGroupsTableCol.NUSERS,
         dataKey: 'nusers',
         isSortable: true,
-        render: (accessGroup: AccessGroupData) => {
-          return accessGroup.attributes.userMembers;
+        render: (accessGroup: JAccessGroup) => {
+          return accessGroup.userMembers.length.toString();
         },
-        export: async (accessGroup: AccessGroupData) =>
-          accessGroup.attributes.userMembers.toString()
+        export: async (accessGroup: JAccessGroup) =>
+          accessGroup.userMembers.length.toString()
       },
       {
         id: AccessGroupsTableCol.NAGENTS,
         dataKey: 'nagents',
         isSortable: true,
-        render: (accessGroup: AccessGroupData) => {
-          return accessGroup.attributes.agentMembers;
+        render: (accessGroup: JAccessGroup) => {
+          return accessGroup.agentMembers.length.toString();
         },
-        export: async (accessGroup: AccessGroupData) =>
-          accessGroup.attributes.agentMembers.toString()
+        export: async (accessGroup: JAccessGroup) =>
+          accessGroup.agentMembers.length.toString()
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<AccessGroupData>) {
+  openDialog(data: DialogData<JAccessGroup>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -120,10 +120,10 @@ export class AccessGroupsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AccessGroupData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AccessGroupData>(
+        this.exportService.toExcel<JAccessGroup>(
           'hashtopolis-access-groups',
           this.tableColumns,
           event.data,
@@ -131,7 +131,7 @@ export class AccessGroupsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<AccessGroupData>(
+        this.exportService.toCsv<JAccessGroup>(
           'hashtopolis-access-groups',
           this.tableColumns,
           event.data,
@@ -140,7 +140,7 @@ export class AccessGroupsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AccessGroupData>(
+          .toClipboard<JAccessGroup>(
             this.tableColumns,
             event.data,
             AccessGroupsTableColumnLabel
@@ -155,12 +155,12 @@ export class AccessGroupsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<AccessGroupData>): void {
+  rowActionClicked(event: ActionMenuEvent<JAccessGroup>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting access group ${event.data.attributes.groupName} ...`,
+          title: `Deleting access group ${event.data.groupName} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -173,7 +173,7 @@ export class AccessGroupsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AccessGroupData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -192,8 +192,8 @@ export class AccessGroupsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(accessGroups: AccessGroupData[]): void {
-    const requests = accessGroups.map((accessGroup: AccessGroupData) => {
+  private bulkActionDelete(accessGroups: JAccessGroup[]): void {
+    const requests = accessGroups.map((accessGroup: JAccessGroup) => {
       return this.gs.delete(SERV.ACCESS_GROUPS, accessGroup.id);
     });
 
@@ -218,7 +218,7 @@ export class AccessGroupsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(accessGroups: AccessGroupData[]): void {
+  private rowActionDelete(accessGroups: JAccessGroup[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.ACCESS_GROUPS, accessGroups[0].id)
@@ -235,7 +235,7 @@ export class AccessGroupsTableComponent
     );
   }
 
-  private rowActionEdit(accessGroup: AccessGroupData): void {
+  private rowActionEdit(accessGroup: JAccessGroup): void {
     this.renderAccessGroupLink(accessGroup).then(
       (links: HTTableRouterLink[]) => {
         this.router.navigate(links[0].routerLink);

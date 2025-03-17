@@ -1,5 +1,7 @@
+import { BaseModel } from './base.model';
 import { Agent, AgentData } from './agent.model';
 import { Task, TaskData } from './task.model';
+
 
 export interface AgentAssignment {
   _id: number;
@@ -10,6 +12,14 @@ export interface AgentAssignment {
   benchmark: string;
   taskId: number;
   task?: Task;
+}
+
+export interface JAgentAssignment extends BaseModel {
+  taskId: number;
+  agentId: number;
+  benchmark: string;
+  agent?: AgentData;
+  task?: TaskData;
 }
 
 export interface AgentAssignmentData {

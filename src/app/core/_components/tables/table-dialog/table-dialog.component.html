@@ -5,7 +5,7 @@
 <div mat-dialog-content>
   <ul *ngIf="data.listAttribute && data.rows.length > 0">
     <li *ngFor="let row of data.rows">
-      {{ row['attributes'][data.listAttribute]
+      {{ row[data.listAttribute]
       }}<ng-container *ngIf="'id'; in: row"> ({{ row['id'] }})</ng-container>
     </li>
   </ul>
