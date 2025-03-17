@@ -4,7 +4,7 @@ import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
 import { JHashlist, HashlistRelationshipAttributesData } from '../_models/hashlist.model';
 import { IncludedAttributes, ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { JsonAPISerializer } from '../_services/api/serializer-service';
 
@@ -22,15 +22,17 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'hashType,hashlists',
-      filter: `filter[format__eq]=${HashListFormat.SUPERHASHLIST}`
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['hashType','hashlists'],
+      filter: new Array<Filter>({field: "format", operator: "eq", value: HashListFormat.SUPERHASHLIST})
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, params);

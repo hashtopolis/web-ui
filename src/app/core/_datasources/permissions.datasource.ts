@@ -15,14 +15,16 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroupD
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'userMembers'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['userMembers']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.include = [order];
     }
 
     const permissions$ = this.service.getAll(

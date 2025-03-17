@@ -133,11 +133,10 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   loadEdit() {
     // Fetch data from the API for editing
     this.mySubscription = this.gs
-      .getAll(this.apiPath, { maxResults: 500 })
+      .getAll(this.apiPath, {page:{size: 500}})
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
         const configValues = this.serializer.deserialize(responseBody) as any[];
-
         // Transform the retrieved array of objects into the desired structure for form rendering
         this.formValues = configValues.reduce((configValues, item) => {
           if (item.value === 'true') {

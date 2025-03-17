@@ -18,14 +18,16 @@ export class SuperTasksDataSource extends BaseDataSource<
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'pretasks'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['pretasks']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params);

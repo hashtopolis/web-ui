@@ -5,9 +5,15 @@ import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { JTaskWrapper } from '../_models/task-wrapper.model';
 import { JHashtype } from '../_models/hashtype.model';
-import { RequestParams } from '../_models/request-params.model';
 import { ResponseWrapper } from '../_models/response.model';
 import { JHashlist } from '../_models/hashlist.model';
+import { TaskWrapperData, TaskWrapperRelationshipAttributesData } from '../_models/task-wrapper.model';
+import { HashtypeData } from '../_models/hashtype.model';
+import { TaskData } from '../_models/task.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { HashlistData } from '../_models/hashlist.model';
+import { AccessGroupData } from '../_models/access-group.model';
 
 export class TasksDataSource extends BaseDataSource<
   JTaskWrapper,
@@ -30,28 +36,35 @@ export class TasksDataSource extends BaseDataSource<
     const startAt = this.currentPage * this.pageSize;
     const sorting = this.sortingColumn;
 
-    const additionalFilter = this._hashlistId
-      ? `,hashlistId=${this._hashlistId}`
-      : '';
+    const filters = new Array<Filter>(
+      {field: "isArchived", operator: "eq", value: this._isArchived}
+    ) 
+    if (this._hashlistId) {
+      filters.push({field: "hashlistId", operator: "eq", value: this._hashlistId});
+    }
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'accessGroup,tasks',
-      filter: `filter[isArchived__eq]=${this._isArchived}${additionalFilter}`
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['accessGroup','tasks'],
+      filter: filters
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      if (order.length > 0) {
+        params.sort = [order];
+      }
     }
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, {
-      maxResults: this.maxResults
+      page:{ size: this.maxResults}
     });
     const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      maxResults: this.maxResults
+      page:{ size: this.maxResults}
     });
 
     forkJoin([wrappers$, hashLists$, hashTypes$])

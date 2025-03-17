@@ -14,14 +14,16 @@ export class CrackersDataSource extends BaseDataSource<CrackerBinaryTypeData> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'crackerVersions'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['crackerVersions']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params);

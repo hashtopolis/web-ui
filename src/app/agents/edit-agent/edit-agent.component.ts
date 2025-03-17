@@ -48,6 +48,7 @@ import { User } from '../../users/user.model';
 import { JTask, TaskData } from '../../core/_models/task.model';
 import { JChunk } from '../../core/_models/chunk.model';
 import { JAgentAssignment } from '../../core/_models/agent-assignment.model';
+import { Filter, RequestParams } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-edit-agent',
@@ -162,7 +163,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadAgentsSubscription$ = this.gs
       .get(SERV.AGENTS, this.editedAgentIndex, {
-        include: 'agentStats,accessGroups'
+        include: ['agentStats','accessGroups']
       })
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
@@ -178,10 +179,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       });
     this.unsubscribeService.add(loadAgentsSubscription$);
 
+    const filter = new Array<Filter>({field: "isArchived", operator: "eq", value: true});
+
     // Load get select tasks for assigment
     const loadTasksSubscription$ = this.gs
       .getAll(SERV.TASKS, {
-        filter: 'isArchived=false'
+        filter: filter
       })
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
@@ -236,9 +239,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         isTrusted: new FormControl(data.attributes.isTrusted)
       });
     });
+
+    const filter = new Array<Filter>({field: "agentId", operator: "eq", value: this.editedAgentIndex});
     this.gs
       .getAll(SERV.AGENT_ASSIGN, {
-        filter: `filter[agentId__eq]=${this.editedAgentIndex}`
+        filter: filter
       })
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
@@ -277,7 +282,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   assignChunksInit(id: number): void {
-    const params = { maxResults: 999999 };
+    const params: RequestParams = {
+      page: {
+        size: 99999,
+      },
+    };
 
     // Retrieve chunks associated with the agent
     this.gs.getAll(SERV.CHUNKS, params).subscribe((response: ResponseWrapper) => {

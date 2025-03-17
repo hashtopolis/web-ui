@@ -30,20 +30,22 @@ export class PreTasksDataSource extends BaseDataSource<
       const sorting = this.sortingColumn;
 
       const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        expand: 'pretaskFiles'
+        page: {
+          size: this.pageSize,
+          after: startAt
+        },
+        include: ['pretaskFiles']
       };
 
       if (sorting.dataKey && sorting.isSortable) {
         const order = this.buildSortingParams(sorting);
-        params.ordering = order;
+        params.sort = [order];
       }
 
       pretasks$ = this.service.getAll(SERV.PRETASKS, params);
     } else {
       pretasks$ = this.service.get(SERV.SUPER_TASKS, this._superTaskId, {
-        expand: 'pretasks'
+        include: ['pretasks']
       });
     }
 
@@ -70,7 +72,7 @@ export class PreTasksDataSource extends BaseDataSource<
             // Make another request to get pretaskFiles
             this.service
               .getAll(SERV.PRETASKS, {
-                expand: 'pretaskFiles'
+                include: ['pretaskFiles']
               })
               .subscribe((pretaskFilesResponse: ListResponseWrapper<any>) => {
                 const pretaskFiles = pretaskFilesResponse.values || [];

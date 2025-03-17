@@ -20,7 +20,7 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<
     this.loading = true;
 
     const params = {
-      expand: 'pretasks'
+      include: ['pretasks']
     };
 
     const pretasks$ = this.service.get(

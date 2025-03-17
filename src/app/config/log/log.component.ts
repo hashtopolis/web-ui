@@ -8,6 +8,7 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
+import { RequestParams } from 'src/app/core/_models/request-params.model';
 
 declare let $: any;
 declare let _fnReDraw;
@@ -86,7 +87,12 @@ export class LogComponent implements OnInit {
     this.saveCurrentPage(this.localStable, page);
 
     const maxresults = this.getLenghtMenu();
-    const params = {'maxResults': maxresults, 'startsAt': (page - 1) * this.pageSize};
+    const params: RequestParams = {
+      page: {
+        size: 99999,
+        after: (page-1) * this.pageSize
+      },
+    };
 
     this.gs.getAll(SERV.LOGS,params).subscribe((log: any) => {
       this.logs = log.values;

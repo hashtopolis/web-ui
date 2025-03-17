@@ -5,10 +5,11 @@ import { AgentData } from '../_models/agent.model';
 import { AgentAssignmentData } from '../_models/agent-assignment.model';
 import { BaseDataSource } from './base.datasource';
 import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { TaskData } from '../_models/task.model';
 import { UserData } from '../_models/user.model';
+import { TaskDispatchedPipe } from '../_pipes/task-dispatched.pipe';
 
 
 export class AgentsDataSource extends BaseDataSource<AgentData> {
@@ -30,17 +31,24 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
     const sorting = this.sortingColumn;
 
     const agentParams: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'accessGroups'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['accessGroups']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      agentParams.ordering = order;
+      agentParams.sort = [order];
     }
 
-    const params = { maxResults: this.maxResults };
+    const params: RequestParams = { 
+      page: {
+        size: this.maxResults
+      }
+    };
+
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);
@@ -94,13 +102,18 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
   loadAssignments(): void {
     this.loading = true;
 
-    const params = { maxResults: this.maxResults };
+    const params: RequestParams = { 
+      page: {
+        size: this.maxResults
+      }
+    };
+
     const startAt = this.currentPage * this.pageSize;
     const assignParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: 'agent,task',
-      filter: `taskId=${this._taskId}`
+      expand: ['agent','task'],
+      filter: new Array<Filter>({field: "taskId", operator: "eq", value: this._taskId})
     };
 
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);

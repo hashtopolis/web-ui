@@ -3,8 +3,10 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { JHash } from '../_models/hash.model';
 import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { RequestParams } from '../_models/request-params.model';
 import { ResponseWrapper } from '../_models/response.model';
+import { HashData } from '../_models/hash.model';
+import { Included, ListResponseWrapper } from '../_models/response.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class CracksDataSource extends BaseDataSource<JHash> {
@@ -15,15 +17,17 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      filter: 'filter[isCracked__eq]=true',
-      include: 'hashlist,chunk'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      filter: new Array<Filter>({field: "isCracked", operator: "eq", value: true}),
+      include: ['hashlist','chunk']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const cracks$ = this.service.getAll(SERV.HASHES, params);

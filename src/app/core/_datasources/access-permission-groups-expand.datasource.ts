@@ -30,7 +30,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
     this.loading = true;
 
     const params = {
-      expand: this._expand
+      include: [this._expand]
     };
 
     const accessPermissions$ = this.service.get(

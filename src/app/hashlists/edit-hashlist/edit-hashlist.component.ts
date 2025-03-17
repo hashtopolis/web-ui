@@ -186,7 +186,7 @@ export class EditHashlistComponent
   private updateFormValues() {
     const updateSubscription$ = this.gs
       .get(SERV.HASHLISTS, this.editedHashlistIndex, {
-        expand: 'tasks,hashlists,hashType'
+        include: ['tasks,hashlists,hashType']
       })
       .subscribe((result) => {
         this.editedHashlist = result;

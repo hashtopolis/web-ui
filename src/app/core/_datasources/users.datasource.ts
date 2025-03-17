@@ -14,14 +14,13 @@ export class UsersDataSource extends BaseDataSource<JUser> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'globalPermissionGroup'
+      page: {size: this.pageSize, after: startAt},
+      include: ['globalPermissionGroup']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const users$ = this.service.getAll(SERV.USERS, params);

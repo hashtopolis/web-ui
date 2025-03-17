@@ -106,7 +106,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   loadData(): void {
     console.log(this.editedSTIndex);
     const loadSTSubscription$ = this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex, { expand: 'pretasks' })
+      .get(SERV.SUPER_TASKS, this.editedSTIndex, { include: ['pretasks'] })
       .subscribe((res) => {
         this.assignPretasks = res.pretasks;
         this.viewForm = new FormGroup({

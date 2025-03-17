@@ -94,7 +94,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   private loadData() {
     const loadSubscription$ = this.gs
       .get(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, {
-        expand: 'user'
+        include: ['user']
       })
       .subscribe((res) => {
         if (res) {

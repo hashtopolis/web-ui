@@ -38,6 +38,7 @@ import {
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
 import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
 import { FileType } from 'src/app/core/_models/file.model';
+import { Filter } from 'src/app/core/_models/request-params.model';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -263,9 +264,13 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   loadData() {
     // Load Hahslists Select Options
+      const filter = new Array<Filter>(
+        {field: "isArchived", operator: "eq", value: false},
+        {field: "format", operator: "eq", value: 0},
+      );
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, {
-        filter: 'isArchived=false,format=0'
+        filter: filter
       })
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;
@@ -297,9 +302,10 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         } else {
           id = this.selectCrackertype.slice(-1)[0]['_id'];
         }
+        const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: "eq", value: id});
         const loadCrackersSubscription$ = this.gs
           .getAll(SERV.CRACKERS, {
-            filter: 'crackerBinaryTypeId=' + id + ''
+            filter: filter
           })
           .subscribe((response) => {
             const transformedOptions = transformSelectOptions(
@@ -368,8 +374,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * @param {string} id - The identifier of the selected cracker binary type.
    */
   handleChangeBinary(id: string) {
+    const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: "eq", value: id});
     const onChangeBinarySubscription$ = this.gs
-      .getAll(SERV.CRACKERS, { filter: 'crackerBinaryTypeId=' + id + '' })
+      .getAll(SERV.CRACKERS, { filter: filter})
       .subscribe((response: any) => {
         const transformedOptions = transformSelectOptions(
           response.values,
@@ -405,10 +412,10 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       console.log(this.copyType);
       const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
       const expandField = isTask
-        ? 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
-        : 'pretaskFiles';
+        ? ['hashlist','speeds','crackerBinary','crackerBinaryType','files']
+        : ['pretaskFiles'];
       this.gs
-        .get(endpoint, this.editedIndex, { expand: expandField })
+        .get(endpoint, this.editedIndex, { include: expandField })
         .subscribe((result) => {
           const arrFiles: Array<any> = [];
           const filesField = isTask ? 'files' : 'pretaskFiles';

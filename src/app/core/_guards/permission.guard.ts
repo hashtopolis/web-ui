@@ -27,7 +27,7 @@ export class PermissionGuard {
     state: RouterStateSnapshot
   ): Observable<boolean> {
     return this.gs
-      .get(SERV.USERS, this.gs.userId, { include: 'globalPermissionGroup' })
+      .get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] })
       .pipe(
         take(1),
         map((perm) => {

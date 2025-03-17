@@ -5,7 +5,7 @@ import { BaseDataSource } from './base.datasource';
 import { ChunkDataNew } from '../_models/chunk.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { TaskData } from '../_models/task.model';
 
 export class ChunksDataSource extends BaseDataSource<ChunkDataNew> {
@@ -22,18 +22,20 @@ export class ChunksDataSource extends BaseDataSource<ChunkDataNew> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'task,agent'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['task','agent']
     };
 
     if (this._agentId) {
-      params.filter = `chunkId=${this._agentId}`;
+      params.filter = new Array<Filter>({field: "chunkId", operator: "eq", value: this._agentId});
     }
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const agentParams = { maxResults: this.maxResults };
