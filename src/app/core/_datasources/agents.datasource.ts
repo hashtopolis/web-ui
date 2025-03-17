@@ -1,18 +1,24 @@
-import { ChunkDataNew } from '../_models/chunk.model';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+/**
+ * Contains data source for agents resource
+ * @module
+ */
+import { catchError, forkJoin, of } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
-import { AgentData } from '../_models/agent.model';
-import { AgentAssignmentData } from '../_models/agent-assignment.model';
-import { BaseDataSource } from './base.datasource';
-import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
-import { Filter, RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
-import { TaskData } from '../_models/task.model';
-import { UserData } from '../_models/user.model';
-import { TaskDispatchedPipe } from '../_pipes/task-dispatched.pipe';
+import { Filter, RequestParams } from '@src/app/core/_models/request-params.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
+import { JChunk } from '@src/app/core/_models/chunk.model';
+import { JTask } from '@src/app/core/_models/task.model';
+import { JUser } from '@src/app/core/_models/user.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { SERV } from '@src/app/core/_services/main.config';
 
-export class AgentsDataSource extends BaseDataSource<AgentData> {
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+
+export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _taskId = 0;
   private _assignAgents = false;
 
@@ -37,13 +43,12 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
       },
       include: ['accessGroups']
     };
-
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
       agentParams.sort = [order];
     }
 
-    const params: RequestParams = { 
+    const params: RequestParams = {
       page: {
         size: this.maxResults
       }
@@ -55,45 +60,57 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
     const tasks$ = this.service.getAll(SERV.TASKS, params);
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
 
+    const serializer = new JsonAPISerializer();
+
     forkJoin([agents$, users$, agentAssign$, tasks$, chunks$])
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([a, u, aa, t, c]: [
-          ListResponseWrapper<AgentData>,
-          ListResponseWrapper<UserData>,
-          ListResponseWrapper<AgentAssignmentData>,
-          ListResponseWrapper<TaskData>,
-          ListResponseWrapper<ChunkDataNew>
+        ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
+          ResponseWrapper,
+          ResponseWrapper,
+          ResponseWrapper,
+          ResponseWrapper,
+          ResponseWrapper
         ]) => {
-          const agents: AgentData[] = a.data;
-          const users: UserData[] = u.data;
-          const assignments: AgentAssignmentData[] = aa.data;
-          const tasks: TaskData[] = t.data;
-          const chunks: ChunkDataNew[] = c.data;
+          const agents = serializer.deserialize<JAgent[]>({
+            data: agentResponse.data,
+            included: agentResponse.included
+          });
+          const users = serializer.deserialize<JUser[]>({
+            data: userResponse.data,
+            included: userResponse.included
+          });
+          const assignments = serializer.deserialize<JAgentAssignment[]>({
+            data: assignmentResponse.data,
+            included: assignmentResponse.included
+          });
+          const tasks = serializer.deserialize<JTask[]>({
+            data: taskResponse.data,
+            included: taskResponse.included
+          });
+          const chunks = serializer.deserialize<JChunk[]>({
+            data: chunkResponse.data,
+            included: chunkResponse.included
+          });
 
-          agents.map((agent: AgentData) => {
-            agent.attributes.user = users.find((e: UserData) => e.id === agent.attributes.userId);
-
-            let accessGroupId:number = agent.relationships?.accessGroups?.data[0]?.id;
-            let includedAccessGroup: IncludedAttributes = a.included.find((e) => e.type === "accessGroup" && e.id === accessGroupId)?.attributes;
-            agent.attributes.accessGroup = includedAccessGroup.groupName;
-
-            agent.attributes.taskId = assignments.find((e) => e.attributes.agentId === agent.id)?.attributes.taskId;
-            if (agent.attributes.taskId) {
-              agent.attributes.task = tasks.find((e) => e.id === agent.attributes.taskId);
-              agent.attributes.taskName = agent.attributes.task.attributes.taskName;
-              agent.attributes.chunk = chunks.find((e) => e.attributes.agentId === agent.id);
-              if (agent.attributes.chunk) {
-                agent.attributes.chunkId = agent.attributes.chunk.id;
+          agents.map((agent: JAgent) => {
+            agent.user = users.find((user: JUser) => user.id === agent.userId);
+            agent.taskId = assignments.find((assignment) => assignment.agentId === agent.id)?.taskId;
+            if (agent.taskId) {
+              agent.task = tasks.find((e) => e.id === agent.taskId);
+              agent.taskName = agent.task.taskName;
+              agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
+              if (agent.chunk) {
+                agent.chunkId = agent.chunk.id;
               }
             }
             return agent;
           });
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, a.total);
+          this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
           this.setData(agents);
         }
       );
@@ -102,7 +119,7 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
   loadAssignments(): void {
     this.loading = true;
 
-    const params: RequestParams = { 
+    const params: RequestParams = {
       page: {
         size: this.maxResults
       }
@@ -120,43 +137,47 @@ export class AgentsDataSource extends BaseDataSource<AgentData> {
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
     const users$ = this.service.getAll(SERV.USERS, params);
 
+    const serializer = new JsonAPISerializer();
+
     forkJoin([users$, agentAssign$, chunks$])
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([u, aa, c]: [
-          ListResponseWrapper<UserData>,
-          ListResponseWrapper<AgentAssignmentData>,
-          ListResponseWrapper<ChunkDataNew>
-        ]) => {
-          const users: UserData[] = u.values;
-          const assignments: AgentAssignmentData[] = aa.values;
-          const chunks: ChunkDataNew[] = c.values;
-          const agents: AgentData[] = [];
+        ([userResponse, assignmentResponse, chunkResponse]: [ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
+          const users = serializer.deserialize<JUser[]>({
+            data: userResponse.data,
+            included: userResponse.included
+          });
+          const assignments = serializer.deserialize<JAgentAssignment[]>({
+            data: assignmentResponse.data,
+            included: assignmentResponse.included
+          });
+          const chunks = serializer.deserialize<JChunk[]>({
+            data: chunkResponse.data,
+            included: chunkResponse.included
+          });
+          const agents: JAgent[] = [];
 
-          assignments.forEach((assignment: AgentAssignmentData) => {
-            const task: TaskData = assignment.attributes.task;
-            const agent: AgentData = assignment.attributes.agent;
-
-            agent.attributes.task = task;
-            agent.attributes.user = users.find((e: UserData) => e.id === agent.attributes.userId);
-            agent.attributes.taskName = agent.attributes.task.attributes.taskName;
-            agent.attributes.taskId = agent.attributes.task.id;
-            agent.attributes.chunk = chunks.find((e) => e.attributes.agentId === agent.id);
-            agent.attributes.assignmentId = assignments.find(
-              (e) => e.attributes.agentId === agent.id
-            )?.id;
-            if (agent.attributes.chunk) {
-              agent.attributes.chunkId = agent.attributes.chunk.id;
+          assignments.forEach((assignment) => {
+            const task = assignment.task;
+            const agent = assignment.agent;
+            agent.task = task;
+            agent.user = users.find((user) => user.id === agent.userId);
+            agent.taskName = agent.task.taskName;
+            agent.taskId = agent.task.id;
+            agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
+            agent.assignmentId = assignments.find((e) => e.agentId === agent.id)?.id;
+            if (agent.chunk) {
+              agent.chunkId = agent.chunk.id;
             }
-            agent.attributes.benchmark = assignment.attributes.benchmark;
+            agent.benchmark = assignment.benchmark;
 
             agents.push(agent);
           });
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, aa.total);
+          this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
           this.setData(agents);
         }
       );

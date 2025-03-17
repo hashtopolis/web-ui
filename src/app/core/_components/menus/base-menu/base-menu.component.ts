@@ -1,13 +1,10 @@
-import {
-  ActionMenuEvent,
-  ActionMenuItem
-} from '../action-menu/action-menu.model';
-/* eslint-disable @angular-eslint/component-selector */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { HashListFormat } from 'src/app/core/_constants/hashlist.config';
+import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'base-menu',
   template: ''
 })
@@ -41,7 +38,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    return this.checkType('agent') && 'agentName' in this.data.attributes;
+    return this.checkType('agent') && 'agentName' in this.data;
   }
 
   /**
@@ -65,7 +62,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent binary; otherwise, `false`.
    */
   protected isAgentBinary(): boolean {
-    return this.checkType("agentBinary") && 'filename' in this.data.attributes;
+    return this.checkType('agentBinary') && 'filename' in this.data.attributes;
   }
 
   /**
@@ -73,7 +70,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
   protected isPreprocessor(): boolean {
-    return this.checkType("preprocessor") && 'binaryName' in this.data.attributes;
+    return this.checkType('preprocessor') && 'binaryName' in this.data.attributes;
   }
 
   /**
@@ -81,7 +78,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    return this.checkType("crackerBinaryType") && 'typeName' in this.data.attributes;
+    return this.checkType('crackerBinaryType') && 'typeName' in this.data.attributes;
   }
 
   /**
@@ -138,7 +135,7 @@ export class BaseMenuComponent {
    */
   protected isUser(): boolean {
     try {
-      return this.checkType("user") && 'email' in this.data;
+      return this.checkType('user') && 'email' in this.data;
     } catch (error) {
       return false;
     }
@@ -150,7 +147,7 @@ export class BaseMenuComponent {
    */
   protected isPermission(): boolean {
     try {
-      return this.checkType("globalPermissionGroup") && 'permissions' in this.data.attributes;
+      return this.checkType('globalPermissionGroup') && 'permissions' in this.data.attributes;
     } catch (error) {
       return false;
     }
@@ -161,7 +158,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a health check; otherwise, `false`.
    */
   protected isHealthCheck(): boolean {
-    return this.checkType("healthCheck");
+    return this.checkType('healthCheck');
   }
 
   /**
@@ -212,7 +209,7 @@ export class BaseMenuComponent {
   }
 
   protected isHashtype(): boolean {
-    return this.checkType("hashType") && 'description' in this.data;
+    return this.checkType('hashType') && 'description' in this.data;
   }
 
   /**

@@ -1,7 +1,7 @@
 import { AccessGroup } from './access-group.model';
-import { Chunk, ChunkDataNew } from './chunk.model';
-import { Task, TaskData } from './task.model';
-import { User, UserData } from './user.model';
+import { Chunk, ChunkDataNew, JChunk } from './chunk.model';
+import { JTask, Task, TaskData } from './task.model';
+import { JUser, User, UserData } from './user.model';
 import { BaseModel } from './base.model';
 
 export interface AgentStats {
@@ -88,16 +88,16 @@ export interface JAgent extends BaseModel {
   lastIp: string;
   userId: null;
 
-  user?: UserData;
+  user?: JUser;
   cpuOnly: number;
   clientSignature: string;
   agentStats?: AgentStats[];
   accessGroups?: AccessGroup[];
   accessGroup?: string;
-  task?: TaskData;
+  task?: JTask;
   taskId?: number;
   taskName?: string;
-  chunk?: ChunkDataNew;
+  chunk?: JChunk;
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;

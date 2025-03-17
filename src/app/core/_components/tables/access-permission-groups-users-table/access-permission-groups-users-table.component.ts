@@ -12,7 +12,7 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { Pretask } from 'src/app/core/_models/pretask.model';
-import { User } from 'src/app/core/_models/user.model';
+import { JUser, User } from 'src/app/core/_models/user.model';
 import { UsersTableStatus } from '../users-table/users-table.constants';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
@@ -60,26 +60,26 @@ export class AccessPermissionGroupsUsersTableComponent
     const tableColumns = [
       {
         id: AccessPermissionGroupsUsersTableCol.ID,
-        dataKey: '_id',
-        routerLink: (user: User) => this.renderUserLink(user),
+        dataKey: 'id',
+        routerLink: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
-        export: async (user: User) => user._id + ''
+        export: async (user: JUser) => user.id + ''
       },
       {
         id: AccessPermissionGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        render: (user: User) => user.name,
+        render: (user: JUser) => user.name,
         export: async (user: User) => user.name + ''
       },
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: User) => this.renderIsValidIcon(user),
-        render: (user: User) =>
+        icons: (user: JUser) => this.renderIsValidIcon(user),
+        render: (user: JUser) =>
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
         isSortable: true,
-        export: async (user: User) =>
+        export: async (user: JUser) =>
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
       },
       {
@@ -90,7 +90,7 @@ export class AccessPermissionGroupsUsersTableComponent
             ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
             : 'Never',
         isSortable: true,
-        export: async (user: User) =>
+        export: async (user: JUser) =>
           user.lastLoginDate
             ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
             : 'Never'
@@ -101,8 +101,8 @@ export class AccessPermissionGroupsUsersTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['_id', 'isValid'])
-  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'isValid'])
+  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
     return user.isValid
       ? [
           {
@@ -120,10 +120,10 @@ export class AccessPermissionGroupsUsersTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<User[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<User>(
+        this.exportService.toExcel<JUser>(
           'hashtopolis-access-permission-groups-users',
           this.tableColumns,
           event.data,
@@ -131,7 +131,7 @@ export class AccessPermissionGroupsUsersTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<User>(
+        this.exportService.toCsv<JUser>(
           'hashtopolis-access-permission-groups-users',
           this.tableColumns,
           event.data,
@@ -140,7 +140,7 @@ export class AccessPermissionGroupsUsersTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<User>(
+          .toClipboard<JUser>(
             this.tableColumns,
             event.data,
             AccessPermissionGroupsUsersTableColumnLabel

@@ -13,7 +13,7 @@ import {
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { Agent } from 'src/app/core/_models/agent.model';
+import { Agent, JAgent } from 'src/app/core/_models/agent.model';
 import { AccessGroupsExpandDataSource } from 'src/app/core/_datasources/access-groups-expand.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
@@ -88,7 +88,7 @@ export class AccessGroupsAgentsTableComponent
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Agent>) {
+  openDialog(data: DialogData<JAgent>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -112,10 +112,10 @@ export class AccessGroupsAgentsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Agent[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Agent>(
+        this.exportService.toExcel<JAgent>(
           'hashtopolis-access-groups-agents',
           this.tableColumns,
           event.data,
@@ -123,7 +123,7 @@ export class AccessGroupsAgentsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Agent>(
+        this.exportService.toCsv<JAgent>(
           'hashtopolis-access-groups-agents',
           this.tableColumns,
           event.data,
@@ -132,7 +132,7 @@ export class AccessGroupsAgentsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Agent>(
+          .toClipboard<JAgent>(
             this.tableColumns,
             event.data,
             AccessGroupsAgentsTableColumnLabel
@@ -147,7 +147,7 @@ export class AccessGroupsAgentsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Agent>): void {
+  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -165,7 +165,7 @@ export class AccessGroupsAgentsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Agent[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -247,7 +247,7 @@ export class AccessGroupsAgentsTableComponent
     );
   }
 
-  private rowActionEdit(agent: Agent): void {
+  private rowActionEdit(agent: JAgent): void {
     this.renderUserLink(agent).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });

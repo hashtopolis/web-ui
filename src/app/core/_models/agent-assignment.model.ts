@@ -1,25 +1,13 @@
-import { BaseModel } from './base.model';
-import { Agent, AgentData } from './agent.model';
-import { Task, TaskData } from './task.model';
-
-
-export interface AgentAssignment {
-  _id: number;
-  _self: string;
-  agentId: number;
-  agent?: Agent;
-  assignmentId: number;
-  benchmark: string;
-  taskId: number;
-  task?: Task;
-}
+import { AgentData, JAgent } from '@src/app/core/_models/agent.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
+import { JTask } from '@src/app/core/_models/task.model';
 
 export interface JAgentAssignment extends BaseModel {
   taskId: number;
   agentId: number;
   benchmark: string;
-  agent?: AgentData;
-  task?: TaskData;
+  agent?: JAgent;
+  task?: JTask;
 }
 
 export interface AgentAssignmentData {
