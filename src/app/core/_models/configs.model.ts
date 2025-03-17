@@ -1,3 +1,12 @@
+import { BaseModel } from './base.model';
+
+export interface JConfig extends BaseModel {
+  configSectionId: number;
+  item: string;
+  value: string;
+}
+
+
 export interface ConfigsData {
   type: string;
   id: number;
