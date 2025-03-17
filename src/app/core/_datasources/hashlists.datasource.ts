@@ -4,7 +4,7 @@ import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
 import { HashlistData } from '../_models/hashlist.model';
 import { IncludedAttributes, ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class HashlistsDataSource extends BaseDataSource<HashlistData> {
@@ -26,22 +26,24 @@ export class HashlistsDataSource extends BaseDataSource<HashlistData> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'hashType,accessGroup',
-      filter: `filter[isArchived__eq]=${this.isArchived}`
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['hashType','accessGroup'],
+      filter: new Array<Filter>({field: 'isArchived', operator: 'eq', value: this.isArchived})
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     let hashLists$;
 
     if (this._shashlistId) {
       hashLists$ = this.service.get(SERV.HASHLISTS, this._shashlistId, {
-        include: 'hashlists,hashType'
+        include: ['hashlists','hashType']
       });
     } else {
       hashLists$ = this.service.getAll(SERV.HASHLISTS, params);

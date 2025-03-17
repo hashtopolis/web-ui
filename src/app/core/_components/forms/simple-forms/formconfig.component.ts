@@ -130,7 +130,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   loadEdit() {
     // Fetch data from the API for editing
     this.mySubscription = this.gs
-      .getAll(this.apiPath, { maxResults: 500 })
+      .getAll(this.apiPath, {page:{size: 500}})
       .subscribe((result) => {
         // Transform the retrieved array of objects into the desired structure for form rendering
         this.formValues = result.data.reduce((result, item) => {

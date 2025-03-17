@@ -14,13 +14,15 @@ export class NotificationsDataSource extends BaseDataSource<NotificationData> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);

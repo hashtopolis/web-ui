@@ -15,14 +15,16 @@ export class HealthChecksDataSource extends BaseDataSource<HealthCheckData> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'hashType'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['hashType']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.include = [order];
     }
 
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);

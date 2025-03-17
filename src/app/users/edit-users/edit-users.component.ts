@@ -119,7 +119,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loaduserAGPSubscription$ = this.gs
-      .get(SERV.USERS, this.editedUserIndex, { expand: 'accessGroups' })
+      .get(SERV.USERS, this.editedUserIndex, { include: ['accessGroups'] })
       .subscribe((response: ListResponseWrapper<any>) => {
         const transformedOptions = transformSelectOptions(
           response['accessGroups'],

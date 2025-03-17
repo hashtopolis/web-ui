@@ -18,17 +18,23 @@ export class AgentsStatusDataSource extends BaseDataSource<AgentData> {
     const sorting = this.sortingColumn;
 
     const agentParams: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'accessGroups,agentstats'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['accessGroups','agentstats']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      agentParams.ordering = order;
+      agentParams.sort = [order];
     }
 
-    const params = { maxResults: this.maxResults };
+    const params: RequestParams = { 
+      page: {
+        size: this.maxResults 
+      }
+    };
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);

@@ -24,6 +24,7 @@ import { Hashlist } from 'src/app/core/_models/hashlist.model';
 import { extractIds } from '../../../../../../shared/utils/forms';
 import { SelectField } from 'src/app/core/_models/input.model';
 import { SERV } from '../../../../../_services/main.config';
+import { Filter } from 'src/app/core/_models/request-params.model';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -98,7 +99,10 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, {
-        filter: 'isArchived=false,format=0'
+        filter: new Array<Filter>(
+          {field: "isArchived", operator: "eq", value: false},
+          {field: "format", operator: "eq", value: 0}
+        )
       })
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;

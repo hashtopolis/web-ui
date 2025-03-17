@@ -1,3 +1,4 @@
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import {
   Observable,
   catchError,
@@ -11,13 +12,14 @@ import {
   take,
   tap
 } from 'rxjs';
-import { environment } from './../../../environments/environment';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+
 import { AuthService } from './access/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { setParameter } from './buildparams';
-import { Params } from '@angular/router';
 import { ConfigService } from './shared/config.service';
+import { HttpClient } from '@angular/common/http';
+import { Params } from '@angular/router';
+import { environment } from './../../../environments/environment';
+import { setParameter } from './buildparams';
+import { RequestParams } from '../_models/request-params.model';
 
 @Injectable({
   providedIn: 'root'
@@ -53,28 +55,20 @@ export class GlobalService {
    * @param routerParams - Parameters for the API request, including options such as Max number of results or filtering.
    * @returns An observable that emits the API response.
    */
-  getAll(methodUrl: string, routerParams?: Params): Observable<any> {
+  getAll(methodUrl: string, routerParams?: RequestParams): Observable<any> {
     let queryParams: Params = {};
     let fixedMaxResults: boolean;
 
     // Check if routerParams exist
-      if (routerParams) {
-        // Check if 'maxResults' is not present in routerParams
-        if (!('maxResults' in routerParams)) {
-          fixedMaxResults = true;
-        }
-        if (!methodUrl.includes('count')) {
-          // Set queryParams using setParameter utility function
-          queryParams = setParameter(routerParams, this.maxResults);
-        }
-        else {
-          // Set queryParams using setParameter utility function
-          queryParams = setParameter(routerParams);
-        }
-      } else {
+    if (routerParams) {
+      queryParams = setParameter(routerParams);
+      // Check if 'page[size]' is not present in routerParams
+      if (!routerParams?.page?.size) {
         fixedMaxResults = true;
-        queryParams = setParameter({}, this.maxResults);
       }
+    } else {
+      fixedMaxResults = true;
+    }
 
     return this.http
       .get(this.cs.getEndpoint() + methodUrl, { params: queryParams })
@@ -92,8 +86,7 @@ export class GlobalService {
             for (let i = 0; i < numRequests; i++) {
               const startsAt = i * maxResults;
               const partialParams = setParameter(
-                { ...queryParams, startsAt },
-                maxResults
+                { ...queryParams, page:{after: startsAt}} 
               );
               requests.push(
                 this.http.get(this.cs.getEndpoint() + methodUrl, {
@@ -125,13 +118,13 @@ export class GlobalService {
    * @param id - element id
    * @returns  Object
    **/
-  get(methodUrl: string, id: number, routerParams?: Params): Observable<any> {
+  get(methodUrl: string, id: number, routerParams?: RequestParams): Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
       queryParams = setParameter(routerParams);
     }
     return this.http.get(`${this.cs.getEndpoint() + methodUrl}/${id}`, {
-      params: routerParams
+      params: queryParams
     });
   }
 

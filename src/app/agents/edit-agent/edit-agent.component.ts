@@ -39,6 +39,7 @@ import {
   TASKS_FIELD_MAPPING,
   USER_AGP_FIELD_MAPPING
 } from 'src/app/core/_constants/select.config';
+import { Filter, RequestParams } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-edit-agent',
@@ -148,7 +149,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadAgentsSubscription$ = this.gs
       .get(SERV.AGENTS, this.editedAgentIndex, {
-        expand: 'agentstats,accessGroups'
+        include: ['agentstats','accessGroups']
       })
       .subscribe((agent: any) => {
         this.showagent = agent;
@@ -161,10 +162,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       });
     this.unsubscribeService.add(loadAgentsSubscription$);
 
+    const filter = new Array<Filter>({field: "isArchived", operator: "eq", value: true});
+
     // Load get select tasks for assigment
     const loadTasksSubscription$ = this.gs
       .getAll(SERV.TASKS, {
-        filter: 'isArchived=false'
+        filter: filter
       })
       .subscribe((tasks: any) => {
         const filterTasks = tasks.values.filter(
@@ -210,9 +213,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         isTrusted: new FormControl(result['isTrusted'])
       });
     });
+
+    const filter = new Array<Filter>({field: "agentId", operator: "eq", value: this.editedAgentIndex});
     this.gs
       .getAll(SERV.AGENT_ASSIGN, {
-        filter: 'agentId=' + this.editedAgentIndex + ''
+        filter: filter
       })
       .subscribe((assign: any) => {
         this.assignNew = assign?.values[0]['taskId'] ? true : false;
@@ -247,7 +252,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   assignChunksInit(id: number): void {
-    const params = { maxResults: 999999 };
+    const params: RequestParams = {
+      page: {
+        size: 99999,
+      },
+    };
 
     // Retrieve chunks associated with the agent
     this.gs.getAll(SERV.CHUNKS, params).subscribe((c: any) => {

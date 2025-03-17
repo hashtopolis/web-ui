@@ -15,6 +15,7 @@ import { AgentAssignmentData } from '../../core/_models/agent-assignment.model';
 import { ChunkDataNew } from '../../core/_models/chunk.model';
 import { TaskData } from '../../core/_models/task.model';
 import { AgentStatsData } from '../../core/_models/agent_stats.model';
+import { RequestParams } from 'src/app/core/_models/request-params.model';
 
 
 @Component({
@@ -78,7 +79,11 @@ export class AgentStatusComponent implements OnInit {
   }
 
   getAgentsPage(page: number) {
-    const params = { maxResults: this.maxResults };
+    const params: RequestParams = {
+      page: {
+        size: this.pageSize,
+      }
+    };
     this.gs.getAll(SERV.AGENTS, params).subscribe((a: ListResponseWrapper<AgentData>) => {
       this.gs.getAll(SERV.AGENT_ASSIGN, params).subscribe((assign: ListResponseWrapper<AgentAssignmentData>) => {
         this.gs.getAll(SERV.TASKS, params).subscribe((t: ListResponseWrapper<TaskData>) => {
@@ -140,7 +145,11 @@ export class AgentStatusComponent implements OnInit {
 
   getAgentStats() {
     // const paramsstat = {'maxResults': this.maxResults, 'filter': 'time>'+this.gettime()+''}; //Waiting for API date filters
-    const paramsstat = { maxResults: this.maxResults };
+    const paramsstat: RequestParams = {
+      page: {
+        size: this.maxResults,
+      }
+    };
     this.gs.getAll(SERV.AGENTS_STATS, paramsstat).subscribe((stats: ListResponseWrapper<AgentStatsData>) => {
       const tempDateFilter = stats.data.filter((u) => u.attributes.time > 10000000); // Temp
       // const tempDateFilter = stats.values.filter(u=> u.time > this.gettime()); // Temp

@@ -134,7 +134,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   private formValues() {
     const updateSubscription$ = this.gs
       .get(SERV.HASHLISTS, this.editedHashlistIndex, {
-        expand: 'tasks,hashlists,hashType'
+        include: ['tasks,hashlists,hashType']
       })
       .subscribe((result) => {
         this.type = result['format'];

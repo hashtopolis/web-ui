@@ -19,12 +19,16 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
      * @todo Extend health checks api response with Agents
      */
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS_AGENTS, {
-      maxResults: this.pageSize,
-      filter: `healthCheckId=${this._healthCheckId}`
+      page: {
+        size: this.pageSize,
+      },
+      filter: new Array({field: "healthCheckId", operator: "eq", value: this._healthCheckId})
     });
 
     const agents$ = this.service.getAll(SERV.AGENTS, {
-      maxResults: this.maxResults
+      page: {
+        size: this.pageSize,
+      },
     });
 
     this.subscriptions.push(

@@ -14,14 +14,16 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroupData> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'userMembers,agentMembers'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['userMembers','agentMembers']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params);

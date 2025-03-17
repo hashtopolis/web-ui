@@ -14,6 +14,7 @@ import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { OnDestroy } from '@angular/core';
+import { Filter } from 'src/app/core/_models/request-params.model';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -107,8 +108,8 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const params = {
-      filter: 'pretaskId=' + this.editedPretaskIndex + '',
-      expand: 'pretaskFiles'
+      filter: new Array<Filter>( {field: 'pretaskId', operator: 'eq', value: this.editedPretaskIndex} ),
+      expand: ['pretaskFiles']
     };
     const loadtableSubscription$ = this.gs
       .getAll(SERV.PRETASKS, params)

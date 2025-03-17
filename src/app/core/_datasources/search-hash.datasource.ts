@@ -3,7 +3,7 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { Log } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { HashData } from '../_models/hash.model';
 import { HashlistDataAttributes } from '../_models/hashlist.model';
 
@@ -23,15 +23,17 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
 
     for (let i = 0; i < this._search.length; i++) {
       const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        filter: `filter[hash__eq]=${this._search[i]}`,
-        include: "hashlist"
+        page: {
+          size: this.pageSize,
+          after: startAt
+        },
+        filter: new Array<Filter>({field: "hash", operator: "eq", value: this._search[i]}),
+        include: ["hashlist"]
       };
 
       if (sorting.dataKey && sorting.isSortable) {
         const order = this.buildSortingParams(sorting);
-        params.ordering = order;
+        params.sort = [order];
       }
 
       const hashs$ = this.service.getAll(SERV.HASHES, params);

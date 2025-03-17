@@ -33,6 +33,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { finalize } from 'rxjs';
+import { Filter } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -72,7 +73,7 @@ export class EditTasksComponent implements OnInit {
   chunktitle: string;
   isactive = 0;
   currenspeed = 0;
-  chunkresults: Object;
+  chunkresults: number;
   activechunks: Object;
 
   constructor(
@@ -179,7 +180,7 @@ export class EditTasksComponent implements OnInit {
     if (this.editMode) {
       this.gs
         .get(SERV.TASKS, this.editedTaskIndex, {
-          expand: 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
+          include: ['hashlist','speeds','crackerBinary','crackerBinaryType','files']
         })
         .subscribe((result) => {
           this.originalValue = result;
@@ -197,7 +198,9 @@ export class EditTasksComponent implements OnInit {
             if (this.hashlistinform) {
               this.gs
                 .getAll(SERV.HASHTYPES, {
-                  filter: 'hashTypeId=' + this.hashlistinform['hashTypeId'] + ''
+                  filter: new Array<Filter> (
+                    {field: 'hashtypeId', operator: 'eq', value: this.hashlistinform['hashTypeId']}
+                  )
                 })
                 .subscribe(
                   (htypes: any) => {
@@ -346,11 +349,15 @@ export class EditTasksComponent implements OnInit {
     });
 
     //TODO. It is repeting code to get the speed
-    const params = { maxResults: this.chunkresults };
+    const page = {size: this.chunkresults};
+    const params = { page: page };
+      const filter = new Array<Filter>(
+        {field: "taskId", operator: "eq", value: this.editedTaskIndex}
+      );
     this.gs
       .getAll(SERV.CHUNKS, {
-        maxResults: this.chunkresults,
-        filter: 'taskId=' + this.editedTaskIndex + ''
+        page: page,
+        filter: filter
       })
       .subscribe((result: any) => {
         this.timeCalc(result.values);

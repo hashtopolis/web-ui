@@ -1,6 +1,6 @@
 export const DEFAULT_CONFIG = {
   prodApiEndpoint: 'http://localhost:8080/api/v2',
-  prodApiMaxResults: '3000',
+  prodApiMaxResults: 3000,
   agentURL: '/server.php',
   agentdownloadURL: '/agents.php?download=',
   appName: 'Hashtopolis',

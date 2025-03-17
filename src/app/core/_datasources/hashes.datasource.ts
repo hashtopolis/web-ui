@@ -3,7 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { Hash } from '../_models/hash.model';
 import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
 export class HashesDataSource extends BaseDataSource<Hash> {
@@ -25,23 +25,26 @@ export class HashesDataSource extends BaseDataSource<Hash> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'hashlist,chunk'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['hashlist','chunk']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     // Add additional params based on _dataType
+    params.filter = new Array<Filter>();
     if (this._dataType === 'chunks') {
-      params.filter = 'chunkId=' + this._id;
+      params.filter.push({field: "chunkId", operator: "eq", value: this._id});
     } else if (this._dataType === 'tasks') {
       // Add params for tasks if needed
     } else if (this._dataType === 'hashlists') {
-      params.filter = 'hashlistId=' + this._id;
+      params.filter.push({field: "hashlistId", operator: "eq", value: this._id});
     }
 
     const hashes$ = this.service.getAll(SERV.HASHES, params);

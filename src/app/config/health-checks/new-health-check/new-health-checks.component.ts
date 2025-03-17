@@ -14,6 +14,7 @@ import { SERV } from '../../../core/_services/main.config';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { Filter } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -117,7 +118,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   handleChangeBinary(id: string) {
-    const params = { filter: 'crackerBinaryTypeId=' + id + '' };
+    const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: "eq", value: id});
+    const params = { filter: filter};
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, params)
       .subscribe((response: any) => {

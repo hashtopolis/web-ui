@@ -1,11 +1,11 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
+import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { UserData } from '../_models/user.model';
-import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
 
 export class UsersDataSource extends BaseDataSource<UserData> {
   loadAll(): void {
@@ -15,14 +15,16 @@ export class UsersDataSource extends BaseDataSource<UserData> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      include: 'globalPermissionGroup'
+      page: {
+        size: this.pageSize,
+        after: startAt
+      },
+      include: ['globalPermissionGroup']
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const users$ = this.service.getAll(SERV.USERS, params);
@@ -39,10 +41,19 @@ export class UsersDataSource extends BaseDataSource<UserData> {
           response.data.forEach((value: UserData) => {
             const user: UserData = value;
 
-            let globalPermissionGroupId: number = user.attributes.globalPermissionGroupId;
-            let includedGlobalPermissionGroup: object[] = response.included.filter((inc) => inc.type === "globalPermissionGroup");
+            let globalPermissionGroupId: number =
+              user.attributes.globalPermissionGroupId;
+            let includedGlobalPermissionGroup: object[] =
+              response.included.filter(
+                (inc) => inc.type === 'globalPermissionGroup'
+              );
 
-            user.attributes.globalPermissionGroupName = (includedGlobalPermissionGroup as GlobalPermissionGroupData[]).find((incPerm: GlobalPermissionGroupData) => incPerm.id === globalPermissionGroupId)?.attributes?.name;
+            user.attributes.globalPermissionGroupName = (
+              includedGlobalPermissionGroup as GlobalPermissionGroupData[]
+            ).find(
+              (incPerm: GlobalPermissionGroupData) =>
+                incPerm.id === globalPermissionGroupId
+            )?.attributes?.name;
 
             users.push(user);
           });

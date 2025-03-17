@@ -4,6 +4,7 @@ import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
 import { ListResponseWrapper } from '../../_models/response.model';
 import { ConfigsData } from '../../_models/configs.model';
+import { RequestParams } from '../../_models/request-params.model';
 
 @Injectable({
   providedIn: 'root'
@@ -58,7 +59,11 @@ export class UIConfigService {
   }
 
   public storeDefault() {
-    const params = { 'maxResults': this.maxResults }
+    const params: RequestParams = {
+      page: {
+        size: this.maxResults
+      }
+    } 
     this.gs.getAll(SERV.CONFIGS, params).subscribe((result:ListResponseWrapper<ConfigsData>) => {
 
       const post_data = [];
@@ -80,8 +85,6 @@ export class UIConfigService {
       this.storeDefault();
     }
   }
-
-
 
   public getUIsettings(name?: string) {
     const uiconfig = JSON.parse(localStorage.getItem('uis'));

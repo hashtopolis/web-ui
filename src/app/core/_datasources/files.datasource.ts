@@ -1,7 +1,7 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { Filter, RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { FileData, FileType } from '../_models/file.model';
 import { AccessGroupDataAttributes } from '../_models/access-group.model';
@@ -35,23 +35,25 @@ export class FilesDataSource extends BaseDataSource<FileData> {
     if (this.editIndex !== undefined) {
       if (this.editType === 0) {
         files$ = this.service.get(SERV.TASKS, this.editIndex, {
-          expand: 'files'
+          include: ['files']
         });
       } else {
         files$ = this.service.get(SERV.PRETASKS, this.editIndex, {
-          expand: 'pretaskFiles'
+          include: ['pretaskFiles']
         });
       }
     } else {
       const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        include: 'accessGroup',
-        filter: `filter[fileType__eq]=${this.fileType}`
+        page: {
+          size: this.pageSize,
+          after: startAt
+        },
+        include: ['accessGroup'],
+        filter: new Array<Filter>({field: "fileType", operator: "eq", value: this.fileType})
       };
       if (sorting.dataKey && sorting.isSortable) {
         const order = this.buildSortingParams(sorting);
-        params.ordering = order;
+        params.sort = [order];
       }
       files$ = this.service.getAll(SERV.FILES, params);
     }

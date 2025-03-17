@@ -14,13 +14,15 @@ export class VouchersDataSource extends BaseDataSource<Voucher> {
     const sorting = this.sortingColumn;
 
     const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
+      page: {
+        size: this.pageSize,
+        after: startAt
+      }
     };
 
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+      params.sort = [order];
     }
 
     const vouchers$ = this.service.getAll(SERV.VOUCHER, params);
