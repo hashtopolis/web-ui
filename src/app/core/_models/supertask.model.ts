@@ -1,4 +1,5 @@
-import { Pretask } from './pretask.model';
+import { JPretask, Pretask } from './pretask.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 
 export interface SuperTask {
   _id: number;
@@ -8,6 +9,11 @@ export interface SuperTask {
   supertaskName: string;
 }
 
+
+export interface JSuperTask extends BaseModel {
+  supertaskName: string;
+  pretasks?: JPretask[];
+}
 
 
 export interface SuperTaskData {

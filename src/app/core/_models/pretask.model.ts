@@ -1,4 +1,4 @@
-import { File } from './file.model';
+import { File, JFile } from './file.model';
 
 export class Pretask {
   public pretaskId: number;
@@ -35,6 +35,22 @@ export interface Pretask {
   maxAgents: number;
   pretaskFiles: File[];
   pretaskId: number;
+  priority: number;
+  statusTimer: number;
+  taskName: string;
+  useNewBench: boolean;
+}
+
+export interface JPretask {
+  attackCmd: string;
+  chunkTime: number;
+  color: string;
+  crackerBinaryTypeId: number;
+  isCpuTask: boolean;
+  isMaskImport: boolean;
+  isSmall: boolean;
+  maxAgents: number;
+  pretaskFiles: JFile[];
   priority: number;
   statusTimer: number;
   taskName: string;

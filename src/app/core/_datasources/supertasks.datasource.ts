@@ -1,14 +1,14 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { SuperTaskData } from '../_models/supertask.model';
+import { JSuperTask } from '../_models/supertask.model';
 
 export class SuperTasksDataSource extends BaseDataSource<
-  SuperTaskData,
+  JSuperTask,
   MatTableDataSourcePaginator
 > {
   loadAll(): void {
@@ -38,13 +38,15 @@ export class SuperTasksDataSource extends BaseDataSource<
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<SuperTaskData>) => {
-          const supertasks: SuperTaskData[] = response.data;
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseBody = { data: response.data, included: response.included };
+          const supertasks = this.serializer.deserialize<JSuperTask[]>(responseBody);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            supertasks.length
           );
           this.setData(supertasks);
         })

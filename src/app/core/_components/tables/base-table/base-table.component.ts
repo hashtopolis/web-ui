@@ -13,7 +13,7 @@ import { GlobalPermissionGroupData } from '@src/app/core/_models/global-permissi
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
-import { SuperTaskData } from '@src/app/core/_models/supertask.model';
+import { JSuperTask } from '@src/app/core/_models/supertask.model';
 
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { ExportService } from '@src/app/core/_services/export/export.service';
@@ -115,11 +115,11 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id'])
-  async renderSupertaskLink(obj: SuperTaskData): Promise<HTTableRouterLink[]> {
+  async renderSupertaskLink(obj: JSuperTask): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: ['/tasks/', obj.id, 'edit'],
-        label: obj.attributes.supertaskName
+        label: obj.supertaskName
       }
     ];
   }
