@@ -6,6 +6,7 @@ import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { JSuperTask } from '../_models/supertask.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SuperTasksDataSource extends BaseDataSource<
   JSuperTask,
@@ -14,22 +15,18 @@ export class SuperTasksDataSource extends BaseDataSource<
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
+    const startAt = this.currentPage * this.pageSize
 
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['pretasks']
-    };
+    const paramBuilder = new RequestParamBuilder();
+    const params = paramBuilder.setPageSize(this.pageSize).setPageAfter(startAt).addInclude('pretasks').create();
 
+    /*
+    const sorting = this.sortingColumn
     if (sorting.dataKey && sorting.isSortable) {
       const order = this.buildSortingParams(sorting);
       params.sort = [order];
     }
-
+    */
     const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params);
 
     this.subscriptions.push(
