@@ -24,9 +24,8 @@ export interface IParamBuilder {
   setPageBefore(pageBefore: number): IParamBuilder;
   setPageAfter(pageAfter: number): IParamBuilder;
   addInclude(include: string): IParamBuilder;
-//  addFilter(filter: Filter): IParamBuilder;
-//  addSortByAscending(sortBy: string): IParamBuilder;
-//  addSortByDescending(sortBy: string): IParamBuilder;
+  addSorting(sortingColumn: any): IParamBuilder;
+  //  addFilter(filter: Filter): IParamBuilder;
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
   create(): RequestParams;
 }
