@@ -7,6 +7,13 @@ import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_service
 export class RequestParamBuilder implements IParamBuilder {
   private params: RequestParamsIntermediate;
 
+  /**
+   * Adds a new value to ome of the params arrays, create the array if it's undefined
+   * @param field params array to add value to, must be of template type T
+   * @param value value to add, must be of template type T
+   * @returns params array including the new value
+   * @private
+   */
   private addToArray<T>(field: undefined | Array<T>, value: T): Array<T> {
     if (field === undefined || field === null) {
       field = [];
@@ -42,16 +49,15 @@ export class RequestParamBuilder implements IParamBuilder {
     return this;
   }
 
+  addFilter(filter: Filter): IParamBuilder {
+    this.params.filters = this.addToArray<Filter>(this.params.filters, filter);
+    return this;
+  }
+
   addIncludeTotal(includeTotal: boolean): IParamBuilder {
     this.params.includeTotal = includeTotal;
     return this;
   }
-
-  /*
-  addFilter(filter: Filter): IParamBuilder {
-    return this.addToArray(this.params.filters, filter);
-  }
-*/
 
   addSorting(sortingColumn: any): IParamBuilder {
     if (sortingColumn.dataKey && sortingColumn.isSortable) {
@@ -65,12 +71,13 @@ export class RequestParamBuilder implements IParamBuilder {
     const requestParams: RequestParams = {};
     if (this.params.pageSize || this.params.pageBefore || this.params.pageAfter) {
       requestParams.page = {}
-      if (this.params.pageSize) requestParams.page.size = this.params.pageSize;
-      if (this.params.pageAfter) requestParams.page.size = this.params.pageAfter;
-      if (this.params.pageBefore) requestParams.page.size = this.params.pageBefore;
+      if (this.params.pageSize !== undefined) requestParams.page.size = this.params.pageSize;
+      if (this.params.pageAfter !== undefined) requestParams.page.after = this.params.pageAfter;
+      if (this.params.pageBefore !== undefined) requestParams.page.before = this.params.pageBefore;
     }
     if (this.params.includes) requestParams.include = this.params.includes;
     if (this.params.sortOrder) requestParams.sort = this.params.sortOrder;
+    if (this.params.filters) requestParams.filter = this.params.filters;
     return requestParams;
   }
 }
