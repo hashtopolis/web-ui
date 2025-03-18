@@ -6,10 +6,8 @@
 import { catchError, finalize, of } from 'rxjs';
 import { FileType, JFile } from '../_models/file.model';
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Filter, RequestParams } from '../_models/request-params.model';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { ResponseWrapper } from '../_models/response.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { SERV } from '../_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
