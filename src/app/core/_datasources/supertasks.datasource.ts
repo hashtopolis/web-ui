@@ -12,10 +12,8 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask, MatTableDat
     this.loading = true;
 
     const params = new RequestParamBuilder()
-      .setPageSize(this.pageSize)
-      .setPageAfter(this.currentPage * this.pageSize)
+      .addInitial(this)
       .addInclude('pretasks')
-      .addSorting(this.sortingColumn)
       .create();
 
     const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params);

@@ -59,10 +59,8 @@ export class FilesDataSource extends BaseDataSource<JFile> {
       }
     } else {
       const params = paramsBuilder
-        .setPageSize(this.pageSize)
-        .setPageAfter(this.currentPage * this.pageSize)
+        .addInitial(this)
         .addInclude('accessGroup')
-        .addSorting(this.sortingColumn)
         .addFilter({field: "fileType", operator: "eq", value: this.fileType})
         .create()
 

@@ -1,5 +1,6 @@
 import { Filter, RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 
 /**
  * Builder class fpr request parameters, implements the IParamBuilder interface
@@ -27,6 +28,14 @@ export class RequestParamBuilder implements IParamBuilder {
    */
   constructor() {
     this.params = new RequestParamsIntermediate();
+  }
+
+  addInitial(dataSource) {
+    this.setPageSize(dataSource.pageSize);
+    this.setPageAfter(dataSource.currentPage * dataSource.pageSize)
+    this.addSorting(dataSource.sortingColumn);
+
+    return this;
   }
 
   setPageSize(pageSize: number): IParamBuilder {
