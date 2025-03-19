@@ -17,7 +17,6 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
 import { environment } from '../../../environments/environment';
 import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { checkForPrivateExports } from '@angular/compiler-cli/src/ngtsc/entry_point';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -30,63 +29,52 @@ import { checkForPrivateExports } from '@angular/compiler-cli/src/ngtsc/entry_po
 export abstract class BaseDataSource<
   T,
   P extends MatTableDataSourcePaginator = MatTableDataSourcePaginator
-> implements DataSource<T>
-{
+> implements DataSource<T> {
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn;
-
-  /**
-   * Copy of the original dataSubject data used for filtering
-   */
-  private originalData: T[] = [];
-
-  /**
-   * Array of subscriptions that will be unsubscribed on disconnect.
-   */
-  protected subscriptions: Subscription[] = [];
-
-  /**
-   * BehaviorSubject to track the loading state.
-   */
-  protected loadingSubject = new BehaviorSubject<boolean>(false);
-
-  /**
-   * BehaviorSubject to track the data for the table.
-   */
-  protected dataSubject = new BehaviorSubject<T[]>([]);
-
-  /**
-   * An array of table columns.
-   */
-  protected columns: HTTableColumn[] = [];
-
-  /**
-   * Max rows in API response
-   */
-  protected maxResults = environment.config.prodApiMaxResults;
-
   /**
    * Selection model for row selection in the table.
    */
   public selection = new SelectionModel<T>(true, []);
-
   /**
    * Reference to the paginator, if pagination is enabled.
    */
   public paginator: P | null;
-
   /**
    * The filter string to be applied to the table data.
    */
   public filter: string;
-
   /**
    * Reference to MatSort for sorting support.
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
+  /**
+   * Array of subscriptions that will be unsubscribed on disconnect.
+   */
+  protected subscriptions: Subscription[] = [];
+  /**
+   * BehaviorSubject to track the loading state.
+   */
+  protected loadingSubject = new BehaviorSubject<boolean>(false);
+  /**
+   * BehaviorSubject to track the data for the table.
+   */
+  protected dataSubject = new BehaviorSubject<T[]>([]);
+  /**
+   * An array of table columns.
+   */
+  protected columns: HTTableColumn[] = [];
+  /**
+   * Max rows in API response
+   */
+  protected maxResults = environment.config.prodApiMaxResults;
+  /**
+   * Copy of the original dataSubject data used for filtering
+   */
+  private originalData: T[] = [];
 
   constructor(
     protected cdr: ChangeDetectorRef,
@@ -195,19 +183,6 @@ export abstract class BaseDataSource<
   }
 
   /**
-   * Builds sorting parameters based on the provided sorting column.
-   * @param sortingColumn - The sorting column configuration.
-   * @returns {string} The sorting parameter string.
-   */
-  buildSortingParams(sortingColumn): string {
-    if (sortingColumn && sortingColumn.isSortable) {
-      const direction = sortingColumn.direction === 'asc' ? '' : '-';
-      return `${direction}${sortingColumn.dataKey}`;
-    }
-    return '';
-  }
-
-  /**
    * Filters the data based on a filter function.
    *
    * @param filterFn - A function to filter the data based on filterValue.
@@ -223,17 +198,6 @@ export abstract class BaseDataSource<
 
       this.dataSubject.next(filteredData);
     }
-  }
-
-  /**
-   * Compare function used for sorting.
-   */
-  private compare(
-    a: number | string,
-    b: number | string,
-    isAsc: boolean
-  ): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
   /**
@@ -435,5 +399,16 @@ export abstract class BaseDataSource<
       speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
       timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
     };
+  }
+
+  /**
+   * Compare function used for sorting.
+   */
+  private compare(
+    a: number | string,
+    b: number | string,
+    isAsc: boolean
+  ): number {
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 }

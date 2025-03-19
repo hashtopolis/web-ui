@@ -2,11 +2,12 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
-import { JHashlist, HashlistRelationshipAttributesData } from '../_models/hashlist.model';
-import { IncludedAttributes, ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
-import { Filter, RequestParams } from '../_models/request-params.model';
+import { JHashlist } from '../_models/hashlist.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { FilterType } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
@@ -17,23 +18,11 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
 
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['hashType','hashlists'],
-      filter: new Array<Filter>({field: "format", operator: "eq", value: HashListFormat.SUPERHASHLIST})
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.sort = [order];
-    }
+    const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').addInclude('hashlists').addFilter({
+      field: 'format',
+      operator: FilterType.EQUAL,
+      value: HashListFormat.SUPERHASHLIST
+    }).create();
 
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
 

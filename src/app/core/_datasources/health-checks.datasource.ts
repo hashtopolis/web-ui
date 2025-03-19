@@ -4,29 +4,13 @@ import { BaseDataSource } from './base.datasource';
 import { HashtypeDataAttributes } from '../_models/hashtype.model';
 import { HealthCheckData } from '../_models/health-check.model';
 import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class HealthChecksDataSource extends BaseDataSource<HealthCheckData> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['hashType']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.include = [order];
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').create();
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
 
     this.subscriptions.push(
@@ -46,7 +30,7 @@ export class HealthChecksDataSource extends BaseDataSource<HealthCheckData> {
               const healthCheck: HealthCheckData = value;
 
               let hashTypeId: number = value.attributes.hashtypeId;
-              let includedhashType = response.included.find((inc) => inc.type === "hashType" && inc.id === hashTypeId);
+              let includedhashType = response.included.find((inc) => inc.type === 'hashType' && inc.id === hashTypeId);
               healthCheck.attributes.hashtype = includedhashType.attributes as HashtypeDataAttributes;
 
               healthChecks.push(healthCheck);

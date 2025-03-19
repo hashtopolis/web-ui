@@ -5,36 +5,17 @@ import { AgentData } from '../_models/agent.model';
 import { AgentAssignmentData } from '../_models/agent-assignment.model';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { TaskData } from '../_models/task.model';
 import { UserData } from '../_models/user.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class AgentsStatusDataSource extends BaseDataSource<AgentData> {
   loadAll(): void {
     this.loading = true;
+    const agentParams = new RequestParamBuilder().addInitial(this).addInclude('accessGroups').addInclude('agentstats').create();
+    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const agentParams: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['accessGroups','agentstats']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      agentParams.sort = [order];
-    }
-
-    const params: RequestParams = { 
-      page: {
-        size: this.maxResults 
-      }
-    };
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);

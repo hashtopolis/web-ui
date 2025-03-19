@@ -10,6 +10,7 @@ import { ResponseWrapper } from '../_models/response.model';
 import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { SERV } from '../_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 /**
  * Data source class definition for files
@@ -49,7 +50,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
 
     let files$;
 
-    const paramsBuilder = new RequestParamBuilder()
+    const paramsBuilder = new RequestParamBuilder();
 
     if (this.editIndex !== undefined) {
       if (this.editType === 0) {
@@ -61,8 +62,8 @@ export class FilesDataSource extends BaseDataSource<JFile> {
       const params = paramsBuilder
         .addInitial(this)
         .addInclude('accessGroup')
-        .addFilter({field: "fileType", operator: "eq", value: this.fileType})
-        .create()
+        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType })
+        .create();
 
       files$ = this.service.getAll(SERV.FILES, params);
     }

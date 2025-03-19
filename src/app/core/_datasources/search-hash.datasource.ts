@@ -3,9 +3,10 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { Log } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
-import { Filter, RequestParams } from '../_models/request-params.model';
+import { FilterType } from '../_models/request-params.model';
 import { HashData } from '../_models/hash.model';
 import { HashlistDataAttributes } from '../_models/hashlist.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SearchHashDataSource extends BaseDataSource<Log> {
   private _search: string[];
@@ -17,24 +18,14 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
     const arr = [];
 
     for (let i = 0; i < this._search.length; i++) {
-      const params: RequestParams = {
-        page: {
-          size: this.pageSize,
-          after: startAt
-        },
-        filter: new Array<Filter>({field: "hash", operator: "eq", value: this._search[i]}),
-        include: ["hashlist"]
-      };
-
-      if (sorting.dataKey && sorting.isSortable) {
-        const order = this.buildSortingParams(sorting);
-        params.sort = [order];
-      }
+      const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addFilter({
+        field: 'hash',
+        operator: FilterType.EQUAL,
+        value: this._search[i]
+      }).create();
 
       const hashs$ = this.service.getAll(SERV.HASHES, params);
 
@@ -59,7 +50,20 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
               let includedAttributes = response.included.find((item) => item.id === hashs[0].attributes.hashlistId).attributes as HashlistDataAttributes;
               hashs[0].attributes.hashlist = includedAttributes;
             } else {
-              hashs.push({ type: 'hash', id: undefined, attributes: {hashlistId: undefined, hash: this._search[i][0], salt: undefined, plaintext: undefined, timeCracked: undefined, chunkId: undefined, isCracked: undefined, crackPos: undefined } });
+              hashs.push({
+                type: 'hash',
+                id: undefined,
+                attributes: {
+                  hashlistId: undefined,
+                  hash: this._search[i][0],
+                  salt: undefined,
+                  plaintext: undefined,
+                  timeCracked: undefined,
+                  chunkId: undefined,
+                  isCracked: undefined,
+                  crackPos: undefined
+                }
+              });
             }
 
             arr.push(hashs[0]);

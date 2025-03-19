@@ -5,6 +5,7 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
   AccessGroup,
@@ -29,10 +30,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
   loadAll(): void {
     this.loading = true;
 
-    const params = {
-      include: [this._expand]
-    };
-
+    const params = new RequestParamBuilder().addInclude(this._expand).create();
     const accessPermissions$ = this.service.get(
       SERV.ACCESS_PERMISSIONS_GROUPS,
       this._accesspermgroupId,
@@ -55,6 +53,15 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
           this.setData(data);
         })
     );
+  }
+
+  getData(): AccessGroup[] {
+    return this.getOriginalData();
+  }
+
+  reload(): void {
+    this.clearSelection();
+    this.loadAll();
   }
 
   private processResponseWithPermissions(
@@ -90,14 +97,5 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
       []
     );
     return transformedData;
-  }
-
-  getData(): AccessGroup[] {
-    return this.getOriginalData();
-  }
-
-  reload(): void {
-    this.clearSelection();
-    this.loadAll();
   }
 }

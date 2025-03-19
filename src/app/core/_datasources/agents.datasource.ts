@@ -17,6 +17,7 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { SERV } from '@src/app/core/_services/main.config';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _taskId = 0;
@@ -32,27 +33,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const agentParams: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['accessGroups']
-    };
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      agentParams.sort = [order];
-    }
-
-    const params: RequestParams = {
-      page: {
-        size: this.maxResults
-      }
-    };
+    const agentParams = new RequestParamBuilder().addInitial(this).addInclude('accessGroups').create();
+    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
 
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const users$ = this.service.getAll(SERV.USERS, params);
@@ -129,8 +111,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     const assignParams = {
       maxResults: this.pageSize,
       startsAt: startAt,
-      expand: ['agent','task'],
-      filter: new Array<Filter>({field: "taskId", operator: "eq", value: this._taskId})
+      expand: ['agent', 'task'],
+      filter: new Array<Filter>({ field: 'taskId', operator: 'eq', value: this._taskId })
     };
 
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);

@@ -3,31 +3,14 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { CrackerBinaryData, CrackerBinaryTypeData } from '../_models/cracker-binary.model';
 import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class CrackersDataSource extends BaseDataSource<CrackerBinaryTypeData> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['crackerVersions']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.sort = [order];
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).addInclude('crackerVersions').create();
     const crackers$ = this.service.getAll(SERV.CRACKERS_TYPES, params);
-
     this.subscriptions.push(
       crackers$
         .pipe(
@@ -42,7 +25,7 @@ export class CrackersDataSource extends BaseDataSource<CrackerBinaryTypeData> {
             const cracker: CrackerBinaryTypeData = value;
 
             let crackerBinaryTypeId: number = cracker.id;
-            let crackerBinary: object[] = response.included.filter((inc) => inc.type === "crackerBinary" && inc.attributes.crackerBinaryTypeId === crackerBinaryTypeId);
+            let crackerBinary: object[] = response.included.filter((inc) => inc.type === 'crackerBinary' && inc.attributes.crackerBinaryTypeId === crackerBinaryTypeId);
 
             cracker.attributes.crackerVersions = crackerBinary as CrackerBinaryData[];
 
