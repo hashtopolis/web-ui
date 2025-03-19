@@ -1,10 +1,17 @@
-import { HashlistRelationshipLinks } from './hashlist.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 
 export interface CrackerBinary {
   _id: number;
   _self: string;
   binaryName: string;
   crackerBinaryId: number;
+  crackerBinaryTypeId: number;
+  downloadUrl: string;
+  version: string;
+}
+
+export interface JCrackerBinary extends BaseModel {
+  binaryName: string;
   crackerBinaryTypeId: number;
   downloadUrl: string;
   version: string;
@@ -19,6 +26,11 @@ export interface CrackerBinaryType {
   typeName: string;
 }
 
+export interface JCrackerBinaryType extends BaseModel {
+  crackerVersions: CrackerBinary[];
+  isChunkingAvailable: boolean;
+  typeName: string;
+}
 
 
 export interface CrackerBinaryTypeData {
