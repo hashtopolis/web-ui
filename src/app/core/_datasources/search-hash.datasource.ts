@@ -47,8 +47,7 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
             const hashs: HashData[] = response.data;
 
             if (hashs[0]) {
-              let includedAttributes = response.included.find((item) => item.id === hashs[0].attributes.hashlistId).attributes as HashlistDataAttributes;
-              hashs[0].attributes.hashlist = includedAttributes;
+              hashs[0].attributes.hashlist = response.included.find((item) => item.id === hashs[0].attributes.hashlistId).attributes as HashlistDataAttributes;
             } else {
               hashs.push({
                 type: 'hash',

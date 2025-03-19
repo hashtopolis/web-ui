@@ -1,5 +1,5 @@
 import { ChunkDataNew } from '../_models/chunk.model';
-import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { AgentData } from '../_models/agent.model';
 import { AgentAssignmentData } from '../_models/agent-assignment.model';

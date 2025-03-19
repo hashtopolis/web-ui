@@ -5,7 +5,7 @@
 import { catchError, forkJoin, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { Filter, RequestParams } from '@src/app/core/_models/request-params.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
@@ -100,20 +100,13 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   loadAssignments(): void {
     this.loading = true;
-
-    const params: RequestParams = {
-      page: {
-        size: this.maxResults
-      }
-    };
-
-    const startAt = this.currentPage * this.pageSize;
-    const assignParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: ['agent', 'task'],
-      filter: new Array<Filter>({ field: 'taskId', operator: 'eq', value: this._taskId })
-    };
+    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
+    const assignParams = new RequestParamBuilder().setPageSize(this.pageSize)
+      .setPageAfter(this.currentPage * this.pageSize)
+      .addInclude('agent')
+      .addInclude('task')
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this._taskId })
+      .create();
 
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);

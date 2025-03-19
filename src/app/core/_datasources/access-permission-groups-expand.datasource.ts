@@ -67,7 +67,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
   private processResponseWithPermissions(
     response: ListResponseWrapper<any>
   ): any[] {
-    const transformedData = Object.entries(response).reduce(
+    return Object.entries(response).reduce(
       (acc, [key, value]) => {
         const operation = key
           .replace(/^perm/, '')
@@ -96,6 +96,5 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
       },
       []
     );
-    return transformedData;
   }
 }

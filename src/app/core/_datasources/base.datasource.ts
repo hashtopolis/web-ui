@@ -15,7 +15,7 @@ import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { SelectionModel } from '@angular/cdk/collections';
 import { UIConfigService } from '../_services/shared/storage.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '@src/environments/environment';
 import { JsonAPISerializer } from '../_services/api/serializer-service';
 
 /**
@@ -342,7 +342,7 @@ export abstract class BaseDataSource<
     const tasks: number[] = !isAgent ? [id] : [];
     const agents: number[] = isAgent ? [id] : [];
     const current = 0;
-    let params = {};
+    let params: {};
 
     if (isAgent) {
       params = { 'filter[agentId__eq]': id };
