@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
 import { UIConfig, uiConfigDefault } from '@src/app/core/_models/config-ui.model';
-import { GlobalPermissionGroupData } from '@src/app/core/_models/global-permission-group.model';
+import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
@@ -196,7 +196,7 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id'])
-  async renderPermissionLink(obj: GlobalPermissionGroupData): Promise<HTTableRouterLink[]> {
+  async renderPermissionLink(obj: JGlobalPermissionGroup): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['id'] ? ['/users', 'global-permissions-groups', obj['id'], 'edit'] : [],
