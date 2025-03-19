@@ -1,14 +1,12 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
-import { AgentData } from '../_models/agent.model';
 import { BaseDataSource } from './base.datasource';
-import { ChunkDataNew } from '../_models/chunk.model';
-import { ListResponseWrapper } from '../_models/response.model';
+import { JChunk } from '../_models/chunk.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 import { Filter, RequestParams } from '../_models/request-params.model';
-import { TaskData } from '../_models/task.model';
 
-export class ChunksDataSource extends BaseDataSource<ChunkDataNew> {
+export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
 
   setAgentId(agentId: number): void {
@@ -38,9 +36,7 @@ export class ChunksDataSource extends BaseDataSource<ChunkDataNew> {
       params.sort = [order];
     }
 
-    const agentParams = { maxResults: this.maxResults };
     const chunks$ = this.service.getAll(SERV.CHUNKS, params);
-    // const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
     forkJoin([chunks$])
       .pipe(
@@ -48,21 +44,17 @@ export class ChunksDataSource extends BaseDataSource<ChunkDataNew> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([response]: [ListResponseWrapper<ChunkDataNew>]) => {
-                    let assignedChunks: ChunkDataNew[] = [];
+        ([response]: [ResponseWrapper]) => {
+           const responseBody = { data: response.data, included: response.included };
+           const assignedChunks = this.serializer.deserialize<JChunk[]>(responseBody);
 
-          response.data.forEach((value: ChunkDataNew) => {
-            const assignedChunk: ChunkDataNew = value;
-
-            let agentId: number = assignedChunk.attributes.agentId;
-            let includedAgent: object = response.included.find((inc) => inc.type === "agent" && inc.id === agentId);
-            assignedChunk.attributes.agent = includedAgent as AgentData;
-
-            let taskId: number = assignedChunk.attributes.taskId;
-            let includedTask: object = response.included.find((inc) => inc.type === "task" && inc.id === taskId);
-            assignedChunk.attributes.task = includedTask as TaskData;
-
-            assignedChunks.push(assignedChunk);
+          assignedChunks.forEach((chunk: JChunk) => {
+            if(chunk.task != undefined) {
+              chunk.taskName = chunk.task.taskName;
+            }
+            if(chunk.agent != undefined) {
+              chunk.agentName = chunk.agent.agentName;
+            }
           });
 
           this.setData(assignedChunks);
