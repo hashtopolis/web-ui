@@ -14,8 +14,9 @@ import { OnDestroy } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { ListResponseWrapper } from '../../../core/_models/response.model';
-import { CrackerBinaryTypeData } from '../../../core/_models/cracker-binary.model';
+import { ResponseWrapper } from '../../../core/_models/response.model';
+import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 @Component({
   selector: 'app-wrbulk',
@@ -60,7 +61,8 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     private uiService: UIConfigService,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.buildForm();
     titleService.set(['Import SuperTask - Wordlist/Rules Bulk']);
@@ -110,9 +112,13 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   loadData() {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: ListResponseWrapper<CrackerBinaryTypeData>) => {
+      .subscribe((response: ResponseWrapper) => {
+
+        const responseBody = { data: response.data, included: response.included };
+        const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+
         const transformedOptions = transformSelectOptions(
-          response.data,
+          crackerBinaryTypes,
           this.selectCrackertypeMap
         );
         this.selectCrackertype = transformedOptions;
