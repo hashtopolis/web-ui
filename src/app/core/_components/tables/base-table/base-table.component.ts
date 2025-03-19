@@ -125,7 +125,7 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id'])
-  async renderAgentLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  async renderAgentLink(obj: object): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['id'] ? ['/agents', 'show-agents', obj['id'], 'edit'] : [],
@@ -134,7 +134,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['taskId'])
+  @Cacheable(['id'])
   async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {

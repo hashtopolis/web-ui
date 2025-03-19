@@ -595,9 +595,9 @@ export class TasksTableComponent
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
+      // const cd: ChunkData = await this.getChunkData(wrapper);
       links.push({
-        label: cd.cracked + '',
+        label: wrapper.cracked + '',
         routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id]
       });
     }
