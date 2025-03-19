@@ -1,10 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
@@ -23,7 +18,6 @@ import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
   static readonly PWD_MAX = 12;
-  private formBuilder = inject(FormBuilder);
 
   pageTitle = 'Account Settings';
   pageSubtitlePassword = 'Password Update';
@@ -31,11 +25,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /** Form group for main form. */
   form: FormGroup;
   passform: FormGroup;
-  changepasswordFormGroup = this.formBuilder.group({
-    oldPassword: ['', Validators.required],
-    newPassword: ['', Validators.required],
-    confirmNewPassword: ['', Validators.required]
-  });
+  changepasswordFormGroup: FormGroup;
 
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
@@ -60,6 +50,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.createForm();
     this.loadUserSettings();
+    this.createUpdatePassForm();
     this.updatePassForm();
   }
 
@@ -92,6 +83,37 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     });
   }
 
+  createUpdatePassForm() {
+    this.changepasswordFormGroup = new FormGroup({
+      oldPassword: new FormControl('', Validators.required),
+      newPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(AccountSettingsComponent.PWD_MIN),
+        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+      ]),
+      confirmNewPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(AccountSettingsComponent.PWD_MIN),
+        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+      ])
+    });
+  }
+  get newPasswordFormErrorMinlength() {
+    return this.changepasswordFormGroup
+      .get('newPassword')
+      .hasError('minlength');
+  }
+  get newPasswordFormErrorMaxlength() {
+    return this.changepasswordFormGroup
+      .get('newPassword')
+      .hasError('maxlength');
+  }
+  get newPasswordFromForm() {
+    return this.changepasswordFormGroup.get('newPassword').value;
+  }
+  get confirmNewPasswordFromForm() {
+    return this.changepasswordFormGroup.get('confirmNewPassword').value;
+  }
   /**
    * Creates and password update
    *
@@ -162,7 +184,35 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       );
     }
   }
-
+  /**
+   * Handles password submission
+   */
+  onSubmitupdatePass() {
+    // console.log(this.newPasswordFormErrorMinlength);
+    console.log(this.changepasswordFormGroup.valid);
+    if (this.changepasswordFormGroup.valid) {
+      if (this.confirmNewPasswordFromForm === this.newPasswordFromForm) {
+        console.log('send');
+      }
+    }
+    /*     if (this.passform.valid) {
+      this.isUpdatingPassLoading = true;
+      const payload = {
+        userId: this.gs.userId,
+        password: this.passform.value['password']
+      };
+      console.log(payload);
+      this.subscriptions.push(
+        this.gs
+          .chelper(SERV.HELPER, 'setUserPassword', payload)
+          .subscribe(() => {
+            this.alert.okAlert('User password updated!', '');
+            this.isUpdatingPassLoading = false;
+            this.router.navigate(['users/all-users']);
+          })
+      );
+    } */
+  }
   onPasswordStrengthChanged(event: boolean) {
     this.strongPassword = event;
   }

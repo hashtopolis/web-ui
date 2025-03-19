@@ -35,7 +35,7 @@
   <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
   <form
     [formGroup]="changepasswordFormGroup"
-    style="display: flex; flex-direction: column"
+    style="display: flex; flex-direction: column; gap: 0.625rem"
   >
     <input-text
       title="Old Password"
@@ -61,7 +61,7 @@
     <grid-buttons>
       <button-submit
         [name]="'Update Password'"
-        (click)="onSubmitPass()"
+        (click)="onSubmitupdatePass()"
         data-testid="button-submit"
       ></button-submit>
       <div *ngIf="isUpdatingPassLoading">
