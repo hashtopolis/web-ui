@@ -37,13 +37,11 @@ export class TasksDataSource extends BaseDataSource<
       params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._hashlistId });
     }
 
+    const hashParams = new RequestParamBuilder().setPageSize(this.maxResults).create()
+
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, {
-      page: { size: this.maxResults }
-    });
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      page: { size: this.maxResults }
-    });
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, hashParams);
+    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, hashParams);
 
     forkJoin([wrappers$, hashLists$, hashTypes$])
       .pipe(
