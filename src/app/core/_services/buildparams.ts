@@ -42,7 +42,7 @@ export function setParameter(
   // Handle ordering parameter
   const sort = params.sort;
   if (Array.isArray(sort) && sort.length > 0) {
-    httpParams = httpParams.set("include", sort.join(","));
+    httpParams = httpParams.set("sort", sort.join(","));
   }
 
   if (params.include_total) {

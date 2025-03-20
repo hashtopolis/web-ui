@@ -2,29 +2,14 @@ import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { JHealthCheck } from '../_models/health-check.model';
-import { ResponseWrapper } from '../_models/response.model';import { RequestParams } from '../_models/request-params.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['hashType']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.include = [order];
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').create();
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
 
     this.subscriptions.push(

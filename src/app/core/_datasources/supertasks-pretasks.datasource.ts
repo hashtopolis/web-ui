@@ -5,6 +5,7 @@ import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { SuperTask } from '../_models/supertask.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SuperTasksPretasksDataSource extends BaseDataSource<
   SuperTask,
@@ -18,16 +19,8 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<
 
   loadAll(): void {
     this.loading = true;
-
-    const params = {
-      include: ['pretasks']
-    };
-
-    const pretasks$ = this.service.get(
-      SERV.SUPER_TASKS,
-      this._supertTaskId,
-      params
-    );
+    const params = new RequestParamBuilder().addInclude('pretasks').create();
+    const pretasks$ = this.service.get(SERV.SUPER_TASKS, this._supertTaskId, params);
 
     this.subscriptions.push(
       pretasks$

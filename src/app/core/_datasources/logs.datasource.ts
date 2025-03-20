@@ -3,28 +3,13 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { LogData } from '../_models/log.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class LogsDataSource extends BaseDataSource<LogData> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.sort = [order];
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).create();
     const logs$ = this.service.getAll(SERV.LOGS, params);
 
     this.subscriptions.push(
@@ -35,8 +20,7 @@ export class LogsDataSource extends BaseDataSource<LogData> {
         )
         .subscribe((response: ListResponseWrapper<LogData>) => {
           const logs: LogData[] = response.data;
-
-          if (startAt >= response.total) {
+          if (this.currentPage * this.pageSize >= response.total) {
             this.currentPage = 0;
             this.loadAll();
             return;

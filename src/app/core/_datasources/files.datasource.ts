@@ -6,11 +6,11 @@
 import { catchError, finalize, of } from 'rxjs';
 import { FileType, JFile } from '../_models/file.model';
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Filter, RequestParams } from '../_models/request-params.model';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { ResponseWrapper } from '../_models/response.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 /**
  * Data source class definition for files
@@ -48,34 +48,23 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
     let files$;
+
+    const paramsBuilder = new RequestParamBuilder();
 
     if (this.editIndex !== undefined) {
       if (this.editType === 0) {
-        files$ = this.service.get(SERV.TASKS, this.editIndex, {
-          include: ['files']
-        });
+        files$ = this.service.get(SERV.TASKS, this.editIndex, paramsBuilder.addInclude('files').create());
       } else {
-        files$ = this.service.get(SERV.PRETASKS, this.editIndex, {
-          include: ['pretaskFiles']
-        });
+        files$ = this.service.get(SERV.PRETASKS, this.editIndex, paramsBuilder.addInclude('pretaskFiles').create());
       }
     } else {
-      const params: RequestParams = {
-        page: {
-          size: this.pageSize,
-          after: startAt
-        },
-        include: ['accessGroup'],
-        filter: new Array<Filter>({field: "fileType", operator: "eq", value: this.fileType})
-      };
-      if (sorting.dataKey && sorting.isSortable) {
-        const order = this.buildSortingParams(sorting);
-        params.sort = [order];
-      }
+      const params = paramsBuilder
+        .addInitial(this)
+        .addInclude('accessGroup')
+        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType })
+        .create();
+
       files$ = this.service.getAll(SERV.FILES, params);
     }
 

@@ -3,28 +3,14 @@ import { catchError, finalize, of } from 'rxjs';
 import { JAccessGroup } from '../_models/access-group.model';
 import { BaseDataSource } from './base.datasource';
 import { ResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['userMembers','agentMembers']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.sort = [order];
-    }
+    const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers').create();
 
     const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params);
 

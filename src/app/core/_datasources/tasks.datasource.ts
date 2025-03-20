@@ -7,13 +7,8 @@ import { JTaskWrapper } from '../_models/task-wrapper.model';
 import { JHashtype } from '../_models/hashtype.model';
 import { ResponseWrapper } from '../_models/response.model';
 import { JHashlist } from '../_models/hashlist.model';
-import { TaskWrapperData, TaskWrapperRelationshipAttributesData } from '../_models/task-wrapper.model';
-import { HashtypeData } from '../_models/hashtype.model';
-import { TaskData } from '../_models/task.model';
-import { Filter, RequestParams } from '../_models/request-params.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { HashlistData } from '../_models/hashlist.model';
-import { AccessGroupData } from '../_models/access-group.model';
+import { FilterType } from '../_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class TasksDataSource extends BaseDataSource<
   JTaskWrapper,
@@ -32,40 +27,21 @@ export class TasksDataSource extends BaseDataSource<
 
   loadAll(): void {
     this.loading = true;
+    const params = new RequestParamBuilder().addInitial(this).addInclude('accessGroup').addInclude('tasks').addFilter({
+      field: 'isArchived',
+      operator: FilterType.EQUAL,
+      value: this._isArchived
+    });
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const filters = new Array<Filter>(
-      {field: "isArchived", operator: "eq", value: this._isArchived}
-    ) 
     if (this._hashlistId) {
-      filters.push({field: "hashlistId", operator: "eq", value: this._hashlistId});
+      params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._hashlistId });
     }
 
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['accessGroup','tasks'],
-      filter: filters
-    };
+    const hashParams = new RequestParamBuilder().setPageSize(this.maxResults).create()
 
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      if (order.length > 0) {
-        params.sort = [order];
-      }
-    }
-
-    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, {
-      page:{ size: this.maxResults}
-    });
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      page:{ size: this.maxResults}
-    });
+    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, hashParams);
+    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, hashParams);
 
     forkJoin([wrappers$, hashLists$, hashTypes$])
       .pipe(
@@ -73,7 +49,7 @@ export class TasksDataSource extends BaseDataSource<
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]:[ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
+        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]: [ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
 
           const taskWrapperResponseBody = { data: taskWrapperResponse.data, included: taskWrapperResponse.included };
           const taskWrappersDeserialized = this.serializer.deserialize<JTaskWrapper[]>(taskWrapperResponseBody);
@@ -89,16 +65,16 @@ export class TasksDataSource extends BaseDataSource<
           taskWrappersDeserialized.forEach((value: JTaskWrapper) => {
             const taskWrapper: JTaskWrapper = value;
 
-              const matchingHashList = hashlists.find(
-                        (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
-                      );
-              taskWrapper.hashlists = [matchingHashList];
+            const matchingHashList = hashlists.find(
+              (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
+            );
+            taskWrapper.hashlists = [matchingHashList];
 
-              const matchingHashTypes = hashtypes.find(
-                        (hashtype: JHashtype) =>
-                          hashtype.id === matchingHashList.hashTypeId
-                      );
-              taskWrapper.hashtypes = [matchingHashTypes];
+            const matchingHashTypes = hashtypes.find(
+              (hashtype: JHashtype) =>
+                hashtype.id === matchingHashList.hashTypeId
+            );
+            taskWrapper.hashtypes = [matchingHashTypes];
 
             taskWrappers.push(taskWrapper);
           });

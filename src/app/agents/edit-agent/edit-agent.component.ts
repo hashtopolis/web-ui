@@ -14,41 +14,29 @@ import {
 } from 'echarts/components';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, Inject, inject, OnInit, ViewChild } from '@angular/core';
-import { ASC } from '../../core/_constants/agentsc.config';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ASC, ignoreErrors } from '../../core/_constants/agentsc.config';
 import { UniversalTransition } from 'echarts/features';
-import { DataTableDirective } from 'angular-datatables';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
 import * as echarts from 'echarts/core';
-import { Subject } from 'rxjs';
 
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { ignoreErrors } from '../../core/_constants/agentsc.config';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { OnDestroy } from '@angular/core';
-import {
-  TASKS_FIELD_MAPPING,
-  USER_AGP_FIELD_MAPPING,
-  USER_FIELD_MAPPING
-} from 'src/app/core/_constants/select.config';
+import { TASKS_FIELD_MAPPING, USER_AGP_FIELD_MAPPING, USER_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { ListResponseWrapper, ResponseWrapper } from '../../core/_models/response.model';
 import { AgentData, AgentStats, JAgent } from '../../core/_models/agent.model';
-import { JUser, UserData } from '../../core/_models/user.model';
+import { JUser } from '../../core/_models/user.model';
 import { JsonAPISerializer } from '../../core/_services/api/serializer-service';
-import { User } from '../../users/user.model';
-import { JTask, TaskData } from '../../core/_models/task.model';
+import { JTask } from '../../core/_models/task.model';
 import { JChunk } from '../../core/_models/chunk.model';
 import { JAgentAssignment } from '../../core/_models/agent-assignment.model';
-import { Filter, RequestParams } from 'src/app/core/_models/request-params.model';
+import { Filter, FilterType, RequestParams } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-edit-agent',
@@ -179,7 +167,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       });
     this.unsubscribeService.add(loadAgentsSubscription$);
 
-    const filter = new Array<Filter>({field: "isArchived", operator: "eq", value: true});
+    const filter = new Array<Filter>({field: "isArchived", operator: FilterType.EQUAL, value: true});
 
     // Load get select tasks for assigment
     const loadTasksSubscription$ = this.gs
@@ -240,7 +228,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       });
     });
 
-    const filter = new Array<Filter>({field: "agentId", operator: "eq", value: this.editedAgentIndex});
+    const filter = new Array<Filter>({field: "agentId", operator: FilterType.EQUAL, value: this.editedAgentIndex});
     this.gs
       .getAll(SERV.AGENT_ASSIGN, {
         filter: filter

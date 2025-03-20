@@ -2,27 +2,14 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { ResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { JUser } from '../_models/user.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class UsersDataSource extends BaseDataSource<JUser> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {size: this.pageSize, after: startAt},
-      include: ['globalPermissionGroup']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.sort = [order];
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).addInclude('globalPermissionGroup').create();
     const users$ = this.service.getAll(SERV.USERS, params);
 
     this.subscriptions.push(
@@ -40,7 +27,7 @@ export class UsersDataSource extends BaseDataSource<JUser> {
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            users.length,
+            users.length
           );
           this.setData(users);
         })

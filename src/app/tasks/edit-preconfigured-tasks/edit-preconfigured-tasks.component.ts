@@ -1,20 +1,16 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { yesNo } from '../../core/_constants/general.config';
 import { SERV } from '../../core/_services/main.config';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { OnDestroy } from '@angular/core';
-import { Filter } from 'src/app/core/_models/request-params.model';
+import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -108,7 +104,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const params = {
-      filter: new Array<Filter>( {field: 'pretaskId', operator: 'eq', value: this.editedPretaskIndex} ),
+      filter: new Array<Filter>( {field: 'pretaskId', operator: FilterType.EQUAL, value: this.editedPretaskIndex} ),
       expand: ['pretaskFiles']
     };
     const loadtableSubscription$ = this.gs

@@ -3,30 +3,14 @@ import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
 import { JHashtype } from '../_models/hashtype.model';
 import { ResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      }
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.sort = [order];
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).create();
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
-
     this.subscriptions.push(
       hashtypes$
         .pipe(

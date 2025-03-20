@@ -5,31 +5,14 @@ import { JGlobalPermissionGroup } from '../_models/global-permission-group.model
 import { ResponseWrapper } from '../_models/response.model';
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { UserData } from '../_models/user.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      page: {
-        size: this.pageSize,
-        after: startAt
-      },
-      include: ['userMembers']
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.include = [order];
-    }
-
-    const permissions$ = this.service.getAll(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      params
-    );
+    const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').create();
+    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params);
 
     this.subscriptions.push(
       permissions$
