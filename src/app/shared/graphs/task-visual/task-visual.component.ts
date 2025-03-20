@@ -1,7 +1,7 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { GlobalService } from '../../../core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
-import { Filter } from 'src/app/core/_models/request-params.model';
+import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'task-visual',
@@ -70,7 +70,7 @@ export class TaskVisualomponent {
     const maxResults = 10000;
 
     // const maxResults = environment.config.prodApiMaxResults;
-    const taskFilter = new Array<Filter>({ field: "taskId", operator: "eq", value: this.taskid});
+    const taskFilter = new Array<Filter>({ field: "taskId", operator: FilterType.EQUAL, value: this.taskid});
     const page = {size: maxResults};
     this.gs
       .getAll(SERV.TASKS, {
@@ -81,7 +81,7 @@ export class TaskVisualomponent {
         this.gs
           .getAll(SERV.TASKS_WRAPPER, {
             page: page,
-            filter: new Array<Filter>( {field: "taskWrapperId", operator: "eq", value:res.values[0].taskWrapperId} )
+            filter: new Array<Filter>( {field: "taskWrapperId", operator: FilterType.EQUAL, value:res.values[0].taskWrapperId} )
           })
           .subscribe((res) => {
             const ch = res.values;

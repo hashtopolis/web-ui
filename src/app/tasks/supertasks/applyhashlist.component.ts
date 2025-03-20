@@ -1,26 +1,17 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { DataTableDirective } from 'angular-datatables';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 
-import {
-  CRACKER_TYPE_FIELD_MAPPING,
-  CRACKER_VERSION_FIELD_MAPPING
-} from 'src/app/core/_constants/select.config';
+import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from '../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
 import { FormControl, FormGroup } from '@angular/forms';
-import { OnDestroy } from '@angular/core';
-import { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy } from '@angular/core';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
 import { Hashlist } from 'src/app/core/_models/hashlist.model';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { Filter } from 'src/app/core/_models/request-params.model';
+import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
 
 /**
  * ApplyHashlistComponent is a component responsible for managing and applying hashlists.
@@ -155,8 +146,8 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   loadData() {
     // Load Hahslists Select Options
     const filter = new Array<Filter> (
-      {field: 'isarchived', operator: 'eq', value: false},
-      {field: 'format', operator: 'eq', value: 0}
+      {field: 'isarchived', operator: FilterType.EQUAL, value: false},
+      {field: 'format', operator: FilterType.EQUAL, value: 0}
     )
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, {
@@ -178,18 +169,17 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     const loadCrackerTypesSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
       .subscribe((response) => {
-        const transformedOptions = transformSelectOptions(
+        this.selectCrackertype = transformSelectOptions(
           response.values,
           this.selectCrackertypeMap
         );
-        this.selectCrackertype = transformedOptions;
         let id = '';
         if (this.selectCrackertype.find((obj) => obj.name === 'hashcat')._id) {
           id = this.selectCrackertype.find((obj) => obj.name === 'hashcat')._id;
         } else {
           id = this.selectCrackertype.slice(-1)[0]['_id'];
         }
-        const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: "eq", value: id});
+        const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: FilterType.EQUAL, value: id});
         const loadCrackersSubscription$ = this.gs
           .getAll(SERV.CRACKERS, {
             filter: filter
@@ -218,7 +208,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   handleChangeBinary(id: string) {
-    const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: "eq", value: id});
+    const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: FilterType.EQUAL, value: id});
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, { filter: filter })
       .subscribe((response: any) => {

@@ -1,9 +1,4 @@
-import {
-  CalendarComponent,
-  TitleComponent,
-  TooltipComponent,
-  VisualMapComponent
-} from 'echarts/components';
+import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -19,14 +14,9 @@ import { UISettingsUtilityClass } from '../shared/utils/config';
 import { Subscription } from 'rxjs';
 import { ListResponseWrapper } from '../core/_models/response.model';
 import { Hash, HashData } from '../core/_models/hash.model';
-import {
-  formatDate,
-  formatUnixTimestamp,
-  unixTimestampInPast
-} from '../shared/utils/datetime';
+import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '../shared/utils/datetime';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Filter, RequestParams } from '../core/_models/request-params.model';
-import { filters } from '../core/_constants/hashes.config';
+import { Filter, FilterType, RequestParams } from '../core/_models/request-params.model';
 
 @Component({
   selector: 'app-home',
@@ -181,7 +171,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   private getAgents(): void {
     const params: RequestParams = {
-      filter:  new Array<Filter> ({ field: "isActive", operator: "eq", value: true}),
+      filter:  new Array<Filter> ({ field: "isActive", operator: FilterType.EQUAL, value: true}),
       include_total: true
     };
 
@@ -200,9 +190,9 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   private getTasks(): void {
     const includeTasks = ['tasks'];
-    const filtersTotalTasks = new Array<Filter>( 
-      {field: "taskType", operator: "eq", value: 0},
-      {field: "isArchived", operator: "eq", value: 0}
+    const filtersTotalTasks = new Array<Filter>(
+      {field: "taskType", operator: FilterType.EQUAL, value: 0},
+      {field: "isArchived", operator: FilterType.EQUAL, value: 0}
     )
     const paramsTotalTasks = { include: includeTasks, filter: filtersTotalTasks};
     this.subscriptions.push(
@@ -213,9 +203,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         })
     );
 
-    const filtersCompleteTasks = new Array<Filter>( 
-      {field: "taskType", operator: "eq", value: 0},
-      {field: "keyspace", operator: "gt", value: 0}
+    const filtersCompleteTasks = new Array<Filter>(
+      {field: "taskType", operator: FilterType.EQUAL, value: 0},
+      {field: "keyspace", operator: FilterType.GREATER, value: 0}
     )
     const paramsCompletedTasks = { include: includeTasks, filter: filtersCompleteTasks};
     this.subscriptions.push(
@@ -231,10 +221,10 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of supertasks.
    */
   private getSuperTasks(): void {
-    const filtersTotalTasks = new Array<Filter>( 
-      {field: "taskType", operator: "eq", value: 1},
-      {field: "keyspace", operator: "eq", value: "keyspaceProgress"},
-      {field: "keyspace", operator: "gt", value: 0},
+    const filtersTotalTasks = new Array<Filter>(
+      {field: "taskType", operator: FilterType.EQUAL, value: 1},
+      {field: "keyspace", operator: FilterType.EQUAL, value: "keyspaceProgress"},
+      {field: "keyspace", operator: FilterType.GREATER, value: 0},
     )
     const paramsTotalTasks = { include: ['tasks'], filters: filtersTotalTasks};
     this.subscriptions.push(
@@ -245,8 +235,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         })
     );
 
-    const filtersCompletedTasks = new Array<Filter>( 
-      {field: "taskType", operator: "eq", value: 1},
+    const filtersCompletedTasks = new Array<Filter>(
+      {field: "taskType", operator: FilterType.EQUAL, value: 1},
     )
     const paramsCompletedTasks = { include: ['tasks'], 'filter[keyspace__eq]': 'keyspaceProgress', 'filter[keyspace__gt]': 0, 'filter[taskType__eq]': 1 };
     this.subscriptions.push(
@@ -263,7 +253,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   private getCracks(): void {
     const timestampInPast = unixTimestampInPast(7);
-    const params = { filter: new Array<Filter>({ field: "timeCracked", operator: "gt", value: timestampInPast})};
+    const params = { filter: new Array<Filter>({ field: "timeCracked", operator: FilterType.GREATER, value: timestampInPast})};
 
     this.subscriptions.push(
       this.gs
@@ -311,7 +301,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param data - Hash data used for the chart.
    */
   updateChart(): void {
-    const params = { filter: new Array<Filter>({field: "isCracked", operator: "eq", value: 1})};
+    const params = { filter: new Array<Filter>({field: "isCracked", operator: FilterType.EQUAL, value: 1})};
 
     this.subscriptions.push(
       this.gs

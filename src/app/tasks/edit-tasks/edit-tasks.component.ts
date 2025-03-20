@@ -33,7 +33,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { finalize } from 'rxjs';
-import { Filter } from 'src/app/core/_models/request-params.model';
+import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -199,7 +199,7 @@ export class EditTasksComponent implements OnInit {
               this.gs
                 .getAll(SERV.HASHTYPES, {
                   filter: new Array<Filter> (
-                    {field: 'hashtypeId', operator: 'eq', value: this.hashlistinform['hashTypeId']}
+                    {field: 'hashtypeId', operator: FilterType.EQUAL, value: this.hashlistinform['hashTypeId']}
                   )
                 })
                 .subscribe(
@@ -352,7 +352,7 @@ export class EditTasksComponent implements OnInit {
     const page = {size: this.chunkresults};
     const params = { page: page };
       const filter = new Array<Filter>(
-        {field: "taskId", operator: "eq", value: this.editedTaskIndex}
+        {field: "taskId", operator: FilterType.EQUAL, value: this.editedTaskIndex}
       );
     this.gs
       .getAll(SERV.CHUNKS, {

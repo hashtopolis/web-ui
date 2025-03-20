@@ -1,21 +1,11 @@
 export enum FilterType {
   EQUAL = 'eq',
-  NOT_EQUAL = 'ne',
-  LESSER = 'lt',
-  LESSER_EQUAL = 'lte',
   GREATER = 'gt',
-  GREATER_EQUAL = 'gte',
-  CONTAINS = 'contains',
-  STARTS = 'startswith',
-  ENDS = 'endswith',
-  CONTAINS_IGNORE_CASE = 'icontains',
-  STARTS_IGNORE_CASE = 'istartswith',
-  ENDS_IGNORE_CASE = 'iendswith'
 }
 
 export interface Filter {
   field: string;
-  operator: FilterType
+  operator: FilterType;
   value: string | number | boolean;
 }
 
