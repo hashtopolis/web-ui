@@ -27,7 +27,7 @@ export interface CrackerBinaryType {
 }
 
 export interface JCrackerBinaryType extends BaseModel {
-  crackerVersions: CrackerBinary[];
+  crackerVersions: JCrackerBinary[];
   isChunkingAvailable: boolean;
   typeName: string;
 }

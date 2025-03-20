@@ -62,7 +62,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent binary; otherwise, `false`.
    */
   protected isAgentBinary(): boolean {
-    return this.checkType('agentBinary') && 'filename' in this.data.attributes;
+    return this.checkType('agentBinary') && 'filename' in this.data;
   }
 
   /**
@@ -70,7 +70,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
   protected isPreprocessor(): boolean {
-    return this.checkType('preprocessor') && 'binaryName' in this.data.attributes;
+    return this.checkType('preprocessor') && 'binaryName' in this.data;
   }
 
   /**
@@ -78,7 +78,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    return this.checkType('crackerBinaryType') && 'typeName' in this.data.attributes;
+    return this.checkType('crackerBinaryType') && 'typeName' in this.data;
   }
 
   /**
@@ -147,7 +147,7 @@ export class BaseMenuComponent {
    */
   protected isPermission(): boolean {
     try {
-      return this.checkType('globalPermissionGroup') && 'permissions' in this.data.attributes;
+      return this.checkType('globalPermissionGroup') && 'permissions' in this.data;
     } catch (error) {
       return false;
     }
