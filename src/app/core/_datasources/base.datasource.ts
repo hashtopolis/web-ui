@@ -219,8 +219,8 @@ export abstract class BaseDataSource<
    * @returns True if all rows are selected
    */
   isAllSelected(): boolean {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSubject.value.length;
+    const numSelected = this.selection.selected ? this.selection.selected.length : 0;
+    const numRows = this.dataSubject &&  this.dataSubject.value ? this.dataSubject.value.length : 0;
 
     return !!(numSelected > 0 && numSelected === numRows);
   }
