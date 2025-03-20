@@ -1,13 +1,11 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { HashtypeDataAttributes } from '../_models/hashtype.model';
-import { HealthCheckData } from '../_models/health-check.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { JHealthCheck } from '../_models/health-check.model';
+import { ResponseWrapper } from '../_models/response.model';import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class HealthChecksDataSource extends BaseDataSource<HealthCheckData> {
+export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
   loadAll(): void {
     this.loading = true;
 
@@ -37,25 +35,20 @@ export class HealthChecksDataSource extends BaseDataSource<HealthCheckData> {
         )
         .subscribe(
           ([response]: [
-            ListResponseWrapper<HealthCheckData>
+            ResponseWrapper
           ]) => {
 
-            let healthChecks: HealthCheckData[] = [];
+            const responseData = { data: response.data, included: response.included };
+            const healthChecks = this.serializer.deserialize<JHealthCheck[]>(responseData);
 
-            response.data.forEach((value: HealthCheckData) => {
-              const healthCheck: HealthCheckData = value;
-
-              let hashTypeId: number = value.attributes.hashtypeId;
-              let includedhashType = response.included.find((inc) => inc.type === "hashType" && inc.id === hashTypeId);
-              healthCheck.attributes.hashtype = includedhashType.attributes as HashtypeDataAttributes;
-
-              healthChecks.push(healthCheck);
+            healthChecks.forEach((healthCheck: JHealthCheck) => {
+              healthCheck.hashTypeDescription = healthCheck.hashType?.description;
             });
 
             this.setPaginationConfig(
               this.pageSize,
               this.currentPage,
-              response.total
+              healthChecks.length,
             );
             this.setData(healthChecks);
           }
