@@ -11,7 +11,7 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { GlobalPermissionGroupData } from 'src/app/core/_models/global-permission-group.model';
+import { JGlobalPermissionGroup } from 'src/app/core/_models/global-permission-group.model';
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import { PermissionsDataSource } from 'src/app/core/_datasources/permissions.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
@@ -47,8 +47,8 @@ export class PermissionsTableComponent
     }
   }
 
-  filter(item: GlobalPermissionGroupData, filterValue: string): boolean {
-    if (item.attributes.name.toLowerCase().includes(filterValue)) {
+  filter(item: JGlobalPermissionGroup, filterValue: string): boolean {
+    if (item.name.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -61,29 +61,29 @@ export class PermissionsTableComponent
         id: PermissionsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        export: async (permission: GlobalPermissionGroupData) => permission.id + ''
+        export: async (permission: JGlobalPermissionGroup) => permission.id + ''
       },
       {
         id: PermissionsTableCol.NAME,
         dataKey: 'name',
-        routerLink: (permission: GlobalPermissionGroupData) =>
+        routerLink: (permission: JGlobalPermissionGroup) =>
           this.renderPermissionLink(permission),
         isSortable: true,
-        export: async (permission: GlobalPermissionGroupData) => permission.attributes.name
+        export: async (permission: JGlobalPermissionGroup) => permission.name
       },
       {
         id: PermissionsTableCol.MEMBERS,
         dataKey: 'numUsers',
         isSortable: true,
-        render: (permission: GlobalPermissionGroupData) => permission.attributes.userCount,
-        export: async (permission: GlobalPermissionGroupData) => permission.attributes.userCount + ''
+        render: (permission: JGlobalPermissionGroup) => permission.userMembers.length,
+        export: async (permission: JGlobalPermissionGroup) => permission.userMembers.length + ''
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<GlobalPermissionGroupData>) {
+  openDialog(data: DialogData<JGlobalPermissionGroup>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -107,10 +107,10 @@ export class PermissionsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<GlobalPermissionGroupData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<GlobalPermissionGroupData>(
+        this.exportService.toExcel<JGlobalPermissionGroup>(
           'hashtopolis-permissions',
           this.tableColumns,
           event.data,
@@ -118,7 +118,7 @@ export class PermissionsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<GlobalPermissionGroupData>(
+        this.exportService.toCsv<JGlobalPermissionGroup>(
           'hashtopolis-permissions',
           this.tableColumns,
           event.data,
@@ -127,7 +127,7 @@ export class PermissionsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<GlobalPermissionGroupData>(
+          .toClipboard<JGlobalPermissionGroup>(
             this.tableColumns,
             event.data,
             PermissionsTableColumnLabel
@@ -142,12 +142,12 @@ export class PermissionsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<GlobalPermissionGroupData>): void {
+  rowActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting permission ${event.data.attributes.name} ...`,
+          title: `Deleting permission ${event.data.name} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -160,7 +160,7 @@ export class PermissionsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<GlobalPermissionGroupData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -179,8 +179,8 @@ export class PermissionsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(permissions: GlobalPermissionGroupData[]): void {
-    const requests = permissions.map((permission: GlobalPermissionGroupData) => {
+  private bulkActionDelete(permissions: JGlobalPermissionGroup[]): void {
+    const requests = permissions.map((permission: JGlobalPermissionGroup) => {
       return this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS, permission.id);
     });
 
@@ -205,7 +205,7 @@ export class PermissionsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(permissions: GlobalPermissionGroupData[]): void {
+  private rowActionDelete(permissions: JGlobalPermissionGroup[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions[0].id)
@@ -222,7 +222,7 @@ export class PermissionsTableComponent
     );
   }
 
-  private rowActionEdit(permission: GlobalPermissionGroupData): void {
+  private rowActionEdit(permission: JGlobalPermissionGroup): void {
     this.router.navigate([
       '/users',
       'global-permissions-groups',

@@ -1,13 +1,14 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { GlobalPermissionGroupData } from '../_models/global-permission-group.model';
-import { ListResponseWrapper } from '../_models/response.model';
+import { JGlobalPermissionGroup } from '../_models/global-permission-group.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 import { UserData } from '../_models/user.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroupData> {
+export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup> {
   loadAll(): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').create();
@@ -19,26 +20,17 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroupD
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<GlobalPermissionGroupData>) => {
-          const permissions: GlobalPermissionGroupData[] = [];
+        .subscribe((response: ResponseWrapper) => {
 
-          response.data.forEach((value: GlobalPermissionGroupData) => {
-            const permission: GlobalPermissionGroupData = value;
-
-            let globalPermissionGroupId: number = value.id;
-            let includedUser: object[] = response.included.filter((inc) => inc.type === 'user');
-
-            permission.attributes.userCount = (includedUser as UserData[]).filter((incUser: UserData) => incUser.attributes.globalPermissionGroupId === globalPermissionGroupId).length;
-
-            permissions.push(permission);
-          });
+          const responseBody = { data: response.data, included: response.included };
+          const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            globalPermissionGroups.length
           );
-          this.setData(permissions);
+          this.setData(globalPermissionGroups);
         })
     );
   }

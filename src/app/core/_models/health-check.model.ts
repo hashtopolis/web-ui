@@ -1,4 +1,5 @@
-import { Hashtype, HashtypeDataAttributes } from './hashtype.model';
+import { Hashtype, HashtypeDataAttributes, JHashtype } from './hashtype.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 
 export enum HealthCheckType {
   BRUTE_FORCE
@@ -27,6 +28,19 @@ export interface HealthCheck {
   status: number;
   time: number;
 }
+
+export interface JHealthCheck extends BaseModel {
+  attackCmd: string;
+  checkType: HealthCheckType;
+  crackerBinaryId: number;
+  expectedCracks: number;
+  hashTypeId: number;
+  hashType?: JHashtype;
+  hashTypeDescription?: string;
+  status: number;
+  time: number;
+}
+
 
 export interface HealthCheckAgent {
   _id: number;

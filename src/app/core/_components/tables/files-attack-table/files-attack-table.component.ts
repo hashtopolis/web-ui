@@ -6,7 +6,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import { FileData, FileType } from 'src/app/core/_models/file.model';
+import { FileType, JFile } from 'src/app/core/_models/file.model';
 import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
@@ -62,8 +62,8 @@ export class FilesAttackTableComponent
     }
   }
 
-  filter(item: FileData, filterValue: string): boolean {
-    if (item.attributes.filename.toLowerCase().includes(filterValue)) {
+  filter(item: JFile, filterValue: string): boolean {
+    if (item.filename.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -76,22 +76,22 @@ export class FilesAttackTableComponent
         id: FilesAttackTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        export: async (file: FileData) => file.id + ''
+        export: async (file: JFile) => file.id + ''
       },
       {
         id: FilesAttackTableCol.NAME,
         dataKey: 'filename',
-        icons: (file: FileData) => this.renderSecretIcon(file),
-        render: (file: FileData) => file.attributes.filename,
+        icons: (file: JFile) => this.renderSecretIcon(file),
+        render: (file: JFile) => file.filename,
         isSortable: true,
-        export: async (file: FileData) => file.attributes.filename
+        export: async (file: JFile) => file.filename
       },
       {
         id: FilesAttackTableCol.SIZE,
         dataKey: 'size',
-        render: (file: FileData) => formatFileSize(file.attributes.size, 'short'),
+        render: (file: JFile) => formatFileSize(file.size, 'short'),
         isSortable: true,
-        export: async (file: FileData) => formatFileSize(file.attributes.size, 'short')
+        export: async (file: JFile) => formatFileSize(file.size, 'short')
       }
     ];
 
@@ -99,9 +99,9 @@ export class FilesAttackTableComponent
   }
 
   @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(file: FileData): Promise<HTTableIcon[]> {
+  async renderSecretIcon(file: JFile): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
-    if (file.attributes.isSecret) {
+    if (file.isSecret) {
       icons.push({
         name: 'lock',
         tooltip: 'Secret'
@@ -127,7 +127,7 @@ export class FilesAttackTableComponent
       currentCmd = form.preprocessorCommand || '';
     }
     const newCmdArray = currentCmd.split(' ');
-    const fileName = event.row.attributes.filename;
+    const fileName = event.row.filename;
     const fileId = event.row.id;
     let newFileIds;
     if (event.columnType === 'CMD') {
@@ -142,7 +142,7 @@ export class FilesAttackTableComponent
       if (indexFileName !== -1) {
         newCmdArray.splice(indexFileName, 1);
       }
-      if (event.row.attributes.fileType === 1) {
+      if (event.row.fileType === 1) {
           newCmdArray.splice(indexFileName - 1, 1);
       }
 
@@ -153,7 +153,7 @@ export class FilesAttackTableComponent
       }
     } else {
       // Add -r and filename to the command
-      if (event.row.attributes.fileType === 1) {
+      if (event.row.fileType === 1) {
         newCmdArray.push('-r');
       }
 

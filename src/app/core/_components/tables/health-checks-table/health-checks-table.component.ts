@@ -13,7 +13,7 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { HealthCheckData } from 'src/app/core/_models/health-check.model';
+import { JHealthCheck } from 'src/app/core/_models/health-check.model';
 import { HealthChecksDataSource } from 'src/app/core/_datasources/health-checks.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -50,8 +50,8 @@ export class HealthChecksTableComponent
     }
   }
 
-  filter(item: HealthCheckData, filterValue: string): boolean {
-    if (item.attributes.attackCmd.toLowerCase().includes(filterValue)) {
+  filter(item: JHealthCheck, filterValue: string): boolean {
+    if (item.attackCmd.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -63,48 +63,48 @@ export class HealthChecksTableComponent
       {
         id: HealthChecksTableCol.ID,
         dataKey: '_id',
-        routerLink: (healthCheck: HealthCheckData) =>
+        routerLink: (healthCheck: JHealthCheck) =>
           this.renderHealthCheckLink(healthCheck),
         isSortable: true,
-        export: async (healthCheck: HealthCheckData) => healthCheck.id + ''
+        export: async (healthCheck: JHealthCheck) => healthCheck.id + ''
       },
       {
         id: HealthChecksTableCol.CREATED,
         dataKey: 'created',
         isSortable: true,
-        render: (healthCheck: HealthCheckData) =>
-          formatUnixTimestamp(healthCheck.attributes.time, this.dateFormat),
-        export: async (healthCheck: HealthCheckData) =>
-          formatUnixTimestamp(healthCheck.attributes.time, this.dateFormat)
+        render: (healthCheck: JHealthCheck) =>
+          formatUnixTimestamp(healthCheck.time, this.dateFormat),
+        export: async (healthCheck: JHealthCheck) =>
+          formatUnixTimestamp(healthCheck.time, this.dateFormat)
       },
       {
         id: HealthChecksTableCol.TYPE,
         dataKey: 'hashtypeDescription',
-        render: (healthCheck: HealthCheckData) =>
-          healthCheck.attributes.hashtype
-            ? `Brute Force (${healthCheck.attributes.hashtype.description})`
+        render: (healthCheck: JHealthCheck) =>
+          healthCheck.hashType
+            ? `Brute Force (${healthCheck.hashType.description})`
             : '',
         isSortable: true,
-        export: async (healthCheck: HealthCheckData) =>
-          healthCheck.attributes.hashtype
-            ? `Brute Force (${healthCheck.attributes.hashtype.description})`
+        export: async (healthCheck: JHealthCheck) =>
+          healthCheck.hashType
+            ? `Brute Force (${healthCheck.hashType.description})`
             : ''
       },
       {
         id: HealthChecksTableCol.STATUS,
         dataKey: 'status',
-        render: (healthCheck: HealthCheckData) =>
-          HealthChecksTableStatusLabel[healthCheck.attributes.status],
+        render: (healthCheck: JHealthCheck) =>
+          HealthChecksTableStatusLabel[healthCheck.status],
         isSortable: true,
-        export: async (healthCheck: HealthCheckData) =>
-          HealthChecksTableStatusLabel[healthCheck.attributes.status]
+        export: async (healthCheck: JHealthCheck) =>
+          HealthChecksTableStatusLabel[healthCheck.status]
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<HealthCheckData>) {
+  openDialog(data: DialogData<JHealthCheck>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -127,7 +127,7 @@ export class HealthChecksTableComponent
   }
 
   @Cacheable(['id'])
-  async renderHealthCheckLink(hc: HealthCheckData): Promise<HTTableRouterLink[]> {
+  async renderHealthCheckLink(hc: JHealthCheck): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: ['/config/health-checks', hc.id],
@@ -138,10 +138,10 @@ export class HealthChecksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<HealthCheckData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JHealthCheck[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<HealthCheckData>(
+        this.exportService.toExcel<JHealthCheck>(
           'hashtopolis-health-checks',
           this.tableColumns,
           event.data,
@@ -149,7 +149,7 @@ export class HealthChecksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<HealthCheckData>(
+        this.exportService.toCsv<JHealthCheck>(
           'hashtopolis-health-checks',
           this.tableColumns,
           event.data,
@@ -158,7 +158,7 @@ export class HealthChecksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<HealthCheckData>(
+          .toClipboard<JHealthCheck>(
             this.tableColumns,
             event.data,
             HealthChecksTableColumnLabel
@@ -173,12 +173,12 @@ export class HealthChecksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<HealthCheckData>): void {
+  rowActionClicked(event: ActionMenuEvent<JHealthCheck>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting health check Brute Force (${event.data.attributes.hashtype.description}) ...`,
+          title: `Deleting health check Brute Force (${event.data.hashType.description}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -191,7 +191,7 @@ export class HealthChecksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<HealthCheckData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JHealthCheck[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -200,7 +200,7 @@ export class HealthChecksTableComponent
           icon: 'warning',
           body: `Are you sure you want to delete the above health checks? Note that this action cannot be undone.`,
           warn: true,
-          listAttribute: 'hashtypeDescription',
+          listAttribute: 'hashTypeDescription',
           action: event.menuItem.action
         });
         break;
@@ -210,8 +210,8 @@ export class HealthChecksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(healthChecks: HealthCheckData[]): void {
-    const requests = healthChecks.map((healthCheck: HealthCheckData) => {
+  private bulkActionDelete(healthChecks: JHealthCheck[]): void {
+    const requests = healthChecks.map((healthCheck: JHealthCheck) => {
       return this.gs.delete(SERV.HEALTH_CHECKS, healthCheck.id);
     });
 
@@ -236,7 +236,7 @@ export class HealthChecksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(healthChecks: HealthCheckData[]): void {
+  private rowActionDelete(healthChecks: JHealthCheck[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.HEALTH_CHECKS, healthChecks[0].id)
@@ -253,7 +253,7 @@ export class HealthChecksTableComponent
     );
   }
 
-  private rowActionView(healthCheck: HealthCheckData): void {
+  private rowActionView(healthCheck: JHealthCheck): void {
     this.router.navigate(['/config/health-checks', healthCheck.id]);
   }
 }
