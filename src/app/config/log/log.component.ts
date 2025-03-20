@@ -89,8 +89,8 @@ export class LogComponent implements OnInit {
     const maxresults = this.getLenghtMenu();
     const params: RequestParams = {
       page: {
-        size: 99999,
-        after: (page-1) * this.pageSize
+        size: 500,
+        after: (page) * this.pageSize
       },
     };
 

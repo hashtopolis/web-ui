@@ -1,14 +1,18 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { LogData } from '../_models/log.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { JLog } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class LogsDataSource extends BaseDataSource<LogData> {
+export class LogsDataSource extends BaseDataSource<JLog> {
   loadAll(): void {
     this.loading = true;
+
+    //ToDo: Reactivate sorting
+    this.sortingColumn.isSortable = false;
+
     const params = new RequestParamBuilder().addInitial(this).create();
     const logs$ = this.service.getAll(SERV.LOGS, params);
 
@@ -18,9 +22,12 @@ export class LogsDataSource extends BaseDataSource<LogData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<LogData>) => {
-          const logs: LogData[] = response.data;
-          if (this.currentPage * this.pageSize >= response.total) {
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseData = { data: response.data, included: response.included };
+          const logs = this.serializer.deserialize<JLog[]>(responseData);
+
+          if (this.currentPage * this.pageSize >= logs.length) {
             this.currentPage = 0;
             this.loadAll();
             return;
@@ -29,7 +36,7 @@ export class LogsDataSource extends BaseDataSource<LogData> {
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            logs.length,
           );
           this.setData(logs);
         })
