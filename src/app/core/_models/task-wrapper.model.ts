@@ -1,8 +1,9 @@
-import { AccessGroup, AccessGroupData, JAccessGroup } from './access-group.model';
-import { Hashlist, HashlistData, JHashlist } from './hashlist.model';
-import { Hashtype, HashtypeData, JHashtype } from './hashtype.model';
-import { JTask, Task, TaskData } from './task.model';
-import { BaseModel } from './base.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
+
+import { AccessGroup, AccessGroupData, JAccessGroup } from '@src/app/core/_models/access-group.model';
+import { Hashlist, HashlistData, JHashlist } from '@src/app/core/_models/hashlist.model';
+import { Hashtype, HashtypeData, JHashtype } from '@src/app/core/_models/hashtype.model';
+import { JTask } from '@src/app/core/_models/task.model';
 
 export interface TaskWrapper {
   _id: number;
@@ -24,8 +25,7 @@ export interface TaskWrapper {
   taskName?: string;
 }
 
-
-export interface JTaskWrapper extends BaseModel  {
+export interface JTaskWrapper extends BaseModel {
   accessGroupId: number;
   accessGroup?: JAccessGroup;
   accessGroupName?: string;
