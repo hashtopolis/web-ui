@@ -82,7 +82,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
       });
     });
 
-    const report = [
+    return [
       {
         title: 'Input Fields',
         table: {
@@ -111,6 +111,5 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
       { break: 1 },
       ...workflow
     ];
-    return report;
   }
 }
