@@ -8,7 +8,7 @@ import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { AgentBinariesDataSource } from 'src/app/core/_datasources/agent-binaries.datasource';
-import { AgentBinaryData } from 'src/app/core/_models/agent-binary.model';
+import { JAgentBinary } from 'src/app/core/_models/agent-binary.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
@@ -53,8 +53,8 @@ export class AgentBinariesTableComponent
     }
   }
 
-  filter(item: AgentBinaryData, filterValue: string): boolean {
-    if (item.attributes.filename.toLowerCase().includes(filterValue)) {
+  filter(item: JAgentBinary, filterValue: string): boolean {
+    if (item.filename.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -67,49 +67,49 @@ export class AgentBinariesTableComponent
         id: AgentBinariesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        export: async (agentBinary: AgentBinaryData) => agentBinary.id + ''
+        export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
         id: AgentBinariesTableCol.TYPE,
         dataKey: 'type',
         isSortable: true,
-        render: (agentBinary: AgentBinaryData) => agentBinary.attributes.type,
-        export: async (agentBinary: AgentBinaryData) => agentBinary.attributes.type
+        render: (agentBinary: JAgentBinary) => agentBinary.agentbinaryType,
+        export: async (agentBinary: JAgentBinary) => agentBinary.agentbinaryType
       },
       {
         id: AgentBinariesTableCol.OS,
         dataKey: 'operatingSystems',
         isSortable: true,
-        render: (agentBinary: AgentBinaryData) => agentBinary.attributes.operatingSystems,
-        export: async (agentBinary: AgentBinaryData) => agentBinary.attributes.operatingSystems
+        render: (agentBinary: JAgentBinary) => agentBinary.operatingSystems,
+        export: async (agentBinary: JAgentBinary) => agentBinary.operatingSystems
       },
       {
         id: AgentBinariesTableCol.FILENAME,
         dataKey: 'filename',
         isSortable: true,
-        render: (agentBinary: AgentBinaryData) => agentBinary.attributes.filename,
-        export: async (agentBinary: AgentBinaryData) => agentBinary.attributes.filename
+        render: (agentBinary: JAgentBinary) => agentBinary.filename,
+        export: async (agentBinary: JAgentBinary) => agentBinary.filename
       },
       {
         id: AgentBinariesTableCol.VERSION,
         dataKey: 'version',
         isSortable: true,
-        render: (agentBinary: AgentBinaryData) => agentBinary.attributes.version,
-        export: async (agentBinary: AgentBinaryData) => agentBinary.attributes.version
+        render: (agentBinary: JAgentBinary) => agentBinary.version,
+        export: async (agentBinary: JAgentBinary) => agentBinary.version
       },
       {
         id: AgentBinariesTableCol.UPDATE_TRACK,
         dataKey: 'updateTrack',
         isSortable: true,
-        render: (agentBinary: AgentBinaryData) => agentBinary.attributes.updateTrack,
-        export: async (agentBinary: AgentBinaryData) => agentBinary.attributes.updateTrack
+        render: (agentBinary: JAgentBinary) => agentBinary.updateTrack,
+        export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<AgentBinaryData>) {
+  openDialog(data: DialogData<JAgentBinary>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -133,10 +133,10 @@ export class AgentBinariesTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AgentBinaryData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AgentBinaryData>(
+        this.exportService.toExcel<JAgentBinary>(
           'hashtopolis-agent-binaries',
           this.tableColumns,
           event.data,
@@ -144,7 +144,7 @@ export class AgentBinariesTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<AgentBinaryData>(
+        this.exportService.toCsv<JAgentBinary>(
           'hashtopolis-agent-binaries',
           this.tableColumns,
           event.data,
@@ -153,7 +153,7 @@ export class AgentBinariesTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AgentBinaryData>(
+          .toClipboard<JAgentBinary>(
             this.tableColumns,
             event.data,
             AgentBinariesTableColumnLabel
@@ -168,12 +168,12 @@ export class AgentBinariesTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<AgentBinaryData>): void {
+  rowActionClicked(event: ActionMenuEvent<JAgentBinary>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting agentBinary ${event.data.attributes.filename} ...`,
+          title: `Deleting agentBinary ${event.data.filename} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -192,7 +192,7 @@ export class AgentBinariesTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AgentBinaryData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -211,8 +211,8 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agentBinaries: AgentBinaryData[]): void {
-    const requests = agentBinaries.map((agentBinary: AgentBinaryData) => {
+  private bulkActionDelete(agentBinaries: JAgentBinary[]): void {
+    const requests = agentBinaries.map((agentBinary: JAgentBinary) => {
       return this.gs.delete(SERV.AGENT_BINARY, agentBinary.id);
     });
 
@@ -237,7 +237,7 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agentBinaries: AgentBinaryData[]): void {
+  private rowActionDelete(agentBinaries: JAgentBinary[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.AGENT_BINARY, agentBinaries[0].id)
@@ -254,7 +254,7 @@ export class AgentBinariesTableComponent
     );
   }
 
-  private rowActionEdit(agentBinary: AgentBinaryData): void {
+  private rowActionEdit(agentBinary: JAgentBinary): void {
     this.router.navigate([
       '/config',
       'engine',
@@ -264,7 +264,7 @@ export class AgentBinariesTableComponent
     ]);
   }
 
-  private rowActionCopyLink(agentBinary: AgentBinaryData): void {
+  private rowActionCopyLink(agentBinary: JAgentBinary): void {
     const link = `${this.agentdownloadURL}${agentBinary.id}`;
     this.clipboard.copy(link);
     this.snackBar.open(
@@ -273,7 +273,7 @@ export class AgentBinariesTableComponent
     );
   }
 
-  private rowActionDownload(agentBinary: AgentBinaryData): void {
+  private rowActionDownload(agentBinary: JAgentBinary): void {
     window.location.href = `${this.agentdownloadURL}${agentBinary.id}`;
   }
 }
