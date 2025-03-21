@@ -1,4 +1,4 @@
-import { Filter, RequestParams } from '@src/app/core/_models/request-params.model';
+import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_services/params/builder-types.service';
 
 /**
@@ -6,21 +6,6 @@ import { IParamBuilder, RequestParamsIntermediate } from '@src/app/core/_service
  */
 export class RequestParamBuilder implements IParamBuilder {
   private params: RequestParamsIntermediate;
-
-  /**
-   * Adds a new value to ome of the params arrays, create the array if it's undefined
-   * @param field params array to add value to, must be of template type T
-   * @param value value to add, must be of template type T
-   * @returns params array including the new value
-   * @private
-   */
-  private addToArray<T>(field: undefined | Array<T>, value: T): Array<T> {
-    if (field === undefined || field === null) {
-      field = [];
-    }
-    field.push(value);
-    return field;
-  }
 
   /**
    * Create a new instance of the builder and init an empty intermediate object
@@ -31,7 +16,7 @@ export class RequestParamBuilder implements IParamBuilder {
 
   addInitial(dataSource) {
     this.setPageSize(dataSource.pageSize);
-    this.setPageAfter(dataSource.currentPage * dataSource.pageSize)
+    this.setPageAfter(dataSource.currentPage * dataSource.pageSize);
     this.addSorting(dataSource.sortingColumn);
 
     return this;
@@ -78,7 +63,7 @@ export class RequestParamBuilder implements IParamBuilder {
   create(): RequestParams {
     const requestParams: RequestParams = {};
     if (this.params.pageSize || this.params.pageBefore || this.params.pageAfter) {
-      requestParams.page = {}
+      requestParams.page = {};
       if (this.params.pageSize !== undefined) requestParams.page.size = this.params.pageSize;
       if (this.params.pageAfter !== undefined) requestParams.page.after = this.params.pageAfter;
       if (this.params.pageBefore !== undefined) requestParams.page.before = this.params.pageBefore;
@@ -87,5 +72,20 @@ export class RequestParamBuilder implements IParamBuilder {
     if (this.params.sortOrder) requestParams.sort = this.params.sortOrder;
     if (this.params.filters) requestParams.filter = this.params.filters;
     return requestParams;
+  }
+
+  /**
+   * Adds a new value to ome of the params arrays, create the array if it's undefined
+   * @param field params array to add value to, must be of template type T
+   * @param value value to add, must be of template type T
+   * @returns params array including the new value
+   * @private
+   */
+  private addToArray<T>(field: undefined | Array<T>, value: T): Array<T> {
+    if (field === undefined || field === null) {
+      field = [];
+    }
+    field.push(value);
+    return field;
   }
 }

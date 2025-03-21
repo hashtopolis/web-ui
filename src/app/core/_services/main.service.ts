@@ -1,25 +1,13 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import {
-  Observable,
-  catchError,
-  debounceTime,
-  delay,
-  forkJoin,
-  map,
-  of,
-  retryWhen,
-  switchMap,
-  take,
-  tap
-} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { catchError, debounceTime, forkJoin, Observable, of, switchMap } from 'rxjs';
 
 import { AuthService } from './access/auth.service';
 import { ConfigService } from './shared/config.service';
 import { HttpClient } from '@angular/common/http';
 import { Params } from '@angular/router';
-import { environment } from './../../../environments/environment';
+import { environment } from '@src/environments/environment';
 import { setParameter } from './buildparams';
-import { RequestParams } from '../_models/request-params.model';
+import type { RequestParams } from '@src/app/core/_models/request-params.model';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +17,8 @@ export class GlobalService {
     private http: HttpClient,
     private as: AuthService,
     private cs: ConfigService
-  ) {}
+  ) {
+  }
 
   /**
    * Get logged user id
@@ -86,7 +75,7 @@ export class GlobalService {
             for (let i = 0; i < numRequests; i++) {
               const startsAt = i * maxResults;
               const partialParams = setParameter(
-                { ...queryParams, page:{after: startsAt}} 
+                { ...queryParams, page: { after: startsAt } }
               );
               requests.push(
                 this.http.get(this.cs.getEndpoint() + methodUrl, {
