@@ -36,7 +36,8 @@ import { JsonAPISerializer } from '../../core/_services/api/serializer-service';
 import { JTask } from '../../core/_models/task.model';
 import { JChunk } from '../../core/_models/chunk.model';
 import { JAgentAssignment } from '../../core/_models/agent-assignment.model';
-import { Filter, FilterType, RequestParams } from 'src/app/core/_models/request-params.model';
+import { FilterType } from 'src/app/core/_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 @Component({
   selector: 'app-edit-agent',
@@ -149,31 +150,27 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Loads data, Agent data and select options for the component.
    */
   loadData(): void {
+    const agentParams = new RequestParamBuilder().addInclude('agentStats').addInclude('accessGroups').create();
     const loadAgentsSubscription$ = this.gs
-      .get(SERV.AGENTS, this.editedAgentIndex, {
-        include: ['agentStats','accessGroups']
-      })
+      .get(SERV.AGENTS, this.editedAgentIndex, agentParams)
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
 
         const agent = this.serializer.deserialize<JAgent>(responseBody);
-
         this.showagent = agent;
-
-        const transformedOptions = transformSelectOptions(agent.accessGroups, this.selectUserAgpMap);
-        this.selectuserAgps = transformedOptions;
-
+        this.selectuserAgps = transformSelectOptions(agent.accessGroups, this.selectUserAgpMap);
         this.drawGraphs(agent.agentStats);
       });
     this.unsubscribeService.add(loadAgentsSubscription$);
 
-    const filter = new Array<Filter>({field: "isArchived", operator: FilterType.EQUAL, value: true});
-
+    const tasksParams = new RequestParamBuilder().addFilter({
+      field: 'isArchived',
+      operator: FilterType.EQUAL,
+      value: true
+    }).create();
     // Load get select tasks for assigment
     const loadTasksSubscription$ = this.gs
-      .getAll(SERV.TASKS, {
-        filter: filter
-      })
+      .getAll(SERV.TASKS, tasksParams)
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
         const tasks = this.serializer.deserialize<JTask[]>(responseBody);
@@ -181,8 +178,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         const filterTasks = tasks.filter(
           (u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0
         ); //Remove completed tasks
-        const transformedOptions = transformSelectOptions(filterTasks, this.selectAssignMap);
-        this.assignTasks = transformedOptions;
+        this.assignTasks = transformSelectOptions(filterTasks, this.selectAssignMap);
       });
 
     this.unsubscribeService.add(loadTasksSubscription$);
@@ -193,11 +189,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
         const users = this.serializer.deserialize<JUser[]>(responseBody);
-        const transformedOptions = transformSelectOptions(
+        this.selectUsers = transformSelectOptions(
           users,
           this.selectUserMap
         );
-        this.selectUsers = transformedOptions;
       });
 
     this.unsubscribeService.add(loadUsersSubscription$);
@@ -205,45 +200,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     // Initialize form and assigned chunks
     this.initForm();
     this.assignChunksInit(this.editedAgentIndex);
-  }
-
-  /**
-   * Initializes the form with user data retrieved from the server.
-   */
-  private initForm() {
-    this.gs.get(SERV.AGENTS, this.editedAgentIndex).subscribe((result: ListResponseWrapper<AgentData>) => {
-
-      let obj = result.data as object;
-      let data = obj as AgentData;
-
-      this.updateForm = new FormGroup({
-        isActive: new FormControl(data.attributes.isActive, [Validators.required]),
-        userId: new FormControl(data.attributes.userId),
-        agentName: new FormControl(data.attributes.agentName, [Validators.required]),
-        token: new FormControl(data.attributes.token),
-        cpuOnly: new FormControl(data.attributes.cpuOnly),
-        cmdPars: new FormControl(data.attributes.cmdPars),
-        ignoreErrors: new FormControl(data.attributes.ignoreErrors),
-        isTrusted: new FormControl(data.attributes.isTrusted)
-      });
-    });
-
-    const filter = new Array<Filter>({field: "agentId", operator: FilterType.EQUAL, value: this.editedAgentIndex});
-    this.gs
-      .getAll(SERV.AGENT_ASSIGN, {
-        filter: filter
-      })
-      .subscribe((response: ResponseWrapper) => {
-        const responseBody = { data: response.data, included: response.included };
-        const assignmentList = this.serializer.deserialize<JAgentAssignment[]>(responseBody);
-        if (assignmentList.length) {
-          this.assignNew = !!assignmentList?.[0]['taskId'];
-          this.assignId = assignmentList?.[0]['assignmentId'];
-          this.updateAssignForm = new FormGroup({
-            taskId: new FormControl(assignmentList?.[0]['taskId'])
-          });
-        }
-      });
   }
 
   /**
@@ -257,7 +213,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     for (let i = 0; i < chunks.length; i++) {
       tspent.push(
         Math.max(chunks[i].solveTime, chunks[i].dispatchTime) -
-          chunks[i].dispatchTime
+        chunks[i].dispatchTime
       );
     }
     this.timespent = tspent.reduce((a, i) => a + i);
@@ -270,12 +226,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   assignChunksInit(id: number): void {
-    const params: RequestParams = {
-      page: {
-        size: 99999,
-      },
-    };
-
+    const params = new RequestParamBuilder().setPageSize(5000).create();
     // Retrieve chunks associated with the agent
     this.gs.getAll(SERV.CHUNKS, params).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
@@ -362,18 +313,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       });
 
       // Format the result string with HTML line breaks
-      const formattedDevices = Object.keys(deviceCountMap)
+      return Object.keys(deviceCountMap)
         .map((device) => `${deviceCountMap[device]} x ${device}`)
         .join('<br>');
-
-      return formattedDevices;
     }
     return undefined;
   }
-
-  // //
-  //  GRAPHS SECTION
-  // //
 
   /**
    * Draw all graphs for GPU temperature and utilisation and CPU utilisation
@@ -396,6 +341,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       'cpugraph'
     ); // filter CPU utilization
   }
+
+  // //
+  //  GRAPHS SECTION
+  // //
 
   /**
    * Draw single Graph from AgentStats
@@ -458,7 +407,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
 
     const grouped = [];
-    arr.forEach(function (a) {
+    arr.forEach(function(a) {
       grouped[a.device] = grouped[a.device] || [];
       grouped[a.device].push({ time: a.time, value: a.value });
     });
@@ -509,7 +458,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       },
       useUTC: true,
       xAxis: {
-        data: xAxis.map(function (item: any[] | any) {
+        data: xAxis.map(function(item: any[] | any) {
           return self.transDate(item);
         })
       },
@@ -565,5 +514,46 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     }
 
     return result;
+  }
+
+  /**
+   * Initializes the form with user data retrieved from the server.
+   */
+  private initForm() {
+    this.gs.get(SERV.AGENTS, this.editedAgentIndex).subscribe((result: ListResponseWrapper<AgentData>) => {
+
+      let obj = result.data as object;
+      let data = obj as AgentData;
+
+      this.updateForm = new FormGroup({
+        isActive: new FormControl(data.attributes.isActive, [Validators.required]),
+        userId: new FormControl(data.attributes.userId),
+        agentName: new FormControl(data.attributes.agentName, [Validators.required]),
+        token: new FormControl(data.attributes.token),
+        cpuOnly: new FormControl(data.attributes.cpuOnly),
+        cmdPars: new FormControl(data.attributes.cmdPars),
+        ignoreErrors: new FormControl(data.attributes.ignoreErrors),
+        isTrusted: new FormControl(data.attributes.isTrusted)
+      });
+    });
+
+    const params = new RequestParamBuilder().addFilter({
+      field: 'agentId',
+      operator: FilterType.EQUAL,
+      value: this.editedAgentIndex
+    }).create();
+    this.gs
+      .getAll(SERV.AGENT_ASSIGN, params)
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const assignmentList = this.serializer.deserialize<JAgentAssignment[]>(responseBody);
+        if (assignmentList.length) {
+          this.assignNew = !!assignmentList?.[0]['taskId'];
+          this.assignId = assignmentList?.[0]['assignmentId'];
+          this.updateAssignForm = new FormGroup({
+            taskId: new FormControl(assignmentList?.[0]['taskId'])
+          });
+        }
+      });
   }
 }

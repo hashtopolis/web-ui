@@ -9,7 +9,7 @@ export interface Filter {
   value: string | number | boolean;
 }
 
-export interface RequestParams {
+interface IRequestParams {
   page?: {
     size?: number;
     after?: number;
@@ -24,3 +24,5 @@ export interface RequestParams {
   //Parameter for count endpoints to also include the count without filters
   include_total?: boolean;
 }
+
+export type RequestParams = IRequestParams;

@@ -1,7 +1,7 @@
 /**
  * Interface and intermediate type definitions for request param builder design pattern
  */
-import { Filter, RequestParams } from '@src/app/core/_models/request-params.model';
+import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 
 /**
  * Intermediate class to build RequestParams from using a builder interface implementation
@@ -21,11 +21,18 @@ export class RequestParamsIntermediate {
  */
 export interface IParamBuilder {
   setPageSize(pageSize: number): IParamBuilder;
+
   setPageBefore(pageBefore: number): IParamBuilder;
+
   setPageAfter(pageAfter: number): IParamBuilder;
+
   addInclude(include: string): IParamBuilder;
+
   addSorting(sortingColumn: any): IParamBuilder;
+
   addFilter(filter: Filter): IParamBuilder;
+
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
+
   create(): RequestParams;
 }
