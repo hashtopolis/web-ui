@@ -1,3 +1,5 @@
+import { BaseModel } from '@src/app/core/_models/base.model';
+
 export interface NotificationListResponse {
   _expandable: string;
   startAt: number;
@@ -16,6 +18,15 @@ export interface Notification {
   receiver: string;
   userId: number;
   notificationSettingId?: number;
+  objectId?: number;
+}
+
+export interface JNotification extends BaseModel {
+  action: string;
+  isActive: boolean;
+  notification: string;
+  receiver: string;
+  userId: number;
   objectId?: number;
 }
 
