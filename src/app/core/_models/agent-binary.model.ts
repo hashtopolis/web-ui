@@ -1,3 +1,5 @@
+import { BaseModel } from '@src/app/core/_models/base.model';
+
 export interface AgentBinary {
   _id: 1;
   _self: string;
@@ -5,6 +7,15 @@ export interface AgentBinary {
   filename: string;
   operatingSystems: string;
   type: string;
+  updateAvailable: string;
+  updateTrack: string;
+  version: string;
+}
+
+export interface JAgentBinary extends BaseModel {
+  filename: string;
+  operatingSystems: string;
+  agentbinaryType: string;
   updateAvailable: string;
   updateTrack: string;
   version: string;
