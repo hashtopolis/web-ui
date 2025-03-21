@@ -189,11 +189,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
         const users = this.serializer.deserialize<JUser[]>(responseBody);
-        const transformedOptions = transformSelectOptions(
+        this.selectUsers = transformSelectOptions(
           users,
           this.selectUserMap
         );
-        this.selectUsers = transformedOptions;
       });
 
     this.unsubscribeService.add(loadUsersSubscription$);
@@ -314,11 +313,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       });
 
       // Format the result string with HTML line breaks
-      const formattedDevices = Object.keys(deviceCountMap)
+      return Object.keys(deviceCountMap)
         .map((device) => `${deviceCountMap[device]} x ${device}`)
         .join('<br>');
-
-      return formattedDevices;
     }
     return undefined;
   }
