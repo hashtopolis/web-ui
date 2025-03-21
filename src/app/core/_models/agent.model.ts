@@ -1,8 +1,10 @@
-import { AccessGroup } from './access-group.model';
-import { Chunk, ChunkDataNew, JChunk } from './chunk.model';
-import { JTask, Task, TaskData } from './task.model';
-import { JUser, User, UserData } from './user.model';
-import { BaseModel } from './base.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
+
+import { Chunk, ChunkDataNew, JChunk } from '@src/app/core/_models/chunk.model';
+import { JUser, User, UserData } from '@src/app/core/_models/user.model';
+import { AccessGroup } from '@src/app/core/_models/access-group.model';
+import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
+import { JTask } from '@src/app/core/_models/task.model';
 
 export interface AgentStats {
   _id: number;
@@ -43,34 +45,6 @@ export interface Agent {
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
-}
-
-export interface IAgents {
-  _expandable?: string;
-  startAt: number;
-  maxResults: number;
-  total: number;
-  isLast: string;
-  values: [
-    {
-      agentId: number;
-      agentName: string;
-      uid: string;
-      os: number;
-      devices: string;
-      cmdPars: string;
-      ignoreErrors: string;
-      isActive: string;
-      isTrusted: string;
-      token: string;
-      lastAct: string;
-      lastTime: number;
-      lastIp: string;
-      userId: number;
-      cpuOnly: number;
-      clientSignature: string;
-    }
-  ];
 }
 
 export interface JAgent extends BaseModel {
