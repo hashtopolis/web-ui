@@ -16,7 +16,8 @@ import { ListResponseWrapper } from '../core/_models/response.model';
 import { Hash, HashData } from '../core/_models/hash.model';
 import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '../shared/utils/datetime';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Filter, FilterType, RequestParams } from '../core/_models/request-params.model';
+import { Filter, FilterType } from '../core/_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 @Component({
   selector: 'app-home',
@@ -33,11 +34,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   screenM = false;
   screenL = false;
   screenXL = false;
-
-  /** DarkMode */
-  protected uiSettings: UISettingsUtilityClass;
   isDarkMode = false;
-
   /** Counters for dashboard statistics */
   activeAgents = 0;
   totalAgents = 0;
@@ -46,9 +43,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   totalCracks = 0;
   completedSupertasks = 0;
   totalSupertasks = 0;
-
   lastUpdated: string;
-
+  /** DarkMode */
+  protected uiSettings: UISettingsUtilityClass;
   private maxResults = environment.config.prodApiMaxResults;
   private subscriptions: Subscription[] = [];
   private pageReloadTimeout: NodeJS.Timeout;
@@ -94,19 +91,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {
-    this.util = new UISettingsUtilityClass(this.service);
-    this.initChart();
-    this.initData();
-    this.onAutorefresh();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
-
   /**
    * Get the autorefresh interval setting.
    */
@@ -119,6 +103,19 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   get refreshPage(): boolean {
     return this.util.getSetting<boolean>('refreshPage');
+  }
+
+  ngOnInit(): void {
+    this.util = new UISettingsUtilityClass(this.service);
+    this.initChart();
+    this.initData();
+    this.onAutorefresh();
+  }
+
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
   }
 
   /**
@@ -167,105 +164,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get the list of active agents.
-   */
-  private getAgents(): void {
-    const params: RequestParams = {
-      filter:  new Array<Filter> ({ field: "isActive", operator: FilterType.EQUAL, value: true}),
-      include_total: true
-    };
-
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.AGENTS_COUNT, params)
-        .subscribe((response) => {
-          this.totalAgents = response.meta.total_count;
-          this.activeAgents = response.meta.count;
-        })
-    );
-  }
-
-  /**
-   * Get the list of tasks.
-   */
-  private getTasks(): void {
-    const includeTasks = ['tasks'];
-    const filtersTotalTasks = new Array<Filter>(
-      {field: "taskType", operator: FilterType.EQUAL, value: 0},
-      {field: "isArchived", operator: FilterType.EQUAL, value: 0}
-    )
-    const paramsTotalTasks = { include: includeTasks, filter: filtersTotalTasks};
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
-        .subscribe((response) => {
-          this.totalTasks = response.meta.count;
-        })
-    );
-
-    const filtersCompleteTasks = new Array<Filter>(
-      {field: "taskType", operator: FilterType.EQUAL, value: 0},
-      {field: "keyspace", operator: FilterType.GREATER, value: 0}
-    )
-    const paramsCompletedTasks = { include: includeTasks, filter: filtersCompleteTasks};
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
-        .subscribe((response) => {
-          this.completedTasks = response.meta.count;
-        })
-    );
-  }
-
-  /**
-   * Get the list of supertasks.
-   */
-  private getSuperTasks(): void {
-    const filtersTotalTasks = new Array<Filter>(
-      {field: "taskType", operator: FilterType.EQUAL, value: 1},
-      {field: "keyspace", operator: FilterType.EQUAL, value: "keyspaceProgress"},
-      {field: "keyspace", operator: FilterType.GREATER, value: 0},
-    )
-    const paramsTotalTasks = { include: ['tasks'], filters: filtersTotalTasks};
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
-        .subscribe((response) => {
-          this.totalSupertasks = response.meta.count;
-        })
-    );
-
-    const filtersCompletedTasks = new Array<Filter>(
-      {field: "taskType", operator: FilterType.EQUAL, value: 1},
-    )
-    const paramsCompletedTasks = { include: ['tasks'], 'filter[keyspace__eq]': 'keyspaceProgress', 'filter[keyspace__gt]': 0, 'filter[taskType__eq]': 1 };
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
-        .subscribe((response) => {
-          this.completedSupertasks = response.meta.count;
-        })
-    );
-  }
-
-  /**
-   * Get the list of cracked hashes from the last seven days.
-   */
-  private getCracks(): void {
-    const timestampInPast = unixTimestampInPast(7);
-    const params = { filter: new Array<Filter>({ field: "timeCracked", operator: FilterType.GREATER, value: timestampInPast})};
-
-    this.subscriptions.push(
-      this.gs
-        .getAll(SERV.HASHES_COUNT, params)
-        .subscribe((response: ListResponseWrapper<Hash>) => {
-          this.totalCracks = response.meta.count;
-          this.updateChart();
-        })
-    );
-  }
-
-  /**
    * Count the occurrences of items in an array.
    *
    * @param arr - The array to count occurrences in.
@@ -301,7 +199,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param data - Hash data used for the chart.
    */
   updateChart(): void {
-    const params = { filter: new Array<Filter>({field: "isCracked", operator: FilterType.EQUAL, value: 1})};
+    const params = { filter: new Array<Filter>({ field: 'isCracked', operator: FilterType.EQUAL, value: 1 }) };
 
     this.subscriptions.push(
       this.gs
@@ -333,7 +231,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             title: {},
             tooltip: {
               position: 'top',
-              formatter: function (p) {
+              formatter: function(p) {
                 const format = echarts.time.format(
                   p.data[0],
                   '{dd}-{MM}-{yyyy}',
@@ -368,7 +266,7 @@ export class HomeComponent implements OnInit, OnDestroy {
               data: countsExtended,
               label: {
                 show: true,
-                formatter: function (params) {
+                formatter: function(params) {
                   return currentDate.getDate() === params.data[0] ? 'X' : '';
                 }
               }
@@ -377,6 +275,116 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           this.crackedChart.setOption(option);
           this.lastUpdated = formatDate(new Date(), this.util.getSetting('timefmt'));
+        })
+    );
+  }
+
+  /**
+   * Get the list of active agents.
+   */
+  private getAgents(): void {
+    const params = new RequestParamBuilder().addFilter({
+      field: 'isActive',
+      operator: FilterType.EQUAL,
+      value: true
+    }).addIncludeTotal(true).create();
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.AGENTS_COUNT, params)
+        .subscribe((response) => {
+          this.totalAgents = response.meta.total_count;
+          this.activeAgents = response.meta.count;
+        })
+    );
+  }
+
+  /**
+   * Get the list of tasks.
+   */
+  private getTasks(): void {
+    const includeTasks = ['tasks'];
+    const filtersTotalTasks = new Array<Filter>(
+      { field: 'taskType', operator: FilterType.EQUAL, value: 0 },
+      { field: 'isArchived', operator: FilterType.EQUAL, value: 0 }
+    );
+    const paramsTotalTasks = { include: includeTasks, filter: filtersTotalTasks };
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
+        .subscribe((response) => {
+          this.totalTasks = response.meta.count;
+        })
+    );
+
+    const filtersCompleteTasks = new Array<Filter>(
+      { field: 'taskType', operator: FilterType.EQUAL, value: 0 },
+      { field: 'keyspace', operator: FilterType.GREATER, value: 0 }
+    );
+    const paramsCompletedTasks = { include: includeTasks, filter: filtersCompleteTasks };
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
+        .subscribe((response) => {
+          this.completedTasks = response.meta.count;
+        })
+    );
+  }
+
+  /**
+   * Get the list of supertasks.
+   */
+  private getSuperTasks(): void {
+    const filtersTotalTasks = new Array<Filter>(
+      { field: 'taskType', operator: FilterType.EQUAL, value: 1 },
+      { field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' },
+      { field: 'keyspace', operator: FilterType.GREATER, value: 0 }
+    );
+    const paramsTotalTasks = { include: ['tasks'], filters: filtersTotalTasks };
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
+        .subscribe((response) => {
+          this.totalSupertasks = response.meta.count;
+        })
+    );
+
+    const filtersCompletedTasks = new Array<Filter>(
+      { field: 'taskType', operator: FilterType.EQUAL, value: 1 }
+    );
+    const paramsCompletedTasks = {
+      include: ['tasks'],
+      'filter[keyspace__eq]': 'keyspaceProgress',
+      'filter[keyspace__gt]': 0,
+      'filter[taskType__eq]': 1
+    };
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
+        .subscribe((response) => {
+          this.completedSupertasks = response.meta.count;
+        })
+    );
+  }
+
+  /**
+   * Get the list of cracked hashes from the last seven days.
+   */
+  private getCracks(): void {
+    const timestampInPast = unixTimestampInPast(7);
+    const params = {
+      filter: new Array<Filter>({
+        field: 'timeCracked',
+        operator: FilterType.GREATER,
+        value: timestampInPast
+      })
+    };
+
+    this.subscriptions.push(
+      this.gs
+        .getAll(SERV.HASHES_COUNT, params)
+        .subscribe((response: ListResponseWrapper<Hash>) => {
+          this.totalCracks = response.meta.count;
+          this.updateChart();
         })
     );
   }

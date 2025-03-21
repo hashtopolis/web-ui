@@ -1,10 +1,10 @@
-import { environment } from '../../../../environments/environment';
-import { Injectable } from "@angular/core";
+import { environment } from '@src/environments/environment';
+import { Injectable } from '@angular/core';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
 import { ListResponseWrapper } from '../../_models/response.model';
 import { ConfigsData } from '../../_models/configs.model';
-import { RequestParams } from '../../_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +12,6 @@ import { RequestParams } from '../../_models/request-params.model';
 export class UIConfigService {
 
   defaultSettings = false;
-
-  constructor(
-    private gs: GlobalService,
-  ) { }
-
-  private maxResults = environment.config.prodApiMaxResults;
-
   cachevar = [
     // {name:'timefmt'},
     { name: 'hashcatBrainEnable' },
@@ -35,8 +28,13 @@ export class UIConfigService {
     { name: 'agenttimeout' },
     { name: 'maxSessionLength' }
   ];
-
   cexprity: number = 72 * 60 * 60; // Hours*minutes*Seconds Default: 72 hours
+  private maxResults = environment.config.prodApiMaxResults;
+
+  constructor(
+    private gs: GlobalService
+  ) {
+  }
 
   public checkStorage() {
     const defaults = JSON.parse(localStorage.getItem('uis'));
@@ -47,7 +45,7 @@ export class UIConfigService {
       this.storeDefault();
       this.defaultSettings = true;
     }
-    return ''
+    return '';
   }
 
   public checkExpiry() {
@@ -59,19 +57,13 @@ export class UIConfigService {
   }
 
   public storeDefault() {
-    const params: RequestParams = {
-      page: {
-        size: this.maxResults
-      }
-    } 
-    this.gs.getAll(SERV.CONFIGS, params).subscribe((result:ListResponseWrapper<ConfigsData>) => {
-
+    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
+    this.gs.getAll(SERV.CONFIGS, params).subscribe((result: ListResponseWrapper<ConfigsData>) => {
       const post_data = [];
-
       this.cachevar.forEach((data) => {
         const name = data.name;
-        let value:any = result.data.find(obj => obj.attributes.item === data.name).attributes;
-        value = { name: name, value: value.value }
+        let value: any = result.data.find(obj => obj.attributes.item === data.name).attributes;
+        value = { name: name, value: value.value };
         post_data.push(value);
       });
       const timeinfo = [{ name: '_timestamp', value: Date.now() }, { name: '_expiresin', value: this.cexprity }];
