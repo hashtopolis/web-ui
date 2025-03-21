@@ -15,7 +15,7 @@ import { ListResponseWrapper } from '../core/_models/response.model';
 import { Hash, HashData } from '../core/_models/hash.model';
 import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '../shared/utils/datetime';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FilterType } from '../core/_models/request-params.model';
+import { Filter, FilterType } from '../core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 @Component({
@@ -334,16 +334,12 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of supertasks.
    */
   private getSuperTasks(): void {
-    const taskTypeFilter = { field: 'taskType', operator: FilterType.EQUAL, value: 1 };
-    const keySpaceProgressFilter = { field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' };
-    const keySpaceFilter = { field: 'keyspace', operator: FilterType.GREATER, value: 0 };
-
-    const paramsTotalTasks = new RequestParamBuilder()
-      .addInclude('tasks')
-      .addFilter(taskTypeFilter)
-      .addFilter(keySpaceProgressFilter)
-      .addFilter(keySpaceFilter).create();
-
+    const filtersTotalTasks = new Array<Filter>(
+      { field: 'taskType', operator: FilterType.EQUAL, value: 1 },
+      { field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' },
+      { field: 'keyspace', operator: FilterType.GREATER, value: 0 }
+    );
+    const paramsTotalTasks = { include: ['tasks'], filters: filtersTotalTasks };
     this.subscriptions.push(
       this.gs
         .getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks)
@@ -352,12 +348,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         })
     );
 
-    const paramsCompletedTasks = new RequestParamBuilder()
-      .addInclude('tasks')
-      .addFilter(keySpaceProgressFilter)
-      .addFilter(keySpaceFilter)
-      .addFilter(taskTypeFilter).create();
-
+    const paramsCompletedTasks = {
+      include: ['tasks'],
+      'filter[keyspace__eq]': 'keyspaceProgress',
+      'filter[keyspace__gt]': 0,
+      'filter[taskType__eq]': 1
+    };
     this.subscriptions.push(
       this.gs
         .getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks)
