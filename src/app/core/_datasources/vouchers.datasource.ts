@@ -1,10 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
-import { Voucher } from '../_models/voucher.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { Voucher } from '@src/app/core/_models/voucher.model';
+
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { SERV } from '@src/app/core/_services/main.config';
+
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 
 export class VouchersDataSource extends BaseDataSource<Voucher> {
   loadAll(): void {
@@ -18,14 +21,13 @@ export class VouchersDataSource extends BaseDataSource<Voucher> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Voucher>) => {
-          const vouchers: Voucher[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+          const vouchers: Voucher[] = new JsonAPISerializer().deserialize({
+            data: response.data,
+            included: response.included
+          });
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
+          this.setPaginationConfig(this.pageSize, this.currentPage, vouchers.length);
           this.setData(vouchers);
         })
     );

@@ -1,32 +1,34 @@
+import { catchError, forkJoin } from 'rxjs';
+
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { Voucher } from '@src/app/core/_models/voucher.model';
+
 import {
   VouchersTableCol,
   VouchersTableColumnLabel
-} from './vouchers-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@src/app/core/_components/tables/vouchers-table/vouchers-table.constants';
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { Voucher } from 'src/app/core/_models/voucher.model';
-import { VouchersDataSource } from 'src/app/core/_datasources/vouchers.datasource';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
+
+import { SERV } from '@src/app/core/_services/main.config';
+
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'vouchers-table',
   templateUrl: './vouchers-table.component.html'
 })
-export class VouchersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class VouchersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: VouchersDataSource;
 
@@ -44,19 +46,21 @@ export class VouchersTableComponent
     }
   }
 
+  /**
+   * Filter voucher
+   * @param item
+   * @param filterValue
+   * @returns true, if voucher contains filterValue, else false
+   */
   filter(item: Voucher, filterValue: string): boolean {
-    if (item.voucher.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.voucher.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
     const tableColumns = [
       {
         id: VouchersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true
       },
       {
@@ -69,10 +73,8 @@ export class VouchersTableComponent
         id: VouchersTableCol.CREATED,
         dataKey: 'time',
         isSortable: true,
-        render: (voucher: Voucher) =>
-          formatUnixTimestamp(voucher.time, this.dateFormat),
-        export: async (voucher: Voucher) =>
-          formatUnixTimestamp(voucher.time, this.dateFormat)
+        render: (voucher: Voucher) => formatUnixTimestamp(voucher.time, this.dateFormat),
+        export: async (voucher: Voucher) => formatUnixTimestamp(voucher.time, this.dateFormat)
       }
     ];
 
@@ -122,18 +124,9 @@ export class VouchersTableComponent
         );
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Voucher>(
-            this.tableColumns,
-            event.data,
-            VouchersTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<Voucher>(this.tableColumns, event.data, VouchersTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
@@ -189,10 +182,7 @@ export class VouchersTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} vouchers!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} vouchers!`, 'Close');
           this.reload();
         })
     );
@@ -219,12 +209,6 @@ export class VouchersTableComponent
   }
 
   private rowActionEdit(voucher: Voucher): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'vouchers',
-      voucher._id,
-      'edit'
-    ]);
+    this.router.navigate(['/config', 'engine', 'vouchers', voucher._id, 'edit']);
   }
 }
