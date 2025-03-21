@@ -12,7 +12,7 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { PreprocessorData } from 'src/app/core/_models/preprocessor.model';
+import { JPreprocessor } from 'src/app/core/_models/preprocessor.model';
 import { PreprocessorsDataSource } from 'src/app/core/_datasources/preprocessors.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -48,8 +48,8 @@ export class PreprocessorsTableComponent
     }
   }
 
-  filter(item: PreprocessorData, filterValue: string): boolean {
-    if (item.attributes.name.toLowerCase().includes(filterValue)) {
+  filter(item: JPreprocessor, filterValue: string): boolean {
+    if (item.name.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -62,22 +62,22 @@ export class PreprocessorsTableComponent
         id: PreprocessorsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        export: async (preprocessor: PreprocessorData) => preprocessor.id + ''
+        export: async (preprocessor: JPreprocessor) => preprocessor.id + ''
       },
       {
         id: PreprocessorsTableCol.NAME,
         dataKey: 'name',
-        routerLink: (preprocessor: PreprocessorData) =>
+        routerLink: (preprocessor: JPreprocessor) =>
           this.renderPreproLink(preprocessor),
         isSortable: true,
-        export: async (preprocessor: PreprocessorData) => preprocessor.attributes.name
+        export: async (preprocessor: JPreprocessor) => preprocessor.name
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<PreprocessorData>) {
+  openDialog(data: DialogData<JPreprocessor>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -103,12 +103,12 @@ export class PreprocessorsTableComponent
 
   @Cacheable(['id'])
   async renderPreproLink(
-    preprocessor: PreprocessorData
+    preprocessor: JPreprocessor
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
     links.push({
-      label: preprocessor.attributes.name,
+      label: preprocessor.name,
       routerLink: ['/config/engine/preprocessors', preprocessor.id, 'edit'],
       tooltip: 'Preprocessor Name'
     });
@@ -118,10 +118,10 @@ export class PreprocessorsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<PreprocessorData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JPreprocessor[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<PreprocessorData>(
+        this.exportService.toExcel<JPreprocessor>(
           'hashtopolis-preprocessors',
           this.tableColumns,
           event.data,
@@ -129,7 +129,7 @@ export class PreprocessorsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<PreprocessorData>(
+        this.exportService.toCsv<JPreprocessor>(
           'hashtopolis-preprocessors',
           this.tableColumns,
           event.data,
@@ -138,7 +138,7 @@ export class PreprocessorsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<PreprocessorData>(
+          .toClipboard<JPreprocessor>(
             this.tableColumns,
             event.data,
             PreprocessorsTableColumnLabel
@@ -153,12 +153,12 @@ export class PreprocessorsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<PreprocessorData>): void {
+  rowActionClicked(event: ActionMenuEvent<JPreprocessor>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting preprocessor ${event.data.attributes.name} ...`,
+          title: `Deleting preprocessor ${event.data.name} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -171,7 +171,7 @@ export class PreprocessorsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<PreprocessorData[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JPreprocessor[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -190,8 +190,8 @@ export class PreprocessorsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(preprocessors: PreprocessorData[]): void {
-    const requests = preprocessors.map((preprocessor: PreprocessorData) => {
+  private bulkActionDelete(preprocessors: JPreprocessor[]): void {
+    const requests = preprocessors.map((preprocessor: JPreprocessor) => {
       return this.gs.delete(SERV.PREPROCESSORS, preprocessor.id);
     });
 
@@ -216,7 +216,7 @@ export class PreprocessorsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(preprocessors: PreprocessorData[]): void {
+  private rowActionDelete(preprocessors: JPreprocessor[]): void {
     this.subscriptions.push(
       this.gs
         .delete(SERV.PREPROCESSORS, preprocessors[0].id)
@@ -233,7 +233,7 @@ export class PreprocessorsTableComponent
     );
   }
 
-  private rowActionEdit(preprocessor: PreprocessorData): void {
+  private rowActionEdit(preprocessor: JPreprocessor): void {
     this.router.navigate([
       '/config',
       'engine',

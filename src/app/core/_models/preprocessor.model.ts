@@ -1,3 +1,5 @@
+import { BaseModel } from '@src/app/core/_models/base.model';
+
 export interface Preprocessor {
   _id: number;
   _self: string;
@@ -10,6 +12,14 @@ export interface Preprocessor {
   limitCommand: string;
 }
 
+export interface JPreprocessor extends BaseModel {
+  name: string;
+  url: string;
+  binaryName: string;
+  keyspaceCommand: string;
+  skipCommand: string;
+  limitCommand: string;
+}
 
 
 export interface PreprocessorData {

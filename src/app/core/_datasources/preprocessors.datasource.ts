@@ -1,12 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { PreprocessorData } from '../_models/preprocessor.model';
+import { ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
+import { JPreprocessor, PreprocessorData } from '../_models/preprocessor.model';
 import { SERV } from '../_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 
-export class PreprocessorsDataSource extends BaseDataSource<PreprocessorData> {
+export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
   loadAll(): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this).create();
@@ -18,13 +19,15 @@ export class PreprocessorsDataSource extends BaseDataSource<PreprocessorData> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<PreprocessorData>) => {
-          const preprocessors: PreprocessorData[] = response.data;
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseData = { data: response.data, included: response.included };
+          const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            preprocessors.length
           );
           this.setData(preprocessors);
         })
