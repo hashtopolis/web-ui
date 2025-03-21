@@ -20,9 +20,7 @@ import { TableDialogComponent } from '@src/app/core/_components/tables/table-dia
 
 import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
 
-
 import { SERV } from '@src/app/core/_services/main.config';
-
 
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -48,12 +46,14 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
     }
   }
 
+  /**
+   * Filter voucher
+   * @param item
+   * @param filterValue
+   * @returns true, if voucher contains filterValue, else false
+   */
   filter(item: Voucher, filterValue: string): boolean {
-    if (item.voucher.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.voucher.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -73,10 +73,8 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
         id: VouchersTableCol.CREATED,
         dataKey: 'time',
         isSortable: true,
-        render: (voucher: Voucher) =>
-          formatUnixTimestamp(voucher.time, this.dateFormat),
-        export: async (voucher: Voucher) =>
-          formatUnixTimestamp(voucher.time, this.dateFormat)
+        render: (voucher: Voucher) => formatUnixTimestamp(voucher.time, this.dateFormat),
+        export: async (voucher: Voucher) => formatUnixTimestamp(voucher.time, this.dateFormat)
       }
     ];
 
@@ -126,13 +124,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
         );
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Voucher>(
-            this.tableColumns,
-            event.data,
-            VouchersTableColumnLabel
-          )
-          .then(() => {
+        this.exportService.toClipboard<Voucher>(this.tableColumns, event.data, VouchersTableColumnLabel).then(() => {
           this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
         });
         break;
@@ -190,10 +182,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} vouchers!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} vouchers!`, 'Close');
           this.reload();
         })
     );
@@ -220,12 +209,6 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   }
 
   private rowActionEdit(voucher: Voucher): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'vouchers',
-      voucher._id,
-      'edit'
-    ]);
+    this.router.navigate(['/config', 'engine', 'vouchers', voucher._id, 'edit']);
   }
 }
