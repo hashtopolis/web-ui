@@ -1,6 +1,9 @@
-import { GlobalPermissionGroup } from './global-permission-group.model';
-import { ChunkRelationshipsLinks } from './chunk.model';
-import { BaseModel } from './base.model';
+/**
+ * This module contains the definition of the apps user model
+ */
+import { GlobalPermissionGroup, JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
+import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 
 export interface BaseUser {
   userId: number;
@@ -58,13 +61,11 @@ export interface User {
   yubikey: string;
 }
 
-
-export interface JUser {
+export interface JUser extends BaseModel {
   email: string;
   globalPermissionGroupId: number;
   globalPermissionGroupName?: string;
-  globalPermissionGroup?: GlobalPermissionGroup;
-  id: number;
+  globalPermissionGroup?: JGlobalPermissionGroup;
   isComputedPassword: boolean;
   isValid: boolean;
   lastLoginDate: number;
@@ -76,8 +77,8 @@ export interface JUser {
   registeredSince: number;
   sessionLifetime: number;
   yubikey: string;
+  accessGroups: JAccessGroup[];
 }
-
 
 export interface UserData {
   type: string;
