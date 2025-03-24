@@ -1,16 +1,18 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroup } from '../_models/access-group.model';
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
-  AccessGroup,
-  MatTableDataSourcePaginator
-> {
+import { AccessGroup } from '@src/app/core/_models/access-group.model';
+import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { SERV } from '@src/app/core/_services/main.config';
+
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+
+export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<AccessGroup, MatTableDataSourcePaginator> {
   private _accesspermgroupId = 0;
   private _expand = '';
   private _perm = 0;
@@ -31,11 +33,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
     this.loading = true;
 
     const params = new RequestParamBuilder().addInclude(this._expand).create();
-    const accessPermissions$ = this.service.get(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      this._accesspermgroupId,
-      params
-    );
+    const accessPermissions$ = this.service.get(SERV.ACCESS_PERMISSIONS_GROUPS, this._accesspermgroupId, params);
 
     this.subscriptions.push(
       accessPermissions$
@@ -43,10 +41,11 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
+        .subscribe((response: ResponseWrapper) => {
+          const globalPermissionGroup = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>(response);
           let data: any[];
           if (this._perm) {
-            data = this.processResponseWithPermissions(response['permissions']);
+            data = this.processPermissions(globalPermissionGroup);
           } else {
             data = response[this._expand];
           }
@@ -64,37 +63,25 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<
     this.loadAll();
   }
 
-  private processResponseWithPermissions(
-    response: ListResponseWrapper<any>
-  ): any[] {
-    return Object.entries(response).reduce(
-      (acc, [key, value]) => {
-        const operation = key
-          .replace(/^perm/, '')
-          .replace(/(Create|Delete|Read|Update)$/, '');
-        let operationName = operation
-          .replace(/([a-z])([A-Z])/g, '$1 $2')
-          .toLowerCase();
-        operationName =
-          operationName.charAt(0).toUpperCase() + operationName.slice(1);
-        const type = key.match(/(Create|Delete|Read|Update)$/)?.[0];
-        const existingPermission = acc.find(
-          (item) => item.name === operationName && item.key === operation
-        );
-        if (existingPermission) {
-          existingPermission[type.toLowerCase()] = value;
-        } else {
-          const newPermission = {
-            name: operationName,
-            key: operation,
-            originalName: 'perm' + operation,
-            [type ? type.toLowerCase() : '']: value
-          };
-          acc.push(newPermission);
-        }
-        return acc;
-      },
-      []
-    );
+  private processPermissions(globalPermissionGroup: JGlobalPermissionGroup): any[] {
+    return Object.entries(globalPermissionGroup.permissions).reduce((acc, [key, value]) => {
+      const operation = key.replace(/^perm/, '').replace(/(Create|Delete|Read|Update)$/, '');
+      let operationName = operation.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+      operationName = operationName.charAt(0).toUpperCase() + operationName.slice(1);
+      const type = key.match(/(Create|Delete|Read|Update)$/)?.[0];
+      const existingPermission = acc.find((item) => item.name === operationName && item.key === operation);
+      if (existingPermission) {
+        existingPermission[type.toLowerCase()] = value;
+      } else {
+        const newPermission = {
+          name: operationName,
+          key: operation,
+          originalName: 'perm' + operation,
+          [type ? type.toLowerCase() : '']: value
+        };
+        acc.push(newPermission);
+      }
+      return acc;
+    }, []);
   }
 }
