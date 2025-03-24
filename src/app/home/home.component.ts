@@ -8,14 +8,13 @@ import { Subscription } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
-
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { SERV } from '@src/app/core/_services/main.config';
 
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JHash } from '@src/app/core/_models/hash.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
@@ -195,8 +194,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /**
    * Update the heatmap chart.
-   *
-   * @param data - Hash data used for the chart.
    */
   updateChart(): void {
     const params = new RequestParamBuilder()
