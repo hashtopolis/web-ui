@@ -334,9 +334,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private getSuperTasks(): void {
     const paramsTotalTasks = new RequestParamBuilder()
       .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 1 })
-      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
-      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
-      .addInclude('tasks')
       .create();
 
     this.subscriptions.push(
