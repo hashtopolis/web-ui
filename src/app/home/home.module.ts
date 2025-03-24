@@ -1,25 +1,25 @@
-import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { NgbModule } from "@ng-bootstrap/ng-bootstrap";
-import { DataTablesModule } from "angular-datatables";
-import { CommonModule } from "@angular/common";
-import { RouterModule } from "@angular/router";
-import { NgModule } from "@angular/core";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ComponentsModule } from "../shared/components.module";
-import { PipesModule } from "../shared/pipes.module";
-import { HomeComponent } from "./home.component";
-import { HomeRoutingModule } from "./home-routing.module";
+import { CommonModule } from '@angular/common';
+import { DataTablesModule } from 'angular-datatables';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from "@angular/material/icon";
-import { MatCardModule } from "@angular/material/card";
-import { MatButtonModule } from "@angular/material/button";
-import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { RouterModule } from '@angular/router';
+
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { HomeComponent } from '@src/app/home/home.component';
+import { HomeRoutingModule } from '@src/app/home/home-routing.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
-  declarations: [
-    HomeComponent,
-  ],
+  declarations: [HomeComponent],
   imports: [
     ReactiveFormsModule,
     HomeRoutingModule,
@@ -38,5 +38,4 @@ import { MatTooltipModule } from "@angular/material/tooltip";
     NgbModule
   ]
 })
-export class HomeModule { }
-
+export class HomeModule {}
