@@ -1,13 +1,17 @@
-import { Injectable } from '@angular/core';
-import { catchError, debounceTime, forkJoin, Observable, of, switchMap } from 'rxjs';
+import { Observable, catchError, debounceTime, forkJoin, of, switchMap } from 'rxjs';
 
-import { AuthService } from './access/auth.service';
-import { ConfigService } from './shared/config.service';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
-import { environment } from '@src/environments/environment';
-import { setParameter } from './buildparams';
+
 import type { RequestParams } from '@src/app/core/_models/request-params.model';
+
+import { AuthService } from '@src/app/core/_services/access/auth.service';
+import { ConfigService } from '@src/app/core/_services/shared/config.service';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { setParameter } from '@src/app/core/_services/buildparams';
+
+import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +21,7 @@ export class GlobalService {
     private http: HttpClient,
     private as: AuthService,
     private cs: ConfigService
-  ) {
-  }
+  ) {}
 
   /**
    * Get logged user id
@@ -59,47 +62,43 @@ export class GlobalService {
       fixedMaxResults = true;
     }
 
-    return this.http
-      .get(this.cs.getEndpoint() + methodUrl, { params: queryParams })
-      .pipe(
-        switchMap((response: any) => {
-          const total = response.total || 0;
-          const maxResults = this.maxResults;
+    return this.http.get(this.cs.getEndpoint() + methodUrl, { params: queryParams }).pipe(
+      switchMap((response: any) => {
+        const total = response.total || 0;
+        const maxResults = this.maxResults;
 
-          // Check if total is greater than maxResults and fixedMaxResults is true
-          if (total > maxResults && fixedMaxResults) {
-            const requests: Observable<any>[] = [];
-            const numRequests = Math.ceil(total / maxResults);
+        // Check if total is greater than maxResults and fixedMaxResults is true
+        if (total > maxResults && fixedMaxResults) {
+          const requests: Observable<any>[] = [];
+          const numRequests = Math.ceil(total / maxResults);
 
-            // Create multiple requests based on the total number of items
-            for (let i = 0; i < numRequests; i++) {
-              const startsAt = i * maxResults;
-              const partialParams = setParameter(
-                { ...queryParams, page: { after: startsAt } }
-              );
-              requests.push(
-                this.http.get(this.cs.getEndpoint() + methodUrl, {
-                  params: partialParams
-                })
-              );
-            }
-
-            // Use forkJoin to combine the original response with additional responses
-            return forkJoin([of(response), ...requests]).pipe(
-              catchError((error) => {
-                console.error('Error in forkJoin:', error);
-                return of(response); // Return the original response in case of an error
+          // Create multiple requests based on the total number of items
+          for (let i = 0; i < numRequests; i++) {
+            const startsAt = i * maxResults;
+            const partialParams = setParameter({ ...queryParams, page: { after: startsAt } });
+            requests.push(
+              this.http.get(this.cs.getEndpoint() + methodUrl, {
+                params: partialParams
               })
             );
-          } else {
-            return of(response);
           }
-        }),
-        catchError((error) => {
-          console.error('Error in switchMap:', error);
-          return of({ values: [] }); // Handle errors in switchMap and return a default response
-        })
-      );
+
+          // Use forkJoin to combine the original response with additional responses
+          return forkJoin([of(response), ...requests]).pipe(
+            catchError((error) => {
+              console.error('Error in forkJoin:', error);
+              return of(response); // Return the original response in case of an error
+            })
+          );
+        } else {
+          return of(response);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error in switchMap:', error);
+        return of({ values: [] }); // Handle errors in switchMap and return a default response
+      })
+    );
   }
 
   /**
@@ -152,12 +151,13 @@ export class GlobalService {
    * Update element information
    * @param id - element id
    * @param arr - fields to be updated
+   * @param type resource type (json:api standard)
    * @returns Object
    **/
-  update(methodUrl: string, id: number, arr: any): Observable<any> {
-    return this.http
-      .patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, arr)
-      .pipe(debounceTime(2000));
+  update(methodUrl: string, id: number, arr: any, type = ''): Observable<any> {
+    let data = { type: type, id: id, ...arr };
+    data = new JsonAPISerializer().serialize({ stuff: data });
+    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, data).pipe(debounceTime(2000));
   }
 
   /**
@@ -167,10 +167,7 @@ export class GlobalService {
    * @returns Object
    **/
   archive(methodUrl: string, id: number): Observable<any> {
-    return this.http.patch<number>(
-      this.cs.getEndpoint() + methodUrl + '/' + id,
-      { isArchived: true }
-    );
+    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, { isArchived: true });
   }
 
   /**
@@ -180,10 +177,7 @@ export class GlobalService {
    * @returns Object
    **/
   chelper(methodUrl: string, option: string, arr: any): Observable<any> {
-    return this.http.post(
-      this.cs.getEndpoint() + methodUrl + '/' + option,
-      arr
-    );
+    return this.http.post(this.cs.getEndpoint() + methodUrl + '/' + option, arr);
   }
 
   /**
@@ -193,9 +187,6 @@ export class GlobalService {
    * @returns Object
    **/
   uhelper(methodUrl: string, option: string, arr: any): Observable<any> {
-    return this.http.patch(
-      this.cs.getEndpoint() + methodUrl + '/' + option,
-      arr
-    );
+    return this.http.patch(this.cs.getEndpoint() + methodUrl + '/' + option, arr);
   }
 }
