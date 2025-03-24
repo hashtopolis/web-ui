@@ -1,23 +1,30 @@
+import * as echarts from 'echarts/core';
 import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { HeatmapChart } from 'echarts/charts';
-import * as echarts from 'echarts/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../core/_services/main.config';
-import { LocalStorageService } from '../core/_services/storage/local-storage.service';
-import { UIConfig } from '../core/_models/config-ui.model';
-import { UISettingsUtilityClass } from '../shared/utils/config';
+
 import { Subscription } from 'rxjs';
-import { ResponseWrapper } from '../core/_models/response.model';
-import { JHash } from '../core/_models/hash.model';
-import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '../shared/utils/datetime';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Filter, FilterType } from '../core/_models/request-params.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+
+import { GlobalService } from '@src/app/core/_services/main.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { SERV } from '@src/app/core/_services/main.config';
+
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { JHash } from '@src/app/core/_models/hash.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { UIConfig } from '@src/app/core/_models/config-ui.model';
+
+import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
 
 @Component({
   selector: 'app-home',
@@ -328,24 +335,26 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Get the list of supertasks.
    */
   private getSuperTasks(): void {
-    const filtersTotalTasks = new Array<Filter>(
-      { field: 'taskType', operator: FilterType.EQUAL, value: 1 },
-      { field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' },
-      { field: 'keyspace', operator: FilterType.GREATER, value: 0 }
-    );
-    const paramsTotalTasks = { include: ['tasks'], filters: filtersTotalTasks };
+    const paramsTotalTasks = new RequestParamBuilder()
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 1 })
+      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
+      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
+      .addInclude('tasks')
+      .create();
+
     this.subscriptions.push(
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsTotalTasks).subscribe((response: ResponseWrapper) => {
         this.totalSupertasks = response.meta.count;
       })
     );
 
-    const paramsCompletedTasks = {
-      include: ['tasks'],
-      'filter[keyspace__eq]': 'keyspaceProgress',
-      'filter[keyspace__gt]': 0,
-      'filter[taskType__eq]': 1
-    };
+    const paramsCompletedTasks = new RequestParamBuilder()
+      .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
+      .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 1 })
+      .addInclude('tasks')
+      .create();
+
     this.subscriptions.push(
       this.gs.getAll(SERV.TASKS_WRAPPER_COUNT, paramsCompletedTasks).subscribe((response: ResponseWrapper) => {
         this.completedSupertasks = response.meta.count;
