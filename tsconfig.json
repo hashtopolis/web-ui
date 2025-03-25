@@ -5,6 +5,10 @@
     "baseUrl": "./",
     "paths": {
       "@src/*": ["./src/*"],
+      "@models/*": ["./src/app/core/_models/*"],
+      "@components/*": ["./src/app/core/_components/*"],
+      "@datasources/*": ["./src/app/core/_datasources/*"],
+      "@services/*": ["./src/app/core/_services/*"]
     },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,

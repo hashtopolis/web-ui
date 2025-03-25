@@ -1,13 +1,16 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { Hash } from '../_models/hash.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { FilterType } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { FilterType } from '@models/request-params.model';
+import { JHash } from '@models/hash.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class HashesDataSource extends BaseDataSource<Hash> {
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { SERV } from '@services/main.config';
+
+export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
   private _dataType: string;
 
@@ -37,15 +40,14 @@ export class HashesDataSource extends BaseDataSource<Hash> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hash>) => {
-          const rows: Hash[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+          const hashes = new JsonAPISerializer().deserialize<JHash[]>({
+            data: response.data,
+            included: response.included
+          });
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            response.total
-          );
-          this.setData(rows);
+          this.setPaginationConfig(this.pageSize, this.currentPage, hashes.length);
+          this.setData(hashes);
         })
     );
   }
