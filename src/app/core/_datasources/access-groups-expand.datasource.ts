@@ -1,51 +1,53 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroup } from '../_models/access-group.model';
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class AccessGroupsExpandDataSource extends BaseDataSource<
-  AccessGroup,
-  MatTableDataSourcePaginator
-> {
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+import { JAccessGroup } from '@src/app/core/_models/access-group.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { JUser } from '@src/app/core/_models/user.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { SERV } from '@src/app/core/_services/main.config';
+
+
+export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent, MatTableDataSourcePaginator> {
   private _accessgroupId = 0;
-  private _expand = '';
+  private _include = '';
 
   setAccessGroupId(accessgroupId: number) {
     this._accessgroupId = accessgroupId;
   }
 
-  setAccessGroupExpand(_expand: string) {
-    this._expand = _expand;
+  setAccessGroupExpand(include: string) {
+    this._include = include;
   }
 
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInclude(this._expand).create();
+    const params = new RequestParamBuilder().addInclude(this._include).create();
 
-    const pretasks$ = this.service.get(
-      SERV.ACCESS_GROUPS,
-      this._accessgroupId,
-      params
-    );
+    const accessGroup$ = this.service.get(SERV.ACCESS_GROUPS, this._accessgroupId, params);
 
     this.subscriptions.push(
-      pretasks$
+      accessGroup$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
-          const data: AccessGroup[] = response[this._expand];
-          this.setData(data);
+        .subscribe((response: ResponseWrapper) => {
+          const accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
+            data: response.data,
+            included: response.included
+          });
+          this.setData(accessGroup[this._include]);
         })
     );
   }
 
-  getData(): AccessGroup[] {
+  getData(): (JUser | JAgent)[] {
     return this.getOriginalData();
   }
 
