@@ -1,15 +1,26 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { DataTableDirective } from 'angular-datatables';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { displays, filters } from 'src/app/core/_constants/hashes.config';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { DataTableDirective } from 'angular-datatables';
+
+import { Filter, FilterType } from '@models/request-params.model';
+import { JChunk } from '@models/chunk.model';
+import { JHash } from '@models/hash.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JTask } from '@models/task.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { GlobalService } from '@services/main.service';
+import { IParamBuilder } from '@services/params/builder-types.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { SERV } from '@services/main.config';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { displays, filters } from '@src/app/core/_constants/hashes.config';
 
 /**
  * The `HashesComponent` is for managing and displaying a list of hashes
@@ -137,24 +148,36 @@ export class HashesComponent implements OnInit, OnDestroy {
       switch (data['kind']) {
         case 'chunkshash':
           this.whichView = 'chunks';
-          this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((result) => {
-            this.titleName = result['chunkId'];
+          this.gs.get(SERV.CHUNKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+            const chunk = new JsonAPISerializer().deserialize<JChunk>({
+              data: response.data,
+              included: response.included
+            });
+            this.titleName = chunk.id;
           });
           this.initChashes();
           break;
 
         case 'taskhas':
           this.whichView = 'tasks';
-          this.gs.get(SERV.TASKS, this.editedIndex).subscribe((result) => {
-            this.titleName = result['taskName'];
+          this.gs.get(SERV.TASKS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+            const task = new JsonAPISerializer().deserialize<JTask>({
+              data: response.data,
+              included: response.included
+            });
+            this.titleName = task.taskName;
           });
           this.initThashes();
           break;
 
         case 'hashlisthash':
           this.whichView = 'hashlists';
-          this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((result) => {
-            this.titleName = result['name'];
+          this.gs.get(SERV.HASHLISTS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+            const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
+              data: response.data,
+              included: response.included
+            });
+            this.titleName = hashlist.name;
           });
           this.initHhashes();
           break;
@@ -165,16 +188,15 @@ export class HashesComponent implements OnInit, OnDestroy {
 
   /**
    * Initialize based on Chunk hashes
-   *
    */
   private initChashes() {
-    const param = { filter: 'chunkId=' + this.editedIndex + '' };
+    const filter: Filter = { field: 'chunkId', operator: FilterType.EQUAL, value: this.editedIndex };
+    const param = new RequestParamBuilder().addFilter(filter);
     this.getHashes(param);
   }
 
   /**
    * Initialize based on Tasks hashes
-   *
    */
   private initThashes() {
     // This should enough to filter by id
@@ -184,24 +206,28 @@ export class HashesComponent implements OnInit, OnDestroy {
 
   /**
    * Initialize based on Hashlists hashes
-   *
    */
   private initHhashes() {
-    const param = { filter: 'hashlistId=' + this.editedIndex + '' };
-    this.getHashes(param);
+    const paramBuilder = new RequestParamBuilder().addFilter({
+      field: 'hashlistId',
+      operator: FilterType.EQUAL,
+      value: this.editedIndex
+    });
+    this.getHashes(paramBuilder);
   }
 
   /**
    * Fetch hashes from the server
-   *
    */
-  async getHashes(param?: any) {
-    const params = { maxResults: 90000, expand: 'hashlist,chunk' };
+  async getHashes(paramBuilder?: IParamBuilder) {
+    if (!paramBuilder) {
+      paramBuilder = new RequestParamBuilder();
+    }
+    const requestParams = paramBuilder.addInclude('hashlist').addInclude('chunk').create();
 
-    const nwparams = { ...params, ...param };
-
-    this.gs.getAll(SERV.HASHES, nwparams).subscribe((hashes: any) => {
-      let res = hashes.values;
+    this.gs.getAll(SERV.HASHES, requestParams).subscribe((response: ResponseWrapper) => {
+      const hashes = new JsonAPISerializer().deserialize<JHash[]>({ data: response.data, included: response.included });
+      let res = hashes;
       if (this.whichView === 'tasks') {
         res = res.filter((u) => u.chunk?.taskId == this.editedIndex);
       }
@@ -226,10 +252,10 @@ export class HashesComponent implements OnInit, OnDestroy {
     if (type == 1) {
       query = { filter: name };
     }
-    this.router.navigate(
-      ['/hashlists/hashes/', this.whichView, this.editedIndex],
-      { queryParams: query, queryParamsHandling: 'merge' }
-    );
+    this.router.navigate(['/hashlists/hashes/', this.whichView, this.editedIndex], {
+      queryParams: query,
+      queryParamsHandling: 'merge'
+    });
     this.onDisplaying(name, type);
     this.ngOnInit();
   }
