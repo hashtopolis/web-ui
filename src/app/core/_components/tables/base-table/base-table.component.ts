@@ -35,16 +35,9 @@ import { JUser } from '@src/app/core/_models/user.model';
   template: ''
 })
 export class BaseTableComponent {
-  protected uiSettings: UISettingsUtilityClass;
-  protected dateFormat: string;
-  protected subscriptions: Subscription[] = [];
-  protected columnLabels: { [key: string]: string } = {};
-
   @ViewChild('table') table: HTTableComponent;
-
   @Input() hashlistId: number;
   @Input() shashlistId: number;
-
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
   /** Flag to enable bulk action menu */
@@ -55,6 +48,10 @@ export class BaseTableComponent {
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = true;
+  protected uiSettings: UISettingsUtilityClass;
+  protected dateFormat: string;
+  protected subscriptions: Subscription[] = [];
+  protected columnLabels: { [key: string]: string } = {};
 
   constructor(
     protected gs: GlobalService,
@@ -73,29 +70,6 @@ export class BaseTableComponent {
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();
-  }
-
-  /**
-   * Retrieves the date format for rendering timestamps.
-   * @returns The date format string.
-   */
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
-
-    return fmt ? fmt : uiConfigDefault.timefmt;
-  }
-
-  /**
-   * Sanitizes the given HTML string to create a safe HTML value.
-   * @param html - The HTML string to be sanitized.
-   * @returns A SafeHtml object that represents the sanitized HTML.
-   */
-  protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
-  }
-
-  protected setColumnLabels(labels: { [key: string]: string }): void {
-    this.columnLabels = labels;
   }
 
   reload(): void {
@@ -205,7 +179,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
+  @Cacheable(['id', 'groupName'])
   async renderAccessGroupLink(obj: JAccessGroup): Promise<HTTableRouterLink[]> {
     return [
       {
@@ -239,5 +213,28 @@ export class BaseTableComponent {
         : [{ name: 'remove_circle', cls: 'text-critical' }];
     }
     return [];
+  }
+
+  /**
+   * Sanitizes the given HTML string to create a safe HTML value.
+   * @param html - The HTML string to be sanitized.
+   * @returns A SafeHtml object that represents the sanitized HTML.
+   */
+  protected sanitize(html: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  protected setColumnLabels(labels: { [key: string]: string }): void {
+    this.columnLabels = labels;
+  }
+
+  /**
+   * Retrieves the date format for rendering timestamps.
+   * @returns The date format string.
+   */
+  private getDateFormat(): string {
+    const fmt = this.uiSettings.getSetting<string>('timefmt');
+
+    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }
