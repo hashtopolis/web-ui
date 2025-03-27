@@ -51,6 +51,7 @@
       data-testid="input-newPassword"
       [isRequired]="true"
     ></input-text>
+
     <input-text
       title="Confirm New Password"
       formControlName="confirmNewPassword"
@@ -58,6 +59,15 @@
       data-testid="input-confirmNewPassword"
       [isRequired]="true"
     ></input-text>
+    <!--     <app-pass-match
+      [newPassword]="newPasswordFromForm"
+      [confirmPassword]="confirmNewPasswordFromForm"
+    ></app-pass-match> -->
+    <app-pass-strenght
+      [passwordToCheck]="newPasswordFromForm"
+      (passwordStrength)="onPasswordStrengthChanged($event)"
+    ></app-pass-strenght>
+
     <grid-buttons>
       <button-submit
         [name]="'Update Password'"
@@ -69,6 +79,7 @@
       </div>
     </grid-buttons>
   </form>
+
   <!--   <form [formGroup]="passform">
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text
