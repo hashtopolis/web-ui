@@ -17,7 +17,7 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { JTask } from 'src/app/core/_models/task.model';
 import { JTaskWrapper, TaskWrapperData } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
-import { JHashlist } from '../../../_models/hashlist.model';
+import { JHashlist } from '@models/hashlist.model';
 
 @Component({
   selector: 'tasks-table',
@@ -51,15 +51,11 @@ export class TasksTableComponent
   }
 
   filter(item: JTaskWrapper, filterValue: string): boolean {
-    if (item.tasks[0].taskName.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.tasks[0].taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: TaskTableCol.ID,
         dataKey: 'id',
@@ -222,8 +218,6 @@ export class TasksTableComponent
             : ''
       }
     ];
-
-    return tableColumns;
   }
 
   rowActionClicked(event: ActionMenuEvent<JTaskWrapper>): void {
