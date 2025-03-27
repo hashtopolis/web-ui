@@ -330,26 +330,24 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   }
 
   // Render devices using count by device type
-  renderDevices(agent: any) {
-    if (agent) {
-      const deviceList = agent.split('\n');
-      const deviceCountMap: { [key: string]: number } = {};
+  renderDevices(devices: string) {
+    const deviceList = devices.split('\n');
+    const deviceCountMap: { [key: string]: number } = {};
 
-      // Count occurrences of each device
-      deviceList.forEach((device) => {
-        if (deviceCountMap[device]) {
-          deviceCountMap[device]++;
-        } else {
-          deviceCountMap[device] = 1;
-        }
-      });
+    // Count occurrences of each device
+    deviceList.forEach((device) => {
+      if (deviceCountMap[device]) {
+        deviceCountMap[device]++;
+      } else {
+        deviceCountMap[device] = 1;
+      }
+    });
 
-      // Format the result string with HTML line breaks
-      const formattedDevices = Object.keys(deviceCountMap)
-        .map((device) => `${deviceCountMap[device]} x ${device}`)
-        .join('<br>');
-    }
-    return undefined;
+    // Format the result string with HTML line breaks
+    const formattedDevices = Object.keys(deviceCountMap)
+      .map((device) => `${deviceCountMap[device]} x ${device}`)
+      .join('<br>');
+    return formattedDevices;
   }
 
   // //
