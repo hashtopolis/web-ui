@@ -10,7 +10,7 @@ import { RequestParamBuilder } from '../_services/params/builder-implementation.
 import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
 
-export class AgentsViewDataSource extends BaseDataSource<Agent> {
+export class AgentsViewDataSource extends BaseDataSource<JAgent> {
   private _agentId = 0;
 
   setAgentId(agentId: number): void {
@@ -56,27 +56,23 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
           const statDevice = tempDateFilter.filter((u) => u.statType == ASC.GPU_UTIL);
           const statCpu = tempDateFilter.filter((u) => u.statType == ASC.CPU_UTIL);
 
-          /* agent.maxTemp = */ const maxTemp = Math.round(
+          agent.maxTemp = Math.round(
             statTemp.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]
           );
 
-          /* agent.avgCpu = */ const avgCpu = Math.round(
+          agent.avgCpu = Math.round(
             statCpu.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / statCpu.length
           );
 
-          /* agent.avgDevice = */ const avgDevice = Math.round(
+          agent.avgDevice = Math.round(
             statDevice.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / statDevice.length
           );
-          console.log('maxTemp ', maxTemp);
-          console.log('avgCpu ', avgCpu);
-          console.log('avgDevice ', avgDevice);
         });
-        /*         agentStats.map((agentStat) => {
-          console.log('AGENT STATS ', agentStat);
-        }); */
+        this.setPaginationConfig(this.pageSize, this.currentPage, agent.length);
+        this.setData(agent);
       });
 
-    agents$
+    /*     agents$
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
@@ -104,7 +100,7 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
         });
         this.setPaginationConfig(this.pageSize, this.currentPage, a.total);
         this.setData(agents);
-      });
+      }); */
   }
 
   reload(): void {

@@ -1,8 +1,8 @@
-import { BaseModel } from '@src/app/core/_models/base.model';
-
 import { Chunk, ChunkDataNew, JChunk } from '@src/app/core/_models/chunk.model';
 import { JUser, User, UserData } from '@src/app/core/_models/user.model';
+
 import { AccessGroup } from '@src/app/core/_models/access-group.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
 import { JTask } from '@src/app/core/_models/task.model';
 
@@ -78,6 +78,9 @@ export interface JAgent extends BaseModel {
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
+  avgCpu?: number;
+  maxTemp?: number;
+  avgDevice?: number;
 }
 
 export interface AgentData {
