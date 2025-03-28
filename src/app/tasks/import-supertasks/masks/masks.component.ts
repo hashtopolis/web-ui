@@ -17,6 +17,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ResponseWrapper } from '../../../core/_models/response.model';
+import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -71,7 +74,8 @@ export class MasksComponent implements OnInit, OnDestroy {
     private uiService: UIConfigService,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.buildForm();
     titleService.set(['Import SuperTask - Mask']);
@@ -114,9 +118,13 @@ export class MasksComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: any) => {
+      .subscribe((response: ResponseWrapper) => {
+
+        const responseBody = { data: response.data, included: response.included };
+        const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+
         const transformedOptions = transformSelectOptions(
-          response.values,
+          crackerBinaryTypes,
           this.selectCrackertypeMap
         );
         this.selectCrackertype = transformedOptions;

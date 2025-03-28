@@ -18,7 +18,7 @@ import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HashListFormatLabel } from 'src/app/core/_constants/hashlist.config';
-import { Hashlist } from 'src/app/core/_models/hashlist.model';
+import { JHashlist } from 'src/app/core/_models/hashlist.model';
 import { HashlistsDataSource } from 'src/app/core/_datasources/hashlists.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -59,7 +59,7 @@ export class HashlistsTableComponent
     }
   }
 
-  filter(item: Hashlist, filterValue: string): boolean {
+  filter(item: JHashlist, filterValue: string): boolean {
     if (
       item.name.toLowerCase().includes(filterValue) ||
       item.hashTypeDescription.toLowerCase().includes(filterValue)
@@ -74,42 +74,42 @@ export class HashlistsTableComponent
     const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (hashlist: Hashlist) => hashlist._id + ''
+        export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
         id: HashlistsTableCol.NAME,
         dataKey: 'name',
-        icons: (hashlist: Hashlist) => this.renderSecretIcon(hashlist),
-        routerLink: (hashlist: Hashlist) => this.renderHashlistLink(hashlist),
+        icons: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
+        routerLink: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
-        export: async (hashlist: Hashlist) => hashlist.name
+        export: async (hashlist: JHashlist) => hashlist.name
       },
       {
         id: HashlistsTableCol.HASH_COUNT,
         dataKey: 'hashCount',
         isSortable: true,
-        routerLink: (hashlist: Hashlist) => this.renderHashCountLink(hashlist),
-        export: async (hashlist: Hashlist) => hashlist.hashCount + ''
+        routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
+        export: async (hashlist: JHashlist) => hashlist.hashCount + ''
       },
       {
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
-        icons: (hashlist: Hashlist) => this.renderCrackedStatusIcon(hashlist),
-        render: (hashlist: Hashlist) =>
+        icons: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
+        render: (hashlist: JHashlist) =>
           formatPercentage(hashlist.cracked, hashlist.hashCount),
         isSortable: true,
-        export: async (hashlist: Hashlist) =>
+        export: async (hashlist: JHashlist) =>
           formatPercentage(hashlist.cracked, hashlist.hashCount)
       },
       {
         id: HashlistsTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: Hashlist) =>
+        render: (hashlist: JHashlist) =>
           this.sanitize(HashListFormatLabel[hashlist.format]),
-        export: async (hashlist: Hashlist) =>
+        export: async (hashlist: JHashlist) =>
           HashListFormatLabel[hashlist.format]
       }
     ];
@@ -119,16 +119,16 @@ export class HashlistsTableComponent
         id: HashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: true,
-        render: (hashlist: Hashlist) =>
+        render: (hashlist: JHashlist) =>
           hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
-        export: async (hashlist: Hashlist) => hashlist.hashTypeDescription
+        export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
       });
     }
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Hashlist>) {
+  openDialog(data: DialogData<JHashlist>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -155,8 +155,8 @@ export class HashlistsTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['_id', 'isSecret'])
-  async renderSecretIcon(hashlist: Hashlist): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'isSecret'])
+  async renderSecretIcon(hashlist: JHashlist): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     if (hashlist.isSecret) {
       icons.push({
@@ -168,8 +168,8 @@ export class HashlistsTableComponent
     return icons;
   }
 
-  @Cacheable(['_id', 'hashCount', 'cracked'])
-  async renderCrackedStatusIcon(hashlist: Hashlist): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'hashCount', 'cracked'])
+  async renderCrackedStatusIcon(hashlist: JHashlist): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     if (hashlist.hashCount === hashlist.cracked) {
       icons.push({
@@ -184,10 +184,10 @@ export class HashlistsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Hashlist[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Hashlist>(
+        this.exportService.toExcel<JHashlist>(
           'hashtopolis-hashlists',
           this.tableColumns,
           event.data,
@@ -195,7 +195,7 @@ export class HashlistsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Hashlist>(
+        this.exportService.toCsv<JHashlist>(
           'hashtopolis-hashlists',
           this.tableColumns,
           event.data,
@@ -204,7 +204,7 @@ export class HashlistsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hashlist>(
+          .toClipboard<JHashlist>(
             this.tableColumns,
             event.data,
             HashlistsTableColumnLabel
@@ -219,7 +219,7 @@ export class HashlistsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Hashlist>): void {
+  rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -233,7 +233,7 @@ export class HashlistsTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting hashlist with id ${event.data._id} (${event.data.hashTypeDescription}) ...`,
+          title: `Deleting hashlist with id ${event.data.id} (${event.data.hashTypeDescription}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone. ${
             this.shashlistId ? ' This action is deleting not unassigning.' : ''
@@ -245,7 +245,7 @@ export class HashlistsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Hashlist[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     const hashlistCount = event.data.length;
     const label = hashlistCount > 1 ? 'hashlists' : 'hashlist';
 
@@ -278,9 +278,9 @@ export class HashlistsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionArchive(hashlists: Hashlist[], isArchived: boolean): void {
-    const requests = hashlists.map((hashlist: Hashlist) => {
-      return this.gs.update(SERV.HASHLISTS, hashlist._id, {
+  private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
+    const requests = hashlists.map((hashlist: JHashlist) => {
+      return this.gs.update(SERV.HASHLISTS, hashlist.id, {
         isArchived: isArchived
       });
     });
@@ -308,9 +308,9 @@ export class HashlistsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(hashlists: Hashlist[]): void {
-    const requests = hashlists.map((hashlist: Hashlist) => {
-      return this.gs.delete(SERV.HASHLISTS, hashlist._id);
+  private bulkActionDelete(hashlists: JHashlist[]): void {
+    const requests = hashlists.map((hashlist: JHashlist) => {
+      return this.gs.delete(SERV.HASHLISTS, hashlist.id);
     });
 
     this.subscriptions.push(
@@ -334,10 +334,10 @@ export class HashlistsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(hashlists: Hashlist[]): void {
+  private rowActionDelete(hashlists: JHashlist[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.HASHLISTS, hashlists[0]._id)
+        .delete(SERV.HASHLISTS, hashlists[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -351,7 +351,7 @@ export class HashlistsTableComponent
     );
   }
 
-  private rowActionEdit(hashlist: Hashlist): void {
+  private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });
@@ -363,8 +363,8 @@ export class HashlistsTableComponent
    * @private
    * @returns {void}
    */
-  private rowActionExport(hashlist: Hashlist): void {
-    const payload = { hashlistId: hashlist._id };
+  private rowActionExport(hashlist: JHashlist): void {
+    const payload = { hashlistId: hashlist.id };
     this.subscriptions.push(
       this.gs
         .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
@@ -384,9 +384,9 @@ export class HashlistsTableComponent
     );
   }
 
-  private rowActionImport(hashlist: Hashlist): void {
+  private rowActionImport(hashlist: JHashlist): void {
     this.router.navigate([
-      '/hashlists/hashlist/' + hashlist._id + '/import-cracked-hashes'
+      '/hashlists/hashlist/' + hashlist.id + '/import-cracked-hashes'
     ]);
   }
 

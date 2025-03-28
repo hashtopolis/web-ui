@@ -1,15 +1,17 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hashlist } from 'src/app/hashlists/hashlist.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
-import { TaskWrapper } from '../_models/task-wrapper.model';
-import { Hashtype } from '../_models/hashtype.model';
-import { RequestParams } from '../_models/request-params.model';
+import { JTaskWrapper } from '../_models/task-wrapper.model';
+import { JHashtype } from '../_models/hashtype.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { JHashlist } from '../_models/hashlist.model';
+import { FilterType } from '../_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class TasksDataSource extends BaseDataSource<
-  TaskWrapper,
+  JTaskWrapper,
   MatTableDataSourcePaginator
 > {
   private _isArchived = false;
@@ -25,33 +27,21 @@ export class TasksDataSource extends BaseDataSource<
 
   loadAll(): void {
     this.loading = true;
+    const params = new RequestParamBuilder().addInitial(this).addInclude('accessGroup').addInclude('tasks').addFilter({
+      field: 'isArchived',
+      operator: FilterType.EQUAL,
+      value: this._isArchived
+    });
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const additionalFilter = this._hashlistId
-      ? `,hashlistId=${this._hashlistId}`
-      : '';
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}${additionalFilter}`
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
+    if (this._hashlistId) {
+      params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._hashlistId });
     }
 
-    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, {
-      maxResults: this.maxResults
-    });
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      maxResults: this.maxResults
-    });
+    const hashParams = new RequestParamBuilder().setPageSize(this.maxResults).create()
+
+    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, hashParams);
+    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, hashParams);
 
     forkJoin([wrappers$, hashLists$, hashTypes$])
       .pipe(
@@ -59,31 +49,42 @@ export class TasksDataSource extends BaseDataSource<
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]) => {
-          const wrappers: TaskWrapper[] = taskWrapperResponse.values.map(
-            (wrapper: TaskWrapper) => {
-              const matchingHashList = hashlistResponse.values.find(
-                (hashlist: Hashlist) => hashlist._id === wrapper.hashlistId
-              );
-              const matchingHashTypes = hashtypeResponse.values.find(
-                (hashtype: Hashtype) =>
-                  hashtype._id === matchingHashList.hashTypeId
-              );
-              wrapper.hashlists = [matchingHashList];
-              wrapper.hashtypes = [matchingHashTypes];
-              wrapper.taskName = wrapper.tasks[0]?.taskName;
-              wrapper.accessGroupName = wrapper.accessGroup?.groupName;
-              return wrapper;
-            }
-          );
+        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]: [ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
+
+          const taskWrapperResponseBody = { data: taskWrapperResponse.data, included: taskWrapperResponse.included };
+          const taskWrappersDeserialized = this.serializer.deserialize<JTaskWrapper[]>(taskWrapperResponseBody);
+
+          const hashlistResponseBody = { data: hashlistResponse.data, included: hashlistResponse.included };
+          const hashlists = this.serializer.deserialize<JHashlist[]>(hashlistResponseBody);
+
+          const hashtypeResponseBody = { data: hashtypeResponse.data, included: hashtypeResponse.included };
+          const hashtypes = this.serializer.deserialize<JHashtype[]>(hashtypeResponseBody);
+
+          let taskWrappers: JTaskWrapper[] = [];
+
+          taskWrappersDeserialized.forEach((value: JTaskWrapper) => {
+            const taskWrapper: JTaskWrapper = value;
+
+            const matchingHashList = hashlists.find(
+              (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
+            );
+            taskWrapper.hashlists = [matchingHashList];
+
+            const matchingHashTypes = hashtypes.find(
+              (hashtype: JHashtype) =>
+                hashtype.id === matchingHashList.hashTypeId
+            );
+            taskWrapper.hashtypes = [matchingHashTypes];
+
+            taskWrappers.push(taskWrapper);
+          });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            taskWrapperResponse.total
+            taskWrappers.length
           );
-          console.log(wrappers);
-          this.setData(wrappers);
+          this.setData(taskWrappers);
         }
       );
   }

@@ -36,37 +36,38 @@
     <!--   <div class="col-xs-6 col-md-4 col-lg-2" *ngFor="let a of _filteresAgents | sort:statusOrderBy:statusOrderByName ; let ind=index">
     <mat-card class="card card-ag overflowAuto">
           <mat-card-header class="card-header-ag">
-            <mat-icon *ngIf="a.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
-            <mat-icon *ngIf="!a.isActive" class="inactive-icon" matTooltip="Inactive" class="text-critical">highlight_off</mat-icon>
-            <a [routerLink]="['/agents/show-agents',a.agentId,'edit']"> {{ a.agentName | shortenString:15 }} </a>
+            <mat-icon *ngIf="agent.isActive" class="active-icon" matTooltip="Active" class="text-ok">check_circle</mat-icon>
+            <mat-icon *ngIf="!agent.isActive" class="inactive-icon" matTooltip="Inactive" class="text-critical">highlight_off</mat-icon>
+            <p></p>
+            <a [routerLink]="['/agents/show-agents',agent.id,'edit']"> {{ agent.agentName | shortenString:28 }} </a>
           </mat-card-header>
             <div>
                 <div class="pull-left card-body-left-ag"></div>
                 <div class="pull-left card-body-right-ag">
-                   <div *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+                   <div *ngIf="statDevice | filterItem:'agentId':agent.id | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
                       <button mat-icon-button
-                              (click)="openModal('Device Utilisation','devices',result === 'No data'? result:result +'%','device',result, a)"
+                              (click)="openModal('Device Utilisation','devices',result === 'No data'? result:result +'%','device',result, agent)"
                               matTooltip="Device Utilisation"
                       >
-                        <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}">devices</mat-icon>
+                        <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime}">devices</mat-icon>
                       </button>
                       <span>{{ result === 'No data'? result:result +'%' }}</span>
                     </div>
-                    <div *ngIf="statTemp | filterItem:'agentId':a.agentId | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+                    <div *ngIf="statTemp | filterItem:'agentId':agent.id | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
                       <button mat-icon-button
-                              (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, a)"
+                              (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, agent)"
                               matTooltip="Temperature"
                       >
-                        <mat-icon [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}">device_thermostat</mat-icon>
+                        <mat-icon [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:agent.isActive:agent.lastTime}">device_thermostat</mat-icon>
                       </button>
                       <span>{{ result === 'No data'? result:result +'°' }}</span>
                     </div>
-                    <div *ngIf="statCpu | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+                    <div *ngIf="statCpu | filterItem:'agentId':agent.id | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
                       <button mat-icon-button
-                              (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, a)"
+                              (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, agent)"
                               matTooltip="CPU Utilisation"
                       >
-                        <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}">computer</mat-icon>
+                        <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:agent.isActive:agent.lastTime}">computer</mat-icon>
                       </button>
                       <span>{{ result === 'No data'? result:result +'%' }}</span>
                     </div>
@@ -86,35 +87,35 @@
         <mat-icon *ngIf="!gname.isActive" class="inactive-icon" matTooltip="Inactive" class="text-critical">highlight_off</mat-icon>
         <a>{{ gname.k | shortenString:15 }} </a>
       </mat-card-header>
-      <div class="card-body" *ngFor="let a of gname.value; let last=last">
+      <div class="card-body" *ngFor="let agent of gname.value; let last=last">
         <div class="row">
           <small><b>
-            <a [routerLink]="['/agents/show-agents',a.agentId,'edit']">{{ a.agentName | split:'-':1 | shortenString:15 }}</a>
+            <a [routerLink]="['/agents/show-agents',agent.id,'edit']">{{ agent.agentName | split:'-':1 | shortenString:15 }}</a>
           </b></small>
-          <div *ngIf="statDevice | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+          <div *ngIf="statDevice | filterItem:'agentId':agent.id | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
             <button mat-icon-button
-                    (click)="openModal('Device Utilisation','devices',result === 'No data'? result:result +'%','device',result, a)"
+                    (click)="openModal('Device Utilisation','devices',result === 'No data'? result:result +'%','device',result, agent)"
                     matTooltip="Device Utilisation"
             >
-            <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime}">devices</mat-icon>
+            <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime}">devices</mat-icon>
             </button>
             <span>{{ result === 'No data'? result:result +'%' }}</span>
           </div>
-          <div *ngIf="statTemp | filterItem:'agentId':a.agentId | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+          <div *ngIf="statTemp | filterItem:'agentId':agent.id | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
             <button mat-icon-button
-                    (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, a)"
+                    (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, agent)"
                     matTooltip="Temperature"
             >
-              <mat-icon [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:a.isActive:a.lastTime}">device_thermostat</mat-icon>
+              <mat-icon [ngStyle]="{'color': result | asColor:this.getTemp1():this.getTemp2():2:agent.isActive:agent.lastTime}">device_thermostat</mat-icon>
             </button>
             <span>{{ result === 'No data'? result:result +'°' }}</span>
           </div>
-          <div *ngIf="statCpu | filterItem:'agentId':a.agentId | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:a.isActive:a.lastTime) + ' 50%)', 'margin-left': '0px'}">
+          <div *ngIf="statCpu | filterItem:'agentId':agent.id | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
             <button mat-icon-button
-                    (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, a)"
+                    (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, agent)"
                     matTooltip="CPU Utilisation"
             >
-              <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:a.isActive:a.lastTime}">computer</mat-icon>
+              <mat-icon [ngStyle]="{'color':result | asColor:this.getUtil1():this.getUtil2():3:agent.isActive:agent.lastTime}">computer</mat-icon>
             </button>
             <span>{{ result === 'No data'? result:result +'%' }}</span>
           </div>

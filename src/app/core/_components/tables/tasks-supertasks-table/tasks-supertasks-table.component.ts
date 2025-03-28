@@ -27,7 +27,7 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { TasksSupertasksDataSource } from 'src/app/core/_datasources/tasks-supertasks.datasource';
 import { SuperTask } from 'src/app/core/_models/supertask.model';
 import { TaskWrapper } from 'src/app/core/_models/task-wrapper.model';
-import { ChunkData } from 'src/app/core/_models/chunk.model';
+import { ChunkDataData } from 'src/app/core/_models/chunk.model';
 import { Task } from 'src/app/core/_models/task.model';
 
 @Component({
@@ -42,7 +42,7 @@ export class TasksSupertasksTableComponent
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksSupertasksDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
+  chunkData: { [key: number]: ChunkDataData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
@@ -81,7 +81,7 @@ export class TasksSupertasksTableComponent
       {
         id: TasksSupertasksDataSourceTableCol.NAME,
         dataKey: 'taskName',
-        routerLink: (wrapper: TaskWrapper) => this.renderTaskLink(wrapper),
+        //routerLink: (wrapper: TaskWrapper) => this.renderTaskLink(wrapper),
         isSortable: true,
         export: async (wrapper: TaskWrapper) => wrapper.taskName + ''
       },
@@ -311,7 +311,7 @@ export class TasksSupertasksTableComponent
 
   async getDispatchedSearchedString(task: Task): Promise<string> {
     if (task.keyspace > 0) {
-      const cd: ChunkData = await this.getChunkData(task);
+      const cd: ChunkDataData = await this.getChunkData(task);
       const disp = (cd.dispatched * 100).toFixed(2);
       const sear = (cd.searched * 100).toFixed(2);
 
@@ -321,7 +321,7 @@ export class TasksSupertasksTableComponent
   }
 
   async getNumAgents(task: Task): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(task);
+    const cd: ChunkDataData = await this.getChunkData(task);
     return cd.agents.length;
   }
 
@@ -473,7 +473,7 @@ export class TasksSupertasksTableComponent
     );
   }
 
-  private async getChunkData(task: Task): Promise<ChunkData> {
+  private async getChunkData(task: Task): Promise<ChunkDataData> {
     if (!this.chunkDataLock[task._id]) {
       // If there is no lock, create a new one
       this.chunkDataLock[task._id] = (async () => {

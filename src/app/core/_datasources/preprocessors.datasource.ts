@@ -1,28 +1,16 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Preprocessor } from '../_models/preprocessor.model';
-import { RequestParams } from '../_models/request-params.model';
+import { ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
+import { JPreprocessor, PreprocessorData } from '../_models/preprocessor.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
 
-export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
+export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).create();
     const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params);
 
     this.subscriptions.push(
@@ -31,13 +19,15 @@ export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Preprocessor>) => {
-          const preprocessors: Preprocessor[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseData = { data: response.data, included: response.included };
+          const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            preprocessors.length
           );
           this.setData(preprocessors);
         })

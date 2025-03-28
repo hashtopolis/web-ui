@@ -1,5 +1,5 @@
-import { Agent } from 'http';
-import { Hashtype } from './hashtype.model';
+import { Hashtype, HashtypeDataAttributes, JHashtype } from './hashtype.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 
 export enum HealthCheckType {
   BRUTE_FORCE
@@ -29,6 +29,19 @@ export interface HealthCheck {
   time: number;
 }
 
+export interface JHealthCheck extends BaseModel {
+  attackCmd: string;
+  checkType: HealthCheckType;
+  crackerBinaryId: number;
+  expectedCracks: number;
+  hashTypeId: number;
+  hashType?: JHashtype;
+  hashTypeDescription?: string;
+  status: number;
+  time: number;
+}
+
+
 export interface HealthCheckAgent {
   _id: number;
   _self: string;
@@ -42,4 +55,45 @@ export interface HealthCheckAgent {
   end: number;
   errors: string;
   agentName?: string;
+}
+
+
+
+
+
+export interface HealthCheckData {
+  type: string;
+  id: number;
+  attributes: HealthCheckAttributes;
+  links: HealthCheckDataLinks;
+  relationships: HealthCheckRelationships;
+}
+
+export interface HealthCheckAttributes {
+  time: number;
+  status: number;
+  checkType: number;
+  hashtypeId: number;
+  crackerBinaryId: number;
+  expectedCracks: number;
+  attackCmd: string;
+  hashtype?: HashtypeDataAttributes;
+}
+
+export interface HealthCheckDataLinks {
+  self: string;
+}
+
+export interface HealthCheckRelationships {
+  crackerBinary: HealthCheckRelationshipsAttributes;
+  healthCheckAgents: HealthCheckRelationshipsAttributes;
+}
+
+export interface HealthCheckRelationshipsAttributes {
+  links: HealthCheckRelationshipsAttributesLinks;
+}
+
+export interface HealthCheckRelationshipsAttributesLinks {
+  self: string;
+  related: string;
 }

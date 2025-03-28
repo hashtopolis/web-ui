@@ -4,8 +4,9 @@ import { Agent } from '../_models/agent.model';
 import { BaseDataSource } from './base.datasource';
 import { Chunk } from '../_models/chunk.model';
 import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { FilterType } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class TasksChunksDataSource extends BaseDataSource<Chunk> {
   private _taskId = 0;
@@ -21,23 +22,14 @@ export class TasksChunksDataSource extends BaseDataSource<Chunk> {
 
   loadAll(): void {
     this.loading = true;
+    const chunkParams = new RequestParamBuilder().addInitial(this).addInclude('task').addFilter({
+      field: 'taskId',
+      operator: FilterType.EQUAL,
+      value: this._taskId
+    }).create();
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
+    const agentParams = new RequestParamBuilder().setPageSize(this.maxResults).create();
 
-    const chunkParams: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'task',
-      filter: 'taskId=' + this._taskId + ''
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      chunkParams.ordering = order;
-    }
-
-    const agentParams = { maxResults: this.maxResults };
     const chunks$ = this.service.getAll(SERV.CHUNKS, chunkParams);
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
@@ -58,8 +50,8 @@ export class TasksChunksDataSource extends BaseDataSource<Chunk> {
             for (let i = 0; i < getchunks.length; i++) {
               if (
                 Date.now() / 1000 -
-                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
-                  chunktime &&
+                Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
+                chunktime &&
                 getchunks[i].progress < 10000
               ) {
                 cspeed.push(getchunks[i].speed);

@@ -1,47 +1,39 @@
 import {
   AgentsStatusTableCol,
   AgentsStatusTableColumnLabel
-} from './agents-status-table.constants';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+} from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
-  HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
-} from '../ht-table/ht-table.models';
+} from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
-import {
-  formatSeconds,
-  formatUnixTimestamp
-} from 'src/app/shared/utils/datetime';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
-import { AccessGroup } from 'src/app/core/_models/access-group.model';
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { Agent } from 'src/app/core/_models/agent.model';
-import { AgentsDataSource } from 'src/app/core/_datasources/agents.datasource';
-import { AgentsStatusDataSource } from 'src/app/core/_datasources/agents-status.datasource';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { ChunkData } from 'src/app/core/_models/chunk.model';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { AgentsStatusDataSource } from '@src/app/core/_datasources/agents-status.datasource';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { ChunkDataData } from '@src/app/core/_models/chunk.model';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'agents-status-table',
   templateUrl: './agents-status-table.component.html'
 })
-export class AgentsStatusTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsStatusDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
+  chunkData: { [key: number]: ChunkDataData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
@@ -53,16 +45,12 @@ export class AgentsStatusTableComponent
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsStatusDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AgentsStatusDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.reload();
   }
 
-  filter(item: Agent, filterValue: string): boolean {
+  filter(item: JAgent, filterValue: string): boolean {
     if (
       item.agentName.toLowerCase().includes(filterValue) ||
       item.clientSignature.toLowerCase().includes(filterValue) ||
@@ -78,62 +66,61 @@ export class AgentsStatusTableComponent
     const tableColumns: HTTableColumn[] = [
       {
         id: AgentsStatusTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        render: (agent: Agent) => agent._id,
-        export: async (agent: Agent) => agent._id + ''
+        render: (agent: JAgent) => agent.id,
+        export: async (agent: JAgent) => agent.id + ''
       },
       {
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: true,
-        async: (agent: Agent) => this.renderActiveAgent(agent),
-        export: async (agent: Agent) => (agent.isActive ? 'Active' : 'Inactive')
+        async: (agent: JAgent) => this.renderActiveAgent(agent),
+        export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
-        render: (agent: Agent) => this.renderName(agent),
-        routerLink: (agent: Agent) => this.renderAgentLink(agent),
+        render: (agent: JAgent) => this.renderName(agent),
+        routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
-        export: async (agent: Agent) => agent.agentName
+        export: async (agent: JAgent) => agent.agentName
       },
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
         dataKey: 'isActive',
-        icons: (agent: Agent) => this.renderStatusIcon(agent),
-        render: (agent: Agent) => this.renderStatus(agent),
+        icons: (agent: JAgent) => this.renderStatusIcon(agent),
+        render: (agent: JAgent) => this.renderStatus(agent),
         isSortable: true
       },
       {
         id: AgentsStatusTableCol.WORKING_ON,
         dataKey: 'status',
-        async: (agent: Agent) => this.renderWorkingOn(agent),
+        async: (agent: JAgent) => this.renderWorkingOn(agent),
         isSortable: false,
-        export: async (agent: Agent) => (await this.renderWorkingOn(agent)) + ''
+        export: async (agent: JAgent) => (await this.renderWorkingOn(agent)) + ''
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
-        render: (agent: Agent) => agent.taskName,
-        routerLink: (agent: Agent) => this.renderTaskLink(agent),
-        export: async (agent: Agent) => agent.taskName
+        render: (agent: JAgent) => agent.taskName,
+        routerLink: (agent: JAgent) => this.renderTaskLink(agent),
+        export: async (agent: JAgent) => agent.taskName
       },
       {
         id: AgentsStatusTableCol.LAST_ACTIVITY,
         dataKey: 'lastTime',
-        render: (agent: Agent) => this.renderLastActivity(agent),
+        render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: Agent) =>
-          formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Agent>) {
+  openDialog(data: DialogData<JAgent>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -163,21 +150,16 @@ export class AgentsStatusTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['_id'])
-  async renderActiveAgent(agent: Agent): Promise<SafeHtml> {
-    const agentSpeed = await this.utilService
-      .calculateSpeed(agent.agentId, true)
-      .toPromise();
+  @Cacheable(['id'])
+  async renderActiveAgent(agent: JAgent): Promise<SafeHtml> {
+    const agentSpeed = await this.utilService.calculateSpeed(agent.id, true).toPromise();
     const result = agentSpeed > 0 ? 'Running task' : 'Stopped task';
     return this.sanitize(`${result}`);
   }
 
-  @Cacheable(['_id', 'agentName'])
-  renderName(agent: Agent): SafeHtml {
-    const agentName =
-      agent.agentName?.length > 40
-        ? `${agent.agentName.substring(40)}...`
-        : agent.agentName;
+  @Cacheable(['id', 'agentName'])
+  renderName(agent: JAgent): SafeHtml {
+    const agentName = agent.agentName?.length > 40 ? `${agent.agentName.substring(40)}...` : agent.agentName;
     const isTrusted = agent.isTrusted
       ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
       : '';
@@ -185,8 +167,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(`<a>${agentName}</a>${isTrusted}`);
   }
 
-  @Cacheable(['_id'])
-  async renderCurrentSpeed(agent: Agent): Promise<SafeHtml> {
+  @Cacheable(['id'])
+  async renderCurrentSpeed(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const speed = await this.getSpeed(agent);
     if (speed) {
@@ -195,8 +177,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id'])
-  async renderTimeSpent(agent: Agent): Promise<SafeHtml> {
+  @Cacheable(['id'])
+  async renderTimeSpent(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const timeSpent = await this.getTimeSpent(agent);
     if (timeSpent) {
@@ -205,8 +187,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id'])
-  async renderSearched(agent: Agent): Promise<SafeHtml> {
+  @Cacheable(['id'])
+  async renderSearched(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const searched = await this.getSearched(agent);
     if (searched) {
@@ -215,8 +197,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id'])
-  async renderCracked(agent: Agent): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id'])
+  async renderCracked(agent: JAgent): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     const cracked = await this.getCracked(agent);
 
@@ -230,8 +212,8 @@ export class AgentsStatusTableComponent
     return links;
   }
 
-  @Cacheable(['_id'])
-  async renderProgressIcon(agent: Agent): Promise<HTTableIcon[]> {
+  @Cacheable(['id'])
+  async renderProgressIcon(agent: JAgent): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
 
     const speed = await this.getSpeed(agent);
@@ -245,8 +227,8 @@ export class AgentsStatusTableComponent
     return icons;
   }
 
-  @Cacheable(['_id', 'isActive'])
-  renderStatus(agent: Agent): SafeHtml {
+  @Cacheable(['id', 'isActive'])
+  renderStatus(agent: JAgent): SafeHtml {
     let html: string;
     if (agent.isActive) {
       html = '<span class="pill pill-active">Active</span>';
@@ -257,8 +239,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'speed'])
-  async renderWorkingOn(agent: Agent): Promise<SafeHtml> {
+  @Cacheable(['id', 'speed'])
+  async renderWorkingOn(agent: JAgent): Promise<SafeHtml> {
     let html = '';
     const speed = await this.getSpeed(agent);
     if (speed) {
@@ -274,24 +256,8 @@ export class AgentsStatusTableComponent
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'userId'])
-  renderOwner(agent: Agent): SafeHtml {
-    if (agent.user) {
-      return this.sanitize(agent.user.name);
-    }
-    return '';
-  }
-
-  @Cacheable(['_id', 'clientSignature'])
-  renderClient(agent: Agent): SafeHtml {
-    if (agent.clientSignature) {
-      return agent.clientSignature;
-    }
-    return '';
-  }
-
-  @Cacheable(['_id', 'lastTime'])
-  renderLastActivity(agent: Agent): SafeHtml {
+  @Cacheable(['id', 'lastTime'])
+  renderLastActivity(agent: JAgent): SafeHtml {
     const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
     const action = `Action: ${agent.lastAct}<br>`;
     const time = `Time: ${formattedDate}<br>`;
@@ -301,27 +267,24 @@ export class AgentsStatusTableComponent
     return this.sanitize(data);
   }
 
-  private async getSpeed(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'speed');
+  private async getSpeed(agent: JAgent): Promise<number> {
+    return this.getChunkDataParam(agent.id, 'speed');
   }
 
-  private async getSearched(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'searched');
+  private async getSearched(agent: JAgent): Promise<number> {
+    return this.getChunkDataParam(agent.id, 'searched');
   }
 
-  private async getTimeSpent(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'timeSpent');
+  private async getTimeSpent(agent: JAgent): Promise<number> {
+    return this.getChunkDataParam(agent.id, 'timeSpent');
   }
 
-  private async getCracked(agent: Agent): Promise<number> {
-    return this.getChunkDataParam(agent._id, 'cracked');
+  private async getCracked(agent: JAgent): Promise<number> {
+    return this.getChunkDataParam(agent.id, 'cracked');
   }
 
-  private async getChunkDataParam(
-    agentId: number,
-    key: string
-  ): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(agentId);
+  private async getChunkDataParam(agentId: number, key: string): Promise<number> {
+    const cd: ChunkDataData = await this.getChunkData(agentId);
     if (cd[key]) {
       return cd[key];
     }
@@ -331,10 +294,10 @@ export class AgentsStatusTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Agent[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Agent>(
+        this.exportService.toExcel<JAgent>(
           'hashtopolis-agents',
           this.tableColumns,
           event.data,
@@ -342,7 +305,7 @@ export class AgentsStatusTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Agent>(
+        this.exportService.toCsv<JAgent>(
           'hashtopolis-agents',
           this.tableColumns,
           event.data,
@@ -350,23 +313,14 @@ export class AgentsStatusTableComponent
         );
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Agent>(
-            this.tableColumns,
-            event.data,
-            AgentsStatusTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<JAgent>(this.tableColumns, event.data, AgentsStatusTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Agent>): void {
+  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -381,9 +335,9 @@ export class AgentsStatusTableComponent
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting ${event.data.agentName} ...`,
+          title: `Deleting '${event.data.agentName}' ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete ${event.data.agentName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to delete '${event.data.agentName}'? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -391,7 +345,7 @@ export class AgentsStatusTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Agent[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -428,9 +382,9 @@ export class AgentsStatusTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionActivate(agents: Agent[], isActive: boolean): void {
-    const requests = agents.map((agent: Agent) => {
-      return this.gs.update(SERV.AGENTS, agent._id, { isActive: isActive });
+  private bulkActionActivate(agents: JAgent[], isActive: boolean): void {
+    const requests = agents.map((agent: JAgent) => {
+      return this.gs.update(SERV.AGENTS, agent.id, { isActive: isActive });
     });
 
     const action = isActive ? 'activated' : 'deactivated';
@@ -444,10 +398,7 @@ export class AgentsStatusTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully ${action} ${results.length} agents!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully ${action} ${results.length} agents!`, 'Close');
           this.dataSource.reload();
         })
     );
@@ -456,9 +407,9 @@ export class AgentsStatusTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agents: Agent[]): void {
-    const requests = agents.map((agent: Agent) => {
-      return this.gs.delete(SERV.AGENTS, agent._id);
+  private bulkActionDelete(agents: JAgent[]): void {
+    const requests = agents.map((agent: JAgent) => {
+      return this.gs.delete(SERV.AGENTS, agent.id);
     });
 
     this.subscriptions.push(
@@ -470,10 +421,7 @@ export class AgentsStatusTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} agents!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} agents!`, 'Close');
           this.dataSource.reload();
         })
     );
@@ -482,16 +430,16 @@ export class AgentsStatusTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: Agent): void {
+  private rowActionDelete(agent: JAgent): void {
     this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent[0]._id).subscribe(() => {
+      this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
         this.snackBar.open('Successfully deleted agent!', 'Close');
         this.dataSource.reload();
       })
     );
   }
 
-  private rowActionEdit(agent: Agent): void {
+  private rowActionEdit(agent: JAgent): void {
     this.renderAgentLink(agent).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });
@@ -511,7 +459,7 @@ export class AgentsStatusTableComponent
    * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(agentId: number): Promise<ChunkData> {
+  private async getChunkData(agentId: number): Promise<ChunkDataData> {
     if (!this.chunkDataLock[agentId]) {
       // If there is no lock, create a new one
       this.chunkDataLock[agentId] = (async () => {

@@ -1,15 +1,29 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
-import { File, FileType } from '../_models/file.model';
+/**
+ * Contains datasource definition for files
+ * @module
+ */
 
-export class FilesDataSource extends BaseDataSource<File> {
+import { catchError, finalize, of } from 'rxjs';
+import { FileType, JFile } from '../_models/file.model';
+import { BaseDataSource } from './base.datasource';
+import { ResponseWrapper } from '../_models/response.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+
+/**
+ * Data source class definition for files
+ */
+export class FilesDataSource extends BaseDataSource<JFile> {
   private fileType: FileType = 0;
   private editIndex?: number;
   private editType?: number;
 
+  /**
+   * Set file type
+   * @param fileType
+   */
   setFileType(fileType: FileType): void {
     this.fileType = fileType;
   }
@@ -18,40 +32,39 @@ export class FilesDataSource extends BaseDataSource<File> {
     return this.fileType;
   }
 
+  /**
+   * Set edit values
+   * @param index
+   * @param editType
+   */
   setEditValues(index: number, editType: number): void {
     this.editIndex = index;
     this.editType = editType;
   }
 
+  /**
+   * Load all files from server
+   */
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
     let files$;
+
+    const paramsBuilder = new RequestParamBuilder();
 
     if (this.editIndex !== undefined) {
       if (this.editType === 0) {
-        files$ = this.service.get(SERV.TASKS, this.editIndex, {
-          expand: 'files'
-        });
+        files$ = this.service.get(SERV.TASKS, this.editIndex, paramsBuilder.addInclude('files').create());
       } else {
-        files$ = this.service.get(SERV.PRETASKS, this.editIndex, {
-          expand: 'pretaskFiles'
-        });
+        files$ = this.service.get(SERV.PRETASKS, this.editIndex, paramsBuilder.addInclude('pretaskFiles').create());
       }
     } else {
-      const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        expand: 'accessGroup',
-        filter: `fileType=${this.fileType}`
-      };
-      if (sorting.dataKey && sorting.isSortable) {
-        const order = this.buildSortingParams(sorting);
-        params.ordering = order;
-      }
+      const params = paramsBuilder
+        .addInitial(this)
+        .addInclude('accessGroup')
+        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType })
+        .create();
+
       files$ = this.service.getAll(SERV.FILES, params);
     }
 
@@ -61,40 +74,16 @@ export class FilesDataSource extends BaseDataSource<File> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<File>) => {
-          let files: File[];
-
-          if (this.editType === 0) {
-            files = response['files'];
-          } else if (this.editType === 1) {
-            files = response['pretaskFiles'];
-          } else {
-            files = response.values;
-          }
-
-          files.map((file: File) => {
-            if (file.accessGroup) {
-              file.accessGroupId = file.accessGroup.accessGroupId;
-              file.accessGroupName = file.accessGroup.groupName;
-            } else {
-              const accessGroups$ = this.service.get(
-                SERV.ACCESS_GROUPS,
-                file.accessGroupId
-              );
-              forkJoin(accessGroups$).subscribe(
-                (accessGroupResponses: any[]) => {
-                  file.accessGroupName = accessGroupResponses['GroupName'];
-                }
-              );
-            }
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const files = serializer.deserialize<JFile[]>(responseData);
+          files.forEach((file) => {
+            files.push(file);
           });
 
           if (!this.editType) {
-            this.setPaginationConfig(
-              this.pageSize,
-              this.currentPage,
-              response.total
-            );
+            this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
           }
 
           this.setData(files);

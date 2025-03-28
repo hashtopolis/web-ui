@@ -4,6 +4,8 @@ import { BaseDataSource } from './base.datasource';
 import { HealthCheckAgent } from '../_models/health-check.model';
 import { ListResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent> {
   private _healthCheckId = 0;
@@ -14,18 +16,19 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
 
   loadAll(): void {
     this.loading = true;
+    const healthCheckParams = new RequestParamBuilder().setPageSize(this.pageSize).addFilter({
+      field: 'healthCheckId',
+      operator: FilterType.EQUAL,
+      value: this._healthCheckId
+    }).create();
+
+    const agentParams = new RequestParamBuilder().setPageSize(this.pageSize).create();
 
     /**
      * @todo Extend health checks api response with Agents
      */
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS_AGENTS, {
-      maxResults: this.pageSize,
-      filter: `healthCheckId=${this._healthCheckId}`
-    });
-
-    const agents$ = this.service.getAll(SERV.AGENTS, {
-      maxResults: this.maxResults
-    });
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS_AGENTS, healthCheckParams);
+    const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
     this.subscriptions.push(
       forkJoin([healthChecks$, agents$])

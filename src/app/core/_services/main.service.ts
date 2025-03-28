@@ -1,23 +1,17 @@
-import {
-  Observable,
-  catchError,
-  debounceTime,
-  delay,
-  forkJoin,
-  map,
-  of,
-  retryWhen,
-  switchMap,
-  take,
-  tap
-} from 'rxjs';
-import { environment } from './../../../environments/environment';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { AuthService } from './access/auth.service';
+import { Observable, catchError, debounceTime, forkJoin, of, switchMap } from 'rxjs';
+
 import { HttpClient } from '@angular/common/http';
-import { setParameter } from './buildparams';
+import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
-import { ConfigService } from './shared/config.service';
+
+import type { RequestParams } from '@src/app/core/_models/request-params.model';
+
+import { AuthService } from '@src/app/core/_services/access/auth.service';
+import { ConfigService } from '@src/app/core/_services/shared/config.service';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { setParameter } from '@src/app/core/_services/buildparams';
+
+import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -53,65 +47,58 @@ export class GlobalService {
    * @param routerParams - Parameters for the API request, including options such as Max number of results or filtering.
    * @returns An observable that emits the API response.
    */
-  getAll(methodUrl: string, routerParams?: Params): Observable<any> {
+  getAll(methodUrl: string, routerParams?: RequestParams): Observable<any> {
     let queryParams: Params = {};
     let fixedMaxResults: boolean;
 
     // Check if routerParams exist
     if (routerParams) {
-      // Check if 'maxResults' is not present in routerParams
-      if (!('maxResults' in routerParams)) {
+      queryParams = setParameter(routerParams);
+      // Check if 'page[size]' is not present in routerParams
+      if (!routerParams?.page?.size) {
         fixedMaxResults = true;
       }
-      // Set queryParams using setParameter utility function
-      queryParams = setParameter(routerParams, this.maxResults);
     } else {
       fixedMaxResults = true;
-      queryParams = setParameter({}, this.maxResults);
     }
 
-    return this.http
-      .get(this.cs.getEndpoint() + methodUrl, { params: queryParams })
-      .pipe(
-        switchMap((response: any) => {
-          const total = response.total || 0;
-          const maxResults = this.maxResults;
+    return this.http.get(this.cs.getEndpoint() + methodUrl, { params: queryParams }).pipe(
+      switchMap((response: any) => {
+        const total = response.total || 0;
+        const maxResults = this.maxResults;
 
-          // Check if total is greater than maxResults and fixedMaxResults is true
-          if (total > maxResults && fixedMaxResults) {
-            const requests: Observable<any>[] = [];
-            const numRequests = Math.ceil(total / maxResults);
+        // Check if total is greater than maxResults and fixedMaxResults is true
+        if (total > maxResults && fixedMaxResults) {
+          const requests: Observable<any>[] = [];
+          const numRequests = Math.ceil(total / maxResults);
 
-            // Create multiple requests based on the total number of items
-            for (let i = 0; i < numRequests; i++) {
-              const startsAt = i * maxResults;
-              const partialParams = setParameter(
-                { ...queryParams, startsAt },
-                maxResults
-              );
-              requests.push(
-                this.http.get(this.cs.getEndpoint() + methodUrl, {
-                  params: partialParams
-                })
-              );
-            }
-
-            // Use forkJoin to combine the original response with additional responses
-            return forkJoin([of(response), ...requests]).pipe(
-              catchError((error) => {
-                console.error('Error in forkJoin:', error);
-                return of(response); // Return the original response in case of an error
+          // Create multiple requests based on the total number of items
+          for (let i = 0; i < numRequests; i++) {
+            const startsAt = i * maxResults;
+            const partialParams = setParameter({ ...queryParams, page: { after: startsAt } });
+            requests.push(
+              this.http.get(this.cs.getEndpoint() + methodUrl, {
+                params: partialParams
               })
             );
-          } else {
-            return of(response);
           }
-        }),
-        catchError((error) => {
-          console.error('Error in switchMap:', error);
-          return of({ values: [] }); // Handle errors in switchMap and return a default response
-        })
-      );
+
+          // Use forkJoin to combine the original response with additional responses
+          return forkJoin([of(response), ...requests]).pipe(
+            catchError((error) => {
+              console.error('Error in forkJoin:', error);
+              return of(response); // Return the original response in case of an error
+            })
+          );
+        } else {
+          return of(response);
+        }
+      }),
+      catchError((error) => {
+        console.error('Error in switchMap:', error);
+        return of({ values: [] }); // Handle errors in switchMap and return a default response
+      })
+    );
   }
 
   /**
@@ -119,13 +106,13 @@ export class GlobalService {
    * @param id - element id
    * @returns  Object
    **/
-  get(methodUrl: string, id: number, routerParams?: Params): Observable<any> {
+  get(methodUrl: string, id: number, routerParams?: RequestParams): Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
       queryParams = setParameter(routerParams);
     }
     return this.http.get(`${this.cs.getEndpoint() + methodUrl}/${id}`, {
-      params: routerParams
+      params: queryParams
     });
   }
 
@@ -164,12 +151,13 @@ export class GlobalService {
    * Update element information
    * @param id - element id
    * @param arr - fields to be updated
+   * @param type resource type (json:api standard)
    * @returns Object
    **/
-  update(methodUrl: string, id: number, arr: any): Observable<any> {
-    return this.http
-      .patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, arr)
-      .pipe(debounceTime(2000));
+  update(methodUrl: string, id: number, arr: any, type = ''): Observable<any> {
+    let data = { type: type, id: id, ...arr };
+    data = new JsonAPISerializer().serialize({ stuff: data });
+    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, data).pipe(debounceTime(2000));
   }
 
   /**
@@ -179,10 +167,7 @@ export class GlobalService {
    * @returns Object
    **/
   archive(methodUrl: string, id: number): Observable<any> {
-    return this.http.patch<number>(
-      this.cs.getEndpoint() + methodUrl + '/' + id,
-      { isArchived: true }
-    );
+    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, { isArchived: true });
   }
 
   /**
@@ -192,10 +177,7 @@ export class GlobalService {
    * @returns Object
    **/
   chelper(methodUrl: string, option: string, arr: any): Observable<any> {
-    return this.http.post(
-      this.cs.getEndpoint() + methodUrl + '/' + option,
-      arr
-    );
+    return this.http.post(this.cs.getEndpoint() + methodUrl + '/' + option, arr);
   }
 
   /**
@@ -205,9 +187,6 @@ export class GlobalService {
    * @returns Object
    **/
   uhelper(methodUrl: string, option: string, arr: any): Observable<any> {
-    return this.http.patch(
-      this.cs.getEndpoint() + methodUrl + '/' + option,
-      arr
-    );
+    return this.http.patch(this.cs.getEndpoint() + methodUrl + '/' + option, arr);
   }
 }

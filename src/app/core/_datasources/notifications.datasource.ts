@@ -1,28 +1,15 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Notification } from '../_models/notification.model';
-import { RequestParams } from '../_models/request-params.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { JNotification } from '../_models/notification.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class NotificationsDataSource extends BaseDataSource<Notification> {
+export class NotificationsDataSource extends BaseDataSource<JNotification> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).create();
     const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);
 
     this.subscriptions.push(
@@ -31,13 +18,15 @@ export class NotificationsDataSource extends BaseDataSource<Notification> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Notification>) => {
-          const notifications: Notification[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseData = { data: response.data, included: response.included };
+          const notifications = this.serializer.deserialize<JNotification[]>(responseData);
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            notifications.length
           );
           this.setData(notifications);
         })

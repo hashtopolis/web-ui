@@ -1,7 +1,4 @@
-import {
-  PipeTransform,
-  Pipe
-} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * This function takes the object access the key values annd returns the average value
@@ -12,26 +9,23 @@ import {
  * Example:
  *   {{ object | avg:'value' }}
  * @returns number
-**/
-
+ **/
 @Pipe({
   name: 'avg'
 })
 export class AveragePipe implements PipeTransform {
-
   transform(value: any[], name: string) {
-      if (value.length === 0 || !name) {
-        return 'No data';
-      }
-
-      const arr = [];
-      for(let i=0; i < value.length; i++){
-        arr.push(Number(value[i][name]));
-      }
-      const sum = arr.reduce((a, i) => a + i, 0);
-      const avg = (Math.round(sum / value.length).toFixed(1)) || 0;
-
-      return avg;
-
+    if (value.length === 0 || !name) {
+      return 'No data';
     }
+
+    const arr = [];
+    for (let i = 0; i < value.length; i++) {
+      arr.push(Number(value[i][name]));
+    }
+    const sum = arr.reduce((a, i) => a + i, 0);
+    const avg = Math.round(sum / value.length).toFixed(1) || 0;
+
+    return avg;
+  }
 }

@@ -2,18 +2,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import {
-  CRACKER_TYPE_FIELD_MAPPING,
-  CRACKER_VERSION_FIELD_MAPPING
-} from 'src/app/core/_constants/select.config';
+import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { attack, hashtype } from 'src/app/core/_constants/healthchecks.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-new-health-checks',
@@ -117,7 +114,8 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   handleChangeBinary(id: string) {
-    const params = { filter: 'crackerBinaryTypeId=' + id + '' };
+    const filter = new Array<Filter>({field: "crackerBinaryTypeId", operator: FilterType.EQUAL, value: id});
+    const params = { filter: filter};
     const onChangeBinarySubscription$ = this.gs
       .getAll(SERV.CRACKERS, params)
       .subscribe((response: any) => {

@@ -1,28 +1,16 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroup } from '../_models/access-group.model';
+import { JAccessGroup } from '../_models/access-group.model';
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
+export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'userMembers,agentMembers'
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
+    const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers').create();
 
     const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params);
 
@@ -32,14 +20,18 @@ export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
-          const accessGroups: AccessGroup[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseBody = { data: response.data, included: response.included };
+
+          const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
+
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            accessgroups.length
           );
-          this.setData(accessGroups);
+          this.setData(accessgroups);
         })
     );
   }
