@@ -23,7 +23,8 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
     const sorting = this.sortingColumn;
     const agentParams2 = new RequestParamBuilder()
       .addInitial(this)
-      .addInclude('accessGroups')
+      .setPageSize(this.pageSize)
+      .setPageAfter(startAt)
       .addInclude('agentStats')
       .create();
     /*     const agentParams: RequestParams = {
@@ -45,6 +46,7 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
       )
       .subscribe((a: ListResponseWrapper<Agent>) => {
         const agents: Agent[] = a.values;
+  
 
         agents.map((agent: Agent) => {
           const tempDateFilter = agent.agentstats.filter((u) => u.time > 10000000);
