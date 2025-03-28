@@ -49,6 +49,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.NAME,
         dataKey: 'agentName',
+        icons: (agent: JAgent) => this.renderStatusIcon(agent),
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         render: (agent: JAgent) => agent.agentName
       },
@@ -66,12 +67,6 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
         render: (agent: JAgent) => agent.avgCpu + '%'
-      },
-      {
-        id: AgentsViewTableCol.AGENT_STATUS,
-        dataKey: 'isActive',
-        icons: (agent: JAgent) => this.renderStatusIcon(agent),
-        render: (agent: JAgent) => this.renderStatus(agent)
       },
       {
         id: AgentsViewTableCol.LAST_ACTIVITY,
