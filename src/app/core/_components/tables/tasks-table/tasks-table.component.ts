@@ -1,16 +1,6 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import {
-  HTTableColumn,
-  HTTableEditable,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
-import {
-  TaskStatus,
-  TaskTableCol,
-  TaskTableColumnLabel,
-  TaskTableEditableAction
-} from './tasks-table.constants';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { HTTableColumn, HTTableEditable, HTTableIcon, HTTableRouterLink } from '../ht-table/ht-table.models';
+import { TaskStatus, TaskTableCol, TaskTableColumnLabel, TaskTableEditableAction } from './tasks-table.constants';
 
 import { catchError, forkJoin } from 'rxjs';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -27,7 +17,7 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { JTask } from 'src/app/core/_models/task.model';
 import { JTaskWrapper, TaskWrapperData } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
-import { JHashlist } from '../../../_models/hashlist.model';
+import { JHashlist } from '@models/hashlist.model';
 
 @Component({
   selector: 'tasks-table',
@@ -35,8 +25,7 @@ import { JHashlist } from '../../../_models/hashlist.model';
 })
 export class TasksTableComponent
   extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+  implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
@@ -62,15 +51,11 @@ export class TasksTableComponent
   }
 
   filter(item: JTaskWrapper, filterValue: string): boolean {
-    if (item.tasks[0].taskName.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.tasks[0].taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: TaskTableCol.ID,
         dataKey: 'id',
@@ -123,7 +108,7 @@ export class TasksTableComponent
             ? `${firstHashtype.id} - ${firstHashtype.description}`
             : 'No HashType';
         },
-        export: async (wrapper: JTaskWrapper) =>{
+        export: async (wrapper: JTaskWrapper) => {
           const firstHashtype = wrapper.hashtypes[0];
           return firstHashtype
             ? `${firstHashtype.id} - ${firstHashtype.description}`
@@ -233,8 +218,6 @@ export class TasksTableComponent
             : ''
       }
     ];
-
-    return tableColumns;
   }
 
   rowActionClicked(event: ActionMenuEvent<JTaskWrapper>): void {
@@ -392,41 +375,15 @@ export class TasksTableComponent
     this.dataSource.setIsArchived(isArchived);
   }
 
-  private async getTaskStatus(wrapper: JTaskWrapper): Promise<TaskStatus> {
-    if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
-      const cd: ChunkData = await this.getChunkData(wrapper);
-      const speed = cd.speed;
-
-      if (speed > 0) {
-        return TaskStatus.RUNNING;
-      } else if (
-        wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
-        wrapper.tasks[0].keyspaceProgress > 0
-      ) {
-        return TaskStatus.COMPLETED;
-      } else {
-        return TaskStatus.IDLE;
-      }
-    }
-
-    return TaskStatus.INVALID;
-  }
-
   async getDispatchedSearchedString(wrapper: JTaskWrapper): Promise<string> {
     if (wrapper.taskType === 0) {
       const task: JTask = wrapper.tasks[0];
       if (task.keyspace > 0) {
-        const cd: ChunkData = await this.getChunkData(wrapper);
-        const disp = (cd.dispatched * 100).toFixed(2);
-        const sear = (cd.searched * 100).toFixed(2);
-
-        return `${disp}% / ${sear}%`;
+        return `${task.dispatched}% / ${task.searched}%`;
       }
     }
     return '';
   }
-
-  // --- Render functions ---
 
   @Cacheable(['id', 'taskType'])
   async renderTaskWrapperLink(
@@ -462,6 +419,8 @@ export class TasksTableComponent
 
     return links;
   }
+
+  // --- Render functions ---
 
   @Cacheable(['id', 'taskType', 'hashlists'])
   override async renderHashlistLink(
@@ -543,46 +502,6 @@ export class TasksTableComponent
     return this.renderBoolIcon(wrapper, 'taskType', 1);
   }
 
-  private renderBoolIcon(
-    wrapper: JTaskWrapper,
-    key: string,
-    equals: any = ''
-  ): HTTableIcon[] {
-    const icons: HTTableIcon[] = [];
-    if (wrapper.taskType === 0) {
-      const task: JTask = wrapper.tasks[0];
-      if (equals === '') {
-        if (task[key] === true) {
-          icons.push({
-            name: 'check',
-            cls: 'text-ok'
-          });
-        }
-      } else if (task[key] === equals) {
-        icons.push({
-          name: 'check',
-          cls: 'text-ok'
-        });
-      }
-    } else {
-      if (equals === '') {
-        if (wrapper[key] === true) {
-          icons.push({
-            name: 'check',
-            cls: 'text-ok'
-          });
-        }
-      } else if (wrapper[key] === equals) {
-        icons.push({
-          name: 'check',
-          cls: 'text-ok'
-        });
-      }
-    }
-
-    return icons;
-  }
-
   @Cacheable(['id', 'taskType', 'tasks'])
   async renderDispatchedSearched(wrapper: JTaskWrapper): Promise<SafeHtml> {
     const html = await this.getDispatchedSearchedString(wrapper);
@@ -630,7 +549,78 @@ export class TasksTableComponent
     return this.sanitize(html);
   }
 
+  editableSaved(editable: HTTableEditable<JTaskWrapper>): void {
+    switch (editable.action) {
+      case TaskTableEditableAction.CHANGE_PRIORITY:
+        this.changePriority(editable.data, editable.value);
+        break;
+      case TaskTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
+        break;
+    }
+  }
+
+  private async getTaskStatus(wrapper: JTaskWrapper): Promise<TaskStatus> {
+    if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
+      const cd: ChunkData = await this.getChunkData(wrapper);
+      const speed = cd.speed;
+
+      if (speed > 0) {
+        return TaskStatus.RUNNING;
+      } else if (
+        wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
+        wrapper.tasks[0].keyspaceProgress > 0
+      ) {
+        return TaskStatus.COMPLETED;
+      } else {
+        return TaskStatus.IDLE;
+      }
+    }
+
+    return TaskStatus.INVALID;
+  }
+
   // --- Action functions ---
+
+  private renderBoolIcon(
+    wrapper: JTaskWrapper,
+    key: string,
+    equals: any = ''
+  ): HTTableIcon[] {
+    const icons: HTTableIcon[] = [];
+    if (wrapper.taskType === 0) {
+      const task: JTask = wrapper.tasks[0];
+      if (equals === '') {
+        if (task[key] === true) {
+          icons.push({
+            name: 'check',
+            cls: 'text-ok'
+          });
+        }
+      } else if (task[key] === equals) {
+        icons.push({
+          name: 'check',
+          cls: 'text-ok'
+        });
+      }
+    } else {
+      if (equals === '') {
+        if (wrapper[key] === true) {
+          icons.push({
+            name: 'check',
+            cls: 'text-ok'
+          });
+        }
+      } else if (wrapper[key] === equals) {
+        icons.push({
+          name: 'check',
+          cls: 'text-ok'
+        });
+      }
+    }
+
+    return icons;
+  }
 
   private rowActionEdit(task: JTaskWrapper): void {
     this.router.navigate(['tasks', 'show-tasks', task.tasks[0].id, 'edit']);
@@ -730,17 +720,6 @@ export class TasksTableComponent
           this.reload();
         })
     );
-  }
-
-  editableSaved(editable: HTTableEditable<JTaskWrapper>): void {
-    switch (editable.action) {
-      case TaskTableEditableAction.CHANGE_PRIORITY:
-        this.changePriority(editable.data, editable.value);
-        break;
-      case TaskTableEditableAction.CHANGE_MAX_AGENTS:
-        this.changeMaxAgents(editable.data, editable.value);
-        break;
-    }
   }
 
   private changePriority(wrapper: JTaskWrapper, priority: string): void {

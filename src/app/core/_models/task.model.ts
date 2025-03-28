@@ -77,6 +77,8 @@ export interface JTask extends BaseModel {
   forcePipe: boolean;
   preprocessorId: number;
   preprocessorCommand: string;
+  dispatched: string;
+  searched: string;
 }
 
 export interface TaskData {
