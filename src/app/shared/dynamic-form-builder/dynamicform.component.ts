@@ -208,7 +208,7 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
       selectFields.forEach((field) => {
         // Fetch the select options dynamically here
         this.selectOptionsSubscription = this.gs
-          .getAll(field.selectEndpoint$, { maxResults: 5000 })
+          .getAll(field.selectEndpoint$, { page: {size: 5000} })
           .pipe(takeUntil(this.destroy$))
           .subscribe((options) => {
             // Sometimes fields need to be mapped

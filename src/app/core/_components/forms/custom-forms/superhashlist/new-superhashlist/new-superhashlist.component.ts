@@ -1,29 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { ListResponseWrapper } from 'src/app/core/_models/response.model';
-import { environment } from '../../../../../../../environments/environment';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { Hashlist } from 'src/app/core/_models/hashlist.model';
-import { extractIds } from '../../../../../../shared/utils/forms';
-import { SelectField } from 'src/app/core/_models/input.model';
 import { SERV } from '../../../../../_services/main.config';
+import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -98,7 +84,10 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.globalService
       .getAll(SERV.HASHLISTS, {
-        filter: 'isArchived=false,format=0'
+        filter: new Array<Filter>(
+          {field: "isArchived", operator: FilterType.EQUAL, value: false},
+          {field: "format", operator: FilterType.EQUAL, value: 0}
+        )
       })
       .subscribe((response: ListResponseWrapper<Hashlist>) => {
         this.selectHashlists = response.values;

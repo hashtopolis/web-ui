@@ -175,7 +175,8 @@
         >
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate
-              [text]="element[tableColumn.dataKey]"
+            [text]="element"
+            [path]="tableColumn.dataKey"
             ></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">

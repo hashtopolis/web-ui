@@ -5,8 +5,8 @@ import { BaseDataSource } from './base.datasource';
 import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { Pretask } from '../_models/pretask.model';
-import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class PreTasksDataSource extends BaseDataSource<
   Pretask,
@@ -26,25 +26,11 @@ export class PreTasksDataSource extends BaseDataSource<
     let pretasks$;
 
     if (this._superTaskId === 0) {
-      const startAt = this.currentPage * this.pageSize;
-      const sorting = this.sortingColumn;
-
-      const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        expand: 'pretaskFiles'
-      };
-
-      if (sorting.dataKey && sorting.isSortable) {
-        const order = this.buildSortingParams(sorting);
-        params.ordering = order;
-      }
-
+      const params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles').create();
       pretasks$ = this.service.getAll(SERV.PRETASKS, params);
     } else {
-      pretasks$ = this.service.get(SERV.SUPER_TASKS, this._superTaskId, {
-        expand: 'pretasks'
-      });
+      const params = new RequestParamBuilder().addInclude('pretasks').create();
+      pretasks$ = this.service.get(SERV.SUPER_TASKS, this._superTaskId, params);
     }
 
     this.subscriptions.push(
@@ -70,7 +56,7 @@ export class PreTasksDataSource extends BaseDataSource<
             // Make another request to get pretaskFiles
             this.service
               .getAll(SERV.PRETASKS, {
-                expand: 'pretaskFiles'
+                include: ['pretaskFiles']
               })
               .subscribe((pretaskFilesResponse: ListResponseWrapper<any>) => {
                 const pretaskFiles = pretaskFilesResponse.values || [];

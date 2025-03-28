@@ -5,6 +5,8 @@ import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
 import { SERV } from '../_services/main.config';
 import { TaskWrapper } from '../_models/task-wrapper.model';
+import { FilterType } from '../_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class TasksSupertasksDataSource extends BaseDataSource<
   TaskWrapper,
@@ -19,11 +21,13 @@ export class TasksSupertasksDataSource extends BaseDataSource<
   loadAll(): void {
     this.loading = true;
 
-    const subtasks$ = this.service.getAll(SERV.TASKS_WRAPPER, {
-      maxResults: this.maxResults,
-      filter: 'taskWrapperId=' + this._supertTaskId + '',
-      expand: 'tasks'
-    });
+    const params = new RequestParamBuilder().setPageSize(this.pageSize).addInclude('tasks').addFilter({
+      field: 'taskWrapperId',
+      operator: FilterType.EQUAL,
+      value: this._supertTaskId
+    }).create();
+
+    const subtasks$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
 
     this.subscriptions.push(
       subtasks$

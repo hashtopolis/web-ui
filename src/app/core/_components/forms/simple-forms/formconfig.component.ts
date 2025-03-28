@@ -11,6 +11,8 @@ import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../_services/main.config';
 import { Subscription } from 'rxjs';
+import { ResponseWrapper } from '../../../_models/response.model';
+import { JsonAPISerializer } from '../../../_services/api/serializer-service';
 
 @Component({
   selector: 'app-form',
@@ -85,7 +87,8 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     // Subscribe to route data to initialize component data
     this.route.data.subscribe(
@@ -130,21 +133,23 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   loadEdit() {
     // Fetch data from the API for editing
     this.mySubscription = this.gs
-      .getAll(this.apiPath, { maxResults: 500 })
-      .subscribe((result) => {
+      .getAll(this.apiPath, {page:{size: 500}})
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const configValues = this.serializer.deserialize(responseBody) as any[];
         // Transform the retrieved array of objects into the desired structure for form rendering
-        this.formValues = result.values.reduce((result, item) => {
+        this.formValues = configValues.reduce((configValues, item) => {
           if (item.value === 'true') {
             item.value = true;
           } else if (item.value === 'false') {
             item.value = false;
           }
-          result[item.item] = item.value;
-          return result;
+          configValues[item.item] = item.value;
+          return configValues;
         }, {});
         // Maps the item with the id, so can be used for update
-        this.formIds = result.values.reduce((result, item) => {
-          result[item.item] = item._id;
+        this.formIds = configValues.reduce((result, item) => {
+          result[item.item] = item.id;
           return result;
         }, {});
 

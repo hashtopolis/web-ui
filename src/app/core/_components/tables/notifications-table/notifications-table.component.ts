@@ -14,7 +14,7 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { Notification } from 'src/app/core/_models/notification.model';
+import { JNotification } from 'src/app/core/_models/notification.model';
 import { NotificationsDataSource } from 'src/app/core/_datasources/notifications.datasource';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -49,7 +49,7 @@ export class NotificationsTableComponent
     }
   }
 
-  filter(item: Notification, filterValue: string): boolean {
+  filter(item: JNotification, filterValue: string): boolean {
     if (item.notification.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -61,52 +61,55 @@ export class NotificationsTableComponent
     const tableColumns = [
       {
         id: NotificationsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (notification: Notification) => notification._id + ''
+        export: async (notification: JNotification) => notification.id + ''
       },
       {
         id: NotificationsTableCol.STATUS,
         dataKey: 'isActive',
-        render: (notification: Notification) =>
+        render: (notification: JNotification) =>
           notification.isActive ? 'Active' : 'Inactive',
-        icons: (notification: Notification) =>
+        icons: (notification: JNotification) =>
           this.renderStatusIcon(notification),
         isSortable: true,
-        export: async (notification: Notification) => notification.isActive + ''
+        export: async (notification: JNotification) => notification.isActive + ''
       },
       {
         id: NotificationsTableCol.ACTION,
         dataKey: 'action',
         isSortable: true,
-        export: async (notification: Notification) => notification.action
+        render: (notification: JNotification) => notification.action,
+        export: async (notification: JNotification) => notification.action
       },
       {
         id: NotificationsTableCol.APPLIED_TO,
         dataKey: 'appliedTo',
-        routerLink: (notification: Notification) =>
+        routerLink: (notification: JNotification) =>
           this.renderAppliedToLink(notification),
         isSortable: true,
-        export: async (notification: Notification) => notification.action
+        export: async (notification: JNotification) => notification.action
       },
       {
         id: NotificationsTableCol.NOTIFICATION,
         dataKey: 'notification',
         isSortable: true,
-        export: async (notification: Notification) => notification.notification
+        render: (notification: JNotification) => notification.notification,
+        export: async (notification: JNotification) => notification.notification
       },
       {
         id: NotificationsTableCol.RECEIVER,
         dataKey: 'receiver',
         isSortable: true,
-        export: async (notification: Notification) => notification.receiver
+        render: (notification: JNotification) => notification.receiver,
+        export: async (notification: JNotification) => notification.receiver
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Notification>) {
+  openDialog(data: DialogData<JNotification>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -136,10 +139,10 @@ export class NotificationsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Notification[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JNotification[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Notification>(
+        this.exportService.toExcel<JNotification>(
           'hashtopolis-notifications',
           this.tableColumns,
           event.data,
@@ -147,7 +150,7 @@ export class NotificationsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Notification>(
+        this.exportService.toCsv<JNotification>(
           'hashtopolis-notifications',
           this.tableColumns,
           event.data,
@@ -156,7 +159,7 @@ export class NotificationsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Notification>(
+          .toClipboard<JNotification>(
             this.tableColumns,
             event.data,
             NotificationsTableColumnLabel
@@ -171,12 +174,12 @@ export class NotificationsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Notification>): void {
+  rowActionClicked(event: ActionMenuEvent<JNotification>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting notification ${event.data.action} (${event.data._id}) ...`,
+          title: `Deleting notification ${event.data.action} (${event.data.id}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -195,7 +198,7 @@ export class NotificationsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Notification[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JNotification[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -232,9 +235,9 @@ export class NotificationsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(notifications: Notification[]): void {
-    const requests = notifications.map((notification: Notification) => {
-      return this.gs.delete(SERV.NOTIFICATIONS, notification._id);
+  private bulkActionDelete(notifications: JNotification[]): void {
+    const requests = notifications.map((notification: JNotification) => {
+      return this.gs.delete(SERV.NOTIFICATIONS, notification.id);
     });
 
     this.subscriptions.push(
@@ -259,11 +262,11 @@ export class NotificationsTableComponent
    * @todo Implement error handling.
    */
   private bulkActionActivate(
-    notifications: Notification[],
+    notifications: JNotification[],
     isActive: boolean
   ): void {
-    const requests = notifications.map((notification: Notification) => {
-      return this.gs.update(SERV.NOTIFICATIONS, notification._id, {
+    const requests = notifications.map((notification: JNotification) => {
+      return this.gs.update(SERV.NOTIFICATIONS, notification.id, {
         isActive: isActive
       });
     });
@@ -291,10 +294,10 @@ export class NotificationsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(notifications: Notification[]): void {
+  private rowActionDelete(notifications: JNotification[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.NOTIFICATIONS, notifications[0]._id)
+        .delete(SERV.NOTIFICATIONS, notifications[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -308,18 +311,18 @@ export class NotificationsTableComponent
     );
   }
 
-  private rowActionEdit(notification: Notification): void {
+  private rowActionEdit(notification: JNotification): void {
     this.router.navigate([
       '/account',
       'notifications',
-      notification._id,
+      notification.id,
       'edit'
     ]);
   }
 
-  @Cacheable(['_id', 'actions', 'objectId'])
+  @Cacheable(['id', 'actions', 'objectId'])
   async renderAppliedToLink(
-    notification: Notification
+    notification: JNotification
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 

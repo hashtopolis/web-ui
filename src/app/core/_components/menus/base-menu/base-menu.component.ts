@@ -1,13 +1,10 @@
-import {
-  ActionMenuEvent,
-  ActionMenuItem
-} from '../action-menu/action-menu.model';
-/* eslint-disable @angular-eslint/component-selector */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { HashListFormat } from 'src/app/core/_constants/hashlist.config';
+import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'base-menu',
   template: ''
 })
@@ -22,7 +19,15 @@ export class BaseMenuComponent {
 
   private checkId(attribute: string): boolean {
     try {
-      return this.data['_id'] === this.data[attribute];
+      return this.data['id'] === this.data[attribute];
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private checkType(attribute: string): boolean {
+    try {
+      return this.data.type === attribute;
     } catch (error) {
       return false;
     }
@@ -33,7 +38,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent; otherwise, `false`.
    */
   protected isAgent(): boolean {
-    return this.checkId('agentId') && 'agentName' in this.data;
+    return this.checkType('agent') && 'agentName' in this.data;
   }
 
   /**
@@ -41,7 +46,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an notification; otherwise, `false`.
    */
   protected isNotification(): boolean {
-    return this.checkId('notificationSettingId');
+    return this.checkType('notificationSetting');
   }
 
   /**
@@ -49,7 +54,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an access group; otherwise, `false`.
    */
   protected isAccessGroup(): boolean {
-    return this.checkId('accessGroupId') && 'groupName' in this.data;
+    return this.checkType('accessGroup') && 'groupName' in this.data;
   }
 
   /**
@@ -57,7 +62,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an agent binary; otherwise, `false`.
    */
   protected isAgentBinary(): boolean {
-    return this.checkId('agentBinaryId') && 'filename' in this.data;
+    return this.checkType('agentBinary') && 'filename' in this.data;
   }
 
   /**
@@ -65,7 +70,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is an preprocessor; otherwise, `false`.
    */
   protected isPreprocessor(): boolean {
-    return this.checkId('preprocessorId') && 'binaryName' in this.data;
+    return this.checkType('preprocessor') && 'binaryName' in this.data;
   }
 
   /**
@@ -73,7 +78,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a cracker; otherwise, `false`.
    */
   protected isCrackerBinaryType(): boolean {
-    return this.checkId('crackerBinaryTypeId') && 'typeName' in this.data;
+    return this.checkType('crackerBinaryType') && 'typeName' in this.data;
   }
 
   /**
@@ -89,7 +94,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskWrapper(): boolean {
-    return this.checkId('taskWrapperId') && 'priority' in this.data;
+    return this.checkType('taskWrapper') && 'priority' in this.data;
   }
 
   /**
@@ -105,7 +110,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a task wrapper; otherwise, `false`.
    */
   protected isTaskChunks(): boolean {
-    return this.checkId('chunkId') && 'skip' in this.data;
+    return this.checkType('chunk') && 'skip' in this.data;
   }
 
   /**
@@ -113,7 +118,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a supertask; otherwise, `false`.
    */
   protected isSupertask(): boolean {
-    return this.checkId('supertaskId');
+    return this.checkType('supertask');
   }
 
   /**
@@ -130,7 +135,7 @@ export class BaseMenuComponent {
    */
   protected isUser(): boolean {
     try {
-      return this.data['_id'] === this.data['id'] && 'email' in this.data;
+      return this.checkType('user') && 'email' in this.data;
     } catch (error) {
       return false;
     }
@@ -142,7 +147,7 @@ export class BaseMenuComponent {
    */
   protected isPermission(): boolean {
     try {
-      return this.data['_id'] === this.data['id'] && 'permissions' in this.data;
+      return this.checkType('globalPermissionGroup') && 'permissions' in this.data;
     } catch (error) {
       return false;
     }
@@ -153,7 +158,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a health check; otherwise, `false`.
    */
   protected isHealthCheck(): boolean {
-    return this.checkId('healthCheckId');
+    return this.checkType('healthCheck');
   }
 
   /**
@@ -169,7 +174,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a file; otherwise, `false`.
    */
   protected isFile(): boolean {
-    return this.checkId('fileId');
+    return this.checkType('file');
   }
 
   /**
@@ -179,7 +184,7 @@ export class BaseMenuComponent {
   protected isHashlist(): boolean {
     try {
       return (
-        this.data['_id'] === this.data['hashlistId'] &&
+        this.checkType('hashlist') &&
         'brainFeatures' in this.data &&
         this.data['format'] !== HashListFormat.SUPERHASHLIST
       );
@@ -195,7 +200,7 @@ export class BaseMenuComponent {
   protected isSuperHashlist(): boolean {
     try {
       return (
-        this.data['_id'] === this.data['hashlistId'] &&
+        this.checkType('hashlist') &&
         this.data['format'] === HashListFormat.SUPERHASHLIST
       );
     } catch (error) {
@@ -204,7 +209,7 @@ export class BaseMenuComponent {
   }
 
   protected isHashtype(): boolean {
-    return 'hashTypeId' && 'description' in this.data;
+    return this.checkType('hashType') && 'description' in this.data;
   }
 
   /**

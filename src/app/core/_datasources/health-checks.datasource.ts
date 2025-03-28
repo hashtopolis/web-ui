@@ -1,61 +1,39 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hashtype } from '../_models/hashtype.model';
-import { HealthCheck } from '../_models/health-check.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { JHealthCheck } from '../_models/health-check.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class HealthChecksDataSource extends BaseDataSource<HealthCheck> {
+export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').create();
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
 
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      maxResults: this.maxResults
-    });
-
     this.subscriptions.push(
-      forkJoin([healthChecks$, hashTypes$])
+      forkJoin([healthChecks$])
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
         .subscribe(
-          ([healthCheckResponse, hashTypesResponse]: [
-            ListResponseWrapper<HealthCheck>,
-            ListResponseWrapper<Hashtype>
+          ([response]: [
+            ResponseWrapper
           ]) => {
-            const healthChecks: HealthCheck[] = healthCheckResponse.values;
-            const hashTypes: Hashtype[] = hashTypesResponse.values;
 
-            healthChecks.map((healthCheck: HealthCheck) => {
-              healthCheck.hashtype = hashTypes.find(
-                (el: Hashtype) => el._id === healthCheck.hashtypeId
-              );
-              healthCheck.hashtypeDescription =
-                healthCheck.hashtype.description;
+            const responseData = { data: response.data, included: response.included };
+            const healthChecks = this.serializer.deserialize<JHealthCheck[]>(responseData);
+
+            healthChecks.forEach((healthCheck: JHealthCheck) => {
+              healthCheck.hashTypeDescription = healthCheck.hashType?.description;
             });
 
             this.setPaginationConfig(
               this.pageSize,
               this.currentPage,
-              healthCheckResponse.total
+              healthChecks.length,
             );
             this.setData(healthChecks);
           }

@@ -7,7 +7,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
-import { AccessGroup } from 'src/app/core/_models/access-group.model';
+import { JAccessGroup } from 'src/app/core/_models/access-group.model';
 import { AccessGroupsDataSource } from 'src/app/core/_datasources/access-groups.datasource';
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
@@ -47,7 +47,7 @@ export class AccessGroupsTableComponent
     }
   }
 
-  filter(item: AccessGroup, filterValue: string): boolean {
+  filter(item: JAccessGroup, filterValue: string): boolean {
     if (item.groupName.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -59,36 +59,36 @@ export class AccessGroupsTableComponent
     const tableColumns = [
       {
         id: AccessGroupsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (accessGroup: AccessGroup) => accessGroup._id + ''
+        export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLink: (accessGroup: AccessGroup) =>
+        routerLink: (accessGroup: JAccessGroup) =>
           this.renderAccessGroupLink(accessGroup),
         isSortable: true,
-        export: async (accessGroup: AccessGroup) => accessGroup.groupName
+        export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
       {
         id: AccessGroupsTableCol.NUSERS,
         dataKey: 'nusers',
         isSortable: true,
-        render: (accessGroup: AccessGroup) => {
-          return accessGroup.userMembers.length;
+        render: (accessGroup: JAccessGroup) => {
+          return accessGroup.userMembers.length.toString();
         },
-        export: async (accessGroup: AccessGroup) =>
+        export: async (accessGroup: JAccessGroup) =>
           accessGroup.userMembers.length.toString()
       },
       {
         id: AccessGroupsTableCol.NAGENTS,
         dataKey: 'nagents',
         isSortable: true,
-        render: (accessGroup: AccessGroup) => {
-          return accessGroup.agentMembers.length;
+        render: (accessGroup: JAccessGroup) => {
+          return accessGroup.agentMembers.length.toString();
         },
-        export: async (accessGroup: AccessGroup) =>
+        export: async (accessGroup: JAccessGroup) =>
           accessGroup.agentMembers.length.toString()
       }
     ];
@@ -96,7 +96,7 @@ export class AccessGroupsTableComponent
     return tableColumns;
   }
 
-  openDialog(data: DialogData<AccessGroup>) {
+  openDialog(data: DialogData<JAccessGroup>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -120,10 +120,10 @@ export class AccessGroupsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AccessGroup[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AccessGroup>(
+        this.exportService.toExcel<JAccessGroup>(
           'hashtopolis-access-groups',
           this.tableColumns,
           event.data,
@@ -131,7 +131,7 @@ export class AccessGroupsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<AccessGroup>(
+        this.exportService.toCsv<JAccessGroup>(
           'hashtopolis-access-groups',
           this.tableColumns,
           event.data,
@@ -140,7 +140,7 @@ export class AccessGroupsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AccessGroup>(
+          .toClipboard<JAccessGroup>(
             this.tableColumns,
             event.data,
             AccessGroupsTableColumnLabel
@@ -155,7 +155,7 @@ export class AccessGroupsTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<AccessGroup>): void {
+  rowActionClicked(event: ActionMenuEvent<JAccessGroup>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -173,7 +173,7 @@ export class AccessGroupsTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AccessGroup[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -192,9 +192,9 @@ export class AccessGroupsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(accessGroups: AccessGroup[]): void {
-    const requests = accessGroups.map((accessGroup: AccessGroup) => {
-      return this.gs.delete(SERV.ACCESS_GROUPS, accessGroup._id);
+  private bulkActionDelete(accessGroups: JAccessGroup[]): void {
+    const requests = accessGroups.map((accessGroup: JAccessGroup) => {
+      return this.gs.delete(SERV.ACCESS_GROUPS, accessGroup.id);
     });
 
     this.subscriptions.push(
@@ -218,10 +218,10 @@ export class AccessGroupsTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(accessGroups: AccessGroup[]): void {
+  private rowActionDelete(accessGroups: JAccessGroup[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.ACCESS_GROUPS, accessGroups[0]._id)
+        .delete(SERV.ACCESS_GROUPS, accessGroups[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -235,7 +235,7 @@ export class AccessGroupsTableComponent
     );
   }
 
-  private rowActionEdit(accessGroup: AccessGroup): void {
+  private rowActionEdit(accessGroup: JAccessGroup): void {
     this.renderAccessGroupLink(accessGroup).then(
       (links: HTTableRouterLink[]) => {
         this.router.navigate(links[0].routerLink);

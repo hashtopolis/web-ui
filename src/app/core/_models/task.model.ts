@@ -4,6 +4,7 @@ import { CrackerBinary, CrackerBinaryType } from './cracker-binary.model';
 
 import { Agent } from './agent.model';
 import { Hashlist } from './hashlist.model';
+import { BaseModel } from './base.model';
 
 /**
  * @deprecated This interface is deprecated and should not be used.
@@ -51,3 +52,89 @@ export interface Task {
   hashlist?: Hashlist[];
   taskType?: number;
 }
+
+export interface JTask extends BaseModel {
+  taskName: string;
+  attackCmd: string;
+  chunkTime: number;
+  statusTimer: number;
+  keyspace: number;
+  keyspaceProgress: number;
+  priority: number;
+  maxAgents: number;
+  color: null | string;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  useNewBench: boolean;
+  skipKeyspace: number;
+  crackerBinaryId: number;
+  crackerBinaryTypeId: number;
+  taskWrapperId: number;
+  isArchived: boolean;
+  notes: string;
+  staticChunks: number;
+  chunkSize: number;
+  forcePipe: boolean;
+  preprocessorId: number;
+  preprocessorCommand: string;
+}
+
+export interface TaskData {
+  type: string;
+  id: number;
+  attributes: TaskDataAttributes;
+  links?: TaskDataLinks;
+  relationships?: TaskRelationships;
+}
+
+export interface TaskDataAttributes {
+  taskName: string;
+  attackCmd: string;
+  chunkTime: number;
+  statusTimer: number;
+  keyspace: number;
+  keyspaceProgress: number;
+  priority: number;
+  maxAgents: number;
+  color: null | string;
+  isSmall: boolean;
+  isCpuTask: boolean;
+  useNewBench: boolean;
+  skipKeyspace: number;
+  crackerBinaryId: number;
+  crackerBinaryTypeId: number;
+  taskWrapperId: number;
+  isArchived: boolean;
+  notes: string;
+  staticChunks: number;
+  chunkSize: number;
+  forcePipe: boolean;
+  preprocessorId: number;
+  preprocessorCommand: string;
+}
+
+export interface TaskDataLinks {
+  self: string;
+}
+
+export interface TaskRelationships {
+  assignedAgents: AssignedAgents;
+  crackerBinary: AssignedAgents;
+  crackerBinaryType: AssignedAgents;
+  files: AssignedAgents;
+  hashlist: AssignedAgents;
+  speeds: AssignedAgents;
+}
+
+export interface AssignedAgents {
+  links: AssignedAgentsLinks;
+}
+
+export interface AssignedAgentsLinks {
+  self: string;
+  related: string;
+}
+
+
+
+

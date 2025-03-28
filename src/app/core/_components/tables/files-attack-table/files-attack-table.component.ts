@@ -6,7 +6,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import { File, FileType } from 'src/app/core/_models/file.model';
+import { FileType, JFile } from 'src/app/core/_models/file.model';
 import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
@@ -62,7 +62,7 @@ export class FilesAttackTableComponent
     }
   }
 
-  filter(item: File, filterValue: string): boolean {
+  filter(item: JFile, filterValue: string): boolean {
     if (item.filename.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -74,32 +74,32 @@ export class FilesAttackTableComponent
     const tableColumns = [
       {
         id: FilesAttackTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (file: File) => file._id + ''
+        export: async (file: JFile) => file.id + ''
       },
       {
         id: FilesAttackTableCol.NAME,
         dataKey: 'filename',
-        icons: (file: File) => this.renderSecretIcon(file),
-        render: (file: File) => file.filename,
+        icons: (file: JFile) => this.renderSecretIcon(file),
+        render: (file: JFile) => file.filename,
         isSortable: true,
-        export: async (file: File) => file.filename
+        export: async (file: JFile) => file.filename
       },
       {
         id: FilesAttackTableCol.SIZE,
         dataKey: 'size',
-        render: (file: File) => formatFileSize(file.size, 'short'),
+        render: (file: JFile) => formatFileSize(file.size, 'short'),
         isSortable: true,
-        export: async (file: File) => formatFileSize(file.size, 'short')
+        export: async (file: JFile) => formatFileSize(file.size, 'short')
       }
     ];
 
     return tableColumns;
   }
 
-  @Cacheable(['_id', 'isSecret'])
-  async renderSecretIcon(file: File): Promise<HTTableIcon[]> {
+  @Cacheable(['id', 'isSecret'])
+  async renderSecretIcon(file: JFile): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     if (file.isSecret) {
       icons.push({
@@ -128,7 +128,7 @@ export class FilesAttackTableComponent
     }
     const newCmdArray = currentCmd.split(' ');
     const fileName = event.row.filename;
-    const fileId = event.row._id;
+    const fileId = event.row.id;
     let newFileIds;
     if (event.columnType === 'CMD') {
       newFileIds = [...form.files];
@@ -138,16 +138,12 @@ export class FilesAttackTableComponent
 
     if (!event.checked) {
       // Remove -r and filename from the command
-      if (event.row.fileType === 1) {
-        const indexR = newCmdArray.indexOf('-r');
-        if (indexR !== -1) {
-          newCmdArray.splice(indexR, 1);
-        }
-      }
-
       const indexFileName = newCmdArray.indexOf(fileName);
       if (indexFileName !== -1) {
         newCmdArray.splice(indexFileName, 1);
+      }
+      if (event.row.fileType === 1) {
+          newCmdArray.splice(indexFileName - 1, 1);
       }
 
       // Remove fileId from the array

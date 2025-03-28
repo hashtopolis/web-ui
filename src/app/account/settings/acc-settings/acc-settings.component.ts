@@ -227,7 +227,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   private loadUserSettings() {
     this.subscriptions.push(
       this.gs
-        .get(SERV.USERS, this.gs.userId, { expand: 'globalPermissionGroup' })
+        .get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] })
         .subscribe((result) => {
           this.createForm(
             result.globalPermissionGroup['name'],
