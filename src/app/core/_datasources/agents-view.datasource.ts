@@ -21,23 +21,18 @@ export class AgentsViewDataSource extends BaseDataSource<Agent> {
 
     const startAt = this.currentPage * this.pageSize;
     const sorting = this.sortingColumn;
-    const agentParams2 = new RequestParamBuilder()
+    const agentParams = new RequestParamBuilder()
       .addInitial(this)
       .setPageSize(this.pageSize)
       .setPageAfter(startAt)
       .addInclude('agentStats')
       .create();
-    /*     const agentParams: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'agentstats'
-    }; */
 
     if (this._agentId) {
       // params.filter = `chunkId=${this._agentId}`;
     }
 
-    const agents$ = this.service.getAll(SERV.AGENTS, agentParams2);
+    const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
     agents$
       .pipe(
