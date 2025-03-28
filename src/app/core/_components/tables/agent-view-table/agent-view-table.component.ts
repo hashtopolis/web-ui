@@ -11,6 +11,7 @@ import { BaseTableComponent } from '../base-table/base-table.component';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import { SafeHtml } from '@angular/platform-browser';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-agent-view-table',
@@ -20,13 +21,23 @@ import { SafeHtml } from '@angular/platform-browser';
 export class AgentViewTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsViewDataSource;
-  // ngOnDestroy(): void {}
+
   ngOnInit(): void {
     this.setColumnLabels(AgentsViewTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsViewDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.reload();
+  }
+  renderStatus(agent: JAgent): SafeHtml {
+    let html: string;
+    if (agent.isActive) {
+      html = '<span class="pill pill-active">Active</span>';
+    } else {
+      html = '<span class="pill pill-inactive">Inactive</span>';
+    }
+
+    return this.sanitize(html);
   }
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
@@ -55,6 +66,17 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
         render: (agent: JAgent) => agent.avgCpu + '%'
+      },
+      {
+        id: AgentsViewTableCol.AGENT_STATUS,
+        dataKey: 'isActive',
+        icons: (agent: JAgent) => this.renderStatusIcon(agent),
+        render: (agent: JAgent) => this.renderStatus(agent)
+      },
+      {
+        id: AgentsViewTableCol.LAST_ACTIVITY,
+        dataKey: 'lastTime',
+        render: (agent: JAgent) => 'Time: ' + formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
     return tableColumns;
