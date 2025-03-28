@@ -40,17 +40,17 @@ export class AgentsViewDataSource extends BaseDataSource<JAgent> {
       const tempDateFilter = agentStats.filter((agentStat) => agentStat.time > 10000000); // Temp
     }); */
 
+    // const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
-    const agents2$ = this.service.getAll(SERV.AGENTS, agentParams);
-    agents2$
+    agents$
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
       .subscribe((agentStatsResponse: ResponseWrapper) => {
-        const agent = this.serializer.deserialize<JAgent[]>(agentStatsResponse);
-        console.log('AFTER ', agent);
-        agent.map((agent: JAgent) => {
+        const agents = this.serializer.deserialize<JAgent[]>(agentStatsResponse);
+        console.log('AFTER ', agents);
+        agents.map((agent: JAgent) => {
           const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
           const statTemp = tempDateFilter.filter((u) => u.statType == ASC.GPU_TEMP);
           const statDevice = tempDateFilter.filter((u) => u.statType == ASC.GPU_UTIL);
@@ -68,8 +68,8 @@ export class AgentsViewDataSource extends BaseDataSource<JAgent> {
             statDevice.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / statDevice.length
           );
         });
-        this.setPaginationConfig(this.pageSize, this.currentPage, agent.length);
-        this.setData(agent);
+        this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
+        this.setData(agents);
       });
 
     /*     agents$
