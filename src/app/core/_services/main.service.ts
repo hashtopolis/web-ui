@@ -121,8 +121,10 @@ export class GlobalService {
    * @param item - fields
    * @returns  Object
    **/
-  create(methodUrl: string, item: any): Observable<any> {
-    return this.http.post<any>(this.cs.getEndpoint() + methodUrl, item);
+  create(methodUrl: string, item: any, type=''): Observable<any> {
+    const data = { type: type, ...item };
+    const serializedData = new JsonAPISerializer().serialize({ stuff: data });
+    return this.http.post<any>(this.cs.getEndpoint() + methodUrl, serializedData);
   }
 
   /**

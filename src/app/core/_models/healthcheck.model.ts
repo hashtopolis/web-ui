@@ -1,22 +1,15 @@
-export interface HealthCheck {
-  attackCmd: string
-  checkType: number
-  crackerBinaryId: number
-  expectedCracks: number
-  hashtypeId: number
-  healthCheckId: number
-  status: number
-  time: number
-}
+import { BaseModel } from '@models/base.model';
 
-export interface HealthCheckedAgents {
-  healthCheckAgentId: number
-  healthCheckId: number
-  agentId: number
-  status: number
-  cracked: number
-  numGpus: number
-  start: number
-  end: number
-  errors: string
+/**
+ * Interface definition for HealthCheck resource
+ */
+export interface HealthCheck extends BaseModel {
+  attackCmd: string;
+  checkType: number;
+  crackerBinaryId: number;
+  expectedCracks: number;
+  hashtypeId: number;
+  healthCheckId: number;
+  status: number;
+  time: number;
 }

@@ -2,6 +2,11 @@
  * Services Available
  **/
 
+interface ServiceConfig {
+  URL: string;
+  RESOURCE: string;
+}
+
 export class SERV {
   // HELPER
   public static HELPER = '/helper';
@@ -21,7 +26,7 @@ export class SERV {
   public static CRACKERS = '/ui/crackers';
   public static CRACKERS_TYPES = '/ui/crackertypes';
   public static HASHTYPES = '/ui/hashtypes';
-  public static HEALTH_CHECKS = '/ui/healthchecks';
+  public static HEALTH_CHECKS: ServiceConfig = { URL: '/ui/healthchecks', RESOURCE: 'healthCheck' };
   public static HEALTH_CHECKS_AGENTS = '/ui/healthcheckagents';
   public static LOGS = '/ui/logentries';
   public static PREPROCESSORS = '/ui/preprocessors';
