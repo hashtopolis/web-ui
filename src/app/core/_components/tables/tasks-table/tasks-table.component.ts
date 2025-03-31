@@ -104,7 +104,6 @@ export class TasksTableComponent
         dataKey: 'hashtype',
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
-          console.log(wrapper);
           const hashType = wrapper.hashType;
           return hashType
             ? `${hashType.id} - ${hashType.description}`
