@@ -27,65 +27,55 @@ export class TasksDataSource extends BaseDataSource<
 
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addInclude('accessGroup').addInclude('tasks').addFilter({
+    const params = new RequestParamBuilder().addInitial(this).addInclude('accessGroup').addInclude('tasks')
+    .addInclude("hashlist").addInclude("hashType").addFilter({
       field: 'isArchived',
       operator: FilterType.EQUAL,
       value: this._isArchived
     });
 
-    if (this._hashlistId) {
-      params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._hashlistId });
-    }
-
-    const hashParams = new RequestParamBuilder().setPageSize(this.maxResults).create()
-
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, hashParams);
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, hashParams);
 
-    forkJoin([wrappers$, hashLists$, hashTypes$])
-      .pipe(
-        catchError(() => of([])),
-        finalize(() => (this.loading = false))
-      )
-      .subscribe(
-        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]: [ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
+    this.subscriptions.push(
+      wrappers$
+        .pipe(
+          catchError(() => of([])),
+          finalize(() => (this.loading = false))
+        )
+        .subscribe(
+          (taskWrapperResponse: ResponseWrapper) => {
 
-          const taskWrapperResponseBody = { data: taskWrapperResponse.data, included: taskWrapperResponse.included };
-          const taskWrappersDeserialized = this.serializer.deserialize<JTaskWrapper[]>(taskWrapperResponseBody);
+            const taskWrapperResponseBody = { data: taskWrapperResponse.data, included: taskWrapperResponse.included };
+            const taskWrappersDeserialized = this.serializer.deserialize<JTaskWrapper[]>(taskWrapperResponseBody);
 
-          const hashlistResponseBody = { data: hashlistResponse.data, included: hashlistResponse.included };
-          const hashlists = this.serializer.deserialize<JHashlist[]>(hashlistResponseBody);
+            let taskWrappers: JTaskWrapper[] = [];
 
-          const hashtypeResponseBody = { data: hashtypeResponse.data, included: hashtypeResponse.included };
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(hashtypeResponseBody);
+            taskWrappersDeserialized.forEach((value: JTaskWrapper) => {
+              console.log(value);
+              const taskWrapper: JTaskWrapper = value;
+              // taskWrapper
 
-          let taskWrappers: JTaskWrapper[] = [];
+              // const matchingHashList = hashlists.find(
+              //   (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
+              // );
+              // taskWrapper.hashlists = [matchingHashList];
 
-          taskWrappersDeserialized.forEach((value: JTaskWrapper) => {
-            const taskWrapper: JTaskWrapper = value;
+              // const matchingHashTypes = hashtypes.find(
+              //   (hashtype: JHashtype) =>
+              //     hashtype.id === matchingHashList.hashTypeId
+              // );
+              // taskWrapper.hashtypes = [matchingHashTypes];
 
-            const matchingHashList = hashlists.find(
-              (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
+              taskWrappers.push(taskWrapper);
+            });
+
+            this.setPaginationConfig(
+              this.pageSize,
+              this.currentPage,
+              taskWrappers.length
             );
-            taskWrapper.hashlists = [matchingHashList];
-
-            const matchingHashTypes = hashtypes.find(
-              (hashtype: JHashtype) =>
-                hashtype.id === matchingHashList.hashTypeId
-            );
-            taskWrapper.hashtypes = [matchingHashTypes];
-
-            taskWrappers.push(taskWrapper);
-          });
-
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            taskWrappers.length
-          );
-          this.setData(taskWrappers);
-        }
+            this.setData(taskWrappers);
+        })
       );
   }
 
