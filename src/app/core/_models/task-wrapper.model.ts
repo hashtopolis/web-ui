@@ -31,8 +31,8 @@ export interface JTaskWrapper extends BaseModel {
   accessGroupName?: string;
   cracked: number;
   hashlistId: number;
-  hashlists?: JHashlist[];
-  hashtypes?: JHashtype[];
+  hashlist?: JHashlist;
+  hashType?: JHashtype;
   isArchived: boolean;
   maxAgents: number;
   priority: number;

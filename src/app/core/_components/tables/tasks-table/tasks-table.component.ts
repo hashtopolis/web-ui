@@ -55,6 +55,7 @@ export class TasksTableComponent
   }
 
   getColumns(): HTTableColumn[] {
+    
     return [
       {
         id: TaskTableCol.ID,
@@ -103,15 +104,15 @@ export class TasksTableComponent
         dataKey: 'hashtype',
         isSortable: false,
         render: (wrapper: JTaskWrapper) => {
-          const firstHashtype = wrapper.hashtypes[0];
-          return firstHashtype
-            ? `${firstHashtype.id} - ${firstHashtype.description}`
+          const hashType = wrapper.hashType;
+          return hashType
+            ? `${hashType.id} - ${hashType.description}`
             : 'No HashType';
         },
-        export: async (wrapper: JTaskWrapper) => {
-          const firstHashtype = wrapper.hashtypes[0];
-          return firstHashtype
-            ? `${firstHashtype.id} - ${firstHashtype.description}`
+        export: async (wrapper: JTaskWrapper) =>{
+          const hashType = wrapper.hashType;
+          return hashType
+            ? `${hashType.id} - ${hashType.description}`
             : 'No HashType';
         }
       },
@@ -120,8 +121,7 @@ export class TasksTableComponent
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLink(wrapper),
         isSortable: false,
-        export: async (wrapper: JTaskWrapper) =>
-          wrapper.hashlists.map((h: JHashlist) => h.name).join(', ')
+        export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
       },
       {
         id: TaskTableCol.DISPATCHED_SEARCHED,
@@ -428,13 +428,13 @@ export class TasksTableComponent
   ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
-    if (wrapper && wrapper.hashlists && wrapper.hashlists.length > 0) {
+    if (wrapper && wrapper.hashlist) {
       links.push({
-        label: wrapper.hashlists[0].name,
+        label: wrapper.hashlist.name,
         routerLink: [
           '/hashlists',
           'hashlist',
-          wrapper.hashlists[0].id,
+          wrapper.hashlist.id,
           'edit'
         ]
       });
