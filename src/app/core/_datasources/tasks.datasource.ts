@@ -51,21 +51,7 @@ export class TasksDataSource extends BaseDataSource<
             let taskWrappers: JTaskWrapper[] = [];
 
             taskWrappersDeserialized.forEach((value: JTaskWrapper) => {
-              console.log(value);
               const taskWrapper: JTaskWrapper = value;
-              // taskWrapper
-
-              // const matchingHashList = hashlists.find(
-              //   (hashlist: JHashlist) => hashlist.id === taskWrapper.hashlistId
-              // );
-              // taskWrapper.hashlists = [matchingHashList];
-
-              // const matchingHashTypes = hashtypes.find(
-              //   (hashtype: JHashtype) =>
-              //     hashtype.id === matchingHashList.hashTypeId
-              // );
-              // taskWrapper.hashtypes = [matchingHashTypes];
-
               taskWrappers.push(taskWrapper);
             });
 
