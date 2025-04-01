@@ -1,6 +1,6 @@
-import { Agent, AgentData, JAgent } from './agent.model';
-import { JTask, Task, TaskData } from './task.model';
-import { BaseModel } from './base.model';
+import { Agent, JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
+import { JTask } from '@models/task.model';
 
 export interface Chunk {
   _id: number;
@@ -51,48 +51,6 @@ export interface ChunkData {
   timeSpent: number;
   agents: number[];
   tasks: number[];
-}
-
-export interface ChunkDataNew {
-  type: string;
-  id: number;
-  attributes: ChunkDataAttributes;
-  links?: DataLinks;
-  relationships?: ChunkRelationships;
-}
-
-export interface ChunkDataAttributes {
-  taskId: number;
-  skip: number;
-  length: number;
-  agentId: number;
-  dispatchTime: number;
-  solveTime: number;
-  checkpoint: number;
-  progress: number;
-  state: number;
-  cracked: number;
-  speed: number;
-  agent?: AgentData;
-  task?: TaskData;
-}
-
-export interface DataLinks {
-  self: string;
-}
-
-export interface ChunkRelationships {
-  agent: ChunkRelationshipsLinks;
-  task: ChunkRelationshipsLinks;
-}
-
-export interface ChunkRelationshipsLinks {
-  links: Links;
-}
-
-export interface Links {
-  self: string;
-  related: string;
 }
 
 export interface ChunkDataData {
