@@ -4,11 +4,15 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { ResponseWrapper } from 'src/app/core/_models/response.model';
 import { SERV } from '../../core/_services/main.config';
 import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JPretask } from '@src/app/core/_models/pretask.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { JSuperTask } from '@src/app/core/_models/supertask.model';
 
 declare let options: any;
 declare let defaultOptions: any;
@@ -47,7 +51,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.onInitialize();
     this.buildForm();
@@ -105,29 +110,42 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     console.log(this.editedSTIndex);
+
+    const params = new RequestParamBuilder().addInclude('pretasks').create();
+
     const loadSTSubscription$ = this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex, { include: ['pretasks'] })
-      .subscribe((res) => {
-        this.assignPretasks = res.pretasks;
+      .get(SERV.SUPER_TASKS, this.editedSTIndex, params)
+      .subscribe((response: ResponseWrapper) => {
+
+        const responseData = { data: response.data, included: response.included };
+        const supertask = this.serializer.deserialize<JSuperTask>(responseData);
+
+
+        this.assignPretasks = supertask.pretasks;
         this.viewForm = new FormGroup({
           supertaskId: new FormControl({
-            value: res['supertaskId'],
+            value: supertask.id,
             disabled: true
           }),
           supertaskName: new FormControl({
-            value: res['supertaskName'],
+            value: supertask.supertaskName,
             disabled: true
           })
         });
         const loadPTSubscription$ = this.gs
           .getAll(SERV.PRETASKS)
-          .subscribe((htypes: ListResponseWrapper<any>) => {
-            const response = this.getAvailablePretasks(
-              res.pretasks,
-              htypes.values
+          .subscribe((response: ResponseWrapper) => {
+
+            const responseData = { data: response.data, included: response.included };
+            const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
+
+            const availablePretasks = this.getAvailablePretasks(
+              supertask.pretasks,
+              pretasks
             );
+
             const transformedOptions = transformSelectOptions(
-              response,
+              availablePretasks,
               this.selectSuperTaskMap
             );
             this.selectPretasks = transformedOptions;
@@ -156,12 +174,12 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * @param {Array} pretasks - An array of all available pre-tasks.
    * @returns {Array} - An array containing pre-tasks that are not assigned.
    */
-  getAvailablePretasks(assigning, pretasks) {
+  getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
     // Use filter to find pre-tasks not present in the assigning array
     return pretasks.filter(
       (pretask) =>
         assigning.findIndex(
-          (assignedTask) => assignedTask.pretaskId === pretask.pretaskId
+          (assignedTask) => assignedTask.id === pretask.id
         ) === -1
     );
   }

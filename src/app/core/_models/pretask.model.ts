@@ -1,4 +1,5 @@
 import { File, JFile } from './file.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 
 export class Pretask {
   public pretaskId: number;
@@ -41,7 +42,7 @@ export interface Pretask {
   useNewBench: boolean;
 }
 
-export interface JPretask {
+export interface JPretask extends BaseModel{
   attackCmd: string;
   chunkTime: number;
   color: string;

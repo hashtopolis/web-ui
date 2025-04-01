@@ -1,12 +1,13 @@
 export enum FilterType {
   EQUAL = 'eq',
   GREATER = 'gt',
+  IN = 'in'
 }
 
 export interface Filter {
   field: string;
   operator: FilterType;
-  value: string | number | boolean;
+  value: string | number| number[] | boolean;
 }
 
 interface IRequestParams {
