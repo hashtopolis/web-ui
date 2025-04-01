@@ -1,25 +1,18 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChanges,
-  ViewChild,
-  forwardRef
-} from '@angular/core';
-import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { AbstractControl, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { SelectField } from 'src/app/core/_models/input.model';
 import { Observable, Subject, combineLatest, of } from 'rxjs';
-import { AbstractInputComponent } from '../abstract-input';
-import { extractIds } from '../../../shared/utils/forms';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatInput } from '@angular/material/input';
 import { map, startWith } from 'rxjs/operators';
+
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatInput } from '@angular/material/input';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
+import { extractIds } from '@src/app/shared/utils/forms';
+
+import { SelectField } from '@models/input.model';
+
 /**
  * InputMultiSelectComponent for selecting or searching items from an array of objects.
  * Supports dynamic filtering, highlighting, and emits selection changes.
@@ -36,10 +29,7 @@ import { map, startWith } from 'rxjs/operators';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputMultiSelectComponent
-  extends AbstractInputComponent<any>
-  implements AfterViewInit
-{
+export class InputMultiSelectComponent extends AbstractInputComponent<any> implements AfterViewInit {
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
@@ -65,10 +55,8 @@ export class InputMultiSelectComponent
       ),
       of(this.items) // Emit the items array as an initial value
     ]).pipe(
-      map(([searchTerm, allItems]) => {
-        return searchTerm
-          ? this._filter(searchTerm)
-          : this.getUnselectedItems();
+      map(([searchTerm]) => {
+        return searchTerm ? this._filter(searchTerm) : this.getUnselectedItems();
       })
     );
   }
@@ -108,13 +96,9 @@ export class InputMultiSelectComponent
    */
   onChangeValue(value): void {
     if (!this.multiselectEnabled) {
-      this.value = Array.isArray(value)
-        ? extractIds(value, 'id')[0]
-        : extractIds(value, 'id')[0];
+      this.value = Array.isArray(value) ? extractIds(value, 'id')[0] : extractIds(value, 'id')[0];
     } else {
-      this.value = Array.isArray(value)
-        ? extractIds(value, 'id')
-        : extractIds(value, 'id');
+      this.value = Array.isArray(value) ? extractIds(value, 'id') : extractIds(value, 'id');
     }
 
     this.onChange(this.value);
@@ -165,9 +149,7 @@ export class InputMultiSelectComponent
   private _filter(value: string): SelectField[] {
     const filterValue = value.toLowerCase();
     return this.items.filter((item: SelectField) => {
-      const nameToSearch = this.mergeIdAndName
-        ? `${item.id} ${item.name}`.toLowerCase()
-        : item.name.toLowerCase();
+      const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       return nameToSearch.includes(filterValue);
     });
   }
@@ -238,10 +220,7 @@ export class InputMultiSelectComponent
       if (index >= 0) {
         const highlightedValue =
           value.substring(0, index) +
-          `<span class="highlight-text">${value.substr(
-            index,
-            term.length
-          )}</span>` +
+          `<span class="highlight-text">${value.substring(index, term.length)}</span>` +
           value.substring(index + term.length);
 
         return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);

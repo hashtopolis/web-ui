@@ -1,24 +1,9 @@
-// import { Hashlist } from "./hashlist"
-
-import { CrackerBinary, CrackerBinaryType } from './cracker-binary.model';
-
-import { Agent } from './agent.model';
-import { Hashlist } from './hashlist.model';
-import { BaseModel } from './base.model';
-
-/**
- * @deprecated This interface is deprecated and should not be used.
- * Use the Task interface instead.
- */
-export interface NormalTask {
-  id: number;
-  name: string;
-  priority: number;
-  maxAgents: number;
-
-  hashlistId: number;
-  // hashlist: Hashlist
-}
+import { JFile } from '@models/file.model';
+import { SpeedStat } from '@models/speed-stat.model';
+import { Agent, JAgent } from '@models/agent.model';
+import { CrackerBinary, CrackerBinaryType, JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { Hashlist } from '@models/hashlist.model';
+import { BaseModel } from '@models/base.model';
 
 export interface Task {
   _id: number;
@@ -53,13 +38,18 @@ export interface Task {
   taskType?: number;
 }
 
+/**
+ * Interface definition for a cracking task
+ */
 export interface JTask extends BaseModel {
   taskName: string;
+  assignedAgents?: JAgent[];
   attackCmd: string;
   chunkTime: number;
   statusTimer: number;
   keyspace: number;
   keyspaceProgress: number;
+  files?: JFile[];
   priority: number;
   maxAgents: number;
   color: null | string;
@@ -67,6 +57,8 @@ export interface JTask extends BaseModel {
   isCpuTask: boolean;
   useNewBench: boolean;
   skipKeyspace: number;
+  crackerBinary?: JCrackerBinary;
+  crackerBinaryType?: JCrackerBinaryType;
   crackerBinaryId: number;
   crackerBinaryTypeId: number;
   taskWrapperId: number;
@@ -79,64 +71,5 @@ export interface JTask extends BaseModel {
   preprocessorCommand: string;
   dispatched: string;
   searched: string;
+  speeds: SpeedStat[];
 }
-
-export interface TaskData {
-  type: string;
-  id: number;
-  attributes: TaskDataAttributes;
-  links?: TaskDataLinks;
-  relationships?: TaskRelationships;
-}
-
-export interface TaskDataAttributes {
-  taskName: string;
-  attackCmd: string;
-  chunkTime: number;
-  statusTimer: number;
-  keyspace: number;
-  keyspaceProgress: number;
-  priority: number;
-  maxAgents: number;
-  color: null | string;
-  isSmall: boolean;
-  isCpuTask: boolean;
-  useNewBench: boolean;
-  skipKeyspace: number;
-  crackerBinaryId: number;
-  crackerBinaryTypeId: number;
-  taskWrapperId: number;
-  isArchived: boolean;
-  notes: string;
-  staticChunks: number;
-  chunkSize: number;
-  forcePipe: boolean;
-  preprocessorId: number;
-  preprocessorCommand: string;
-}
-
-export interface TaskDataLinks {
-  self: string;
-}
-
-export interface TaskRelationships {
-  assignedAgents: AssignedAgents;
-  crackerBinary: AssignedAgents;
-  crackerBinaryType: AssignedAgents;
-  files: AssignedAgents;
-  hashlist: AssignedAgents;
-  speeds: AssignedAgents;
-}
-
-export interface AssignedAgents {
-  links: AssignedAgentsLinks;
-}
-
-export interface AssignedAgentsLinks {
-  self: string;
-  related: string;
-}
-
-
-
-
