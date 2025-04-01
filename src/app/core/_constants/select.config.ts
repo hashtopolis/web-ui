@@ -10,7 +10,7 @@ export const CRACKER_TYPE_FIELD_MAPPING = {
 
 export const CRACKER_VERSION_FIELD_MAPPING = {
   name: 'version',
-  _id: 'crackerBinaryId'
+  id: 'id'
 };
 
 export const HASHTYPE_FIELD_MAPPING = {
