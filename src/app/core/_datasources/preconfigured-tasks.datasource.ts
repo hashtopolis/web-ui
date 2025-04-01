@@ -48,7 +48,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask, MatTableDataSou
   }
 
   private async loadSupertask(superTaskId: number, params): Promise<JSuperTask> {
-    const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.SUPER_TASKS, superTaskId, params));
+    const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.SUPER_TASKS.URL, superTaskId, params));
 
     const responseData = { data: response.data, included: response.included };
     const supertask = this.serializer.deserialize<JSuperTask>(responseData);

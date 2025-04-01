@@ -217,17 +217,11 @@ export class SuperTasksPretasksTableComponent
     //Get the IDs of pretasks to be deleted
     const pretaskIdsToDelete = pretasks.map((pretask) => pretask._id);
     //Remove the selected pretasks from the list
-    const updatedPretasks = this.dataSource
-      .getData()
-      .filter((pretask) => !pretaskIdsToDelete.includes(pretask._id));
+    const updatedPretasks = this.dataSource.getData().filter((pretask) => !pretaskIdsToDelete.includes(pretask._id));
     //Update the supertask with the modified list of pretasks
     const payload = { pretasks: updatedPretasks.map((pretask) => pretask._id) };
     //Update the supertask with the new list of pretasks
-    const updateRequest = this.gs.update(
-      SERV.SUPER_TASKS,
-      this.supertaskId,
-      payload
-    );
+    const updateRequest = this.gs.update(SERV.SUPER_TASKS.URL, this.supertaskId, payload, SERV.SUPER_TASKS.RESOURCE);
     this.subscriptions.push(
       updateRequest
         .pipe(
@@ -237,10 +231,7 @@ export class SuperTasksPretasksTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Successfully deleted ${pretasks.length} pretasks!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${pretasks.length} pretasks!`, 'Close');
           this.reload();
         })
     );
@@ -269,7 +260,7 @@ export class SuperTasksPretasksTableComponent
     const payload = { pretasks: updatedPretasks.map((pretask) => pretask._id) };
     this.subscriptions.push(
       this.gs
-        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
+        .update(SERV.SUPER_TASKS.URL, this.supertaskId, payload, SERV.SUPER_TASKS.RESOURCE)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

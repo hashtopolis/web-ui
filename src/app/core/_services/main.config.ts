@@ -41,7 +41,7 @@ export class SERV {
   public static CHUNKS = '/ui/chunks';
   public static PRETASKS = '/ui/pretasks';
   public static SPEEDS = '/ui/speeds';
-  public static SUPER_TASKS = '/ui/supertasks';
+  public static SUPER_TASKS = { URL: '/ui/supertasks', RESOURCE: 'Supertask' };
   public static TASKS = '/ui/tasks';
   public static TASKS_WRAPPER = '/ui/taskwrappers';
   public static TASKS_WRAPPER_COUNT = '/ui/taskwrappers/count';

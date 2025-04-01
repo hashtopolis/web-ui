@@ -1,8 +1,5 @@
 <div *ngIf="isLoading; else content">
   <mat-spinner *ngIf="isLoading" diameter="16" class="spinner"></mat-spinner>
-  <mat-form-field>
-    <mat-label>{{label}}</mat-label>
-  </mat-form-field>
 </div>
 
 <ng-template #content>

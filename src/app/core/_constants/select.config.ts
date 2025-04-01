@@ -20,7 +20,7 @@ export const HASHTYPE_FIELD_MAPPING = {
 
 export const PRETASKS_FIELD_MAPPING = {
   name: 'taskName',
-  _id: '_id'
+  id: 'id'
 };
 
 export const SUPER_TASK_FIELD_MAPPING = {

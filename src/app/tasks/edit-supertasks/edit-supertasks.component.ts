@@ -114,12 +114,10 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     const params = new RequestParamBuilder().addInclude('pretasks').create();
 
     const loadSTSubscription$ = this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex, params)
+      .get(SERV.SUPER_TASKS.URL, this.editedSTIndex, params)
       .subscribe((response: ResponseWrapper) => {
-
         const responseData = { data: response.data, included: response.included };
         const supertask = this.serializer.deserialize<JSuperTask>(responseData);
-
 
         this.assignPretasks = supertask.pretasks;
         this.viewForm = new FormGroup({
@@ -132,26 +130,17 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             disabled: true
           })
         });
-        const loadPTSubscription$ = this.gs
-          .getAll(SERV.PRETASKS)
-          .subscribe((response: ResponseWrapper) => {
+        const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
+          const responseData = { data: response.data, included: response.included };
+          const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
 
-            const responseData = { data: response.data, included: response.included };
-            const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
+          const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
 
-            const availablePretasks = this.getAvailablePretasks(
-              supertask.pretasks,
-              pretasks
-            );
-
-            const transformedOptions = transformSelectOptions(
-              availablePretasks,
-              this.selectSuperTaskMap
-            );
-            this.selectPretasks = transformedOptions;
-            this.isLoading = false;
-            this.changeDetectorRef.detectChanges();
-          });
+          const transformedOptions = transformSelectOptions(availablePretasks, this.selectSuperTaskMap);
+          this.selectPretasks = transformedOptions;
+          this.isLoading = false;
+          this.changeDetectorRef.detectChanges();
+        });
         this.unsubscribeService.add(loadPTSubscription$);
       });
     this.unsubscribeService.add(loadSTSubscription$);
@@ -176,12 +165,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
     // Use filter to find pre-tasks not present in the assigning array
-    return pretasks.filter(
-      (pretask) =>
-        assigning.findIndex(
-          (assignedTask) => assignedTask.id === pretask.id
-        ) === -1
-    );
+    return pretasks.filter((pretask) => assigning.findIndex((assignedTask) => assignedTask.id === pretask.id) === -1);
   }
 
   /**
@@ -198,7 +182,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const payload = concat.concat(this.updateForm.value['pretasks']);
 
       const updateSubscription$ = this.gs
-        .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
+        .update(SERV.SUPER_TASKS.URL, this.editedSTIndex, { pretasks: payload }, SERV.SUPER_TASKS.RESOURCE)
         .subscribe(() => {
           this.alert.okAlert('SuperTask saved!', '');
           this.updateForm.reset(); // success, we reset form
@@ -217,13 +201,11 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     this.alert.deleteConfirmation('', 'Supertasks').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        const deleteSubscription$ = this.gs
-          .delete(SERV.SUPER_TASKS, this.editedSTIndex)
-          .subscribe(() => {
-            // Successful deletion
-            this.alert.okAlert(`Deleted Supertask`, '');
-            this.router.navigate(['/tasks/supertasks']);
-          });
+        const deleteSubscription$ = this.gs.delete(SERV.SUPER_TASKS.URL, this.editedSTIndex).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Supertask`, '');
+          this.router.navigate(['/tasks/supertasks']);
+        });
         this.unsubscribeService.add(deleteSubscription$);
       } else {
         // Handle cancellation
@@ -241,10 +223,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Updates the HTML content to display the total runtime of the supertask.
    */
   keyspaceTimeCalc() {
-    if (
-      this.etForm.value.benchmarka0 !== 0 &&
-      this.etForm.value.benchmarka3 !== 0
-    ) {
+    if (this.etForm.value.benchmarka0 !== 0 && this.etForm.value.benchmarka3 !== 0) {
       let totalSecondsSupertask = 0;
       let unknown_runtime_included = 0;
       const benchmarka0 = this.etForm.value.benchmarka0;
@@ -266,21 +245,14 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
         // Iterate through each row
         for (let i = 0; i < numRows; i++) {
           // Extract the value from the "Attack Runtime" column
-          const keyspace_size_raw = $(table)
-            .find('tr')
-            .eq(i)
-            .find('td')
-            .eq(attackEstimatedKeyspaceColumnIndex)
-            .text();
+          const keyspace_size_raw = $(table).find('tr').eq(i).find('td').eq(attackEstimatedKeyspaceColumnIndex).text();
 
           // Extract keyspace size from the table cell
           let seconds = null;
           let runtime = null;
 
           // Remove special characters and convert to a valid number
-          const keyspace_size = parseFloat(
-            keyspace_size_raw.replace(/[^0-9.-]/g, '')
-          );
+          const keyspace_size = parseFloat(keyspace_size_raw.replace(/[^0-9.-]/g, ''));
 
           // Set default options for the attack
           options = defaultOptions;
@@ -320,11 +292,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             .find('th .mat-sort-header-content:contains("Attack Runtime")')
             .closest('th')
             .index();
-          const attackRuntimeCell = $(table)
-            .find('tr')
-            .eq(i)
-            .find('td')
-            .eq(attackRuntimeColumnIndex);
+          const attackRuntimeCell = $(table).find('tr').eq(i).find('td').eq(attackRuntimeColumnIndex);
           attackRuntimeCell.html(runtime);
         }
       });
@@ -338,8 +306,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const mins = Math.floor(seconds / 60);
       seconds -= mins * 60;
 
-      let totalRuntimeSupertask =
-        days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+      let totalRuntimeSupertask = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
 
       // Append additional information if unknown runtime is included
       if (unknown_runtime_included === 1) {

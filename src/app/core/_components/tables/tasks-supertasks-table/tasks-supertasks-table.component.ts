@@ -346,7 +346,7 @@ export class TasksSupertasksTableComponent
     const payload = { tasks: updatedTasks.map((tasks) => tasks._id) };
     this.subscriptions.push(
       this.gs
-        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
+        .update(SERV.SUPER_TASKS.URL, this.supertaskId, payload, SERV.SUPER_TASKS.RESOURCE)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

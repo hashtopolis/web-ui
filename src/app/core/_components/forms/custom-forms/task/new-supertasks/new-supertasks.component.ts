@@ -1,33 +1,23 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from '../../../../../../../environments/environment';
-import { transformSelectOptions } from '../../../../../../shared/utils/forms';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ListResponseWrapper } from 'src/app/core/_models/response.model';
-import { SelectField } from 'src/app/core/_models/input.model';
-import { SERV } from '../../../../../_services/main.config';
-import { PRETASKS_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
+import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { GlobalService } from '@services/main.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
+
+import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 
 /**
- * Represents the NewSupertasksComponent responsible for creating a new SuperTask.
+ * Component class to create a new supertask
  */
 @Component({
   selector: 'app-new-supertasks',
@@ -92,17 +82,15 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
     const field = {
       fieldMapping: PRETASKS_FIELD_MAPPING
     };
-    const loadSubscription$ = this.gs
-      .getAll(SERV.PRETASKS)
-      .subscribe((response: ListResponseWrapper<Task>) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          field
-        );
-        this.selectPretasks = transformedOptions;
-        this.isLoading = false;
-        this.changeDetectorRef.detectChanges();
+    const loadSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
+      const pretasks = new JsonAPISerializer().deserialize<JPretask[]>({
+        data: response.data,
+        included: response.included
       });
+      this.selectPretasks = transformSelectOptions(pretasks, field);
+      this.isLoading = false;
+      this.changeDetectorRef.detectChanges();
+    });
     this.unsubscribeService.add(loadSubscription$);
   }
 
@@ -113,7 +101,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.form.valid) {
       const createSubscription$ = this.gs
-        .create(SERV.SUPER_TASKS, this.form.value)
+        .create(SERV.SUPER_TASKS.URL, this.form.value, SERV.SUPER_TASKS.RESOURCE)
         .subscribe(() => {
           this.alert.okAlert('New SuperTask created!', '');
           this.form.reset();
