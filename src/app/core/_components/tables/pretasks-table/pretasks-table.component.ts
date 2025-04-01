@@ -506,7 +506,7 @@ export class PretasksTableComponent
       }
       this.subscriptions.push(
         this.gs
-          .update(SERV.SUPER_TASKS, this.supertTaskId, { pretasks: payload })
+          .update(SERV.SUPER_TASKS.URL, this.supertTaskId, { pretasks: payload }, SERV.SUPER_TASKS.RESOURCE)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
