@@ -1,4 +1,4 @@
 export interface SelectField {
-  _id: string;
+  id: string;
   name: string;
 }

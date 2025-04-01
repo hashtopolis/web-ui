@@ -78,7 +78,7 @@ export class InputMultiSelectComponent
     if (this.initialHashlistId != null) {
       // Find the preselected item based on initialHashlistId
       const preselectedItem = this.items.find(
-        (item) => item._id === this.initialHashlistId
+        (item) => item.id === this.initialHashlistId
       );
 
       // If the preselected item is found, add it to selectedItems
@@ -109,12 +109,12 @@ export class InputMultiSelectComponent
   onChangeValue(value): void {
     if (!this.multiselectEnabled) {
       this.value = Array.isArray(value)
-        ? extractIds(value, '_id')[0]
-        : extractIds(value, '_id')[0];
+        ? extractIds(value, 'id')[0]
+        : extractIds(value, 'id')[0];
     } else {
       this.value = Array.isArray(value)
-        ? extractIds(value, '_id')
-        : extractIds(value, '_id');
+        ? extractIds(value, 'id')
+        : extractIds(value, 'id');
     }
 
     this.onChange(this.value);
@@ -142,7 +142,7 @@ export class InputMultiSelectComponent
       // Add the removed item back to the unselected items
       this.items.push(item);
 
-      this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+      this.items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
 
       // Remove the item from the selected items
       this.selectedItems.splice(index, 1);
@@ -166,7 +166,7 @@ export class InputMultiSelectComponent
     const filterValue = value.toLowerCase();
     return this.items.filter((item: SelectField) => {
       const nameToSearch = this.mergeIdAndName
-        ? `${item._id} ${item.name}`.toLowerCase()
+        ? `${item.id} ${item.name}`.toLowerCase()
         : item.name.toLowerCase();
       return nameToSearch.includes(filterValue);
     });
@@ -183,7 +183,7 @@ export class InputMultiSelectComponent
       // If an element has already been selected, it must be added to the list again
       if (this.selectedItems.length > 0) {
         this.items.push(this.selectedItems[0]);
-        this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
+        this.items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
       }
 
       // For single-select, clear the selected items before adding the new one

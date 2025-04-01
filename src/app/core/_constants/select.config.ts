@@ -25,7 +25,7 @@ export const PRETASKS_FIELD_MAPPING = {
 
 export const SUPER_TASK_FIELD_MAPPING = {
   name: 'taskName',
-  _id: 'pretaskId'
+  id: 'id'
 };
 
 export const TASKS_FIELD_MAPPING = {

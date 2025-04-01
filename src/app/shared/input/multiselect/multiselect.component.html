@@ -11,7 +11,7 @@
     <mat-chip-grid #chipGrid aria-label="Items selection">
       <mat-chip-row *ngFor="let item of selectedItems" (removed)="remove(item)">
         <div matTooltip="{{item.name }}">
-          {{ item._id }}
+          {{ item.id }}
           <span>{{ item.name.length > 30 ? (item.name | slice:0:30) + '...' : item.name }}</span>
         </div>
         <button matChipRemove [attr.aria-label]="'remove ' + item">
@@ -33,7 +33,7 @@
     />
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
       <mat-option *ngFor="let item of filteredItems | async" [value]="item">
-        <span [innerHTML]="updateHighlightedValue(item._id + ' - ' + item.name, searchTerm)"></span>
+        <span [innerHTML]="updateHighlightedValue(item.id + ' - ' + item.name, searchTerm)"></span>
       </mat-option>
     </mat-autocomplete>
     <mat-error>{{ label }} is required</mat-error>

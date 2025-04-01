@@ -86,7 +86,7 @@ export class BaseMenuComponent {
    * @returns `true` if the data row is a pretask; otherwise, `false`.
    */
   protected isPretask(): boolean {
-    return this.checkId('pretaskId') && 'priority' in this.data;
+    return this.checkType('preTask') && 'priority' in this.data;
   }
 
   /**
