@@ -1,16 +1,14 @@
 import { catchError, finalize, of } from 'rxjs';
-
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
+import { BaseDataSource } from '@datasources/base.datasource';
+import { JPretask } from '@models/pretask.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { SuperTask } from '../_models/supertask.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { SERV } from '@services/main.config';
+import { ResponseWrapper } from '@models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { JSuperTask } from '@models/supertask.model';
 
-export class SuperTasksPretasksDataSource extends BaseDataSource<
-  SuperTask,
-  MatTableDataSourcePaginator
-> {
+export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask, MatTableDataSourcePaginator> {
   private _supertTaskId = 0;
 
   setSuperTaskId(supertTaskId: number) {
@@ -28,14 +26,17 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<SuperTask>) => {
-          const pretasks: SuperTask[] = response['pretasks'];
+        .subscribe((response: ResponseWrapper) => {
+          const pretasks = new JsonAPISerializer().deserialize<JSuperTask>({
+            data: response.data,
+            included: response.included
+          }).pretasks;
           this.setData(pretasks);
         })
     );
   }
 
-  getData(): SuperTask[] {
+  getData(): JPretask[] {
     return this.getOriginalData();
   }
 

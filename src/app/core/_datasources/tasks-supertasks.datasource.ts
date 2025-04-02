@@ -1,17 +1,19 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
 import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { TaskWrapper } from '../_models/task-wrapper.model';
-import { FilterType } from '../_models/request-params.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class TasksSupertasksDataSource extends BaseDataSource<
-  TaskWrapper,
-  MatTableDataSourcePaginator
-> {
+import { FilterType } from '@models/request-params.model';
+import { JTask } from '@models/task.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class TasksSupertasksDataSource extends BaseDataSource<JTask, MatTableDataSourcePaginator> {
   private _supertTaskId = 0;
 
   setSuperTaskId(supertTaskId: number) {
@@ -21,11 +23,11 @@ export class TasksSupertasksDataSource extends BaseDataSource<
   loadAll(): void {
     this.loading = true;
 
-    const params = new RequestParamBuilder().setPageSize(this.pageSize).addInclude('tasks').addFilter({
-      field: 'taskWrapperId',
-      operator: FilterType.EQUAL,
-      value: this._supertTaskId
-    }).create();
+    const params = new RequestParamBuilder()
+      .setPageSize(this.pageSize)
+      .addInclude('tasks')
+      .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
+      .create();
 
     const subtasks$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
 
@@ -35,14 +37,21 @@ export class TasksSupertasksDataSource extends BaseDataSource<
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<TaskWrapper>) => {
-          const subtasks: any[] = response.values[0].tasks;
+        .subscribe((response: ResponseWrapper) => {
+          const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>({
+            data: response.data,
+            included: response.included
+          });
+
+          this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
+
+          const subtasks = taskWrappers[0].tasks;
           this.setData(subtasks);
         })
     );
   }
 
-  getData(): TaskWrapper[] {
+  getData(): JTask[] {
     return this.getOriginalData();
   }
 
