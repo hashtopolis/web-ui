@@ -1,23 +1,30 @@
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { catchError, forkJoin } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
-import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
+import { SafeHtml } from '@angular/platform-browser';
+
 import { ChunkDataData } from '@models/chunk.model';
+import { JTask } from '@models/task.model';
+
 import {
   TasksSupertasksDataSourceTableCol,
   TasksSupertasksDataSourceTableColumnLabel,
   TasksSupertasksDataSourceTableEditableAction
 } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
-import { JTask } from '@models/task.model';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+
+import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
+
 import { SERV } from '@services/main.config';
-import { catchError, forkJoin } from 'rxjs';
-import { SafeHtml } from '@angular/platform-browser';
+
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
 
 @Component({
   selector: 'tasks-supertasks-table',
@@ -70,8 +77,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'clientSignature',
-        //TODO: Does get called infinitely for unknown reason
-        //async: (task: JTask) => this.renderDispatchedSearched(task),
+        async: (task: JTask) => this.renderDispatchedSearched(task),
         isSortable: true
       },
       {
@@ -83,8 +89,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
         dataKey: 'agents',
-        //TODO: Does get called infinitely for unknown reason
-        //async: (task: JTask) => this.renderAgents(task),
+        async: (task: JTask) => this.renderAgents(task),
         isSortable: true,
         export: async (task: JTask) => (await this.getNumAgents(task)) + ''
       },
@@ -293,11 +298,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     return cd.agents.length;
   }
 
+  @Cacheable(['id', 'taskName'])
   async renderAgents(task: JTask): Promise<SafeHtml> {
     const numAgents = await this.getNumAgents(task);
     return this.sanitize(`${numAgents}`);
   }
 
+  @Cacheable(['id', 'taskName'])
   async renderDispatchedSearched(task: JTask): Promise<SafeHtml> {
     const html = await this.getDispatchedSearchedString(task);
     return this.sanitize(html);
