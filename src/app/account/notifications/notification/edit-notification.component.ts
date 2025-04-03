@@ -31,10 +31,10 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   filters: Filter[];
   active = true;
   allowedActions = ACTIONARRAY.map((action) => ({
-    _id: action,
+    id: action,
     name: action
   }));
-  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
+  notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
   oldValue: boolean;
   subTitle = EditNotificationComponent.SUBTITLE;
   submitLabel = EditNotificationComponent.SUBMITLABEL;
@@ -94,7 +94,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    */
   private createForm(): void {
     this.subscriptions.push(
-      this.gs.get(SERV.NOTIFICATIONS, this.editedIndex).subscribe((response: ResponseWrapper) => {
+      this.gs.get(SERV.NOTIFICATIONS.URL, this.editedIndex).subscribe((response: ResponseWrapper) => {
         const notification = new JsonAPISerializer().deserialize<JNotification>({
           data: response.data,
           included: response.included
@@ -130,9 +130,12 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs
-          .update(SERV.NOTIFICATIONS, this.editedIndex, {
-            isActive: this.form.value['isActive']
-          })
+          .update(
+            SERV.NOTIFICATIONS.URL,
+            this.editedIndex,
+            { isActive: this.form.value['isActive'] },
+            SERV.NOTIFICATIONS.RESOURCE
+          )
           .subscribe(() => {
             this.alert.okAlert('Notification saved!', '');
             this.isCreatingLoading = false;
