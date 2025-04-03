@@ -1,93 +1,50 @@
 import { TJsonApiBody } from 'jsona/lib/JsonaTypes';
 
-export interface ListResponseWrapper<T> {
-  jsonapi?: Jsonapi;
-  links?: Links;
-  meta?: Meta;
-  data: T[];
-  included?: Included[];
-
-  // OLD
-  _expandable: string;
-  startAt: number;
-  maxResults: number;
-  total: number;
-  isLast: number;
-  values: T[];
-  pretasks?: T[];
-}
-
+/**
+ * Interface for response object received by json:api call
+ * @extends TJsonApiBody This interface extends TJsonApiBody from jsona library containing data and included
+ * relationships
+ * @prop jsonapi  Object containing json:api version and extensions
+ * @prop links    Object containing json:api links
+ * @prop meta     Object containing metadata like count of received and total objects/resources
+ */
 export interface ResponseWrapper extends TJsonApiBody {
-  jsonapi?: Jsonapi;
+  jsonapi?: JsonApi;
   links?: Links;
   meta?: Meta;
 }
 
-export interface Jsonapi {
+/**
+ * Interface for json:api data
+ * @prop version Version of json:api specification
+ * @prop ext     List of used json:api extensions
+ */
+export interface JsonApi {
   version: string;
   ext: string[];
 }
 
+/**
+ * Interface for json:api links containing links for pagination
+ * @prop self URL of the current resource or request
+ * @prop first URL of the first page of results.
+ * @prop last URL of the last page of results.
+ * @prop next URL of the next page of results.
+ * @prop prev URL of the previous page of results.
+ */
 export interface Links {
   self: string;
-  first: string;
-  last: string;
-  next: null;
-  prev: string;
+  first?: string;
+  last?: string;
+  next?: null;
+  prev?: string;
 }
 
-export interface Included {
-  type: string;
-  id: number;
-  attributes: IncludedAttributes;
-  links: DataLinks;
-  relationships: IncludedRelationships;
-}
-
-export interface IncludedAttributes {
-  groupName?: string;
-  taskName?: string;
-  attackCmd?: string;
-  chunkTime?: number;
-  statusTimer?: number;
-  keyspace?: number;
-  keyspaceProgress?: number;
-  priority?: number;
-  maxAgents?: number;
-  color?: null | string;
-  isSmall?: boolean;
-  isCpuTask?: boolean;
-  useNewBench?: boolean;
-  skipKeyspace?: number;
-  crackerBinaryId?: number;
-  crackerBinaryTypeId?: number;
-  taskWrapperId?: number;
-  isArchived?: boolean;
-  notes?: string;
-  staticChunks?: number;
-  chunkSize?: number;
-  forcePipe?: boolean;
-  preprocessorId?: number;
-  preprocessorCommand?: string;
-  description?: string;
-  isSalted?: boolean;
-  isSlowHash?: boolean;
-}
-
-export interface DataLinks {
-  self: string;
-}
-
-export interface IncludedRelationships {
-  agentMembers: IncludedRelationshipLinks;
-  userMembers: IncludedRelationshipLinks;
-}
-
-export interface IncludedRelationshipLinks {
-  self: string;
-  related: string;
-}
-
+/**
+ * Interface for json:api metadata
+ * @prop count Amount of returned objects/resources
+ * @prop total_count Total amount of objects/resources on the server
+ */
 export interface Meta {
   count?: number;
   total_count?: number;

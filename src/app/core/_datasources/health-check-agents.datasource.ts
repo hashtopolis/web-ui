@@ -1,7 +1,7 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { FilterType } from '@models/request-params.model';
-import { HealthCheckAgent } from '@models/health-check.model';
+import { JHealthCheckAgent } from '@models/health-check.model';
 import { JAgent } from '@models/agent.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -11,7 +11,7 @@ import { SERV } from '@services/main.config';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent> {
+export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgent> {
   private _healthCheckId = 0;
 
   setHealthCheckId(healthCheckId: number): void {
@@ -44,7 +44,7 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
           finalize(() => (this.loading = false))
         )
         .subscribe(([healthCheckResponse, agentsResponse]: [ResponseWrapper, ResponseWrapper]) => {
-          const healthChecksAgent = new JsonAPISerializer().deserialize<HealthCheckAgent[]>({
+          const healthChecksAgent = new JsonAPISerializer().deserialize<JHealthCheckAgent[]>({
             data: healthCheckResponse.data,
             included: healthCheckResponse.included
           });
@@ -54,7 +54,7 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
           });
 
           const joinedData: Array<{ [key: string]: any }> = healthChecksAgent
-            .map((healthCheckAgent: HealthCheckAgent) => {
+            .map((healthCheckAgent: JHealthCheckAgent) => {
               const matchedAgent = agents.find((agent: JAgent) => agent.id === healthCheckAgent.agentId);
 
               if (matchedAgent) {
@@ -70,7 +70,7 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
             .filter((joinedObject: { [key: string]: any } | null) => joinedObject !== null);
 
           this.setPaginationConfig(this.pageSize, this.currentPage, healthChecksAgent.length);
-          this.setData(joinedData as HealthCheckAgent[]);
+          this.setData(joinedData as JHealthCheckAgent[]);
         })
     );
   }

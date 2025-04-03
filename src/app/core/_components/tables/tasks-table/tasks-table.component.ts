@@ -15,7 +15,7 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { JTask } from 'src/app/core/_models/task.model';
-import { JTaskWrapper, TaskWrapperData } from 'src/app/core/_models/task-wrapper.model';
+import { JTaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
@@ -300,10 +300,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
-  exportActionClicked(event: ActionMenuEvent<TaskWrapperData[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JTaskWrapper[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<TaskWrapperData>(
+        this.exportService.toExcel<JTaskWrapper>(
           'hashtopolis-tasks',
           this.tableColumns,
           event.data,
@@ -311,7 +311,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<TaskWrapperData>(
+        this.exportService.toCsv<JTaskWrapper>(
           'hashtopolis-tasks',
           this.tableColumns,
           event.data,
@@ -320,7 +320,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<TaskWrapperData>(this.tableColumns, event.data, TaskTableColumnLabel)
+          .toClipboard<JTaskWrapper>(this.tableColumns, event.data, TaskTableColumnLabel)
           .then(() => {
             this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
@@ -741,8 +741,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    * If the chunk data for the specified task ID is not already cached, it is fetched
    * asynchronously from the data source and stored in the cache for future use.
    *
-   * @param {TaskWrapperData} wrapper - The task wrapper containing the task for which chunk data is requested.
-   * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified task.
+   * @param wrapper - The task wrapper containing the task for which chunk data is requested.
+   * @returns A promise that resolves to the chunk data associated with the specified task.
    *
    * @remarks
    * This function uses a locking mechanism to ensure that concurrent calls for the same task ID

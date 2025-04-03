@@ -170,7 +170,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
    */
   private bulkActionDelete(vouchers: Voucher[]): void {
     const requests = vouchers.map((voucher: Voucher) => {
-      return this.gs.delete(SERV.VOUCHER, voucher._id);
+      return this.gs.delete(SERV.VOUCHER, voucher.id);
     });
 
     this.subscriptions.push(
@@ -194,7 +194,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   private rowActionDelete(vouchers: Voucher[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.VOUCHER, vouchers[0]._id)
+        .delete(SERV.VOUCHER, vouchers[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -209,6 +209,6 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   }
 
   private rowActionEdit(voucher: Voucher): void {
-    this.router.navigate(['/config', 'engine', 'vouchers', voucher._id, 'edit']);
+    this.router.navigate(['/config', 'engine', 'vouchers', voucher.id, 'edit']);
   }
 }

@@ -33,7 +33,7 @@ import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { TASKS_FIELD_MAPPING, USER_AGP_FIELD_MAPPING, USER_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { ResponseWrapper } from '../../core/_models/response.model';
-import { AgentStats, JAgent } from '../../core/_models/agent.model';
+import { JAgent } from '../../core/_models/agent.model';
 import { JUser } from '../../core/_models/user.model';
 import { JsonAPISerializer } from '../../core/_services/api/serializer-service';
 import { JTask } from '../../core/_models/task.model';
@@ -48,6 +48,7 @@ import {
   getUpdateAssignmentForm
 } from '@src/app/agents/edit-agent/edit-agent.form';
 import { firstValueFrom } from 'rxjs';
+import { JAgentStat } from '@models/agent-stats.model';
 
 @Component({
   selector: 'app-edit-agent',
@@ -220,7 +221,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     });
     if (assignments.length) {
       this.assignNew = !!assignments?.[0]['taskId'];
-      this.assignId = assignments?.[0]['assignmentId'];
+      this.assignId = assignments?.[0]['id'];
       this.currentAssignment = assignments?.[0];
     }
   }
@@ -240,9 +241,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       ignoreErrors: this.showagent.ignoreErrors,
       isTrusted: this.showagent.isTrusted
     });
-    this.updateAssignForm.setValue({
-      taskId: this.currentAssignment.taskId
-    });
+    if (this.currentAssignment) {
+      this.updateAssignForm.setValue({
+        taskId: this.currentAssignment.taskId
+      });
+    }
   }
 
   /**
@@ -285,7 +288,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         });
 
         // Calculate and update timespent
-        this.timeCalc(this.getchunks);
+        if (this.getchunks.length) {
+          this.timeCalc(this.getchunks);
+        }
       });
     });
   }
@@ -357,7 +362,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Draw all graphs for GPU temperature and utilisation and CPU utilisation
    * @param agentStatList List of agentStats objects
    */
-  drawGraphs(agentStatList: AgentStats[]) {
+  drawGraphs(agentStatList: JAgentStat[]) {
     this.drawGraph(
       agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_TEMP),
       ASC.GPU_TEMP,
@@ -381,7 +386,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @param status Number to determine device and displayed stats (GPU_TEMP: 1, GPU_UTIL: 2, CPU_UTIL: 3)
    * @param name Name of Graph
    */
-  drawGraph(agentStatList: AgentStats[], status: number, name: string) {
+  drawGraph(agentStatList: JAgentStat[], status: number, name: string) {
     echarts.use([
       TitleComponent,
       ToolboxComponent,

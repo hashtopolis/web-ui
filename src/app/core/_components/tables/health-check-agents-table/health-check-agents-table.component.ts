@@ -1,7 +1,7 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { HealthCheckAgent } from '@models/health-check.model';
+import { JHealthCheckAgent } from '@models/health-check.model';
 
 import {
   HealthCheckAgentsTableCol,
@@ -44,7 +44,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
     }
   }
 
-  filter(item: HealthCheckAgent, filterValue: string): boolean {
+  filter(item: JHealthCheckAgent, filterValue: string): boolean {
     if (item.agentName.toLowerCase().includes(filterValue) || item.status.toString().includes(filterValue)) {
       return true;
     }
@@ -58,57 +58,57 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         id: HealthCheckAgentsTableCol.AGENT_ID,
         dataKey: 'healthCheckAgentId',
         isSortable: true,
-        export: async (HealthCheckAgent: HealthCheckAgent) => HealthCheckAgent.healthCheckAgentId + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.healthCheckAgentId + ''
       },
       {
         id: HealthCheckAgentsTableCol.AGENT_NAME,
         dataKey: 'agentName',
-        routerLink: (HealthCheckAgent: HealthCheckAgent) => this.renderAgentLink(HealthCheckAgent),
+        routerLink: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLink(HealthCheckAgent),
         isSortable: true,
-        export: async (HealthCheckAgent: HealthCheckAgent) => HealthCheckAgent.agentName + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.agentName + ''
       },
       {
         id: HealthCheckAgentsTableCol.STATUS,
         dataKey: 'status',
-        render: (HealthCheckAgent: HealthCheckAgent) => HealthChecksTableStatusLabel[HealthCheckAgent.status],
+        render: (HealthCheckAgent: JHealthCheckAgent) => HealthChecksTableStatusLabel[HealthCheckAgent.status],
         isSortable: true,
-        export: async (HealthCheckAgent: HealthCheckAgent) => HealthChecksTableStatusLabel[HealthCheckAgent.status]
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthChecksTableStatusLabel[HealthCheckAgent.status]
       },
       {
         id: HealthCheckAgentsTableCol.START,
         dataKey: 'start',
         isSortable: true,
-        render: (HealthCheckAgent: HealthCheckAgent) => formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat),
-        export: async (HealthCheckAgent: HealthCheckAgent) =>
+        render: (HealthCheckAgent: JHealthCheckAgent) => formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat),
+        export: async (HealthCheckAgent: JHealthCheckAgent) =>
           formatUnixTimestamp(HealthCheckAgent.start, this.dateFormat)
       },
       {
         id: HealthCheckAgentsTableCol.GPUS,
         dataKey: 'numGpus',
         isSortable: true,
-        export: async (HealthCheckAgent: HealthCheckAgent) => HealthCheckAgent.numGpus + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.numGpus + ''
       },
       {
         id: HealthCheckAgentsTableCol.CRACKED,
         dataKey: 'cracked',
         isSortable: true,
-        export: async (HealthCheckAgent: HealthCheckAgent) => HealthCheckAgent.cracked + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.cracked + ''
       },
       {
         id: HealthCheckAgentsTableCol.ERRORS,
         dataKey: 'errors',
         isSortable: true,
-        export: async (HealthCheckAgent: HealthCheckAgent) => HealthCheckAgent.errors + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.errors + ''
       }
     ];
   }
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<HealthCheckAgent[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JHealthCheckAgent[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<HealthCheckAgent>(
+        this.exportService.toExcel<JHealthCheckAgent>(
           'hashtopolis-health-checks-view',
           this.tableColumns,
           event.data,
@@ -116,7 +116,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<HealthCheckAgent>(
+        this.exportService.toCsv<JHealthCheckAgent>(
           'hashtopolis-health-checks-view',
           this.tableColumns,
           event.data,
@@ -125,7 +125,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<HealthCheckAgent>(this.tableColumns, event.data, HealthCheckAgentsTableColColumnLabel)
+          .toClipboard<JHealthCheckAgent>(this.tableColumns, event.data, HealthCheckAgentsTableColColumnLabel)
           .then(() => {
             this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });

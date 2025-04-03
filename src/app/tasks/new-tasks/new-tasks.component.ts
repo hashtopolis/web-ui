@@ -13,7 +13,6 @@ import { GlobalService } from '@services/main.service';
 import { Filter, FilterType } from '@models/request-params.model';
 import { FileType } from '@models/file.model';
 import { ResponseWrapper } from '@models/response.model';
-import { Hashlist } from '@models/hashlist.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { JPreprocessor } from '@models/preprocessor.model';
 import { JTask } from '@models/task.model';
@@ -32,6 +31,7 @@ import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.co
 import { environment } from '@src/environments/environment';
 
 import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { JHashlist } from '@models/hashlist.model';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -228,7 +228,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         filter: filter
       })
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<Hashlist>({
+        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
           data: response.data,
           included: response.included
         });
