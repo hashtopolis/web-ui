@@ -235,7 +235,7 @@ describe('NewNotificationComponent', () => {
   // Test for Form Submission When It Is Valid
   it('should submit the form when it is valid', () => {
     const serviceSpy = spyOn(mockService, 'create')
-      .withArgs(SERV.NOTIFICATIONS, jasmine.any(Object))
+      .withArgs(SERV.NOTIFICATIONS.URL, jasmine.any(Object))
       .and.returnValue(of({}));
 
     setValidFormValues();
@@ -245,7 +245,7 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
 
     expect(serviceSpy).toHaveBeenCalledWith(
-      SERV.NOTIFICATIONS,
+      SERV.NOTIFICATIONS.URL,
       jasmine.any(Object)
     );
   });

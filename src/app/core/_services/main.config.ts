@@ -46,7 +46,7 @@ export class SERV {
   public static TASKS_WRAPPER = '/ui/taskwrappers';
   public static TASKS_WRAPPER_COUNT = '/ui/taskwrappers/count';
   // USERS
-  public static NOTIFICATIONS = '/ui/notifications';
+  public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notification' };
   public static USERS = '/ui/users';
   // PROJECTS
   public static PROJECTS = '/ui/tasks';
