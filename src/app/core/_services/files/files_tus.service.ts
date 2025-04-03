@@ -15,7 +15,7 @@ import { GlobalService } from '../main.service';
 import { Router } from '@angular/router';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { UIConfigService } from '../shared/storage.service';
-import { User, UserData } from '../../_models/auth-user.model';
+import { AuthUser, AuthData } from '../../_models/auth-user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -54,7 +54,7 @@ export class UploadTUSService {
    * @param router - The Angular Router service for navigation.
    */
   constructor(
-    protected storage: LocalStorageService<UserData>,
+    protected storage: LocalStorageService<AuthData>,
     private cs: ConfigService,
     private gs: GlobalService,
     private router: Router
@@ -62,7 +62,7 @@ export class UploadTUSService {
     /**
      * Retrieves user data from local storage using the STORAGE_KEY and sets the authentication token.
      */
-    const userData: UserData = this.storage.getItem(
+    const userData: AuthData = this.storage.getItem(
       UploadTUSService.STORAGE_KEY
     );
     this._token = userData._token;

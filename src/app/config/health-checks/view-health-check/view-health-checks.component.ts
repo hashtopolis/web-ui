@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
-import { HealthCheck } from '@models/healthcheck.model';
+import { JHealthCheck } from '@models/health-check.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -23,7 +23,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   // The index of the edited health check.
   viewedHealthCIndex: number;
   // The health check object.
-  public healthc: HealthCheck;
+  public healthc: JHealthCheck;
 
   //Date format
   protected uiSettings: UISettingsUtilityClass;
@@ -78,7 +78,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
     const loadSubscription$ = this.gs
       .get(SERV.HEALTH_CHECKS.URL, this.viewedHealthCIndex)
       .subscribe((response: ResponseWrapper) => {
-        this.healthc = new JsonAPISerializer().deserialize<HealthCheck>({
+        this.healthc = new JsonAPISerializer().deserialize<JHealthCheck>({
           data: response.data,
           included: response.included
         });

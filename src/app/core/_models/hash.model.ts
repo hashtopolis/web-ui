@@ -1,27 +1,10 @@
-import { Chunk, JChunk } from '@models/chunk.model';
-import { Hashlist, JHashlist } from '@models/hashlist.model';
+import { JChunk } from '@models/chunk.model';
+import { JHashlist } from '@models/hashlist.model';
 import { BaseModel } from '@models/base.model';
-
-export interface Hash {
-  _id: number;
-  _self: string;
-  chunkId: number;
-  agentId?: number;
-  taskId?: number;
-  chunk?: Chunk;
-  crackPos: number;
-  hash: string;
-  hashId: number;
-  hashlistId: number;
-  hashlist?: Hashlist;
-  isCracked: boolean;
-  plaintext: string;
-  salt: string;
-  timeCracked: number;
-}
 
 /**
  * Interface definition of hash object
+ * @extends BaseModel
  * @prop hashlistId ID of hashlist this hash belongs to
  * @prop hash Value of hash
  * @prop salt Salt of hash

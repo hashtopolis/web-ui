@@ -28,7 +28,7 @@
             <simulate-form-field label="Machine ID"  message="{{ showagent['uid'] }}"></simulate-form-field>
             <simulate-form-field label="Access token"  message="{{ showagent['token'] }}"></simulate-form-field>
             <simulate-form-field label="O.S." [message]="showagent['os'] === 0 ? 'Linux' : (showagent['os'] === 1 ? 'Windows' : (showagent['os'] === 2 ? 'IOS' : 'Unknown'))" icon="computer"></simulate-form-field>
-            <simulate-form-field label="Graphic cards"  message="{{ this.renderDevices(showagent['devices']) }}"></simulate-form-field>
+            <simulate-form-field *ngIf="showagent['devices']" label="Graphic cards"  message="{{ this.renderDevices(showagent['devices']) }}"></simulate-form-field>
             <simulate-form-field-multi label="Member of access groups" [items]="selectuserAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
           </div>
           <simulate-form-field label="Time spent cracking"  message="{{ timespent | sectotime }}" *ngIf="timespent"></simulate-form-field>

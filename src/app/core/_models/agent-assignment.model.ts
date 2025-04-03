@@ -4,6 +4,7 @@ import { JTask } from '@models/task.model';
 
 /**
  * Interface definition for an agent's assignment to a task
+ * @extends BaseModel
  * @prop taskId ID of task the agent is assigned to
  * @prop agentId ID of agent
  * @prop benchmark Benchmark

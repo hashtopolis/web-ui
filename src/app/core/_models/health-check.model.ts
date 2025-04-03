@@ -1,5 +1,5 @@
-import { Hashtype, HashtypeDataAttributes, JHashtype } from './hashtype.model';
-import { BaseModel } from '@src/app/core/_models/base.model';
+import { BaseModel } from '@models/base.model';
+import { JHashtype } from '@models/hashtype.model';
 
 export enum HealthCheckType {
   BRUTE_FORCE
@@ -14,21 +14,10 @@ export const HealthCheckStatus = {
   COMPLETED: 1
 };
 
-export interface HealthCheck {
-  _id: number;
-  _self: string;
-  attackCmd: string;
-  checkType: HealthCheckType;
-  crackerBinaryId: number;
-  expectedCracks: number;
-  hashtypeId: number;
-  hashtype?: Hashtype;
-  hashtypeDescription?: string;
-  healthCheckId: number;
-  status: number;
-  time: number;
-}
-
+/**
+ * Interface definition for a health check
+ * @extends BaseModel
+ */
 export interface JHealthCheck extends BaseModel {
   attackCmd: string;
   checkType: HealthCheckType;
@@ -41,10 +30,11 @@ export interface JHealthCheck extends BaseModel {
   time: number;
 }
 
-
-export interface HealthCheckAgent {
-  _id: number;
-  _self: string;
+/**
+ * Interface definition for a health check agent
+ * @extends BaseModel
+ */
+export interface JHealthCheckAgent extends BaseModel {
   healthCheckAgentId: number;
   healthCheckId: number;
   agentId: number;
@@ -55,45 +45,4 @@ export interface HealthCheckAgent {
   end: number;
   errors: string;
   agentName?: string;
-}
-
-
-
-
-
-export interface HealthCheckData {
-  type: string;
-  id: number;
-  attributes: HealthCheckAttributes;
-  links: HealthCheckDataLinks;
-  relationships: HealthCheckRelationships;
-}
-
-export interface HealthCheckAttributes {
-  time: number;
-  status: number;
-  checkType: number;
-  hashtypeId: number;
-  crackerBinaryId: number;
-  expectedCracks: number;
-  attackCmd: string;
-  hashtype?: HashtypeDataAttributes;
-}
-
-export interface HealthCheckDataLinks {
-  self: string;
-}
-
-export interface HealthCheckRelationships {
-  crackerBinary: HealthCheckRelationshipsAttributes;
-  healthCheckAgents: HealthCheckRelationshipsAttributes;
-}
-
-export interface HealthCheckRelationshipsAttributes {
-  links: HealthCheckRelationshipsAttributesLinks;
-}
-
-export interface HealthCheckRelationshipsAttributesLinks {
-  self: string;
-  related: string;
 }
