@@ -1,9 +1,6 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  PreprocessorsTableCol,
-  PreprocessorsTableColumnLabel
-} from './preprocessors-table.constants';
+import { PreprocessorsTableCol, PreprocessorsTableColumnLabel } from './preprocessors-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
@@ -23,21 +20,14 @@ import { Cacheable } from 'src/app/core/_decorators/cacheable';
   selector: 'preprocessors-table',
   templateUrl: './preprocessors-table.component.html'
 })
-export class PreprocessorsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
 
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PreprocessorsDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new PreprocessorsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -57,7 +47,7 @@ export class PreprocessorsTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: PreprocessorsTableCol.ID,
         dataKey: 'id',
@@ -67,14 +57,11 @@ export class PreprocessorsTableComponent
       {
         id: PreprocessorsTableCol.NAME,
         dataKey: 'name',
-        routerLink: (preprocessor: JPreprocessor) =>
-          this.renderPreproLink(preprocessor),
+        routerLink: (preprocessor: JPreprocessor) => this.renderPreproLink(preprocessor),
         isSortable: true,
         export: async (preprocessor: JPreprocessor) => preprocessor.name
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JPreprocessor>) {
@@ -102,9 +89,7 @@ export class PreprocessorsTableComponent
   // --- Render functions ---
 
   @Cacheable(['id'])
-  async renderPreproLink(
-    preprocessor: JPreprocessor
-  ): Promise<HTTableRouterLink[]> {
+  async renderPreproLink(preprocessor: JPreprocessor): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
     links.push({
@@ -138,16 +123,9 @@ export class PreprocessorsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JPreprocessor>(
-            this.tableColumns,
-            event.data,
-            PreprocessorsTableColumnLabel
-          )
+          .toClipboard<JPreprocessor>(this.tableColumns, event.data, PreprocessorsTableColumnLabel)
           .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
         break;
     }
@@ -204,10 +182,7 @@ export class PreprocessorsTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} preprocessors!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} preprocessors!`, 'Close');
           this.reload();
         })
     );
@@ -234,12 +209,6 @@ export class PreprocessorsTableComponent
   }
 
   private rowActionEdit(preprocessor: JPreprocessor): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'preprocessors',
-      preprocessor.id,
-      'edit'
-    ]);
+    this.router.navigate(['/config', 'engine', 'preprocessors', preprocessor.id, 'edit']);
   }
 }

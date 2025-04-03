@@ -1,11 +1,15 @@
+/**
+ * This module contains the datasource definition for the preprocessors table component
+ */
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
-import { JPreprocessor, PreprocessorData } from '../_models/preprocessor.model';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JPreprocessor } from '@models/preprocessor.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
   loadAll(): void {
@@ -20,15 +24,10 @@ export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-
           const responseData = { data: response.data, included: response.included };
           const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
 
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            preprocessors.length
-          );
+          this.setPaginationConfig(this.pageSize, this.currentPage, preprocessors.length);
           this.setData(preprocessors);
         })
     );
