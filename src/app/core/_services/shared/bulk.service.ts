@@ -3,12 +3,13 @@ import { Observable, forkJoin, of } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import { GlobalService } from '@services/main.service';
-
+import { ServiceConfig } from '@services/main.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BulkService {
+  private serviceConfig: ServiceConfig;
   constructor(private gs: GlobalService) {}
 
   Items: any[];
@@ -24,8 +25,8 @@ export class BulkService {
     this.Value = Value;
   }
 
-  setPath(path: string) {
-    this.path = path;
+  setServiceConfig(serviceConfig: ServiceConfig) {
+    this.serviceConfig = serviceConfig;
   }
 
   /**
@@ -46,7 +47,7 @@ export class BulkService {
     const itemObservables: Observable<boolean>[] = [];
 
     Items.forEach((item) => {
-      const observable = this.gs.delete(this.path, item).pipe(
+      const observable = this.gs.delete(this.serviceConfig, item).pipe(
         map(() => {
           deletedItems++;
           const progress = (deletedItems / totalItems) * 100;
@@ -78,9 +79,7 @@ export class BulkService {
    * @param {number} percentage - Progress value
    */
 
-  async performBulkUpdate(
-    progressCallback: (percentage: number) => void
-  ): Promise<boolean> {
+  async performBulkUpdate(progressCallback: (percentage: number) => void): Promise<boolean> {
     const Items = this.Items;
     const Value = this.Value;
     const totalItems = Items.length;
@@ -92,7 +91,7 @@ export class BulkService {
     const itemObservables: Observable<boolean>[] = [];
 
     Items.forEach((item) => {
-      const observable = this.gs.update(this.path, item, Value).pipe(
+      const observable = this.gs.update(this.serviceConfig, item, Value).pipe(
         map(() => {
           deletedItems++;
           const progress = (deletedItems / totalItems) * 100;
