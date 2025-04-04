@@ -173,7 +173,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       this.subscriptions.push(
-        this.gs.create(SERV.NOTIFICATIONS.URL, this.form.value, SERV.NOTIFICATIONS.RESOURCE).subscribe(() => {
+        this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
           this.alert.okAlert('New Notification created!', '');
           this.isCreatingLoading = false;
           this.router.navigate(['/account/notifications']);

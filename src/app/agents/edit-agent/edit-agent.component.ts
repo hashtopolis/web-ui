@@ -177,8 +177,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   private loadSelectTasks(): void {
     const requestParams = new RequestParamBuilder()
-      //TODO: If filtered isArchived is active, form does not get populated with the current assigned task, if agent has any
-      //.addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
       .create();
     const loadTasksSubscription$ = this.gs.getAll(SERV.TASKS, requestParams).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
@@ -300,7 +299,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      this.onUpdateAssign(this.updateAssignForm.value);
+      if (this.updateAssignForm.valid) {
+        this.onUpdateAssign(this.updateAssignForm.value);
+      }
       this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
@@ -316,19 +317,18 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   /**
    * Updates agent assignment based on the provided value.
    *
-   * @param {any} val - The form value containing the task ID.
+   * @param value The form value containing the task ID.
    */
-  onUpdateAssign(val: unknown) {
-    const id = Number(val['taskId']);
-    if (id) {
+  onUpdateAssign(value: FormGroup<UpdateAssignmentForm>['value']) {
+    if (value.taskId) {
       const payload = {
-        taskId: Number(val['taskId']),
+        taskId: value.taskId,
         agentId: this.editedAgentIndex
       };
       const onCreateSubscription$ = this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe();
       this.unsubscribeService.add(onCreateSubscription$);
     }
-    if (id === 0) {
+    if (value.taskId === 0) {
       const onDeleteSubscription$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId).subscribe();
       this.unsubscribeService.add(onDeleteSubscription$);
     }

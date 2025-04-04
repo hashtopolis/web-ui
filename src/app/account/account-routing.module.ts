@@ -42,7 +42,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'uisettings',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'UI Settings'
         },
         canActivate: [IsAuth]
@@ -62,7 +62,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editnotif',
           type: 'edit',
-          path: SERV.NOTIFICATIONS.URL,
+          serviceConfig: SERV.NOTIFICATIONS,
           breadcrumb: 'Edit Notification'
         },
         canActivate: [IsAuth]

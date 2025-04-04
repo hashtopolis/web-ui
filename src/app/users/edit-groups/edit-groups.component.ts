@@ -111,7 +111,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     if (this.updateForm.valid) {
       this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
-        .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value, 'accessGroup')
+        .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
         .subscribe(() => {
           this.alert.okAlert('Access Group saved!', '');
           this.isUpdatingLoading = false;

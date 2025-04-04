@@ -12,7 +12,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
   loadAll(): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this).create();
-    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS.URL, params);
+    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);
 
     this.subscriptions.push(
       notifications$

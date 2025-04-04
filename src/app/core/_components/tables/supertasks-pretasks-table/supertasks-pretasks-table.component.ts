@@ -201,7 +201,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     //Update the supertask with the modified list of pretasks
     const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
     //Update the supertask with the new list of pretasks
-    const updateRequest = this.gs.update(SERV.SUPER_TASKS.URL, this.supertaskId, payload, SERV.SUPER_TASKS.RESOURCE);
+    const updateRequest = this.gs.update(SERV.SUPER_TASKS, this.supertaskId, payload);
     this.subscriptions.push(
       updateRequest
         .pipe(
@@ -238,7 +238,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
     this.subscriptions.push(
       this.gs
-        .update(SERV.SUPER_TASKS.URL, this.supertaskId, payload, SERV.SUPER_TASKS.RESOURCE)
+        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

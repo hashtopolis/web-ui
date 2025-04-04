@@ -1455,24 +1455,6 @@ export class MetadataService {
     }
   }
 
-  /**
-   * Fetches select options for a form control from an API endpoint.
-   *
-   * @param apiEndpoint - The API endpoint to retrieve select options from.
-   * @returns An observable that emits an array of select options.
-   */
-  fetchOptions(apiEndpoint: string): Observable<any[]> {
-    return this.gs.getAll(apiEndpoint).pipe(
-      map((data: any) => {
-        // Adjust this based on your API response structure
-        return data.options.map((option: any) => ({
-          label: option.label,
-          value: option.value
-        }));
-      })
-    );
-  }
-
   // Custom validator to convert the input value to a number
   numberValidator(control: FormControl) {
     const value = control.value;

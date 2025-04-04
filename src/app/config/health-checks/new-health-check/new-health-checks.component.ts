@@ -143,13 +143,11 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
         crackerBinaryId
       };
 
-      const onSubmitSubscription$ = this.gs
-        .create(SERV.HEALTH_CHECKS.URL, payload, SERV.HEALTH_CHECKS.RESOURCE)
-        .subscribe(() => {
-          this.alert.okAlert('New Health Check created!', '');
-          this.router.navigate(['/config/health-checks']);
-          this.isCreatingLoading = false;
-        });
+      const onSubmitSubscription$ = this.gs.create(SERV.HEALTH_CHECKS, payload).subscribe(() => {
+        this.alert.okAlert('New Health Check created!', '');
+        this.router.navigate(['/config/health-checks']);
+        this.isCreatingLoading = false;
+      });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
   }

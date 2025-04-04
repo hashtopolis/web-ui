@@ -1,5 +1,5 @@
 import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
 
@@ -7,10 +7,9 @@ import { NewSuperhashlistComponent } from '../core/_components/forms/custom-form
 import { SuperhashlistComponent } from './superhashlist/superhashlist.component';
 import { EditHashlistComponent } from './edit-hashlist/edit-hashlist.component';
 import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
-import { PendingChangesGuard } from '../core/_guards/pendingchanges.guard';
 import { SearchHashComponent } from './search-hash/search-hash.component';
 import { ShowCracksComponent } from './show-cracks/show-cracks.component';
-import { MyRoute, RouteData } from '../core/_models/routes.model';
+import { MyRoute } from '../core/_models/routes.model';
 import { HashlistComponent } from './hashlist/hashlist.component';
 import { HashesComponent } from './hashes/hashes.component';
 import { ImportCrackedHashesComponent } from './import-cracked-hashes/import-cracked-hashes.component';

@@ -116,19 +116,13 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs
-      .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: ResponseWrapper) => {
+    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+      const responseBody = { data: response.data, included: response.included };
+      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
 
-        const responseBody = { data: response.data, included: response.included };
-        const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
-
-        const transformedOptions = transformSelectOptions(
-          crackerBinaryTypes,
-          this.selectCrackertypeMap
-        );
-        this.selectCrackertype = transformedOptions;
-      });
+      const transformedOptions = transformSelectOptions(crackerBinaryTypes, this.selectCrackertypeMap);
+      this.selectCrackertype = transformedOptions;
+    });
     this.unsubscribeService.add(loadSubscription$);
   }
 
@@ -159,9 +153,7 @@ export class MasksComponent implements OnInit, OnDestroy {
           attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
           maxAgents: form.maxAgents,
           chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
-          statusTimer: Number(
-            this.uiService.getUIsettings('statustimer').value
-          ),
+          statusTimer: Number(this.uiService.getUIsettings('statustimer').value),
           priority: index + 1,
           color: '',
           isCpuTask: form.isCpuTask,
@@ -174,12 +166,10 @@ export class MasksComponent implements OnInit, OnDestroy {
 
         // Create a subscription promise and push it to the array
         const subscriptionPromise = new Promise<void>((resolve, reject) => {
-          const onSubmitSubscription$ = this.gs
-            .create(SERV.PRETASKS, payload)
-            .subscribe((result) => {
-              preTasksIds.push(result._id);
-              resolve(); // Resolve the promise when subscription completes
-            }, reject); // Reject the promise if there's an error
+          const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
+            preTasksIds.push(result._id);
+            resolve(); // Resolve the promise when subscription completes
+          }, reject); // Reject the promise if there's an error
           this.unsubscribeService.add(onSubmitSubscription$);
         });
 
@@ -226,12 +216,10 @@ export class MasksComponent implements OnInit, OnDestroy {
    */
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs
-      .create(SERV.SUPER_TASKS.URL, payload, SERV.SUPER_TASKS.RESOURCE)
-      .subscribe(() => {
-        this.alert.okAlert('New Supertask Mask created!', '');
-        this.router.navigate(['/tasks/supertasks']);
-      });
+    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
+      this.alert.okAlert('New Supertask Mask created!', '');
+      this.router.navigate(['/tasks/supertasks']);
+    });
 
     this.unsubscribeService.add(createSubscription$);
     this.isLoading = false;

@@ -186,7 +186,7 @@ export class SuperTasksTableComponent
    */
   private bulkActionDelete(supertask: JSuperTask[]): void {
     const requests = supertask.map((supertask: JSuperTask) => {
-      return this.gs.delete(SERV.SUPER_TASKS.URL, supertask.id);
+      return this.gs.delete(SERV.SUPER_TASKS, supertask.id);
     });
 
     this.subscriptions.push(
@@ -213,7 +213,7 @@ export class SuperTasksTableComponent
   private rowActionDelete(supertasks: JSuperTask[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.SUPER_TASKS.URL, supertasks[0].id)
+        .delete(SERV.SUPER_TASKS, supertasks[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

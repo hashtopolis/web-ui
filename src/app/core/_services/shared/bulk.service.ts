@@ -1,8 +1,9 @@
-import { catchError, finalize, map, mergeMap, toArray } from 'rxjs/operators';
-import { Observable, Subscription, forkJoin, from, of } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { catchError, map } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
 
-import { GlobalService } from '../main.service';
+import { Injectable } from '@angular/core';
+import { GlobalService } from '@services/main.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -34,9 +35,7 @@ export class BulkService {
    * @param {number} percentage - Progress value
    */
 
-  async performBulkDelete(
-    progressCallback: (percentage: number) => void
-  ): Promise<boolean> {
+  async performBulkDelete(progressCallback: (percentage: number) => void): Promise<boolean> {
     const Items = this.Items;
     const totalItems = Items.length;
     let deletedItems = 0;

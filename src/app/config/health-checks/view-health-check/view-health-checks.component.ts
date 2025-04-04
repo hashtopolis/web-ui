@@ -76,7 +76,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     const loadSubscription$ = this.gs
-      .get(SERV.HEALTH_CHECKS.URL, this.viewedHealthCIndex)
+      .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
       .subscribe((response: ResponseWrapper) => {
         this.healthc = new JsonAPISerializer().deserialize<JHealthCheck>({
           data: response.data,

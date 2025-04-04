@@ -12,7 +12,7 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
   loadAll(): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').create();
-    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS.URL, params);
+    const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS, params);
 
     this.subscriptions.push(
       forkJoin([healthChecks$])
