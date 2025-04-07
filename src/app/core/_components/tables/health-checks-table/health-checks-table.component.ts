@@ -194,7 +194,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(healthChecks: JHealthCheck[]): void {
     const requests = healthChecks.map((healthCheck: JHealthCheck) => {
-      return this.gs.delete(SERV.HEALTH_CHECKS.URL, healthCheck.id);
+      return this.gs.delete(SERV.HEALTH_CHECKS, healthCheck.id);
     });
 
     this.subscriptions.push(
@@ -218,7 +218,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   private rowActionDelete(healthChecks: JHealthCheck[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.HEALTH_CHECKS.URL, healthChecks[0].id)
+        .delete(SERV.HEALTH_CHECKS, healthChecks[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

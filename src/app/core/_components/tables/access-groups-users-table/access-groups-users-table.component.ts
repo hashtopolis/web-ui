@@ -194,7 +194,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     const payload = { users: updatedAccessGroups.map((accessGroup) => accessGroup.id) };
     this.subscriptions.push(
       this.gs
-        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload, 'accessGroup')
+        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

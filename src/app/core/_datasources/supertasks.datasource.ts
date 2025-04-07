@@ -13,7 +13,7 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask, MatTableDat
 
     const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
 
-    const supertasks$ = this.service.getAll(SERV.SUPER_TASKS.URL, params);
+    const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params);
 
     this.subscriptions.push(
       supertasks$

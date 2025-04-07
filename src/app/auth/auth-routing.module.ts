@@ -1,5 +1,5 @@
-import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { RouterModule, Routes } from '@angular/router';
+import { MyRoute } from '@models/routes.model';
+import { RouterModule } from '@angular/router';
 import { IsAuth } from '../core/_guards/login.guard';
 import { NgModule } from '@angular/core';
 import { AuthComponent } from './auth.component';

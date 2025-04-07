@@ -223,7 +223,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
    */
   private bulkActionDelete(notifications: JNotification[]): void {
     const requests = notifications.map((notification: JNotification) => {
-      return this.gs.delete(SERV.NOTIFICATIONS.URL, notification.id);
+      return this.gs.delete(SERV.NOTIFICATIONS, notification.id);
     });
 
     this.subscriptions.push(
@@ -246,7 +246,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
    */
   private bulkActionActivate(notifications: JNotification[], isActive: boolean): void {
     const requests = notifications.map((notification: JNotification) => {
-      return this.gs.update(SERV.NOTIFICATIONS.URL, notification.id, {
+      return this.gs.update(SERV.NOTIFICATIONS, notification.id, {
         isActive: isActive
       });
     });
@@ -274,7 +274,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   private rowActionDelete(notifications: JNotification[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.NOTIFICATIONS.URL, notifications[0].id)
+        .delete(SERV.NOTIFICATIONS, notifications[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

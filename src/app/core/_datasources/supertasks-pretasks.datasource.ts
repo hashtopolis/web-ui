@@ -18,7 +18,7 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask, MatTa
   loadAll(): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInclude('pretasks').create();
-    const pretasks$ = this.service.get(SERV.SUPER_TASKS.URL, this._supertTaskId, params);
+    const pretasks$ = this.service.get(SERV.SUPER_TASKS, this._supertTaskId, params);
 
     this.subscriptions.push(
       pretasks$

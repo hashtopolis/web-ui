@@ -180,12 +180,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       permissions: { [keyPerm]: boolValue }
     };
 
-    const request$ = this.gs.update(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      this.accesspermgroupId,
-      payload,
-      'GlobalPermissionGroup'
-    );
+    const request$ = this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS, this.accesspermgroupId, payload);
     this.subscriptions.push(
       request$
         .pipe(

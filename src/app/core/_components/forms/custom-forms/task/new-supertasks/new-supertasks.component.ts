@@ -100,13 +100,11 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.form.valid) {
-      const createSubscription$ = this.gs
-        .create(SERV.SUPER_TASKS.URL, this.form.value, SERV.SUPER_TASKS.RESOURCE)
-        .subscribe(() => {
-          this.alert.okAlert('New SuperTask created!', '');
-          this.form.reset();
-          this.router.navigate(['tasks/supertasks']);
-        });
+      const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, this.form.value).subscribe(() => {
+        this.alert.okAlert('New SuperTask created!', '');
+        this.form.reset();
+        this.router.navigate(['tasks/supertasks']);
+      });
 
       this.unsubscribeService.add(createSubscription$);
     }

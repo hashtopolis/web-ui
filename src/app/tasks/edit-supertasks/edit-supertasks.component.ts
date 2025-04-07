@@ -114,7 +114,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     const params = new RequestParamBuilder().addInclude('pretasks').create();
 
     const loadSTSubscription$ = this.gs
-      .get(SERV.SUPER_TASKS.URL, this.editedSTIndex, params)
+      .get(SERV.SUPER_TASKS, this.editedSTIndex, params)
       .subscribe((response: ResponseWrapper) => {
         const responseData = { data: response.data, included: response.included };
         const supertask = this.serializer.deserialize<JSuperTask>(responseData);
@@ -182,7 +182,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const payload = concat.concat(this.updateForm.value['pretasks']);
 
       const updateSubscription$ = this.gs
-        .update(SERV.SUPER_TASKS.URL, this.editedSTIndex, { pretasks: payload }, SERV.SUPER_TASKS.RESOURCE)
+        .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
         .subscribe(() => {
           this.alert.okAlert('SuperTask saved!', '');
           this.updateForm.reset(); // success, we reset form
@@ -201,7 +201,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     this.alert.deleteConfirmation('', 'Supertasks').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        const deleteSubscription$ = this.gs.delete(SERV.SUPER_TASKS.URL, this.editedSTIndex).subscribe(() => {
+        const deleteSubscription$ = this.gs.delete(SERV.SUPER_TASKS, this.editedSTIndex).subscribe(() => {
           // Successful deletion
           this.alert.okAlert(`Deleted Supertask`, '');
           this.router.navigate(['/tasks/supertasks']);

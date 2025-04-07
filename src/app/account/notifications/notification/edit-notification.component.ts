@@ -94,7 +94,7 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    */
   private createForm(): void {
     this.subscriptions.push(
-      this.gs.get(SERV.NOTIFICATIONS.URL, this.editedIndex).subscribe((response: ResponseWrapper) => {
+      this.gs.get(SERV.NOTIFICATIONS, this.editedIndex).subscribe((response: ResponseWrapper) => {
         const notification = new JsonAPISerializer().deserialize<JNotification>({
           data: response.data,
           included: response.included
@@ -131,10 +131,9 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
       this.subscriptions.push(
         this.gs
           .update(
-            SERV.NOTIFICATIONS.URL,
+            SERV.NOTIFICATIONS,
             this.editedIndex,
             { isActive: this.form.value['isActive'] },
-            SERV.NOTIFICATIONS.RESOURCE
           )
           .subscribe(() => {
             this.alert.okAlert('Notification saved!', '');
