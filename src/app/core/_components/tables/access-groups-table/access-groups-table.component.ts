@@ -1,7 +1,4 @@
-import {
-  AccessGroupsTableCol,
-  AccessGroupsTableColumnLabel
-} from './access-groups-table.constants';
+import { AccessGroupsTableCol, AccessGroupsTableColumnLabel } from './access-groups-table.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
@@ -17,6 +14,7 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { LruCacheService } from '@services/shared/lru-cache.service';
 
 @Component({
   selector: 'access-groups-table',
@@ -24,8 +22,7 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 })
 export class AccessGroupsTableComponent
   extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+  implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
 
@@ -45,14 +42,11 @@ export class AccessGroupsTableComponent
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+    LruCacheService.getInstance().clear();
   }
 
   filter(item: JAccessGroup, filterValue: string): boolean {
-    if (item.groupName.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.groupName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -66,8 +60,7 @@ export class AccessGroupsTableComponent
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLink: (accessGroup: JAccessGroup) =>
-          this.renderAccessGroupLink(accessGroup),
+        routerLink: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
         isSortable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },

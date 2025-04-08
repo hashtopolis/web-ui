@@ -18,6 +18,8 @@ import { JTask } from 'src/app/core/_models/task.model';
 import { JTaskWrapper } from 'src/app/core/_models/task-wrapper.model';
 import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { LruCacheable } from '@src/app/core/_decorators/lru-cacheable';
+import { LruCacheService } from '@services/shared/lru-cache.service';
 
 @Component({
   selector: 'tasks-table',
@@ -46,6 +48,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+    LruCacheService.getInstance().clear();
   }
 
   filter(item: JTaskWrapper, filterValue: string): boolean {
@@ -237,17 +240,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     };
   }
 
-  private rowActionEditSubtasks(taskWrapper: JTaskWrapper): void {
-    const dialogRef = this.dialog.open(ModalSubtasksComponent, {
-      width: '100%',
-      data: {
-        supertaskId: taskWrapper.id,
-        supertaskName: taskWrapper.taskWrapperName
-      }
-    });
-    dialogRef.afterClosed().subscribe();
-  }
-
   bulkActionClicked(event: ActionMenuEvent<JTaskWrapper[]>): void {
     let superTasksCount = 0;
     let tasksCount = 0;
@@ -368,7 +360,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return '';
   }
 
-  @Cacheable(['id', 'taskType'])
+  @LruCacheable(['taskType'])
   async renderTaskWrapperLink(wrapper: JTaskWrapper): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
@@ -396,8 +388,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return links;
   }
 
-  // --- Render functions ---
-
   @Cacheable(['id', 'taskType', 'hashlists'])
   override async renderHashlistLink(wrapper: JTaskWrapper): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
@@ -411,6 +401,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
     return links;
   }
+
+  // --- Render functions ---
 
   @Cacheable(['id', 'taskType', 'tasks'])
   async renderStatusIcons(wrapper: JTaskWrapper): Promise<HTTableIcon[]> {
@@ -477,7 +469,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return this.sanitize(html);
   }
 
-  @Cacheable(['id', 'taskType', 'tasks'])
+  @LruCacheable(['taskType', 'tasks'])
   override async renderCrackedLink(wrapper: JTaskWrapper): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
@@ -525,6 +517,17 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         this.changeMaxAgents(editable.data, editable.value);
         break;
     }
+  }
+
+  private rowActionEditSubtasks(taskWrapper: JTaskWrapper): void {
+    const dialogRef = this.dialog.open(ModalSubtasksComponent, {
+      width: '100%',
+      data: {
+        supertaskId: taskWrapper.id,
+        supertaskName: taskWrapper.taskWrapperName
+      }
+    });
+    dialogRef.afterClosed().subscribe();
   }
 
   private async getTaskStatus(wrapper: JTaskWrapper): Promise<TaskStatus> {
