@@ -105,8 +105,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
-        render: (file: JFile) => (file.accessGroup.groupName ? file.accessGroup.groupName : file.id),
-        export: async (file: JFile) => file.accessGroup.groupName
+        render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
+        export: async (file: JFile) => file.accessGroup?.groupName
       }
     ];
     return tableColumns;

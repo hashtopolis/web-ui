@@ -11,6 +11,7 @@ import { JsonAPISerializer } from '../_services/api/serializer-service';
 import { SERV } from '../_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JTask } from '@models/task.model';
 
 /**
  * Data source class definition for files
@@ -75,18 +76,28 @@ export class FilesDataSource extends BaseDataSource<JFile> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const serializer = new JsonAPISerializer();
-          const responseData = { data: response.data, included: response.included };
-          const files = serializer.deserialize<JFile[]>(responseData);
-          files.forEach((file) => {
-            files.push(file);
-          });
 
-          if (!this.editType) {
-            this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
+          if (this.editIndex !== undefined && this.editType === 0) {
+            const serializer = new JsonAPISerializer();
+            const responseData = { data: response.data, included: response.included };
+            const tasks = serializer.deserialize<JTask>(responseData);
+
+            if (!this.editType) {
+              this.setPaginationConfig(this.pageSize, this.currentPage, tasks.files.length);
+            }
+
+            this.setData(tasks.files);
+          } else {
+            const serializer = new JsonAPISerializer();
+            const responseData = { data: response.data, included: response.included };
+            const files = serializer.deserialize<JFile[]>(responseData);
+
+            if (!this.editType) {
+              this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
+            }
+
+            this.setData(files);
           }
-
-          this.setData(files);
         })
     );
   }
