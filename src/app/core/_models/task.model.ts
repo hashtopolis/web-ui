@@ -2,6 +2,7 @@ import { JFile } from '@models/file.model';
 import { SpeedStat } from '@models/speed-stat.model';
 import { JAgent } from '@models/agent.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JHashlist } from '@models/hashlist.model';
 import { BaseModel } from '@models/base.model';
 
 /**
@@ -9,7 +10,6 @@ import { BaseModel } from '@models/base.model';
  */
 export interface JTask extends BaseModel {
   taskName: string;
-  assignedAgents?: JAgent[];
   attackCmd: string;
   chunkTime: number;
   statusTimer: number;
@@ -23,10 +23,12 @@ export interface JTask extends BaseModel {
   isCpuTask: boolean;
   useNewBench: boolean;
   skipKeyspace: number;
-  crackerBinary?: JCrackerBinary;
-  crackerBinaryType?: JCrackerBinaryType;
   crackerBinaryId: number;
   crackerBinaryTypeId: number;
+  crackerBinary: JCrackerBinary;
+  crackerBinaryType: JCrackerBinaryType;
+  hashlist?: JHashlist;
+  assignedAgents?: JAgent[];
   taskWrapperId: number;
   isArchived: boolean;
   notes: string;

@@ -61,7 +61,7 @@
 
           <!-- Calculations -->
 
-          <simulate-form-field *ngIf="ctimespent; else templatetimespent" label="Time spent"  message="{{ editedTaskIndex | ttimespent: false : true | async | sectotime}}"></simulate-form-field>
+          <simulate-form-field *ngIf="ctimespent; else templatetimespent" label="Time spent"  message="{{ editedTaskIndex | ttimespent: false : false | async | sectotime}}"></simulate-form-field>
           <ng-template #templatetimespent>
             <simulate-form-field label="Time spent"  message="---"></simulate-form-field>
           </ng-template>
@@ -79,9 +79,9 @@
 
           <!-- Hashlist and Cracker Information -->
 
-          <simulate-form-field [label]="hashlistinform.format === 0 ? 'Hashlist' : hashlistinform.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist'+hashlistinform.hashlistId+'/edit'"></simulate-form-field>
+          <simulate-form-field [label]="hashlistinform?.format === 0 ? 'Hashlist' : hashlistinform?.format === 3 ? 'SuperHashlist' : 'Hashlist not found' " message="{{ hashlistinform?.name }} / {{ hashlistDescrip }}"  [routerLink]="'/hashlists/hashlist/'+hashlistinform?.id+'/edit'"></simulate-form-field>
 
-          <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['crackerBinaryId']+'/edit'"></simulate-form-field>
+          <simulate-form-field *ngIf="crackerinfo; else templatecrackerinfo" label="Cracker Information" message="{{ crackerinfo['binaryName'] }} - {{ crackerinfo['version'] }}"  [routerLink]="'/config/engine/crackers/'+crackerinfo['id']+'/edit'"></simulate-form-field>
           <ng-template #templatecrackerinfo>
             <simulate-form-field label="Cracker Information"  message="Unavailable"></simulate-form-field>
           </ng-template>
@@ -120,7 +120,7 @@
     <mat-form-field>
       <mat-label>Assign Agents</mat-label>
       <mat-select formControlName="agentId">
-        <mat-option *ngFor="let aval of availAgents" [value]="aval.agentId">
+        <mat-option *ngFor="let aval of availAgents" [value]="aval.id">
           {{ aval.agentName }}
         </mat-option>
       </mat-select>

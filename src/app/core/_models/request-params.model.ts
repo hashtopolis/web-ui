@@ -1,7 +1,9 @@
 export enum FilterType {
   EQUAL = 'eq',
+  NOTEQUAL = 'neq',
   GREATER = 'gt',
-  IN = 'in'
+  IN = 'in',
+  NOTIN = 'nin'
 }
 
 export interface Filter {
