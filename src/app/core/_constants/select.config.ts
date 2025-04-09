@@ -1,6 +1,6 @@
 export const ACCESS_GROUP_FIELD_MAPPING = {
   name: 'groupName',
-  _id: '_id'
+  id: 'id'
 };
 
 export const CRACKER_TYPE_FIELD_MAPPING = {
@@ -15,7 +15,7 @@ export const CRACKER_VERSION_FIELD_MAPPING = {
 
 export const HASHTYPE_FIELD_MAPPING = {
   name: 'description',
-  _id: '_id'
+  id: 'id'
 };
 
 export const PRETASKS_FIELD_MAPPING = {
