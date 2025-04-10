@@ -77,7 +77,6 @@ export class FilesDataSource extends BaseDataSource<JFile> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-
           if (this.editIndex !== undefined && this.editType === 0) {
             const serializer = new JsonAPISerializer();
             const responseData = { data: response.data, included: response.included };
@@ -88,7 +87,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             }
 
             this.setData(tasks.files);
-          } else {
+          } else if (this.editType === 1) {
             const serializer = new JsonAPISerializer();
             const responseData = { data: response.data, included: response.included };
             const pretask = serializer.deserialize<JPretask>(responseData);
@@ -98,6 +97,13 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             }
 
             this.setData(pretask.pretaskFiles);
+          } else {
+            const serializer = new JsonAPISerializer();
+            const responseData = { data: response.data, included: response.included };
+            const files = serializer.deserialize<JFile[]>(responseData);
+
+            this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
+            this.setData(files);
           }
         })
     );
