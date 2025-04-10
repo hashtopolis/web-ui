@@ -1,27 +1,25 @@
 import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import { handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { JAccessGroup } from '@models/access-group.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ResponseWrapper } from '@models/response.model';
 
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { UploadTUSService } from '@services/files/files_tus.service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-import { UploadTUSService } from '@services/files/files_tus.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-
-import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
-
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
+import { handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
