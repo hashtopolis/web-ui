@@ -12,6 +12,7 @@ import { SERV } from '../_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JTask } from '@models/task.model';
+import { JPretask } from '@models/pretask.model';
 
 /**
  * Data source class definition for files
@@ -76,7 +77,6 @@ export class FilesDataSource extends BaseDataSource<JFile> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-
           if (this.editIndex !== undefined && this.editType === 0) {
             const serializer = new JsonAPISerializer();
             const responseData = { data: response.data, included: response.included };
@@ -87,15 +87,22 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             }
 
             this.setData(tasks.files);
+          } else if (this.editType === 1) {
+            const serializer = new JsonAPISerializer();
+            const responseData = { data: response.data, included: response.included };
+            const pretask = serializer.deserialize<JPretask>(responseData);
+
+            if (!this.editType) {
+              this.setPaginationConfig(this.pageSize, this.currentPage, pretask.pretaskFiles.length);
+            }
+
+            this.setData(pretask.pretaskFiles);
           } else {
             const serializer = new JsonAPISerializer();
             const responseData = { data: response.data, included: response.included };
             const files = serializer.deserialize<JFile[]>(responseData);
 
-            if (!this.editType) {
-              this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
-            }
-
+            this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
             this.setData(files);
           }
         })
