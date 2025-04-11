@@ -82,10 +82,10 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.1.4",
     "@angular-eslint/builder": "16.0.3",
-    "@angular-eslint/eslint-plugin": "16.0.3",
+    "@angular-eslint/eslint-plugin": "^17.5.3",
     "@angular-eslint/eslint-plugin-template": "16.0.3",
     "@angular-eslint/schematics": "^17.5.3",
-    "@angular-eslint/template-parser": "16.0.3",
+    "@angular-eslint/template-parser": "^17.5.3",
     "@angular/cli": "^17.3.16",
     "@angular/compiler-cli": "^16.1.4",
     "@trivago/prettier-plugin-sort-imports": "^4.2.1",
