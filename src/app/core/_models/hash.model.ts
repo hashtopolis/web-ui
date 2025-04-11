@@ -1,25 +1,19 @@
-import { Chunk, ChunkDataAttributes, JChunk } from './chunk.model';
-import { Hashlist, HashlistDataAttributes, JHashlist } from './hashlist.model';
-import { BaseModel } from './base.model';
+import { JChunk } from '@models/chunk.model';
+import { JHashlist } from '@models/hashlist.model';
+import { BaseModel } from '@models/base.model';
 
-export interface Hash {
-  _id: number;
-  _self: string;
-  chunkId: number;
-  agentId?: number;
-  taskId?: number;
-  chunk?: Chunk;
-  crackPos: number;
-  hash: string;
-  hashId: number;
-  hashlistId: number;
-  hashlist?: Hashlist;
-  isCracked: boolean;
-  plaintext: string;
-  salt: string;
-  timeCracked: number;
-}
-
+/**
+ * Interface definition of hash object
+ * @extends BaseModel
+ * @prop hashlistId ID of hashlist this hash belongs to
+ * @prop hash Value of hash
+ * @prop salt Salt of hash
+ * @prop plaintext Cracked plaintext of hash
+ * @prop isCracked True, if hash is cracked, else false
+ * @prop crackPos Crack position
+ * @prop chunk Optional included chunk object the hash is cracked
+ * @prop hashlist Optional included hashlist object the hash belongs to
+ */
 export interface JHash extends BaseModel {
   hashlistId: number;
   hash: string;
@@ -31,43 +25,4 @@ export interface JHash extends BaseModel {
   crackPos: number;
   chunk?: JChunk;
   hashlist?: JHashlist;
-}
-
-export interface HashData {
-  type: string;
-  id: number;
-  attributes: DataAttributes;
-  links?: DataLinks;
-  relationships?: Relationships;
-}
-
-export interface DataAttributes {
-  hashlistId: number;
-  hash: string;
-  salt: string;
-  plaintext: string;
-  timeCracked: number;
-  chunkId: number;
-  isCracked: boolean;
-  crackPos: number;
-  chunk?: ChunkDataAttributes;
-  hashlist?: HashlistDataAttributes
-}
-
-export interface DataLinks {
-  self: string;
-}
-
-export interface Relationships {
-  chunk: RelationshipAttributes;
-  hashlist: RelationshipAttributes;
-}
-
-export interface RelationshipAttributes {
-  links: RelationshipAttributesLinks;
-}
-
-export interface RelationshipAttributesLinks {
-  self: string;
-  related: string;
 }

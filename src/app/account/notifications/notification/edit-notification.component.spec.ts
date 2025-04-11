@@ -97,7 +97,7 @@ describe('EditNotificationComponent', () => {
   // Check if the 'action' field is disabled and cannot be edited.
   it('should not allow action to be edited', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     expectFieldToBeDisabled('select-action')
@@ -106,7 +106,7 @@ describe('EditNotificationComponent', () => {
   // Check if the 'action-filter' field is disabled and cannot be edited.
   it('should not allow action-filter to be edited', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     expectFieldToBeDisabled('select-action-filter')
@@ -115,7 +115,7 @@ describe('EditNotificationComponent', () => {
   // Check if the 'notification' field is disabled and cannot be edited.
   it('should not allow notification to be edited', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     expectFieldToBeDisabled('select-notification')
@@ -124,7 +124,7 @@ describe('EditNotificationComponent', () => {
   // Check if the 'receiver' field is disabled and cannot be edited.
   it('should not allow receiver to be edited', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     expectFieldToBeDisabled('input-receiver')
@@ -133,7 +133,7 @@ describe('EditNotificationComponent', () => {
   // Check if the 'status' field is enabled and can be edited.
   it('should allow status to be edited', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     expectFieldToBeEnabled('input-is-active')
@@ -142,7 +142,7 @@ describe('EditNotificationComponent', () => {
   // Check if the form is disabled and cannot be submitted when nothing has changed.
   it('should not allow form to be submitted when nothing has changed', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     expectButtonToBeDisabled()
@@ -151,7 +151,7 @@ describe('EditNotificationComponent', () => {
   // Check if the form is enabled and can be submitted when the status has changed.
   it('should allow form to be submitted when status has changed', () => {
     spyOn(mockService, 'get')
-      .withArgs(SERV.NOTIFICATIONS, 1)
+      .withArgs(SERV.NOTIFICATIONS.URL, 1)
       .and.returnValue(of(nodificationResponse))
 
     checkField(fixture, 'input-is-active', true)
@@ -163,7 +163,7 @@ describe('EditNotificationComponent', () => {
   // Check if the form is submitted when it is valid and button is clicked.
   it('should submit the form when it is valid', () => {
     const serviceSpy = spyOn(mockService, 'update')
-      .withArgs(SERV.NOTIFICATIONS, 1, jasmine.any(Object))
+      .withArgs(SERV.NOTIFICATIONS.URL, 1, jasmine.any(Object))
       .and.returnValue(of({}));
 
     checkField(fixture, 'input-is-active', true)
@@ -172,7 +172,7 @@ describe('EditNotificationComponent', () => {
     const submitButton: DebugElement = findEl(fixture, 'button-create');
     submitButton.nativeElement.querySelector('button').click();
 
-    expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, 1, jasmine.any(Object));
+    expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS.URL, 1, jasmine.any(Object));
   });
 
   // --- Helper functions ---

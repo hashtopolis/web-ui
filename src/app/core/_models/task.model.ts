@@ -1,58 +1,13 @@
-// import { Hashlist } from "./hashlist"
-
-import { CrackerBinary, CrackerBinaryType } from './cracker-binary.model';
-
-import { Agent } from './agent.model';
-import { Hashlist } from './hashlist.model';
-import { BaseModel } from './base.model';
+import { JFile } from '@models/file.model';
+import { SpeedStat } from '@models/speed-stat.model';
+import { JAgent } from '@models/agent.model';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JHashlist } from '@models/hashlist.model';
+import { BaseModel } from '@models/base.model';
 
 /**
- * @deprecated This interface is deprecated and should not be used.
- * Use the Task interface instead.
+ * Interface definition for a cracking task
  */
-export interface NormalTask {
-  id: number;
-  name: string;
-  priority: number;
-  maxAgents: number;
-
-  hashlistId: number;
-  // hashlist: Hashlist
-}
-
-export interface Task {
-  _id: number;
-  _self: string;
-  attackCmd: string;
-  chunkSize: number;
-  chunkTime: number;
-  color?: string;
-  crackerBinaryId: number;
-  crackerBinaryTypeId: number;
-  forcePipe: boolean;
-  isArchived: boolean;
-  isCpuTask: boolean;
-  isSmall: boolean;
-  keyspace: number;
-  keyspaceProgress: number;
-  notes: string;
-  preprocessorCommand: number;
-  preprocessorId: number;
-  skipKeyspace: number;
-  staticChunks: number;
-  statusTimer: number;
-  taskId: number;
-  taskName: string;
-  taskWrapperId: number;
-  taskWrapperName?: string;
-  useNewBench: boolean;
-  assignedAgents?: Agent[];
-  crackerBinary?: CrackerBinary;
-  crackerBinaryType?: CrackerBinaryType;
-  hashlist?: Hashlist[];
-  taskType?: number;
-}
-
 export interface JTask extends BaseModel {
   taskName: string;
   attackCmd: string;
@@ -60,6 +15,7 @@ export interface JTask extends BaseModel {
   statusTimer: number;
   keyspace: number;
   keyspaceProgress: number;
+  files?: JFile[];
   priority: number;
   maxAgents: number;
   color: null | string;
@@ -69,6 +25,10 @@ export interface JTask extends BaseModel {
   skipKeyspace: number;
   crackerBinaryId: number;
   crackerBinaryTypeId: number;
+  crackerBinary: JCrackerBinary;
+  crackerBinaryType: JCrackerBinaryType;
+  hashlist?: JHashlist;
+  assignedAgents?: JAgent[];
   taskWrapperId: number;
   isArchived: boolean;
   notes: string;
@@ -77,64 +37,7 @@ export interface JTask extends BaseModel {
   forcePipe: boolean;
   preprocessorId: number;
   preprocessorCommand: string;
+  dispatched: string;
+  searched: string;
+  speeds: SpeedStat[];
 }
-
-export interface TaskData {
-  type: string;
-  id: number;
-  attributes: TaskDataAttributes;
-  links?: TaskDataLinks;
-  relationships?: TaskRelationships;
-}
-
-export interface TaskDataAttributes {
-  taskName: string;
-  attackCmd: string;
-  chunkTime: number;
-  statusTimer: number;
-  keyspace: number;
-  keyspaceProgress: number;
-  priority: number;
-  maxAgents: number;
-  color: null | string;
-  isSmall: boolean;
-  isCpuTask: boolean;
-  useNewBench: boolean;
-  skipKeyspace: number;
-  crackerBinaryId: number;
-  crackerBinaryTypeId: number;
-  taskWrapperId: number;
-  isArchived: boolean;
-  notes: string;
-  staticChunks: number;
-  chunkSize: number;
-  forcePipe: boolean;
-  preprocessorId: number;
-  preprocessorCommand: string;
-}
-
-export interface TaskDataLinks {
-  self: string;
-}
-
-export interface TaskRelationships {
-  assignedAgents: AssignedAgents;
-  crackerBinary: AssignedAgents;
-  crackerBinaryType: AssignedAgents;
-  files: AssignedAgents;
-  hashlist: AssignedAgents;
-  speeds: AssignedAgents;
-}
-
-export interface AssignedAgents {
-  links: AssignedAgentsLinks;
-}
-
-export interface AssignedAgentsLinks {
-  self: string;
-  related: string;
-}
-
-
-
-

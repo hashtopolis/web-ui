@@ -1,12 +1,15 @@
 export enum FilterType {
   EQUAL = 'eq',
+  NOTEQUAL = 'neq',
   GREATER = 'gt',
+  IN = 'in',
+  NOTIN = 'nin'
 }
 
 export interface Filter {
   field: string;
   operator: FilterType;
-  value: string | number | boolean;
+  value: string | number | number[] | boolean;
 }
 
 interface IRequestParams {

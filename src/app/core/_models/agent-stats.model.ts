@@ -2,6 +2,7 @@ import { BaseModel } from '@src/app/core/_models/base.model';
 
 /**
  * Interface for Agent statistics data
+ * @extends BaseModel
  * @prop agentId ID of agent the stat belongs to
  * @prop statType Type of stat
  * @prop time Unix timestamp of stat

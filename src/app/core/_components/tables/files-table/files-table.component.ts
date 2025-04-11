@@ -2,24 +2,29 @@
  * Contains table component for files
  * @module
  */
+import { catchError, forkJoin } from 'rxjs';
 
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FileType, JFile } from 'src/app/core/_models/file.model';
-import { FilesTableCol, FilesTableColumnLabel } from './files-table.constants';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { FilesDataSource } from 'src/app/core/_datasources/files.datasource';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatFileSize } from 'src/app/shared/utils/util';
+
+import { FileType, JFile } from '@models/file.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { FilesDataSource } from '@datasources/files.datasource';
+
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'files-table',
@@ -35,7 +40,13 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   editPath = '';
 
   ngOnInit(): void {
-    this.editPath = this.fileType === FileType.WORDLIST ? 'wordlist-edit' : 'rules-edit';
+    const pathMap = {
+      [FileType.WORDLIST]: 'wordlist-edit',
+      [FileType.RULES]: 'rules-edit',
+      [FileType.OTHER]: 'other-edit'
+    };
+    this.editPath = pathMap[this.fileType];
+
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
@@ -105,8 +116,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
-        render: (file: JFile) => (file.accessGroup.groupName ? file.accessGroup.groupName : file.id),
-        export: async (file: JFile) => file.accessGroup.groupName
+        render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
+        export: async (file: JFile) => file.accessGroup?.groupName
       }
     ];
     return tableColumns;
@@ -155,29 +166,13 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   exportActionClicked(event: ActionMenuEvent<JFile[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JFile>(
-          'hashtopolis-files',
-          this.tableColumns,
-          event.data,
-          FilesTableColumnLabel
-        );
+        this.exportService.toExcel<JFile>('hashtopolis-files', this.tableColumns, event.data, FilesTableColumnLabel);
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JFile>(
-          'hashtopolis-files',
-          this.tableColumns,
-          event.data,
-          FilesTableColumnLabel
-        );
+        this.exportService.toCsv<JFile>('hashtopolis-files', this.tableColumns, event.data, FilesTableColumnLabel);
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JFile>(
-            this.tableColumns,
-            event.data,
-            FilesTableColumnLabel
-          )
-          .then(() => {
+        this.exportService.toClipboard<JFile>(this.tableColumns, event.data, FilesTableColumnLabel).then(() => {
           this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
         });
         break;

@@ -9,7 +9,7 @@ import {
 } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 
 import { JUser } from '@src/app/core/_models/user.model';
-import { Pretask } from '@src/app/core/_models/pretask.model';
+import { JPretask } from '@src/app/core/_models/pretask.model';
 
 import {
   AccessGroupsUsersTableCol,
@@ -59,7 +59,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     }
   }
 
-  filter(item: Pretask, filterValue: string): boolean {
+  filter(item: JPretask, filterValue: string): boolean {
     return item.taskName.toLowerCase().includes(filterValue);
   }
 
@@ -194,7 +194,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     const payload = { users: updatedAccessGroups.map((accessGroup) => accessGroup.id) };
     this.subscriptions.push(
       this.gs
-        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload, 'accessGroup')
+        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);

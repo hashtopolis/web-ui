@@ -174,7 +174,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       this.onUpdatePass(this.updatePassForm.value);
 
       const onSubmitSubscription$ = this.gs
-        .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData, 'user')
+        .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData)
         .subscribe(() => {
           this.alert.okAlert('User saved!', '');
           this.isUpdatingLoading = false;
