@@ -1,19 +1,17 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-
 import { FilterType } from '@models/request-params.model';
-import { JTask } from '@models/task.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class TasksSupertasksDataSource extends BaseDataSource<JTask, MatTableDataSourcePaginator> {
+export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
   private _supertTaskId = 0;
 
   setSuperTaskId(supertTaskId: number) {

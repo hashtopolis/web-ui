@@ -1,19 +1,16 @@
 import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-
 import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
 
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
-
-import { ResponseWrapper } from '@models/response.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class TasksDataSource extends BaseDataSource<JTaskWrapper, MatTableDataSourcePaginator> {
+export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
   private _hashlistId = 0;
 

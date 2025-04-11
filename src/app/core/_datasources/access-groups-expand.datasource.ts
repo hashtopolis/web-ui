@@ -1,19 +1,17 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { JAccessGroup } from '@models/access-group.model';
+import { JAgent } from '@models/agent.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JUser } from '@models/user.model';
 
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JUser } from '@src/app/core/_models/user.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
+import { BaseDataSource } from '@datasources/base.datasource';
 
-
-export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent, MatTableDataSourcePaginator> {
+export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent> {
   private _accessgroupId = 0;
   private _include = '';
 
