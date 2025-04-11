@@ -1,12 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup
-} from '@angular/forms';
 import { generateCandidates } from 'wordpolis';
+
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'wordlist-generator',
@@ -20,8 +15,7 @@ export class WordlisGeneratorComponent implements OnInit {
   dialogTitle = 'WordList Generator';
 
   // Form hints
-  namehint =
-    'Name, Middle, Surname. Include as many middle names as necessary.';
+  namehint = 'Name, Middle, Surname. Include as many middle names as necessary.';
   specialdatehint = 'Birthday,family member date. ';
   specialhint =
     'Job Title,Platform Name (i.e., github),Social Media username,Pet name,Lovers name/surname,Street name,Street number,Old Password,favorite cars, bikes, hobbies, phone number';
@@ -71,10 +65,8 @@ export class WordlisGeneratorComponent implements OnInit {
   alternateCapitalizeCheckboxLabel = 'Alternate capitalize';
   allUppercaseCheckboxLabel = 'All Uppercase';
   allLowercaseCheckboxLabel = 'All Lowercase';
-  similarVowelsCheckboxLabel =
-    'Similar Vowels (Replace vowels for similar numbers. ie. G = 6)';
-  similarConsonantsCheckboxLabel =
-    'Similar Consonants (Replace consonants for similar numbers. ie. s = 5)';
+  similarVowelsCheckboxLabel = 'Similar Vowels (Replace vowels for similar numbers. ie. G = 6)';
+  similarConsonantsCheckboxLabel = 'Similar Consonants (Replace consonants for similar numbers. ie. s = 5)';
   similarSpecialCharsCheckboxLabel =
     'Similar Special Chars (Replace vowels and consonants for similar special chars. ie. h = #)';
 
@@ -99,11 +91,11 @@ export class WordlisGeneratorComponent implements OnInit {
       usePermutations: [false],
       isCapitalize: [false],
       isAlternated: [false],
-      isUppercasse: [false],
-      isLowercasse: [false],
+      isUppercase: [false],
+      isLowercase: [false],
       isSimilarVowels: [false],
       isSimilarConsonant: [false],
-      isSimilarSpecialchars: [false],
+      isSimilarSpecialChars: [false],
       filename: ['wordlist.txt']
     });
   }

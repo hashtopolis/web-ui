@@ -1,12 +1,16 @@
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule } from '@angular/router';
-import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
-import { FormComponent } from '@components/forms/simple-forms/form.component';
-import { NewFilesComponent } from './new-files/new-files.component';
+import { RouterModule } from '@angular/router';
+
 import { MyRoute } from '@models/routes.model';
+
 import { SERV } from '@services/main.config';
-import { FilesComponent } from './files.component';
+
+import { FormComponent } from '@components/forms/simple-forms/form.component';
+
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { FilesComponent } from '@src/app/files/files.component';
+import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
 
 const routes: MyRoute[] = [
   {
