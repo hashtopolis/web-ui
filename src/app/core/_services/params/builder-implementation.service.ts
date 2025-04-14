@@ -23,7 +23,7 @@ export class RequestParamBuilder implements IParamBuilder {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }
-    if (dataSource.currentPage != undefined) {
+    if (dataSource.currentPage != undefined && dataSource.pageSize != undefined) {
       this.setPageAfter(dataSource.currentPage * dataSource.pageSize);
     }
     if (dataSource.sortingColumn != undefined) {
