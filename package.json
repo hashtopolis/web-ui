@@ -61,7 +61,7 @@
     "hashtype-detector": "^0.0.6",
     "jquery": "^3.7.0",
     "jsona": "^1.12.1",
-    "jspdf": "^2.5.1",
+    "jspdf": "^3.0.1",
     "jszip": "^3.10.1",
     "lightstep-tracer": "^0.35.0-no-protobuf",
     "moment": "^2.29.4",
@@ -72,15 +72,15 @@
     "pdfmake": "^0.2.9",
     "popper.js": "^1.16.1",
     "rxjs": "~7.8.1",
-    "sweetalert2": "^11.7.32",
+    "sweetalert2": "11.17.2",
     "tslib": "^2.6.0",
     "tus-js-client": "^3.1.1",
-    "typescript-eslint-parser": "^22.0.0",
+    "typescript-eslint-parser": "^18.0.0",
     "wordpolis": "^0.0.3",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.7",
+    "@angular-devkit/build-angular": "^19.2.0",
     "@angular-eslint/builder": "19.3.0",
     "@angular-eslint/eslint-plugin": "^19.3.0",
     "@angular-eslint/eslint-plugin-template": "19.3.0",
@@ -108,7 +108,7 @@
     "karma-spec-reporter": "^0.0.36",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
-    "puppeteer": "^20.9.0",
+    "puppeteer": "^24.6.1",
     "typescript": "^5.8.3"
   }
 }
