@@ -1,16 +1,28 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { JAccessGroup } from '../_models/access-group.model';
+import { AccessGroup } from '../_models/access-group.model';
 import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
+export class AccessGroupsDataSource extends BaseDataSource<AccessGroup> {
   loadAll(): void {
     this.loading = true;
 
-    const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers').create();
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt,
+      expand: 'userMembers,agentMembers'
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params);
 
@@ -20,18 +32,14 @@ export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-
-          const responseBody = { data: response.data, included: response.included };
-
-          const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
-
+        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
+          const accessGroups: AccessGroup[] = response.values;
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            accessgroups.length
+            response.total
           );
-          this.setData(accessgroups);
+          this.setData(accessGroups);
         })
     );
   }

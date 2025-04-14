@@ -1,18 +1,25 @@
-import { Observable, Subject, combineLatest, of } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  forwardRef
+} from '@angular/core';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { AbstractControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { SelectField } from 'src/app/core/_models/input.model';
+import { Observable, Subject, combineLatest, of } from 'rxjs';
+import { AbstractInputComponent } from '../abstract-input';
+import { extractIds } from '../../../shared/utils/forms';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatInput } from '@angular/material/input';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
-
-import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
-import { extractIds } from '@src/app/shared/utils/forms';
-
-import { SelectField } from '@models/input.model';
-
+import { map, startWith } from 'rxjs/operators';
 /**
  * InputMultiSelectComponent for selecting or searching items from an array of objects.
  * Supports dynamic filtering, highlighting, and emits selection changes.
@@ -29,7 +36,10 @@ import { SelectField } from '@models/input.model';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputMultiSelectComponent extends AbstractInputComponent<any> implements AfterViewInit {
+export class InputMultiSelectComponent
+  extends AbstractInputComponent<any>
+  implements AfterViewInit
+{
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
@@ -55,8 +65,10 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
       ),
       of(this.items) // Emit the items array as an initial value
     ]).pipe(
-      map(([searchTerm]) => {
-        return searchTerm ? this._filter(searchTerm) : this.getUnselectedItems();
+      map(([searchTerm, allItems]) => {
+        return searchTerm
+          ? this._filter(searchTerm)
+          : this.getUnselectedItems();
       })
     );
   }
@@ -66,7 +78,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
     if (this.initialHashlistId != null) {
       // Find the preselected item based on initialHashlistId
       const preselectedItem = this.items.find(
-        (item) => item.id === this.initialHashlistId
+        (item) => item._id === this.initialHashlistId
       );
 
       // If the preselected item is found, add it to selectedItems
@@ -96,9 +108,13 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
    */
   onChangeValue(value): void {
     if (!this.multiselectEnabled) {
-      this.value = Array.isArray(value) ? extractIds(value, 'id')[0] : extractIds(value, 'id')[0];
+      this.value = Array.isArray(value)
+        ? extractIds(value, '_id')[0]
+        : extractIds(value, '_id')[0];
     } else {
-      this.value = Array.isArray(value) ? extractIds(value, 'id') : extractIds(value, 'id');
+      this.value = Array.isArray(value)
+        ? extractIds(value, '_id')
+        : extractIds(value, '_id');
     }
 
     this.onChange(this.value);
@@ -126,7 +142,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
       // Add the removed item back to the unselected items
       this.items.push(item);
 
-      this.items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+      this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
 
       // Remove the item from the selected items
       this.selectedItems.splice(index, 1);
@@ -149,7 +165,9 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
   private _filter(value: string): SelectField[] {
     const filterValue = value.toLowerCase();
     return this.items.filter((item: SelectField) => {
-      const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
+      const nameToSearch = this.mergeIdAndName
+        ? `${item._id} ${item.name}`.toLowerCase()
+        : item.name.toLowerCase();
       return nameToSearch.includes(filterValue);
     });
   }
@@ -165,7 +183,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
       // If an element has already been selected, it must be added to the list again
       if (this.selectedItems.length > 0) {
         this.items.push(this.selectedItems[0]);
-        this.items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+        this.items.sort((a, b) => parseInt(a._id) - parseInt(b._id));
       }
 
       // For single-select, clear the selected items before adding the new one
@@ -220,7 +238,10 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
       if (index >= 0) {
         const highlightedValue =
           value.substring(0, index) +
-          `<span class="highlight-text">${value.substring(index, term.length)}</span>` +
+          `<span class="highlight-text">${value.substr(
+            index,
+            term.length
+          )}</span>` +
           value.substring(index + term.length);
 
         return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);

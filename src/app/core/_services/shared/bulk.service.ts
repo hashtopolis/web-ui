@@ -1,15 +1,13 @@
-import { catchError, map } from 'rxjs/operators';
-import { Observable, forkJoin, of } from 'rxjs';
-
+import { catchError, finalize, map, mergeMap, toArray } from 'rxjs/operators';
+import { Observable, Subscription, forkJoin, from, of } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { GlobalService } from '@services/main.service';
-import { ServiceConfig } from '@services/main.config';
+
+import { GlobalService } from '../main.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BulkService {
-  private serviceConfig: ServiceConfig;
   constructor(private gs: GlobalService) {}
 
   Items: any[];
@@ -25,8 +23,8 @@ export class BulkService {
     this.Value = Value;
   }
 
-  setServiceConfig(serviceConfig: ServiceConfig) {
-    this.serviceConfig = serviceConfig;
+  setPath(path: string) {
+    this.path = path;
   }
 
   /**
@@ -36,7 +34,9 @@ export class BulkService {
    * @param {number} percentage - Progress value
    */
 
-  async performBulkDelete(progressCallback: (percentage: number) => void): Promise<boolean> {
+  async performBulkDelete(
+    progressCallback: (percentage: number) => void
+  ): Promise<boolean> {
     const Items = this.Items;
     const totalItems = Items.length;
     let deletedItems = 0;
@@ -47,7 +47,7 @@ export class BulkService {
     const itemObservables: Observable<boolean>[] = [];
 
     Items.forEach((item) => {
-      const observable = this.gs.delete(this.serviceConfig, item).pipe(
+      const observable = this.gs.delete(this.path, item).pipe(
         map(() => {
           deletedItems++;
           const progress = (deletedItems / totalItems) * 100;
@@ -79,7 +79,9 @@ export class BulkService {
    * @param {number} percentage - Progress value
    */
 
-  async performBulkUpdate(progressCallback: (percentage: number) => void): Promise<boolean> {
+  async performBulkUpdate(
+    progressCallback: (percentage: number) => void
+  ): Promise<boolean> {
     const Items = this.Items;
     const Value = this.Value;
     const totalItems = Items.length;
@@ -91,7 +93,7 @@ export class BulkService {
     const itemObservables: Observable<boolean>[] = [];
 
     Items.forEach((item) => {
-      const observable = this.gs.update(this.serviceConfig, item, Value).pipe(
+      const observable = this.gs.update(this.path, item, Value).pipe(
         map(() => {
           deletedItems++;
           const progress = (deletedItems / totalItems) * 100;

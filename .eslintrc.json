@@ -4,7 +4,6 @@
   "overrides": [
     {
       "files": ["*.ts"],
-      "plugins": ["import"],
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
@@ -13,17 +12,6 @@
         "plugin:prettier/recommended"
       ],
       "rules": {
-        "no-restricted-imports": [
-          "error",
-          {
-            "patterns": [
-              {
-                "group": ["./*", "../*"],
-                "message": "Relative imports are forbidden. Please use path aliases (e.g., '@models', '@services')."
-              }
-            ]
-          }
-        ],
         "prettier/prettier": ["error"],
         "@angular-eslint/directive-selector": [
           "error",
@@ -45,59 +33,10 @@
           "error",
           {
             "ignoreCase": false,
-            "ignoreDeclarationSort": true,
+            "ignoreDeclarationSort": false,
             "ignoreMemberSort": false,
             "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
-            "allowSeparatedGroups": true
-          }
-        ],
-        "import/order": [
-          "error",
-          {
-            "groups": [
-              "builtin",
-              "external",
-              "internal",
-              ["sibling", "parent", "index"]
-            ],
-            "pathGroups": [
-              {
-                "pattern": "@angular/**",
-                "group": "external",
-                "position": "after"
-              },
-              {
-                "pattern": "@models/**",
-                "group": "internal",
-                "position": "before"
-              },
-              {
-                "pattern": "@services/**",
-                "group": "internal",
-                "position": "after"
-              },
-              {
-                "pattern": "@components/**",
-                "group": "internal",
-                "position": "after"
-              },
-              {
-                "pattern": "@datasources/**",
-                "group": "internal",
-                "position": "after"
-              },
-              {
-                "pattern": "@src/**",
-                "group": "sibling",
-                "position": "after"
-              }
-            ],
-            "pathGroupsExcludedImportTypes": ["builtin"],
-            "alphabetize": {
-              "order": "asc",
-              "caseInsensitive": true
-            },
-            "newlines-between": "always"
+            "allowSeparatedGroups": false
           }
         ]
       }

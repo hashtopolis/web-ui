@@ -14,9 +14,6 @@ import { OnDestroy } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { ResponseWrapper } from '../../../core/_models/response.model';
-import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 @Component({
   selector: 'app-wrbulk',
@@ -61,8 +58,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     private uiService: UIConfigService,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
+    private router: Router
   ) {
     this.buildForm();
     titleService.set(['Import SuperTask - Wordlist/Rules Bulk']);
@@ -112,13 +108,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   loadData() {
     const loadSubscription$ = this.gs
       .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: ResponseWrapper) => {
-
-        const responseBody = { data: response.data, included: response.included };
-        const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
-
+      .subscribe((response: any) => {
         const transformedOptions = transformSelectOptions(
-          crackerBinaryTypes,
+          response.values,
           this.selectCrackertypeMap
         );
         this.selectCrackertype = transformedOptions;
@@ -297,10 +289,12 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
-      this.router.navigate(['/tasks/supertasks']);
-    });
+    const createSubscription$ = this.gs
+      .create(SERV.SUPER_TASKS, payload)
+      .subscribe(() => {
+        this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
+        this.router.navigate(['/tasks/supertasks']);
+      });
 
     this.unsubscribeService.add(createSubscription$);
     this.isLoading = false;

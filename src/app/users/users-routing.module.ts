@@ -1,16 +1,16 @@
 import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
 
 import { EditGlobalpermissionsgroupsComponent } from './globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
 import { GlobalpermissionsgroupsComponent } from './globalpermissionsgroups/globalpermissionsgroups.component';
-import { FormComponent } from '@components/forms/simple-forms/form.component';
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { EditUsersComponent } from './edit-users/edit-users.component';
 import { AllUsersComponent } from './all-users/all-users.component';
-import { MyRoute } from '@models/routes.model';
+import { MyRoute, RouteData } from '../core/_models/routes.model';
 import { GroupsComponent } from './groups/groups.component';
-import { SERV } from '@services/main.config';
+import { SERV } from '../core/_services/main.config';
 import { EditGroupsComponent } from './edit-groups/edit-groups.component';
 
 const routes: MyRoute[] = [
@@ -24,7 +24,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newuser',
           type: 'create',
-          serviceConfig: SERV.USERS,
+          path: SERV.USERS,
           breadcrumb: 'New User',
           permission: 'User'
         },
@@ -66,7 +66,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newglobalpermissionsgp',
           type: 'create',
-          serviceConfig: SERV.ACCESS_PERMISSIONS_GROUPS,
+          path: SERV.ACCESS_PERMISSIONS_GROUPS,
           breadcrumb: 'New Global Permissions Groups',
           permission: 'RightGroup'
         },
@@ -98,7 +98,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newaccessgroups',
           type: 'create',
-          serviceConfig: SERV.ACCESS_GROUPS,
+          path: SERV.ACCESS_GROUPS,
           breadcrumb: 'New Access Group',
           permission: 'GroupAccess'
         },

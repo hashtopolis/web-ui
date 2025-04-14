@@ -1,31 +1,29 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-
-import { JPretask } from '@src/app/core/_models/pretask.model';
-import { JUser } from '@src/app/core/_models/user.model';
-
+import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
 import {
   AccessPermissionGroupsUsersTableCol,
   AccessPermissionGroupsUsersTableColumnLabel
-} from '@src/app/core/_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
-import { HTTableColumn, HTTableIcon } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { UsersTableStatus } from '@src/app/core/_components/tables/users-table/users-table.constants';
+} from './access-permission-groups-users-table.constants';
 
-import {
-  AccessPermissionGroupsExpandDataSource
-} from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
-
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { AccessPermissionGroupsExpandDataSource } from 'src/app/core/_datasources/access-permission-groups-expand.datasource';
+import { BaseTableComponent } from '../base-table/base-table.component';
+import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
+import { Pretask } from 'src/app/core/_models/pretask.model';
+import { User } from 'src/app/core/_models/user.model';
+import { UsersTableStatus } from '../users-table/users-table.constants';
+import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
   selector: 'access-permission-groups-users-table',
   templateUrl: './access-permission-groups-users-table.component.html'
 })
-export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessPermissionGroupsUsersTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy
+{
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -35,7 +33,11 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(
+      this.cdr,
+      this.gs,
+      this.uiService
+    );
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
@@ -50,60 +52,78 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
     }
   }
 
-  filter(item: JPretask, filterValue: string): boolean {
+  filter(item: Pretask, filterValue: string): boolean {
     return item.taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    return [
+    const tableColumns = [
       {
         id: AccessPermissionGroupsUsersTableCol.ID,
-        dataKey: 'id',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        dataKey: '_id',
+        routerLink: (user: User) => this.renderUserLink(user),
         isSortable: true,
-        export: async (user: JUser) => user.id + ''
+        export: async (user: User) => user._id + ''
       },
       {
         id: AccessPermissionGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        render: (user: JUser) => user.name,
-        export: async (user: JUser) => user.name + ''
+        render: (user: User) => user.name,
+        export: async (user: User) => user.name + ''
       },
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
-        render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
+        icons: (user: User) => this.renderIsValidIcon(user),
+        render: (user: User) =>
+          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
         isSortable: true,
-        export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
+        export: async (user: User) =>
+          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
       },
       {
         id: AccessPermissionGroupsUsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
-        render: (user: JUser) =>
-          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never',
+        render: (user: User) =>
+          user.lastLoginDate
+            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
+            : 'Never',
         isSortable: true,
-        export: async (user: JUser) =>
-          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
+        export: async (user: User) =>
+          user.lastLoginDate
+            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
+            : 'Never'
       }
     ];
+    return tableColumns;
   }
 
   // --- Render functions ---
 
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
+  @Cacheable(['_id', 'isValid'])
+  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
     return user.isValid
-      ? [{ name: 'check_circle', cls: 'text-ok' }]
-      : [{ name: 'remove_circle', cls: 'text-critical' }];
+      ? [
+          {
+            name: 'check_circle',
+            cls: 'text-ok'
+          }
+        ]
+      : [
+          {
+            name: 'remove_circle',
+            cls: 'text-critical'
+          }
+        ];
   }
 
   // --- Action functions ---
-  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
+
+  exportActionClicked(event: ActionMenuEvent<User[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>(
+        this.exportService.toExcel<User>(
           'hashtopolis-access-permission-groups-users',
           this.tableColumns,
           event.data,
@@ -111,7 +131,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>(
+        this.exportService.toCsv<User>(
           'hashtopolis-access-permission-groups-users',
           this.tableColumns,
           event.data,
@@ -120,9 +140,16 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JUser>(this.tableColumns, event.data, AccessPermissionGroupsUsersTableColumnLabel)
+          .toClipboard<User>(
+            this.tableColumns,
+            event.data,
+            AccessPermissionGroupsUsersTableColumnLabel
+          )
           .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+            this.snackBar.open(
+              'The selected rows are copied to the clipboard',
+              'Close'
+            );
           });
         break;
     }

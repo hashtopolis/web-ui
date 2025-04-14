@@ -2,14 +2,11 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { SERV } from '@src/app/core/_services/main.config';
-import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { SERV } from '../../../core/_services/main.config';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
 /**
  * EditGlobalpermissionsgroupsComponent is a component that manages and edit Global Permissions data.
@@ -55,7 +52,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit() {
+  ngOnInit(): void {
     this.initForm();
   }
 
@@ -63,21 +60,25 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    * Lifecycle hook called before the component is destroyed.
    * Unsubscribes from all subscriptions to prevent memory leaks.
    */
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.unsubscribeService.unsubscribeAll();
   }
 
   /**
    * Build the form with default values for permissions.
+   *
+   * @returns {void}
    */
-  buildForm() {
+  buildForm(): void {
     this.updateForm = new FormGroup({
-      name: new FormControl('')
+      name: new FormControl()
     });
   }
 
   /**
    * Initialize the form with data obtained from the server.
+   *
+   * @returns {void}
    */
   initForm() {
     this.loadData();
@@ -86,19 +87,18 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   /**
    * Loads data from the server for the edited global permission group.
    * Populates the form with the received data.
+   *
    * @private
+   * @returns {void}
    */
   private loadData() {
     const loadSubscription$ = this.gs
       .get(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, {
-        include: ['userMembers']
+        expand: 'user'
       })
-      .subscribe((response: ResponseWrapper) => {
-        if (response) {
-          this.editedGPG = new JsonAPISerializer().deserialize({
-            data: response.data,
-            included: response.included
-          });
+      .subscribe((res) => {
+        if (res) {
+          this.editedGPG = res;
           const formValues = this.buildFormValues();
           this.updateForm.patchValue(formValues);
         }
@@ -110,14 +110,17 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   /**
    * Builds form values based on the result received from the server.
    * It sets the default values for the 'name' and 'permissions' fields.
+   *
    * @private
-   * @returns Form values object with 'name' and 'permissions' fields.
+   * @param {any} result - The result data received from the server, typically representing permissions.
+   * @returns {any} Form values object with 'name' and 'permissions' fields.
    */
   private buildFormValues(): any {
-    return {
+    const formValues: any = {
       name: this.editedGPG['name'],
       permissions: {}
     };
+    return formValues;
   }
 
   /**
@@ -127,7 +130,11 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
     if (this.updateForm.valid) {
       this.processing = true;
       const onSubmitSubscription$ = this.gs
-        .update(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, this.updateForm.value)
+        .update(
+          SERV.ACCESS_PERMISSIONS_GROUPS,
+          this.editedGPGIndex,
+          this.updateForm.value
+        )
         .subscribe(() => {
           this.alert.okAlert('Global Permission Group saved!', '');
           this.processing = false;

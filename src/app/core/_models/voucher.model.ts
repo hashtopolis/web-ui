@@ -1,12 +1,7 @@
-import { BaseModel } from '@models/base.model';
-
-/**
- * Interface definition for voucher to register cracking agents
- * @extends BaseModel
- * @prop time     Timestamp
- * @prop voucher  Voucher value
- */
-export interface Voucher extends BaseModel {
+export interface Voucher {
+  _id: number;
+  _self: string;
+  regVoucherId: number;
   time: number;
   voucher: string;
 }

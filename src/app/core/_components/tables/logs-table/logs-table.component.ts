@@ -6,7 +6,7 @@ import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { HTTableColumn } from '../ht-table/ht-table.models';
-import { JLog } from 'src/app/core/_models/log.model';
+import { Log } from 'src/app/core/_models/log.model';
 import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
@@ -35,7 +35,7 @@ export class LogsTableComponent
     }
   }
 
-  filter(item: JLog, filterValue: string): boolean {
+  filter(item: Log, filterValue: string): boolean {
     if (
       item.message.toLowerCase().includes(filterValue) ||
       item.level.toLowerCase().includes(filterValue) ||
@@ -51,40 +51,39 @@ export class LogsTableComponent
     const tableColumns = [
       {
         id: LogsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (log: JLog) => log.id + ''
+        export: async (log: Log) => log._id + ''
       },
       {
         id: LogsTableCol.TIME,
         dataKey: 'time',
         isSortable: true,
-        render: (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat),
-        export: async (log: JLog) =>
+        render: (log: Log) => formatUnixTimestamp(log.time, this.dateFormat),
+        export: async (log: Log) =>
           formatUnixTimestamp(log.time, this.dateFormat)
       },
       {
         id: LogsTableCol.LEVEL,
         dataKey: 'level',
         isSortable: true,
-        render: (log: JLog) =>
+        render: (log: Log) =>
           log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
-        export: async (log: JLog) =>
+        export: async (log: Log) =>
           log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
         id: LogsTableCol.ISSUER,
         dataKey: 'issuer',
         isSortable: true,
-        render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
-        export: async (log: JLog) => `${log.issuer}-ID-${log.issuerId}`
+        render: (log: Log) => `${log.issuer}-ID-${log.issuerId}`,
+        export: async (log: Log) => `${log.issuer}-ID-${log.issuerId}`
       },
       {
         id: LogsTableCol.MESSAGE,
         dataKey: 'message',
         isSortable: true,
-        render: (log: JLog) => log.message,
-        export: async (log: JLog) => log.message
+        export: async (log: Log) => log.message
       }
     ];
 
@@ -93,10 +92,10 @@ export class LogsTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Log[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JLog>(
+        this.exportService.toExcel<Log>(
           'hashtopolis-logs',
           this.tableColumns,
           event.data,
@@ -104,7 +103,7 @@ export class LogsTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JLog>(
+        this.exportService.toCsv<Log>(
           'hashtopolis-logs',
           this.tableColumns,
           event.data,
@@ -113,7 +112,7 @@ export class LogsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JLog>(this.tableColumns, event.data, LogsTableColumnLabel)
+          .toClipboard<Log>(this.tableColumns, event.data, LogsTableColumnLabel)
           .then(() => {
             this.snackBar.open(
               'The selected rows are copied to the clipboard',

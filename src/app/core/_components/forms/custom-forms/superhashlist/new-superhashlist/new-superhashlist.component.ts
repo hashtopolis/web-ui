@@ -1,18 +1,29 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JHashlist } from '@models/hashlist.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { environment } from '../../../../../../../environments/environment';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { Hashlist } from 'src/app/core/_models/hashlist.model';
+import { extractIds } from '../../../../../../shared/utils/forms';
+import { SelectField } from 'src/app/core/_models/input.model';
+import { SERV } from '../../../../../_services/main.config';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
@@ -85,18 +96,12 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    const requestParams = new RequestParamBuilder()
-      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-      .addFilter({ field: 'format', operator: FilterType.EQUAL, value: 0 })
-      .create();
-
     const loadSubscription$ = this.globalService
-      .getAll(SERV.HASHLISTS, requestParams)
-      .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
+      .getAll(SERV.HASHLISTS, {
+        filter: 'isArchived=false,format=0'
+      })
+      .subscribe((response: ListResponseWrapper<Hashlist>) => {
+        this.selectHashlists = response.values;
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });

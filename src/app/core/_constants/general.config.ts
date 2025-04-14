@@ -1,4 +1,4 @@
 export const yesNo = [
-  { id: true, name: 'Yes' },
-  { id: false, name: 'No' }
+  { _id: true, name: 'Yes' },
+  { _id: false, name: 'No' }
 ];

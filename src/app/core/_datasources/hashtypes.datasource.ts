@@ -1,33 +1,43 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { JHashtype } from '../_models/hashtype.model';
-import { ResponseWrapper } from '../_models/response.model';
+import { Hashtype } from '../_models/hashtype.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class HashtypesDataSource extends BaseDataSource<JHashtype> {
+export class HashtypesDataSource extends BaseDataSource<Hashtype> {
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
+
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
+
     this.subscriptions.push(
       hashtypes$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-
-          const responseBody = { data: response.data, included: response.included };
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
-
+        .subscribe((response: ListResponseWrapper<Hashtype>) => {
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            hashtypes.length
+            response.total
           );
-          this.setData(hashtypes);
+          this.setData(response.values);
         })
     );
   }

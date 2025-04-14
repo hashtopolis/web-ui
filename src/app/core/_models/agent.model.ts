@@ -1,15 +1,22 @@
-import { AccessGroup } from '@models/access-group.model';
-import { JUser } from '@models/user.model';
-import { JChunk } from '@models/chunk.model';
-import { BaseModel } from '@models/base.model';
-import { JTask } from '@models/task.model';
-import { JAgentStat } from '@models/agent-stats.model';
+import { AccessGroup } from './access-group.model';
+import { Chunk } from './chunk.model';
+import { Task } from './task.model';
+import { User } from './user.model';
 
-/**
- * Interface for cracking agent
- * @extends BaseModel
- */
-export interface JAgent extends BaseModel {
+export interface AgentStats {
+  _id: number;
+  _self: string;
+  agentStatId: number;
+  agentId: number;
+  statType: number;
+  time: number;
+  value: number[];
+}
+
+export interface Agent {
+  _id?: number;
+  _self?: string;
+  agentId: number;
   agentName: string;
   uid: string;
   os: number;
@@ -22,18 +29,45 @@ export interface JAgent extends BaseModel {
   lastAct: string;
   lastTime: number;
   lastIp: string;
-  userId: null;
-  user?: JUser;
+  userId: number;
+  user?: User;
   cpuOnly: number;
   clientSignature: string;
-  agentStats?: JAgentStat[];
+  agentstats?: AgentStats[];
   accessGroups?: AccessGroup[];
-  accessGroup?: string;
-  task?: JTask;
+  task?: Task;
   taskId?: number;
   taskName?: string;
-  chunk?: JChunk;
+  chunk?: Chunk;
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
+}
+
+export interface IAgents {
+  _expandable?: string;
+  startAt: number;
+  maxResults: number;
+  total: number;
+  isLast: string;
+  values: [
+    {
+      agentId: number;
+      agentName: string;
+      uid: string;
+      os: number;
+      devices: string;
+      cmdPars: string;
+      ignoreErrors: string;
+      isActive: string;
+      isTrusted: string;
+      token: string;
+      lastAct: string;
+      lastTime: number;
+      lastIp: string;
+      userId: number;
+      cpuOnly: number;
+      clientSignature: string;
+    }
+  ];
 }

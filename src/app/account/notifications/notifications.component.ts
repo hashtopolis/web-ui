@@ -1,9 +1,8 @@
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { Component } from '@angular/core';
 
-import { AutoTitleService } from '@services/shared/autotitle.service';
-
 export interface Filter {
-  id: number;
+  _id: number;
   name: string;
 }
 

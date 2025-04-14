@@ -1,17 +1,15 @@
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { SERV } from '@src/app/core/_services/main.config';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
-import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { OnDestroy } from '@angular/core';
+import { SERV } from '../../core/_services/main.config';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
   selector: 'app-edit-groups',
@@ -91,13 +89,9 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   initForm() {
     const loadSubscription$ = this.gs
       .get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex)
-      .subscribe((response: ResponseWrapper) => {
-        const accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-          data: response.data,
-          included: response.included
-        });
+      .subscribe((response) => {
         this.updateForm = new FormGroup({
-          groupName: new FormControl(accessGroup.groupName)
+          groupName: new FormControl(response['groupName'])
         });
       });
     this.unsubscribeService.add(loadSubscription$);
@@ -111,7 +105,11 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     if (this.updateForm.valid) {
       this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
-        .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
+        .update(
+          SERV.ACCESS_GROUPS,
+          this.editedAccessGroupIndex,
+          this.updateForm.value
+        )
         .subscribe(() => {
           this.alert.okAlert('Access Group saved!', '');
           this.isUpdatingLoading = false;
@@ -130,11 +128,13 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     this.alert.deleteConfirmation('', 'Access Groups').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        const onDeleteSubscription$ = this.gs.delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex).subscribe(() => {
-          // Successful deletion
-          this.alert.okAlert(`Deleted Access Group`, '');
-          this.router.navigate(['/users/access-groups']);
-        });
+        const onDeleteSubscription$ = this.gs
+          .delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex)
+          .subscribe(() => {
+            // Successful deletion
+            this.alert.okAlert(`Deleted Access Group`, '');
+            this.router.navigate(['/users/access-groups']);
+          });
         this.unsubscribeService.add(onDeleteSubscription$);
       } else {
         // Handle cancellation

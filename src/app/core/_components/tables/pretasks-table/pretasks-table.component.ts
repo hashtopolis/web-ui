@@ -21,7 +21,7 @@ import { calculateKeyspace } from 'src/app/shared/utils/estkeyspace_attack';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
 import { PreTasksDataSource } from 'src/app/core/_datasources/preconfigured-tasks.datasource';
-import { JPretask } from 'src/app/core/_models/pretask.model';
+import { Pretask } from 'src/app/core/_models/pretask.model';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SafeHtml } from '@angular/platform-browser';
 import { SERV } from 'src/app/core/_services/main.config';
@@ -66,7 +66,7 @@ export class PretasksTableComponent
     }
   }
 
-  filter(item: JPretask, filterValue: string): boolean {
+  filter(item: Pretask, filterValue: string): boolean {
     return (
       item.taskName.toLowerCase().includes(filterValue) ||
       item.attackCmd.toLowerCase().includes(filterValue)
@@ -77,38 +77,38 @@ export class PretasksTableComponent
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (pretask: JPretask) => pretask.id + ''
+        export: async (pretask: Pretask) => pretask._id + ''
       },
       {
         id: PretasksTableCol.NAME,
         dataKey: 'taskName',
-        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
+        routerLink: (pretask: Pretask) => this.renderPretaskLink(pretask),
         isSortable: true,
-        export: async (pretask: JPretask) => pretask.taskName
+        export: async (pretask: Pretask) => pretask.taskName
       },
       {
         id: PretasksTableCol.ATTACK_COMMAND,
         dataKey: 'attackCmd',
         isSortable: true,
-        export: async (pretask: JPretask) => pretask.attackCmd
+        export: async (pretask: Pretask) => pretask.attackCmd
       },
       {
         id: PretasksTableCol.FILES_TOTAL,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        icons: (pretask: JPretask) => this.renderSecretIcon(pretask),
-        render: (pretask: JPretask) => pretask.pretaskFiles?.length,
-        export: async (pretask: JPretask) =>
-          pretask.pretaskFiles?.length.toString()
+        icons: (pretask: Pretask) => this.renderSecretIcon(pretask),
+        render: (pretask: Pretask) => pretask.pretaskFiles.length,
+        export: async (pretask: Pretask) =>
+          pretask.pretaskFiles.length.toString()
       },
       {
         id: PretasksTableCol.FILES_SIZE,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        render: (pretask: JPretask) => {
-          const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
+        render: (pretask: Pretask) => {
+          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
             if (file && typeof file.size === 'number' && !isNaN(file.size)) {
               return sum + file.size;
             } else {
@@ -117,8 +117,8 @@ export class PretasksTableComponent
           }, 0);
           return formatFileSize(totalFileSize, 'short');
         },
-        export: async (pretask: JPretask) => {
-          const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
+        export: async (pretask: Pretask) => {
+          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
             if (file && typeof file.size === 'number' && !isNaN(file.size)) {
               return sum + file.size;
             } else {
@@ -131,7 +131,7 @@ export class PretasksTableComponent
       {
         id: PretasksTableCol.PRIORITY,
         dataKey: 'priority',
-        editable: (pretask: JPretask) => {
+        editable: (pretask: Pretask) => {
           return {
             data: pretask,
             value: pretask.priority + '',
@@ -139,12 +139,12 @@ export class PretasksTableComponent
           };
         },
         isSortable: true,
-        export: async (pretask: JPretask) => pretask.priority.toString()
+        export: async (pretask: Pretask) => pretask.priority.toString()
       },
       {
         id: PretasksTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
-        editable: (pretask: JPretask) => {
+        editable: (pretask: Pretask) => {
           return {
             data: pretask,
             value: pretask.maxAgents + '',
@@ -152,7 +152,7 @@ export class PretasksTableComponent
           };
         },
         isSortable: true,
-        export: async (pretask: JPretask) => pretask.maxAgents.toString()
+        export: async (pretask: Pretask) => pretask.maxAgents.toString()
       }
     ];
 
@@ -160,26 +160,26 @@ export class PretasksTableComponent
       tableColumns.push({
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
         dataKey: 'keyspaceSize',
-        async: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
+        async: (pretask: Pretask) => this.renderEstimatedKeyspace(pretask),
         icons: undefined,
         isSortable: true,
-        export: async (pretask: JPretask) =>
+        export: async (pretask: Pretask) =>
           Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
       });
       tableColumns.push({
         id: PretasksTableCol.ATTACK_RUNTIME,
         dataKey: 'keyspaceTime',
         icons: undefined,
-        isSortable: true,
-        async: (pretask: JPretask) =>
-          this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3, pretask)
+        isSortable: true
+        // render: (pretask: Pretask) =>
+        //   this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3, pretask)
       });
     }
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<JPretask>) {
+  openDialog(data: DialogData<Pretask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -203,10 +203,10 @@ export class PretasksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Pretask[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JPretask>(
+        this.exportService.toExcel<Pretask>(
           'hashtopolis-pretasks',
           this.tableColumns,
           event.data,
@@ -214,7 +214,7 @@ export class PretasksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JPretask>(
+        this.exportService.toCsv<Pretask>(
           'hashtopolis-pretasks',
           this.tableColumns,
           event.data,
@@ -223,7 +223,7 @@ export class PretasksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JPretask>(
+          .toClipboard<Pretask>(
             this.tableColumns,
             event.data,
             PretasksTableColumnLabel
@@ -238,7 +238,7 @@ export class PretasksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<JPretask>): void {
+  rowActionClicked(event: ActionMenuEvent<Pretask>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -270,7 +270,7 @@ export class PretasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<Pretask[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -289,10 +289,10 @@ export class PretasksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(pretasks: JPretask[]): void {
+  private bulkActionDelete(pretasks: Pretask[]): void {
     if (this.supertTaskId === 0) {
-      const requests = pretasks.map((pretask: JPretask) => {
-        return this.gs.delete(SERV.PRETASKS, pretask.id);
+      const requests = pretasks.map((pretask: Pretask) => {
+        return this.gs.delete(SERV.PRETASKS, pretask._id);
       });
 
       this.subscriptions.push(
@@ -313,15 +313,15 @@ export class PretasksTableComponent
       );
     } else {
       const filter = this.dataSource['originalData'].filter(
-        (u) => u.id !== pretasks[0].id
+        (u) => u.pretaskId !== pretasks[0]._id
       );
       const payload = [];
       for (let i = 0; i < filter.length; i++) {
-        payload.push(filter[i].id);
+        payload.push(filter[i].pretaskId);
       }
 
-      const requests = pretasks.map((pretask: JPretask) => {
-        return this.gs.delete(SERV.PRETASKS, pretask.id);
+      const requests = pretasks.map((pretask: Pretask) => {
+        return this.gs.delete(SERV.PRETASKS, pretask._id);
       });
 
       this.subscriptions.push(
@@ -343,8 +343,8 @@ export class PretasksTableComponent
     }
   }
 
-  @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(pretask: JPretask): Promise<HTTableIcon[]> {
+  @Cacheable(['_id', 'isSecret'])
+  async renderSecretIcon(pretask: Pretask): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
     const secretFilesCount = pretask.pretaskFiles.reduce(
       (sum, file) => sum + (file.isSecret ? 1 : 0),
@@ -363,26 +363,26 @@ export class PretasksTableComponent
     return icons;
   }
 
-  @Cacheable(['id'])
-  async renderPretaskLink(pretask: JPretask): Promise<HTTableRouterLink[]> {
+  @Cacheable(['_id'])
+  async renderPretaskLink(pretask: Pretask): Promise<HTTableRouterLink[]> {
     return [
       {
-        routerLink: ['/tasks/preconfigured-tasks', pretask.id, 'edit']
+        routerLink: ['/tasks/preconfigured-tasks', pretask._id, 'edit']
       }
     ];
   }
 
-  @Cacheable(['id', 'taskName'])
+  @Cacheable(['_id'])
   async renderEstimatedKeyspace(pretask: any): Promise<SafeHtml> {
     return calculateKeyspace(
-      pretask.pretaskFiles,
+      pretask.pretaskFiles[0].pretaskFiles,
       'lineCount',
       pretask.attackCmd,
       false
     );
   }
 
-  @Cacheable(['id'])
+  @Cacheable(['_id'])
   async renderKeyspaceTime(
     a0: number,
     a3: number,
@@ -396,7 +396,7 @@ export class PretasksTableComponent
    * Inline Editing
    */
 
-  editableSaved(editable: HTTableEditable<JPretask>): void {
+  editableSaved(editable: HTTableEditable<Pretask>): void {
     switch (editable.action) {
       case PretasksTableEditableAction.CHANGE_PRIORITY:
         this.changePriority(editable.data, editable.value);
@@ -407,7 +407,7 @@ export class PretasksTableComponent
     }
   }
 
-  private changePriority(pretask: JPretask, priority: string): void {
+  private changePriority(pretask: Pretask, priority: string): void {
     let val = 0;
     try {
       val = parseInt(priority);
@@ -420,7 +420,7 @@ export class PretasksTableComponent
       return;
     }
 
-    const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
+    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
       priority: val
     });
     this.subscriptions.push(
@@ -434,7 +434,7 @@ export class PretasksTableComponent
         )
         .subscribe(() => {
           this.snackBar.open(
-            `Changed prio to ${val} on Task #${pretask.id}!`,
+            `Changed prio to ${val} on Task #${pretask._id}!`,
             'Close'
           );
           this.reload();
@@ -442,7 +442,7 @@ export class PretasksTableComponent
     );
   }
 
-  private changeMaxAgents(pretask: JPretask, max: string): void {
+  private changeMaxAgents(pretask: Pretask, max: string): void {
     let val = 0;
     try {
       val = parseInt(max);
@@ -455,7 +455,7 @@ export class PretasksTableComponent
       return;
     }
 
-    const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
+    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
       maxAgents: val
     });
     this.subscriptions.push(
@@ -469,7 +469,7 @@ export class PretasksTableComponent
         )
         .subscribe(() => {
           this.snackBar.open(
-            `Changed number of max agents to ${val} on Task #${pretask.id}!`,
+            `Changed number of max agents to ${val} on Task #${pretask._id}!`,
             'Close'
           );
           this.reload();
@@ -480,11 +480,11 @@ export class PretasksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(pretasks: JPretask[]): void {
+  private rowActionDelete(pretasks: Pretask[]): void {
     if (this.supertTaskId === 0) {
       this.subscriptions.push(
         this.gs
-          .delete(SERV.PRETASKS, pretasks[0].id)
+          .delete(SERV.PRETASKS, pretasks[0]._id)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
@@ -498,11 +498,11 @@ export class PretasksTableComponent
       );
     } else {
       const filter = this.dataSource['originalData'].filter(
-        (u) => u.id !== pretasks[0].id
+        (u) => u.pretaskId !== pretasks[0]._id
       );
       const payload = [];
       for (let i = 0; i < filter.length; i++) {
-        payload.push(filter[i].id);
+        payload.push(filter[i].pretaskId);
       }
       this.subscriptions.push(
         this.gs
@@ -521,21 +521,21 @@ export class PretasksTableComponent
     }
   }
 
-  private rowActionCopyToTask(pretask: JPretask): void {
-    this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
+  private rowActionCopyToTask(pretask: Pretask): void {
+    this.router.navigate(['/tasks/new-tasks', pretask._id, 'copypretask']);
   }
 
-  private rowActionCopyToPretask(pretask: JPretask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
+  private rowActionCopyToPretask(pretask: Pretask): void {
+    this.router.navigate(['/tasks/preconfigured-tasks', pretask._id, 'copy']);
   }
 
-  private rowActionEdit(pretask: JPretask): void {
+  private rowActionEdit(pretask: Pretask): void {
     this.renderPretaskLink(pretask).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });
   }
 
-  calculateKeyspaceTime(a0: number, a3: number, pretask: JPretask): void {
+  calculateKeyspaceTime(a0: number, a3: number, pretask: Pretask): void {
     {
       if (a0 !== 0 && a3 !== 0) {
         let totalSecondsSupertask = 0;

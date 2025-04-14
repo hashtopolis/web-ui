@@ -1,9 +1,14 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, switchMap, take } from 'rxjs';
 
 import { AuthService } from '../_services/access/auth.service';
-import { AuthUser } from '../_models/auth-user.model';
+import { User } from '../_models/auth-user.model';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
@@ -23,7 +28,7 @@ export class AuthInterceptorService implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     return this.authService.user.pipe(
       take(1),
-      switchMap((user: AuthUser) => {
+      switchMap((user: User) => {
         if (!user) {
           // If no user is logged in, just forward the request as is.
           return next.handle(req);

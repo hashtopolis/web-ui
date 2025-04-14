@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
-import { AutoTitleService } from '@services/shared/autotitle.service';
+import { ModalPretasksComponent } from './modal-pretasks/modal-pretasks.component';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-supertasks',

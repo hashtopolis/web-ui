@@ -1,18 +1,21 @@
+import { ChangeDetectorRef, Injectable, ViewChild } from '@angular/core';
+import { environment } from './../../../../environments/environment';
 import * as tus from 'tus-js-client';
-import { Observable } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
+import { ConfigService } from '../shared/config.service';
 
-import { HttpEvent, HttpEventType, HttpProgressEvent } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { UploadFileTUS } from '../../_models/file.model';
+import { SERV } from '../../../core/_services/main.config';
+import {
+  HttpEvent,
+  HttpEventType,
+  HttpProgressEvent
+} from '@angular/common/http';
+import { GlobalService } from '../main.service';
 import { Router } from '@angular/router';
-
-import { AuthData } from '@models/auth-user.model';
-
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { ConfigService } from '@services/shared/config.service';
-import { GlobalService } from '@services/main.service';
-import { ServiceConfig } from '@services/main.config';
-
-import { environment } from '@src/environments/environment';
+import { LocalStorageService } from '../storage/local-storage.service';
+import { UIConfigService } from '../shared/storage.service';
+import { User, UserData } from '../../_models/auth-user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +54,7 @@ export class UploadTUSService {
    * @param router - The Angular Router service for navigation.
    */
   constructor(
-    protected storage: LocalStorageService<AuthData>,
+    protected storage: LocalStorageService<UserData>,
     private cs: ConfigService,
     private gs: GlobalService,
     private router: Router
@@ -59,7 +62,9 @@ export class UploadTUSService {
     /**
      * Retrieves user data from local storage using the STORAGE_KEY and sets the authentication token.
      */
-    const userData: AuthData = this.storage.getItem(UploadTUSService.STORAGE_KEY);
+    const userData: UserData = this.storage.getItem(
+      UploadTUSService.STORAGE_KEY
+    );
     this._token = userData._token;
   }
 
@@ -67,7 +72,7 @@ export class UploadTUSService {
    * Upload file using TUS protocol.
    * @param file - File to upload.
    * @param filename - Name to upload.
-   * @param serviceConfig - Service (URL and Resource) for which upload should be made
+   * @param path - Path for upload.
    * @param form - Creation form.
    * @param redirect - Link to redirect.
    * @returns Observable<number> representing the upload progress.
@@ -77,7 +82,7 @@ export class UploadTUSService {
   uploadFile(
     file: File,
     filename: string,
-    serviceConfig: ServiceConfig,
+    path,
     form = null,
     redirect = null
   ): Observable<number> {
@@ -88,7 +93,9 @@ export class UploadTUSService {
         chunkSize = Infinity;
       }
       if (!tus.isSupported) {
-        alert('This browser does not support uploads. Please use a modern browser instead.');
+        alert(
+          'This browser does not support uploads. Please use a modern browser instead.'
+        );
       }
       const upload = new tus.Upload(file, {
         endpoint: this.cs.getEndpoint() + this.endpoint,
@@ -112,7 +119,7 @@ export class UploadTUSService {
             const progress = 100;
             observer.next(progress);
             if (form !== null) {
-              this.gs.create(serviceConfig, form).subscribe(() => {
+              this.gs.create(path, form).subscribe(() => {
                 this.router.navigate(redirect);
               });
             }
@@ -128,7 +135,7 @@ export class UploadTUSService {
         onSuccess: async () => {
           observer.complete();
           if (form !== null) {
-            this.gs.create(serviceConfig, form).subscribe(() => {
+            this.gs.create(path, form).subscribe(() => {
               this.router.navigate(redirect);
             });
           }
@@ -171,6 +178,9 @@ export class UploadTUSService {
    * @returns True if the event is a progress event, false otherwise.
    */
   isHttpProgressEvent(event: HttpEvent<unknown>): event is HttpProgressEvent {
-    return event.type === HttpEventType.DownloadProgress || event.type === HttpEventType.UploadProgress;
+    return (
+      event.type === HttpEventType.DownloadProgress ||
+      event.type === HttpEventType.UploadProgress
+    );
   }
 }

@@ -1,5 +1,5 @@
-import { BaseModel } from '@models/base.model';
-import { JHashtype } from '@models/hashtype.model';
+import { Agent } from 'http';
+import { Hashtype } from './hashtype.model';
 
 export enum HealthCheckType {
   BRUTE_FORCE
@@ -14,27 +14,24 @@ export const HealthCheckStatus = {
   COMPLETED: 1
 };
 
-/**
- * Interface definition for a health check
- * @extends BaseModel
- */
-export interface JHealthCheck extends BaseModel {
+export interface HealthCheck {
+  _id: number;
+  _self: string;
   attackCmd: string;
   checkType: HealthCheckType;
   crackerBinaryId: number;
   expectedCracks: number;
-  hashTypeId: number;
-  hashType?: JHashtype;
-  hashTypeDescription?: string;
+  hashtypeId: number;
+  hashtype?: Hashtype;
+  hashtypeDescription?: string;
+  healthCheckId: number;
   status: number;
   time: number;
 }
 
-/**
- * Interface definition for a health check agent
- * @extends BaseModel
- */
-export interface JHealthCheckAgent extends BaseModel {
+export interface HealthCheckAgent {
+  _id: number;
+  _self: string;
   healthCheckAgentId: number;
   healthCheckId: number;
   agentId: number;

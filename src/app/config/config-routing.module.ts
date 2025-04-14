@@ -1,5 +1,5 @@
 import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
 
@@ -8,12 +8,12 @@ import { NewHealthChecksComponent } from './health-checks/new-health-check/new-h
 import { AgentBinariesComponent } from './engine/agent-binaries/agent-binaries.component';
 import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
 import { HealthChecksComponent } from './health-checks/health-checks.component';
-import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
-import { FormComponent } from '@components/forms/simple-forms/form.component';
+import { FormConfigComponent } from '../core/_components/forms/simple-forms/formconfig.component';
+import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
 import { CrackersComponent } from './engine/crackers/crackers.component';
 import { HashtypesComponent } from './hashtypes/hashtypes.component';
-import { MyRoute } from '@models/routes.model';
-import { SERV } from '@services/main.config';
+import { MyRoute, RouteData } from '../core/_models/routes.model';
+import { SERV } from '../core/_services/main.config';
 import { LogComponent } from './log/log.component';
 
 const routes: MyRoute[] = [
@@ -27,7 +27,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'serveragent',
           type: 'edit',
-          serviceConfig: SERV.CONFIGS,
+          path: SERV.CONFIGS,
           breadcrumb: 'Agent Settings',
           permission: 'Config'
         },
@@ -39,7 +39,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'servertaskchunk',
           type: 'edit',
-          serviceConfig: SERV.CONFIGS,
+          path: SERV.CONFIGS,
           breadcrumb: 'Task Chunk Settings',
           permission: 'Config'
         },
@@ -51,7 +51,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'serverhch',
           type: 'edit',
-          serviceConfig: SERV.CONFIGS,
+          path: SERV.CONFIGS,
           breadcrumb: 'Hashes/Cracks/Hashlist Settings',
           permission: 'Config'
         },
@@ -63,7 +63,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'servernotif',
           type: 'edit',
-          serviceConfig: SERV.CONFIGS,
+          path: SERV.CONFIGS,
           breadcrumb: 'Notifications',
           permission: 'Notif'
         },
@@ -75,7 +75,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'servergs',
           type: 'edit',
-          serviceConfig: SERV.CONFIGS,
+          path: SERV.CONFIGS,
           breadcrumb: 'General Settings',
           permission: 'Config'
         },
@@ -97,7 +97,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newhashtype',
           type: 'create',
-          serviceConfig: SERV.HASHTYPES,
+          path: SERV.HASHTYPES,
           breadcrumb: 'New Hashtype',
           permission: 'Hashtype'
         },
@@ -109,7 +109,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edithashtype',
           type: 'edit',
-          serviceConfig: SERV.HASHTYPES,
+          path: SERV.HASHTYPES,
           breadcrumb: 'Edit Hashtype',
           permission: 'Hashtype'
         },
@@ -171,7 +171,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newagentbinary',
           type: 'create',
-          serviceConfig: SERV.AGENT_BINARY,
+          path: SERV.AGENT_BINARY,
           breadcrumb: 'Engine > New Agent binary',
           permission: 'AgentBinary'
         },
@@ -183,7 +183,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editagentbinary',
           type: 'edit',
-          serviceConfig: SERV.AGENT_BINARY,
+          path: SERV.AGENT_BINARY,
           breadcrumb: 'Engine > Edit Agent binary',
           permission: 'AgentBinary'
         },
@@ -205,7 +205,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newcracker',
           type: 'create',
-          serviceConfig: SERV.CRACKERS_TYPES,
+          path: SERV.CRACKERS_TYPES,
           breadcrumb: 'Engine > New Cracker',
           permission: 'CrackerBinary'
         },
@@ -217,7 +217,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newcrackerversion',
           type: 'create',
-          serviceConfig: SERV.CRACKERS,
+          path: SERV.CRACKERS,
           breadcrumb: 'Engine > New Cracker Version/Binary',
           permission: 'CrackerBinary'
         },
@@ -229,7 +229,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editcrackerversion',
           type: 'edit',
-          serviceConfig: SERV.CRACKERS,
+          path: SERV.CRACKERS,
           breadcrumb: 'Engine > Edit Cracker Version/Binary',
           permission: 'CrackerBinaryType'
         },
@@ -251,7 +251,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newpreprocessor',
           type: 'create',
-          serviceConfig: SERV.PREPROCESSORS,
+          path: SERV.PREPROCESSORS,
           breadcrumb: 'Engine > New Preprocessor',
           permission: 'Prepro'
         },
@@ -263,7 +263,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editpreprocessor',
           type: 'edit',
-          serviceConfig: SERV.PREPROCESSORS,
+          path: SERV.PREPROCESSORS,
           breadcrumb: 'Engine > Edit Preprocessor',
           permission: 'Prepro'
         },
