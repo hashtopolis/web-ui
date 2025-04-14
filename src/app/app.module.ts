@@ -3,7 +3,7 @@
  *
  */
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AppPreloadingStrategy } from './core/app_preloading_strategy';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserModule, Title } from '@angular/platform-browser';
@@ -56,70 +56,64 @@ import {
   MatSnackBarModule
 } from '@angular/material/snack-bar';
 
-@NgModule({
-  declarations: [
-    ScreenSizeDetectorComponent,
-    PageNotFoundComponent,
-    ScrollYTopComponent,
-    BreadcrumbComponent,
-    ErrorPageComponent,
-    HeaderComponent,
-    FooterComponent,
-    AppComponent
-  ],
-  imports: [
-    BrowserAnimationsModule,
-    ReactiveFormsModule,
-    FontAwesomeModule,
-    DirectivesModule,
-    HttpClientModule,
-    DataTablesModule,
-    ComponentsModule,
-    BrowserModule,
-    CommonModule,
-    MomentModule,
-    PipesModule,
-    FormsModule,
-    AuthModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatCardModule,
-    MatTooltipModule,
-    MatSnackBarModule,
-    CoreComponentsModule,
-    NgbModule,
-    AppRoutingModule, // Main routes for the App
-    NgIdleKeepaliveModule.forRoot(),
-    StoreModule.forRoot({ configList: configReducer })
-  ],
-  providers: [
-    Title,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptorService,
-      multi: true
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: HttpResInterceptor,
-      multi: true
-    },
-    ThemeService,
-    AppPreloadingStrategy,
-    ConfigService,
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
-      useValue: { appearance: 'outline' }
-    },
-    {
-      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-      useValue: { duration: 2500, verticalPosition: 'top' }
-    }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        ScreenSizeDetectorComponent,
+        PageNotFoundComponent,
+        ScrollYTopComponent,
+        BreadcrumbComponent,
+        ErrorPageComponent,
+        HeaderComponent,
+        FooterComponent,
+        AppComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
+        ReactiveFormsModule,
+        FontAwesomeModule,
+        DirectivesModule,
+        DataTablesModule,
+        ComponentsModule,
+        BrowserModule,
+        CommonModule,
+        MomentModule,
+        PipesModule,
+        FormsModule,
+        AuthModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatIconModule,
+        MatMenuModule,
+        MatCardModule,
+        MatTooltipModule,
+        MatSnackBarModule,
+        CoreComponentsModule,
+        NgbModule,
+        AppRoutingModule, // Main routes for the App
+        NgIdleKeepaliveModule.forRoot(),
+        StoreModule.forRoot({ configList: configReducer })], providers: [
+        Title,
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptorService,
+            multi: true
+        },
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: HttpResInterceptor,
+            multi: true
+        },
+        ThemeService,
+        AppPreloadingStrategy,
+        ConfigService,
+        {
+            provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+            useValue: { appearance: 'outline' }
+        },
+        {
+            provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+            useValue: { duration: 2500, verticalPosition: 'top' }
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {
   static injector: Injector;
   constructor(injector: Injector) {
