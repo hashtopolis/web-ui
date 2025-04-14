@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-show-cracks',
-  templateUrl: './show-cracks.component.html'
+    selector: 'app-show-cracks',
+    templateUrl: './show-cracks.component.html',
+    standalone: false
 })
 export class ShowCracksComponent {
   constructor(private titleService: AutoTitleService) {

@@ -28,9 +28,10 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
-  selector: 'hashtypes-table',
-  templateUrl: './hashtypes-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'hashtypes-table',
+    templateUrl: './hashtypes-table.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class HashtypesTableComponent
   extends BaseTableComponent

@@ -20,8 +20,9 @@ import { JPretask } from '@models/pretask.model';
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
  */
 @Component({
-  selector: 'app-edit-preconfigured-tasks',
-  templateUrl: './edit-preconfigured-tasks.component.html'
+    selector: 'app-edit-preconfigured-tasks',
+    templateUrl: './edit-preconfigured-tasks.component.html',
+    standalone: false
 })
 export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

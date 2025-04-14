@@ -1,4 +1,4 @@
-@import '../base/colors';
+@use '../base/colors';
 /* ==================================
             SECTION CARDS
    ================================== */
@@ -106,8 +106,8 @@ hr.break:after {
 }
 
 .err-msg {
-  background: $color-grey-light;
-  color: $color-black;
+  background: colors.$color-grey-light;
+  color: colors.$color-black;
   padding: 1rem;
   font-family: monospace;
   word-break: break-all;
@@ -232,13 +232,13 @@ hr.break:after {
   .mat-mdc-card {
     position: relative;
     background-color: transparent;
-    color: $primary-900;
+    color: colors.$primary-900;
     text-align: center;
     box-shadow: none;
 
     .icon-wrapper {
       border-radius: 100%;
-      background-color: $accent-900;
+      background-color: colors.$accent-900;
       display: inline-block;
       padding: 1em;
       width: 30px;
@@ -260,21 +260,21 @@ hr.break:after {
 
     &.project-info {
       text-align: center;
-      background-color: $accent-900;
+      background-color: colors.$accent-900;
       color: #fff;
     }
   }
 
   .mat-mdc-card-content {
     h3 {
-      color: $primary-900;
+      color: colors.$primary-900;
       font-weight: 200;
       margin-top: 0;
       margin-bottom: 0.5em;
       font-size: 1.5em;
 
       .mat-icon {
-        color: $primary-400;
+        color: colors.$primary-400;
         position: relative;
         top: 4px;
       }
@@ -283,7 +283,7 @@ hr.break:after {
     hr {
       border-width: 1px;
       border-style: solid;
-      border-color: $primary-900;
+      border-color: colors.$primary-900;
     }
 
     span {
@@ -296,7 +296,7 @@ hr.break:after {
       }
 
       &.label {
-        color: $primary-500;
+        color: colors.$primary-500;
         font-size: 0.8em;
 
         .mat-icon {
@@ -324,11 +324,11 @@ hr.break:after {
       color: #fff;
 
       &.project-info {
-        background-color: $accent-900;
+        background-color: colors.$accent-900;
       }
 
       .icon-wrapper {
-        background-color: $accent-900;
+        background-color: colors.$accent-900;
 
         .mat-icon {
           color: #fff;
@@ -338,20 +338,20 @@ hr.break:after {
 
     .mat-mdc-card-content {
       h3 {
-        color: $primary-300;
+        color: colors.$primary-300;
 
         .mat-icon {
-          color: $primary-900;
+          color: colors.$primary-900;
         }
       }
 
       hr {
-        border-color: $primary-900;
+        border-color: colors.$primary-900;
       }
 
       span {
         &.label {
-          color: $primary-300;
+          color: colors.$primary-300;
         }
       }
     }

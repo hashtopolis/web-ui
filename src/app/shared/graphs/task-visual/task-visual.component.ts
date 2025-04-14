@@ -10,8 +10,8 @@ import { JTaskWrapper } from '@models/task-wrapper.model';
 import { JChunk } from '@models/chunk.model';
 
 @Component({
-  selector: 'task-visual',
-  template: `
+    selector: 'task-visual',
+    template: `
     <canvas
       #myCanvas
       style="border: 1px solid;"
@@ -22,9 +22,10 @@ import { JChunk } from '@models/chunk.model';
       Fallback content
     </canvas>
   `,
-  host: {
-    '(window:resize)': 'onWindowResize($event)'
-  }
+    host: {
+        '(window:resize)': 'onWindowResize($event)'
+    },
+    standalone: false
 })
 export class TaskVisualomponent {
   @ViewChild('myCanvas') canvasRef: ElementRef;

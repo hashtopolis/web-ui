@@ -37,9 +37,10 @@ import { JHashlist } from '@models/hashlist.model';
  * Represents the NewTasksComponent responsible for creating a new Tasks.
  */
 @Component({
-  selector: 'app-new-tasks',
-  templateUrl: './new-tasks.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+    selector: 'app-new-tasks',
+    templateUrl: './new-tasks.component.html',
+    changeDetection: ChangeDetectionStrategy.Default,
+    standalone: false
 })
 export class NewTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

@@ -15,7 +15,8 @@ import {
 **/
 
 @Pipe({
-  name: 'groupBy'
+    name: 'groupBy',
+    standalone: false
 })
 export class GroupByPipe implements PipeTransform {
 

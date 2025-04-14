@@ -13,7 +13,8 @@ import { UIConfigService } from '../_services/shared/storage.service';
  **/
 
 @Pipe({
-  name: 'asColor'
+    name: 'asColor',
+    standalone: false
 })
 export class AgentSColorPipe implements PipeTransform {
   constructor(private uiService: UIConfigService) {}

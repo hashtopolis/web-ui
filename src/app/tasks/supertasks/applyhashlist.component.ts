@@ -24,9 +24,10 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
  *
  */
 @Component({
-  selector: 'app-applyhashlist',
-  templateUrl: './applyhashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+    selector: 'app-applyhashlist',
+    templateUrl: './applyhashlist.component.html',
+    changeDetection: ChangeDetectionStrategy.Default,
+    standalone: false
 })
 export class ApplyHashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -129,7 +130,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       supertaskTemplateId: new FormControl(this.editedIndex),
       hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(null || 1),
+      crackerBinaryId: new FormControl(1),
       crackerBinaryTypeId: new FormControl()
     });
 

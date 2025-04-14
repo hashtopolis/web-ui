@@ -21,8 +21,9 @@ import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 
 @Component({
-  selector: 'app-agent-status',
-  templateUrl: './agent-status.component.html'
+    selector: 'app-agent-status',
+    templateUrl: './agent-status.component.html',
+    standalone: false
 })
 @PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {

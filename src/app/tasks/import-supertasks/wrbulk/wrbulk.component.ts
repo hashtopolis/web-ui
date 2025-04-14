@@ -19,8 +19,9 @@ import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 @Component({
-  selector: 'app-wrbulk',
-  templateUrl: './wrbulk.component.html'
+    selector: 'app-wrbulk',
+    templateUrl: './wrbulk.component.html',
+    standalone: false
 })
 @PageTitle(['Import SuperTask - Wordlist/Rules Bulk'])
 export class WrbulkComponent implements OnInit, OnDestroy {

@@ -13,8 +13,9 @@ import { BaseMenuComponent } from '../base-menu/base-menu.component';
  * Component representing the row action menu for various data types.
  */
 @Component({
-  selector: 'row-action-menu',
-  templateUrl: './row-action-menu.component.html'
+    selector: 'row-action-menu',
+    templateUrl: './row-action-menu.component.html',
+    standalone: false
 })
 export class RowActionMenuComponent
   extends BaseMenuComponent

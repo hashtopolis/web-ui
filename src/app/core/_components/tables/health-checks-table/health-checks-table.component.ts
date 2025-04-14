@@ -27,8 +27,9 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { SERV } from '@services/main.config';
 
 @Component({
-  selector: 'health-checks-table',
-  templateUrl: './health-checks-table.component.html'
+    selector: 'health-checks-table',
+    templateUrl: './health-checks-table.component.html',
+    standalone: false
 })
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

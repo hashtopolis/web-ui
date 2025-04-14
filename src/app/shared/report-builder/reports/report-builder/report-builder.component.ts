@@ -8,8 +8,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 pdfMake.vfs = vfsFonts.vfs;
 
 @Component({
-  selector: 'app-report-builder',
-  templateUrl: './report-builder.component.html'
+    selector: 'app-report-builder',
+    templateUrl: './report-builder.component.html',
+    standalone: false
 })
 export class ReportBuilderComponent implements OnInit {
   @Input() templateName: string;
@@ -37,24 +38,24 @@ export class ReportBuilderComponent implements OnInit {
     const coverPageTemplate = this.templates[this.templateName].cover_page;
 
     this.reportForm = this.formBuilder.group({
-      cover_page: ['' || true],
-      cover_page_letter_head: ['' || true],
-      title: ['' || coverPageTemplate?.title.text],
-      info_header_text: ['' || this.templates[this.templateName]?.settings.info_header_text.text],
-      info_cover_body_1: ['' || coverPageTemplate?.info_cover_body_1.text],
-      info_cover_body_2: ['' || coverPageTemplate?.info_cover_body_2.text],
-      reference: ['' || coverPageTemplate?.reference.text],
-      info_cover_body_3: ['' || coverPageTemplate?.info_cover_body_3.text],
-      info_cover_body_4: ['' || coverPageTemplate?.info_cover_body_4.text],
-      info_cover_body_5: ['' || coverPageTemplate?.info_cover_body_5.text],
-      location_date: ['' || coverPageTemplate?.location_date.text],
-      info_cover_footer_1: ['' || coverPageTemplate?.info_cover_footer_1.text],
-      info_cover_footer_2: ['' || coverPageTemplate?.info_cover_footer_2.text],
-      info_cover_footer_3: ['' || coverPageTemplate?.info_cover_footer_3.text],
-      project_name: ['' || this.templates[this.templateName]?.pages.project_name.text],
-      project_description: ['' || this.templates[this.templateName]?.pages.project_description.text],
-      userpassword: ['' || this.templates[this.templateName]?.settings.userpassword],
-      ownerpassword: ['' || this.templates[this.templateName]?.settings.ownerpassword]
+      cover_page: [true],
+      cover_page_letter_head: [true],
+      title: [coverPageTemplate?.title.text],
+      info_header_text: [this.templates[this.templateName]?.settings.info_header_text.text],
+      info_cover_body_1: [coverPageTemplate?.info_cover_body_1.text],
+      info_cover_body_2: [coverPageTemplate?.info_cover_body_2.text],
+      reference: [coverPageTemplate?.reference.text],
+      info_cover_body_3: [coverPageTemplate?.info_cover_body_3.text],
+      info_cover_body_4: [coverPageTemplate?.info_cover_body_4.text],
+      info_cover_body_5: [coverPageTemplate?.info_cover_body_5.text],
+      location_date: [coverPageTemplate?.location_date.text],
+      info_cover_footer_1: [coverPageTemplate?.info_cover_footer_1.text],
+      info_cover_footer_2: [coverPageTemplate?.info_cover_footer_2.text],
+      info_cover_footer_3: [coverPageTemplate?.info_cover_footer_3.text],
+      project_name: [this.templates[this.templateName]?.pages.project_name.text],
+      project_description: [this.templates[this.templateName]?.pages.project_description.text],
+      userpassword: [this.templates[this.templateName]?.settings.userpassword],
+      ownerpassword: [this.templates[this.templateName]?.settings.ownerpassword]
     });
     this.isLoaded = true;
   }

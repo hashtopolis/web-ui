@@ -15,8 +15,9 @@ import { SERV } from '@services/main.config';
 import { JNotification } from '@models/notification.model';
 
 @Component({
-  selector: 'app-edit-notification',
-  templateUrl: './new-notification.component.html'
+    selector: 'app-edit-notification',
+    templateUrl: './new-notification.component.html',
+    standalone: false
 })
 export class EditNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Changes';

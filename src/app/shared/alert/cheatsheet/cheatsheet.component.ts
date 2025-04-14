@@ -5,8 +5,9 @@ import { ApplicationRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
-  selector: 'app-cheatsheet',
-  templateUrl: './cheatsheet.component.html'
+    selector: 'app-cheatsheet',
+    templateUrl: './cheatsheet.component.html',
+    standalone: false
 })
 export class CheatsheetComponent {
   constructor(

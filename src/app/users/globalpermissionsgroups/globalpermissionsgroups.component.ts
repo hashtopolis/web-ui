@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-globalpermissionsgroups',
-  templateUrl: './globalpermissionsgroups.component.html'
+    selector: 'app-globalpermissionsgroups',
+    templateUrl: './globalpermissionsgroups.component.html',
+    standalone: false
 })
 export class GlobalpermissionsgroupsComponent {
   constructor(private titleService: AutoTitleService) {

@@ -23,8 +23,9 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
-  selector: 'crackers-table',
-  templateUrl: './crackers-table.component.html'
+    selector: 'crackers-table',
+    templateUrl: './crackers-table.component.html',
+    standalone: false
 })
 export class CrackersTableComponent
   extends BaseTableComponent

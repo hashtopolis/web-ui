@@ -14,8 +14,9 @@ import {
 **/
 
 @Pipe({
-    name: 'HCstatus'
-  })
+    name: 'HCstatus',
+    standalone: false
+})
   export class HealthCheckStatusPipe implements PipeTransform {
 
     transform(value: any) {

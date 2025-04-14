@@ -1,6 +1,8 @@
 @use '@angular/material' as mat;
+@use 'sass:map';  // Add this import to use map.get()
 
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 $hashtopolis-primary-palette: mat.m2-define-palette(mat.$m2-blue-grey-palette);
 $hashtopolis-accent-palette: mat.m2-define-palette(mat.$m2-cyan-palette);
@@ -33,7 +35,11 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
 
 @include mat.all-component-themes($hashtopolis-light-theme);
 
+
 .dark-theme {
+  background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
   @include mat.all-component-colors($hashtopolis-dark-theme);
-  background-color: var(--mat-toolbar-container-background-color);
 }
+
+
+

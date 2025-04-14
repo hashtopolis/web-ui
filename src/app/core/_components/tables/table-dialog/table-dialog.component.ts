@@ -29,8 +29,9 @@ import { DialogData } from "./table-dialog.model";
  * @template T - The type of data contained in the dialog.
  */
 @Component({
-  selector: 'table-dialog',
-  templateUrl: 'table-dialog.component.html',
+    selector: 'table-dialog',
+    templateUrl: 'table-dialog.component.html',
+    standalone: false
 })
 export class TableDialogComponent<T> {
   /**

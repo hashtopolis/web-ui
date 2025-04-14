@@ -9,9 +9,10 @@ import {
 import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
 
 @Component({
-  selector: 'ht-table-editable-checkbox',
-  templateUrl: './ht-table-type-editable-checkbox.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'ht-table-editable-checkbox',
+    templateUrl: './ht-table-type-editable-checkbox.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class HTTableTypeEditableCheckboxComponent implements OnInit {
   checkbox: HTTableEditable<any>;

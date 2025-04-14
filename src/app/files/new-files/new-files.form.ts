@@ -33,7 +33,7 @@ export const getNewFilesForm = () => {
     isSecret: new FormControl(false),
     fileType: new FormControl(null),
     accessGroupId: new FormControl(1),
-    sourceType: new FormControl('import' || ''),
+    sourceType: new FormControl('import'),
     sourceData: new FormControl('')
   });
 };

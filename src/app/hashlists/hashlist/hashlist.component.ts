@@ -5,8 +5,9 @@ import { HashlistsTableComponent } from 'src/app/core/_components/tables/hashlis
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
-  selector: 'app-hashlist',
-  templateUrl: './hashlist.component.html'
+    selector: 'app-hashlist',
+    templateUrl: './hashlist.component.html',
+    standalone: false
 })
 export class HashlistComponent {
   @ViewChild('table') table: HashlistsTableComponent;

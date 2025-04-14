@@ -22,9 +22,10 @@ import { chunkStates } from '@src/app/core/_constants/chunks.config';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'chunks-table',
-  templateUrl: './chunks-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'chunks-table',
+    templateUrl: './chunks-table.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   // Input property to specify an agent ID for filtering chunks.

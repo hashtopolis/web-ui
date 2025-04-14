@@ -24,8 +24,9 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
  * This component renders a dynamic form based on the provided form metadata.
  */
 @Component({
-  selector: 'app-dynamic-form',
-  templateUrl: 'dynamicform.component.html'
+    selector: 'app-dynamic-form',
+    templateUrl: 'dynamicform.component.html',
+    standalone: false
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
   /**

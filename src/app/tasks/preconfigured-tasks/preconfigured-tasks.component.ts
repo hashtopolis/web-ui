@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-preconfigured-tasks',
-  templateUrl: './preconfigured-tasks.component.html'
+    selector: 'app-preconfigured-tasks',
+    templateUrl: './preconfigured-tasks.component.html',
+    standalone: false
 })
 /**
  * PreconfiguredTasksComponent is a component that manages and displays preconfigured tasks data.

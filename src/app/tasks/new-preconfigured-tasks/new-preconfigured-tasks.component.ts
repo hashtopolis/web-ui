@@ -1,28 +1,25 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { environment } from './../../../environments/environment';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { DataTableDirective } from 'angular-datatables';
-import { Subject } from 'rxjs';
 
-import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { FileTypePipe } from 'src/app/core/_pipes/file-type.pipe';
-import { FileType } from 'src/app/core/_models/file.model';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { benchmarkType } from 'src/app/core/_constants/tasks.config';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { environment } from '@src/environments/environment';
 
 @Component({
   selector: 'app-new-preconfigured-tasks',
-  templateUrl: './new-preconfigured-tasks.component.html'
+  templateUrl: './new-preconfigured-tasks.component.html',
+  standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -34,7 +31,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: any;
+  selectCrackertype: any[];
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
@@ -144,25 +141,18 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   buildForm() {
     this.createForm = new FormGroup({
       taskName: new FormControl('', [Validators.required]),
-      attackCmd: new FormControl(
-        this.uiService.getUIsettings('hashlistAlias').value,
-        [Validators.required]
-      ),
-      maxAgents: new FormControl(null || this.maxAgents),
-      chunkTime: new FormControl(
-        null || Number(this.uiService.getUIsettings('chunktime').value)
-      ),
-      statusTimer: new FormControl(
-        null || Number(this.uiService.getUIsettings('statustimer').value)
-      ),
+      attackCmd: new FormControl(this.uiService.getUIsettings('hashlistAlias').value, [Validators.required]),
+      maxAgents: new FormControl(this.maxAgents),
+      chunkTime: new FormControl(Number(this.uiService.getUIsettings('chunktime').value)),
+      statusTimer: new FormControl(Number(this.uiService.getUIsettings('statustimer').value)),
       priority: new FormControl(0),
       color: new FormControl(''),
-      isCpuTask: new FormControl(null || false),
-      crackerBinaryTypeId: new FormControl(null || 1),
-      isSmall: new FormControl(null || false),
-      useNewBench: new FormControl(null || true),
+      isCpuTask: new FormControl(false),
+      crackerBinaryTypeId: new FormControl(1),
+      isSmall: new FormControl(false),
+      useNewBench: new FormControl(true),
       isMaskImport: new FormControl(false),
-      files: new FormControl('' || [])
+      files: new FormControl([])
     });
   }
 
@@ -172,15 +162,9 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
    * and assigns them to the selectCrackertype property.
    */
   loadData() {
-    const loadCrackersSubscription$ = this.gs
-      .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: any) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          this.selectCrackertypeMap
-        );
-        this.selectCrackertype = transformedOptions;
-      });
+    const loadCrackersSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: any) => {
+      this.selectCrackertype = transformSelectOptions(response.values, this.selectCrackertypeMap);
+    });
     this.unsubscribeService.add(loadCrackersSubscription$);
   }
 
@@ -220,22 +204,13 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
         .subscribe((result) => {
           const arrFiles: Array<any> = [];
           if (result[isPretask ? 'pretaskFiles' : 'files']) {
-            for (
-              let i = 0;
-              i < result[isPretask ? 'pretaskFiles' : 'files'].length;
-              i++
-            ) {
-              arrFiles.push(
-                result[isPretask ? 'pretaskFiles' : 'files'][i]['fileId']
-              );
+            for (let i = 0; i < result[isPretask ? 'pretaskFiles' : 'files'].length; i++) {
+              arrFiles.push(result[isPretask ? 'pretaskFiles' : 'files'][i]['fileId']);
             }
           }
           this.createForm = new FormGroup({
             taskName: new FormControl(
-              result['taskName'] +
-                `_(Copied_${
-                  isPretask ? 'pretask_id' : 'pretask_from_task_id'
-                }_${this.editedIndex})`,
+              result['taskName'] + `_(Copied_${isPretask ? 'pretask_id' : 'pretask_from_task_id'}_${this.editedIndex})`,
               [Validators.required, Validators.minLength(1)]
             ),
             attackCmd: new FormControl(result['attackCmd']),
@@ -264,14 +239,12 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.createForm.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs
-        .create(SERV.PRETASKS, this.createForm.value)
-        .subscribe(() => {
-          this.alert.okAlert('New PreTask created!', '');
-          // this.createForm.reset(); // success, we reset form
-          this.router.navigate(['tasks/preconfigured-tasks']);
-          this.isCreatingLoading = false;
-        });
+      const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe(() => {
+        this.alert.okAlert('New PreTask created!', '');
+        // this.createForm.reset(); // success, we reset form
+        this.router.navigate(['tasks/preconfigured-tasks']);
+        this.isCreatingLoading = false;
+      });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
   }

@@ -2,8 +2,9 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-column-selection-dialog',
-  templateUrl: './column-selection-dialog.component.html'
+    selector: 'app-column-selection-dialog',
+    templateUrl: './column-selection-dialog.component.html',
+    standalone: false
 })
 export class ColumnSelectionDialogComponent {
   availableColumns: { [key: string]: string };

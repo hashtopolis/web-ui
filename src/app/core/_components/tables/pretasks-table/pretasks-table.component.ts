@@ -33,8 +33,9 @@ declare let defaultOptions: any;
 declare let parser: any;
 
 @Component({
-  selector: 'pretasks-table',
-  templateUrl: './pretasks-table.component.html'
+    selector: 'pretasks-table',
+    templateUrl: './pretasks-table.component.html',
+    standalone: false
 })
 export class PretasksTableComponent
   extends BaseTableComponent

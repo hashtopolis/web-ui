@@ -17,8 +17,9 @@ import { JTask } from '@models/task.model';
 import { JHashlist } from '@models/hashlist.model';
 
 @Component({
-  selector: 'app-new-notification',
-  templateUrl: './new-notification.component.html'
+    selector: 'app-new-notification',
+    templateUrl: './new-notification.component.html',
+    standalone: false
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Notification';
@@ -93,7 +94,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       action: new FormControl('', [Validators.required]),
       actionFilter: new FormControl(String('')),
-      notification: new FormControl('' || 'ChatBot', [Validators.required]),
+      notification: new FormControl('ChatBot', [Validators.required]),
       receiver: new FormControl('', [Validators.required]),
       isActive: new FormControl(true)
     });

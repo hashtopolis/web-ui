@@ -90,14 +90,14 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "hashtopolis:build"
+            "buildTarget": "hashtopolis:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "hashtopolis:build:production"
+              "buildTarget": "hashtopolis:build:production"
             },
             "development": {
-              "browserTarget": "hashtopolis:build:development"
+              "buildTarget": "hashtopolis:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -105,7 +105,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "hashtopolis:build"
+            "buildTarget": "hashtopolis:build"
           }
         },
         "test": {
