@@ -1,15 +1,18 @@
-import { IsAuth } from '../core/_guards/auth.guard';
-import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { AccountSettingsComponent } from './settings/acc-settings/acc-settings.component';
-import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
-import { NewNotificationComponent } from './notifications/notification/new-notification.component';
-import { NotificationsComponent } from './notifications/notifications.component';
-import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
-import { AccountComponent } from './account.component';
-import { SERV } from '../core/_services/main.config';
-import { MyRoute, RouteData } from '../core/_models/routes.model';
+import { MyRoute } from '@models/routes.model';
+
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+
+import { SERV } from '@services/main.config';
+
+import { AccountComponent } from '@src/app/account/account.component';
+import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
+import { EditNotificationComponent } from '@src/app/account/notifications/notification/edit-notification.component';
+import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
+import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
+import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
 
 const routes: MyRoute[] = [
   {
@@ -39,7 +42,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'uisettings',
           type: 'edit',
-          path: SERV.CONFIGS,
+          serviceConfig: SERV.CONFIGS,
           breadcrumb: 'UI Settings'
         },
         canActivate: [IsAuth]
@@ -55,11 +58,11 @@ const routes: MyRoute[] = [
       },
       {
         path: 'notifications/:id/edit',
-        component: FormComponent,
+        component: EditNotificationComponent,
         data: {
           kind: 'editnotif',
           type: 'edit',
-          path: SERV.NOTIFICATIONS,
+          serviceConfig: SERV.NOTIFICATIONS,
           breadcrumb: 'Edit Notification'
         },
         canActivate: [IsAuth]

@@ -1,13 +1,20 @@
-import { Agent } from './agent.model';
-import { Task } from './task.model';
+import { BaseModel } from '@models/base.model';
+import { JAgent } from '@models/agent.model';
+import { JTask } from '@models/task.model';
 
-export interface AgentAssignment {
-  _id: number;
-  _self: string;
-  agentId: number;
-  agent?: Agent;
-  assignmentId: number;
-  benchmark: string;
+/**
+ * Interface definition for an agent's assignment to a task
+ * @extends BaseModel
+ * @prop taskId ID of task the agent is assigned to
+ * @prop agentId ID of agent
+ * @prop benchmark Benchmark
+ * @prop agent Optional included agent object
+ * @prop task Optional included task object
+ */
+export interface JAgentAssignment extends BaseModel {
   taskId: number;
-  task?: Task;
+  agentId: number;
+  benchmark: string;
+  agent?: JAgent;
+  task?: JTask;
 }

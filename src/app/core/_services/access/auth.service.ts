@@ -1,8 +1,4 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {
   BehaviorSubject,
   Observable,
@@ -12,7 +8,7 @@ import {
 } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { EventEmitter, Injectable, Output } from '@angular/core';
-import { User, UserData } from '../../_models/auth-user.model';
+import { AuthUser, AuthData } from '../../_models/auth-user.model';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { Buffer } from 'buffer';
@@ -28,7 +24,7 @@ export interface AuthResponseData {
 export class AuthService {
   static readonly STORAGE_KEY = 'userData';
 
-  user = new BehaviorSubject<UserData>(null);
+  user = new BehaviorSubject<AuthData>(null);
   userId!: any;
 
   @Output() authChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -44,9 +40,9 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private cs: ConfigService,
-    private storage: LocalStorageService<UserData>
+    private storage: LocalStorageService<AuthData>
   ) {
-    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     this.userLoggedIn.next(false);
     if (this.logged) {
       this.userId = this.getUserId(this.token);
@@ -54,12 +50,12 @@ export class AuthService {
   }
 
   autoLogin() {
-    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
       return;
     }
 
-    const loadedUser = new User(
+    const loadedUser = new AuthUser(
       userData._token,
       new Date(userData._expires),
       userData._username
@@ -95,7 +91,7 @@ export class AuthService {
   }
 
   get token(): string {
-    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     return userData ? userData._token : 'notoken';
   }
 
@@ -125,7 +121,7 @@ export class AuthService {
 
   getRefreshToken(expirationDuration: number) {
     this.tokenExpiration = setTimeout(() => {
-      const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+      const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
       return this.http
         .post<AuthResponseData>(
           this.cs.getEndpoint() + this.endpoint + '/refresh',
@@ -151,7 +147,7 @@ export class AuthService {
   }
 
   refreshToken(): Observable<any> {
-    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     return this.http
       .post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh ', {
         headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })
@@ -186,7 +182,7 @@ export class AuthService {
   }
 
   checkStatus() {
-    const userData: UserData = this.storage.getItem(AuthService.STORAGE_KEY);
+    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (userData) {
       this.logged.next(true);
     } else {

@@ -1,54 +1,44 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { Hash } from '../_models/hash.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { JHash } from '../_models/hash.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { ResponseWrapper } from '../_models/response.model';
+import { FilterType } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class CracksDataSource extends BaseDataSource<Hash> {
+export class CracksDataSource extends BaseDataSource<JHash> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      filter: 'isCracked=1',
-      expand: 'hashlist,chunk'
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
+    const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk').addFilter({
+      field: 'isCracked',
+      operator: FilterType.EQUAL,
+      value: true
+    }).create();
 
     const cracks$ = this.service.getAll(SERV.HASHES, params);
-
     this.subscriptions.push(
       cracks$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Hash>) => {
-          const cracks: Hash[] = response.values;
-
-          cracks.map((crack: Hash) => {
-            if (crack.chunk) {
-              crack.agentId = crack.chunk.agentId;
-              crack.taskId = crack.chunk.taskId;
-            }
+        .subscribe((response: ResponseWrapper) => {
+          const serializer = new JsonAPISerializer();
+          const responseData = { data: response.data, included: response.included };
+          const crackedHashes = serializer.deserialize<JHash[]>(responseData);
+          const rows: JHash[] = [];
+          crackedHashes.forEach((crackedHash) => {
+            rows.push(crackedHash);
           });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            response.total
+            crackedHashes.length
           );
-          this.setData(cracks);
+          this.setData(rows);
         })
     );
   }

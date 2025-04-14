@@ -1,11 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Log } from '../_models/log.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
-import { RequestParams } from '../_models/request-params.model';
+import { FilterType } from '../_models/request-params.model';
+import { JHash } from '../_models/hash.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class SearchHashDataSource extends BaseDataSource<Log> {
+export class SearchHashDataSource extends BaseDataSource<JHash> {
   private _search: string[];
 
   setSearch(hashArray: string[]): void {
@@ -15,21 +16,14 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
     const arr = [];
 
     for (let i = 0; i < this._search.length; i++) {
-      const params: RequestParams = {
-        maxResults: this.pageSize,
-        startsAt: startAt,
-        filter: `hash=${this._search[i]}`
-      };
-
-      if (sorting.dataKey && sorting.isSortable) {
-        const order = this.buildSortingParams(sorting);
-        params.ordering = order;
-      }
+      const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addFilter({
+        field: 'hash',
+        operator: FilterType.EQUAL,
+        value: this._search[i]
+      }).create();
 
       const hashs$ = this.service.getAll(SERV.HASHES, params);
 
@@ -47,18 +41,22 @@ export class SearchHashDataSource extends BaseDataSource<Log> {
               }
             })
           )
-          .subscribe((response: ListResponseWrapper<any>) => {
-            const hashs: any[] = response.values;
+          .subscribe((response: ResponseWrapper) => {
 
-            if (hashs[0]) {
-              arr.push(hashs[0]);
+            const responseData = { data: response.data, included: response.included };
+            const hashes = this.serializer.deserialize<JHash[]>(responseData);
+
+            // const hashs: any[] = response.values;
+
+            if (hashes[0]) {
+              arr.push(hashes[0]);
             } else {
               arr.push({ hash: this._search[i], isCracked: 3 });
             }
             this.setPaginationConfig(
               this.pageSize,
               this.currentPage,
-              response.total
+              hashes.length
             );
             this.setData(arr);
           })

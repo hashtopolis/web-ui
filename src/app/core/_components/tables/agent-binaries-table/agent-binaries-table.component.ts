@@ -8,7 +8,7 @@ import { catchError, forkJoin } from 'rxjs';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { AgentBinariesDataSource } from 'src/app/core/_datasources/agent-binaries.datasource';
-import { AgentBinary } from 'src/app/core/_models/agent-binary.model';
+import { JAgentBinary } from 'src/app/core/_models/agent-binary.model';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
@@ -53,7 +53,7 @@ export class AgentBinariesTableComponent
     }
   }
 
-  filter(item: AgentBinary, filterValue: string): boolean {
+  filter(item: JAgentBinary, filterValue: string): boolean {
     if (item.filename.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -65,46 +65,51 @@ export class AgentBinariesTableComponent
     const tableColumns = [
       {
         id: AgentBinariesTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary._id + ''
+        export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
         id: AgentBinariesTableCol.TYPE,
         dataKey: 'type',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.type
+        render: (agentBinary: JAgentBinary) => agentBinary.agentbinaryType,
+        export: async (agentBinary: JAgentBinary) => agentBinary.agentbinaryType
       },
       {
         id: AgentBinariesTableCol.OS,
         dataKey: 'operatingSystems',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.operatingSystems
+        render: (agentBinary: JAgentBinary) => agentBinary.operatingSystems,
+        export: async (agentBinary: JAgentBinary) => agentBinary.operatingSystems
       },
       {
         id: AgentBinariesTableCol.FILENAME,
         dataKey: 'filename',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.filename
+        render: (agentBinary: JAgentBinary) => agentBinary.filename,
+        export: async (agentBinary: JAgentBinary) => agentBinary.filename
       },
       {
         id: AgentBinariesTableCol.VERSION,
         dataKey: 'version',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.version
+        render: (agentBinary: JAgentBinary) => agentBinary.version,
+        export: async (agentBinary: JAgentBinary) => agentBinary.version
       },
       {
         id: AgentBinariesTableCol.UPDATE_TRACK,
         dataKey: 'updateTrack',
         isSortable: true,
-        export: async (agentBinary: AgentBinary) => agentBinary.updateTrack
+        render: (agentBinary: JAgentBinary) => agentBinary.updateTrack,
+        export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<AgentBinary>) {
+  openDialog(data: DialogData<JAgentBinary>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -128,10 +133,10 @@ export class AgentBinariesTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<AgentBinary[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<AgentBinary>(
+        this.exportService.toExcel<JAgentBinary>(
           'hashtopolis-agent-binaries',
           this.tableColumns,
           event.data,
@@ -139,7 +144,7 @@ export class AgentBinariesTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<AgentBinary>(
+        this.exportService.toCsv<JAgentBinary>(
           'hashtopolis-agent-binaries',
           this.tableColumns,
           event.data,
@@ -148,7 +153,7 @@ export class AgentBinariesTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<AgentBinary>(
+          .toClipboard<JAgentBinary>(
             this.tableColumns,
             event.data,
             AgentBinariesTableColumnLabel
@@ -163,7 +168,7 @@ export class AgentBinariesTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<AgentBinary>): void {
+  rowActionClicked(event: ActionMenuEvent<JAgentBinary>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
@@ -187,7 +192,7 @@ export class AgentBinariesTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<AgentBinary[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -206,9 +211,9 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(agentBinaries: AgentBinary[]): void {
-    const requests = agentBinaries.map((agentBinary: AgentBinary) => {
-      return this.gs.delete(SERV.AGENT_BINARY, agentBinary._id);
+  private bulkActionDelete(agentBinaries: JAgentBinary[]): void {
+    const requests = agentBinaries.map((agentBinary: JAgentBinary) => {
+      return this.gs.delete(SERV.AGENT_BINARY, agentBinary.id);
     });
 
     this.subscriptions.push(
@@ -232,10 +237,10 @@ export class AgentBinariesTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agentBinaries: AgentBinary[]): void {
+  private rowActionDelete(agentBinaries: JAgentBinary[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.AGENT_BINARY, agentBinaries[0]._id)
+        .delete(SERV.AGENT_BINARY, agentBinaries[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -249,18 +254,18 @@ export class AgentBinariesTableComponent
     );
   }
 
-  private rowActionEdit(agentBinary: AgentBinary): void {
+  private rowActionEdit(agentBinary: JAgentBinary): void {
     this.router.navigate([
       '/config',
       'engine',
       'agent-binaries',
-      agentBinary._id,
+      agentBinary.id,
       'edit'
     ]);
   }
 
-  private rowActionCopyLink(agentBinary: AgentBinary): void {
-    const link = `${this.agentdownloadURL}${agentBinary._id}`;
+  private rowActionCopyLink(agentBinary: JAgentBinary): void {
+    const link = `${this.agentdownloadURL}${agentBinary.id}`;
     this.clipboard.copy(link);
     this.snackBar.open(
       'The agent binary URL is copied to the clipboard',
@@ -268,7 +273,7 @@ export class AgentBinariesTableComponent
     );
   }
 
-  private rowActionDownload(agentBinary: AgentBinary): void {
-    window.location.href = `${this.agentdownloadURL}${agentBinary._id}`;
+  private rowActionDownload(agentBinary: JAgentBinary): void {
+    window.location.href = `${this.agentdownloadURL}${agentBinary.id}`;
   }
 }

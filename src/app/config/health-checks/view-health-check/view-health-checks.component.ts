@@ -1,19 +1,19 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  UIConfig,
-  uiConfigDefault
-} from 'src/app/core/_models/config-ui.model';
 
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { JHealthCheck } from '@models/health-check.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { GlobalService } from '@services/main.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+import { SERV } from '@services/main.config';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { HealthCheck } from 'src/app/core/_models/health-check.model';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 @Component({
   selector: 'app-view-health-checks',
@@ -23,7 +23,7 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   // The index of the edited health check.
   viewedHealthCIndex: number;
   // The health check object.
-  public healthc: HealthCheck;
+  public healthc: JHealthCheck;
 
   //Date format
   protected uiSettings: UISettingsUtilityClass;
@@ -77,8 +77,11 @@ export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   loadData(): void {
     const loadSubscription$ = this.gs
       .get(SERV.HEALTH_CHECKS, this.viewedHealthCIndex)
-      .subscribe((healthCheck: HealthCheck) => {
-        this.healthc = healthCheck;
+      .subscribe((response: ResponseWrapper) => {
+        this.healthc = new JsonAPISerializer().deserialize<JHealthCheck>({
+          data: response.data,
+          included: response.included
+        });
       });
     this.unsubscribeService.add(loadSubscription$);
   }

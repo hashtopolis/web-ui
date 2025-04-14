@@ -10,6 +10,9 @@ import { Observable, map, take } from 'rxjs';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from '../_services/shared/alert.service';
 import { SERV } from '../_services/main.config';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JUser } from '@src/app/core/_models/user.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +22,8 @@ export class PermissionGuard {
 
   constructor(
     private alert: AlertService,
-    private gs: GlobalService
+    private gs: GlobalService,
+    private serializer: JsonAPISerializer
   ) {}
 
   canActivate(
@@ -27,11 +31,15 @@ export class PermissionGuard {
     state: RouterStateSnapshot
   ): Observable<boolean> {
     return this.gs
-      .get(SERV.USERS, this.gs.userId, { expand: 'globalPermissionGroup' })
+      .get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] })
       .pipe(
         take(1),
-        map((perm) => {
-          const permissions = perm.globalPermissionGroup.permissions; //Check all permissions
+        map((response: ResponseWrapper) => {
+
+          const responseData = { data: response.data, included: response.included };
+          const user = this.serializer.deserialize<JUser>(responseData);
+
+          const permissions = user.globalPermissionGroup.permissions; //Check all permissions
           const permName = Perm[route.data['permission']].READ; //Get permission name
           const hasAccess = permissions[permName]; //returns true or false
           if (hasAccess || typeof hasAccess == 'undefined') {

@@ -77,7 +77,7 @@ export class AgentStatusModalComponent implements OnInit {
       this.statusNumber = 2;
       this.statusLabel = 'Device temperatures';
       this.statusInvalid = 'device';
-      this.unitLabel = '';
+      this.unitLabel = '°';
     } else if (this.thresholdType === 'util') {
       this.statusNumber = 3;
       this.statusLabel = 'Device utilisation';

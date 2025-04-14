@@ -1,19 +1,20 @@
-import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { yesNo } from '../../core/_constants/general.config';
 import { SERV } from '../../core/_services/main.config';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { OnDestroy } from '@angular/core';
+import { FilterType } from 'src/app/core/_models/request-params.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { JPretask } from '@models/pretask.model';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
@@ -49,7 +50,8 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.getInitialization();
     this.buildForm();
@@ -106,16 +108,18 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Pretasks, for the component.
    */
   loadData(): void {
-    const params = {
-      filter: 'pretaskId=' + this.editedPretaskIndex + '',
-      expand: 'pretaskFiles'
-    };
-    const loadtableSubscription$ = this.gs
-      .getAll(SERV.PRETASKS, params)
-      .subscribe((pretasks: any) => {
-        this.files = pretasks.values;
-        this.dtTrigger.next(void 0);
-      });
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'pretaskId', operator: FilterType.EQUAL, value: this.editedPretaskIndex })
+      .addInclude('pretaskFiles')
+      .create();
+
+    const loadtableSubscription$ = this.gs.getAll(SERV.PRETASKS, params).subscribe((response: ResponseWrapper) => {
+      const responseBody = { data: response.data, included: response.included };
+      const pretasks = this.serializer.deserialize<JPretask[]>(responseBody);
+
+      this.files = pretasks;
+      this.dtTrigger.next(void 0);
+    });
 
     this.unsubscribeService.add(loadtableSubscription$);
 
@@ -141,11 +145,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
     if (this.updateForm.valid) {
       this.isUpdatingLoading = true;
       const updateSubscription$ = this.gs
-        .update(
-          SERV.PRETASKS,
-          this.editedPretaskIndex,
-          this.updateForm.value['updateData']
-        )
+        .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
         .subscribe(() => {
           this.alert.okAlert('PreTask saved!', '');
           this.isUpdatingLoading = false;
@@ -160,38 +160,37 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
    * This method retrieves the pre-task data from the server and updates the form controls accordingly.
    */
   private updateFormValues() {
+    const params = new RequestParamBuilder().create();
+
     const loadSubscription$ = this.gs
-      .get(SERV.PRETASKS, this.editedPretaskIndex)
-      .subscribe((result) => {
-        this.pretask = result;
+      .get(SERV.PRETASKS, this.editedPretaskIndex, params)
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const pretask = this.serializer.deserialize<JPretask>(responseBody);
+
+        this.pretask = pretask;
         this.updateForm = new FormGroup({
           pretaskId: new FormControl({
-            value: result['pretaskId'],
+            value: pretask.id,
             disabled: true
           }),
           statusTimer: new FormControl({
-            value: result['statusTimer'],
+            value: pretask.statusTimer,
             disabled: true
           }),
           useNewBench: new FormControl({
-            value: result['useNewBench'],
+            value: pretask.useNewBench,
             disabled: true
           }),
           updateData: new FormGroup({
-            taskName: new FormControl(result['taskName'], Validators.required),
-            attackCmd: new FormControl(
-              result['attackCmd'],
-              Validators.required
-            ),
-            chunkTime: new FormControl(result['chunkTime']),
-            color: new FormControl(result['color']),
-            priority: new FormControl(result['priority']),
-            maxAgents: new FormControl(result['maxAgents']),
-            isCpuTask: new FormControl(
-              result['isCpuTask'],
-              Validators.required
-            ),
-            isSmall: new FormControl(result['isSmall'], Validators.required)
+            taskName: new FormControl(pretask.taskName, Validators.required),
+            attackCmd: new FormControl(pretask.attackCmd, Validators.required),
+            chunkTime: new FormControl(pretask.chunkTime),
+            color: new FormControl(pretask.color),
+            priority: new FormControl(pretask.priority),
+            maxAgents: new FormControl(pretask.maxAgents),
+            isCpuTask: new FormControl(pretask.isCpuTask, Validators.required),
+            isSmall: new FormControl(pretask.isSmall, Validators.required)
           })
         });
         this.unsubscribeService.add(loadSubscription$);

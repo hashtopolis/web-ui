@@ -12,13 +12,14 @@ import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-m
 import { CracksDataSource } from 'src/app/core/_datasources/cracks.datasource';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { Hash } from 'src/app/core/_models/hash.model';
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
+import { JHash } from 'src/app/core/_models/hash.model';
 import { HashListFormatLabel } from 'src/app/core/_constants/hashlist.config';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { Cacheable } from '../../../_decorators/cacheable';
 
 @Component({
   selector: 'cracks-table',
@@ -45,7 +46,7 @@ export class CracksTableComponent
     }
   }
 
-  filter(item: Hash, filterValue: string): boolean {
+  filter(item: JHash, filterValue: string): boolean {
     if (item.plaintext.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -58,53 +59,55 @@ export class CracksTableComponent
       {
         id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
-        render: (crack: Hash) =>
+        render: (crack: JHash) =>
           formatUnixTimestamp(crack.timeCracked, this.dateFormat),
         isSortable: true,
-        export: async (crack: Hash) =>
+        export: async (crack: JHash) =>
           formatUnixTimestamp(crack.timeCracked, this.dateFormat)
       },
       {
         id: CracksTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        export: async (crack: Hash) => crack.plaintext
+        render: (crack: JHash) => crack.plaintext,
+        export: async (crack: JHash) => crack.plaintext
       },
       {
         id: CracksTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
         truncate: true,
-        export: async (crack: Hash) => crack.hash
+        render: (crack: JHash) => crack.hash,
+        export: async (crack: JHash) => crack.hash
       },
       {
         id: CracksTableCol.AGENT,
         dataKey: 'agentId',
         isSortable: true,
-        routerLink: (crack: Hash) => this.renderAgentLink(crack),
-        export: async (crack: Hash) => crack.agentId + ''
+        routerLink: (crack: JHash) => this.renderAgentLink(crack),
+        export: async (crack: JHash) => crack.chunk.agentId + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: true,
-        routerLink: (crack: Hash) => this.renderTaskLink(crack),
-        export: async (crack: Hash) => crack.taskId + ''
+        routerLink: (crack: JHash) => this.renderTaskLinkId(crack),
+        export: async (crack: JHash) => crack.chunk.taskId + ''
       },
       {
         id: CracksTableCol.CHUNK,
         dataKey: 'chunkId',
         isSortable: true,
-        routerLink: (crack: Hash) => this.renderChunkLink(crack),
-        export: async (crack: Hash) => crack.chunkId + ''
+        routerLink: (crack: JHash) => this.renderChunkLink(crack),
+        export: async (crack: JHash) => crack.chunkId + ''
       },
       {
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: Hash) =>
+        render: (crack: JHash) =>
           crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '',
-        export: async (crack: Hash) =>
+        export: async (crack: JHash) =>
           crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''
       }
     ];
@@ -112,7 +115,7 @@ export class CracksTableComponent
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Hash>) {
+  openDialog(data: DialogData<JHash>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -134,12 +137,43 @@ export class CracksTableComponent
     );
   }
 
+
+
+  // --- Render functions ---
+  @Cacheable(['id'])
+ override async renderAgentLink(obj: JHash): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        //crack.chunk.agentId
+        routerLink:
+          obj && obj['chunk']['agentId']
+            ? ['/agents', 'show-agents', obj['chunk']['agentId'], 'edit']
+            : [],
+        label: obj['chunk']['agentId']
+      }
+    ];
+  }
+
+  @Cacheable(['id'])
+  async renderTaskLinkId(obj: JHash): Promise<HTTableRouterLink[]> {
+  return [
+    {
+      routerLink:
+        obj && obj['chunk']['taskId']
+          ? ['/tasks', 'show-tasks', obj['chunk']['taskId'], 'edit']
+          : [],
+      label: obj['chunk']['taskId']
+    }
+  ];
+}
+
+
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Hash[]>): void {
+  exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Hash>(
+        this.exportService.toExcel<JHash>(
           'hashtopolis-cracks',
           this.tableColumns,
           event.data,
@@ -147,7 +181,7 @@ export class CracksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<Hash>(
+        this.exportService.toCsv<JHash>(
           'hashtopolis-cracks',
           this.tableColumns,
           event.data,
@@ -156,7 +190,7 @@ export class CracksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<Hash>(
+          .toClipboard<JHash>(
             this.tableColumns,
             event.data,
             CracksTableColumnLabel
@@ -171,12 +205,12 @@ export class CracksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<Hash>): void {
+  rowActionClicked(event: ActionMenuEvent<JHash>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting crack ${event.data._id} ...`,
+          title: `Deleting crack ${event.data.id} ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -189,7 +223,7 @@ export class CracksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Hash[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JHash[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -208,9 +242,9 @@ export class CracksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(cracks: Hash[]): void {
-    const requests = cracks.map((crack: Hash) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, crack._id);
+  private bulkActionDelete(cracks: JHash[]): void {
+    const requests = cracks.map((crack: JHash) => {
+      return this.gs.delete(SERV.CRACKERS_TYPES, crack.id);
     });
 
     this.subscriptions.push(
@@ -234,10 +268,10 @@ export class CracksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(cracks: Hash[]): void {
+  private rowActionDelete(cracks: JHash[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.CRACKERS_TYPES, cracks[0]._id)
+        .delete(SERV.CRACKERS_TYPES, cracks[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -251,7 +285,7 @@ export class CracksTableComponent
     );
   }
 
-  private rowActionEdit(crack: Hash): void {
-    this.router.navigate(['/config', 'engine', 'cracks', crack._id, 'edit']);
+  private rowActionEdit(crack: JHash): void {
+    this.router.navigate(['/config', 'engine', 'cracks', crack.id, 'edit']);
   }
 }

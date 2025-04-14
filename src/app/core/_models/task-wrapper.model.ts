@@ -1,24 +1,28 @@
-import { AccessGroup } from './access-group.model';
-import { Hashlist } from './hashlist.model';
-import { Hashtype } from './hashtype.model';
-import { Task } from './task.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 
-export interface TaskWrapper {
-  _id: number;
-  _self: string;
+import { JAccessGroup } from '@src/app/core/_models/access-group.model';
+import { JHashlist } from '@src/app/core/_models/hashlist.model';
+import { JHashtype } from '@src/app/core/_models/hashtype.model';
+import { JTask } from '@src/app/core/_models/task.model';
+
+/**
+ * Interface definition for a task wrapper (wrapper object for tasks and supertasks)
+ */
+export interface JTaskWrapper extends BaseModel {
   accessGroupId: number;
-  accessGroup?: AccessGroup;
+  accessGroup?: JAccessGroup;
   accessGroupName?: string;
   cracked: number;
   hashlistId: number;
-  hashlists?: Hashlist[];
-  hashtypes?: Hashtype[];
+  hashlist?: JHashlist;
+  hashType?: JHashtype;
   isArchived: boolean;
   maxAgents: number;
   priority: number;
   taskType: number;
   taskWrapperId: number;
   taskWrapperName: string;
-  tasks?: Task[];
+  tasks?: JTask[];
   taskName?: string;
 }
+
