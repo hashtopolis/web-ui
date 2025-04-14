@@ -101,8 +101,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
     // Form calculate benchmark
     this.etForm = new FormGroup({
-      benchmarka0: new FormControl(null || 0),
-      benchmarka3: new FormControl(null || 0)
+      benchmarka0: new FormControl(0),
+      benchmarka3: new FormControl(0)
     });
   }
 

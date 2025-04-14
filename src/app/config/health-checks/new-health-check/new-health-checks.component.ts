@@ -81,7 +81,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.form = new FormGroup({
       checkType: new FormControl(0),
-      hashtypeId: new FormControl(null || 0, [Validators.required]),
+      hashtypeId: new FormControl(0, [Validators.required]),
       crackerBinaryId: new FormControl('', [Validators.required]),
       crackerBinaryType: new FormControl('')
     });

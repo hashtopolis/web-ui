@@ -130,7 +130,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       supertaskTemplateId: new FormControl(this.editedIndex),
       hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(null || 1),
+      crackerBinaryId: new FormControl(1),
       crackerBinaryTypeId: new FormControl()
     });
 

@@ -1,18 +1,13 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { faLock } from '@fortawesome/free-solid-svg-icons';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
-import { OnDestroy } from '@angular/core';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
@@ -107,7 +102,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       isSmall: new FormControl(false),
       isCpuTask: new FormControl(false),
       optFlag: new FormControl(false),
-      useNewBench: new FormControl(null || false),
+      useNewBench: new FormControl(false),
       crackerBinaryId: new FormControl(1),
       masks: new FormControl('')
     });
@@ -121,8 +116,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       const responseBody = { data: response.data, included: response.included };
       const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
 
-      const transformedOptions = transformSelectOptions(crackerBinaryTypes, this.selectCrackertypeMap);
-      this.selectCrackertype = transformedOptions;
+      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, this.selectCrackertypeMap);
     });
     this.unsubscribeService.add(loadSubscription$);
   }

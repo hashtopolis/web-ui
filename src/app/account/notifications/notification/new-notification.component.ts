@@ -94,7 +94,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       action: new FormControl('', [Validators.required]),
       actionFilter: new FormControl(String('')),
-      notification: new FormControl('' || 'ChatBot', [Validators.required]),
+      notification: new FormControl('ChatBot', [Validators.required]),
       receiver: new FormControl('', [Validators.required]),
       isActive: new FormControl(true)
     });
