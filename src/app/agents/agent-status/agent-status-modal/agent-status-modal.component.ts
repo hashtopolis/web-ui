@@ -3,8 +3,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
-  selector: 'app-agent-status-modal',
-  templateUrl: './agent-status-modal.component.html'
+    selector: 'app-agent-status-modal',
+    templateUrl: './agent-status-modal.component.html',
+    standalone: false
 })
 export class AgentStatusModalComponent implements OnInit {
   @Input() title = '';

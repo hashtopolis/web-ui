@@ -26,8 +26,9 @@ import { ACTION } from '@src/app/core/_constants/notifications.config';
 import { NotificationsDataSource } from '@datasources/notifications.datasource';
 
 @Component({
-  selector: 'notifications-table',
-  templateUrl: './notifications-table.component.html'
+    selector: 'notifications-table',
+    templateUrl: './notifications-table.component.html',
+    standalone: false
 })
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

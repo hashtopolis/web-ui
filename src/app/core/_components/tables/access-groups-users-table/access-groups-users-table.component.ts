@@ -31,8 +31,9 @@ import { SERV } from '@src/app/core/_services/main.config';
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
 
 @Component({
-  selector: 'access-groups-users-table',
-  templateUrl: './access-groups-users-table.component.html'
+    selector: 'access-groups-users-table',
+    templateUrl: './access-groups-users-table.component.html',
+    standalone: false
 })
 export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accessgroupId = 0;

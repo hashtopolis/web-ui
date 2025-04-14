@@ -14,7 +14,8 @@ import { Injectable, Pipe, PipeTransform } from '@angular/core';
 **/
 
 @Pipe({
-  name: 'staticArray'
+    name: 'staticArray',
+    standalone: false
 })
 @Injectable({
   providedIn: 'root'

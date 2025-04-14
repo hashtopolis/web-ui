@@ -17,8 +17,9 @@ import { JTask } from '@models/task.model';
 import { JHashlist } from '@models/hashlist.model';
 
 @Component({
-  selector: 'app-new-notification',
-  templateUrl: './new-notification.component.html'
+    selector: 'app-new-notification',
+    templateUrl: './new-notification.component.html',
+    standalone: false
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Notification';

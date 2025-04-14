@@ -15,8 +15,9 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
 @Component({
-  selector: 'app-form',
-  templateUrl: 'formconfig.component.html'
+    selector: 'app-form',
+    templateUrl: 'formconfig.component.html',
+    standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.

@@ -24,9 +24,10 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
  *
  */
 @Component({
-  selector: 'app-applyhashlist',
-  templateUrl: './applyhashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+    selector: 'app-applyhashlist',
+    templateUrl: './applyhashlist.component.html',
+    changeDetection: ChangeDetectionStrategy.Default,
+    standalone: false
 })
 export class ApplyHashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

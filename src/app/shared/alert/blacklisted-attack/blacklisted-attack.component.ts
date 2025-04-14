@@ -2,8 +2,9 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
 @Component({
-  selector: 'blacklist-attack',
-  templateUrl: './blacklisted-attack.component.html'
+    selector: 'blacklist-attack',
+    templateUrl: './blacklisted-attack.component.html',
+    standalone: false
 })
 export class BlacklistAttackComponent implements OnChanges {
   @Input() value: any;

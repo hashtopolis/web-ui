@@ -15,18 +15,18 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^18.2.13",
+    "@angular/animations": "^19.2.6",
     "@angular/cdk": "^18.2.14",
-    "@angular/common": "^18.2.13",
-    "@angular/compiler": "^18.2.13",
-    "@angular/core": "^18.2.13",
+    "@angular/common": "^19.2.6",
+    "@angular/compiler": "^19.2.6",
+    "@angular/core": "^19.2.6",
     "@angular/flex-layout": "^15.0.0-beta.42",
-    "@angular/forms": "^18.2.13",
-    "@angular/localize": "^18.2.13",
+    "@angular/forms": "^19.2.6",
+    "@angular/localize": "^19.2.6",
     "@angular/material": "^18.2.14",
-    "@angular/platform-browser": "^18.2.13",
-    "@angular/platform-browser-dynamic": "^18.2.13",
-    "@angular/router": "^18.2.13",
+    "@angular/platform-browser": "^19.2.6",
+    "@angular/platform-browser-dynamic": "^19.2.6",
+    "@angular/router": "^19.2.6",
     "@fortawesome/angular-fontawesome": "^0.15.0",
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free-brands": "^5.0.13",
@@ -76,17 +76,17 @@
     "tslib": "^2.6.0",
     "tus-js-client": "^3.1.1",
     "wordpolis": "^0.0.3",
-    "zone.js": "~0.14.10"
+    "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.18",
+    "@angular-devkit/build-angular": "^19.2.7",
     "@angular-eslint/builder": "18.4.3",
     "@angular-eslint/eslint-plugin": "^18.4.3",
     "@angular-eslint/eslint-plugin-template": "18.4.3",
     "@angular-eslint/schematics": "^18.4.3",
     "@angular-eslint/template-parser": "^18.4.3",
-    "@angular/cli": "^18.2.18",
-    "@angular/compiler-cli": "^18.2.13",
+    "@angular/cli": "^19.2.7",
+    "@angular/compiler-cli": "^19.2.6",
     "@trivago/prettier-plugin-sort-imports": "^4.2.1",
     "@types/datatables.net": "^1.10.24",
     "@types/datatables.net-select": "^1.2.7",
@@ -108,6 +108,6 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "puppeteer": "^20.9.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.8.3"
   }
 }

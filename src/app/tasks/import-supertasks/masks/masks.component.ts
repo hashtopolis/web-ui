@@ -26,8 +26,9 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
  *
  */
 @Component({
-  selector: 'app-import-supertasks',
-  templateUrl: './masks.component.html'
+    selector: 'app-import-supertasks',
+    templateUrl: './masks.component.html',
+    standalone: false
 })
 export class MasksComponent implements OnInit, OnDestroy {
   /**

@@ -8,8 +8,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 pdfMake.vfs = vfsFonts.vfs;
 
 @Component({
-  selector: 'app-report-builder',
-  templateUrl: './report-builder.component.html'
+    selector: 'app-report-builder',
+    templateUrl: './report-builder.component.html',
+    standalone: false
 })
 export class ReportBuilderComponent implements OnInit {
   @Input() templateName: string;

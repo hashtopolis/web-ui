@@ -16,8 +16,9 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
 import { Filter, FilterType } from '@models/request-params.model';
 
 @Component({
-  selector: 'app-new-health-checks',
-  templateUrl: './new-health-checks.component.html'
+    selector: 'app-new-health-checks',
+    templateUrl: './new-health-checks.component.html',
+    standalone: false
 })
 export class NewHealthChecksComponent implements OnInit, OnDestroy {
   /** Form group for Health Checks */

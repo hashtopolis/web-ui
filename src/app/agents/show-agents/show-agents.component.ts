@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-show-agents',
-  templateUrl: './show-agents.component.html'
+    selector: 'app-show-agents',
+    templateUrl: './show-agents.component.html',
+    standalone: false
 })
 export class ShowAgentsComponent {
   constructor(private titleService: AutoTitleService) {

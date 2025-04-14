@@ -18,8 +18,9 @@ import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.da
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'health-check-agents-table',
-  templateUrl: './health-check-agents-table.component.html'
+    selector: 'health-check-agents-table',
+    templateUrl: './health-check-agents-table.component.html',
+    standalone: false
 })
 export class HealthCheckAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() healthCheckId = 0;

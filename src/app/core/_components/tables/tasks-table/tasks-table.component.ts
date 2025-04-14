@@ -20,8 +20,9 @@ import { TasksDataSource } from 'src/app/core/_datasources/tasks.datasource';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
-  selector: 'tasks-table',
-  templateUrl: './tasks-table.component.html'
+    selector: 'tasks-table',
+    templateUrl: './tasks-table.component.html',
+    standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

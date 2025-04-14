@@ -21,8 +21,9 @@ import { benchmarkType } from 'src/app/core/_constants/tasks.config';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 
 @Component({
-  selector: 'app-new-preconfigured-tasks',
-  templateUrl: './new-preconfigured-tasks.component.html'
+    selector: 'app-new-preconfigured-tasks',
+    templateUrl: './new-preconfigured-tasks.component.html',
+    standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

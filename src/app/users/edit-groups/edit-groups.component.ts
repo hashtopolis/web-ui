@@ -14,8 +14,9 @@ import { UIConfigService } from '@src/app/core/_services/shared/storage.service'
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
 
 @Component({
-  selector: 'app-edit-groups',
-  templateUrl: './edit-groups.component.html'
+    selector: 'app-edit-groups',
+    templateUrl: './edit-groups.component.html',
+    standalone: false
 })
 export class EditGroupsComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

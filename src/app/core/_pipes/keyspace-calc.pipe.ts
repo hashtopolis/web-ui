@@ -17,7 +17,8 @@ declare let defaultOptions: any;
 declare let parser: any;
 
 @Pipe({
-  name: 'keyspace'
+    name: 'keyspace',
+    standalone: false
 })
 export class KeyspaceCalcPipe implements PipeTransform {
   transform(value: any[], name: string, cmd: any, attcktype?: boolean) {

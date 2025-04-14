@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-agent-binaries',
-  templateUrl: './agent-binaries.component.html'
+    selector: 'app-agent-binaries',
+    templateUrl: './agent-binaries.component.html',
+    standalone: false
 })
 export class AgentBinariesComponent {
   constructor(private titleService: AutoTitleService) {

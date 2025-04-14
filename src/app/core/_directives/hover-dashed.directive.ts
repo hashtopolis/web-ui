@@ -11,7 +11,8 @@ import {
 */
 
 @Directive({
-  selector: '[hoverDashed]'
+    selector: '[hoverDashed]',
+    standalone: false
 })
 
 export class HoverDashedDirective {

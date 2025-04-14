@@ -27,9 +27,10 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 import { SERV } from '@services/main.config';
 
 @Component({
-  selector: 'tasks-chunks-table',
-  templateUrl: './tasks-chunks-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'tasks-chunks-table',
+    templateUrl: './tasks-chunks-table.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TasksChunksTableComponent extends BaseTableComponent implements OnInit {
   // Input property to specify an task ID for filtering chunks.

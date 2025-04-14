@@ -17,15 +17,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-  selector: 'input-select',
-  templateUrl: './select.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputSelectComponent),
-      multi: true
-    }
-  ]
+    selector: 'input-select',
+    templateUrl: './select.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputSelectComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class InputSelectComponent extends AbstractInputComponent<any> {
   @Input() items: any[];

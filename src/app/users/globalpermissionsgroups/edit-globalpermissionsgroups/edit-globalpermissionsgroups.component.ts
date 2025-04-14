@@ -16,8 +16,9 @@ import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service'
  *
  */
 @Component({
-  selector: 'app-edit-globalpermissionsgroups',
-  templateUrl: './edit-globalpermissionsgroups.component.html'
+    selector: 'app-edit-globalpermissionsgroups',
+    templateUrl: './edit-globalpermissionsgroups.component.html',
+    standalone: false
 })
 export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   /** Form group for edit User. */

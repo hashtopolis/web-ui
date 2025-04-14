@@ -32,9 +32,10 @@ import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/dateti
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'agents-status-table',
-  templateUrl: './agents-status-table.component.html'
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'agents-status-table',
+    templateUrl: './agents-status-table.component.html',
+    standalone: false
 })
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

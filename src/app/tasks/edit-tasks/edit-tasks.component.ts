@@ -44,9 +44,10 @@ import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 
 @Component({
-  selector: 'app-edit-tasks',
-  templateUrl: './edit-tasks.component.html',
-  providers: [FileSizePipe]
+    selector: 'app-edit-tasks',
+    templateUrl: './edit-tasks.component.html',
+    providers: [FileSizePipe],
+    standalone: false
 })
 export class EditTasksComponent implements OnInit {
   editMode = false;

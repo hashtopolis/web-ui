@@ -3,8 +3,9 @@ import { ScreenSizeService } from 'src/app/core/_services/shared/screensize.serv
 import { AfterViewInit, Component, ElementRef, HostListener } from '@angular/core';
 
 @Component({
-  selector: 'app-screen-size-detector',
-  templateUrl: './screen-size-detector.component.html'
+    selector: 'app-screen-size-detector',
+    templateUrl: './screen-size-detector.component.html',
+    standalone: false
 })
 export class ScreenSizeDetectorComponent implements AfterViewInit {
 

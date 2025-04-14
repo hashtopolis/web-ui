@@ -8,8 +8,9 @@ export interface Filter {
 }
 
 @Component({
-  selector: 'app-notifications',
-  templateUrl: './notifications.component.html'
+    selector: 'app-notifications',
+    templateUrl: './notifications.component.html',
+    standalone: false
 })
 export class NotificationsComponent {
   constructor(private titleService: AutoTitleService) {

@@ -14,7 +14,8 @@ import {
 **/
 
 @Pipe({
-  name: 'sectotime'
+    name: 'sectotime',
+    standalone: false
 })
 export class SecondsToTimePipe implements PipeTransform {
 

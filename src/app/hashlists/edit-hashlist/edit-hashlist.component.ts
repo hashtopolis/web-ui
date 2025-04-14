@@ -29,8 +29,9 @@ import { JHashtype } from '@models/hashtype.model';
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
  */
 @Component({
-  selector: 'app-edit-hashlist',
-  templateUrl: './edit-hashlist.component.html'
+    selector: 'app-edit-hashlist',
+    templateUrl: './edit-hashlist.component.html',
+    standalone: false
 })
 export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   /** Flag indicating whether data is still loading. */

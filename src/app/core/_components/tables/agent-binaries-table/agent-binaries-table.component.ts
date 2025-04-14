@@ -20,8 +20,9 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'agent-binaries-table',
-  templateUrl: './agent-binaries-table.component.html'
+    selector: 'agent-binaries-table',
+    templateUrl: './agent-binaries-table.component.html',
+    standalone: false
 })
 export class AgentBinariesTableComponent
   extends BaseTableComponent

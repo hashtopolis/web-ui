@@ -17,7 +17,8 @@ import { JChunk } from '@models/chunk.model';
  **/
 
 @Pipe({
-  name: 'ttimespent'
+    name: 'ttimespent',
+    standalone: false
 })
 export class TaskTimeSpentPipe implements PipeTransform {
   constructor(

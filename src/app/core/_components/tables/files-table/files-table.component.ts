@@ -27,8 +27,9 @@ import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
-  selector: 'files-table',
-  templateUrl: './files-table.component.html'
+    selector: 'files-table',
+    templateUrl: './files-table.component.html',
+    standalone: false
 })
 export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() fileType: FileType = 0;

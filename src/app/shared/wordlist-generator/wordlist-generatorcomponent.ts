@@ -4,8 +4,9 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
-  selector: 'wordlist-generator',
-  templateUrl: './wordlist-generator.component.html'
+    selector: 'wordlist-generator',
+    templateUrl: './wordlist-generator.component.html',
+    standalone: false
 })
 export class WordlisGeneratorComponent implements OnInit {
   /** Form group for the password candidates. */

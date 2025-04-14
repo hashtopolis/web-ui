@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'grid-main',
-  template: `
+    selector: 'grid-main',
+    template: `
     <div class="card shadow">
       <mat-card class="grid-main">
         <mat-card-content>
@@ -10,7 +10,8 @@ import { Component, Input } from '@angular/core';
         </mat-card-content>
       </mat-card>
     </div>
-  `
+  `,
+    standalone: false
 })
 export class GridMainComponent {
   @Input() class: any;

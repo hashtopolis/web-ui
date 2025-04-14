@@ -26,9 +26,10 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    standalone: false
 })
 @PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit, OnDestroy {

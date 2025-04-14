@@ -23,8 +23,9 @@ import { FilesDataSource } from 'src/app/core/_datasources/files.datasource';
 import { formatFileSize } from 'src/app/shared/utils/util';
 
 @Component({
-  selector: 'files-attack-table',
-  templateUrl: './files-attack-table.component.html'
+    selector: 'files-attack-table',
+    templateUrl: './files-attack-table.component.html',
+    standalone: false
 })
 export class FilesAttackTableComponent
   extends BaseTableComponent

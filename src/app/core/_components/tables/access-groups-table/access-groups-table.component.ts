@@ -19,8 +19,9 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
-  selector: 'access-groups-table',
-  templateUrl: './access-groups-table.component.html'
+    selector: 'access-groups-table',
+    templateUrl: './access-groups-table.component.html',
+    standalone: false
 })
 export class AccessGroupsTableComponent
   extends BaseTableComponent

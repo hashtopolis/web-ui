@@ -21,7 +21,8 @@ const FILE_SIZE_UNITS = ['B ', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 const FILE_SIZE_UNITS_LONG = ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Pettabytes', 'Exabytes', 'Zettabytes', 'Yottabytes'];
 
 @Pipe({
-  name: 'fileSize'
+    name: 'fileSize',
+    standalone: false
 })
 export class FileSizePipe implements PipeTransform {
 

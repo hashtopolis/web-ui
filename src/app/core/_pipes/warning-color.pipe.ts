@@ -14,7 +14,8 @@ import {
 **/
 
 @Pipe({
-  name: 'warningColor'
+    name: 'warningColor',
+    standalone: false
 })
 export class WarningColorPipe implements PipeTransform {
 

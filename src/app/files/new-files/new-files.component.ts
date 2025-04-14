@@ -25,8 +25,9 @@ import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wo
  * Represents the NewFilesComponent responsible for creating and uploading files
  */
 @Component({
-  selector: 'app-new-files',
-  templateUrl: './new-files.component.html'
+    selector: 'app-new-files',
+    templateUrl: './new-files.component.html',
+    standalone: false
 })
 export class NewFilesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
