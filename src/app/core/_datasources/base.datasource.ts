@@ -1,22 +1,21 @@
-import {
-  BehaviorSubject,
-  Observable,
-  Subscription,
-  firstValueFrom
-} from 'rxjs';
-import { ChunkData, JChunk } from '../_models/chunk.model';
-import { CollectionViewer, DataSource } from '@angular/cdk/collections';
+import { BehaviorSubject, Observable, Subscription, firstValueFrom } from 'rxjs';
+
+import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { ChangeDetectorRef } from '@angular/core';
-import { GlobalService } from '../_services/main.service';
-import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
-import { ResponseWrapper } from '../_models/response.model';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { SelectionModel } from '@angular/cdk/collections';
-import { UIConfigService } from '../_services/shared/storage.service';
+
+import { ChunkData, JChunk } from '@models/chunk.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { UIConfigService } from '@services/shared/storage.service';
+
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+
 import { environment } from '@src/environments/environment';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -26,10 +25,7 @@ import { JsonAPISerializer } from '../_services/api/serializer-service';
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
-export abstract class BaseDataSource<
-  T,
-  P extends MatTableDataSourcePaginator = MatTableDataSourcePaginator
-> implements DataSource<T> {
+export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
@@ -163,9 +159,7 @@ export abstract class BaseDataSource<
     }
     const sortDirection = this.sort.direction;
     const data = this.dataSubject.value.slice();
-    const columnMapping = this.columns.find(
-      (mapping) => mapping.id + '' === this.sort.active
-    );
+    const columnMapping = this.columns.find((mapping) => mapping.id + '' === this.sort.active);
 
     if (!columnMapping) {
       console.error('Column mapping not found for label: ' + this.sort.active);
@@ -192,9 +186,7 @@ export abstract class BaseDataSource<
     if (!filterValue) {
       this.dataSubject.next(this.originalData);
     } else {
-      const filteredData = this.originalData.filter((item) =>
-        filterFn(item, filterValue)
-      );
+      const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
 
       this.dataSubject.next(filteredData);
     }
@@ -220,7 +212,7 @@ export abstract class BaseDataSource<
    */
   isAllSelected(): boolean {
     const numSelected = this.selection.selected ? this.selection.selected.length : 0;
-    const numRows = this.dataSubject &&  this.dataSubject.value ? this.dataSubject.value.length : 0;
+    const numRows = this.dataSubject && this.dataSubject.value ? this.dataSubject.value.length : 0;
 
     return !!(numSelected > 0 && numSelected === numRows);
   }
@@ -279,11 +271,7 @@ export abstract class BaseDataSource<
    * @param currentPage - The index of the current page.
    * @param totalItems - The total number of items in the data source.
    */
-  setPaginationConfig(
-    pageSize: number,
-    currentPage: number,
-    totalItems: number
-  ): void {
+  setPaginationConfig(pageSize: number, currentPage: number, totalItems: number): void {
     this.pageSize = pageSize;
     this.currentPage = currentPage;
     this.totalItems = totalItems;
@@ -326,11 +314,7 @@ export abstract class BaseDataSource<
 
   abstract reload(): void;
 
-  async getChunkData(
-    id: number,
-    isAgent = true,
-    keyspace = 0
-  ): Promise<ChunkData> {
+  async getChunkData(id: number, isAgent = true, keyspace = 0): Promise<ChunkData> {
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];
@@ -350,9 +334,7 @@ export abstract class BaseDataSource<
       params = { 'filter[taskId__eq]': id };
     }
 
-    const response: ResponseWrapper = await firstValueFrom(
-      this.service.getAll(SERV.CHUNKS, params)
-    );
+    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params));
 
     const responseBody = { data: response.data, included: response.included };
     const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
@@ -369,11 +351,7 @@ export abstract class BaseDataSource<
       searched.push(chunk.checkpoint - chunk.skip);
 
       // Calculate speed for chunks completed within the last chunktime
-      if (
-        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
-        chunktime &&
-        chunk.progress < 10000
-      ) {
+      if (now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime && chunk.progress < 10000) {
         speed.push(chunk.speed);
       }
 
@@ -387,14 +365,8 @@ export abstract class BaseDataSource<
     return {
       tasks: Array.from(new Set(tasks)),
       agents: Array.from(new Set(agents)),
-      dispatched:
-        keyspace && dispatched.length
-          ? dispatched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
-      searched:
-        keyspace && searched.length
-          ? searched.reduce((a, i) => a + i, 0) / keyspace
-          : 0,
+      dispatched: keyspace && dispatched.length ? dispatched.reduce((a, i) => a + i, 0) / keyspace : 0,
+      searched: keyspace && searched.length ? searched.reduce((a, i) => a + i, 0) / keyspace : 0,
       cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
       speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
       timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
@@ -404,11 +376,7 @@ export abstract class BaseDataSource<
   /**
    * Compare function used for sorting.
    */
-  private compare(
-    a: number | string,
-    b: number | string,
-    isAsc: boolean
-  ): number {
+  private compare(a: number | string, b: number | string, isAsc: boolean): number {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 }

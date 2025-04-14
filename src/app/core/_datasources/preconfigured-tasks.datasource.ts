@@ -1,15 +1,17 @@
-import { firstValueFrom, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { JPretask } from '../_models/pretask.model';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { JSuperTask } from '@models/supertask.model';
+import { JPretask } from '@models/pretask.model';
 import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
 
-export class PreTasksDataSource extends BaseDataSource<JPretask, MatTableDataSourcePaginator> {
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+
+export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
 
   setSuperTaskId(superTaskId: number): void {
