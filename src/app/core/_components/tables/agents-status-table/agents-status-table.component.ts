@@ -3,33 +3,28 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import {
+  AgentsStatusTableCol,
+  AgentsStatusTableColumnLabel
+} from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableIcon,
   HTTableRouterLink
 } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { ChunkDataData } from '@src/app/core/_models/chunk.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-
-import { SERV } from '@src/app/core/_services/main.config';
-
-import { AgentsStatusDataSource } from '@src/app/core/_datasources/agents-status.datasource';
-
-import {
-  AgentsStatusTableCol,
-  AgentsStatusTableColumnLabel
-} from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { AgentsStatusDataSource } from '@src/app/core/_datasources/agents-status.datasource';
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { ChunkDataData } from '@src/app/core/_models/chunk.model';
+import { SERV } from '@src/app/core/_services/main.config';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -51,11 +46,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsStatusDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AgentsStatusDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.reload();
   }
@@ -86,7 +77,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'status',
         isSortable: true,
         async: (agent: JAgent) => this.renderActiveAgent(agent),
-        export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
+        export: async (agent: JAgent) => await this.renderActiveAgent(agent)
       },
       {
         id: AgentsStatusTableCol.NAME,
@@ -101,14 +92,15 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'isActive',
         icons: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
+        export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive'),
         isSortable: true
       },
       {
         id: AgentsStatusTableCol.WORKING_ON,
-        dataKey: 'status',
+        dataKey: 'workingOn',
         async: (agent: JAgent) => this.renderWorkingOn(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (await this.renderWorkingOn(agent)) + ''
+        export: async (agent: JAgent) => (await this.exportWorkingOn(agent)) + ''
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
@@ -123,8 +115,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) =>
-          formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
 
@@ -162,10 +153,10 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   // --- Render functions ---
 
   @Cacheable(['id'])
-  async renderActiveAgent(agent: JAgent): Promise<SafeHtml> {
+  async renderActiveAgent(agent: JAgent): Promise<string> {
     const agentSpeed = await this.utilService.calculateSpeed(agent.id, true).toPromise();
     const result = agentSpeed > 0 ? 'Running task' : 'Stopped task';
-    return this.sanitize(`${result}`);
+    return result;
   }
 
   @Cacheable(['id', 'agentName'])
@@ -267,12 +258,19 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(html);
   }
 
+  @Cacheable(['id', 'speed'])
+  async exportWorkingOn(agent: JAgent): Promise<SafeHtml> {
+    const speed = await this.getSpeed(agent);
+    if (speed) {
+      return `Task: ${agent.taskName} at ${speed} H/s, working on chunk ${agent.chunkId}`;
+    } else {
+      return '-';
+    }
+  }
+
   @Cacheable(['id', 'lastTime'])
   renderLastActivity(agent: JAgent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(
-      agent.lastTime,
-      this.dateFormat
-    );
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
     const action = `Action: ${agent.lastAct}<br>`;
     const time = `Time: ${formattedDate}<br>`;
     const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : '';
