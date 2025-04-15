@@ -1,36 +1,30 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
-import { FileType, JFile } from 'src/app/core/_models/file.model';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+
+import { FileType, JFile } from '@models/file.model';
+
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
-} from './files-attack-table.constants';
+} from '@components/tables/files-attack-table/files-attack-table.constants';
 import {
   CheckboxChangeEvent,
+  CheckboxFiles,
   HTTableColumn,
   HTTableIcon
-} from '../ht-table/ht-table.models';
+} from '@components/tables/ht-table/ht-table.models';
 
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { FilesDataSource } from 'src/app/core/_datasources/files.datasource';
-import { formatFileSize } from 'src/app/shared/utils/util';
+import { FilesDataSource } from '@datasources/files.datasource';
+
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
-    selector: 'files-attack-table',
-    templateUrl: './files-attack-table.component.html',
-    standalone: false
+  selector: 'files-attack-table',
+  templateUrl: './files-attack-table.component.html',
+  standalone: false
 })
-export class FilesAttackTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
@@ -72,7 +66,7 @@ export class FilesAttackTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: FilesAttackTableCol.ID,
         dataKey: 'id',
@@ -95,8 +89,6 @@ export class FilesAttackTableComponent
         export: async (file: JFile) => formatFileSize(file.size, 'short')
       }
     ];
-
-    return tableColumns;
   }
 
   @Cacheable(['id', 'isSecret'])
@@ -144,7 +136,7 @@ export class FilesAttackTableComponent
         newCmdArray.splice(indexFileName, 1);
       }
       if (event.row.fileType === 1) {
-          newCmdArray.splice(indexFileName - 1, 1);
+        newCmdArray.splice(indexFileName - 1, 1);
       }
 
       // Remove fileId from the array
