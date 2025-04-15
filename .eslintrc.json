@@ -13,6 +13,7 @@
         "plugin:prettier/recommended"
       ],
       "rules": {
+        "@angular-eslint/prefer-standalone": "off",
         "no-restricted-imports": [
           "error",
           {
