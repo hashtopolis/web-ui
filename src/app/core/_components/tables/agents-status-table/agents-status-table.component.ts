@@ -87,7 +87,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'status',
         isSortable: true,
         async: (agent: JAgent) => this.renderActiveAgent(agent),
-        export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
+        export: async (agent: JAgent) => await this.renderActiveAgent(agent)
       },
       {
         id: AgentsStatusTableCol.NAME,
@@ -102,14 +102,15 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'isActive',
         icons: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
+        export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive'),
         isSortable: true
       },
       {
         id: AgentsStatusTableCol.WORKING_ON,
-        dataKey: 'status',
+        dataKey: 'workingOn',
         async: (agent: JAgent) => this.renderWorkingOn(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (await this.renderWorkingOn(agent)) + ''
+        export: async (agent: JAgent) => (await this.exportWorkingOn(agent)) + ''
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
@@ -124,8 +125,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) =>
-          formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
 
@@ -163,10 +163,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   // --- Render functions ---
 
   @Cacheable(['id'])
-  async renderActiveAgent(agent: JAgent): Promise<SafeHtml> {
+  async renderActiveAgent(agent: JAgent): Promise<string> {
     const agentSpeed = await this.utilService.calculateSpeed(agent.id, true).toPromise();
-    const result = agentSpeed > 0 ? 'Running task' : 'Stopped task';
-    return this.sanitize(`${result}`);
+    return agentSpeed > 0 ? 'Running task' : 'Stopped task';
   }
 
   @Cacheable(['id', 'agentName'])
@@ -266,6 +265,16 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     }
 
     return this.sanitize(html);
+  }
+
+  @Cacheable(['id', 'speed'])
+  async exportWorkingOn(agent: JAgent): Promise<SafeHtml> {
+    const speed = await this.getSpeed(agent);
+    if (speed) {
+      return `Task: ${agent.taskName} at ${speed} H/s, working on chunk ${agent.chunkId}`;
+    } else {
+      return '-';
+    }
   }
 
   @Cacheable(['id', 'lastTime'])
