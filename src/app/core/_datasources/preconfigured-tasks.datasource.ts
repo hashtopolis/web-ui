@@ -1,15 +1,14 @@
 import { firstValueFrom } from 'rxjs';
 
 import { JPretask } from '@models/pretask.model';
-import { FilterType } from '@models/request-params.model';
+import { FilterType, RequestParams } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
@@ -20,42 +19,40 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
   async loadAll(): Promise<void> {
     this.loading = true;
-
-    //ToDo: Reactivate sorting
     this.sortingColumn.isSortable = false;
 
-    if (this._superTaskId === 0) {
-      const params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles').create();
-      const pretasks = await this.loadPretasks(params);
-      this.setData(pretasks);
-    } else {
-      const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
-      const supertask = await this.loadSupertask(this._superTaskId, params);
+    try {
+      if (this._superTaskId === 0) {
+        const params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles').create();
 
-      const superTaskPreTaskIds = supertask.pretasks.map((superTaskPretask) => superTaskPretask.id);
+        const pretasks = await this.loadPretasks(params);
+        this.setData(pretasks);
+      } else {
+        const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
 
-      const test = await this.loadPretaskFiles(superTaskPreTaskIds);
+        const supertask = await this.loadSupertask(this._superTaskId, params);
+        const superTaskPreTaskIds = supertask.pretasks.map((p) => p.id);
 
-      this.setData(test);
+        const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds);
+        this.setData(pretaskFiles);
+      }
+    } finally {
+      this.loading = false;
     }
   }
 
-  private async loadPretasks(params): Promise<JPretask[]> {
+  private async loadPretasks(params: RequestParams): Promise<JPretask[]> {
     const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, params));
 
     const responseData = { data: response.data, included: response.included };
-    const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
-
-    return pretasks;
+    return this.serializer.deserialize<JPretask[]>(responseData);
   }
 
-  private async loadSupertask(superTaskId: number, params): Promise<JSuperTask> {
+  private async loadSupertask(superTaskId: number, params: RequestParams): Promise<JSuperTask> {
     const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.SUPER_TASKS, superTaskId, params));
 
     const responseData = { data: response.data, included: response.included };
-    const supertask = this.serializer.deserialize<JSuperTask>(responseData);
-
-    return supertask;
+    return this.serializer.deserialize<JSuperTask>(responseData);
   }
 
   private async loadPretaskFiles(pretaskIds: number[]): Promise<JPretask[]> {
@@ -80,13 +77,11 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     }
 
     const responseData = { data: response.data, included: response.included };
-    const pretaskFiles = this.serializer.deserialize<JPretask[]>(responseData);
-
-    return pretaskFiles;
+    return this.serializer.deserialize<JPretask[]>(responseData);
   }
 
   reload(): void {
     this.clearSelection();
-    this.loadAll();
+    void this.loadAll();
   }
 }
