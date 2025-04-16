@@ -1,13 +1,12 @@
-import { Agent, AgentStats, JAgent } from '../_models/agent.model';
-import { Chunk, ChunkData } from '../_models/chunk.model';
-import { ListResponseWrapper, ResponseWrapper } from '../_models/response.model';
 import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
 
 import { ASC } from '../_constants/agentsc.config';
 import { BaseDataSource } from './base.datasource';
+import { JAgent } from '../_models/agent.model';
 import { JAgentStat } from '../_models/agent-stats.model';
 import { RequestParamBuilder } from '../_services/params/builder-implementation.service';
 import { RequestParams } from '../_models/request-params.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
 export class AgentsViewDataSource extends BaseDataSource<JAgent> {

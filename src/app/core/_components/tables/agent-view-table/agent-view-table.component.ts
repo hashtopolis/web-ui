@@ -1,4 +1,3 @@
-import { Agent, JAgent } from 'src/app/core/_models/agent.model';
 import { AgentsViewTableCol, AgentsViewTableColumnLabel } from './agents-view-table.constants';
 /* import {
   AgentsViewTableCol,
@@ -8,15 +7,16 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
 import { HTTableColumn } from '../ht-table/ht-table.models';
+import { JAgent } from 'src/app/core/_models/agent.model';
 import { SafeHtml } from '@angular/platform-browser';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-agent-view-table',
   templateUrl: './agent-view-table.component.html',
-  styleUrls: ['./agent-view-table.component.scss']
+  styleUrls: ['./agent-view-table.component.scss'],
+  standalone: false
 })
 export class AgentViewTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
