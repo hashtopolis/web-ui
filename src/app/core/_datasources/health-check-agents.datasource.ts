@@ -1,13 +1,17 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
-import { Agent } from '../_models/agent.model';
-import { BaseDataSource } from './base.datasource';
-import { HealthCheckAgent } from '../_models/health-check.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 
-export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent> {
+import { FilterType } from '@models/request-params.model';
+import { JHealthCheckAgent } from '@models/health-check.model';
+import { JAgent } from '@models/agent.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgent> {
   private _healthCheckId = 0;
 
   setHealthCheckId(healthCheckId: number): void {
@@ -16,11 +20,14 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
 
   loadAll(): void {
     this.loading = true;
-    const healthCheckParams = new RequestParamBuilder().setPageSize(this.pageSize).addFilter({
-      field: 'healthCheckId',
-      operator: FilterType.EQUAL,
-      value: this._healthCheckId
-    }).create();
+    const healthCheckParams = new RequestParamBuilder()
+      .setPageSize(this.pageSize)
+      .addFilter({
+        field: 'healthCheckId',
+        operator: FilterType.EQUAL,
+        value: this._healthCheckId
+      })
+      .create();
 
     const agentParams = new RequestParamBuilder().setPageSize(this.pageSize).create();
 
@@ -36,44 +43,35 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<HealthCheckAgent
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe(
-          ([healthCheckResponse, agentsResponse]: [
-            ListResponseWrapper<HealthCheckAgent>,
-            ListResponseWrapper<Agent>
-          ]) => {
-            const healthChecksAgent: HealthCheckAgent[] =
-              healthCheckResponse.values;
-            const agents: Agent[] = agentsResponse.values;
+        .subscribe(([healthCheckResponse, agentsResponse]: [ResponseWrapper, ResponseWrapper]) => {
+          const healthChecksAgent = new JsonAPISerializer().deserialize<JHealthCheckAgent[]>({
+            data: healthCheckResponse.data,
+            included: healthCheckResponse.included
+          });
+          const agents = new JsonAPISerializer().deserialize<JAgent[]>({
+            data: agentsResponse.data,
+            included: agentsResponse.included
+          });
 
-            const joinedData: Array<{ [key: string]: any }> = healthChecksAgent
-              .map((healthCheckAgent: HealthCheckAgent) => {
-                const matchedAgent = agents.find(
-                  (el: Agent) => el._id === healthCheckAgent.agentId
-                );
+          const joinedData: Array<{ [key: string]: any }> = healthChecksAgent
+            .map((healthCheckAgent: JHealthCheckAgent) => {
+              const matchedAgent = agents.find((agent: JAgent) => agent.id === healthCheckAgent.agentId);
 
-                if (matchedAgent) {
-                  return {
-                    ...healthCheckAgent,
-                    agentName: matchedAgent.agentName
-                  };
-                } else {
-                  // Handle the case where no matching agent is found, ie. deleted agent
-                  return null;
-                }
-              })
-              .filter(
-                (joinedObject: { [key: string]: any } | null) =>
-                  joinedObject !== null
-              );
+              if (matchedAgent) {
+                return {
+                  ...healthCheckAgent,
+                  agentName: matchedAgent.agentName
+                };
+              } else {
+                // Handle the case where no matching agent is found, ie. deleted agent
+                return null;
+              }
+            })
+            .filter((joinedObject: { [key: string]: any } | null) => joinedObject !== null);
 
-            this.setPaginationConfig(
-              this.pageSize,
-              this.currentPage,
-              healthCheckResponse.total
-            );
-            this.setData(joinedData as HealthCheckAgent[]);
-          }
-        )
+          this.setPaginationConfig(this.pageSize, this.currentPage, healthChecksAgent.length);
+          this.setData(joinedData as JHealthCheckAgent[]);
+        })
     );
   }
 

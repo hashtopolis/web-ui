@@ -10,9 +10,10 @@ import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
 import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
-  selector: 'hashtype-detector',
-  templateUrl: './hashtype-detector.component.html',
-  encapsulation: ViewEncapsulation.None
+    selector: 'hashtype-detector',
+    templateUrl: './hashtype-detector.component.html',
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class HashtypeDetectorComponent {
   type: any;

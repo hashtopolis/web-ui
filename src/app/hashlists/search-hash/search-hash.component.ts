@@ -7,8 +7,9 @@ import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
 @Component({
-  selector: 'app-search-hash',
-  templateUrl: './search-hash.component.html'
+    selector: 'app-search-hash',
+    templateUrl: './search-hash.component.html',
+    standalone: false
 })
 @PageTitle(['Search Hash'])
 export class SearchHashComponent implements OnInit, OnDestroy {

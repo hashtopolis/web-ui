@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { Observable, of } from 'rxjs';
 import { Params, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DataTablesModule } from 'angular-datatables';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -78,28 +78,26 @@ describe('NewNotificationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
+    declarations: [NewNotificationComponent],
+    imports: [CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         FontAwesomeModule,
         DataTablesModule,
         ComponentsModule,
         RouterModule,
         PipesModule,
         NgbModule,
-        MatSnackBarModule
-      ],
-      declarations: [NewNotificationComponent],
-      providers: [
+        MatSnackBarModule],
+    providers: [
         provideAnimations(),
         {
-          provide: GlobalService,
-          useValue: mockService
-        }
-      ]
-    }).compileComponents();
+            provide: GlobalService,
+            useValue: mockService
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(NewNotificationComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
@@ -235,7 +233,7 @@ describe('NewNotificationComponent', () => {
   // Test for Form Submission When It Is Valid
   it('should submit the form when it is valid', () => {
     const serviceSpy = spyOn(mockService, 'create')
-      .withArgs(SERV.NOTIFICATIONS, jasmine.any(Object))
+      .withArgs(SERV.NOTIFICATIONS.URL, jasmine.any(Object))
       .and.returnValue(of({}));
 
     setValidFormValues();
@@ -245,7 +243,7 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
 
     expect(serviceSpy).toHaveBeenCalledWith(
-      SERV.NOTIFICATIONS,
+      SERV.NOTIFICATIONS.URL,
       jasmine.any(Object)
     );
   });

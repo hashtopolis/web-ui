@@ -22,8 +22,9 @@ import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 import { Cacheable } from '../../../_decorators/cacheable';
 
 @Component({
-  selector: 'cracks-table',
-  templateUrl: './cracks-table.component.html'
+    selector: 'cracks-table',
+    templateUrl: './cracks-table.component.html',
+    standalone: false
 })
 export class CracksTableComponent
   extends BaseTableComponent

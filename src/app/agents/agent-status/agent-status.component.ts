@@ -17,8 +17,9 @@ import { UIConfigService } from '@src/app/core/_services/shared/storage.service'
 import { environment } from '@src/environments/environment';
 
 @Component({
-  selector: 'app-agent-status',
-  templateUrl: './agent-status.component.html'
+    selector: 'app-agent-status',
+    templateUrl: './agent-status.component.html',
+    standalone: false
 })
 @PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {

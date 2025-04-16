@@ -20,8 +20,9 @@ import { SERV } from '@src/app/core/_services/main.config';
 import { AccessPermissionGroupsExpandDataSource } from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
 
 @Component({
-  selector: 'access-permission-groups-user-table',
-  templateUrl: './access-permission-groups-user-table.component.html'
+    selector: 'access-permission-groups-user-table',
+    templateUrl: './access-permission-groups-user-table.component.html',
+    standalone: false
 })
 export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;
@@ -180,12 +181,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       permissions: { [keyPerm]: boolValue }
     };
 
-    const request$ = this.gs.update(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      this.accesspermgroupId,
-      payload,
-      'GlobalPermissionGroup'
-    );
+    const request$ = this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS, this.accesspermgroupId, payload);
     this.subscriptions.push(
       request$
         .pipe(

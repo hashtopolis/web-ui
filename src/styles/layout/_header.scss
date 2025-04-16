@@ -1,3 +1,5 @@
+@use "../base/colors";
+
 .admin-menu-trigger {
   margin-left: auto;
 }
@@ -17,7 +19,7 @@
 }
 
 .hashtopolis-toolbar {
-  border-bottom: 5px solid $primary-900;
+  border-bottom: 5px solid colors.$primary-900;
 
   .logo-container {
     position: relative;
@@ -49,7 +51,7 @@
       background-color: transparent !important;
     }
     &.active {
-      background-color: $primary-900 !important;
+      background-color: colors.$primary-900 !important;
 
       .mdc-button__label {
         font-weight: 400;

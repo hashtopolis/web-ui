@@ -1,17 +1,23 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
+import { Subscription } from 'rxjs';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { MetadataService } from 'src/app/core/_services/metadata.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { Subscription } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ServiceConfig } from '@services/main.config';
 
 @Component({
-  selector: 'app-form',
-  templateUrl: 'form.component.html'
+    selector: 'app-form',
+    templateUrl: 'form.component.html',
+    standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
@@ -19,7 +25,7 @@ import { Subscription } from 'rxjs';
 export class FormComponent implements OnInit, OnDestroy {
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: any[] = [];
-  apiPath: string;
+  serviceConfig: ServiceConfig;
 
   /**
    * Indicates the mode of the form: either 'create' or 'edit'.
@@ -109,15 +115,13 @@ export class FormComponent implements OnInit, OnDestroy {
   ) {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe(
-      (data: { kind: string; path: string; type: string }) => {
+      (data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
         const formKind = data.kind;
-        this.apiPath = data.path; // Get the API path from route data
+        this.serviceConfig = data.serviceConfig; // Get the API path from route data
         this.type = data.type;
         this.isCreate = this.type === 'create' ? true : false;
         // Load metadata and form information
-        this.globalMetadata = this.metadataService.getInfoMetadata(
-          formKind + 'Info'
-        )[0];
+        this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
         this.formMetadata = this.metadataService.getFormMetadata(formKind);
         this.title = this.globalMetadata['title'];
         this.customform = this.globalMetadata['customform'];
@@ -139,11 +143,9 @@ export class FormComponent implements OnInit, OnDestroy {
    * Loads data for editing a form.
    */
   getIndex() {
-    this.routeParamsSubscription = this.route.params.subscribe(
-      (params: Params) => {
-        this.editedIndex = +params['id'];
-      }
-    );
+    this.routeParamsSubscription = this.route.params.subscribe((params: Params) => {
+      this.editedIndex = +params['id'];
+    });
   }
 
   /**
@@ -155,11 +157,10 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     // Fetch data from the API for editing
-
     const editSubscription = this.gs
-      .get(this.apiPath, this.editedIndex)
-      .subscribe((result) => {
-        this.formValues = result;
+      .get(this.serviceConfig, this.editedIndex)
+      .subscribe((response: ResponseWrapper) => {
+        this.formValues = new JsonAPISerializer().deserialize({ data: response.data, included: response.included });
         this.isloaded = true; // Data is loaded and ready for form rendering
       });
 
@@ -201,22 +202,18 @@ export class FormComponent implements OnInit, OnDestroy {
     }
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
-      const createSubscription = this.gs
-        .create(this.apiPath, formValues)
-        .subscribe(() => {
-          this.alert.okAlert(this.globalMetadata['submitok'], ''); // Display success alert first
-          this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
-        });
+      const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
+        this.alert.okAlert(this.globalMetadata['submitok'], ''); // Display success alert first
+        this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
+      });
 
       this.unsubscribeService.add(createSubscription);
     } else {
       // Update mode: Submit form data for updating an existing item
-      const updateSubscription = this.gs
-        .update(this.apiPath, this.editedIndex, formValues)
-        .subscribe(() => {
-          this.alert.okAlert(this.globalMetadata['submitok'], '');
-          this.router.navigate([this.globalMetadata['submitokredirect']]);
-        });
+      const updateSubscription = this.gs.update(this.serviceConfig, this.editedIndex, formValues).subscribe(() => {
+        this.alert.okAlert(this.globalMetadata['submitok'], '');
+        this.router.navigate([this.globalMetadata['submitokredirect']]);
+      });
       this.unsubscribeService.add(updateSubscription);
     }
   }
@@ -250,26 +247,20 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.globalMetadata['deltitle']) {
       this.getIndex();
     }
-    this.alert
-      .deleteConfirmation('', this.globalMetadata['deltitle'])
-      .then((confirmed) => {
-        if (confirmed) {
-          // Deletion
-          const deleteSubscription = this.gs
-            .delete(this.apiPath, this.editedIndex)
-            .subscribe(() => {
-              // Successful deletion
-              this.alert.okAlert(this.globalMetadata['delsubmitok'], '');
-              this.router.navigate([
-                this.globalMetadata['delsubmitokredirect']
-              ]);
-            });
+    this.alert.deleteConfirmation('', this.globalMetadata['deltitle']).then((confirmed) => {
+      if (confirmed) {
+        // Deletion
+        const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(this.globalMetadata['delsubmitok'], '');
+          this.router.navigate([this.globalMetadata['delsubmitokredirect']]);
+        });
 
-          this.unsubscribeService.add(deleteSubscription);
-        } else {
-          // Handle cancellation
-          this.alert.okAlert(this.globalMetadata['delsubmitcancel'], '');
-        }
-      });
+        this.unsubscribeService.add(deleteSubscription);
+      } else {
+        // Handle cancellation
+        this.alert.okAlert(this.globalMetadata['delsubmitcancel'], '');
+      }
+    });
   }
 }

@@ -31,8 +31,9 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { JUser } from '@src/app/core/_models/user.model';
 
 @Component({
-  selector: 'base-table',
-  template: ''
+    selector: 'base-table',
+    template: '',
+    standalone: false
 })
 export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;

@@ -1,4 +1,4 @@
-@import './colors';
+@use 'colors';
 
 body {
   font-family: var(
@@ -8,79 +8,79 @@ body {
 }
 
 a {
-  color: $accent-800 !important;
+  color: colors.$accent-800 !important;
 }
 
 .light-theme {
   .text-ok {
-    color: $color-green !important;
+    color: colors.$color-green !important;
   }
 }
 
 .dark-theme {
   .text-ok {
-    color: $color-green-dark !important;
+    color: colors.$color-green-dark !important;
   }
 }
 
 .text-warning {
-  color: $color-orange !important;
+  color: colors.$color-orange !important;
 }
 
 .light-theme {
   .text-critical {
-    color: $warn-600 !important;
+    color: colors.$warn-600 !important;
   }
 }
 
 .dark-theme {
   .text-critical {
-    color: $warn-300 !important;
+    color: colors.$warn-300 !important;
   }
 }
 
 .text-inactive {
-  color: $color-grey-light !important;
+  color: colors.$color-grey-light !important;
 }
 
 .text-unknown {
-  color: $color-blue-light !important;
+  color: colors.$color-blue-light !important;
 }
 
 .text-invalid {
-  color: $color-red !important;
+  color: colors.$color-red !important;
 }
 
 .text-primary {
-  color: $primary-600 !important;
+  color: colors.$primary-600 !important;
 }
 
 .text-accent-900 {
-  color: $accent-900 !important;
+  color: colors.$accent-900 !important;
 }
 
 .text-accent-800 {
-  color: $accent-800 !important;
+  color: colors.$accent-800 !important;
 }
 
 .text-accent-300 {
-  color: $accent-300 !important;
+  color: colors.$accent-300 !important;
 }
 
 .text-primary-300 {
-  color: $primary-300 !important;
+  color: colors.$primary-300 !important;
 }
 
 .highlight-box {
-  border-left: 10px solid $accent-300;
-  background-color: $accent-100;
+  border-left: 10px solid colors.$accent-300;
+  background-color: colors.$accent-100;
   color: #333;
   padding: 0.5em 1em;
   margin: 2em 0;
   border-radius: 10px;
 
   strong {
-    color: $accent-700;
+    color: colors.$accent-700;
   }
 
   h3 {
@@ -151,12 +151,12 @@ h2 {
     border-color: var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
   }
   .highlight-box {
-    border-left-color: $accent-800;
-    background-color: $accent-900;
+    border-left-color: colors.$accent-800;
+    background-color: colors.$accent-900;
     color: #fff;
 
     strong {
-      color: $accent-200;
+      color: colors.$accent-200;
     }
   }
 }

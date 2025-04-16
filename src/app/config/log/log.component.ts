@@ -11,8 +11,9 @@ import { RequestParamBuilder } from '@src/app/core/_services/params/builder-impl
 declare let $: any;
 
 @Component({
-  selector: 'app-log',
-  templateUrl: './log.component.html'
+    selector: 'app-log',
+    templateUrl: './log.component.html',
+    standalone: false
 })
 @PageTitle(['Show Logs'])
 export class LogComponent implements OnInit {

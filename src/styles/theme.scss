@@ -1,39 +1,45 @@
 @use '@angular/material' as mat;
-@import '@angular/material/theming';
-@include mat.core();
+@use 'sass:map';  // Add this import to use map.get()
 
-$hashtopolis-primary-palette: mat.define-palette(mat.$blue-grey-palette);
-$hashtopolis-accent-palette: mat.define-palette(mat.$cyan-palette);
-$hashtopolis-warn-palette: mat.define-palette(mat.$red-palette);
+@include mat.elevation-classes();
+@include mat.app-background();
+
+$hashtopolis-primary-palette: mat.m2-define-palette(mat.$m2-blue-grey-palette);
+$hashtopolis-accent-palette: mat.m2-define-palette(mat.$m2-cyan-palette);
+$hashtopolis-warn-palette: mat.m2-define-palette(mat.$m2-red-palette);
 
 // Include custom palettes in the theme
-$hashtopolis-light-theme: mat.define-light-theme(
+$hashtopolis-light-theme: mat.m2-define-light-theme(
   (
     color: (
       primary: $hashtopolis-primary-palette,
       accent: $hashtopolis-accent-palette,
       warn: $hashtopolis-warn-palette
     ),
-    typography: mat.define-typography-config(),
+    typography: mat.m2-define-typography-config(),
     density: -1
   )
 );
 
-$hashtopolis-dark-theme: mat.define-dark-theme(
+$hashtopolis-dark-theme: mat.m2-define-dark-theme(
   (
     color: (
       primary: $hashtopolis-primary-palette,
       accent: $hashtopolis-accent-palette,
       warn: $hashtopolis-warn-palette
     ),
-    typography: mat.define-typography-config(),
+    typography: mat.m2-define-typography-config(),
     density: -1
   )
 );
 
 @include mat.all-component-themes($hashtopolis-light-theme);
 
+
 .dark-theme {
+  background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
   @include mat.all-component-colors($hashtopolis-dark-theme);
-  background-color: var(--mat-toolbar-container-background-color);
 }
+
+
+

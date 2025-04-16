@@ -36,9 +36,10 @@ import { SERV } from '@src/app/core/_services/main.config';
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'agents-table',
-  templateUrl: './agents-table.component.html'
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'agents-table',
+    templateUrl: './agents-table.component.html',
+    standalone: false
 })
 export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() datatype: DataType = 'agents';

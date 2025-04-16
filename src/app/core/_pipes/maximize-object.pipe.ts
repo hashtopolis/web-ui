@@ -12,7 +12,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  **/
 
 @Pipe({
-  name: 'max'
+    name: 'max',
+    standalone: false
 })
 export class MaximizePipe implements PipeTransform {
   transform(value: any[], name: string) {

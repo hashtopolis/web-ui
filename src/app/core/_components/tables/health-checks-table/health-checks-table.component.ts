@@ -1,45 +1,44 @@
+import { catchError, forkJoin } from 'rxjs';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JHealthCheck } from '@models/health-check.model';
+
 import {
   HealthChecksTableCol,
   HealthChecksTableColumnLabel,
   HealthChecksTableStatusLabel
-} from './health-checks-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/health-checks-table/health-checks-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { JHealthCheck } from 'src/app/core/_models/health-check.model';
-import { HealthChecksDataSource } from 'src/app/core/_datasources/health-checks.datasource';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
+
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+
+
+import { SERV } from '@services/main.config';
 
 @Component({
-  selector: 'health-checks-table',
-  templateUrl: './health-checks-table.component.html'
+    selector: 'health-checks-table',
+    templateUrl: './health-checks-table.component.html',
+    standalone: false
 })
-export class HealthChecksTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HealthChecksDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new HealthChecksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -62,9 +61,8 @@ export class HealthChecksTableComponent
     const tableColumns = [
       {
         id: HealthChecksTableCol.ID,
-        dataKey: '_id',
-        routerLink: (healthCheck: JHealthCheck) =>
-          this.renderHealthCheckLink(healthCheck),
+        dataKey: 'id',
+        routerLink: (healthCheck: JHealthCheck) => this.renderHealthCheckLink(healthCheck),
         isSortable: true,
         export: async (healthCheck: JHealthCheck) => healthCheck.id + ''
       },
@@ -72,32 +70,24 @@ export class HealthChecksTableComponent
         id: HealthChecksTableCol.CREATED,
         dataKey: 'created',
         isSortable: true,
-        render: (healthCheck: JHealthCheck) =>
-          formatUnixTimestamp(healthCheck.time, this.dateFormat),
-        export: async (healthCheck: JHealthCheck) =>
-          formatUnixTimestamp(healthCheck.time, this.dateFormat)
+        render: (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateFormat),
+        export: async (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateFormat)
       },
       {
         id: HealthChecksTableCol.TYPE,
         dataKey: 'hashtypeDescription',
         render: (healthCheck: JHealthCheck) =>
-          healthCheck.hashType
-            ? `Brute Force (${healthCheck.hashType.description})`
-            : '',
+          healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
         isSortable: true,
         export: async (healthCheck: JHealthCheck) =>
-          healthCheck.hashType
-            ? `Brute Force (${healthCheck.hashType.description})`
-            : ''
+          healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''
       },
       {
         id: HealthChecksTableCol.STATUS,
         dataKey: 'status',
-        render: (healthCheck: JHealthCheck) =>
-          HealthChecksTableStatusLabel[healthCheck.status],
+        render: (healthCheck: JHealthCheck) => HealthChecksTableStatusLabel[healthCheck.status],
         isSortable: true,
-        export: async (healthCheck: JHealthCheck) =>
-          HealthChecksTableStatusLabel[healthCheck.status]
+        export: async (healthCheck: JHealthCheck) => HealthChecksTableStatusLabel[healthCheck.status]
       }
     ];
 
@@ -158,16 +148,9 @@ export class HealthChecksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JHealthCheck>(
-            this.tableColumns,
-            event.data,
-            HealthChecksTableColumnLabel
-          )
+          .toClipboard<JHealthCheck>(this.tableColumns, event.data, HealthChecksTableColumnLabel)
           .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
         break;
     }
@@ -224,10 +207,7 @@ export class HealthChecksTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} healthChecks!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} healthChecks!`, 'Close');
           this.reload();
         })
     );

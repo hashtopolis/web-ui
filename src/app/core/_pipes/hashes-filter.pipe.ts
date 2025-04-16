@@ -10,7 +10,8 @@ import {
 **/
 
 @Pipe({
-  name: 'hashesf'
+    name: 'hashesf',
+    standalone: false
 })
 export class HashesFilterPipe implements PipeTransform {
 

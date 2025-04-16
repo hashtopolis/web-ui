@@ -5,8 +5,9 @@ import { AutoTitleService } from '../core/_services/shared/autotitle.service';
 import { FileType } from '../core/_models/file.model';
 
 @Component({
-  selector: 'app-files',
-  templateUrl: './files.component.html'
+    selector: 'app-files',
+    templateUrl: './files.component.html',
+    standalone: false
 })
 export class FilesComponent implements OnInit {
   fileType: FileType = 0;

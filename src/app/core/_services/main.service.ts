@@ -13,6 +13,8 @@ import { setParameter } from '@src/app/core/_services/buildparams';
 
 import { environment } from '@src/environments/environment';
 
+import { ServiceConfig } from '@services/main.config';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -43,11 +45,11 @@ export class GlobalService {
   /**
    * Service method to retrieve data from the API.
    * If a value is specified for maxResults, it will be utilized; otherwise, the system will default to the maxResults defined in the configuration and load the data in chunks of the specified maxResults.
-   * @param methodUrl - The API endpoint URL.
-   * @param routerParams - Parameters for the API request, including options such as Max number of results or filtering.
+   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
+   * @param routerParams  Optional request parameters (e.g. filters, includes)
    * @returns An observable that emits the API response.
    */
-  getAll(methodUrl: string, routerParams?: RequestParams): Observable<any> {
+  getAll(serviceConfig: ServiceConfig, routerParams?: RequestParams): Observable<any> {
     let queryParams: Params = {};
     let fixedMaxResults: boolean;
 
@@ -62,7 +64,7 @@ export class GlobalService {
       fixedMaxResults = true;
     }
 
-    return this.http.get(this.cs.getEndpoint() + methodUrl, { params: queryParams }).pipe(
+    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL, { params: queryParams }).pipe(
       switchMap((response: any) => {
         const total = response.total || 0;
         const maxResults = this.maxResults;
@@ -77,7 +79,7 @@ export class GlobalService {
             const startsAt = i * maxResults;
             const partialParams = setParameter({ ...queryParams, page: { after: startsAt } });
             requests.push(
-              this.http.get(this.cs.getEndpoint() + methodUrl, {
+              this.http.get(this.cs.getEndpoint() + serviceConfig.URL, {
                 params: partialParams
               })
             );
@@ -102,36 +104,39 @@ export class GlobalService {
   }
 
   /**
-   * Returns an specific element
-   * @param id - element id
-   * @returns  Object
-   **/
-  get(methodUrl: string, id: number, routerParams?: RequestParams): Observable<any> {
+   * Get a single object from backend by its ID
+   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
+   * @param id            ID of object to get
+   * @param routerParams  Optional request parameters (e.g. filters, includes)
+   */
+  get(serviceConfig: ServiceConfig, id: number, routerParams?: RequestParams): Observable<any> {
     let queryParams: Params = {};
     if (routerParams) {
       queryParams = setParameter(routerParams);
     }
-    return this.http.get(`${this.cs.getEndpoint() + methodUrl}/${id}`, {
+    return this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}/${id}`, {
       params: queryParams
     });
   }
 
   /**
-   * Create
-   * @param item - fields
-   * @returns  Object
-   **/
-  create(methodUrl: string, item: any): Observable<any> {
-    return this.http.post<any>(this.cs.getEndpoint() + methodUrl, item);
+   * Create an object
+   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
+   * @param item          Data of item to create
+   */
+  create(serviceConfig: ServiceConfig, item: any): Observable<any> {
+    const data = { type: serviceConfig.RESOURCE, ...item };
+    const serializedData = new JsonAPISerializer().serialize({ stuff: data });
+    return this.http.post<any>(this.cs.getEndpoint() + serviceConfig.URL, serializedData);
   }
 
   /**
-   * Deletes a element
-   * @param id - element id
-   * @returns Object
-   **/
-  delete(methodUrl: string, id: number): Observable<any> {
-    return this.http.delete(this.cs.getEndpoint() + methodUrl + '/' + id);
+   * Delete an object
+   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
+   * @param id            ID of object to delete
+   */
+  delete(serviceConfig: ServiceConfig, id: number): Observable<any> {
+    return this.http.delete(this.cs.getEndpoint() + serviceConfig.URL + '/' + id);
     /*
     .pipe(
       tap(data => console.log(JSON.stringify(data))),
@@ -154,10 +159,10 @@ export class GlobalService {
    * @param type resource type (json:api standard)
    * @returns Object
    **/
-  update(methodUrl: string, id: number, arr: any, type = ''): Observable<any> {
-    let data = { type: type, id: id, ...arr };
+  update(serviceConfig: ServiceConfig, id: number, arr: any): Observable<any> {
+    let data = { type: serviceConfig.URL, id: id, ...arr };
     data = new JsonAPISerializer().serialize({ stuff: data });
-    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, data).pipe(debounceTime(2000));
+    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, data).pipe(debounceTime(2000));
   }
 
   /**
@@ -166,8 +171,8 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  archive(methodUrl: string, id: number): Observable<any> {
-    return this.http.patch<number>(this.cs.getEndpoint() + methodUrl + '/' + id, { isArchived: true });
+  archive(serviceConfig: ServiceConfig, id: number): Observable<any> {
+    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, { isArchived: true });
   }
 
   /**
@@ -176,8 +181,8 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  chelper(methodUrl: string, option: string, arr: any): Observable<any> {
-    return this.http.post(this.cs.getEndpoint() + methodUrl + '/' + option, arr);
+  chelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
+    return this.http.post(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
   }
 
   /**
@@ -186,7 +191,7 @@ export class GlobalService {
    * @param arr - fields to be updated
    * @returns Object
    **/
-  uhelper(methodUrl: string, option: string, arr: any): Observable<any> {
-    return this.http.patch(this.cs.getEndpoint() + methodUrl + '/' + option, arr);
+  uhelper(serviceConfig: ServiceConfig, option: string, arr: any): Observable<any> {
+    return this.http.patch(this.cs.getEndpoint() + serviceConfig.URL + '/' + option, arr);
   }
 }

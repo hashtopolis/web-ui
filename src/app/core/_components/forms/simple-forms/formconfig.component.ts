@@ -1,5 +1,5 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
@@ -9,14 +9,15 @@ import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { MetadataService } from 'src/app/core/_services/metadata.service';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../../_services/main.config';
+import { SERV, ServiceConfig } from '@services/main.config';
 import { Subscription } from 'rxjs';
-import { ResponseWrapper } from '../../../_models/response.model';
-import { JsonAPISerializer } from '../../../_services/api/serializer-service';
+import { ResponseWrapper } from '@models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
 
 @Component({
-  selector: 'app-form',
-  templateUrl: 'formconfig.component.html'
+    selector: 'app-form',
+    templateUrl: 'formconfig.component.html',
+    standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
@@ -24,7 +25,7 @@ import { JsonAPISerializer } from '../../../_services/api/serializer-service';
 export class FormConfigComponent implements OnInit, OnDestroy {
   // Metadata Text, titles, subtitles, forms, and API path
   globalMetadata: any[] = [];
-  apiPath: string;
+  serviceConfig: ServiceConfig;
 
   /**
    * Flag that indicates whether the data for the form has been loaded and the form is ready for rendering.
@@ -91,19 +92,15 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     private serializer: JsonAPISerializer
   ) {
     // Subscribe to route data to initialize component data
-    this.route.data.subscribe(
-      (data: { kind: string; path: string; type: string }) => {
-        const formKind = data.kind;
-        this.apiPath = data.path; // Get the API path from route data
-        // Load metadata and form information
-        this.globalMetadata = this.metadataService.getInfoMetadata(
-          formKind + 'Info'
-        )[0];
-        this.formMetadata = this.metadataService.getFormMetadata(formKind);
-        this.title = this.globalMetadata['title'];
-        titleService.set([this.title]);
-      }
-    );
+    this.route.data.subscribe((data: { kind: string; serviceConfig: ServiceConfig; type: string }) => {
+      const formKind = data.kind;
+      this.serviceConfig = data.serviceConfig; // Get the API path from route data
+      // Load metadata and form information
+      this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
+      this.formMetadata = this.metadataService.getFormMetadata(formKind);
+      this.title = this.globalMetadata['title'];
+      titleService.set([this.title]);
+    });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.mySubscription);
   }
@@ -133,7 +130,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   loadEdit() {
     // Fetch data from the API for editing
     this.mySubscription = this.gs
-      .getAll(this.apiPath, {page:{size: 500}})
+      .getAll(this.serviceConfig, { page: { size: 500 } })
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
         const configValues = this.serializer.deserialize(responseBody) as any[];
@@ -194,18 +191,16 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         const valueUpdate = changedFields[key];
         const arr = { item: key, value: String(valueUpdate) };
 
-        this.mySubscription = this.gs
-          .update(SERV.CONFIGS, id, arr)
-          .subscribe((result) => {
-            this.uicService.onUpdatingCheck(key);
-            this.alert.okAlert('Saved', key);
+        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe((result) => {
+          this.uicService.onUpdatingCheck(key);
+          this.alert.okAlert('Saved', key);
 
-            // Delay showing the next alert by 2000 milliseconds (2 seconds)
-            setTimeout(() => {
-              index++;
-              showAlertsSequentially();
-            }, 2000);
-          });
+          // Delay showing the next alert by 2000 milliseconds (2 seconds)
+          setTimeout(() => {
+            index++;
+            showAlertsSequentially();
+          }, 2000);
+        });
       }
     };
 

@@ -22,8 +22,9 @@ import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'access-permission-groups-users-table',
-  templateUrl: './access-permission-groups-users-table.component.html'
+    selector: 'access-permission-groups-users-table',
+    templateUrl: './access-permission-groups-users-table.component.html',
+    standalone: false
 })
 export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;

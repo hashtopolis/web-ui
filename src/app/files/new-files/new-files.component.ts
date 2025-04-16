@@ -1,47 +1,40 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild
-} from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import { Subject, Subscription, takeUntil } from 'rxjs';
+import { Subject, firstValueFrom, takeUntil } from 'rxjs';
 
-import { ACCESS_GROUP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { UploadTUSService } from 'src/app/core/_services/files/files_tus.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { environment } from './../../../environments/environment';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { validateFileExt } from '../../shared/utils/util';
-import { ActivatedRoute, Router } from '@angular/router';
-import { UploadFileTUS } from '../../core/_models/file.model';
-import { SERV } from '../../core/_services/main.config';
-import { subscribe } from 'diagnostics_channel';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import {
-  handleEncode,
-  transformSelectOptions
-} from 'src/app/shared/utils/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { WordlisGeneratorComponent } from 'src/app/shared/wordlist-generator/wordlist-generatorcomponent';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { JAccessGroup } from '@models/access-group.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { UploadTUSService } from '@services/files/files_tus.service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
+import { handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
  */
 @Component({
-  selector: 'app-new-files',
-  templateUrl: './new-files.component.html'
+    selector: 'app-new-files',
+    templateUrl: './new-files.component.html',
+    standalone: false
 })
 export class NewFilesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
   /** Form group for the new File. */
-  form: FormGroup;
+  form: FormGroup<NewFilesForm>;
   submitted = false;
 
   /** On form create show a spinner loading */
@@ -49,7 +42,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
 
   /** Filtering and views. */
   filterType: number;
-  whichView: string;
   viewMode = 'tab1';
   title: string;
   redirect: string;
@@ -61,9 +53,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   selectedFiles: FileList | null = null;
   fileName: any;
   uploadProgress = 0;
-  filenames: string[] = [];
-  selectedFile: '';
-  fileToUpload: File | null = null;
 
   // Unsubcribe files
   private fileUnsubscribe = new Subject();
@@ -78,6 +67,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {AutoTitleService} titleService - Service for setting and managing page titles automatically.
    * @param {ActivatedRoute} route - Service for accessing the current route information.
    * @param {AlertService} alert - Service for displaying alerts to the user.
+   * @param dialog
    * @param {GlobalService} gs - Service for accessing global application state.
    * @param {Router} router - Angular router service for navigating between views.
    */
@@ -94,7 +84,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   ) {
     this.getLocation();
     this.buildForm();
-    titleService.set([this.title]);
+    this.titleService.set([this.title]);
   }
 
   /**
@@ -128,8 +118,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
-    this.loadData();
+  ngOnInit() {
+    void this.loadData();
   }
 
   /**
@@ -145,36 +135,36 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   /**
    * Builds the form for creating a new Hashlist.
    */
-  buildForm(): void {
-    this.form = new FormGroup({
-      filename: new FormControl(''),
-      isSecret: new FormControl(false),
-      fileType: new FormControl(this.filterType),
-      accessGroupId: new FormControl(1),
-      sourceType: new FormControl('import' || ''),
-      sourceData: new FormControl('')
-    });
+  buildForm() {
+    this.form = getNewFilesForm();
+    this.form.patchValue({ fileType: this.filterType });
   }
 
   /**
    * Loads data, specifically access groups, for the component.
    */
-  loadData() {
+  async loadData() {
+    this.isLoading = true;
+
     const fieldAccess = {
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     };
-    const accedgroupSubscription$ = this.gs
-      .getAll(SERV.ACCESS_GROUPS)
-      .subscribe((response: any) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          fieldAccess
-        );
-        this.selectAccessgroup = transformedOptions;
-        this.isLoading = false;
-        this.changeDetectorRef.detectChanges();
+
+    try {
+      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.ACCESS_GROUPS));
+
+      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+        data: response.data,
+        included: response.included
       });
-    this.unsubscribeService.add(accedgroupSubscription$);
+
+      this.selectAccessgroup = transformSelectOptions(accessGroups, fieldAccess);
+    } catch (error) {
+      console.error('Error fetching access groups:', error);
+    } finally {
+      this.isLoading = false;
+      this.changeDetectorRef.detectChanges();
+    }
   }
 
   /**
@@ -182,23 +172,31 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * Checks form validity and submits the form data to create a new file.
    * Navigates to the appropriate route upon successful creation.
    */
-  onSubmit(): void {
-    if (this.form.valid && this.submitted === false) {
-      let form = this.onBeforeSubmit(this.form.value, false);
+  async onSubmit(): Promise<void> {
+    if (this.form.valid && !this.submitted) {
+      const form = this.onBeforeSubmit(this.form.value, false);
       this.isCreatingLoading = true;
       this.submitted = true;
 
       if (form.status === false) {
-        const createSubscription$ = this.gs
-          .create(SERV.FILES, form.update)
-          .subscribe(() => {
-            form = this.onBeforeSubmit(this.form.value, true);
-            this.alert.okAlert('New File created!', '');
-            this.isCreatingLoading = false;
-            this.submitted = false;
-            this.router.navigate(['/files', this.redirect]);
-          });
-        this.unsubscribeService.add(createSubscription$);
+        try {
+          // Await the response from the API call
+          await firstValueFrom(this.gs.create(SERV.FILES, form.update));
+
+          // After successful creation, update form and show alert
+          this.onBeforeSubmit(this.form.value, true);
+          this.alert.okAlert('New File created!', '');
+          this.isCreatingLoading = false;
+          this.submitted = false;
+
+          // Navigate after successful creation
+          void this.router.navigate(['/files', this.redirect]);
+        } catch (error) {
+          // Handle errors if needed (e.g., show an error message or log)
+          this.isCreatingLoading = false;
+          this.submitted = false;
+          console.error('Error creating file:', error);
+        }
       }
     }
   }
@@ -207,32 +205,28 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * Prepares the form data before submission.
    * Determines source data and filename based on the selected source type.
    *
-   * @param {any} form - The form data to be prepared.
-   * @param {boolean} status - The status indicating the form's validity.
-   * @returns {{ update: { filename: string, isSecret: boolean, fileType: number, accessGroupId: number, sourceType: string, sourceData: string }, status: boolean }} Prepared form data.
+   * @param form The form data to be prepared.
+   * @param status The status indicating the form's validity.
+   * @returns Prepared form data.
    */
-  onBeforeSubmit(form: any, status: boolean) {
+  onBeforeSubmit(form: FormGroup<NewFilesForm>['value'], status: boolean): PreparedFormData {
     const sourceType = form.sourceType || 'import';
     const isInline = sourceType === 'inline';
     const fileName = isInline ? form.filename : this.fileName;
-    const sourcadata = isInline ? handleEncode(form.sourceData) : this.fileName;
+    const sourceData = isInline ? handleEncode(form.sourceData) : this.fileName;
 
-    /**
-     * Prepared form data for submission.
-     */
-    const res = {
+    // Prepared form data for submission
+    return {
       update: {
         filename: fileName,
         isSecret: form.isSecret,
         fileType: this.filterType,
         accessGroupId: form.accessGroupId,
         sourceType: form.sourceType,
-        sourceData: sourcadata
+        sourceData: sourceData
       },
       status: status
     };
-
-    return res;
   }
 
   /**
@@ -284,24 +278,18 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   onuploadFile(files: FileList | null): void {
     const form = this.onBeforeSubmit(this.form.value, false);
-    const upload: Array<any> = [];
     this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {
-      upload.push(
-        this.uploadService
-          .uploadFile(files[0], files[0].name, SERV.FILES, form.update, [
-            '/files',
-            this.redirect
-          ])
-          .pipe(takeUntil(this.fileUnsubscribe))
-          .subscribe((progress) => {
-            this.uploadProgress = progress;
-            this.changeDetectorRef.detectChanges();
-            if (this.uploadProgress === 100) {
-              this.isCreatingLoading = false;
-            }
-          })
-      );
+      this.uploadService
+        .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
+        .pipe(takeUntil(this.fileUnsubscribe))
+        .subscribe((progress) => {
+          this.uploadProgress = progress;
+          this.changeDetectorRef.detectChanges();
+          if (this.uploadProgress === 100) {
+            this.isCreatingLoading = false;
+          }
+        });
     }
   }
 }

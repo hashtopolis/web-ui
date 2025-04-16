@@ -14,8 +14,9 @@ import { DataType } from '../../tables/ht-table/ht-table.models';
  * Component representing the bulk action menu for various data types.
  */
 @Component({
-  selector: 'bulk-action-menu',
-  templateUrl: './bulk-action-menu.component.html'
+    selector: 'bulk-action-menu',
+    templateUrl: './bulk-action-menu.component.html',
+    standalone: false
 })
 export class BulkActionMenuComponent
   extends BaseMenuComponent

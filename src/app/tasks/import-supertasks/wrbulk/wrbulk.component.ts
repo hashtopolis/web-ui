@@ -19,8 +19,9 @@ import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 @Component({
-  selector: 'app-wrbulk',
-  templateUrl: './wrbulk.component.html'
+    selector: 'app-wrbulk',
+    templateUrl: './wrbulk.component.html',
+    standalone: false
 })
 @PageTitle(['Import SuperTask - Wordlist/Rules Bulk'])
 export class WrbulkComponent implements OnInit, OnDestroy {
@@ -297,12 +298,10 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs
-      .create(SERV.SUPER_TASKS, payload)
-      .subscribe(() => {
-        this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
-        this.router.navigate(['/tasks/supertasks']);
-      });
+    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
+      this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
+      this.router.navigate(['/tasks/supertasks']);
+    });
 
     this.unsubscribeService.add(createSubscription$);
     this.isLoading = false;

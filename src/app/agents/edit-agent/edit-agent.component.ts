@@ -33,7 +33,7 @@ import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { TASKS_FIELD_MAPPING, USER_AGP_FIELD_MAPPING, USER_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { ResponseWrapper } from '../../core/_models/response.model';
-import { AgentStats, JAgent } from '../../core/_models/agent.model';
+import { JAgent } from '../../core/_models/agent.model';
 import { JUser } from '../../core/_models/user.model';
 import { JsonAPISerializer } from '../../core/_services/api/serializer-service';
 import { JTask } from '../../core/_models/task.model';
@@ -48,10 +48,12 @@ import {
   getUpdateAssignmentForm
 } from '@src/app/agents/edit-agent/edit-agent.form';
 import { firstValueFrom } from 'rxjs';
+import { JAgentStat } from '@models/agent-stats.model';
 
 @Component({
-  selector: 'app-edit-agent',
-  templateUrl: './edit-agent.component.html'
+    selector: 'app-edit-agent',
+    templateUrl: './edit-agent.component.html',
+    standalone: false
 })
 export class EditAgentComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -176,8 +178,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   private loadSelectTasks(): void {
     const requestParams = new RequestParamBuilder()
-      //TODO: If filtered isArchived is active, form does not get populated with the current assigned task, if agent has any
-      //.addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
+      .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
       .create();
     const loadTasksSubscription$ = this.gs.getAll(SERV.TASKS, requestParams).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
@@ -220,7 +221,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     });
     if (assignments.length) {
       this.assignNew = !!assignments?.[0]['taskId'];
-      this.assignId = assignments?.[0]['assignmentId'];
+      this.assignId = assignments?.[0]['id'];
       this.currentAssignment = assignments?.[0];
     }
   }
@@ -240,9 +241,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       ignoreErrors: this.showagent.ignoreErrors,
       isTrusted: this.showagent.isTrusted
     });
-    this.updateAssignForm.setValue({
-      taskId: this.currentAssignment.taskId
-    });
+    if (this.currentAssignment) {
+      this.updateAssignForm.setValue({
+        taskId: this.currentAssignment.taskId
+      });
+    }
   }
 
   /**
@@ -285,7 +288,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         });
 
         // Calculate and update timespent
-        this.timeCalc(this.getchunks);
+        if (this.getchunks.length) {
+          this.timeCalc(this.getchunks);
+        }
       });
     });
   }
@@ -295,7 +300,9 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      this.onUpdateAssign(this.updateAssignForm.value);
+      if (this.updateAssignForm.valid) {
+        this.onUpdateAssign(this.updateAssignForm.value);
+      }
       this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
         .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
@@ -311,45 +318,42 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   /**
    * Updates agent assignment based on the provided value.
    *
-   * @param {any} val - The form value containing the task ID.
+   * @param value The form value containing the task ID.
    */
-  onUpdateAssign(val: unknown) {
-    const id = Number(val['taskId']);
-    if (id) {
+  onUpdateAssign(value: FormGroup<UpdateAssignmentForm>['value']) {
+    if (value.taskId) {
       const payload = {
-        taskId: Number(val['taskId']),
+        taskId: value.taskId,
         agentId: this.editedAgentIndex
       };
       const onCreateSubscription$ = this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe();
       this.unsubscribeService.add(onCreateSubscription$);
     }
-    if (id === 0) {
+    if (value.taskId === 0) {
       const onDeleteSubscription$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId).subscribe();
       this.unsubscribeService.add(onDeleteSubscription$);
     }
   }
 
   // Render devices using count by device type
-  renderDevices(agent: any) {
-    if (agent) {
-      const deviceList = agent.split('\n');
-      const deviceCountMap: { [key: string]: number } = {};
+  renderDevices(devices: string) {
+    const deviceList = devices.split('\n');
+    const deviceCountMap: { [key: string]: number } = {};
 
-      // Count occurrences of each device
-      deviceList.forEach((device) => {
-        if (deviceCountMap[device]) {
-          deviceCountMap[device]++;
-        } else {
-          deviceCountMap[device] = 1;
-        }
-      });
+    // Count occurrences of each device
+    deviceList.forEach((device) => {
+      if (deviceCountMap[device]) {
+        deviceCountMap[device]++;
+      } else {
+        deviceCountMap[device] = 1;
+      }
+    });
 
-      // Format the result string with HTML line breaks
-      const formattedDevices = Object.keys(deviceCountMap)
-        .map((device) => `${deviceCountMap[device]} x ${device}`)
-        .join('<br>');
-    }
-    return undefined;
+    // Format the result string with HTML line breaks
+    const formattedDevices = Object.keys(deviceCountMap)
+      .map((device) => `${deviceCountMap[device]} x ${device}`)
+      .join('<br>');
+    return formattedDevices;
   }
 
   // //
@@ -359,7 +363,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * Draw all graphs for GPU temperature and utilisation and CPU utilisation
    * @param agentStatList List of agentStats objects
    */
-  drawGraphs(agentStatList: AgentStats[]) {
+  drawGraphs(agentStatList: JAgentStat[]) {
     this.drawGraph(
       agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_TEMP),
       ASC.GPU_TEMP,
@@ -383,7 +387,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @param status Number to determine device and displayed stats (GPU_TEMP: 1, GPU_UTIL: 2, CPU_UTIL: 3)
    * @param name Name of Graph
    */
-  drawGraph(agentStatList: AgentStats[], status: number, name: string) {
+  drawGraph(agentStatList: JAgentStat[], status: number, name: string) {
     echarts.use([
       TitleComponent,
       ToolboxComponent,

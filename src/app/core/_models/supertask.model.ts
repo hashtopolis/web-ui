@@ -1,48 +1,13 @@
-import { JPretask, Pretask } from './pretask.model';
-import { BaseModel } from '@src/app/core/_models/base.model';
+import { BaseModel } from '@models/base.model';
+import { JPretask } from '@models/pretask.model';
 
-export interface SuperTask {
-  _id: number;
-  _self: string;
-  pretasks?: Pretask[];
-  supertaskId: number;
-  supertaskName: string;
-}
-
-
+/**
+ * Interface definition for a supertask
+ * @extends BaseModel
+ * @prop    supertaskName Name of supertask
+ * @prop    pretasks      List of pretasks of supertask
+ */
 export interface JSuperTask extends BaseModel {
   supertaskName: string;
   pretasks?: JPretask[];
-}
-
-
-export interface SuperTaskData {
-  type: string;
-  id: number;
-  attributes: SuperTaskDataAttributes;
-  links: SuperTaskDataLinks;
-  relationships: SuperTaskDataRelationships;
-}
-
-export interface SuperTaskDataAttributes {
-  supertaskName: string;
-}
-
-export interface SuperTaskDataLinks {
-  self: string;
-  related?: string;
-}
-
-export interface SuperTaskDataRelationships {
-  pretasks: SuperTaskDataRelAttributes;
-}
-
-export interface SuperTaskDataRelAttributes {
-  links: SuperTaskDataLinks;
-  data: SuperTaskDataRelAttributesData[];
-}
-
-export interface SuperTaskDataRelAttributesData {
-  type: string;
-  id: number;
 }
