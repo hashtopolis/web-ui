@@ -11,10 +11,10 @@ import { passwordMatchValidator } from 'src/app/core/_validators/password.valida
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
 @Component({
-    selector: 'app-acc-settings',
-    templateUrl: './acc-settings.component.html',
-    providers: [uiDatePipe],
-    standalone: false
+  selector: 'app-acc-settings',
+  templateUrl: './acc-settings.component.html',
+  providers: [uiDatePipe],
+  standalone: false
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
@@ -100,19 +100,15 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     });
   }
   get newPasswordFormErrorMinlength() {
-    return this.changepasswordFormGroup
-      .get('newPassword')
-      .hasError('minlength');
+    return this.changepasswordFormGroup.get('newPassword').hasError('minlength');
   }
   get newPasswordFormErrorMaxlength() {
-    return this.changepasswordFormGroup
-      .get('newPassword')
-      .hasError('maxlength');
+    return this.changepasswordFormGroup.get('newPassword').hasError('maxlength');
   }
-  get newPasswordFromForm() {
+  get newPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('newPassword').value;
   }
-  get confirmNewPasswordFromForm() {
+  get confirmNewPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('confirmNewPassword').value;
   }
   /**
@@ -152,13 +148,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs
-          .update(SERV.USERS, this.gs.userId, this.form.value)
-          .subscribe(() => {
-            this.alert.okAlert('User saved!', '');
-            this.isUpdatingLoading = false;
-            this.router.navigate(['users/all-users']);
-          })
+        this.gs.update(SERV.USERS, this.gs.userId, this.form.value).subscribe(() => {
+          this.alert.okAlert('User saved!', '');
+          this.isUpdatingLoading = false;
+          this.router.navigate(['users/all-users']);
+        })
       );
     }
   }
@@ -175,13 +169,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       };
       console.log(payload);
       this.subscriptions.push(
-        this.gs
-          .chelper(SERV.HELPER, 'setUserPassword', payload)
-          .subscribe(() => {
-            this.alert.okAlert('User password updated!', '');
-            this.isUpdatingPassLoading = false;
-            this.router.navigate(['users/all-users']);
-          })
+        this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe(() => {
+          this.alert.okAlert('User password updated!', '');
+          this.isUpdatingPassLoading = false;
+          this.router.navigate(['users/all-users']);
+        })
       );
     }
   }
@@ -189,13 +181,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitupdatePass() {
-    // console.log(this.newPasswordFormErrorMinlength);
-    console.log(this.changepasswordFormGroup.valid);
-    if (this.changepasswordFormGroup.valid) {
-      if (this.confirmNewPasswordFromForm === this.newPasswordFromForm) {
-        console.log('send');
-      }
-    }
     /*     if (this.passform.valid) {
       this.isUpdatingPassLoading = true;
       const payload = {
@@ -227,15 +212,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   private loadUserSettings() {
     this.subscriptions.push(
-      this.gs
-        .get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] })
-        .subscribe((result) => {
-          this.createForm(
-            result.globalPermissionGroup['name'],
-            this.datePipe.transform(result['registeredSince']),
-            result['email']
-          );
-        })
+      this.gs.get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] }).subscribe((result) => {
+        this.createForm(
+          result.globalPermissionGroup['name'],
+          this.datePipe.transform(result['registeredSince']),
+          result['email']
+        );
+      })
     );
   }
 }

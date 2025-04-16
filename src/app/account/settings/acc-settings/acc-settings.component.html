@@ -3,28 +3,16 @@
   <br /><br />
   <form [formGroup]="form">
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-      <input-text
-        title="Account Type"
-        formControlName="name"
-        data-testid="input-name"
-      ></input-text>
+      <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
       <input-text
         title="Creation date"
         formControlName="registeredSince"
         data-testid="input-registered-since"
       ></input-text>
     </div>
-    <input-text
-      title="Email"
-      formControlName="email"
-      data-testid="input-email"
-    ></input-text>
+    <input-text title="Email" formControlName="email" data-testid="input-email"></input-text>
     <grid-buttons>
-      <button-submit
-        [name]="'Update'"
-        (click)="onSubmit()"
-        data-testid="button-submit"
-      ></button-submit>
+      <button-submit [name]="'Update'" (click)="onSubmit()" data-testid="button-submit"></button-submit>
       <div *ngIf="isUpdatingLoading">
         <mat-spinner diameter="24" color="accent"></mat-spinner>
       </div>
@@ -33,10 +21,7 @@
 
   <br />
   <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
-  <form
-    [formGroup]="changepasswordFormGroup"
-    style="display: flex; flex-direction: column; gap: 0.625rem"
-  >
+  <form [formGroup]="changepasswordFormGroup" style="display: flex; flex-direction: column; gap: 0.625rem">
     <input-text
       title="Old Password"
       formControlName="oldPassword"
@@ -63,10 +48,10 @@
       [newPassword]="newPasswordFromForm"
       [confirmPassword]="confirmNewPasswordFromForm"
     ></app-pass-match> -->
-    <app-pass-strenght
-      [passwordToCheck]="newPasswordFromForm"
+    <!--     <app-pass-strenght
+      [passwordToCheck]="newPasswordValueFromForm"
       (passwordStrength)="onPasswordStrengthChanged($event)"
-    ></app-pass-strenght>
+    ></app-pass-strenght> -->
 
     <grid-buttons>
       <button-submit
