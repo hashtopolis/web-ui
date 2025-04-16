@@ -70,7 +70,7 @@ export class EditTasksComponent implements OnInit {
   crackerinfo: any;
   tkeyspace: any;
 
-  @ViewChild('table') table: AgentsTableComponent;
+  @ViewChild('agentsTable') agentsTable: AgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
 
   //Time calculation
@@ -301,7 +301,7 @@ export class EditTasksComponent implements OnInit {
         .pipe(
           finalize(() => {
             this.assingAgentInit();
-            this.table.reload();
+            this.agentsTable.reload();
           })
         )
         .subscribe(() => {
