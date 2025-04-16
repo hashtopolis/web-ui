@@ -15,8 +15,9 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ServiceConfig } from '@services/main.config';
 
 @Component({
-  selector: 'app-form',
-  templateUrl: 'form.component.html'
+    selector: 'app-form',
+    templateUrl: 'form.component.html',
+    standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.

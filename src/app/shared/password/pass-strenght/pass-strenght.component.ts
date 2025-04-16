@@ -24,8 +24,8 @@ export enum PasswordStrengthColors {
 }
 
 @Component({
-  selector: 'app-pass-strenght',
-  template: `
+    selector: 'app-pass-strenght',
+    template: `
     <div class="strength">
       <ul class="strengthBar mt-2">
         <li class="strength-point" [style.background-color]="bar0"></li>
@@ -42,7 +42,8 @@ export enum PasswordStrengthColors {
         {{ message }}
       </p>
     </div>
-  `
+  `,
+    standalone: false
 })
 export class PassStrenghtComponent implements OnChanges {
   bar0: string;

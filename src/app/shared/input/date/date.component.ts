@@ -16,15 +16,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-  selector: 'input-date',
-  templateUrl: './date.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputDateComponent),
-      multi: true
-    }
-  ]
+    selector: 'input-date',
+    templateUrl: './date.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputDateComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class InputDateComponent extends AbstractInputComponent<boolean> {
   constructor() {

@@ -1,15 +1,15 @@
 import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
 
 @Component({
-  selector: 'grid-autocol',
-  template: `
+    selector: 'grid-autocol',
+    template: `
     <div #content [ngStyle]="getStyles()"><ng-content></ng-content></div>
   `,
-  host: {
-    '(window:resize)': 'onWindowResize($event)'
-  },
-  styles: [
-    `
+    host: {
+        '(window:resize)': 'onWindowResize($event)'
+    },
+    styles: [
+        `
       .vertical-line {
         position: absolute;
         top: 200px;
@@ -19,7 +19,8 @@ import { Component, ElementRef, Input, OnInit, Renderer2 } from '@angular/core';
         background-color: gray; /* Line color, you can customize this */
       }
     `
-  ]
+    ],
+    standalone: false
 })
 export class GridAutoColComponent implements OnInit {
   // Input properties that can be set from the parent component

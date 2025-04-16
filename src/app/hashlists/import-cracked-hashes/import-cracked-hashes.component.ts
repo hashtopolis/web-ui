@@ -24,8 +24,9 @@ import {
  * Component for import pre cracked hashes
  */
 @Component({
-  selector: 'app-import-cracked-hashes',
-  templateUrl: './import-cracked-hashes.component.html'
+    selector: 'app-import-cracked-hashes',
+    templateUrl: './import-cracked-hashes.component.html',
+    standalone: false
 })
 export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

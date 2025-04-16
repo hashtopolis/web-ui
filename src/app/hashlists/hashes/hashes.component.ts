@@ -26,8 +26,9 @@ import { displays, filters } from '@src/app/core/_constants/hashes.config';
  * The `HashesComponent` is for managing and displaying a list of hashes
  */
 @Component({
-  selector: 'app-hashes',
-  templateUrl: './hashes.component.html'
+    selector: 'app-hashes',
+    templateUrl: './hashes.component.html',
+    standalone: false
 })
 export class HashesComponent implements OnInit, OnDestroy {
   /** Form group for the Hashes View. */

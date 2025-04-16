@@ -43,8 +43,9 @@ import { UIConfig } from '../../../_models/config-ui.model';
  * ></action-menu>
  */
 @Component({
-  selector: 'action-menu',
-  templateUrl: './action-menu.component.html'
+    selector: 'action-menu',
+    templateUrl: './action-menu.component.html',
+    standalone: false
 })
 export class ActionMenuComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];

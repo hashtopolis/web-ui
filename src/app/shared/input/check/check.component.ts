@@ -15,15 +15,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-  selector: 'input-check',
-  templateUrl: './check.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputCheckComponent),
-      multi: true
-    }
-  ]
+    selector: 'input-check',
+    templateUrl: './check.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputCheckComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class InputCheckComponent extends AbstractInputComponent<boolean> {
   constructor() {

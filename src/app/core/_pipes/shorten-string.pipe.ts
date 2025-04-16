@@ -15,7 +15,8 @@ import {
 **/
 
 @Pipe({
-  name: 'shortenString'
+    name: 'shortenString',
+    standalone: false
 })
 export class ShortenStringPipe implements PipeTransform {
 

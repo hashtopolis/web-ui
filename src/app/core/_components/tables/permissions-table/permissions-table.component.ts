@@ -19,8 +19,9 @@ import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
-  selector: 'permissions-table',
-  templateUrl: './permissions-table.component.html'
+    selector: 'permissions-table',
+    templateUrl: './permissions-table.component.html',
+    standalone: false
 })
 export class PermissionsTableComponent
   extends BaseTableComponent

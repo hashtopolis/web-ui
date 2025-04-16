@@ -16,7 +16,8 @@ import {
 **/
 
 @Pipe({
-  name: 'replaceString'
+    name: 'replaceString',
+    standalone: false
 })
 export class ReplaceStringPipe implements PipeTransform {
 

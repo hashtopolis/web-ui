@@ -31,10 +31,11 @@ import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hash
 import { JConfig } from '@models/configs.model';
 
 @Component({
-  selector: 'app-new-hashlist',
-  templateUrl: './new-hashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FileSizePipe]
+    selector: 'app-new-hashlist',
+    templateUrl: './new-hashlist.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [FileSizePipe],
+    standalone: false
 })
 export class NewHashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

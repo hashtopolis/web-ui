@@ -4,8 +4,9 @@ import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 
 @Component({
-  selector: 'app-switch-theme',
-  templateUrl: './switch-theme.component.html',
+    selector: 'app-switch-theme',
+    templateUrl: './switch-theme.component.html',
+    standalone: false
 })
 export class SwitchThemeComponent implements OnInit {
   theme$: Subject<string | null>;

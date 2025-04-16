@@ -11,9 +11,10 @@ import {
 import { HTTableColumn, HTTableEditable } from '../../../ht-table.models';
 
 @Component({
-  selector: 'ht-table-editable',
-  templateUrl: './ht-table-type-editable.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'ht-table-editable',
+    templateUrl: './ht-table-type-editable.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class HTTableTypeEditableComponent implements OnInit {
   editable: HTTableEditable<any>;

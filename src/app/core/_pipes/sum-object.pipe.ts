@@ -15,7 +15,8 @@ import {
 **/
 
 @Pipe({
-  name: 'sum'
+    name: 'sum',
+    standalone: false
 })
 export class SumPipe implements PipeTransform {
 

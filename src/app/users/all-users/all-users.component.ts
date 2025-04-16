@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-all-users',
-  templateUrl: './all-users.component.html'
+    selector: 'app-all-users',
+    templateUrl: './all-users.component.html',
+    standalone: false
 })
 export class AllUsersComponent {
   constructor(private titleService: AutoTitleService) {

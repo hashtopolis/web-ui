@@ -16,8 +16,9 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'app-view-health-checks',
-  templateUrl: './view-health-checks.component.html'
+    selector: 'app-view-health-checks',
+    templateUrl: './view-health-checks.component.html',
+    standalone: false
 })
 export class ViewHealthChecksComponent implements OnInit, OnDestroy {
   // The index of the edited health check.

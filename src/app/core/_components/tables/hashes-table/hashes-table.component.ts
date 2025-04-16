@@ -16,8 +16,9 @@ import { HashesDataSource } from '@datasources/hashes.datasource';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'hashes-table',
-  templateUrl: './hashes-table.component.html'
+    selector: 'hashes-table',
+    templateUrl: './hashes-table.component.html',
+    standalone: false
 })
 export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() id: number;

@@ -25,8 +25,9 @@ import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'vouchers-table',
-  templateUrl: './vouchers-table.component.html'
+    selector: 'vouchers-table',
+    templateUrl: './vouchers-table.component.html',
+    standalone: false
 })
 export class VouchersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

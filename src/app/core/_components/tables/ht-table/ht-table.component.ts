@@ -83,9 +83,10 @@ import { Subscription, take, timer } from 'rxjs';
  *
  */
 @Component({
-  selector: 'ht-table',
-  templateUrl: './ht-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'ht-table',
+    templateUrl: './ht-table.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */

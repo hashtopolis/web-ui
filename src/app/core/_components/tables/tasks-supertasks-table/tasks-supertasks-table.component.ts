@@ -27,8 +27,9 @@ import { SERV } from '@services/main.config';
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
 
 @Component({
-  selector: 'tasks-supertasks-table',
-  templateUrl: './tasks-supertasks-table.component.html'
+    selector: 'tasks-supertasks-table',
+    templateUrl: './tasks-supertasks-table.component.html',
+    standalone: false
 })
 export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() supertaskId = 0;

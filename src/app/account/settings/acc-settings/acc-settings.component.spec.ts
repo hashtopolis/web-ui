@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 // eslint-disable-next-line sort-imports
 import { AccountSettingsComponent } from './acc-settings.component';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DataTablesModule } from 'angular-datatables';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -74,28 +74,26 @@ describe('AccountSettingsComponent', () => {
   };
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
+    declarations: [AccountSettingsComponent],
+    imports: [CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         FontAwesomeModule,
         DataTablesModule,
         ComponentsModule,
         PipesModule,
         NgbModule,
         RouterTestingModule,
-        MatSnackBarModule
-      ],
-      providers: [
+        MatSnackBarModule],
+    providers: [
         provideAnimations(),
         {
-          provide: GlobalService,
-          useValue: mockService
-        }
-      ],
-      declarations: [AccountSettingsComponent]
-    }).compileComponents();
+            provide: GlobalService,
+            useValue: mockService
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(AccountSettingsComponent);
     component = fixture.componentInstance;

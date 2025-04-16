@@ -28,9 +28,10 @@ import {
 } from '@src/app/users/edit-users/edit-user.form';
 
 @Component({
-  selector: 'app-edit-users',
-  templateUrl: './edit-users.component.html',
-  providers: [uiDatePipe]
+    selector: 'app-edit-users',
+    templateUrl: './edit-users.component.html',
+    providers: [uiDatePipe],
+    standalone: false
 })
 export class EditUsersComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

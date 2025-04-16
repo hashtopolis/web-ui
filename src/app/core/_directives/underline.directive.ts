@@ -11,7 +11,8 @@ import {
 */
 
 @Directive({
-  selector: '[underline]'
+    selector: '[underline]',
+    standalone: false
 })
 
 export class UnderlineDirective {

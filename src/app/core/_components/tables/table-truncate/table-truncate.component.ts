@@ -4,9 +4,10 @@ import { Component, Input, OnInit } from '@angular/core';
  * Component for truncating and expanding text with a "More/Less" button.
  */
 @Component({
-  selector: 'table-truncate',
-  templateUrl: './table-truncate.component.html',
-  styleUrls: ['./table-truncate.component.scss']
+    selector: 'table-truncate',
+    templateUrl: './table-truncate.component.html',
+    styleUrls: ['./table-truncate.component.scss'],
+    standalone: false
 })
 export class TableTruncateComponent implements OnInit {
   @Input() text: string;

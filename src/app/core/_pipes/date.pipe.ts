@@ -14,7 +14,8 @@ import { DatePipe } from '@angular/common';
  **/
 
 @Pipe({
-  name: 'uiDate'
+    name: 'uiDate',
+    standalone: false
 })
 export class uiDatePipe extends DatePipe implements PipeTransform {
   constructor(

@@ -11,9 +11,10 @@ import { passwordMatchValidator } from 'src/app/core/_validators/password.valida
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
 @Component({
-  selector: 'app-acc-settings',
-  templateUrl: './acc-settings.component.html',
-  providers: [uiDatePipe]
+    selector: 'app-acc-settings',
+    templateUrl: './acc-settings.component.html',
+    providers: [uiDatePipe],
+    standalone: false
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;

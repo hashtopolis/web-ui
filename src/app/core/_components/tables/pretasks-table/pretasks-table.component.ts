@@ -1,45 +1,54 @@
 /* eslint-disable @angular-eslint/component-selector */
+import { catchError, forkJoin } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JPretask } from '@models/pretask.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
-} from '../ht-table/ht-table.models';
+} from '@components/tables/ht-table/ht-table.models';
 import {
   PretasksTableCol,
   PretasksTableColumnLabel,
   PretasksTableEditableAction
-} from './pretasks-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/pretasks-table/pretasks-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { calculateKeyspace } from 'src/app/shared/utils/estkeyspace_attack';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { PreTasksDataSource } from 'src/app/core/_datasources/preconfigured-tasks.datasource';
-import { JPretask } from 'src/app/core/_models/pretask.model';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SafeHtml } from '@angular/platform-browser';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatFileSize } from 'src/app/shared/utils/util';
+import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource';
 
-declare let options: any;
-declare let defaultOptions: any;
-declare let parser: any;
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
+import { formatFileSize } from '@src/app/shared/utils/util';
+
+export interface AttackOptions {
+  attackType: number;
+  ruleFiles: string[];
+  posArgs: string[];
+  unrecognizedFlag: string[];
+}
+
+declare let options: AttackOptions;
+declare let defaultOptions: AttackOptions;
 
 @Component({
   selector: 'pretasks-table',
-  templateUrl: './pretasks-table.component.html'
+  templateUrl: './pretasks-table.component.html',
+  standalone: false
 })
-export class PretasksTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   // Input property to specify an supertask ID for filtering pretasks.
   @Input() supertTaskId = 0;
   // Estimate runtime attack
@@ -67,10 +76,7 @@ export class PretasksTableComponent
   }
 
   filter(item: JPretask, filterValue: string): boolean {
-    return (
-      item.taskName.toLowerCase().includes(filterValue) ||
-      item.attackCmd.toLowerCase().includes(filterValue)
-    );
+    return item.taskName.toLowerCase().includes(filterValue) || item.attackCmd.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -100,8 +106,7 @@ export class PretasksTableComponent
         isSortable: true,
         icons: (pretask: JPretask) => this.renderSecretIcon(pretask),
         render: (pretask: JPretask) => pretask.pretaskFiles?.length,
-        export: async (pretask: JPretask) =>
-          pretask.pretaskFiles?.length.toString()
+        export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
       },
       {
         id: PretasksTableCol.FILES_SIZE,
@@ -163,16 +168,14 @@ export class PretasksTableComponent
         async: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
         icons: undefined,
         isSortable: true,
-        export: async (pretask: JPretask) =>
-          Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
+        export: async (pretask: JPretask) => Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
       });
       tableColumns.push({
         id: PretasksTableCol.ATTACK_RUNTIME,
         dataKey: 'keyspaceTime',
         icons: undefined,
         isSortable: true,
-        async: (pretask: JPretask) =>
-          this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3, pretask)
+        async: () => this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3)
       });
     }
 
@@ -222,18 +225,9 @@ export class PretasksTableComponent
         );
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JPretask>(
-            this.tableColumns,
-            event.data,
-            PretasksTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<JPretask>(this.tableColumns, event.data, PretasksTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
@@ -259,9 +253,7 @@ export class PretasksTableComponent
           }`,
           icon: 'warning',
           body: `Are you sure you want to ${
-            this.supertTaskId !== 0
-              ? `unassign it?`
-              : `delete it? Note that this action cannot be undone.`
+            this.supertTaskId !== 0 ? `unassign it?` : `delete it? Note that this action cannot be undone.`
           } `,
           warn: true,
           action: event.menuItem.action
@@ -304,17 +296,12 @@ export class PretasksTableComponent
             })
           )
           .subscribe((results) => {
-            this.snackBar.open(
-              `Successfully deleted ${results.length} pretasks!`,
-              'Close'
-            );
+            this.snackBar.open(`Successfully deleted ${results.length} pretasks!`, 'Close');
             this.reload();
           })
       );
     } else {
-      const filter = this.dataSource['originalData'].filter(
-        (u) => u.id !== pretasks[0].id
-      );
+      const filter = this.dataSource['originalData'].filter((u) => u.id !== pretasks[0].id);
       const payload = [];
       for (let i = 0; i < filter.length; i++) {
         payload.push(filter[i].id);
@@ -333,10 +320,7 @@ export class PretasksTableComponent
             })
           )
           .subscribe((results) => {
-            this.snackBar.open(
-              `Successfully deleted ${results.length} pretasks!`,
-              'Close'
-            );
+            this.snackBar.open(`Successfully deleted ${results.length} pretasks!`, 'Close');
             this.reload();
           })
       );
@@ -346,17 +330,12 @@ export class PretasksTableComponent
   @Cacheable(['id', 'isSecret'])
   async renderSecretIcon(pretask: JPretask): Promise<HTTableIcon[]> {
     const icons: HTTableIcon[] = [];
-    const secretFilesCount = pretask.pretaskFiles.reduce(
-      (sum, file) => sum + (file.isSecret ? 1 : 0),
-      0
-    );
+    const secretFilesCount = pretask.pretaskFiles.reduce((sum, file) => sum + (file.isSecret ? 1 : 0), 0);
 
     if (secretFilesCount > 0) {
       icons.push({
         name: 'lock',
-        tooltip: `Secret: ${secretFilesCount} ${
-          secretFilesCount > 1 ? 'files' : 'file'
-        }`
+        tooltip: `Secret: ${secretFilesCount} ${secretFilesCount > 1 ? 'files' : 'file'}`
       });
     }
 
@@ -373,22 +352,13 @@ export class PretasksTableComponent
   }
 
   @Cacheable(['id', 'taskName'])
-  async renderEstimatedKeyspace(pretask: any): Promise<SafeHtml> {
-    return calculateKeyspace(
-      pretask.pretaskFiles,
-      'lineCount',
-      pretask.attackCmd,
-      false
-    );
+  async renderEstimatedKeyspace(pretask: JPretask): Promise<SafeHtml> {
+    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
   }
 
   @Cacheable(['id'])
-  async renderKeyspaceTime(
-    a0: number,
-    a3: number,
-    pretask: any
-  ): Promise<SafeHtml> {
-    const result = await this.calculateKeyspaceTime(a0, a3, pretask);
+  async renderKeyspaceTime(a0: number, a3: number): Promise<SafeHtml> {
+    const result = this.calculateKeyspaceTime(a0, a3);
     return result as unknown as SafeHtml;
   }
 
@@ -412,7 +382,7 @@ export class PretasksTableComponent
     try {
       val = parseInt(priority);
     } catch (error) {
-      // Do nothing
+      console.log(error);
     }
 
     if (!val || pretask.priority == val) {
@@ -433,10 +403,7 @@ export class PretasksTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Changed prio to ${val} on Task #${pretask.id}!`,
-            'Close'
-          );
+          this.snackBar.open(`Changed prio to ${val} on Task #${pretask.id}!`, 'Close');
           this.reload();
         })
     );
@@ -447,7 +414,7 @@ export class PretasksTableComponent
     try {
       val = parseInt(max);
     } catch (error) {
-      // Do nothing
+      console.log(error);
     }
 
     if (!val || pretask.maxAgents == val) {
@@ -468,10 +435,7 @@ export class PretasksTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Changed number of max agents to ${val} on Task #${pretask.id}!`,
-            'Close'
-          );
+          this.snackBar.open(`Changed number of max agents to ${val} on Task #${pretask.id}!`, 'Close');
           this.reload();
         })
     );
@@ -497,9 +461,7 @@ export class PretasksTableComponent
           })
       );
     } else {
-      const filter = this.dataSource['originalData'].filter(
-        (u) => u.id !== pretasks[0].id
-      );
+      const filter = this.dataSource['originalData'].filter((u) => u.id !== pretasks[0].id);
       const payload = [];
       for (let i = 0; i < filter.length; i++) {
         payload.push(filter[i].id);
@@ -535,7 +497,7 @@ export class PretasksTableComponent
     });
   }
 
-  calculateKeyspaceTime(a0: number, a3: number, pretask: JPretask): void {
+  calculateKeyspaceTime(a0: number, a3: number): void {
     {
       if (a0 !== 0 && a3 !== 0) {
         let totalSecondsSupertask = 0;
@@ -544,7 +506,7 @@ export class PretasksTableComponent
         const benchmarka3 = a3;
 
         // Iterate over each task in the supertask
-        $('.taskInSuper').each(function (index) {
+        $('.taskInSuper').each(function () {
           // Extract keyspace size from the table cell
           const keyspace_size = $(this).find('td:nth-child(4)').text();
           let seconds = null;
@@ -597,8 +559,7 @@ export class PretasksTableComponent
         const mins = Math.floor(seconds / 60);
         seconds -= mins * 60;
 
-        let totalRuntimeSupertask =
-          days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+        let totalRuntimeSupertask = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
 
         // Append additional information if unknown runtime is included
         if (unknown_runtime_included === 1) {

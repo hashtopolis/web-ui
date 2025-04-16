@@ -44,9 +44,10 @@ import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 
 @Component({
-  selector: 'app-edit-tasks',
-  templateUrl: './edit-tasks.component.html',
-  providers: [FileSizePipe]
+    selector: 'app-edit-tasks',
+    templateUrl: './edit-tasks.component.html',
+    providers: [FileSizePipe],
+    standalone: false
 })
 export class EditTasksComponent implements OnInit {
   editMode = false;
@@ -271,11 +272,12 @@ export class EditTasksComponent implements OnInit {
 
       const agentAssignmentsAgentIds = agentAssignments.map((agentAssignment) => agentAssignment.agentId);
 
-      const params = new RequestParamBuilder()
-        .addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds })
-        .create();
+      const params = new RequestParamBuilder();
+      if (agentAssignmentsAgentIds.length > 0) {
+        params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds });
+      }
 
-      this.gs.getAll(SERV.AGENTS, params).subscribe((responseAgents: ResponseWrapper) => {
+      this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
         const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
         const agents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
         this.availAgents = agents;

@@ -4,9 +4,10 @@ import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'base-menu',
-  template: ''
+    // eslint-disable-next-line @angular-eslint/component-selector
+    selector: 'base-menu',
+    template: '',
+    standalone: false
 })
 export class BaseMenuComponent {
   @Input() disabled = false;

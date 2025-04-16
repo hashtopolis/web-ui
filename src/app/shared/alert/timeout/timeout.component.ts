@@ -2,8 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'app-timeout',
-  templateUrl: './timeout.component.html'
+    selector: 'app-timeout',
+    templateUrl: './timeout.component.html',
+    standalone: false
 })
 export class TimeoutComponent {
   @Input() message: any;

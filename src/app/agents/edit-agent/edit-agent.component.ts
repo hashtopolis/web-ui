@@ -51,8 +51,9 @@ import { firstValueFrom } from 'rxjs';
 import { JAgentStat } from '@models/agent-stats.model';
 
 @Component({
-  selector: 'app-edit-agent',
-  templateUrl: './edit-agent.component.html'
+    selector: 'app-edit-agent',
+    templateUrl: './edit-agent.component.html',
+    standalone: false
 })
 export class EditAgentComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

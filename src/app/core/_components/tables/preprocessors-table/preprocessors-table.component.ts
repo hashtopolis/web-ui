@@ -17,8 +17,9 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { Cacheable } from 'src/app/core/_decorators/cacheable';
 
 @Component({
-  selector: 'preprocessors-table',
-  templateUrl: './preprocessors-table.component.html'
+    selector: 'preprocessors-table',
+    templateUrl: './preprocessors-table.component.html',
+    standalone: false
 })
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
 
 @Component({
-  selector: 'app-pass-match',
-  template: `
+    selector: 'app-pass-match',
+    template: `
   <div>
     <p class="text-left mb-0" *ngIf="confirmPassword?.length">{{ message }}</p>
   </div>
 `,
+    standalone: false
 })
 export class PassMatchComponent implements OnChanges {
 

@@ -18,16 +18,17 @@ import { SelectField } from '@models/input.model';
  * Supports dynamic filtering, highlighting, and emits selection changes.
  */
 @Component({
-  selector: 'input-multiselect',
-  templateUrl: 'multiselect.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputMultiSelectComponent),
-      multi: true
-    }
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'input-multiselect',
+    templateUrl: 'multiselect.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputMultiSelectComponent),
+            multi: true
+        }
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class InputMultiSelectComponent extends AbstractInputComponent<any> implements AfterViewInit {
   @Input() label = 'Select or search:';

@@ -8,15 +8,16 @@ import { randomColor } from '@src/app/shared/utils/forms';
  * Custom Input Color Picker Component.
  */
 @Component({
-  selector: 'input-color',
-  templateUrl: './color.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputColorComponent),
-      multi: true
-    }
-  ]
+    selector: 'input-color',
+    templateUrl: './color.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputColorComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class InputColorComponent extends AbstractInputComponent<string> {
   @ViewChild('selectInput') colorInput: ElementRef;

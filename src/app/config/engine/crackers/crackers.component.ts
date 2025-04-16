@@ -3,8 +3,9 @@ import { Component } from '@angular/core';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 
 @Component({
-  selector: 'app-crackers',
-  templateUrl: './crackers.component.html'
+    selector: 'app-crackers',
+    templateUrl: './crackers.component.html',
+    standalone: false
 })
 export class CrackersComponent {
   constructor(private titleService: AutoTitleService) {

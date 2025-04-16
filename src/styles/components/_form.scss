@@ -1,3 +1,5 @@
+@use "../base/colors";
+
 /* ==================================
             SECTION FORM
    ================================== */
@@ -255,13 +257,13 @@ progress::-webkit-progress-value {
   text-align: center;
 
   a {
-    color: $hyperlink-color;
+    color: colors.$hyperlink-color;
     text-decoration: none;
   }
 }
 
 .mat-card-alert {
-  background-color: $alert-color;
+  background-color: colors.$alert-color;
   margin-top: 16px;
 }
 
@@ -273,9 +275,9 @@ progress::-webkit-progress-value {
   07- Horizontal Menu Select
 */
 .btn-toggle-select {
-  color: $btn-text-color;
-  background-color: $btn-bg-color;
-  border-color: $btn-border-color;
+  color: colors.$btn-text-color;
+  background-color: colors.$btn-bg-color;
+  border-color: colors.$btn-border-color;
 }
 
 /*
@@ -291,7 +293,7 @@ progress::-webkit-progress-value {
 }
 
 .highlight-text {
-  background-color: $search-text-highlight-color;
+  background-color: colors.$search-text-highlight-color;
 }
 
 

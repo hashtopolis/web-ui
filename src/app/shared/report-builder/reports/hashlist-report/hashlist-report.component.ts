@@ -9,8 +9,9 @@ import { BaseReportComponent } from '../base-report/base-report.component';
 import { ReportTableColumn } from '../report-builder/report.models';
 
 @Component({
-  selector: 'hashlist-report',
-  templateUrl: './hashlist-report.component.html'
+    selector: 'hashlist-report',
+    templateUrl: './hashlist-report.component.html',
+    standalone: false
 })
 export class HashlistReportComponent
   extends BaseReportComponent

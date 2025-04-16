@@ -4,8 +4,9 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
 @Component({
-  selector: 'horizontalnav',
-  templateUrl: 'horizontalnav.component.html'
+    selector: 'horizontalnav',
+    templateUrl: 'horizontalnav.component.html',
+    standalone: false
 })
 export class HorizontalNavComponent implements OnDestroy {
   @Input() menuItems: HorizontalNav[] = [];

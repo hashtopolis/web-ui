@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-superhashlist',
-  templateUrl: './superhashlist.component.html'
+    selector: 'app-superhashlist',
+    templateUrl: './superhashlist.component.html',
+    standalone: false
 })
 export class SuperhashlistComponent {
   constructor(private titleService: AutoTitleService) {

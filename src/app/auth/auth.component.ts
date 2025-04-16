@@ -20,8 +20,9 @@ import { OnDestroy } from '@angular/core';
 import { NgZone } from '@angular/core';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './auth.component.html'
+    selector: 'app-login',
+    templateUrl: './auth.component.html',
+    standalone: false
 })
 export class AuthComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperHashlist. */

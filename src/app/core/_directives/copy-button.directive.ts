@@ -11,7 +11,8 @@ import { AlertService } from '../_services/shared/alert.service';
 **/
 
 @Directive({
-  selector: '[copyButton]'
+    selector: '[copyButton]',
+    standalone: false
 })
 export class CopyButtonDirective {
 

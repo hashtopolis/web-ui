@@ -20,9 +20,10 @@ import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
  * Component class to create a new supertask
  */
 @Component({
-  selector: 'app-new-supertasks',
-  templateUrl: './new-supertasks.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-new-supertasks',
+    templateUrl: './new-supertasks.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

@@ -19,8 +19,9 @@ declare let defaultOptions: any;
 declare let parser: any;
 
 @Component({
-  selector: 'app-edit-supertasks',
-  templateUrl: './edit-supertasks.component.html'
+    selector: 'app-edit-supertasks',
+    templateUrl: './edit-supertasks.component.html',
+    standalone: false
 })
 export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -100,8 +101,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
     // Form calculate benchmark
     this.etForm = new FormGroup({
-      benchmarka0: new FormControl(null || 0),
-      benchmarka3: new FormControl(null || 0)
+      benchmarka0: new FormControl(0),
+      benchmarka3: new FormControl(0)
     });
   }
 

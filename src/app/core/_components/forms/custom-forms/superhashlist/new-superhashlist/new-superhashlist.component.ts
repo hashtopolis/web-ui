@@ -18,9 +18,10 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
  */
 @Component({
-  selector: 'app-new-superhashlist',
-  templateUrl: './new-superhashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-new-superhashlist',
+    templateUrl: './new-superhashlist.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */

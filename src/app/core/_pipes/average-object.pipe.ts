@@ -11,7 +11,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  * @returns number
  **/
 @Pipe({
-  name: 'avg'
+    name: 'avg',
+    standalone: false
 })
 export class AveragePipe implements PipeTransform {
   transform(value: any[], name: string) {

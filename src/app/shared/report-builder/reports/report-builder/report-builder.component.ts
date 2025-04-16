@@ -1,13 +1,16 @@
+import pdfMake from 'pdfmake/build/pdfmake';
+import vfsFonts from 'pdfmake/build/vfs_fonts';
+
+import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { HttpClient } from '@angular/common/http';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+pdfMake.vfs = vfsFonts.vfs;
 
 @Component({
-  selector: 'app-report-builder',
-  templateUrl: './report-builder.component.html'
+    selector: 'app-report-builder',
+    templateUrl: './report-builder.component.html',
+    standalone: false
 })
 export class ReportBuilderComponent implements OnInit {
   @Input() templateName: string;
@@ -35,34 +38,24 @@ export class ReportBuilderComponent implements OnInit {
     const coverPageTemplate = this.templates[this.templateName].cover_page;
 
     this.reportForm = this.formBuilder.group({
-      cover_page: ['' || true],
-      cover_page_letter_head: ['' || true],
-      title: ['' || coverPageTemplate?.title.text],
-      info_header_text: [
-        '' || this.templates[this.templateName]?.settings.info_header_text.text
-      ],
-      info_cover_body_1: ['' || coverPageTemplate?.info_cover_body_1.text],
-      info_cover_body_2: ['' || coverPageTemplate?.info_cover_body_2.text],
-      reference: ['' || coverPageTemplate?.reference.text],
-      info_cover_body_3: ['' || coverPageTemplate?.info_cover_body_3.text],
-      info_cover_body_4: ['' || coverPageTemplate?.info_cover_body_4.text],
-      info_cover_body_5: ['' || coverPageTemplate?.info_cover_body_5.text],
-      location_date: ['' || coverPageTemplate?.location_date.text],
-      info_cover_footer_1: ['' || coverPageTemplate?.info_cover_footer_1.text],
-      info_cover_footer_2: ['' || coverPageTemplate?.info_cover_footer_2.text],
-      info_cover_footer_3: ['' || coverPageTemplate?.info_cover_footer_3.text],
-      project_name: [
-        '' || this.templates[this.templateName]?.pages.project_name.text
-      ],
-      project_description: [
-        '' || this.templates[this.templateName]?.pages.project_description.text
-      ],
-      userpassword: [
-        '' || this.templates[this.templateName]?.settings.userpassword
-      ],
-      ownerpassword: [
-        '' || this.templates[this.templateName]?.settings.ownerpassword
-      ]
+      cover_page: [true],
+      cover_page_letter_head: [true],
+      title: [coverPageTemplate?.title.text],
+      info_header_text: [this.templates[this.templateName]?.settings.info_header_text.text],
+      info_cover_body_1: [coverPageTemplate?.info_cover_body_1.text],
+      info_cover_body_2: [coverPageTemplate?.info_cover_body_2.text],
+      reference: [coverPageTemplate?.reference.text],
+      info_cover_body_3: [coverPageTemplate?.info_cover_body_3.text],
+      info_cover_body_4: [coverPageTemplate?.info_cover_body_4.text],
+      info_cover_body_5: [coverPageTemplate?.info_cover_body_5.text],
+      location_date: [coverPageTemplate?.location_date.text],
+      info_cover_footer_1: [coverPageTemplate?.info_cover_footer_1.text],
+      info_cover_footer_2: [coverPageTemplate?.info_cover_footer_2.text],
+      info_cover_footer_3: [coverPageTemplate?.info_cover_footer_3.text],
+      project_name: [this.templates[this.templateName]?.pages.project_name.text],
+      project_description: [this.templates[this.templateName]?.pages.project_description.text],
+      userpassword: [this.templates[this.templateName]?.settings.userpassword],
+      ownerpassword: [this.templates[this.templateName]?.settings.ownerpassword]
     });
     this.isLoaded = true;
   }
@@ -73,9 +66,7 @@ export class ReportBuilderComponent implements OnInit {
 
   async loadTemplate(templateName: string): Promise<void> {
     try {
-      const template = await this.http
-        .get(`assets/report-templates/${templateName}.json`)
-        .toPromise();
+      const template = await this.http.get(`assets/report-templates/${templateName}.json`).toPromise();
       this.templates[templateName] = template;
       this.populateFormWithDefaults();
     } catch (error) {
@@ -95,8 +86,7 @@ export class ReportBuilderComponent implements OnInit {
       const pages = [];
       const content = [];
 
-      const globalStyles =
-        this.templates[this.templateName]?.settings.global_style;
+      const globalStyles = this.templates[this.templateName]?.settings.global_style;
 
       if (formValues.cover_page) {
         const coverPageData = this.templates[this.templateName].cover_page;
@@ -135,11 +125,7 @@ export class ReportBuilderComponent implements OnInit {
           // Create a new object to hold the modified data
           const textData = { ...defaultData };
           // Letter head
-          if (
-            !formValues.cover_page_letter_head &&
-            key.startsWith('img_') &&
-            textData[key].enable === false
-          ) {
+          if (!formValues.cover_page_letter_head && key.startsWith('img_') && textData[key].enable === false) {
             delete textData[key];
           }
           // If formData has a text property, overwrite the text property in textData
@@ -160,15 +146,9 @@ export class ReportBuilderComponent implements OnInit {
 
           // Check if defaultData has gapLines and add it below the columns
           if (textData.gapPos === 'top') {
-            return [
-              { text: '\n'.repeat(textData.gapLines) },
-              { columns: [textData] }
-            ];
+            return [{ text: '\n'.repeat(textData.gapLines) }, { columns: [textData] }];
           } else if (textData.gapPos === 'bottom') {
-            return [
-              { columns: [textData] },
-              { text: '\n'.repeat(textData.gapLines) }
-            ];
+            return [{ columns: [textData] }, { text: '\n'.repeat(textData.gapLines) }];
           } else if (key.startsWith('img_')) {
             return [textData];
           } else {
@@ -208,15 +188,9 @@ export class ReportBuilderComponent implements OnInit {
 
         // Check if defaultData has gapLines and add it below the columns
         if (textData.gapPos === 'top') {
-          return [
-            { text: '\n'.repeat(textData.gapLines) },
-            { columns: [textData] }
-          ];
+          return [{ text: '\n'.repeat(textData.gapLines) }, { columns: [textData] }];
         } else if (textData.gapPos === 'bottom') {
-          return [
-            { columns: [textData] },
-            { text: '\n'.repeat(textData.gapLines) }
-          ];
+          return [{ columns: [textData] }, { text: '\n'.repeat(textData.gapLines) }];
         } else {
           return { columns: [textData] };
         }
@@ -281,23 +255,18 @@ export class ReportBuilderComponent implements OnInit {
       let bg = {}; // Initialize bg as an object
 
       // Page header
-      const headerText =
-        this.templates[this.templateName]?.settings['info_header_text'];
+      const headerText = this.templates[this.templateName]?.settings['info_header_text'];
 
       // Encode logo image
       const imagePath = '../../assets/img/';
       if (formValues.cover_page && headerLogo.enable) {
-        headerLogo.image = await this.getBase64ImageFromURL(
-          imagePath + headerLogo.img_path
-        );
+        headerLogo.image = await this.getBase64ImageFromURL(imagePath + headerLogo.img_path);
         delete headerLogo.img_path;
       }
 
       // Encode background image and add it to the bg object
       if (backgroundImg.enable) {
-        backgroundImg.image = await this.getBase64ImageFromURL(
-          imagePath + backgroundImg.img_path
-        );
+        backgroundImg.image = await this.getBase64ImageFromURL(imagePath + backgroundImg.img_path);
         delete backgroundImg.img_path;
 
         bg = { background: { ...backgroundImg } };
@@ -328,20 +297,13 @@ export class ReportBuilderComponent implements OnInit {
 
           if (formValues.cover_page && headerLogo.enable && 2 <= currentPage) {
             result.push({ ...headerLogo });
-          } else if (
-            !formValues.cover_page &&
-            headerLogo.enable &&
-            currentPage <= 1
-          ) {
+          } else if (!formValues.cover_page && headerLogo.enable && currentPage <= 1) {
             result.push({ ...headerLogo });
           }
 
           // Check when to start displaying the header text
           if (headerTextData.startAt <= currentPage) {
-            if (
-              typeof formValues.info_header_text === 'string' ||
-              typeof formValues.info_header_text === 'number'
-            ) {
+            if (typeof formValues.info_header_text === 'string' || typeof formValues.info_header_text === 'number') {
               headerTextData.text = formValues.info_header_text;
             }
             result.push({ ...headerTextData });
@@ -404,9 +366,7 @@ export class ReportBuilderComponent implements OnInit {
 
       const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(
-          `Failed to fetch image: ${response.status} ${response.statusText}`
-        );
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
       }
       const blob = await response.blob();
       return new Promise<string>((resolve, reject) => {
