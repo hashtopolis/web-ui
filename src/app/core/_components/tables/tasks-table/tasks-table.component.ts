@@ -457,7 +457,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return icons;
   }
 
-  @Cacheable(['_id', 'isSmall'])
+  @Cacheable(['id', 'isSmall'])
   async renderIsSmallIcon(wrapper: JTaskWrapper): Promise<HTTableIcon[]> {
     return this.renderBoolIcon(wrapper, 'isSmall');
   }
