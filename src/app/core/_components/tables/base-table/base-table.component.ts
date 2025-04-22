@@ -1,39 +1,38 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Subscription } from 'rxjs';
 
-import { ChangeDetectorRef, Component, Input, Renderer2, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
-import { UIConfig, uiConfigDefault } from '@src/app/core/_models/config-ui.model';
-import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JChunk } from '@src/app/core/_models/chunk.model';
-import { JSuperTask } from '@src/app/core/_models/supertask.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { JSuperTask } from '@models/supertask.model';
+import { JUser } from '@models/user.model';
 
-import { ConfigService } from '@src/app/core/_services/shared/config.service';
-import { ExportService } from '@src/app/core/_services/export/export.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
-import { UtilService } from '@src/app/core/_services/shared/util.service';
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { ConfigService } from '@services/shared/config.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UtilService } from '@services/shared/util.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { HTTableIcon, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { HTTableComponent } from '@src/app/core/_components/tables/ht-table/ht-table.component';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
-
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { JUser } from '@src/app/core/_models/user.model';
 
 @Component({
-    selector: 'base-table',
-    template: '',
-    standalone: false
+  selector: 'base-table',
+  template: '',
+  standalone: false
 })
 export class BaseTableComponent {
   protected uiSettings: UISettingsUtilityClass;
@@ -60,7 +59,6 @@ export class BaseTableComponent {
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
-    protected renderer: Renderer2,
     public clipboard: Clipboard,
     protected router: Router,
     protected settingsService: LocalStorageService<UIConfig>,
@@ -217,15 +215,15 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['id', 'accessGroup'])
-  async renderAccessGroupLinks(obj: unknown): Promise<HTTableRouterLink[]> {
+  async renderAccessGroupLinks(agent: JAgent): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
-    if (obj && obj['relationships']) {
-      links = [
-        {
-          routerLink: ['/users', 'access-groups', obj['relationships']['accessGroups']['data'][0]['id'], 'edit'],
-          label: obj['accessGroup']
-        }
-      ];
+
+    if (agent && agent.accessGroups) {
+      // Iterate over each access group and create a link for it
+      links = agent.accessGroups.map((accessGroup) => ({
+        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
+        label: accessGroup.groupName
+      }));
       return links;
     } else {
       return links;

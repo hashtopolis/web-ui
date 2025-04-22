@@ -2,22 +2,21 @@
  * Contains data source for agents resource
  * @module
  */
-import { catchError, forkJoin, of } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
-import { JChunk } from '@src/app/core/_models/chunk.model';
-import { JTask } from '@src/app/core/_models/task.model';
-import { JUser } from '@src/app/core/_models/user.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { SERV } from '@src/app/core/_services/main.config';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _taskId = 0;
@@ -101,7 +100,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   loadAssignments(): void {
     this.loading = true;
     const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
-    const assignParams = new RequestParamBuilder().setPageSize(this.pageSize)
+    const assignParams = new RequestParamBuilder()
+      .setPageSize(this.pageSize)
       .setPageAfter(this.currentPage * this.pageSize)
       .addInclude('agent')
       .addInclude('task')

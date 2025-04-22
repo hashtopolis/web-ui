@@ -2,23 +2,25 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
 import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
+import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
-    selector: 'app-new-health-checks',
-    templateUrl: './new-health-checks.component.html',
-    standalone: false
+  selector: 'app-new-health-checks',
+  templateUrl: './new-health-checks.component.html',
+  standalone: false
 })
 export class NewHealthChecksComponent implements OnInit, OnDestroy {
   /** Form group for Health Checks */
@@ -32,15 +34,6 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   selectHashtypes = hashtype;
   selectCrackertype: any;
   selectCrackerversions: any = [];
-
-  /** Select Options Mapping */
-  selectCrackertypeMap = {
-    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
-  };
-
-  selectCrackervMap = {
-    fieldMapping: CRACKER_VERSION_FIELD_MAPPING
-  };
 
   /**
    * @param {UnsubscribeService} unsubscribeService - The service managing unsubscribing from observables.
@@ -101,7 +94,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
         data: response.data,
         included: response.included
       });
-      this.selectCrackertype = transformSelectOptions(crackerTypes, this.selectCrackertypeMap);
+      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);
   }
@@ -121,7 +114,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
         data: response.data,
         included: response.included
       });
-      this.selectCrackerversions = transformSelectOptions(crackers, this.selectCrackervMap);
+      this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
       const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
       this.form.get('crackerBinaryId').patchValue(lastItem);
     });

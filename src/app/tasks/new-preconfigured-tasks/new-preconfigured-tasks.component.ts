@@ -18,7 +18,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigured-tasks/new-preconfigured-tasks.form';
 
 @Component({
@@ -31,7 +31,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   createForm: FormGroup<NewPretaskForm>;
 
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: JCrackerBinaryType[];
+  selectCrackertype: SelectOption[];
   isCreatingLoading = false;
 
   selectCrackertypeMap = {
@@ -110,7 +110,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
         data: response.data,
         included: response.included
       });
-      this.selectCrackertype = transformSelectOptions(crackerTypes, this.selectCrackertypeMap);
+      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadCrackersSubscription$);
   }
