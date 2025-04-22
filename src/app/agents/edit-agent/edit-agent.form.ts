@@ -46,6 +46,6 @@ export const getEditAgentForm = () => {
  */
 export const getUpdateAssignmentForm = () => {
   return new FormGroup<UpdateAssignmentForm>({
-    taskId: new FormControl(undefined)
+    taskId: new FormControl(0)
   });
 };

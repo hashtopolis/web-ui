@@ -78,8 +78,8 @@ export class EditTasksComponent implements OnInit {
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
 
   //Time calculation
-  cprogress; // Keyspace searched
-  ctimespent; // Time Spent
+  cprogress: number; // Keyspace searched
+  ctimespent: number; // Time Spent
 
   // Chunk View
   chunkview: number;
@@ -299,8 +299,12 @@ export class EditTasksComponent implements OnInit {
         timespent.push(chunks[i].solveTime - current);
       }
     }
-    this.cprogress = cprogress.reduce((a, i) => a + i);
-    this.ctimespent = timespent.reduce((a, i) => a + i);
+    if (cprogress.length > 0) {
+      this.cprogress = cprogress.reduce((a, i) => a + i);
+    }
+    if (timespent.length > 0) {
+      this.ctimespent = timespent.reduce((a, i) => a + i);
+    }
   }
 
   assignChunksInit() {

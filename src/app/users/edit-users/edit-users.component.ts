@@ -1,25 +1,23 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
-import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
-import { JUser } from '@src/app/core/_models/user.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JUser } from '@models/user.model';
 
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
-import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { USER_AGP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { DEFAULT_FIELD_MAPPING, USER_AGP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
-
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import {
   EditUserForm,
   UpdatePassForm,
@@ -28,10 +26,10 @@ import {
 } from '@src/app/users/edit-users/edit-user.form';
 
 @Component({
-    selector: 'app-edit-users',
-    templateUrl: './edit-users.component.html',
-    providers: [uiDatePipe],
-    standalone: false
+  selector: 'app-edit-users',
+  templateUrl: './edit-users.component.html',
+  providers: [uiDatePipe],
+  standalone: false
 })
 export class EditUsersComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -45,15 +43,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select List of Global Permission Groups. */
-  selectGlobalPermissionGroups: JGlobalPermissionGroup[];
-
-  /** Select Options Mapping */
-  selectUserAgpMap = {
-    fieldMapping: USER_AGP_FIELD_MAPPING
-  };
+  selectGlobalPermissionGroups: SelectOption[];
 
   /** User Access Group Permissions. */
-  userAgps: JAccessGroup[];
+  selectUserAgps: SelectOption[];
 
   // Edit Configuration
   editedUserIndex: number;
@@ -66,7 +59,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     private unsubscribeService: UnsubscribeService,
     private changeDetectorRef: ChangeDetectorRef,
     private titleService: AutoTitleService,
-    private uiService: UIConfigService,
     private route: ActivatedRoute,
     private datePipe: uiDatePipe,
     private alert: AlertService,
@@ -75,7 +67,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   ) {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit User']);
+    this.titleService.set(['Edit User']);
   }
 
   /**
@@ -119,7 +111,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       .get(SERV.USERS, this.editedUserIndex, params)
       .subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
-        this.userAgps = transformSelectOptions(user.accessGroups, this.selectUserAgpMap);
+        this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
       });
 
     this.unsubscribeService.add(loaduserAGPSubscription$);
@@ -127,10 +119,11 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     const loadAGPSubscription$ = this.gs
       .getAll(SERV.ACCESS_PERMISSIONS_GROUPS)
       .subscribe((response: ResponseWrapper) => {
-        this.selectGlobalPermissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
+        const globalPermissionGroups = new JsonAPISerializer().deserialize<JGlobalPermissionGroup[]>({
           data: response.data,
           included: response.included
         });
+        this.selectGlobalPermissionGroups = transformSelectOptions(globalPermissionGroups, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });
