@@ -2,7 +2,6 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
-import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
  * Custom Select Component.
@@ -34,6 +33,7 @@ export class InputSelectComponent extends AbstractInputComponent<any> {
   @Input() items: any;
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
+  @Input() isLoading = false;
 
   constructor() {
     super();
