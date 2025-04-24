@@ -1,8 +1,8 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { AccessGroup } from '@models/access-group.model';
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -10,7 +10,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<AccessGroup> {
+export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | JGlobalPermissionGroup> {
   private _accesspermgroupId = 0;
   private _expand = '';
   private _perm = 0;
@@ -41,19 +41,15 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<Acces
         )
         .subscribe((response: ResponseWrapper) => {
           const globalPermissionGroup = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>(response);
-          let data: any[];
+          let data: (JGlobalPermissionGroup | JUser)[];
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);
           } else {
-            data = response[this._expand];
+            data = globalPermissionGroup.userMembers;
           }
           this.setData(data);
         })
     );
-  }
-
-  getData(): AccessGroup[] {
-    return this.getOriginalData();
   }
 
   reload(): void {
@@ -61,7 +57,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<Acces
     this.loadAll();
   }
 
-  private processPermissions(globalPermissionGroup: JGlobalPermissionGroup): any[] {
+  private processPermissions(globalPermissionGroup: JGlobalPermissionGroup) {
     return Object.entries(globalPermissionGroup.permissions).reduce((acc, [key, value]) => {
       const operation = key.replace(/^perm/, '').replace(/(Create|Delete|Read|Update)$/, '');
       let operationName = operation.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();

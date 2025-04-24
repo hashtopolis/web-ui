@@ -1,28 +1,25 @@
 import { catchError } from 'rxjs';
+
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { UserPermissions } from '@src/app/core/_models/user-permissions.model';
-
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
 import {
   APGUTableEditableAction,
   AccessPermissionGroupsUserTableCol,
   AccessPermissionGroupsUserTableColumnLabel
 } from '@src/app/core/_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
-
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
 import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-
+import { AccessPermissionGroupsExpandDataSource } from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
+import { UserPermissions } from '@src/app/core/_models/user-permissions.model';
 import { SERV } from '@src/app/core/_services/main.config';
 
-import { AccessPermissionGroupsExpandDataSource } from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
-
 @Component({
-    selector: 'access-permission-groups-user-table',
-    templateUrl: './access-permission-groups-user-table.component.html',
-    standalone: false
+  selector: 'access-permission-groups-user-table',
+  templateUrl: './access-permission-groups-user-table.component.html',
+  standalone: false
 })
 export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;
