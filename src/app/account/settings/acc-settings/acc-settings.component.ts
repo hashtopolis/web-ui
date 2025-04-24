@@ -4,6 +4,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { JUser } from '@src/app/core/_models/user.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { Router } from '@angular/router';
 import { SERV } from '../../../core/_services/main.config';
 import { Subscription } from 'rxjs';
@@ -52,7 +56,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.createForm();
     this.loadUserSettings();
     this.createUpdatePassForm();
-    this.updatePassForm();
+    /* this.updatePassForm(); */
   }
 
   /**
@@ -112,7 +116,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Creates and password update
    *
    */
-  updatePassForm() {
+  /*   updatePassForm() {
     // this.passform = new FormGroup(
     //   {
     //     oldpassword: new FormControl(''),
@@ -136,7 +140,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         Validators.maxLength(AccountSettingsComponent.PWD_MAX)
       ])
     });
-  }
+  } */
 
   /**
    * Handles form basic form submission
@@ -183,16 +187,17 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       console.log('valid');
       this.isUpdatingPassLoading = true;
       const payload = {
-        userId: this.gs.userId,
-        password: this.newPasswordValueFromForm
+        password: this.newPasswordValueFromForm,
+        userId: this.gs.userId
       };
-      this.subscriptions.push(
+      console.log(payload);
+      /*       this.subscriptions.push(
         this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe(() => {
           this.alert.okAlert('User password updated!', '');
           this.isUpdatingPassLoading = false;
           this.router.navigate(['users/all-users']);
         })
-      );
+      ); */
     } else {
       this.alert.okAlert('ERROR updating password', '');
       console.log('invalid');
@@ -209,7 +214,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /**
    * Loads user settings from the server and populates the form with initial data.
    */
-  private loadUserSettings() {
+  /*   private loadUserSettings() {
     this.subscriptions.push(
       this.gs.get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] }).subscribe((result) => {
         this.createForm(
@@ -217,6 +222,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
           this.datePipe.transform(result['registeredSince']),
           result['email']
         );
+      })
+    );
+  } */
+  private loadUserSettings() {
+    const params = new RequestParamBuilder().addInclude('globalPermissionGroup').create();
+    this.subscriptions.push(
+      this.gs.get(SERV.USERS, this.gs.userId, params).subscribe((response: ResponseWrapper) => {
+        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        console.log(user);
+        this.createForm(user.name, this.datePipe.transform(user.registeredSince), user.email);
       })
     );
   }
