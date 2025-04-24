@@ -86,7 +86,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   createUpdatePassForm() {
     this.changepasswordFormGroup = new FormGroup({
-      oldPassword: new FormControl('', Validators.required),
+      /* oldPassword: new FormControl('', Validators.required), */
       newPassword: new FormControl('', [
         Validators.required,
         Validators.minLength(AccountSettingsComponent.PWD_MIN),
@@ -99,12 +99,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       ])
     });
   }
-  get newPasswordFormErrorMinlength() {
-    return this.changepasswordFormGroup.get('newPassword').hasError('minlength');
-  }
-  get newPasswordFormErrorMaxlength() {
-    return this.changepasswordFormGroup.get('newPassword').hasError('maxlength');
-  }
+  /*   get oldPasswordValueFromForm() {
+    return this.changepasswordFormGroup.get('oldPassword').value;
+  } */
   get newPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('newPassword').value;
   }
@@ -180,24 +177,26 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /**
    * Handles password submission
    */
-  onSubmitupdatePass() {
-    /*     if (this.passform.valid) {
+  onSubmitUpdatePass() {
+    console.log(this.changepasswordFormGroup.valid);
+    if (this.changepasswordFormGroup.valid && this.newPasswordValueFromForm === this.confirmNewPasswordValueFromForm) {
+      console.log('valid');
       this.isUpdatingPassLoading = true;
       const payload = {
         userId: this.gs.userId,
-        password: this.passform.value['password']
+        password: this.newPasswordValueFromForm
       };
-      console.log(payload);
       this.subscriptions.push(
-        this.gs
-          .chelper(SERV.HELPER, 'setUserPassword', payload)
-          .subscribe(() => {
-            this.alert.okAlert('User password updated!', '');
-            this.isUpdatingPassLoading = false;
-            this.router.navigate(['users/all-users']);
-          })
+        this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe(() => {
+          this.alert.okAlert('User password updated!', '');
+          this.isUpdatingPassLoading = false;
+          this.router.navigate(['users/all-users']);
+        })
       );
-    } */
+    } else {
+      this.alert.okAlert('ERROR updating password', '');
+      console.log('invalid');
+    }
   }
   onPasswordStrengthChanged(event: boolean) {
     this.strongPassword = event;
