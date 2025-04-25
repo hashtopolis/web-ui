@@ -1,6 +1,6 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { JGlobalPermissionGroup, UserPermissions } from '@models/global-permission-group.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -10,7 +10,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | JGlobalPermissionGroup> {
+export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser | UserPermissions> {
   private _accesspermgroupId = 0;
   private _expand = '';
   private _perm = 0;
@@ -41,7 +41,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
         )
         .subscribe((response: ResponseWrapper) => {
           const globalPermissionGroup = new JsonAPISerializer().deserialize<JGlobalPermissionGroup>(response);
-          let data: (JGlobalPermissionGroup | JUser)[];
+          let data: (UserPermissions | JUser)[];
           if (this._perm) {
             data = this.processPermissions(globalPermissionGroup);
           } else {
@@ -57,7 +57,7 @@ export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<JUser
     this.loadAll();
   }
 
-  private processPermissions(globalPermissionGroup: JGlobalPermissionGroup) {
+  private processPermissions(globalPermissionGroup: JGlobalPermissionGroup): UserPermissions[] {
     return Object.entries(globalPermissionGroup.permissions).reduce((acc, [key, value]) => {
       const operation = key.replace(/^perm/, '').replace(/(Create|Delete|Read|Update)$/, '');
       let operationName = operation.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
