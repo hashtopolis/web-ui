@@ -27,6 +27,7 @@ import { HTTableComponent } from '@components/tables/ht-table/ht-table.component
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { LruCacheable } from '@src/app/core/_decorators/lru-cacheable';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
@@ -204,7 +205,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
+  @LruCacheable(['groupName'])
   async renderAccessGroupLink(obj: JAccessGroup): Promise<HTTableRouterLink[]> {
     return [
       {
