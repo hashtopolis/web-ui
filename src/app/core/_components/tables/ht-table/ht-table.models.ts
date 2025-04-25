@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Observable } from 'rxjs';
+
 import { SafeHtml } from '@angular/platform-browser';
+
+import { BaseModel } from '@models/base.model';
 
 export type DataType =
   | 'agents'
@@ -44,7 +48,7 @@ export interface HTTableIcon {
 
 export interface HTTableRouterLink {
   label?: string | number;
-  routerLink: any[];
+  routerLink: Array<string | number>;
   tooltip?: string;
 }
 
@@ -80,6 +84,7 @@ export interface HTTableColumn {
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
+  routerLinkNoCache?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
 }
 
 /** Column def for selectable checkbox */

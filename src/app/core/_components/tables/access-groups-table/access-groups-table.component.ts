@@ -61,7 +61,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLink: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
+        routerLinkNoCache: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
         isSortable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
@@ -225,7 +225,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   }
 
   private rowActionEdit(accessGroup: JAccessGroup): void {
-    this.renderAccessGroupLink(accessGroup).then((links: HTTableRouterLink[]) => {
+    this.renderAccessGroupLink(accessGroup).subscribe((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink).then(() => {});
     });
   }

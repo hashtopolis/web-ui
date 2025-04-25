@@ -1,0 +1,24 @@
+<ng-container *ngIf="tableColumn.routerLinkNoCache">
+  <span *ngFor="let link of tableColumn.routerLinkNoCache(element) | async">
+    <ng-container *ngIf="link.tooltip; else linkTmpl">
+      <a [routerLink]="link.routerLink" [matTooltip]="link.tooltip">
+        <ng-container *ngIf="link.label">
+          {{ link.label }}
+        </ng-container>
+        <ng-container *ngIf="!link.label">
+          {{ element[tableColumn.dataKey] }}
+        </ng-container>
+      </a>
+    </ng-container>
+    <ng-template #linkTmpl>
+      <a [routerLink]="link.routerLink">
+        <ng-container *ngIf="link.label">
+          {{ link.label }}
+        </ng-container>
+        <ng-container *ngIf="!link.label">
+          {{ element[tableColumn.dataKey] }}
+        </ng-container>
+      </a>
+    </ng-template>
+  </span>
+</ng-container>

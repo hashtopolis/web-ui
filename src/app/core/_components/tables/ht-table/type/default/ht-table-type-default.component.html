@@ -1,4 +1,4 @@
-<ng-container *ngIf="!tableColumn.routerLink && !tableColumn.editable && !tableColumn.checkbox">
+<ng-container *ngIf="!tableColumn.routerLink && !tableColumn.routerLinkNoCache && !tableColumn.editable && !tableColumn.checkbox">
   <!-- Check if a async function is defined for the column -->
   <ng-container *ngIf="tableColumn.async">
     <div [innerHtml]="(tableColumn.async(element) | async) || '-'"></div>

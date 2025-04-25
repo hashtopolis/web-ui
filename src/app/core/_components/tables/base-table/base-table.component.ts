@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
@@ -27,7 +27,6 @@ import { HTTableComponent } from '@components/tables/ht-table/ht-table.component
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
-import { LruCacheable } from '@src/app/core/_decorators/lru-cacheable';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
@@ -205,16 +204,6 @@ export class BaseTableComponent {
     ];
   }
 
-  @LruCacheable(['groupName'])
-  async renderAccessGroupLink(obj: JAccessGroup): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj.id ? ['/users', 'access-groups', obj.id, 'edit'] : [],
-        label: obj.groupName
-      }
-    ];
-  }
-
   @Cacheable(['id', 'accessGroup'])
   async renderAccessGroupLinks(agent: JAgent): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
@@ -239,5 +228,19 @@ export class BaseTableComponent {
         : [{ name: 'remove_circle', cls: 'text-critical' }];
     }
     return [];
+  }
+
+  /**
+   * Render access group link to displayed in HTML code
+   * @param accessGroup - access group object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderAccessGroupLink(accessGroup: JAccessGroup): Observable<HTTableRouterLink[]> {
+    return of([
+      {
+        routerLink: accessGroup && accessGroup.id ? ['/users', 'access-groups', accessGroup.id, 'edit'] : [],
+        label: accessGroup.groupName
+      }
+    ]);
   }
 }

@@ -141,7 +141,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
-        routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
+        routerLinkNoCache: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },
@@ -221,7 +221,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         this.rowActionUnarchive(event.data);
         break;
       case RowActionMenuAction.DELETE:
-        const prodata = this.getRowDeleteLabel(event.data);
+        { const prodata = this.getRowDeleteLabel(event.data);
         this.openDialog({
           rows: [prodata],
           title: `Deleting ${prodata.taskName} ...`,
@@ -230,7 +230,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           warn: true,
           action: event.menuItem.action
         });
-        break;
+        break; }
     }
   }
 
