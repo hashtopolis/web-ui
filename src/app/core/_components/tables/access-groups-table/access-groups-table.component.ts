@@ -17,8 +17,9 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { LruCacheService } from '@services/shared/lru-cache.service';
 
 @Component({
-  selector: 'access-groups-table',
-  templateUrl: './access-groups-table.component.html'
+    selector: 'access-groups-table',
+    templateUrl: './access-groups-table.component.html',
+    standalone: false
 })
 export class AccessGroupsTableComponent
   extends BaseTableComponent

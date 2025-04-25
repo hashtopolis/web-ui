@@ -5,8 +5,9 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { TasksTableComponent } from 'src/app/core/_components/tables/tasks-table/tasks-table.component';
 
 @Component({
-  selector: 'app-show-tasks',
-  templateUrl: './show-tasks.component.html'
+    selector: 'app-show-tasks',
+    templateUrl: './show-tasks.component.html',
+    standalone: false
 })
 export class ShowTasksComponent {
   @ViewChild('table') table: TasksTableComponent;

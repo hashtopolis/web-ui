@@ -1,26 +1,29 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { ResponseWrapper } from 'src/app/core/_models/response.model';
-import { SERV } from '../../core/_services/main.config';
-import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { JPretask } from '@src/app/core/_models/pretask.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { JSuperTask } from '@src/app/core/_models/supertask.model';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 declare let options: any;
 declare let defaultOptions: any;
-declare let parser: any;
 
 @Component({
   selector: 'app-edit-supertasks',
-  templateUrl: './edit-supertasks.component.html'
+  templateUrl: './edit-supertasks.component.html',
+  standalone: false
 })
 export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -41,7 +44,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
   // Edit
   editedSTIndex: number;
-  editedST: any; // Change to Model
   assignPretasks: any;
 
   constructor(
@@ -56,7 +58,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   ) {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit SuperTasks']);
+    this.titleService.set(['Edit SuperTasks']);
   }
 
   /**
@@ -100,8 +102,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
     // Form calculate benchmark
     this.etForm = new FormGroup({
-      benchmarka0: new FormControl(null || 0),
-      benchmarka3: new FormControl(null || 0)
+      benchmarka0: new FormControl(0),
+      benchmarka3: new FormControl(0)
     });
   }
 
@@ -109,8 +111,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    console.log(this.editedSTIndex);
-
     const params = new RequestParamBuilder().addInclude('pretasks').create();
 
     const loadSTSubscription$ = this.gs
@@ -136,8 +136,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
           const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
 
-          const transformedOptions = transformSelectOptions(availablePretasks, this.selectSuperTaskMap);
-          this.selectPretasks = transformedOptions;
+          this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
           this.isLoading = false;
           this.changeDetectorRef.detectChanges();
         });
@@ -159,9 +158,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   /**
    * Retrieves the available pre-tasks that are not assigned.
    *
-   * @param {Array} assigning - An array of assigned tasks with pre-task information.
-   * @param {Array} pretasks - An array of all available pre-tasks.
-   * @returns {Array} - An array containing pre-tasks that are not assigned.
+   * @param assigning An array of assigned tasks with pre-task information.
+   * @param  pretasks An array of all available pre-tasks.
+   * @returns An array containing pre-tasks that are not assigned.
    */
   getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
     // Use filter to find pre-tasks not present in the assigning array

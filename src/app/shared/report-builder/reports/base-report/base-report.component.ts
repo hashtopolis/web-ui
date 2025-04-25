@@ -18,8 +18,9 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { UtilService } from 'src/app/core/_services/shared/util.service';
 
 @Component({
-  selector: 'base-report',
-  template: ''
+    selector: 'base-report',
+    template: '',
+    standalone: false
 })
 export class BaseReportComponent {
   protected uiSettings: UISettingsUtilityClass;

@@ -1,18 +1,16 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { AccessGroup } from '@models/access-group.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { ResponseWrapper } from '@models/response.model';
 
-import { AccessGroup } from '@src/app/core/_models/access-group.model';
-import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
+import { BaseDataSource } from '@datasources/base.datasource';
 
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
-
-export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<AccessGroup, MatTableDataSourcePaginator> {
+export class AccessPermissionGroupsExpandDataSource extends BaseDataSource<AccessGroup> {
   private _accesspermgroupId = 0;
   private _expand = '';
   private _perm = 0;

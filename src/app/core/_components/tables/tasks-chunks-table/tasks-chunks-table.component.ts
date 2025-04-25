@@ -27,9 +27,10 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 import { SERV } from '@services/main.config';
 
 @Component({
-  selector: 'tasks-chunks-table',
-  templateUrl: './tasks-chunks-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'tasks-chunks-table',
+    templateUrl: './tasks-chunks-table.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TasksChunksTableComponent extends BaseTableComponent implements OnInit {
   // Input property to specify an task ID for filtering chunks.
@@ -56,7 +57,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return [
       {
         id: TasksChunksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true
       },
       {
@@ -123,7 +124,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
 
   // --- Render functions ---
 
-  @Cacheable(['_id', 'cracked'])
+  @Cacheable(['id', 'cracked'])
   renderCracked(chunk: JChunk): SafeHtml {
     let html = `${chunk.cracked}`;
     if (chunk.cracked && chunk.cracked > 0) {
@@ -133,7 +134,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'state'])
+  @Cacheable(['id', 'state'])
   renderState(chunk: JChunk): SafeHtml {
     let html = `${chunk.state}`;
     if (chunk.state && chunk.state in chunkStates) {
@@ -143,7 +144,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'solveTime', 'dispatchTime'])
+  @Cacheable(['id', 'solveTime', 'dispatchTime'])
   renderTimeSpent(chunk: JChunk): SafeHtml {
     const seconds = chunk.solveTime - chunk.dispatchTime;
     if (seconds) {
@@ -153,7 +154,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return this.sanitize('0');
   }
 
-  @Cacheable(['_id', 'progress', 'checkpoint', 'skip', 'length'])
+  @Cacheable(['id', 'progress', 'checkpoint', 'skip', 'length'])
   renderCheckpoint(chunk: JChunk): SafeHtml {
     const percent = chunk.progress ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2) : 0;
     const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
@@ -161,7 +162,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return this.sanitize(data);
   }
 
-  @Cacheable(['_id', 'progress'])
+  @Cacheable(['id', 'progress'])
   renderProgress(chunk: JChunk): SafeHtml {
     if (chunk.progress === undefined) {
       return this.sanitize('N/A');
@@ -172,7 +173,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return `${chunk.progress ? chunk.progress : 0}`;
   }
 
-  @Cacheable(['_id', 'taskId'])
+  @Cacheable(['id', 'taskId'])
   renderTask(chunk: JChunk): SafeHtml {
     if (chunk.task) {
       return this.sanitize(chunk.task.taskName);
@@ -181,7 +182,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return this.sanitize(`${chunk.taskId}`);
   }
 
-  @Cacheable(['_id', 'agentId'])
+  @Cacheable(['id', 'agentId'])
   renderAgent(chunk: JChunk): SafeHtml {
     if (chunk.agent) {
       return this.sanitize(chunk.agent.agentName);
@@ -190,14 +191,14 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return `${chunk.agentId}`;
   }
 
-  @Cacheable(['_id', 'dispatchTime'])
+  @Cacheable(['id', 'dispatchTime'])
   renderDispatchTime(chunk: JChunk): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.dispatchTime, this.dateFormat);
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
 
-  @Cacheable(['_id', 'solveTime'])
+  @Cacheable(['id', 'solveTime'])
   renderLastActivity(chunk: JChunk): SafeHtml {
     if (chunk.solveTime === 0) {
       return '(No activity)';

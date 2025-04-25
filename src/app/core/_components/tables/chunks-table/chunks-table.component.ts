@@ -2,29 +2,24 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JChunk } from '@src/app/core/_models/chunk.model';
+import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
 
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { ChunksDataSource } from '@src/app/core/_datasources/chunks.datasource';
-
-import {
-  ChunksTableCol,
-  ChunksTableColumnLabel
-} from '@src/app/core/_components/tables/chunks-table/chunks-table.constants';
-
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { ChunksDataSource } from '@datasources/chunks.datasource';
 
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
-
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'chunks-table',
   templateUrl: './chunks-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   // Input property to specify an agent ID for filtering chunks.
@@ -45,7 +40,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: ChunksTableCol.ID,
         dataKey: 'id',
@@ -118,8 +113,6 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         isSortable: true
       }
     ];
-
-    return tableColumns;
   }
 
   // --- Render functions ---
@@ -138,9 +131,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   renderState(chunk: JChunk): SafeHtml {
     let html = `${chunk.state}`;
     if (chunk.state && chunk.state in chunkStates) {
-      html = `<span class="pill pill-${chunkStates[
-        chunk.state
-      ].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
+      html = `<span class="pill pill-${chunkStates[chunk.state].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
     }
 
     return this.sanitize(html);
@@ -158,9 +149,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   @Cacheable(['id', 'progress', 'checkpoint', 'skip', 'length'])
   renderCheckpoint(chunk: JChunk): SafeHtml {
-    const percent = chunk.progress
-      ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2)
-      : 0;
+    const percent = chunk.progress ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2) : 0;
     const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
 
     return this.sanitize(data);
@@ -197,10 +186,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   @Cacheable(['id', 'dispatchTime'])
   renderDispatchTime(chunk: JChunk): SafeHtml {
-    const formattedDate = formatUnixTimestamp(
-      chunk.dispatchTime,
-      this.dateFormat
-    );
+    const formattedDate = formatUnixTimestamp(chunk.dispatchTime, this.dateFormat);
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
@@ -210,9 +196,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     if (chunk.solveTime === 0) {
       return '(No activity)';
     } else if (chunk.solveTime > 0) {
-      return this.sanitize(
-        formatUnixTimestamp(chunk.solveTime, this.dateFormat)
-      );
+      return this.sanitize(formatUnixTimestamp(chunk.solveTime, this.dateFormat));
     }
 
     return this.sanitize(`${chunk.solveTime}`);

@@ -18,15 +18,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-  selector: 'input-text',
-  templateUrl: './text.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputTextComponent),
-      multi: true
-    }
-  ]
+    selector: 'input-text',
+    templateUrl: './text.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputTextComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() pattern: string | RegExp;

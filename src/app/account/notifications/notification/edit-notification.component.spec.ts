@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { Observable, of } from 'rxjs';
 import { ActivatedRoute, Params, RouterModule } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DataTablesModule } from 'angular-datatables';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -52,38 +52,36 @@ describe('EditNotificationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
+    declarations: [
+        EditNotificationComponent
+    ],
+    imports: [CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         FontAwesomeModule,
         DataTablesModule,
         ComponentsModule,
         RouterModule,
         PipesModule,
         NgbModule,
-        MatSnackBarModule
-      ],
-      declarations: [
-        EditNotificationComponent
-      ],
-      providers: [
+        MatSnackBarModule],
+    providers: [
         provideAnimations(),
         {
-          provide: GlobalService,
-          useValue: mockService
+            provide: GlobalService,
+            useValue: mockService
         },
         {
-          provide: ActivatedRoute,
-          useValue: {
-            params: of({
-              id: 1,
-            }),
-          },
+            provide: ActivatedRoute,
+            useValue: {
+                params: of({
+                    id: 1,
+                }),
+            },
         },
-      ]
-    }).compileComponents();
+        provideHttpClient(withInterceptorsFromDi()),
+    ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(EditNotificationComponent);
     component = fixture.componentInstance;

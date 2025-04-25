@@ -22,8 +22,9 @@ import { SafeHtml } from '@angular/platform-browser';
 import { JHash } from '../../../_models/hash.model';
 
 @Component({
-  selector: 'search-hash-table',
-  templateUrl: './search-hash-table.component.html'
+    selector: 'search-hash-table',
+    templateUrl: './search-hash-table.component.html',
+    standalone: false
 })
 export class SearchHashTableComponent
   extends BaseTableComponent

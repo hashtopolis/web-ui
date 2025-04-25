@@ -1,51 +1,40 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms';
-import { Subject, finalize, takeUntil } from 'rxjs';
+/**
+ * This module contains the component class to create a new hashlist
+ */
+import { Subject, firstValueFrom, takeUntil } from 'rxjs';
+
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
-import {
-  ACCESS_GROUP_FIELD_MAPPING,
-  HASHTYPE_FIELD_MAPPING
-} from 'src/app/core/_constants/select.config';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UploadTUSService } from '../../core/_services/files/files_tus.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
-import {
-  handleEncode,
-  removeFakePath,
-  transformSelectOptions
-} from '../../shared/utils/forms';
-import { UploadFileTUS } from '../../core/_models/file.model';
-import { SERV } from '../../core/_services/main.config';
-import { SelectField } from 'src/app/core/_models/input.model';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { HashtypeDetectorComponent } from 'src/app/shared/hashtype-detector/hashtype-detector.component';
-import { MatDialog } from '@angular/material/dialog';
-import {
-  hashSource,
-  hashcatbrainFormat,
-  hashlistFormat
-} from 'src/app/core/_constants/hashlist.config';
+import { JAccessGroup } from '@models/access-group.model';
+import { JConfig } from '@models/configs.model';
+import { JHashtype } from '@models/hashtype.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { UploadTUSService } from '@services/files/files_tus.service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { hashSource, hashcatbrainFormat, hashlistFormat } from '@src/app/core/_constants/hashlist.config';
+import { ACCESS_GROUP_FIELD_MAPPING, HASHTYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hashlist/new-hashlist.form';
+import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
+import { handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-new-hashlist',
   templateUrl: './new-hashlist.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [FileSizePipe]
+  providers: [FileSizePipe],
+  standalone: false
 })
 export class NewHashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -53,7 +42,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isLoadingHashtypes = true;
 
   /** Form group for the new SuperHashlist. */
-  form: FormGroup;
+  form: FormGroup<NewHashlistForm>;
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
@@ -70,15 +59,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   //Hashcat Brain Mode
   brainenabled: any;
   selectFormatbrain = hashcatbrainFormat;
-  hashcatbrain: string;
 
   // Upload Hashlists
   selectedFiles: FileList | null = null;
   fileName: any;
   uploadProgress = 0;
-  filenames: string[] = [];
-  selectedFile: '';
-  fileToUpload: File | null = null;
 
   // Unsubcribe
   private fileUnsubscribe = new Subject();
@@ -88,16 +73,13 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
     private changeDetectorRef: ChangeDetectorRef,
     private uploadService: UploadTUSService,
     private titleService: AutoTitleService,
-    private uiService: UIConfigService,
-    private formBuilder: FormBuilder,
     private alert: AlertService,
     private gs: GlobalService,
     private dialog: MatDialog,
-    private fs: FileSizePipe,
     private router: Router
   ) {
     this.buildForm();
-    titleService.set(['New Hashlist']);
+    this.titleService.set(['New Hashlist']);
   }
 
   /**
@@ -121,27 +103,11 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new Hashlist.
    */
   buildForm(): void {
-    this.form = this.formBuilder.group({
-      name: new FormControl('', [Validators.required]),
-      hashTypeId: new FormControl('', [Validators.required]),
-      format: new FormControl('' || 0),
-      separator: new FormControl(null || ':'),
-      isSalted: new FormControl(false),
-      isHexSalt: new FormControl(false),
-      accessGroupId: new FormControl(null, [Validators.required]),
-      useBrain: new FormControl(+this.brainenabled === 1 ? true : false),
-      brainFeatures: new FormControl(null || 3),
-      notes: new FormControl(''),
-      sourceType: new FormControl('import' || null),
-      sourceData: new FormControl(''),
-      hashCount: new FormControl(0),
-      isArchived: new FormControl(false),
-      isSecret: new FormControl(true)
-    });
+    this.form = getNewHashlistForm();
 
     //subscribe to changes to handle select salted hashes
     this.form.get('hashTypeId').valueChanges.subscribe((newvalue) => {
-      this.handleSelectedItems(newvalue);
+      this.handleSelectedItems(Number(newvalue));
     });
   }
 
@@ -150,37 +116,26 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    */
   loadData(): void {
     this.loadConfigs();
-    const fieldAccess = {
-      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
-    };
-    const accedgroupSubscription$ = this.gs
-      .getAll(SERV.ACCESS_GROUPS)
-      .subscribe((response: any) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          fieldAccess
-        );
-        this.selectAccessgroup = transformedOptions;
-        this.isLoadingAccessGroups = false;
-        this.changeDetectorRef.detectChanges();
+    const accessGroupSubscription = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
+      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+        data: response.data,
+        included: response.included
       });
-    this.unsubscribeService.add(accedgroupSubscription$);
+      this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
+      this.isLoadingAccessGroups = false;
+      this.changeDetectorRef.detectChanges();
+    });
+    this.unsubscribeService.add(accessGroupSubscription);
 
-    const fieldHashtype = {
-      fieldMapping: HASHTYPE_FIELD_MAPPING
-    };
-    const hashtypesSubscription$ = this.gs
-      .getAll(SERV.HASHTYPES)
-      .subscribe((response: any) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          fieldHashtype
-        );
-        this.selectHashtypes = transformedOptions;
-        this.hashtypes = response.values;
-        this.isLoadingHashtypes = false;
-        this.changeDetectorRef.detectChanges();
+    const hashtypesSubscription$ = this.gs.getAll(SERV.HASHTYPES).subscribe((response: ResponseWrapper) => {
+      this.hashtypes = new JsonAPISerializer().deserialize<JHashtype[]>({
+        data: response.data,
+        included: response.included
       });
+      this.selectHashtypes = transformSelectOptions(this.hashtypes, HASHTYPE_FIELD_MAPPING);
+      this.isLoadingHashtypes = false;
+      this.changeDetectorRef.detectChanges();
+    });
     this.unsubscribeService.add(hashtypesSubscription$);
   }
 
@@ -193,20 +148,18 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * ToDO. id could change
    */
   loadConfigs() {
-    const configSubscription$ = this.gs
-      .get(SERV.CONFIGS, 66)
-      .subscribe((response: any) => {
-        this.brainenabled = response.value;
-        this.changeDetectorRef.detectChanges();
-      });
+    const configSubscription$ = this.gs.get(SERV.CONFIGS, 66).subscribe((response: ResponseWrapper) => {
+      const config = new JsonAPISerializer().deserialize<JConfig>({ data: response.data, included: response.included });
+      this.brainenabled = Number(config.value);
+      this.form.patchValue({ useBrain: !!this.brainenabled });
+      this.changeDetectorRef.detectChanges();
+    });
     this.unsubscribeService.add(configSubscription$);
   }
 
   /**
-   * Handles the file upload process.
-   *
-   * @param {FileList | null} files - The list of files to be uploaded.
-   * @returns {void}
+   * Handles the file upload process and creates the hashlist
+   * @param  files - The list of files to be uploaded.
    */
   onuploadFile(files: FileList | null): void {
     this.isCreatingLoading = true;
@@ -218,28 +171,23 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       newForm.sourceData = removeFakePath(newForm.sourceData);
     }
 
-    const upload: Array<any> = [];
     for (let i = 0; i < files.length; i++) {
-      upload.push(
-        this.uploadService
-          .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, [
-            '/hashlists/hashlist'
-          ])
-          .pipe(takeUntil(this.fileUnsubscribe))
-          .subscribe((progress) => {
-            this.uploadProgress = progress;
-            this.changeDetectorRef.detectChanges();
-            if (this.uploadProgress === 100) {
-              this.isCreatingLoading = false;
-            }
-          })
-      );
+      this.uploadService
+        .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
+        .pipe(takeUntil(this.fileUnsubscribe))
+        .subscribe((progress) => {
+          this.uploadProgress = progress;
+          this.changeDetectorRef.detectChanges();
+          if (this.uploadProgress === 100) {
+            this.isCreatingLoading = false;
+          }
+        });
     }
   }
 
   /**
    * Handle Input and return file size
-   * @param event
+   * @param files List of files
    */
   onFilesSelected(files: FileList): void {
     this.selectedFiles = files;
@@ -247,34 +195,24 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Create Hashlist
-   *
+   * Create Hashlist in case without file upload
    */
-  onSubmit(): void {
+  async onSubmit() {
     // Encode Paste hashes
     this.form.patchValue({
       sourceData: handleEncode(this.form.get('sourceData').value)
     });
     this.isCreatingLoading = true;
-    const onSubmitSubscription$ = this.gs
-      .create(SERV.HASHLISTS, this.form.value)
-      .pipe(
-        finalize(() => {
-          this.isCreatingLoading = false;
-        })
-      )
-      .subscribe(
-        () => {
-          this.alert.okAlert('New HashList created!', '');
-          this.router.navigate(['/hashlists/hashlist']);
-          this.isCreatingLoading = false;
-        },
-        (error) => {
-          console.log('Error creating Hashlist', error);
-          this.isCreatingLoading = false;
-        }
-      );
-    this.unsubscribeService.add(onSubmitSubscription$);
+
+    try {
+      await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
+      this.alert.okAlert('New HashList created!', '');
+      this.router.navigate(['/hashlists/hashlist']);
+    } catch (error) {
+      console.error('Error creating Hashlist', error);
+    } finally {
+      this.isCreatingLoading = false;
+    }
   }
 
   // Open Modal Hashtype Detector
@@ -289,11 +227,9 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
   /**
    * Handles changes in the hashTypeId form control and adjusts form values accordingly.
-   *
-   * @param {any} hashTypeId - The new value of the hashTypeId form control.
-   * @returns {void}
+   * @param hashTypeId - The new value of the hashTypeId form control.
    */
-  handleSelectedItems(hashTypeId: any): void {
+  handleSelectedItems(hashTypeId: number): void {
     const filter = this.hashtypes.filter((u) => u._id === hashTypeId);
     const salted = filter.length > 0 ? filter[0]['isSalted'] : false;
 

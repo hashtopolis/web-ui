@@ -1,37 +1,37 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { TooltipService } from '@services/shared/tooltip.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-
-import { Filter, FilterType } from '@models/request-params.model';
-import { FileType } from '@models/file.model';
-import { ResponseWrapper } from '@models/response.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { FileType } from '@models/file.model';
+import { JHashlist } from '@models/hashlist.model';
 import { JPreprocessor } from '@models/preprocessor.model';
-import { JTask } from '@models/task.model';
 import { JPretask } from '@models/pretask.model';
-
-import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { TooltipService } from '@services/shared/tooltip.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
 import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
-
-import { environment } from '@src/environments/environment';
-
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
-import { JHashlist } from '@models/hashlist.model';
+import { environment } from '@src/environments/environment';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -39,12 +39,12 @@ import { JHashlist } from '@models/hashlist.model';
 @Component({
   selector: 'app-new-tasks',
   templateUrl: './new-tasks.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.Default,
+  standalone: false
 })
 export class NewTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
-  isLoadingCopyForm = true;
 
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
@@ -53,25 +53,13 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: any;
+  selectHashlists: SelectOption[];
   selectStaticChunking = staticChunking;
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: any;
-  selectCrackerversions: any = [];
-  selectPreprocessor: any;
-
-  /** Select Options Mapping */
-  selectCrackertypeMap = {
-    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
-  };
-
-  selectCrackervMap = {
-    fieldMapping: CRACKER_VERSION_FIELD_MAPPING
-  };
-
+  selectCrackertype: SelectOption[];
+  selectCrackerversions: SelectOption[];
+  selectPreprocessor: SelectOption[];
   // Initial Configuration
-  private priority = environment.config.tasks.priority;
-  private maxAgents = environment.config.tasks.maxAgents;
   private chunkSize = environment.config.tasks.chunkSize;
 
   // Copy Task or PreTask configuration
@@ -118,7 +106,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.onInitialize();
-    titleService.set(['New Task']);
+    this.titleService.set(['New Task']);
   }
 
   /**
@@ -228,10 +216,11 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         filter: filter
       })
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
+        const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
           data: response.data,
           included: response.included
         });
+        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING)
         this.isLoading = false;
         if (!this.selectHashlists.length) {
           this.alert.errorConfirmation('You need to create a Hashlist to continue creating a Task');
@@ -250,7 +239,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         included: response.included
       });
 
-      this.selectCrackertype = transformSelectOptions(crackerTypes, this.selectCrackertypeMap);
+      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       let id = '';
       if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
         id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id;
@@ -267,7 +256,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
             data: response.data,
             included: response.included
           });
-          this.selectCrackerversions = transformSelectOptions(crackers, this.selectCrackervMap);
+          this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
           const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
           this.form.get('crackerBinaryTypeId').patchValue(lastItem);
         });
@@ -278,10 +267,11 @@ export class NewTasksComponent implements OnInit, OnDestroy {
 
     // Load Preprocessor Select Options
     const loadPreprocessorsSubscription$ = this.gs.getAll(SERV.PREPROCESSORS).subscribe((response: ResponseWrapper) => {
-      this.selectPreprocessor = new JsonAPISerializer().deserialize<JPreprocessor>({
+      const preprocessors = new JsonAPISerializer().deserialize<JPreprocessor[]>({
         data: response.data,
         included: response.included
       });
+      this.selectPreprocessor = transformSelectOptions(preprocessors, DEFAULT_FIELD_MAPPING);
       this.changeDetectorRef.detectChanges();
     });
     this.unsubscribeService.add(loadPreprocessorsSubscription$);
@@ -344,7 +334,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           data: response.data,
           included: response.included
         });
-        this.selectCrackerversions = transformSelectOptions(crackers, this.selectCrackervMap);
+        this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
         this.form.get('crackerBinaryTypeId').patchValue(lastItem);
       });

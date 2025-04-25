@@ -20,16 +20,17 @@ import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
  * ```
  */
 @Component({
-  selector: 'input-file',
-  templateUrl: './file.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputFileComponent),
-      multi: true
-    },
-    FileSizePipe
-  ]
+    selector: 'input-file',
+    templateUrl: './file.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputFileComponent),
+            multi: true
+        },
+        FileSizePipe
+    ],
+    standalone: false
 })
 export class InputFileComponent extends AbstractInputComponent<any> {
   @Input() accept = '';

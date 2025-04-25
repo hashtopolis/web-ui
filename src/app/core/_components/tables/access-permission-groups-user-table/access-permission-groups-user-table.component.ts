@@ -20,8 +20,9 @@ import { SERV } from '@src/app/core/_services/main.config';
 import { AccessPermissionGroupsExpandDataSource } from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
 
 @Component({
-  selector: 'access-permission-groups-user-table',
-  templateUrl: './access-permission-groups-user-table.component.html'
+    selector: 'access-permission-groups-user-table',
+    templateUrl: './access-permission-groups-user-table.component.html',
+    standalone: false
 })
 export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;

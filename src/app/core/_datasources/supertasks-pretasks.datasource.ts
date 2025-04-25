@@ -1,14 +1,16 @@
 import { catchError, finalize, of } from 'rxjs';
-import { BaseDataSource } from '@datasources/base.datasource';
+
 import { JPretask } from '@models/pretask.model';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { SERV } from '@services/main.config';
 import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { JSuperTask } from '@models/supertask.model';
 
-export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask, MatTableDataSourcePaginator> {
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
   private _supertTaskId = 0;
 
   setSuperTaskId(supertTaskId: number) {

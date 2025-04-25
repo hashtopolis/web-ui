@@ -3,9 +3,16 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { ChunkDataData } from '@src/app/core/_models/chunk.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import {
+  AgentTableEditableAction,
+  AgentsTableCol,
+  AgentsTableColumnLabel
+} from '@src/app/core/_components/tables/agents-table/agents-table.constants';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
 import {
   DataType,
   HTTableColumn,
@@ -13,32 +20,20 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-
-import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
-
-import {
-  AgentsTableCol,
-  AgentsTableColumnLabel,
-  AgentTableEditableAction
-} from '@src/app/core/_components/tables/agents-table/agents-table.constants';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
-import { SERV } from '@src/app/core/_services/main.config';
-
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { ChunkDataData } from '@src/app/core/_models/chunk.model';
+import { SERV } from '@src/app/core/_services/main.config';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'agents-table',
-  templateUrl: './agents-table.component.html'
+  templateUrl: './agents-table.component.html',
+  standalone: false
 })
 export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() datatype: DataType = 'agents';

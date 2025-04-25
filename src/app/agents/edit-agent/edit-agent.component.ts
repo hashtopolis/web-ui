@@ -1,4 +1,4 @@
-import * as echarts from 'echarts/core';
+import { LineChart } from 'echarts/charts';
 import {
   GridComponent,
   GridComponentOption,
@@ -13,46 +13,51 @@ import {
   TooltipComponent,
   TooltipComponentOption
 } from 'echarts/components';
-
-import { CanvasRenderer } from 'echarts/renderers';
-import { LineChart } from 'echarts/charts';
+import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
+import { CanvasRenderer } from 'echarts/renderers';
+import { firstValueFrom } from 'rxjs';
 
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgentStat } from '@models/agent-stats.model';
+import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../core/_services/main.config';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { TASKS_FIELD_MAPPING, USER_AGP_FIELD_MAPPING, USER_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { ResponseWrapper } from '../../core/_models/response.model';
-import { JAgent } from '../../core/_models/agent.model';
-import { JUser } from '../../core/_models/user.model';
-import { JsonAPISerializer } from '../../core/_services/api/serializer-service';
-import { JTask } from '../../core/_models/task.model';
-import { JChunk } from '../../core/_models/chunk.model';
-import { JAgentAssignment } from '../../core/_models/agent-assignment.model';
-import { FilterType } from 'src/app/core/_models/request-params.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
 import {
   EditAgentForm,
   UpdateAssignmentForm,
   getEditAgentForm,
   getUpdateAssignmentForm
 } from '@src/app/agents/edit-agent/edit-agent.form';
-import { firstValueFrom } from 'rxjs';
-import { JAgentStat } from '@models/agent-stats.model';
+import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
+import {
+  ACCESS_GROUP_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING,
+  TASKS_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-agent',
-  templateUrl: './edit-agent.component.html'
+  templateUrl: './edit-agent.component.html',
+  standalone: false
 })
 export class EditAgentComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -66,54 +71,38 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectUsers: any;
+  selectUsers: SelectOption[] = [];
   selectIgnorerrors = ignoreErrors;
-  selectuserAgps: any;
-
-  /** Select Options Mapping */
-  selectUserAgpMap = {
-    fieldMapping: USER_AGP_FIELD_MAPPING
-  };
-
-  selectUserMap = {
-    fieldMapping: USER_FIELD_MAPPING
-  };
-
-  selectAssignMap = {
-    fieldMapping: TASKS_FIELD_MAPPING
-  };
+  selectUserAgps: SelectOption[];
 
   /** Assign Tasks */
-  assignTasks: any = [];
-  assignNew: any;
-  assignId: any;
+  assignTasks: SelectOption[];
+  assignNew: boolean;
+  assignId: number;
 
   // Edit Index
   editedAgentIndex: number;
-  editedAgent: any;
-  showagent: any = [];
+  showagent: JAgent;
 
   // Calculations
   timespent: number;
-  getchunks: any;
+  getchunks: JChunk[];
 
   currentAssignment: JAgentAssignment;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
-    private serializer: JsonAPISerializer,
-    private cdr: ChangeDetectorRef
+    private serializer: JsonAPISerializer
   ) {
     this.onInitialize();
     this.buildEmptyForms();
-    titleService.set(['Edit Agent']);
+    this.titleService.set(['Edit Agent']);
   }
 
   /**
@@ -168,7 +157,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const responseBody = { data: response.data, included: response.included };
     const agent = this.serializer.deserialize<JAgent>(responseBody);
     this.showagent = agent;
-    this.selectuserAgps = transformSelectOptions(agent.accessGroups, this.selectUserAgpMap);
+    this.selectUserAgps = transformSelectOptions(agent.accessGroups, ACCESS_GROUP_FIELD_MAPPING);
   }
 
   /**
@@ -184,7 +173,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       const tasks = this.serializer.deserialize<JTask[]>(responseBody);
 
       const filterTasks = tasks.filter((u) => u.keyspaceProgress < u.keyspace || Number(u.keyspaceProgress) === 0); //Remove completed tasks
-      this.assignTasks = transformSelectOptions(filterTasks, this.selectAssignMap);
+      this.assignTasks = transformSelectOptions(filterTasks, TASKS_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadTasksSubscription$);
   }
@@ -196,7 +185,11 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   private loadSelectUsers() {
     const loadUsersSubscription$ = this.gs.getAll(SERV.USERS).subscribe((response: ResponseWrapper) => {
       const responseBody = { data: response.data, included: response.included };
-      this.selectUsers = this.serializer.deserialize<JUser[]>(responseBody);
+      this.selectUsers = transformSelectOptions(
+        this.serializer.deserialize<JUser[]>(responseBody),
+        DEFAULT_FIELD_MAPPING
+      );
+      console.log(this.selectUsers);
     });
     this.unsubscribeService.add(loadUsersSubscription$);
   }
@@ -300,7 +293,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.updateForm.valid) {
       if (this.updateAssignForm.valid) {
-        this.onUpdateAssign(this.updateAssignForm.value);
+        this.onUpdateAssign(this.updateAssignForm.value.taskId);
       }
       this.isUpdatingLoading = true;
       const onSubmitSubscription$ = this.gs
@@ -317,18 +310,17 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   /**
    * Updates agent assignment based on the provided value.
    *
-   * @param value The form value containing the task ID.
+   * @param taskId The task ID.
    */
-  onUpdateAssign(value: FormGroup<UpdateAssignmentForm>['value']) {
-    if (value.taskId) {
+  onUpdateAssign(taskId: number) {
+    if (taskId) {
       const payload = {
-        taskId: value.taskId,
+        taskId: taskId,
         agentId: this.editedAgentIndex
       };
       const onCreateSubscription$ = this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe();
       this.unsubscribeService.add(onCreateSubscription$);
-    }
-    if (value.taskId === 0) {
+    } else {
       const onDeleteSubscription$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId).subscribe();
       this.unsubscribeService.add(onDeleteSubscription$);
     }
@@ -348,11 +340,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Format the result string with HTML line breaks
-    const formattedDevices = Object.keys(deviceCountMap)
+    // Format with HTML line breaks and return the formatted devices as string
+    return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
       .join('<br>');
-    return formattedDevices;
   }
 
   // //
@@ -424,11 +415,10 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       templabel = '%';
     }
 
-    const data: any = agentStatList;
     const arr = [];
     const max = [];
     const devlabels = [];
-    const result: any = agentStatList;
+    const result = agentStatList;
 
     for (let i = 0; i < result.length; i++) {
       const val = result[i].value;
@@ -449,7 +439,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     const labels = [...new Set(devlabels)];
 
     const startdate = Math.max(...max);
-    const datelabel = this.transDate(startdate);
     const xAxis = this.generateIntervalsOf(1, +startdate - 500, +startdate);
 
     const chartDom = document.getElementById(name);
@@ -517,8 +506,8 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     return this.uiService.getUIsettings('agentTempThreshold2').value;
   }
 
-  transDate(dt) {
-    const date: any = new Date(dt * 1000);
+  transDate(dt: number) {
+    const date = new Date(dt * 1000);
     return (
       date.getUTCDate() +
       '-' +
@@ -538,7 +527,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     return (dt < 10 ? '0' : '') + dt;
   }
 
-  generateIntervalsOf(interval, start, end) {
+  generateIntervalsOf(interval: number, start: number, end: number) {
     const result = [];
     let current = start;
 

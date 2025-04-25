@@ -1,23 +1,26 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
+import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JHashlist } from '@models/hashlist.model';
-import { JCrackerBinaryType } from '@models/cracker-binary.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * ApplyHashlistComponent is a component responsible for managing and applying hashlists.
@@ -26,7 +29,8 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
 @Component({
   selector: 'app-applyhashlist',
   templateUrl: './applyhashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.Default,
+  standalone: false
 })
 export class ApplyHashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -39,18 +43,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: any;
-  selectCrackertype: any;
-  selectCrackerversions: any = [];
-
-  /** Select Options Mapping */
-  selectCrackertypeMap = {
-    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
-  };
-
-  selectCrackervMap = {
-    fieldMapping: CRACKER_VERSION_FIELD_MAPPING
-  };
+  selectHashlists: SelectOption[];
+  selectCrackertype: SelectOption[];
+  selectCrackerversions: SelectOption[];
 
   // Get SuperTask Index
   editedIndex: number;
@@ -78,7 +73,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
   ) {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Apply Hashlist']);
+    this.titleService.set(['Apply Hashlist']);
   }
 
   /**
@@ -129,7 +124,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       supertaskTemplateId: new FormControl(this.editedIndex),
       hashlistId: new FormControl(),
-      crackerBinaryId: new FormControl(null || 1),
+      crackerBinaryId: new FormControl(1),
       crackerBinaryTypeId: new FormControl()
     });
 
@@ -163,10 +158,11 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, requestParams)
       .subscribe((response: ResponseWrapper) => {
-        this.selectHashlists = new JsonAPISerializer().deserialize<JHashlist>({
+        const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
           data: response.data,
           included: response.included
         });
+        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
           this.alert.errorConfirmation('Before proceeding, you need to create a Hashlist.');
@@ -186,12 +182,12 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         data: response.data,
         included: response.included
       });
-      this.selectCrackertype = transformSelectOptions(crackerTypes, this.selectCrackertypeMap);
+      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       let id = '';
       if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
-        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id;
+        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id as string;
       } else {
-        id = this.selectCrackertype.slice(-1)[0]['id'];
+        id = this.selectCrackertype.slice(-1)[0]['id'] as string;
       }
       const requestParams = new RequestParamBuilder()
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
@@ -203,7 +199,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
             data: response.data,
             included: response.included
           });
-          this.selectCrackerversions = transformSelectOptions(crackers, this.selectCrackervMap);
+          this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
           const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
           this.form.get('crackerBinaryTypeId').patchValue(lastItem);
         });
@@ -230,7 +226,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
           data: response.data,
           included: response.included
         });
-        this.selectCrackerversions = transformSelectOptions(crackers, this.selectCrackervMap);
+        this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
         this.form.get('crackerBinaryTypeId').patchValue(lastItem);
       });

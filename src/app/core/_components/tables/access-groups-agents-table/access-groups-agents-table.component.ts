@@ -22,8 +22,9 @@ import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-
 import { SERV } from '@src/app/core/_services/main.config';
 
 @Component({
-  selector: 'access-groups-agents-table',
-  templateUrl: './access-groups-agents-table.component.html'
+    selector: 'access-groups-agents-table',
+    templateUrl: './access-groups-agents-table.component.html',
+    standalone: false
 })
 export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accessgroupId = 0;

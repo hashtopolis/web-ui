@@ -12,8 +12,9 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-ui-settings',
-  templateUrl: './ui-settings.component.html'
+    selector: 'app-ui-settings',
+    templateUrl: './ui-settings.component.html',
+    standalone: false
 })
 export class UiSettingsComponent implements OnInit {
   form!: FormGroup;

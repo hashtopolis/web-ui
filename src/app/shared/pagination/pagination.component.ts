@@ -2,8 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable, range, map } from 'rxjs';
 
 @Component({
-  selector: 'cm-pagination',
-  templateUrl: './pagination.component.html'
+    selector: 'cm-pagination',
+    templateUrl: './pagination.component.html',
+    standalone: false
 })
 
 export class PaginationComponent implements OnInit {

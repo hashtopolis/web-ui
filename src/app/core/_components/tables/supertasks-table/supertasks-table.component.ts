@@ -21,8 +21,9 @@ import { SuperTasksDataSource } from 'src/app/core/_datasources/supertasks.datas
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
-  selector: 'supertasks-table',
-  templateUrl: './supertasks-table.component.html'
+    selector: 'supertasks-table',
+    templateUrl: './supertasks-table.component.html',
+    standalone: false
 })
 export class SuperTasksTableComponent
   extends BaseTableComponent

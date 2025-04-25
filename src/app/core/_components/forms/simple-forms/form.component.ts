@@ -1,18 +1,23 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
+import { Subscription } from 'rxjs';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { MetadataService } from 'src/app/core/_services/metadata.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { Subscription } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ServiceConfig } from '@services/main.config';
 
 @Component({
-  selector: 'app-form',
-  templateUrl: 'form.component.html'
+    selector: 'app-form',
+    templateUrl: 'form.component.html',
+    standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
@@ -152,11 +157,12 @@ export class FormComponent implements OnInit, OnDestroy {
     });
 
     // Fetch data from the API for editing
-
-    const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe((result) => {
-      this.formValues = result;
-      this.isloaded = true; // Data is loaded and ready for form rendering
-    });
+    const editSubscription = this.gs
+      .get(this.serviceConfig, this.editedIndex)
+      .subscribe((response: ResponseWrapper) => {
+        this.formValues = new JsonAPISerializer().deserialize({ data: response.data, included: response.included });
+        this.isloaded = true; // Data is loaded and ready for form rendering
+      });
 
     this.unsubscribeService.add(editSubscription);
   }

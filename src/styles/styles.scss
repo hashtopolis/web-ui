@@ -6,8 +6,8 @@
   Import directories
 */
 
-@import './theme.scss';
-@import './base/base-dir';
-@import './components/components-dir';
-@import './layout/layout-dir';
-@import './pages/pages-dir';
+@use 'theme.scss';
+@use 'base/base-dir';
+@use 'components/components-dir';
+@use 'layout/layout-dir';
+@use 'pages/pages-dir';

@@ -5,16 +5,15 @@ import { Router } from '@angular/router';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { GlobalService } from '@services/main.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
-
 import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * Component class to create a new supertask
@@ -22,7 +21,8 @@ import { PRETASKS_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 @Component({
   selector: 'app-new-supertasks',
   templateUrl: './new-supertasks.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class NewSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -35,7 +35,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
   error;
 
   /** List of PreTasks. */
-  selectPretasks: any[];
+  selectPretasks: SelectOption[];
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -47,7 +47,7 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.buildForm();
-    titleService.set(['New SuperTask']);
+    this.titleService.set(['New SuperTask']);
   }
 
   /**
@@ -79,15 +79,12 @@ export class NewSupertasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    const field = {
-      fieldMapping: PRETASKS_FIELD_MAPPING
-    };
     const loadSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
       const pretasks = new JsonAPISerializer().deserialize<JPretask[]>({
         data: response.data,
         included: response.included
       });
-      this.selectPretasks = transformSelectOptions(pretasks, field);
+      this.selectPretasks = transformSelectOptions(pretasks, PRETASKS_FIELD_MAPPING);
       this.isLoading = false;
       this.changeDetectorRef.detectChanges();
     });

@@ -22,8 +22,9 @@ import { LruCacheable } from '@src/app/core/_decorators/lru-cacheable';
 import { LruCacheService } from '@services/shared/lru-cache.service';
 
 @Component({
-  selector: 'tasks-table',
-  templateUrl: './tasks-table.component.html'
+    selector: 'tasks-table',
+    templateUrl: './tasks-table.component.html',
+    standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
@@ -448,7 +449,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return icons;
   }
 
-  @Cacheable(['_id', 'isSmall'])
+  @Cacheable(['id', 'isSmall'])
   async renderIsSmallIcon(wrapper: JTaskWrapper): Promise<HTTableIcon[]> {
     return this.renderBoolIcon(wrapper, 'isSmall');
   }

@@ -1,11 +1,17 @@
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { GlobalService } from '../../../core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
-import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
+import { FilterType } from 'src/app/core/_models/request-params.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { JTask } from '@models/task.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JChunk } from '@models/chunk.model';
 
 @Component({
-  selector: 'task-visual',
-  template: `
+    selector: 'task-visual',
+    template: `
     <canvas
       #myCanvas
       style="border: 1px solid;"
@@ -16,9 +22,10 @@ import { Filter, FilterType } from 'src/app/core/_models/request-params.model';
       Fallback content
     </canvas>
   `,
-  host: {
-    '(window:resize)': 'onWindowResize($event)'
-  }
+    host: {
+        '(window:resize)': 'onWindowResize($event)'
+    },
+    standalone: false
 })
 export class TaskVisualomponent {
   @ViewChild('myCanvas') canvasRef: ElementRef;
@@ -68,32 +75,39 @@ export class TaskVisualomponent {
 
   drawPoint() {
     const maxResults = 10000;
+      const paramsTasks = new RequestParamBuilder()
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.taskid })
+      .setPageSize(maxResults)
+      .create();
 
-    // const maxResults = environment.config.prodApiMaxResults;
-    const taskFilter = new Array<Filter>({ field: "taskId", operator: FilterType.EQUAL, value: this.taskid});
-    const page = {size: maxResults};
     this.gs
-      .getAll(SERV.TASKS, {
-        page: page,
-        filter: taskFilter
-      })
-      .subscribe((res) => {
+      .getAll(SERV.TASKS, paramsTasks)
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const tasks = new JsonAPISerializer().deserialize<JTask[]>(responseBody);
+
+
+        const paramsTaskWrapper = new RequestParamBuilder()
+          .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: tasks[0].taskWrapperId })
+          .setPageSize(maxResults)
+          .create();
+
         this.gs
-          .getAll(SERV.TASKS_WRAPPER, {
-            page: page,
-            filter: new Array<Filter>( {field: "taskWrapperId", operator: FilterType.EQUAL, value:res.values[0].taskWrapperId} )
-          })
-          .subscribe((res) => {
-            const ch = res.values;
+          .getAll(SERV.TASKS_WRAPPER, paramsTaskWrapper)
+          .subscribe((response: ResponseWrapper) => {
+            const responseBody = { data: response.data, included: response.included };
+            const taskwrapper = new JsonAPISerializer().deserialize<JTaskWrapper[]>(responseBody);
+
+            const ch = taskwrapper;
             if (ch[0].taskType === 1 && this.view === 'supertask') {
               for (let i = 0; i < ch.length; i++) {
                 this.gs
-                  .getAll(SERV.CHUNKS, {
-                    page: page,
-                    filter: taskFilter
-                  })
-                  .subscribe((res) => {
-                    const chunks = res.values;
+                  .getAll(SERV.CHUNKS, paramsTasks)
+                  .subscribe((res: ResponseWrapper) => {
+
+                    const responseBody = { data: response.data, included: response.included };
+                    const chunks = new JsonAPISerializer().deserialize<JChunk[]>(responseBody);
+
                     let progress;
                     let cracked;
                     for (let i = 0; i < chunks.length; i++) {
@@ -134,12 +148,12 @@ export class TaskVisualomponent {
               }
             } else {
               this.gs
-                .getAll(SERV.CHUNKS, {
-                  page: page,
-                  filter: taskFilter
-                })
-                .subscribe((res) => {
-                  const ch = res.values; // Get chunks by id
+                .getAll(SERV.CHUNKS, paramsTasks)
+                .subscribe((response: ResponseWrapper) => {
+
+                  const responseBody = { data: response.data, included: response.included };
+                  const chunks = new JsonAPISerializer().deserialize<JChunk[]>(responseBody);
+                  const ch = chunks; // Get chunks by id
 
                   // Getting variables
                   const keyspace = Number(this.tkeyspace); // Get Keyspace Progress

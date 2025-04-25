@@ -2,8 +2,9 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-modal-st-pretasks',
-  templateUrl: './modal-pretasks.component.html'
+    selector: 'app-modal-st-pretasks',
+    templateUrl: './modal-pretasks.component.html',
+    standalone: false
 })
 export class ModalPretasksComponent {
   constructor(

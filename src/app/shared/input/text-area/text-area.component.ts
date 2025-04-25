@@ -17,15 +17,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-  selector: 'input-text-area',
-  templateUrl: './text-area.component.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => InputTextAreaComponent),
-      multi: true
-    }
-  ]
+    selector: 'input-text-area',
+    templateUrl: './text-area.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => InputTextAreaComponent),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class InputTextAreaComponent extends AbstractInputComponent<string> {
   constructor() {

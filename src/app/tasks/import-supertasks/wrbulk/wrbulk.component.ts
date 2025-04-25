@@ -1,26 +1,32 @@
+import { firstValueFrom } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { benchmarkType } from 'src/app/core/_constants/tasks.config';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { TooltipService } from '../../../core/_services/shared/tooltip.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { SERV } from '../../../core/_services/main.config';
 import { Router } from '@angular/router';
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { OnDestroy } from '@angular/core';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { ResponseWrapper } from '../../../core/_models/response.model';
-import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+
+import { JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JFile } from '@models/file.model';
+import { HorizontalNav } from '@models/horizontalnav.model';
+import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-wrbulk',
-  templateUrl: './wrbulk.component.html'
+  templateUrl: './wrbulk.component.html',
+  standalone: false
 })
 @PageTitle(['Import SuperTask - Wordlist/Rules Bulk'])
 export class WrbulkComponent implements OnInit, OnDestroy {
@@ -55,9 +61,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
   constructor(
     private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
     private titleService: AutoTitleService,
-    private tooltipService: TooltipService,
     private uiService: UIConfigService,
     private alert: AlertService,
     private gs: GlobalService,
@@ -65,7 +69,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     private serializer: JsonAPISerializer
   ) {
     this.buildForm();
-    titleService.set(['Import SuperTask - Wordlist/Rules Bulk']);
+    this.titleService.set(['Import SuperTask - Wordlist/Rules Bulk']);
   }
   /**
    * Lifecycle hook called after component initialization.
@@ -93,10 +97,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       isCpuTask: new FormControl(false),
       useNewBench: new FormControl(false),
       crackerBinaryId: new FormControl(1),
-      attackCmd: new FormControl(
-        this.uiService.getUIsettings('hashlistAlias').value,
-        [Validators.required]
-      ),
+      attackCmd: new FormControl(this.uiService.getUIsettings('hashlistAlias').value, [Validators.required]),
       baseFiles: new FormControl([]),
       iterFiles: new FormControl([])
     });
@@ -110,19 +111,12 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   loadData() {
-    const loadSubscription$ = this.gs
-      .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: ResponseWrapper) => {
+    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+      const responseBody = { data: response.data, included: response.included };
+      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
 
-        const responseBody = { data: response.data, included: response.included };
-        const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
-
-        const transformedOptions = transformSelectOptions(
-          crackerBinaryTypes,
-          this.selectCrackertypeMap
-        );
-        this.selectCrackertype = transformedOptions;
-      });
+      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+    });
     this.unsubscribeService.add(loadSubscription$);
   }
 
@@ -132,72 +126,58 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @param {Object} form - The form data containing task configurations.
    * @returns {Promise<string[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private preTasks(form): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
-      const preTasksIds: string[] = [];
-      const fileNamePromises: Promise<string>[] = [];
-      const iterFiles: number[] = form.iterFiles;
+  private async preTasks(form): Promise<string[]> {
+    const preTasksIds: string[] = [];
+    const iterFiles: number[] = form.iterFiles;
 
-      try {
-        Promise.all(
-          iterFiles.map((iter, index) => {
-            const payload = {
-              taskName: '',
-              attackCmd: '',
-              maxAgents: form.maxAgents,
-              chunkTime: Number(
-                this.uiService.getUIsettings('chunktime').value
-              ),
-              statusTimer: Number(
-                this.uiService.getUIsettings('statustimer').value
-              ),
-              priority: index + 1,
-              color: '',
-              isCpuTask: form.isCpuTask,
-              crackerBinaryTypeId: form.crackerBinaryId,
-              isSmall: form.isSmall,
-              useNewBench: form.useNewBench,
-              isMaskImport: true,
-              files: form.baseFiles
-            };
+    try {
+      const promises = iterFiles.map(async (iter, index) => {
+        const payload = {
+          taskName: '',
+          attackCmd: '',
+          maxAgents: form.maxAgents,
+          chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
+          statusTimer: Number(this.uiService.getUIsettings('statustimer').value),
+          priority: index + 1,
+          color: '',
+          isCpuTask: form.isCpuTask,
+          crackerBinaryTypeId: form.crackerBinaryId,
+          isSmall: form.isSmall,
+          useNewBench: form.useNewBench,
+          isMaskImport: true,
+          files: form.baseFiles
+        };
 
-            const fileNamePromise = new Promise<string>((resolve, reject) => {
-              const fileSubscription$ = this.gs
-                .get(SERV.FILES, iter)
-                .subscribe((response: any) => {
-                  const fileName = response.filename;
-                  resolve(fileName);
-                }, reject);
-              this.unsubscribeService.add(fileSubscription$);
-            });
-
-            fileNamePromises.push(fileNamePromise);
-
-            return fileNamePromise
-              .then((fileName) => {
-                const updatedAttackCmd = form.attackCmd.replace(
-                  'FILE',
-                  fileName
-                );
-                payload.taskName = form.name + ' + ' + fileName;
-                payload.attackCmd = updatedAttackCmd;
-                return this.gs.create(SERV.PRETASKS, payload).toPromise();
-              })
-              .then((result) => {
-                preTasksIds.push(result._id);
+        // Get file name
+        const fileName: string = await new Promise((resolve, reject) => {
+          const fileSubscription$ = this.gs.get(SERV.FILES, iter).subscribe({
+            next: (response: ResponseWrapper) => {
+              const file = new JsonAPISerializer().deserialize<JFile>({
+                data: response.data,
+                included: response.included
               });
-          })
-        )
-          .then(() => {
-            resolve(preTasksIds);
-          })
-          .catch((error) => {
-            reject(error);
+              resolve(file.filename);
+            },
+            error: reject
           });
-      } catch (error) {
-        reject(error);
-      }
-    });
+
+          this.unsubscribeService.add(fileSubscription$);
+        });
+
+        const updatedAttackCmd = form.attackCmd.replace('FILE', fileName);
+        payload.taskName = form.name + ' + ' + fileName;
+        payload.attackCmd = updatedAttackCmd;
+
+        const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
+        const pretask = new JsonAPISerializer().deserialize<JPretask>({ data: result.data, included: result.included });
+        preTasksIds.push(pretask.id.toString());
+      });
+
+      await Promise.all(promises);
+      return preTasksIds;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   /**
@@ -232,8 +212,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
         // Check if attackCmd contains the hashlist alias
         if (!attackCmd.includes(attackAlias)) {
-          const warning =
-            'Command line must contain hashlist alias (' + attackAlias + ')!';
+          const warning = 'Command line must contain hashlist alias (' + attackAlias + ')!';
           const confirmed = await this.alert.errorConfirmation(warning);
           if (!confirmed) {
             return; // Stop further execution

@@ -14,8 +14,9 @@ import { environment } from './../../../environments/environment';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-new-agent',
-  templateUrl: './new-agent.component.html'
+    selector: 'app-new-agent',
+    templateUrl: './new-agent.component.html',
+    standalone: false
 })
 export class NewAgentComponent implements OnInit, OnDestroy {
   form: FormGroup<VoucherForm>;

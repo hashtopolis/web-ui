@@ -26,8 +26,9 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatPercentage } from 'src/app/shared/utils/util';
 
 @Component({
-  selector: 'hashlists-table',
-  templateUrl: './hashlists-table.component.html'
+    selector: 'hashlists-table',
+    templateUrl: './hashlists-table.component.html',
+    standalone: false
 })
 export class HashlistsTableComponent
   extends BaseTableComponent

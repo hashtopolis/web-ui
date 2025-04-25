@@ -21,8 +21,9 @@ import { SuperTasksPretasksDataSource } from 'src/app/core/_datasources/supertas
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
-  selector: 'supertasks-pretasks-table',
-  templateUrl: './supertasks-pretasks-table.component.html'
+    selector: 'supertasks-pretasks-table',
+    templateUrl: './supertasks-pretasks-table.component.html',
+    standalone: false
 })
 export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() supertaskId = 0;

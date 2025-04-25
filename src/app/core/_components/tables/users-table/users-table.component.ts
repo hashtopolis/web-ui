@@ -26,8 +26,9 @@ import { UsersDataSource } from 'src/app/core/_datasources/users.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'users-table',
-  templateUrl: './users-table.component.html'
+    selector: 'users-table',
+    templateUrl: './users-table.component.html',
+    standalone: false
 })
 export class UsersTableComponent
   extends BaseTableComponent

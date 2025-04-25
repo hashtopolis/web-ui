@@ -21,8 +21,9 @@ import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatPercentage } from 'src/app/shared/utils/util';
 
 @Component({
-  selector: 'super-hashlists-table',
-  templateUrl: './super-hashlists-table.component.html'
+    selector: 'super-hashlists-table',
+    templateUrl: './super-hashlists-table.component.html',
+    standalone: false
 })
 export class SuperHashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];

@@ -1,17 +1,15 @@
 import { Observable, Subject, combineLatest, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatInput } from '@angular/material/input';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
-import { extractIds } from '@src/app/shared/utils/forms';
-
-import { SelectField } from '@models/input.model';
+import { SelectOption, extractIds } from '@src/app/shared/utils/forms';
 
 /**
  * InputMultiSelectComponent for selecting or searching items from an array of objects.
@@ -27,13 +25,14 @@ import { SelectField } from '@models/input.model';
       multi: true
     }
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class InputMultiSelectComponent extends AbstractInputComponent<any> implements AfterViewInit {
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
-  @Input() items: SelectField[] = [];
+  @Input() items: SelectOption[] = [];
   @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
   @Input() initialHashlistId: any;
@@ -42,7 +41,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
 
   private searchInputSubject = new Subject<string>();
   filteredItems: Observable<any[]>;
-  selectedItems: SelectField[] = [];
+  selectedItems: SelectOption[] = [];
   searchTerm = '';
 
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
@@ -65,9 +64,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
     // Check if initialHashlistId is provided
     if (this.initialHashlistId != null) {
       // Find the preselected item based on initialHashlistId
-      const preselectedItem = this.items.find(
-        (item) => item.id === this.initialHashlistId
-      );
+      const preselectedItem = this.items.find((item) => item.id === this.initialHashlistId);
 
       // If the preselected item is found, add it to selectedItems
       if (preselectedItem) {
@@ -116,10 +113,10 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
   /**
    * Removes the specified item from the selected items.
    *
-   * @param {SelectField} item - The item to be removed.
+   * @param {SelectOption} item - The item to be removed.
    * @returns {void}
    */
-  public remove(item: SelectField): void {
+  public remove(item: SelectOption): void {
     const index = this.selectedItems.indexOf(item);
 
     if (index >= 0) {
@@ -144,11 +141,11 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
    * Filters the items based on the provided search value.
    *
    * @param {string} value - The search value to filter the items.
-   * @returns {SelectField[]} - The filtered array of items.
+   * @returns {SelectOption[]} - The filtered array of items.
    */
-  private _filter(value: string): SelectField[] {
+  private _filter(value: string): SelectOption[] {
     const filterValue = value.toLowerCase();
-    return this.items.filter((item: SelectField) => {
+    return this.items.filter((item: SelectOption) => {
       const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       return nameToSearch.includes(filterValue);
     });
@@ -197,9 +194,9 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
   /**
    * Gets the unselected items from the available items list.
    *
-   * @returns {SelectField[]} - The array of unselected items.
+   * @returns {SelectOption[]} - The array of unselected items.
    */
-  private getUnselectedItems(): SelectField[] {
+  private getUnselectedItems(): SelectOption[] {
     return this.items.filter((item) => !this.selectedItems.includes(item));
   }
 

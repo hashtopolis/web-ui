@@ -1,13 +1,15 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { JSuperTask } from '../_models/supertask.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
+
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class SuperTasksDataSource extends BaseDataSource<JSuperTask, MatTableDataSourcePaginator> {
+export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
   loadAll(): void {
     this.loading = true;
 

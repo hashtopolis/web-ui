@@ -11,8 +11,9 @@ import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'logs-table',
-  templateUrl: './logs-table.component.html'
+    selector: 'logs-table',
+    templateUrl: './logs-table.component.html',
+    standalone: false
 })
 export class LogsTableComponent
   extends BaseTableComponent

@@ -1,3 +1,5 @@
+@use "../base/colors";
+
 /* ==================================
           SECTION FILES
    ================================== */
@@ -25,8 +27,8 @@
 }
 
 .files-theme.active {
-  color: $color-white;
-  background: $color-grey-metal;
+  color: colors.$color-white;
+  background: colors.$color-grey-metal;
 }
 
 .tab-slider--body {
