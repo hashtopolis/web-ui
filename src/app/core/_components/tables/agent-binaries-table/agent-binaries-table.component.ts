@@ -24,7 +24,7 @@ import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource'
 import { environment } from '@src/environments/environment';
 
 @Component({
-  selector: 'agent-binaries-table',
+  selector: 'app-agent-binaries-table',
   templateUrl: './agent-binaries-table.component.html',
   standalone: false
 })
