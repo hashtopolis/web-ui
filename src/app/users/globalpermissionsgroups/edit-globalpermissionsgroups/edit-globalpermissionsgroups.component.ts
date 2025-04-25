@@ -1,47 +1,43 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
+/**
+ * This module contains the component to manage and edit GlobalPermissionGroups
+ */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params } from '@angular/router';
 
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { ResponseWrapper } from '@models/response.model';
 
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { SERV } from '@src/app/core/_services/main.config';
-import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
-/**
- * EditGlobalpermissionsgroupsComponent is a component that manages and edit Global Permissions data.
- *
- */
 @Component({
-    selector: 'app-edit-globalpermissionsgroups',
-    templateUrl: './edit-globalpermissionsgroups.component.html',
-    standalone: false
+  selector: 'app-edit-globalpermissionsgroups',
+  templateUrl: './edit-globalpermissionsgroups.component.html',
+  standalone: false
 })
 export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
-  /** Form group for edit User. */
   updateForm: FormGroup;
-
-  /** Form processing spinner. */
   processing = false;
 
   // Filters and forms
   editedGPGIndex: number;
-  editedGPG: any = {};
+  editedGPG: JGlobalPermissionGroup;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
     private route: ActivatedRoute,
     private alert: AlertService,
-    private gs: GlobalService,
-    private router: Router
+    private gs: GlobalService
   ) {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit Global Permissions']);
+    this.titleService.set(['Edit Global Permissions']);
   }
 
   /**
@@ -114,7 +110,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    * @private
    * @returns Form values object with 'name' and 'permissions' fields.
    */
-  private buildFormValues(): any {
+  private buildFormValues() {
     return {
       name: this.editedGPG['name'],
       permissions: {}
