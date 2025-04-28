@@ -66,15 +66,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   filter(item: JAgent, filterValue: string): boolean {
-    if (
+    return (
       item.agentName.toLowerCase().includes(filterValue) ||
       item.clientSignature.toLowerCase().includes(filterValue) ||
       item.devices.toLowerCase().includes(filterValue)
-    ) {
-      return true;
-    }
-
-    return false;
+    );
   }
 
   getColumns(): HTTableColumn[] {
@@ -89,7 +85,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.NAME,
         dataKey: 'agentName',
-        routerLink: (agent: JAgent) => this.renderAgentLink(agent),
+        routerLinkNoCache: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
       },
@@ -554,8 +550,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   private rowActionEdit(agent: JAgent): void {
-    this.renderAgentLink(agent).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
+    this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 

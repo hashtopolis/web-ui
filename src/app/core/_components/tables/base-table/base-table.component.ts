@@ -13,6 +13,7 @@ import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { JHealthCheckAgent } from '@models/health-check.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
@@ -91,15 +92,6 @@ export class BaseTableComponent {
       {
         routerLink: ['/tasks/', obj.id, 'edit'],
         label: obj.supertaskName
-      }
-    ];
-  }
-
-  @Cacheable(['id']) async renderAgentLink(obj: object): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/agents', 'show-agents', obj['id'], 'edit'] : [],
-        label: obj['agentName']
       }
     ];
   }
@@ -209,6 +201,22 @@ export class BaseTableComponent {
       links.push({
         routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
         label: accessGroup.groupName
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render agent edit link to be displayed in HTML code
+   * @param model - Agent, Chunk or HealthcheckAgent model to render agent router link for
+   * @return observable object containing a router link array
+   */
+  renderAgentLink(model: JAgent | JChunk | JHealthCheckAgent): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (model) {
+      links.push({
+        routerLink: ['/agents', 'show-agents', model.id, 'edit'],
+        label: model.agentName
       });
     }
     return of(links);

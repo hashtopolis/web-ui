@@ -79,7 +79,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
-        routerLink: (chunk: JChunk) => this.renderAgentLink(chunk),
+        routerLinkNoCache: (chunk: JChunk) => this.renderAgentLink(chunk),
         isSortable: true
       },
       {
