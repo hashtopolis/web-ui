@@ -1,9 +1,12 @@
 import { ServiceConfig } from '@services/main.config';
 
+/**
+ * Interface definition for route data
+ */
 export interface RouteData {
   kind?: string;
   type?: string;
-  serviceConfig?: ServiceConfig,
+  serviceConfig?: ServiceConfig;
   permission?: string;
   breadcrumb?: string;
 }
