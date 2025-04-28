@@ -1,21 +1,23 @@
-import { BehaviorSubject, Observable, Subscription, firstValueFrom } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  firstValueFrom
+} from 'rxjs';
+import { Chunk, ChunkData } from '../_models/chunk.model';
+import { CollectionViewer, DataSource } from '@angular/cdk/collections';
 
-import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { ChangeDetectorRef } from '@angular/core';
+import { GlobalService } from '../_services/main.service';
+import { HTTableColumn } from '../_components/tables/ht-table/ht-table.models';
+import { ListResponseWrapper } from '../_models/response.model';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-
-import { ChunkData, JChunk } from '@models/chunk.model';
-import { ResponseWrapper } from '@models/response.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { UIConfigService } from '@services/shared/storage.service';
-
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-
-import { environment } from '@src/environments/environment';
+import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { SERV } from '../_services/main.config';
+import { SelectionModel } from '@angular/cdk/collections';
+import { UIConfigService } from '../_services/shared/storage.service';
+import { environment } from './../../../environments/environment';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources
@@ -25,60 +27,71 @@ import { environment } from '@src/environments/environment';
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
-export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
+export abstract class BaseDataSource<
+  T,
+  P extends MatTableDataSourcePaginator = MatTableDataSourcePaginator
+> implements DataSource<T>
+{
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn;
-  /**
-   * Selection model for row selection in the table.
-   */
-  public selection = new SelectionModel<T>(true, []);
-  /**
-   * Reference to the paginator, if pagination is enabled.
-   */
-  public paginator: P | null;
-  /**
-   * The filter string to be applied to the table data.
-   */
-  public filter: string;
-  /**
-   * Reference to MatSort for sorting support.
-   */
-  public sort: MatSort;
-  public serializer: JsonAPISerializer;
-  /**
-   * Array of subscriptions that will be unsubscribed on disconnect.
-   */
-  protected subscriptions: Subscription[] = [];
-  /**
-   * BehaviorSubject to track the loading state.
-   */
-  protected loadingSubject = new BehaviorSubject<boolean>(false);
-  /**
-   * BehaviorSubject to track the data for the table.
-   */
-  protected dataSubject = new BehaviorSubject<T[]>([]);
-  /**
-   * An array of table columns.
-   */
-  protected columns: HTTableColumn[] = [];
-  /**
-   * Max rows in API response
-   */
-  protected maxResults = environment.config.prodApiMaxResults;
+
   /**
    * Copy of the original dataSubject data used for filtering
    */
   private originalData: T[] = [];
 
+  /**
+   * Array of subscriptions that will be unsubscribed on disconnect.
+   */
+  protected subscriptions: Subscription[] = [];
+
+  /**
+   * BehaviorSubject to track the loading state.
+   */
+  protected loadingSubject = new BehaviorSubject<boolean>(false);
+
+  /**
+   * BehaviorSubject to track the data for the table.
+   */
+  protected dataSubject = new BehaviorSubject<T[]>([]);
+
+  /**
+   * An array of table columns.
+   */
+  protected columns: HTTableColumn[] = [];
+
+  /**
+   * Max rows in API response
+   */
+  protected maxResults = environment.config.prodApiMaxResults;
+
+  /**
+   * Selection model for row selection in the table.
+   */
+  public selection = new SelectionModel<T>(true, []);
+
+  /**
+   * Reference to the paginator, if pagination is enabled.
+   */
+  public paginator: P | null;
+
+  /**
+   * The filter string to be applied to the table data.
+   */
+  public filter: string;
+
+  /**
+   * Reference to MatSort for sorting support.
+   */
+  public sort: MatSort;
+
   constructor(
     protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
     protected uiService: UIConfigService
-  ) {
-    this.serializer = new JsonAPISerializer();
-  }
+  ) {}
 
   /**
    * Gets the observable for the loading state.
@@ -159,7 +172,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     }
     const sortDirection = this.sort.direction;
     const data = this.dataSubject.value.slice();
-    const columnMapping = this.columns.find((mapping) => mapping.id + '' === this.sort.active);
+    const columnMapping = this.columns.find(
+      (mapping) => mapping.id + '' === this.sort.active
+    );
 
     if (!columnMapping) {
       console.error('Column mapping not found for label: ' + this.sort.active);
@@ -177,6 +192,19 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
 
   /**
+   * Builds sorting parameters based on the provided sorting column.
+   * @param sortingColumn - The sorting column configuration.
+   * @returns {string} The sorting parameter string.
+   */
+  buildSortingParams(sortingColumn): string {
+    if (sortingColumn && sortingColumn.isSortable) {
+      const direction = sortingColumn.direction === 'asc' ? '' : '-';
+      return `${direction}${sortingColumn.dataKey}`;
+    }
+    return '';
+  }
+
+  /**
    * Filters the data based on a filter function.
    *
    * @param filterFn - A function to filter the data based on filterValue.
@@ -186,10 +214,23 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     if (!filterValue) {
       this.dataSubject.next(this.originalData);
     } else {
-      const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
+      const filteredData = this.originalData.filter((item) =>
+        filterFn(item, filterValue)
+      );
 
       this.dataSubject.next(filteredData);
     }
+  }
+
+  /**
+   * Compare function used for sorting.
+   */
+  private compare(
+    a: number | string,
+    b: number | string,
+    isAsc: boolean
+  ): number {
+    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 
   /**
@@ -211,8 +252,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @returns True if all rows are selected
    */
   isAllSelected(): boolean {
-    const numSelected = this.selection.selected ? this.selection.selected.length : 0;
-    const numRows = this.dataSubject && this.dataSubject.value ? this.dataSubject.value.length : 0;
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSubject.value.length;
 
     return !!(numSelected > 0 && numSelected === numRows);
   }
@@ -271,7 +312,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param currentPage - The index of the current page.
    * @param totalItems - The total number of items in the data source.
    */
-  setPaginationConfig(pageSize: number, currentPage: number, totalItems: number): void {
+  setPaginationConfig(
+    pageSize: number,
+    currentPage: number,
+    totalItems: number
+  ): void {
     this.pageSize = pageSize;
     this.currentPage = currentPage;
     this.totalItems = totalItems;
@@ -314,7 +359,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
 
   abstract reload(): void;
 
-  async getChunkData(id: number, isAgent = true, keyspace = 0): Promise<ChunkData> {
+  async getChunkData(
+    id: number,
+    isAgent = true,
+    keyspace = 0
+  ): Promise<ChunkData> {
     const chunktime = this.uiService.getUIsettings('chunktime').value;
 
     const dispatched: number[] = [];
@@ -326,20 +375,17 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     const tasks: number[] = !isAgent ? [id] : [];
     const agents: number[] = isAgent ? [id] : [];
     const current = 0;
-    let params: {};
 
-    if (isAgent) {
-      params = { 'filter[agentId__eq]': id };
-    } else {
-      params = { 'filter[taskId__eq]': id };
-    }
+    const params = {
+      maxResults: this.maxResults,
+      filter: isAgent ? `agentId=${id}` : `taskId=${id}`
+    };
 
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params));
+    const response: ListResponseWrapper<Chunk> = await firstValueFrom(
+      this.service.getAll(SERV.CHUNKS, params)
+    );
 
-    const responseBody = { data: response.data, included: response.included };
-    const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
-
-    for (const chunk of chunks) {
+    for (const chunk of response.values) {
       agents.push(chunk.agentId);
       tasks.push(chunk.taskId);
 
@@ -351,7 +397,11 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
       searched.push(chunk.checkpoint - chunk.skip);
 
       // Calculate speed for chunks completed within the last chunktime
-      if (now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime && chunk.progress < 10000) {
+      if (
+        now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) <
+          chunktime &&
+        chunk.progress < 10000
+      ) {
         speed.push(chunk.speed);
       }
 
@@ -365,18 +415,17 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     return {
       tasks: Array.from(new Set(tasks)),
       agents: Array.from(new Set(agents)),
-      dispatched: keyspace && dispatched.length ? dispatched.reduce((a, i) => a + i, 0) / keyspace : 0,
-      searched: keyspace && searched.length ? searched.reduce((a, i) => a + i, 0) / keyspace : 0,
+      dispatched:
+        keyspace && dispatched.length
+          ? dispatched.reduce((a, i) => a + i, 0) / keyspace
+          : 0,
+      searched:
+        keyspace && searched.length
+          ? searched.reduce((a, i) => a + i, 0) / keyspace
+          : 0,
       cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
       speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
       timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
     };
-  }
-
-  /**
-   * Compare function used for sorting.
-   */
-  private compare(a: number | string, b: number | string, isAsc: boolean): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
   }
 }

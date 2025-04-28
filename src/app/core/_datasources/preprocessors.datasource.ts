@@ -1,20 +1,28 @@
-/**
- * This module contains the datasource definition for the preprocessors table component
- */
 import { catchError, finalize, of } from 'rxjs';
 
-import { ResponseWrapper } from '@models/response.model';
-import { JPreprocessor } from '@models/preprocessor.model';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { BaseDataSource } from './base.datasource';
+import { ListResponseWrapper } from '../_models/response.model';
+import { Preprocessor } from '../_models/preprocessor.model';
+import { RequestParams } from '../_models/request-params.model';
+import { SERV } from '../_services/main.config';
 
-import { SERV } from '@services/main.config';
-
-import { BaseDataSource } from '@datasources/base.datasource';
-
-export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
+export class PreprocessorsDataSource extends BaseDataSource<Preprocessor> {
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
+
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params);
 
     this.subscriptions.push(
@@ -23,11 +31,14 @@ export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
+        .subscribe((response: ListResponseWrapper<Preprocessor>) => {
+          const preprocessors: Preprocessor[] = response.values;
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, preprocessors.length);
+          this.setPaginationConfig(
+            this.pageSize,
+            this.currentPage,
+            response.total
+          );
           this.setData(preprocessors);
         })
     );

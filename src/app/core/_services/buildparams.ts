@@ -8,46 +8,23 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { Filter, type RequestParams } from '../_models/request-params.model';
+import { Params } from '@angular/router';
 
 export function setParameter(
-  params: RequestParams
+  routerParams: Params,
+  maxResults?: string | number
 ): HttpParams {
-  let httpParams = new HttpParams();
-
-  // Handle pagination parameters
-  const page = params.page;
-  if (page) {
-    Object.entries(page).forEach(([key, value]) => {
-      if (value !== undefined) {
-        httpParams = httpParams.set(`page[${key}]`, value.toString());
-      }
-    });
+  let queryParams = new HttpParams();
+  for (const key in routerParams) {
+    if (routerParams.hasOwnProperty(key)) {
+      queryParams = queryParams.set(key, routerParams[key]);
+    }
   }
 
-  // Handle include array
-  const include = params.include;
-  if (Array.isArray(include) && include.length > 0) {
-    httpParams = httpParams.set('include', include.join(','));
+  // If maxResults is not present, add it to queryParams
+  if (!queryParams.has('maxResults')) {
+    queryParams = queryParams.set('maxResults', maxResults);
   }
 
-  // Handle filter parameters
-  const filters: Array<Filter> = params.filter;
-  if (Array.isArray(filters)) {
-    filters.forEach((filter) => {
-      httpParams = httpParams.set(`filter[${filter.field}__${filter.operator}]`, filter.value.toString());
-    });
-  }
-
-  // Handle ordering parameter
-  const sort = params.sort;
-  if (Array.isArray(sort) && sort.length > 0) {
-    httpParams = httpParams.set('sort', sort.join(','));
-  }
-
-  if (params.include_total) {
-    httpParams = httpParams.set('include_total', params.include_total);
-  }
-
-  return httpParams;
+  return queryParams;
 }

@@ -1,19 +1,32 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { ResponseWrapper } from '@models/response.model';
-import { JSuperTask } from '@models/supertask.model';
+import { BaseDataSource } from './base.datasource';
+import { ListResponseWrapper } from '../_models/response.model';
+import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { RequestParams } from '../_models/request-params.model';
+import { SERV } from '../_services/main.config';
+import { SuperTask } from '../_models/supertask.model';
 
-import { SERV } from '@services/main.config';
-
-import { BaseDataSource } from '@datasources/base.datasource';
-
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-
-export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
+export class SuperTasksDataSource extends BaseDataSource<
+  SuperTask,
+  MatTableDataSourcePaginator
+> {
   loadAll(): void {
     this.loading = true;
 
-    const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt,
+      expand: 'pretasks'
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
 
     const supertasks$ = this.service.getAll(SERV.SUPER_TASKS, params);
 
@@ -23,11 +36,14 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const responseBody = { data: response.data, included: response.included };
-          const supertasks = this.serializer.deserialize<JSuperTask[]>(responseBody);
+        .subscribe((response: ListResponseWrapper<SuperTask>) => {
+          const supertasks: SuperTask[] = response.values;
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, supertasks.length);
+          this.setPaginationConfig(
+            this.pageSize,
+            this.currentPage,
+            response.total
+          );
           this.setData(supertasks);
         })
     );

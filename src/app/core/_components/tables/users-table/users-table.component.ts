@@ -21,7 +21,7 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { JUser } from 'src/app/core/_models/user.model';
+import { User } from 'src/app/core/_models/user.model';
 import { UsersDataSource } from 'src/app/core/_datasources/users.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
@@ -50,7 +50,7 @@ export class UsersTableComponent
     }
   }
 
-  filter(item: JUser, filterValue: string): boolean {
+  filter(item: User, filterValue: string): boolean {
     if (
       item.name.toLowerCase().includes(filterValue) ||
       item.email.toLowerCase().includes(filterValue)
@@ -65,35 +65,35 @@ export class UsersTableComponent
     const tableColumns = [
       {
         id: UsersTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (user: JUser) => user.id + ''
+        export: async (user: User) => user._id + ''
       },
       {
         id: UsersTableCol.NAME,
         dataKey: 'name',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        routerLink: (user: User) => this.renderUserLink(user),
         isSortable: true,
-        export: async (user: JUser) => user.name
+        export: async (user: User) => user.name
       },
       {
         id: UsersTableCol.REGISTERED,
         dataKey: 'registeredSince',
-        render: (user: JUser) =>
+        render: (user: User) =>
           formatUnixTimestamp(user.registeredSince, this.dateFormat),
         isSortable: true,
-        export: async (user: JUser) =>
+        export: async (user: User) =>
           formatUnixTimestamp(user.registeredSince, this.dateFormat)
       },
       {
         id: UsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
-        render: (user: JUser) =>
+        render: (user: User) =>
           user.lastLoginDate
             ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
             : 'Never',
         isSortable: true,
-        export: async (user: JUser) =>
+        export: async (user: User) =>
           user.lastLoginDate
             ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
             : 'Never'
@@ -102,39 +102,36 @@ export class UsersTableComponent
         id: UsersTableCol.EMAIL,
         dataKey: 'email',
         isSortable: true,
-        render: (user: JUser) => user.email,
-        export: async (user: JUser) => user.email
+        export: async (user: User) => user.email
       },
       {
         id: UsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
-        render: (user: JUser) =>
+        icons: (user: User) => this.renderIsValidIcon(user),
+        render: (user: User) =>
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
         isSortable: true,
-        export: async (user: JUser) =>
+        export: async (user: User) =>
           user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
       },
       {
         id: UsersTableCol.SESSION,
         dataKey: 'sessionLifetime',
         isSortable: true,
-        render: (user: JUser) => user.sessionLifetime,
-        export: async (user: JUser) => user.sessionLifetime + ''
+        export: async (user: User) => user.sessionLifetime + ''
       },
       {
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: true,
-        render: (user: JUser) => user.globalPermissionGroup.name,
-        export: async (user: JUser) => user.globalPermissionGroup.name
+        export: async (user: User) => user.globalPermissionGroupName
       }
     ];
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<JUser>) {
+  openDialog(data: DialogData<User>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -164,8 +161,8 @@ export class UsersTableComponent
 
   // --- Render functions ---
 
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
+  @Cacheable(['_id', 'isValid'])
+  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
     return user.isValid
       ? [
           {
@@ -183,10 +180,10 @@ export class UsersTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
+  exportActionClicked(event: ActionMenuEvent<User[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>(
+        this.exportService.toExcel<User>(
           'hashtopolis-users',
           this.tableColumns,
           event.data,
@@ -194,7 +191,7 @@ export class UsersTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>(
+        this.exportService.toCsv<User>(
           'hashtopolis-users',
           this.tableColumns,
           event.data,
@@ -203,7 +200,7 @@ export class UsersTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JUser>(
+          .toClipboard<User>(
             this.tableColumns,
             event.data,
             UsersTableColumnLabel
@@ -218,7 +215,7 @@ export class UsersTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<JUser>): void {
+  rowActionClicked(event: ActionMenuEvent<User>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -242,7 +239,7 @@ export class UsersTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<JUser[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<User[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -279,9 +276,9 @@ export class UsersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(users: JUser[]): void {
-    const requests = users.map((user: JUser) => {
-      return this.gs.delete(SERV.USERS, user.id);
+  private bulkActionDelete(users: User[]): void {
+    const requests = users.map((user: User) => {
+      return this.gs.delete(SERV.USERS, user._id);
     });
 
     this.subscriptions.push(
@@ -305,9 +302,9 @@ export class UsersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionActivate(users: JUser[], isValid: boolean): void {
-    const requests = users.map((user: JUser) => {
-      return this.gs.update(SERV.USERS, user.id, { isValid: isValid });
+  private bulkActionActivate(users: User[], isValid: boolean): void {
+    const requests = users.map((user: User) => {
+      return this.gs.update(SERV.USERS, user._id, { isValid: isValid });
     });
 
     const action = isValid ? 'activated' : 'deactivated';
@@ -333,10 +330,10 @@ export class UsersTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(users: JUser[]): void {
+  private rowActionDelete(users: User[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.USERS, users[0].id)
+        .delete(SERV.USERS, users[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -350,9 +347,9 @@ export class UsersTableComponent
     );
   }
 
-  private rowActionEdit(user: JUser): void {
+  private rowActionEdit(user: User): void {
     this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(['/users', user.id, 'edit']);
+      this.router.navigate(['/users', user._id, 'edit']);
     });
   }
 }

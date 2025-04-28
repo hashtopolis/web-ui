@@ -1,8 +1,12 @@
-import { Subject, Subscription, takeUntil } from 'rxjs';
-
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -10,15 +14,21 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ValidatorFn } from '@angular/forms';
-
-import { BaseModel } from '@models/base.model';
-import { ResponseWrapper } from '@models/response.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { GlobalService } from '@services/main.service';
-
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
+import { Router } from '@angular/router';
+import {
+  Observable,
+  Subject,
+  Subscription,
+  combineLatest,
+  forkJoin,
+  map,
+  switchMap,
+  takeUntil
+} from 'rxjs';
+import { MetadataService } from 'src/app/core/_services/metadata.service';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { transformSelectOptions } from '../../shared/utils/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 /**
  * This component renders a dynamic form based on the provided form metadata.
@@ -141,7 +151,9 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
         const fieldName = field.name;
 
         // Determine the validators for the field, defaulting to an empty array if none are provided.
-        const validators: ValidatorFn[] = field.validators ? field.validators : [];
+        const validators: ValidatorFn[] = field.validators
+          ? field.validators
+          : [];
 
         // Initialize the initial value for the form control.
         let initialValue;
@@ -152,11 +164,13 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
           initialValue = this.formValues[fieldName];
         } else {
           // For other field types, use formValues[fieldName] or a default value if not provided.
-          initialValue = fieldName in this.formValues ? this.formValues[fieldName] : null;
+          initialValue =
+            fieldName in this.formValues ? this.formValues[fieldName] : null;
         }
         if (!this.isCreateMode) {
           // For other field types, use formValues[fieldName] or 0 as a default value if not provided.
-          initialValue = fieldName in this.formValues ? this.formValues[fieldName] : 0;
+          initialValue =
+            fieldName in this.formValues ? this.formValues[fieldName] : 0;
         }
 
         // In 'create' mode, override the initial value if a default value is specified in the field's metadata.
@@ -185,23 +199,27 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   ngAfterViewInit() {
     // Check if there are any "select" type fields with "selectOptions$"
-    const selectFields = this.formMetadata.filter((field) => field.type === 'selectd' && field.selectOptions$);
+    const selectFields = this.formMetadata.filter(
+      (field) => field.type === 'selectd' && field.selectOptions$
+    );
 
     if (selectFields.length > 0) {
       // Handle logic for select fields with selectOptions$ after the view is initialized
       selectFields.forEach((field) => {
         // Fetch the select options dynamically here
         this.selectOptionsSubscription = this.gs
-          .getAll(field.selectEndpoint$, { page: { size: 5000 } })
+          .getAll(field.selectEndpoint$, { maxResults: 5000 })
           .pipe(takeUntil(this.destroy$))
-          .subscribe((response: ResponseWrapper) => {
+          .subscribe((options) => {
             // Sometimes fields need to be mapped
-            const options = new JsonAPISerializer().deserialize<BaseModel[]>({
-              data: response.data,
-              included: response.included
-            });
+            const transformedOptions = this.transformSelectOptions(
+              options.values,
+              field
+            );
+
             // Assign the fetched options to the field's selectOptions$
-            field.selectOptions$ = this.transformSelectOptions(options, field);
+            field.selectOptions$ = transformedOptions;
+
             // Update isLoadingSelect to indicate that loading is complete
             this.isLoadingSelect = false;
 
@@ -209,9 +227,14 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
             const control = this.form.get(field.name);
 
             // Check if there are options available
-            if (control && options && options.length > 0 && !this.isCreateMode) {
-              // Ensure that options[0] exists before setting the value
-              const initialSelectedValue = this.formValues[field.name];
+            if (
+              control &&
+              options.values &&
+              options.values.length > 0 &&
+              !this.isCreateMode
+            ) {
+              // Ensure that options.values[0] and options.values[0].value exist before setting the value
+              const initialSelectedValue = options.values[0]?.value;
 
               if (initialSelectedValue !== undefined) {
                 control.setValue(initialSelectedValue);

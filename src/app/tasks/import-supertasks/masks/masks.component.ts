@@ -17,9 +17,6 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { ResponseWrapper } from '../../../core/_models/response.model';
-import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
@@ -74,8 +71,7 @@ export class MasksComponent implements OnInit, OnDestroy {
     private uiService: UIConfigService,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router,
-    private serializer: JsonAPISerializer
+    private router: Router
   ) {
     this.buildForm();
     titleService.set(['Import SuperTask - Mask']);
@@ -116,13 +112,15 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
-      const responseBody = { data: response.data, included: response.included };
-      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
-
-      const transformedOptions = transformSelectOptions(crackerBinaryTypes, this.selectCrackertypeMap);
-      this.selectCrackertype = transformedOptions;
-    });
+    const loadSubscription$ = this.gs
+      .getAll(SERV.CRACKERS_TYPES)
+      .subscribe((response: any) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          this.selectCrackertypeMap
+        );
+        this.selectCrackertype = transformedOptions;
+      });
     this.unsubscribeService.add(loadSubscription$);
   }
 
@@ -153,7 +151,9 @@ export class MasksComponent implements OnInit, OnDestroy {
           attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
           maxAgents: form.maxAgents,
           chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
-          statusTimer: Number(this.uiService.getUIsettings('statustimer').value),
+          statusTimer: Number(
+            this.uiService.getUIsettings('statustimer').value
+          ),
           priority: index + 1,
           color: '',
           isCpuTask: form.isCpuTask,
@@ -166,10 +166,12 @@ export class MasksComponent implements OnInit, OnDestroy {
 
         // Create a subscription promise and push it to the array
         const subscriptionPromise = new Promise<void>((resolve, reject) => {
-          const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
-            preTasksIds.push(result._id);
-            resolve(); // Resolve the promise when subscription completes
-          }, reject); // Reject the promise if there's an error
+          const onSubmitSubscription$ = this.gs
+            .create(SERV.PRETASKS, payload)
+            .subscribe((result) => {
+              preTasksIds.push(result._id);
+              resolve(); // Resolve the promise when subscription completes
+            }, reject); // Reject the promise if there's an error
           this.unsubscribeService.add(onSubmitSubscription$);
         });
 
@@ -216,10 +218,12 @@ export class MasksComponent implements OnInit, OnDestroy {
    */
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.okAlert('New Supertask Mask created!', '');
-      this.router.navigate(['/tasks/supertasks']);
-    });
+    const createSubscription$ = this.gs
+      .create(SERV.SUPER_TASKS, payload)
+      .subscribe(() => {
+        this.alert.okAlert('New Supertask Mask created!', '');
+        this.router.navigate(['/tasks/supertasks']);
+      });
 
     this.unsubscribeService.add(createSubscription$);
     this.isLoading = false;

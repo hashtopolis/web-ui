@@ -1,4 +1,7 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {
+  PipeTransform,
+  Pipe
+} from '@angular/core';
 
 /**
  * Pipe to filter by Id
@@ -9,16 +12,18 @@ import { Pipe, PipeTransform } from '@angular/core';
  * Example:
  *   {{ Object | filterItem:'agentId':a.agentId }}
  * @returns Filter by Id
- **/
+**/
+
 @Pipe({
   name: 'filterItem'
 })
 export class FilterItemPipe implements PipeTransform {
-  transform(list: any, key: string, value: number) {
+
+  transform(list: any, key:string, value:number) {
     // use the id
-    if (value === undefined || value === null) {
-      value = 0;
-    }
-    return list.filter((i) => i[key] === +value);
-  }
+    if(value === undefined  || value === null) return value;
+
+    return list.filter(i => i[key] === +value);
+}
+
 }

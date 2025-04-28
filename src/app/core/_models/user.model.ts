@@ -1,19 +1,31 @@
-/**
- * This module contains the definition of the apps user model
- */
-import { BaseModel } from '@models/base.model';
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
-import { JAccessGroup } from '@models/access-group.model';
+import { GlobalPermissionGroup } from './global-permission-group.model';
 
-/**
- * Interface definition for the User model
- * @extends BaseModel
- */
-export interface JUser extends BaseModel {
+export interface BaseUser {
+  userId: number;
+  username: string;
+  email: string;
+  rightGroupId: number;
+  registered: number;
+  lastLogin: number;
+  isValid: number;
+  sessionLifetime: number;
+}
+
+export interface CreateUser extends BaseUser {
+  username: string;
+  email: string;
+  rightGroupId: number;
+  isAdmin: number;
+}
+
+export interface User {
+  _id: number;
+  _self: string;
   email: string;
   globalPermissionGroupId: number;
   globalPermissionGroupName?: string;
-  globalPermissionGroup?: JGlobalPermissionGroup;
+  globalPermissionGroup?: GlobalPermissionGroup;
+  id?: number;
   isComputedPassword: boolean;
   isValid: boolean;
   lastLoginDate: number;
@@ -25,5 +37,4 @@ export interface JUser extends BaseModel {
   registeredSince: number;
   sessionLifetime: number;
   yubikey: string;
-  accessGroups: JAccessGroup[];
 }

@@ -1,9 +1,9 @@
+import { IsAuth } from '../core/_guards/auth.guard';
+import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
 
-import { HomeComponent } from '@src/app/home/home.component';
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
-import { MyRoute } from '@src/app/core/_models/routes.model';
+import { MyRoute, RouteData } from '../core/_models/routes.model';
+import { HomeComponent } from './home.component';
 
 const routes: MyRoute[] = [
   {

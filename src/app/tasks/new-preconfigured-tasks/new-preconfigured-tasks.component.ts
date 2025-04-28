@@ -215,7 +215,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
       const endpoint = isPretask ? SERV.PRETASKS : SERV.TASKS;
       const onCopy$ = this.gs
         .get(endpoint, this.editedIndex, {
-          include: isPretask ? ['pretaskFiles'] : ['files']
+          expand: isPretask ? 'pretaskFiles' : 'files'
         })
         .subscribe((result) => {
           const arrFiles: Array<any> = [];

@@ -1,51 +1,53 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { JAccessGroup } from '@models/access-group.model';
-import { JAgent } from '@models/agent.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JUser } from '@models/user.model';
+import { AccessGroup } from '../_models/access-group.model';
+import { BaseDataSource } from './base.datasource';
+import { ListResponseWrapper } from '../_models/response.model';
+import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { SERV } from '../_services/main.config';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
-import { BaseDataSource } from '@datasources/base.datasource';
-
-export class AccessGroupsExpandDataSource extends BaseDataSource<JUser | JAgent> {
+export class AccessGroupsExpandDataSource extends BaseDataSource<
+  AccessGroup,
+  MatTableDataSourcePaginator
+> {
   private _accessgroupId = 0;
-  private _include = '';
+  private _expand = '';
 
   setAccessGroupId(accessgroupId: number) {
     this._accessgroupId = accessgroupId;
   }
 
-  setAccessGroupExpand(include: string) {
-    this._include = include;
+  setAccessGroupExpand(_expand: string) {
+    this._expand = _expand;
   }
 
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInclude(this._include).create();
 
-    const accessGroup$ = this.service.get(SERV.ACCESS_GROUPS, this._accessgroupId, params);
+    const params = {
+      expand: this._expand
+    };
+
+    const pretasks$ = this.service.get(
+      SERV.ACCESS_GROUPS,
+      this._accessgroupId,
+      params
+    );
 
     this.subscriptions.push(
-      accessGroup$
+      pretasks$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-            data: response.data,
-            included: response.included
-          });
-          this.setData(accessGroup[this._include]);
+        .subscribe((response: ListResponseWrapper<AccessGroup>) => {
+          const data: AccessGroup[] = response[this._expand];
+          this.setData(data);
         })
     );
   }
 
-  getData(): (JUser | JAgent)[] {
+  getData(): AccessGroup[] {
     return this.getOriginalData();
   }
 

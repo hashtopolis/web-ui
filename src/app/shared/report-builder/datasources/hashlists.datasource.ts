@@ -2,6 +2,8 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { ReportBaseDataSource } from './base.datasource';
 import { Hashlist } from 'src/app/hashlists/hashlist.model';
+import { ListResponseWrapper } from 'src/app/core/_models/response.model';
+import { RequestParams } from 'src/app/core/_models/request-params.model';
 import { SERV } from 'src/app/core/_services/main.config';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
@@ -15,7 +17,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loading = true;
 
     const hashList$ = this.service.get(SERV.HASHLISTS, this._hashlistId, {
-      include: ['accessGroup', 'tasks', 'hashes', 'hashType', 'hashlists']
+      expand: 'accessGroup,tasks,hashes,hashType,hashlists'
     });
 
     this.subscriptions.push(
@@ -82,7 +84,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
       });
     });
 
-    return [
+    const report = [
       {
         title: 'Input Fields',
         table: {
@@ -111,5 +113,6 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
       { break: 1 },
       ...workflow
     ];
+    return report;
   }
 }

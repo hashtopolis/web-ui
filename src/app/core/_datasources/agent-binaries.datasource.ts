@@ -1,43 +1,43 @@
-import { catchError, finalize, never, of } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
-import { JAgentBinary } from '../_models/agent-binary.model';
+import { AgentBinary } from '../_models/agent-binary.model';
 import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
+export class AgentBinariesDataSource extends BaseDataSource<AgentBinary> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
 
-    //ToDo: Reactivate sorting
-    this.sortingColumn.isSortable = false;
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt
+    };
 
-    const params = new RequestParamBuilder().addInitial(this).create();
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const agentBinaries$ = this.service.getAll(SERV.AGENT_BINARY, params);
+
     this.subscriptions.push(
       agentBinaries$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-
-          (response.data as []).forEach((agentBinary) => {
-            agentBinary['attributes']['agentbinaryType'] = agentBinary['attributes']['type'];
-            delete agentBinary['attributes']['type'];
-          });
-
-
-
-          const responseData = { data: response.data, included: response.included };
-          const agentBinaries = this.serializer.deserialize<JAgentBinary[]>(responseData);
+        .subscribe((response: ListResponseWrapper<AgentBinary>) => {
+          const agentBinaries: AgentBinary[] = response.values;
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            agentBinaries.length
+            response.total
           );
           this.setData(agentBinaries);
         })
