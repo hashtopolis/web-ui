@@ -35,16 +35,9 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   standalone: false
 })
 export class BaseTableComponent {
-  protected uiSettings: UISettingsUtilityClass;
-  protected dateFormat: string;
-  protected subscriptions: Subscription[] = [];
-  protected columnLabels: { [key: string]: string } = {};
-
   @ViewChild('table') table: HTTableComponent;
-
   @Input() hashlistId: number;
   @Input() shashlistId: number;
-
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
   /** Flag to enable bulk action menu */
@@ -55,6 +48,10 @@ export class BaseTableComponent {
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = true;
+  protected uiSettings: UISettingsUtilityClass;
+  protected dateFormat: string;
+  protected subscriptions: Subscription[] = [];
+  protected columnLabels: { [key: string]: string } = {};
 
   constructor(
     protected gs: GlobalService,
@@ -74,37 +71,13 @@ export class BaseTableComponent {
     this.dateFormat = this.getDateFormat();
   }
 
-  /**
-   * Retrieves the date format for rendering timestamps.
-   * @returns The date format string.
-   */
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
-
-    return fmt ? fmt : uiConfigDefault.timefmt;
-  }
-
-  /**
-   * Sanitizes the given HTML string to create a safe HTML value.
-   * @param html - The HTML string to be sanitized.
-   * @returns A SafeHtml object that represents the sanitized HTML.
-   */
-  protected sanitize(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
-  }
-
-  protected setColumnLabels(labels: { [key: string]: string }): void {
-    this.columnLabels = labels;
-  }
-
   reload(): void {
     if (this.table) {
       this.table.reload();
     }
   }
 
-  @Cacheable(['id'])
-  async renderTaskLink(obj: JAgent | JChunk): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderTaskLink(obj: JAgent | JChunk): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj.taskId ? ['/tasks', 'show-tasks', obj.taskId, 'edit'] : [],
@@ -113,8 +86,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderSupertaskLink(obj: JSuperTask): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderSupertaskLink(obj: JSuperTask): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: ['/tasks/', obj.id, 'edit'],
@@ -123,8 +95,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderAgentLink(obj: object): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderAgentLink(obj: object): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['id'] ? ['/agents', 'show-agents', obj['id'], 'edit'] : [],
@@ -133,8 +104,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['taskId'] ? ['/hashlists', 'hashes', 'tasks', obj['taskId']] : [],
@@ -143,8 +113,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderUserLink(obj: JUser | JAgent): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderUserLink(obj: JUser | JAgent): Promise<HTTableRouterLink[]> {
     let userId: number;
     let userName: string;
     if (obj.type === 'user') {
@@ -164,8 +133,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['chunkId'])
-  async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['chunkId']) async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['chunkId'] ? ['/tasks', 'chunks', obj['chunkId'], 'view'] : [],
@@ -174,8 +142,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['id'] ? ['/hashlists', 'hashlist', obj['id'], 'edit'] : [],
@@ -184,8 +151,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['id'] ? ['/hashlists', 'hashes', 'hashlists', obj['id']] : [],
@@ -194,8 +160,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id'])
-  async renderPermissionLink(obj: JGlobalPermissionGroup): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id']) async renderPermissionLink(obj: JGlobalPermissionGroup): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['id'] ? ['/users', 'global-permissions-groups', obj['id'], 'edit'] : [],
@@ -204,8 +169,7 @@ export class BaseTableComponent {
     ];
   }
 
-  @Cacheable(['id', 'accessGroup'])
-  async renderAccessGroupLinks(agent: JAgent): Promise<HTTableRouterLink[]> {
+  @Cacheable(['id', 'accessGroup']) async renderAccessGroupLinks(agent: JAgent): Promise<HTTableRouterLink[]> {
     let links: HTTableRouterLink[] = [];
 
     if (agent && agent.accessGroups) {
@@ -220,27 +184,56 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['isActive'])
-  async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
+  @Cacheable(['isActive']) async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
     if (obj) {
       return obj['isActive']
         ? [{ name: 'check_circle', cls: 'text-ok' }]
-        : [{ name: 'remove_circle', cls: 'text-critical' }];
+        : [
+            {
+              name: 'remove_circle',
+              cls: 'text-critical'
+            }
+          ];
     }
     return [];
   }
 
   /**
-   * Render access group link to displayed in HTML code
+   * Render access group link to be displayed in HTML code
    * @param accessGroup - access group object to render router link for
    * @return observable object containing a router link array
    */
   renderAccessGroupLink(accessGroup: JAccessGroup): Observable<HTTableRouterLink[]> {
-    return of([
-      {
-        routerLink: accessGroup && accessGroup.id ? ['/users', 'access-groups', accessGroup.id, 'edit'] : [],
+    const links: HTTableRouterLink[] = [];
+    if (accessGroup) {
+      links.push({
+        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
         label: accessGroup.groupName
-      }
-    ]);
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Sanitizes the given HTML string to create a safe HTML value.
+   * @param html - The HTML string to be sanitized.
+   * @returns A SafeHtml object that represents the sanitized HTML.
+   */
+  protected sanitize(html: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  protected setColumnLabels(labels: { [key: string]: string }): void {
+    this.columnLabels = labels;
+  }
+
+  /**
+   * Retrieves the date format for rendering timestamps.
+   * @returns The date format string.
+   */
+  private getDateFormat(): string {
+    const fmt = this.uiSettings.getSetting<string>('timefmt');
+
+    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }
