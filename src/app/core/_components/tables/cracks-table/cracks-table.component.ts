@@ -1,35 +1,34 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  CracksTableCol,
-  CracksTableColumnLabel
-} from './cracks-table.constants';
 import { catchError, forkJoin } from 'rxjs';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { CracksDataSource } from 'src/app/core/_datasources/cracks.datasource';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { JHash } from 'src/app/core/_models/hash.model';
-import { HashListFormatLabel } from 'src/app/core/_constants/hashlist.config';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
-import { Cacheable } from '../../../_decorators/cacheable';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JHash } from '@models/hash.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/cracks-table/cracks-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { CracksDataSource } from '@datasources/cracks.datasource';
+
+import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'cracks-table',
-    templateUrl: './cracks-table.component.html',
-    standalone: false
+  selector: 'cracks-table',
+  templateUrl: './cracks-table.component.html',
+  standalone: false
 })
-export class CracksTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
 
@@ -56,15 +55,13 @@ export class CracksTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
-        render: (crack: JHash) =>
-          formatUnixTimestamp(crack.timeCracked, this.dateFormat),
+        render: (crack: JHash) => formatUnixTimestamp(crack.timeCracked, this.dateFormat),
         isSortable: true,
-        export: async (crack: JHash) =>
-          formatUnixTimestamp(crack.timeCracked, this.dateFormat)
+        export: async (crack: JHash) => formatUnixTimestamp(crack.timeCracked, this.dateFormat)
       },
       {
         id: CracksTableCol.PLAINTEXT,
@@ -106,14 +103,10 @@ export class CracksTableComponent
         id: CracksTableCol.TYPE,
         dataKey: 'hashlistId',
         isSortable: true,
-        render: (crack: JHash) =>
-          crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '',
-        export: async (crack: JHash) =>
-          crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''
+        render: (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : ''),
+        export: async (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '')
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JHash>) {
@@ -138,70 +131,42 @@ export class CracksTableComponent
     );
   }
 
-
-
   // --- Render functions ---
   @Cacheable(['id'])
- override async renderAgentLink(obj: JHash): Promise<HTTableRouterLink[]> {
+  override async renderAgentLink(obj: JHash): Promise<HTTableRouterLink[]> {
     return [
       {
         //crack.chunk.agentId
-        routerLink:
-          obj && obj['chunk']['agentId']
-            ? ['/agents', 'show-agents', obj['chunk']['agentId'], 'edit']
-            : [],
+        routerLink: obj && obj['chunk']['agentId'] ? ['/agents', 'show-agents', obj['chunk']['agentId'], 'edit'] : [],
         label: obj['chunk']['agentId']
       }
     ];
   }
 
   @Cacheable(['id'])
-  async renderTaskLinkId(obj: JHash): Promise<HTTableRouterLink[]> {
-  return [
-    {
-      routerLink:
-        obj && obj['chunk']['taskId']
-          ? ['/tasks', 'show-tasks', obj['chunk']['taskId'], 'edit']
-          : [],
-      label: obj['chunk']['taskId']
-    }
-  ];
-}
-
+  async renderTaskLinkId(hash: JHash): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: hash && hash.chunk.taskId ? ['/tasks', 'show-tasks', hash.chunk.taskId, 'edit'] : [],
+        label: hash.chunk.taskName
+      }
+    ];
+  }
 
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>(
-          'hashtopolis-cracks',
-          this.tableColumns,
-          event.data,
-          CracksTableColumnLabel
-        );
+        this.exportService.toExcel<JHash>('hashtopolis-cracks', this.tableColumns, event.data, CracksTableColumnLabel);
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>(
-          'hashtopolis-cracks',
-          this.tableColumns,
-          event.data,
-          CracksTableColumnLabel
-        );
+        this.exportService.toCsv<JHash>('hashtopolis-cracks', this.tableColumns, event.data, CracksTableColumnLabel);
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHash>(
-            this.tableColumns,
-            event.data,
-            CracksTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, CracksTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
@@ -257,10 +222,7 @@ export class CracksTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} cracks!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} cracks!`, 'Close');
           this.reload();
         })
     );
