@@ -1,7 +1,10 @@
+import { BaseModel } from '@models/base.model';
+import { JHashtype } from '@models/hashtype.model';
 
-import { JHashtype } from './hashtype.model';
-import { BaseModel } from './base.model';
-
+/**
+ * Interface definition for a Hashlist
+ * @extends BaseModel
+ */
 export interface JHashlist extends BaseModel {
   hashlistId?: number;
   accessGroupId: number;
@@ -23,58 +26,4 @@ export interface JHashlist extends BaseModel {
   sourceType: string;
   sourceData: string;
   hashlists?: JHashlist[];
-}
-
-export interface HashlistData {
-  type: string;
-  id: number;
-  attributes: HashlistDataAttributes;
-  links?: DataLinks;
-  relationships?: HashlistRelationships;
-}
-
-export interface HashlistDataAttributes {
-  name: string;
-  format: number;
-  hashTypeId: number;
-  hashCount: number;
-  separator: string;
-  cracked: number;
-  isSecret: boolean;
-  isHexSalt: boolean;
-  isSalted: boolean;
-  accessGroupId: number;
-  notes: string;
-  useBrain: boolean;
-  brainFeatures: number;
-  isArchived: boolean;
-  hashTypeDescription?: string;
-  hashlists?: HashlistData[];
-}
-
-export interface DataLinks {
-  self: string;
-}
-
-export interface HashlistRelationships {
-  accessGroup: HashlistRelationshipAttributes;
-  hashType: HashlistRelationshipAttributes;
-  hashes: HashlistRelationshipAttributes;
-  hashlists: HashlistRelationshipAttributes;
-  tasks: HashlistRelationshipAttributes;
-}
-
-export interface HashlistRelationshipAttributes {
-  links: HashlistRelationshipLinks;
-  data: HashlistRelationshipAttributesData[];
-}
-
-export interface HashlistRelationshipLinks {
-  self: string;
-  related: string;
-}
-
-export interface HashlistRelationshipAttributesData {
-  type: string;
-  id: number;
 }

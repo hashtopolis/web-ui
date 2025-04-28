@@ -1,9 +1,8 @@
-import { BaseModel } from '@src/app/core/_models/base.model';
-
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
-import { JHashlist } from '@src/app/core/_models/hashlist.model';
-import { JHashtype } from '@src/app/core/_models/hashtype.model';
-import { JTask } from '@src/app/core/_models/task.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { BaseModel } from '@models/base.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JHashtype } from '@models/hashtype.model';
+import { JTask } from '@models/task.model';
 
 /**
  * Interface definition for a task wrapper (wrapper object for tasks and supertasks)
@@ -25,4 +24,3 @@ export interface JTaskWrapper extends BaseModel {
   tasks?: JTask[];
   taskName?: string;
 }
-

@@ -8,7 +8,7 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { ChunkDataData } from '@src/app/core/_models/chunk.model';
+import { ChunkData } from '@src/app/core/_models/chunk.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 
 import { SERV } from '@src/app/core/_services/main.config';
@@ -40,7 +40,7 @@ import { Cacheable } from '@src/app/core/_decorators/cacheable';
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsStatusDataSource;
-  chunkData: { [key: number]: ChunkDataData } = {};
+  chunkData: { [key: number]: ChunkData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
@@ -308,7 +308,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   private async getChunkDataParam(agentId: number, key: string): Promise<number> {
-    const cd: ChunkDataData = await this.getChunkData(agentId);
+    const cd: ChunkData = await this.getChunkData(agentId);
     if (cd[key]) {
       return cd[key];
     }
@@ -483,7 +483,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(agentId: number): Promise<ChunkDataData> {
+  private async getChunkData(agentId: number): Promise<ChunkData> {
     if (!this.chunkDataLock[agentId]) {
       // If there is no lock, create a new one
       this.chunkDataLock[agentId] = (async () => {

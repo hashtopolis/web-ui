@@ -3,16 +3,15 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
-
 import { SERV } from '@services/main.config';
 
 import { AccountComponent } from '@src/app/account/account.component';
-import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
 import { EditNotificationComponent } from '@src/app/account/notifications/notification/edit-notification.component';
 import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
+import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
 
 const routes: MyRoute[] = [
   {

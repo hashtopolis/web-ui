@@ -25,7 +25,7 @@ import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-
 import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { JAgent } from '@src/app/core/_models/agent.model';
-import { ChunkDataData } from '@src/app/core/_models/chunk.model';
+import { ChunkData } from '@src/app/core/_models/chunk.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -42,7 +42,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  chunkData: { [key: number]: ChunkDataData } = {};
+  chunkData: { [key: number]: ChunkData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
@@ -469,7 +469,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   private async getChunkDataParam(agentId: number, key: string): Promise<number> {
-    const cd: ChunkDataData = await this.getChunkData(agentId);
+    const cd: ChunkData = await this.getChunkData(agentId);
     if (cd[key]) {
       return cd[key];
     }
@@ -573,7 +573,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
    * before proceeding.
    */
-  private async getChunkData(agentId: number): Promise<ChunkDataData> {
+  private async getChunkData(agentId: number): Promise<ChunkData> {
     if (!this.chunkDataLock[agentId]) {
       // If there is no lock, create a new one
       this.chunkDataLock[agentId] = (async () => {
