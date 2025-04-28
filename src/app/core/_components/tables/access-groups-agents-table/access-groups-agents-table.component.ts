@@ -19,7 +19,7 @@ import { JAgent } from '@src/app/core/_models/agent.model';
 import { SERV } from '@src/app/core/_services/main.config';
 
 @Component({
-  selector: 'access-groups-agents-table',
+  selector: 'app-access-groups-agents-table',
   templateUrl: './access-groups-agents-table.component.html',
   standalone: false
 })
