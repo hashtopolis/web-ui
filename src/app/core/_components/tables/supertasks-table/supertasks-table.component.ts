@@ -16,7 +16,7 @@ import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants'
 import { ModalPretasksComponent } from 'src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from 'src/app/core/_services/main.config';
-import { JSuperTask } from 'src/app/core/_models/supertask.model';
+import { SuperTask } from 'src/app/core/_models/supertask.model';
 import { SuperTasksDataSource } from 'src/app/core/_datasources/supertasks.datasource';
 import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
@@ -49,7 +49,7 @@ export class SuperTasksTableComponent
     }
   }
 
-  filter(item: JSuperTask, filterValue: string): boolean {
+  filter(item: SuperTask, filterValue: string): boolean {
     return item.supertaskName.toLowerCase().includes(filterValue);
   }
 
@@ -57,24 +57,24 @@ export class SuperTasksTableComponent
     const tableColumns = [
       {
         id: SupertasksTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (supertask: JSuperTask) => supertask.id + ''
+        export: async (supertask: SuperTask) => supertask._id + ''
       },
       {
         id: SupertasksTableCol.NAME,
         dataKey: 'supertaskName',
-        routerLink: (supertask: JSuperTask) =>
+        routerLink: (supertask: SuperTask) =>
           this.renderSupertaskLink(supertask),
         isSortable: true,
-        export: async (supertask: JSuperTask) => supertask.supertaskName
+        export: async (supertask: SuperTask) => supertask.supertaskName
       },
       {
         id: SupertasksTableCol.PRETASKS,
         dataKey: 'pretasks',
         isSortable: true,
-        render: (supertask: JSuperTask) => supertask.pretasks.length,
-        export: async (supertask: JSuperTask) =>
+        render: (supertask: SuperTask) => supertask.pretasks.length,
+        export: async (supertask: SuperTask) =>
           supertask.pretasks.length.toString()
       }
     ];
@@ -82,7 +82,7 @@ export class SuperTasksTableComponent
     return tableColumns;
   }
 
-  openDialog(data: DialogData<JSuperTask>) {
+  openDialog(data: DialogData<SuperTask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -106,10 +106,10 @@ export class SuperTasksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
+  exportActionClicked(event: ActionMenuEvent<SuperTask[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JSuperTask>(
+        this.exportService.toExcel<SuperTask>(
           'hashtopolis-supertasks',
           this.tableColumns,
           event.data,
@@ -117,7 +117,7 @@ export class SuperTasksTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JSuperTask>(
+        this.exportService.toCsv<SuperTask>(
           'hashtopolis-supertasks',
           this.tableColumns,
           event.data,
@@ -126,7 +126,7 @@ export class SuperTasksTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JSuperTask>(
+          .toClipboard<SuperTask>(
             this.tableColumns,
             event.data,
             SupertasksTableColumnLabel
@@ -141,7 +141,7 @@ export class SuperTasksTableComponent
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<JSuperTask>): void {
+  rowActionClicked(event: ActionMenuEvent<SuperTask>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -165,7 +165,7 @@ export class SuperTasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<SuperTask[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -184,9 +184,9 @@ export class SuperTasksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(supertask: JSuperTask[]): void {
-    const requests = supertask.map((supertask: JSuperTask) => {
-      return this.gs.delete(SERV.SUPER_TASKS, supertask.id);
+  private bulkActionDelete(supertask: SuperTask[]): void {
+    const requests = supertask.map((supertask: SuperTask) => {
+      return this.gs.delete(SERV.SUPER_TASKS, supertask._id);
     });
 
     this.subscriptions.push(
@@ -210,10 +210,10 @@ export class SuperTasksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(supertasks: JSuperTask[]): void {
+  private rowActionDelete(supertasks: SuperTask[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.SUPER_TASKS, supertasks[0].id)
+        .delete(SERV.SUPER_TASKS, supertasks[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -227,15 +227,15 @@ export class SuperTasksTableComponent
     );
   }
 
-  private rowActionApplyToHashlist(supertask: JSuperTask): void {
-    this.router.navigate(['/tasks/', supertask.id, 'applyhashlist']);
+  private rowActionApplyToHashlist(supertask: SuperTask): void {
+    this.router.navigate(['/tasks/', supertask._id, 'applyhashlist']);
   }
 
-  private rowActionEditSubtasks(supertask: JSuperTask): void {
+  private rowActionEditSubtasks(supertask: SuperTask): void {
     const dialogRef = this.dialog.open(ModalPretasksComponent, {
       width: '100%',
       data: {
-        supertaskId: supertask.id,
+        supertaskId: supertask._id,
         supertaskName: supertask.supertaskName
       }
     });
@@ -243,7 +243,7 @@ export class SuperTasksTableComponent
     dialogRef.afterClosed().subscribe();
   }
 
-  private rowActionEdit(supertask: JSuperTask): void {
+  private rowActionEdit(supertask: SuperTask): void {
     this.renderSupertaskLink(supertask).then((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink);
     });

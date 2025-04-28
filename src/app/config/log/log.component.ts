@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { faHomeAlt } from '@fortawesome/free-solid-svg-icons';
+import { environment } from 'src/environments/environment';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
@@ -6,9 +8,9 @@ import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../core/_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 declare let $: any;
+declare let _fnReDraw;
 
 @Component({
   selector: 'app-log',
@@ -17,30 +19,28 @@ declare let $: any;
 @PageTitle(['Show Logs'])
 export class LogComponent implements OnInit {
 
-  @ViewChild(DataTableDirective, { static: false })
+  faHome=faHomeAlt;
+
+  @ViewChild(DataTableDirective, {static: false})
   dtElement: DataTableDirective;
   dtTrigger: Subject<any> = new Subject<any>();
   dtOptions: any = {};
   localStable = 'DataTables_DataTables_Table_0_/config/log';
   localStablepage = 'DataTables_DataTables_Table_0_/config/log_lastpage';
 
-  public logs: {
-    logEntryId: number,
-    issuer: string,
-    issuerId: number,
-    level: string,
-    message: string,
-    time: number
-  }[] = [];
+  public logs: {logEntryId: number, issuer: string, issuerId: number, level: string, message: string, time: number}[] = [];
+
+  private maxResults = environment.config.prodApiMaxResults;
+
   totalRecords = 0;
-  pageSize: number = this.getLenghtMenu();
+  pageSize:number = this.getLenghtMenu();
   isLast = false;
+  showLabel: string;
 
   constructor(
     private uiService: UIConfigService,
     private gs: GlobalService
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
 
@@ -48,37 +48,47 @@ export class LogComponent implements OnInit {
 
   }
 
-  getLenghtMenu() {
+  pageChanged(page: number) {
+    this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
+      // Destroy the current table instance
+      dtInstance.destroy();
+      // Get new objects using pagination
+      this.loadLogs(page);
+    });
+  }
+
+  getLenghtMenu(){
     const lengthM = JSON.parse(localStorage.getItem(this.localStable));
     if (!lengthM) {
       return 50;
-    } else {
+    }else{
       return lengthM.length;
     }
   }
 
-  geStartPage() {
+  geStartPage(){
     const startP = JSON.parse(localStorage.getItem(this.localStablepage));
     if (!startP) {
-      const currentPage: any = { start: '1' };
+      const currentPage:any = {start: '1'};
       localStorage.setItem(this.localStablepage, currentPage);
-    } else {
+    }else{
       return startP.start;
     }
   }
 
-  saveCurrentPage(name: string, pagestart: number) {
-    const currentPage = { start: pagestart };
+  saveCurrentPage(name: string, pagestart: number){
+    const currentPage = {start: pagestart};
     localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
   }
 
-  loadLogs(page: number) {
+  loadLogs(page: number){
 
     this.saveCurrentPage(this.localStable, page);
 
     const maxresults = this.getLenghtMenu();
-    const params = new RequestParamBuilder().setPageSize(500).setPageAfter((page) * this.pageSize).create();
-    this.gs.getAll(SERV.LOGS, params).subscribe((log: any) => {
+    const params = {'maxResults': maxresults, 'startsAt': (page - 1) * this.pageSize};
+
+    this.gs.getAll(SERV.LOGS,params).subscribe((log: any) => {
       this.logs = log.values;
       this.totalRecords = log.total;
       this.isLast = log.isLast;
@@ -91,109 +101,114 @@ export class LogComponent implements OnInit {
       scrollX: true,
       pageLength: 25,
       lengthMenu: [
-        [10, 25, 50, 100, 250, -1],
-        [10, 25, 50, 100, 250, 'All']
+          [10, 25, 50, 100, 250, -1],
+          [10, 25, 50, 100, 250, 'All']
       ],
-      bStateSave: true,
+      bStateSave:true,
       bPaginate: false,
       bLengthChange: false,
       bInfo: false,
       bSort: true,
       columnDefs: [
         {
-          targets: 0,
-          className: 'noVis'
+            targets: 0,
+            className: 'noVis'
         }
       ],
+      stateSaveParams: function (settings, data) {
+        for ( let i=0, ien=data.columns.length ; i<ien ; i++ ) {
+          // delete data.columns[i].visible;
+        }
+      },
       buttons: {
         dom: {
           button: {
-            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt'
+            className: 'dt-button buttons-collection btn btn-sm-dt btn-outline-gray-600-dt',
           }
         },
-        buttons: [
-          {
-            text: '↻',
-            autoClose: true,
-            action: function(e, dt, node, config) {
-              self.onRefresh();
-            }
-          },
-          {
-            extend: 'collection',
-            text: 'Export',
-            buttons: [
-              {
-                extend: 'excelHtml5',
-                exportOptions: {
-                  columns: [0, 1, 2, 3, 4]
-                }
+      buttons: [
+        {
+          text: '↻',
+          autoClose: true,
+          action: function (e, dt, node, config) {
+            self.onRefresh();
+          }
+        },
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [
+            {
+              extend: 'excelHtml5',
+              exportOptions: {
+                columns: [0, 1, 2, 3, 4]
               },
-              {
-                extend: 'print',
-                exportOptions: {
-                  columns: [0, 1, 2, 3, 4]
-                },
-                customize: function(win) {
-                  $(win.document.body)
-                    .css('font-size', '10pt');
-                  $(win.document.body).find('table')
-                    .addClass('compact')
-                    .css('font-size', 'inherit');
-                }
+            },
+            {
+              extend: 'print',
+              exportOptions: {
+                columns: [0, 1, 2, 3, 4]
               },
-              {
-                extend: 'csvHtml5',
-                exportOptions: { modifier: { selected: true } },
-                select: true,
-                customize: function(dt, csv) {
-                  let data = '';
-                  for (let i = 0; i < dt.length; i++) {
-                    data = 'Logs\n\n' + dt;
-                  }
-                  return data;
+              customize: function ( win ) {
+                $(win.document.body)
+                    .css( 'font-size', '10pt' )
+                $(win.document.body).find( 'table' )
+                    .addClass( 'compact' )
+                    .css( 'font-size', 'inherit' );
+              }
+            },
+            {
+              extend: 'csvHtml5',
+              exportOptions: {modifier: {selected: true}},
+              select: true,
+              customize: function (dt, csv) {
+                let data = "";
+                for (let i = 0; i < dt.length; i++) {
+                  data = "Logs\n\n"+  dt;
                 }
-              },
+                return data;
+              }
+            },
               'copy'
             ]
           },
           {
             extend: 'colvis',
             text: 'Column View',
-            columns: [1, 2, 3, 4]
+            columns: [ 1,2,3,4 ],
           },
           {
-            extend: 'pageLength',
-            className: 'btn-sm',
-            action: function(e, dt, node, config) {
-              const myButton = this;
-              const currentPageLen = dt.page.len();
-              $.fn.dataTable.ext.buttons.collection.action.call(myButton, e, dt, node, config);
-              self.onReload(maxresults, currentPageLen);
-            }
-          }
-        ]
+            extend: "pageLength",
+            className: "btn-sm",
+            action: function ( e, dt, node, config ) {
+            const myButton = this;
+            const currentPageLen = dt.page.len();
+            $.fn.dataTable.ext.buttons.collection.action.call(myButton, e, dt, node, config);
+            self.onReload(maxresults,currentPageLen);
+           }
+          },
+        ],
       }
     };
 
   }
 
-  onRefresh() {
+  onRefresh(){
     this.rerender();
     this.ngOnInit();
   }
 
-  onReload(mresults: number, cresults: number) {
-    if (mresults == cresults) {
+  onReload(mresults: number, cresults:number){
+    if(mresults == cresults){
       setTimeout(() => {
         // location.reload();
-      }, 3000);
+      },3000);
     }
   }
 
   ngOnDestroy(): void {
     this.dtTrigger.unsubscribe();
-    const currentPage = { start: 0 };
+    const currentPage = {start: 0};
     localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
   }
 

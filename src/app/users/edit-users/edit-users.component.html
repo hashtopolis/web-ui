@@ -4,15 +4,15 @@
       <div fxLayout="column" fxLayoutAlign="start stretch">
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-text title="ID" formControlName="id"></input-text>
-          <input-text title="Name" formControlName="name"></input-text>
+          <input-text title="ID" formControlName="id" [disabled]="true"></input-text>
+          <input-text title="Name" formControlName="name" [disabled]="true"></input-text>
         </div>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-text title="Registered" formControlName="registered"></input-text>
-          <input-text title="Last login" formControlName="lastLogin"></input-text>
+          <input-text title="Registered" formControlName="registered" [disabled]="true"></input-text>
+          <input-text title="Last login" formControlName="lastLogin" [disabled]="true"></input-text>
         </div>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-text title="Email" formControlName="email"></input-text>
+          <input-text title="Email" formControlName="email" [disabled]="true"></input-text>
           <simulate-form-field-multi label="Member of access groups" [items]="userAgps" routerLink="/users/access-groups/"></simulate-form-field-multi>
         </div>
 
@@ -21,7 +21,7 @@
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
 
-          <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId" [items]="selectGlobalPermissionGroups"></input-select>
+          <input-select title=" Global Permission Group" formControlName="globalPermissionGroupId" [items]="selectAgp"></input-select>
         </div>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">

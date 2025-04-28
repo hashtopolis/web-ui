@@ -1,17 +1,28 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { JNotification } from '@models/notification.model';
-import { ResponseWrapper } from '@models/response.model';
+import { BaseDataSource } from './base.datasource';
+import { ListResponseWrapper } from '../_models/response.model';
+import { Notification } from '../_models/notification.model';
+import { RequestParams } from '../_models/request-params.model';
+import { SERV } from '../_services/main.config';
 
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { SERV } from '@services/main.config';
-
-import { BaseDataSource } from '@datasources/base.datasource';
-
-export class NotificationsDataSource extends BaseDataSource<JNotification> {
+export class NotificationsDataSource extends BaseDataSource<Notification> {
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
+
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);
 
     this.subscriptions.push(
@@ -20,11 +31,14 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const responseData = { data: response.data, included: response.included };
-          const notifications = this.serializer.deserialize<JNotification[]>(responseData);
+        .subscribe((response: ListResponseWrapper<Notification>) => {
+          const notifications: Notification[] = response.values;
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, notifications.length);
+          this.setPaginationConfig(
+            this.pageSize,
+            this.currentPage,
+            response.total
+          );
           this.setData(notifications);
         })
     );

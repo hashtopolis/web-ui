@@ -19,7 +19,6 @@ import { HTTableColumn } from '../ht-table/ht-table.models';
 import { SearchHashDataSource } from 'src/app/core/_datasources/search-hash.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 import { SafeHtml } from '@angular/platform-browser';
-import { JHash } from '../../../_models/hash.model';
 
 @Component({
   selector: 'search-hash-table',
@@ -54,8 +53,8 @@ export class SearchHashTableComponent
     }
   }
 
-  filter(item: JHash, filterValue: string): boolean {
-    if (item.hash.toLowerCase().includes(filterValue)) {
+  filter(item: any, filterValue: string): boolean {
+    if (item.message.toLowerCase().includes(filterValue)) {
       return true;
     }
 
@@ -68,15 +67,14 @@ export class SearchHashTableComponent
         id: SearchHashTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
-        render: (hash: JHash) => hash.hash,
-        export: async (hash: JHash) => hash.hash + ''
+        export: async (hash: any) => hash.hash + ''
       },
       {
         id: SearchHashTableCol.INFO,
         dataKey: 'isCracked',
         isSortable: true,
-        render: (hash: JHash) => this.renderHashInfo(hash),
-        export: async (hash: JHash) => this.renderHashInfo(hash) + ''
+        render: (hash: any) => this.renderHashInfo(hash),
+        export: async (hash: any) => this.renderHashInfo(hash) + ''
       }
     ];
 
@@ -85,10 +83,10 @@ export class SearchHashTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
+  exportActionClicked(event: ActionMenuEvent<any[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>(
+        this.exportService.toExcel<any>(
           'hashtopolis-search-hash',
           this.tableColumns,
           event.data,
@@ -96,7 +94,7 @@ export class SearchHashTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>(
+        this.exportService.toCsv<any>(
           'hashtopolis-search-hash',
           this.tableColumns,
           event.data,
@@ -105,7 +103,7 @@ export class SearchHashTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JHash>(
+          .toClipboard<any>(
             this.tableColumns,
             event.data,
             SearchHashTableColumnLabel
@@ -128,9 +126,9 @@ export class SearchHashTableComponent
     }
   }
 
-  renderHashInfo(hash: JHash): SafeHtml {
+  renderHashInfo(hash: any): SafeHtml {
     let htmlContent = '';
-    if (hash.id !== undefined) {
+    if (hash.isCracked !== 3) {
       htmlContent = `
           ${hash.isCracked ? 'Cracked' : 'Uncracked'} on ${formatUnixTimestamp(
             hash.timeCracked,
@@ -139,10 +137,11 @@ export class SearchHashTableComponent
           <br>
           Hashlist:
           <a
-            href="#/hashlists/hashlist/${
+            [routerLink]="['/hashlists/hashes/', 'hashlists', ${
               hash.hashlistId
-            }/edit"
-          >${hash.hashlist.name}</a>
+            }]"
+            [queryParams]="{ filter: 'cracked' }"
+          >${hash.hashlistId}</a>
         `;
     } else {
       htmlContent = 'Not Found';

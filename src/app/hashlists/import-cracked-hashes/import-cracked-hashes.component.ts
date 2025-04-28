@@ -1,24 +1,18 @@
+import { StaticArrayPipe } from 'src/app/core/_pipes/static-array.pipe';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from '../../../environments/environment';
+import { SERV } from '../../core/_services/main.config';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { handleEncode } from 'src/app/shared/utils/forms';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { OnDestroy } from '@angular/core';
-
-import { ResponseWrapper } from '@models/response.model';
-import { JHashlist } from '@models/hashlist.model';
-
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { handleEncode } from '@src/app/shared/utils/forms';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-
-import {
-  ImportCrackedHashesForm,
-  getImportCrackedHashesForm
-} from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.form';
+import { UnsavedChangesService } from 'src/app/core/_services/shared/unsaved-changes.service';
+import { ACCESS_GROUP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 
 /**
  * Component for import pre cracked hashes
@@ -35,7 +29,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Form group for the new File. */
-  form: FormGroup<ImportCrackedHashesForm>;
+  form: FormGroup;
 
   // Edit variables
   editedHashlistIndex: number;
@@ -62,8 +56,8 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router
   ) {
+    this.getInitialization();
     this.buildForm();
-
     titleService.set(['Import Cracked Hashes']);
   }
 
@@ -80,9 +74,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
-    this.getInitialization();
-  }
+  ngOnInit(): void {}
 
   /**
    * Lifecycle hook called before the component is destroyed.
@@ -96,7 +88,14 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
    * Builds the form for creating a new Hashlist.
    */
   buildForm(): void {
-    this.form = getImportCrackedHashesForm();
+    this.form = new FormGroup({
+      name: new FormControl({ value: '', disabled: true }),
+      format: new FormControl({ value: '', disabled: true }),
+      isSalted: new FormControl({ value: '', disabled: true }),
+      hashCount: new FormControl({ value: '', disabled: true }),
+      separator: new FormControl(''),
+      hashes: new FormControl('')
+    });
   }
 
   /**
@@ -112,12 +111,17 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         separator: this.form.get('separator').value,
         sourceData: handleEncode(this.form.get('hashes').value)
       };
-      const createSubscription$ = this.gs.chelper(SERV.HELPER, 'importCrackedHashes', payload).subscribe(() => {
-        this.alert.okAlert('Imported Cracked Hashes!', '');
-        this.isCreatingLoading = false;
-        const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
-        this.router.navigate([path]);
-      });
+      const createSubscription$ = this.gs
+        .chelper(SERV.HELPER, 'importCrackedHashes', payload)
+        .subscribe(() => {
+          this.alert.okAlert('Imported Cracked Hashes!', '');
+          this.isCreatingLoading = false;
+          const path =
+            this.type === 3
+              ? '/hashlists/superhashlist'
+              : '/hashlists/hashlist';
+          this.router.navigate([path]);
+        });
       this.isCreatingLoading = false;
       this.unsubscribeService.add(createSubscription$);
     }
@@ -130,25 +134,32 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   private formValues() {
     const updateSubscription$ = this.gs
       .get(SERV.HASHLISTS, this.editedHashlistIndex, {
-        include: ['tasks,hashlists,hashType']
+        expand: 'tasks,hashlists,hashType'
       })
-      .subscribe((response: ResponseWrapper) => {
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
+      .subscribe((result) => {
+        this.type = result['format'];
+        this.hashtype = result['hashType'];
+        console.log(result);
+        this.form = new FormGroup({
+          name: new FormControl({
+            value: result['name'],
+            disabled: true
+          }),
+          format: new FormControl({
+            value: this.format.transform(result['format'], 'formats'),
+            disabled: true
+          }),
+          isSalted: new FormControl({
+            value: result['isSalted'] ? 'Yes' : 'No',
+            disabled: true
+          }),
+          hashCount: new FormControl({
+            value: result['hashCount'],
+            disabled: true
+          }),
+          separator: new FormControl(result['separator'] || ':'),
+          hashes: new FormControl('')
         });
-        this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
-
-        this.form.setValue({
-          name: hashlist.name,
-          format: this.format.transform(hashlist.format, 'formats'),
-          isSalted: hashlist.isSalted,
-          hashCount: hashlist.hashCount,
-          separator: hashlist.separator || ':',
-          hashes: ''
-        });
-
         this.isLoading = false; // Set isLoading to false after data is loaded
       });
     this.unsubscribeService.add(updateSubscription$);

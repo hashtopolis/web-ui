@@ -1,18 +1,18 @@
-import { Subscription } from 'rxjs';
-
+import {
+  ACTIONARRAY,
+  NOTIFARRAY
+} from '../../../core/_constants/notifications.config';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
-import { Filter } from '@models/request-params.model';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
-import { JNotification } from '@models/notification.model';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { Filter } from '../notifications.component';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { Notification } from 'src/app/core/_models/notification.model';
+import { SERV } from '../../../core/_services/main.config';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-notification',
@@ -31,10 +31,10 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
   filters: Filter[];
   active = true;
   allowedActions = ACTIONARRAY.map((action) => ({
-    id: action,
+    _id: action,
     name: action
   }));
-  notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
+  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
   oldValue: boolean;
   subTitle = EditNotificationComponent.SUBTITLE;
   submitLabel = EditNotificationComponent.SUBMITLABEL;
@@ -85,7 +85,10 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    * @returns {boolean} True if there is a change in the 'isActive' value; otherwise, false.
    */
   formIsValid(): boolean {
-    return Boolean(this.oldValue).valueOf() !== Boolean(this.form.value.isActive).valueOf();
+    return (
+      Boolean(this.oldValue).valueOf() !==
+      Boolean(this.form.value.isActive).valueOf()
+    );
   }
 
   /**
@@ -94,30 +97,28 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
    */
   private createForm(): void {
     this.subscriptions.push(
-      this.gs.get(SERV.NOTIFICATIONS, this.editedIndex).subscribe((response: ResponseWrapper) => {
-        const notification = new JsonAPISerializer().deserialize<JNotification>({
-          data: response.data,
-          included: response.included
-        });
-        const isActive = notification.isActive;
-        this.oldValue = isActive;
-        this.form = new FormGroup({
-          action: new FormControl({ value: notification.action, disabled: true }),
-          actionFilter: new FormControl({
-            value: notification.objectId + '',
-            disabled: true
-          }),
-          notification: new FormControl({
-            value: notification.notification,
-            disabled: true
-          }),
-          receiver: new FormControl({
-            value: notification.receiver,
-            disabled: true
-          }),
-          isActive: new FormControl(isActive)
-        });
-      })
+      this.gs
+        .get(SERV.NOTIFICATIONS, this.editedIndex)
+        .subscribe((result: Notification) => {
+          const isActive = result.isActive;
+          this.oldValue = isActive;
+          this.form = new FormGroup({
+            action: new FormControl({ value: result.action, disabled: true }),
+            actionFilter: new FormControl({
+              value: result.objectId + '',
+              disabled: true
+            }),
+            notification: new FormControl({
+              value: result.notification,
+              disabled: true
+            }),
+            receiver: new FormControl({
+              value: result.receiver,
+              disabled: true
+            }),
+            isActive: new FormControl(isActive)
+          });
+        })
     );
   }
 
@@ -130,11 +131,9 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs
-          .update(
-            SERV.NOTIFICATIONS,
-            this.editedIndex,
-            { isActive: this.form.value['isActive'] },
-          )
+          .update(SERV.NOTIFICATIONS, this.editedIndex, {
+            isActive: this.form.value['isActive']
+          })
           .subscribe(() => {
             this.alert.okAlert('Notification saved!', '');
             this.isCreatingLoading = false;

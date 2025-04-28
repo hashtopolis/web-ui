@@ -3,18 +3,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { ACTION, ACTIONARRAY, NOTIFARRAY } from '../../../core/_constants/notifications.config';
+import {
+  ACTION,
+  ACTIONARRAY,
+  NOTIFARRAY
+} from '../../../core/_constants/notifications.config';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { environment } from '../../../../environments/environment';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
 import { Filter } from '../notifications.component';
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { BaseModel } from '@models/base.model';
-import { JAgent } from '@models/agent.model';
-import { JTask } from '@models/task.model';
-import { JHashlist } from '@models/hashlist.model';
 
 @Component({
   selector: 'app-new-notification',
@@ -33,11 +32,11 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   editView = false;
   active = false;
   allowedActions = ACTIONARRAY.map((action) => ({
-    id: action,
+    _id: action,
     name: action
   }));
   maxResults: string | number;
-  notifications = NOTIFARRAY.map((notif) => ({ id: notif, name: notif }));
+  notifications = NOTIFARRAY.map((notif) => ({ _id: notif, name: notif }));
   subscriptions: Subscription[] = [];
   submitLabel = NewNotificationComponent.SUBMITLABEL;
   subTitle = NewNotificationComponent.SUBTITLE;
@@ -116,32 +115,25 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.active = true;
 
       this.subscriptions.push(
-        this.gs.getAll(path).subscribe((response: ResponseWrapper) => {
-          const resource = new JsonAPISerializer().deserialize<BaseModel[]>({
-            data: response.data,
-            included: response.included
-          });
+        this.gs.getAll(path).subscribe((res: any) => {
           const _filters: Filter[] = [];
-          for (let i = 0; i < resource.length; i++) {
+          for (let i = 0; i < res.values.length; i++) {
             if (path === SERV.AGENTS) {
-              const agent = resource[i] as JAgent;
               _filters.push({
-                id: agent.id,
-                name: agent.agentName
+                _id: res.values[i]['_id'],
+                name: res.values[i]['agentName']
               });
             }
             if (path === SERV.TASKS) {
-              const task = resource[i] as JTask;
               _filters.push({
-                id: task.id,
-                name: task.taskName
+                _id: res.values[i]['_id'],
+                name: res.values[i]['taskName']
               });
             }
             if (path === SERV.USERS || path === SERV.HASHLISTS) {
-              const hashlist = resource[i] as JHashlist;
               _filters.push({
-                id: hashlist.id,
-                name: hashlist.name
+                _id: res.values[i]['_id'],
+                name: res.values[i]['name']
               });
             }
           }

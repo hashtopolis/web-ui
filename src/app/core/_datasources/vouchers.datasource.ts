@@ -1,18 +1,28 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { Voucher } from '@src/app/core/_models/voucher.model';
-
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
-
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+import { BaseDataSource } from './base.datasource';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
+import { SERV } from '../_services/main.config';
+import { Voucher } from '../_models/voucher.model';
 
 export class VouchersDataSource extends BaseDataSource<Voucher> {
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
+
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const vouchers$ = this.service.getAll(SERV.VOUCHER, params);
 
     this.subscriptions.push(
@@ -21,13 +31,14 @@ export class VouchersDataSource extends BaseDataSource<Voucher> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const vouchers: Voucher[] = new JsonAPISerializer().deserialize({
-            data: response.data,
-            included: response.included
-          });
+        .subscribe((response: ListResponseWrapper<Voucher>) => {
+          const vouchers: Voucher[] = response.values;
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, vouchers.length);
+          this.setPaginationConfig(
+            this.pageSize,
+            this.currentPage,
+            response.total
+          );
           this.setData(vouchers);
         })
     );

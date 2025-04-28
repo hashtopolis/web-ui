@@ -1,25 +1,32 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  HTTableColumn,
+  HTTableIcon,
+  HTTableRouterLink
+} from '../ht-table/ht-table.models';
+import {
+  HashesTableCol,
+  HashesTableColColumnLabel
+} from './hashes-table.constants';
 
-import { JHash } from '@models/hash.model';
-import { JHashlist } from '@models/hashlist.model';
-
-import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-
-import { HashesDataSource } from '@datasources/hashes.datasource';
-
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '../base-table/base-table.component';
+import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
+import { Hashlist } from 'src/app/core/_models/hashlist.model';
+import { HashesDataSource } from 'src/app/core/_datasources/hashes.datasource';
+import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
+import { Hash } from 'src/app/core/_models/hash.model';
+import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
   selector: 'hashes-table',
   templateUrl: './hashes-table.component.html'
 })
-export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HashesTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy
+{
   @Input() id: number;
   @Input() dataType: string;
 
@@ -44,65 +51,69 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
     }
   }
 
-  /**
-   * Filter Hash
-   * @param item
-   * @param filterValue
-   * @returns true:   Hash contains filterValue
-   *          false:  else
-   */
-  filter(item: JHash, filterValue: string): boolean {
-    return item.hash.toLowerCase().includes(filterValue) || item.isCracked.toString().includes(filterValue);
+  filter(item: Hash, filterValue: string): boolean {
+    if (
+      item.hash.toLowerCase().includes(filterValue) ||
+      item.isCracked.toString().includes(filterValue)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   getColumns(): HTTableColumn[] {
-    return [
+    const tableColumns = [
       {
         id: HashesTableCol.HASHES,
         dataKey: 'hash',
         isSortable: true,
-        export: async (hash: JHash) => hash.hash + ''
+        export: async (hash: Hash) => hash.hash + ''
       },
       {
         id: HashesTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        export: async (hash: JHash) => hash.plaintext + ''
+        export: async (hash: Hash) => hash.plaintext + ''
       },
       {
         id: HashesTableCol.SALT,
         dataKey: 'salt',
         isSortable: true,
-        export: async (hash: JHash) => hash.salt + ''
+        export: async (hash: Hash) => hash.salt + ''
       },
       {
         id: HashesTableCol.CRACK_POSITION,
         dataKey: 'crackPos',
         isSortable: true,
-        export: async (hash: JHash) => hash.crackPos + ''
+        export: async (hash: Hash) => hash.crackPos + ''
       },
       {
         id: HashesTableCol.ISCRACKED,
         dataKey: 'isCracked',
         isSortable: true,
-        export: async (hash: JHash) => hash.isCracked + ''
+        export: async (hash: Hash) => hash.isCracked + ''
       },
       {
         id: HashesTableCol.TIMECRACKED,
         dataKey: 'timeCracked',
         isSortable: true,
-        render: (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateFormat),
-        export: async (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateFormat) + ''
+        render: (hash: Hash) =>
+          formatUnixTimestamp(hash.timeCracked, this.dateFormat),
+        export: async (hash: Hash) =>
+          formatUnixTimestamp(hash.timeCracked, this.dateFormat) + ''
       }
     ];
+
+    return tableColumns;
   }
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Hash[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>(
+        this.exportService.toExcel<Hash>(
           'hashtopolis-hashlists',
           this.tableColumns,
           event.data,
@@ -110,7 +121,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>(
+        this.exportService.toCsv<Hash>(
           'hashtopolis-hashlists',
           this.tableColumns,
           event.data,
@@ -118,14 +129,23 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         );
         break;
       case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, HashesTableColColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
+        this.exportService
+          .toClipboard<Hash>(
+            this.tableColumns,
+            event.data,
+            HashesTableColColumnLabel
+          )
+          .then(() => {
+            this.snackBar.open(
+              'The selected rows are copied to the clipboard',
+              'Close'
+            );
+          });
         break;
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
+  rowActionClicked(event: ActionMenuEvent<Hashlist>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         // this.rowActionEdit(event.data);

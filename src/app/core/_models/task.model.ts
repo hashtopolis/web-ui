@@ -1,43 +1,53 @@
-import { JFile } from '@models/file.model';
-import { SpeedStat } from '@models/speed-stat.model';
-import { JAgent } from '@models/agent.model';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { JHashlist } from '@models/hashlist.model';
-import { BaseModel } from '@models/base.model';
+// import { Hashlist } from "./hashlist"
+
+import { CrackerBinary, CrackerBinaryType } from './cracker-binary.model';
+
+import { Agent } from './agent.model';
+import { Hashlist } from './hashlist.model';
 
 /**
- * Interface definition for a cracking task
+ * @deprecated This interface is deprecated and should not be used.
+ * Use the Task interface instead.
  */
-export interface JTask extends BaseModel {
-  taskName: string;
-  attackCmd: string;
-  chunkTime: number;
-  statusTimer: number;
-  keyspace: number;
-  keyspaceProgress: number;
-  files?: JFile[];
+export interface NormalTask {
+  id: number;
+  name: string;
   priority: number;
   maxAgents: number;
-  color: null | string;
-  isSmall: boolean;
-  isCpuTask: boolean;
-  useNewBench: boolean;
-  skipKeyspace: number;
+
+  hashlistId: number;
+  // hashlist: Hashlist
+}
+
+export interface Task {
+  _id: number;
+  _self: string;
+  attackCmd: string;
+  chunkSize: number;
+  chunkTime: number;
+  color?: string;
   crackerBinaryId: number;
   crackerBinaryTypeId: number;
-  crackerBinary: JCrackerBinary;
-  crackerBinaryType: JCrackerBinaryType;
-  hashlist?: JHashlist;
-  assignedAgents?: JAgent[];
-  taskWrapperId: number;
-  isArchived: boolean;
-  notes: string;
-  staticChunks: number;
-  chunkSize: number;
   forcePipe: boolean;
+  isArchived: boolean;
+  isCpuTask: boolean;
+  isSmall: boolean;
+  keyspace: number;
+  keyspaceProgress: number;
+  notes: string;
+  preprocessorCommand: number;
   preprocessorId: number;
-  preprocessorCommand: string;
-  dispatched: string;
-  searched: string;
-  speeds: SpeedStat[];
+  skipKeyspace: number;
+  staticChunks: number;
+  statusTimer: number;
+  taskId: number;
+  taskName: string;
+  taskWrapperId: number;
+  taskWrapperName?: string;
+  useNewBench: boolean;
+  assignedAgents?: Agent[];
+  crackerBinary?: CrackerBinary;
+  crackerBinaryType?: CrackerBinaryType;
+  hashlist?: Hashlist[];
+  taskType?: number;
 }

@@ -2,14 +2,12 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
 import { HashListFormat } from '../_constants/hashlist.config';
-import { JHashlist } from '../_models/hashlist.model';
-import { ResponseWrapper } from '../_models/response.model';
-import { FilterType } from '../_models/request-params.model';
+import { Hashlist } from '../_models/hashlist.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class HashlistsDataSource extends BaseDataSource<JHashlist> {
+export class HashlistsDataSource extends BaseDataSource<Hashlist> {
   private isArchived = false;
   private _shashlistId = 0;
 
@@ -24,16 +22,28 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   loadAll(): void {
     this.loading = true;
 
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt,
+      expand: 'hashType,accessGroup',
+      filter: `isArchived=${this.isArchived}`
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     let hashLists$;
+
     if (this._shashlistId) {
-      const params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType').create();
-      hashLists$ = this.service.get(SERV.HASHLISTS, this._shashlistId, params);
+      hashLists$ = this.service.get(SERV.HASHLISTS, this._shashlistId, {
+        expand: 'hashlists,hashType'
+      });
     } else {
-      const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').addInclude('accessGroup').addFilter({
-        field: 'isArchived',
-        operator: FilterType.EQUAL,
-        value: this.isArchived
-      }).create();
       hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
     }
 
@@ -43,20 +53,17 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const serializer = new JsonAPISerializer();
-          const responseData = { data: response.data, included: response.included };
-          const hashlists = serializer.deserialize<JHashlist[]>(responseData);
-
-          let rows: JHashlist[] = [];
+        .subscribe((response: ListResponseWrapper<Hashlist>) => {
+          let rows: Hashlist[] = [];
           if (this._shashlistId) {
             rows = response['hashlists'];
           } else {
-            hashlists.forEach((value) => {
+            response.values.forEach((value: Hashlist) => {
               if (value.format !== HashListFormat.SUPERHASHLIST) {
                 const hashlist = value;
+
                 hashlist.hashTypeDescription = hashlist.hashType.description;
-                hashlist.hashTypeId = hashlist.hashType.id;
+
                 rows.push(hashlist);
               }
             });
@@ -65,7 +72,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            hashlists.length // TODO: This is incorrect because we exclude superhashlists
+            response.total // TODO: This is incorrect because we exclude superhashlists
           );
           this.setData(rows);
         })

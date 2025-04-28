@@ -1,14 +1,20 @@
-import { BaseModel } from '@src/app/core/_models/base.model';
+export interface NotificationListResponse {
+  _expandable: string;
+  startAt: number;
+  maxResults: number;
+  total: number;
+  isLast: boolean;
+  values: Notification[];
+}
 
-/**
- * Interface definition for user notification
- * @extends BaseModel
- */
-export interface JNotification extends BaseModel {
+export interface Notification {
+  _id: number;
+  _self: string;
   action: string;
   isActive: boolean;
   notification: string;
   receiver: string;
   userId: number;
+  notificationSettingId?: number;
   objectId?: number;
 }

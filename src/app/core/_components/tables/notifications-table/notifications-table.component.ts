@@ -1,42 +1,44 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { catchError, forkJoin } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JNotification } from '@models/notification.model';
-
+import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
 import {
   NotificationsTableCol,
   NotificationsTableColumnLabel
-} from '@components/tables/notifications-table/notifications-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+} from './notifications-table.constants';
+import { catchError, forkJoin } from 'rxjs';
 
-import { SERV } from '@services/main.config';
-
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
-import { ACTION } from '@src/app/core/_constants/notifications.config';
-
-import { NotificationsDataSource } from '@datasources/notifications.datasource';
+import { ACTION } from 'src/app/core/_constants/notifications.config';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '../base-table/base-table.component';
+import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
+import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { DialogData } from '../table-dialog/table-dialog.model';
+import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
+import { Notification } from 'src/app/core/_models/notification.model';
+import { NotificationsDataSource } from 'src/app/core/_datasources/notifications.datasource';
+import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
+import { SERV } from 'src/app/core/_services/main.config';
+import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 
 @Component({
   selector: 'notifications-table',
   templateUrl: './notifications-table.component.html'
 })
-export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class NotificationsTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy
+{
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
 
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new NotificationsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new NotificationsDataSource(
+      this.cdr,
+      this.gs,
+      this.uiService
+    );
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -47,7 +49,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     }
   }
 
-  filter(item: JNotification, filterValue: string): boolean {
+  filter(item: Notification, filterValue: string): boolean {
     if (item.notification.toLowerCase().includes(filterValue)) {
       return true;
     }
@@ -56,53 +58,55 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   }
 
   getColumns(): HTTableColumn[] {
-    return [
+    const tableColumns = [
       {
         id: NotificationsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        export: async (notification: JNotification) => notification.id + ''
+        export: async (notification: Notification) => notification._id + ''
       },
       {
         id: NotificationsTableCol.STATUS,
         dataKey: 'isActive',
-        render: (notification: JNotification) => (notification.isActive ? 'Active' : 'Inactive'),
-        icons: (notification: JNotification) => this.renderStatusIcon(notification),
+        render: (notification: Notification) =>
+          notification.isActive ? 'Active' : 'Inactive',
+        icons: (notification: Notification) =>
+          this.renderStatusIcon(notification),
         isSortable: true,
-        export: async (notification: JNotification) => notification.isActive + ''
+        export: async (notification: Notification) => notification.isActive + ''
       },
       {
         id: NotificationsTableCol.ACTION,
         dataKey: 'action',
         isSortable: true,
-        render: (notification: JNotification) => notification.action,
-        export: async (notification: JNotification) => notification.action
+        export: async (notification: Notification) => notification.action
       },
       {
         id: NotificationsTableCol.APPLIED_TO,
         dataKey: 'appliedTo',
-        routerLink: (notification: JNotification) => this.renderAppliedToLink(notification),
+        routerLink: (notification: Notification) =>
+          this.renderAppliedToLink(notification),
         isSortable: true,
-        export: async (notification: JNotification) => notification.action
+        export: async (notification: Notification) => notification.action
       },
       {
         id: NotificationsTableCol.NOTIFICATION,
         dataKey: 'notification',
         isSortable: true,
-        render: (notification: JNotification) => notification.notification,
-        export: async (notification: JNotification) => notification.notification
+        export: async (notification: Notification) => notification.notification
       },
       {
         id: NotificationsTableCol.RECEIVER,
         dataKey: 'receiver',
         isSortable: true,
-        render: (notification: JNotification) => notification.receiver,
-        export: async (notification: JNotification) => notification.receiver
+        export: async (notification: Notification) => notification.receiver
       }
     ];
+
+    return tableColumns;
   }
 
-  openDialog(data: DialogData<JNotification>) {
+  openDialog(data: DialogData<Notification>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -132,10 +136,10 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JNotification[]>): void {
+  exportActionClicked(event: ActionMenuEvent<Notification[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JNotification>(
+        this.exportService.toExcel<Notification>(
           'hashtopolis-notifications',
           this.tableColumns,
           event.data,
@@ -143,7 +147,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JNotification>(
+        this.exportService.toCsv<Notification>(
           'hashtopolis-notifications',
           this.tableColumns,
           event.data,
@@ -152,20 +156,27 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JNotification>(this.tableColumns, event.data, NotificationsTableColumnLabel)
+          .toClipboard<Notification>(
+            this.tableColumns,
+            event.data,
+            NotificationsTableColumnLabel
+          )
           .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+            this.snackBar.open(
+              'The selected rows are copied to the clipboard',
+              'Close'
+            );
           });
         break;
     }
   }
 
-  rowActionClicked(event: ActionMenuEvent<JNotification>): void {
+  rowActionClicked(event: ActionMenuEvent<Notification>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `Deleting notification ${event.data.action} (${event.data.id}) ...`,
+          title: `Deleting notification ${event.data.action} (${event.data._id}) ...`,
           icon: 'warning',
           body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
           warn: true,
@@ -184,7 +195,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<JNotification[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<Notification[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -221,9 +232,9 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(notifications: JNotification[]): void {
-    const requests = notifications.map((notification: JNotification) => {
-      return this.gs.delete(SERV.NOTIFICATIONS, notification.id);
+  private bulkActionDelete(notifications: Notification[]): void {
+    const requests = notifications.map((notification: Notification) => {
+      return this.gs.delete(SERV.NOTIFICATIONS, notification._id);
     });
 
     this.subscriptions.push(
@@ -235,7 +246,10 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} notifications!`, 'Close');
+          this.snackBar.open(
+            `Successfully deleted ${results.length} notifications!`,
+            'Close'
+          );
           this.reload();
         })
     );
@@ -244,9 +258,12 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   /**
    * @todo Implement error handling.
    */
-  private bulkActionActivate(notifications: JNotification[], isActive: boolean): void {
-    const requests = notifications.map((notification: JNotification) => {
-      return this.gs.update(SERV.NOTIFICATIONS, notification.id, {
+  private bulkActionActivate(
+    notifications: Notification[],
+    isActive: boolean
+  ): void {
+    const requests = notifications.map((notification: Notification) => {
+      return this.gs.update(SERV.NOTIFICATIONS, notification._id, {
         isActive: isActive
       });
     });
@@ -262,7 +279,10 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} notifications!`, 'Close');
+          this.snackBar.open(
+            `Successfully ${action} ${results.length} notifications!`,
+            'Close'
+          );
           this.dataSource.reload();
         })
     );
@@ -271,10 +291,10 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(notifications: JNotification[]): void {
+  private rowActionDelete(notifications: Notification[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.NOTIFICATIONS, notifications[0].id)
+        .delete(SERV.NOTIFICATIONS, notifications[0]._id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -288,12 +308,19 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     );
   }
 
-  private rowActionEdit(notification: JNotification): void {
-    this.router.navigate(['/account', 'notifications', notification.id, 'edit']);
+  private rowActionEdit(notification: Notification): void {
+    this.router.navigate([
+      '/account',
+      'notifications',
+      notification._id,
+      'edit'
+    ]);
   }
 
-  @Cacheable(['id', 'actions', 'objectId'])
-  async renderAppliedToLink(notification: JNotification): Promise<HTTableRouterLink[]> {
+  @Cacheable(['_id', 'actions', 'objectId'])
+  async renderAppliedToLink(
+    notification: Notification
+  ): Promise<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
     switch (notification.action) {

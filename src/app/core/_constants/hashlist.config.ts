@@ -13,18 +13,18 @@ export const HashListFormatLabel = {
 };
 
 export const hashlistFormat = [
-  { id: 0, name: 'Text' },
-  { id: 1, name: 'HCCAPX / PMKID' },
-  { id: 2, name: 'Binary file (single hash)' }
+  { _id: 0, name: 'Text' },
+  { _id: 1, name: 'HCCAPX / PMKID' },
+  { _id: 2, name: 'Binary file (single hash)' }
 ];
 
 export const hashcatbrainFormat = [
-  { id: 1, name: 'Send hashed passwords' },
-  { id: 2, name: 'Send attack positions' },
-  { id: 3, name: 'Send hashed passwords and attack positions' }
+  { _id: 1, name: 'Send hashed passwords' },
+  { _id: 2, name: 'Send attack positions' },
+  { _id: 3, name: 'Send hashed passwords and attack positions' }
 ];
 
 export const hashSource = [
-  { id: 'paste', name: 'Expand Text Area' },
-  { id: 'import', name: 'Upload Input' }
+  { _id: 'paste', name: 'Expand Text Area' },
+  { _id: 'import', name: 'Upload Input' }
 ];

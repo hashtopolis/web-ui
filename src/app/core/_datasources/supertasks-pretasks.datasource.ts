@@ -1,16 +1,15 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { JPretask } from '@models/pretask.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JSuperTask } from '@models/supertask.model';
+import { BaseDataSource } from './base.datasource';
+import { ListResponseWrapper } from '../_models/response.model';
+import { MatTableDataSourcePaginator } from '@angular/material/table';
+import { SERV } from '../_services/main.config';
+import { SuperTask } from '../_models/supertask.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
-import { BaseDataSource } from '@datasources/base.datasource';
-
-export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
+export class SuperTasksPretasksDataSource extends BaseDataSource<
+  SuperTask,
+  MatTableDataSourcePaginator
+> {
   private _supertTaskId = 0;
 
   setSuperTaskId(supertTaskId: number) {
@@ -19,8 +18,16 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
 
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInclude('pretasks').create();
-    const pretasks$ = this.service.get(SERV.SUPER_TASKS, this._supertTaskId, params);
+
+    const params = {
+      expand: 'pretasks'
+    };
+
+    const pretasks$ = this.service.get(
+      SERV.SUPER_TASKS,
+      this._supertTaskId,
+      params
+    );
 
     this.subscriptions.push(
       pretasks$
@@ -28,17 +35,14 @@ export class SuperTasksPretasksDataSource extends BaseDataSource<JPretask> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
-          const pretasks = new JsonAPISerializer().deserialize<JSuperTask>({
-            data: response.data,
-            included: response.included
-          }).pretasks;
+        .subscribe((response: ListResponseWrapper<SuperTask>) => {
+          const pretasks: SuperTask[] = response['pretasks'];
           this.setData(pretasks);
         })
     );
   }
 
-  getData(): JPretask[] {
+  getData(): SuperTask[] {
     return this.getOriginalData();
   }
 

@@ -1,29 +1,25 @@
-import { Subject } from 'rxjs';
-
-import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
-
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { StaticArrayPipe } from 'src/app/core/_pipes/static-array.pipe';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FormControl, FormGroup } from '@angular/forms';
 import { DataTableDirective } from 'angular-datatables';
+import { Observable, Subject } from 'rxjs';
 
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
-import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
-
-import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
-import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { JAccessGroup } from '@models/access-group.model';
-import { JHashlist } from '@models/hashlist.model';
-import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
-import { JHashtype } from '@models/hashtype.model';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { environment } from './../../../environments/environment';
+import { SERV } from '../../core/_services/main.config';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { transformSelectOptions } from 'src/app/shared/utils/forms';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import {
+  CanComponentDeactivate,
+  PendingChangesGuard
+} from 'src/app/core/_guards/pendingchanges.guard';
+import { OnDestroy } from '@angular/core';
+import { UnsavedChangesService } from 'src/app/core/_services/shared/unsaved-changes.service';
+import { ACCESS_GROUP_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
@@ -32,7 +28,9 @@ import { JHashtype } from '@models/hashtype.model';
   selector: 'app-edit-hashlist',
   templateUrl: './edit-hashlist.component.html'
 })
-export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDeactivate {
+export class EditHashlistComponent
+  implements OnInit, OnDestroy, CanComponentDeactivate
+{
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -42,8 +40,9 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   // Edit variables
   editedHashlistIndex: number;
   editedHashlist: any; // Change to Model
-  hashtype: JHashtype;
+  hashtype: any;
   type: any; // Hashlist or SuperHashlist
+  hashlist: any;
 
   // Lists of Selected inputs
   selectAccessgroup: any[];
@@ -115,7 +114,21 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Builds the form for creating a new Hashlist.
    */
   buildForm(): void {
-    this.updateForm = getEditHashlistForm();
+    this.updateForm = new FormGroup({
+      hashlistId: new FormControl({ value: '', disabled: true }),
+      hashTypeId: new FormControl({ value: '', disabled: true }),
+      useBrain: new FormControl({ value: '', disabled: true }),
+      format: new FormControl({ value: '', disabled: true }),
+      hashCount: new FormControl({ value: '', disabled: true }),
+      cracked: new FormControl({ value: '', disabled: true }),
+      remaining: new FormControl({ value: '', disabled: true }),
+      updateData: new FormGroup({
+        name: new FormControl(''),
+        notes: new FormControl(''),
+        isSecret: new FormControl(''),
+        accessGroupId: new FormControl('')
+      })
+    });
   }
 
   /**
@@ -125,15 +138,17 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     const fieldAccess = {
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     };
-    const accedgroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
-      const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
-        data: response.data,
-        included: response.included
+    const accedgroupSubscription$ = this.gs
+      .getAll(SERV.ACCESS_GROUPS)
+      .subscribe((response: any) => {
+        const transformedOptions = transformSelectOptions(
+          response.values,
+          fieldAccess
+        );
+        this.selectAccessgroup = transformedOptions;
+        this.isLoading = false;
+        this.changeDetectorRef.detectChanges();
       });
-      this.selectAccessgroup = transformSelectOptions(accessGroups, fieldAccess);
-      this.isLoading = false;
-      this.changeDetectorRef.detectChanges();
-    });
     this.unsubscribeService.add(accedgroupSubscription$);
   }
 
@@ -145,11 +160,18 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   onSubmit() {
     if (this.updateForm.valid) {
       const createSubscription$ = this.gs
-        .update(SERV.HASHLISTS, this.editedHashlistIndex, this.updateForm.value['updateData'])
+        .update(
+          SERV.HASHLISTS,
+          this.editedHashlistIndex,
+          this.updateForm.value['updateData']
+        )
         .subscribe(() => {
           this.alert.okAlert('Hashlist saved!', '');
           this.updateForm.reset(); // success, we reset form
-          const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
+          const path =
+            this.type === 3
+              ? '/hashlists/superhashlist'
+              : '/hashlists/hashlist';
           this.router.navigate([path]);
         });
       this.unsubscribeService.add(createSubscription$);
@@ -164,30 +186,48 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   private updateFormValues() {
     const updateSubscription$ = this.gs
       .get(SERV.HASHLISTS, this.editedHashlistIndex, {
-        include: ['tasks,hashlists,hashType']
+        expand: 'tasks,hashlists,hashType'
       })
-      .subscribe((response: ResponseWrapper) => {
-        const hashlist = new JsonAPISerializer().deserialize<JHashlist>({
-          data: response.data,
-          included: response.included
-        });
-        this.editedHashlist = hashlist;
-        this.type = hashlist.format;
-        this.hashtype = hashlist.hashType;
-        this.updateForm.setValue({
-          hashlistId: hashlist.id,
-          accessGroupId: hashlist.accessGroupId,
-          useBrain: hashlist.useBrain,
-          format: this.format.transform(hashlist.format, 'formats'),
-          hashCount: hashlist.hashCount,
-          cracked: hashlist.cracked,
-          remaining: hashlist.hashCount - hashlist.cracked,
-          updateData: {
-            name: hashlist.name,
-            notes: hashlist.notes,
-            isSecret: hashlist.isSecret,
-            accessGroupId: hashlist.accessGroupId
-          }
+      .subscribe((result) => {
+        this.editedHashlist = result;
+        this.type = result['format'];
+        this.hashtype = result['hashType'];
+        this.hashlist = result['hashlists'];
+        this.updateForm = new FormGroup({
+          hashlistId: new FormControl({
+            value: result['hashlistId'],
+            disabled: true
+          }),
+          accessGroupId: new FormControl({
+            value: result['accessGroupId'],
+            disabled: true
+          }),
+          useBrain: new FormControl({
+            value: result['useBrain'] == true ? 'Yes' : 'No',
+            disabled: true
+          }),
+          format: new FormControl({
+            value: this.format.transform(result['format'], 'formats'),
+            disabled: true
+          }),
+          hashCount: new FormControl({
+            value: result['hashCount'],
+            disabled: true
+          }),
+          cracked: new FormControl({
+            value: result['cracked'],
+            disabled: true
+          }),
+          remaining: new FormControl({
+            value: result['hashCount'] - result['cracked'],
+            disabled: true
+          }),
+          updateData: new FormGroup({
+            name: new FormControl(result['name']),
+            notes: new FormControl(result['notes']),
+            isSecret: new FormControl(result['isSecret']),
+            accessGroupId: new FormControl(result['accessGroupId'])
+          })
         });
       });
     this.unsubscribeService.add(updateSubscription$);
@@ -196,14 +236,20 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   // Actions; Import Cracked Hashes, Export left Hashes and Generate Wordlist
 
   importCrackedHashes() {
-    this.router.navigate(['/hashlists/hashlist/' + this.editedHashlistIndex + '/import-cracked-hashes']);
+    this.router.navigate([
+      '/hashlists/hashlist/' +
+        this.editedHashlistIndex +
+        '/import-cracked-hashes'
+    ]);
   }
 
   exportLeftHashes() {
     const payload = { hashlistId: this.editedHashlistIndex };
-    const helperExportedLeftSubscription$ = this.gs.chelper(SERV.HELPER, 'exportLeftHashes', payload).subscribe(() => {
-      this.alert.okAlert('Exported Left Hashes!', '');
-    });
+    const helperExportedLeftSubscription$ = this.gs
+      .chelper(SERV.HELPER, 'exportLeftHashes', payload)
+      .subscribe(() => {
+        this.alert.okAlert('Exported Left Hashes!', '');
+      });
 
     this.unsubscribeService.add(helperExportedLeftSubscription$);
   }
@@ -251,9 +297,10 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         ...preCommand,
         ul: [
           {
-            text: `Keyspace: ${item.keyspace} (Progress: ${((item.keyspaceProgress / item.keyspace) * 100).toFixed(
-              2
-            )}%)`,
+            text: `Keyspace: ${item.keyspace} (Progress: ${(
+              (item.keyspaceProgress / item.keyspace) *
+              100
+            ).toFixed(2)}%)`,
             margin: [0, 0, 0, 5]
           },
           {
@@ -269,7 +316,14 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       {
         title: 'Input Fields',
         table: {
-          tableColumns: ['Name', 'Notes', 'Hash Mode', 'Hash Count', 'Retrieved', 'Total Keyspace explored'],
+          tableColumns: [
+            'Name',
+            'Notes',
+            'Hash Mode',
+            'Hash Count',
+            'Retrieved',
+            'Total Keyspace explored'
+          ],
           tableValues: [
             this.editedHashlist.name,
             this.editedHashlist.notes,

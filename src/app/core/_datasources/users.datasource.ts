@@ -1,15 +1,29 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
+import { ListResponseWrapper } from '../_models/response.model';
+import { RequestParams } from '../_models/request-params.model';
 import { SERV } from '../_services/main.config';
-import { JUser } from '../_models/user.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { User } from '../_models/user.model';
 
-export class UsersDataSource extends BaseDataSource<JUser> {
+export class UsersDataSource extends BaseDataSource<User> {
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addInclude('globalPermissionGroup').create();
+
+    const startAt = this.currentPage * this.pageSize;
+    const sorting = this.sortingColumn;
+
+    const params: RequestParams = {
+      maxResults: this.pageSize,
+      startsAt: startAt,
+      expand: 'globalPermissionGroup'
+    };
+
+    if (sorting.dataKey && sorting.isSortable) {
+      const order = this.buildSortingParams(sorting);
+      params.ordering = order;
+    }
+
     const users$ = this.service.getAll(SERV.USERS, params);
 
     this.subscriptions.push(
@@ -18,16 +32,17 @@ export class UsersDataSource extends BaseDataSource<JUser> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
+        .subscribe((response: ListResponseWrapper<User>) => {
+          const users: User[] = response.values;
 
-          const responseBody = { data: response.data, included: response.included };
-
-          const users = this.serializer.deserialize<JUser[]>(responseBody);
+          users.map((user: User) => {
+            user.globalPermissionGroupName = user.globalPermissionGroup.name;
+          });
 
           this.setPaginationConfig(
             this.pageSize,
             this.currentPage,
-            users.length
+            response.total
           );
           this.setData(users);
         })

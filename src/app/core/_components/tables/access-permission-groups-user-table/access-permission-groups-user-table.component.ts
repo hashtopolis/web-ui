@@ -1,40 +1,43 @@
-import { catchError } from 'rxjs';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-
-import { UserPermissions } from '@src/app/core/_models/user-permissions.model';
-
+import { HTTableColumn } from '../ht-table/ht-table.models';
 import {
   APGUTableEditableAction,
   AccessPermissionGroupsUserTableCol,
   AccessPermissionGroupsUserTableColumnLabel
-} from '@src/app/core/_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+} from './access-permission-groups-user-table.constants';
 
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-
-import { SERV } from '@src/app/core/_services/main.config';
-
-import { AccessPermissionGroupsExpandDataSource } from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { AccessPermissionGroupsExpandDataSource } from 'src/app/core/_datasources/access-permission-groups-expand.datasource';
+import { BaseTableComponent } from '../base-table/base-table.component';
+import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
+import { UserPermissions } from 'src/app/core/_models/user-permissions.model';
+import { SERV } from 'src/app/core/_services/main.config';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'access-permission-groups-user-table',
   templateUrl: './access-permission-groups-user-table.component.html'
 })
-export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessPermissionGroupsUserTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy
+{
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessPermissionGroupsExpandDataSource;
-  expand = 'userMembers';
+  expand = 'user';
   permissions = 1;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUserTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(
+      this.cdr,
+      this.gs,
+      this.uiService
+    );
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
@@ -55,7 +58,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    return [
+    const tableColumns = [
       {
         id: AccessPermissionGroupsUserTableCol.NAME,
         dataKey: 'name',
@@ -115,6 +118,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
         export: async (perm: UserPermissions) => perm.delete + ''
       }
     ];
+    return tableColumns;
   }
 
   // --- Action functions ---
@@ -138,9 +142,16 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<UserPermissions>(this.tableColumns, event.data, AccessPermissionGroupsUserTableColumnLabel)
+          .toClipboard<UserPermissions>(
+            this.tableColumns,
+            event.data,
+            AccessPermissionGroupsUserTableColumnLabel
+          )
           .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+            this.snackBar.open(
+              'The selected rows are copied to the clipboard',
+              'Close'
+            );
           });
         break;
     }
@@ -174,13 +185,18 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       .toLowerCase()
       .replace(/^\w/, (c) => c.toUpperCase());
     const keyPerm = userperm['data']['originalName'] + capitalizedPerm;
-    const boolValue = value === 'true' ? true : value === 'false' ? false : Boolean(value);
+    const boolValue =
+      value === 'true' ? true : value === 'false' ? false : Boolean(value);
     // Payload
     const payload = {
       permissions: { [keyPerm]: boolValue }
     };
 
-    const request$ = this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS, this.accesspermgroupId, payload);
+    const request$ = this.gs.update(
+      SERV.ACCESS_PERMISSIONS_GROUPS,
+      this.accesspermgroupId,
+      payload
+    );
     this.subscriptions.push(
       request$
         .pipe(
