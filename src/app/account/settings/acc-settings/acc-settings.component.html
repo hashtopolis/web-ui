@@ -22,13 +22,13 @@
   <br />
   <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
   <form [formGroup]="changepasswordFormGroup" style="display: flex; flex-direction: column; gap: 0.625rem">
-    <!-- <input-text
+    <input-text
       title="Old Password"
       formControlName="oldPassword"
       inputType="password"
       data-testid="input-oldPassword"
       [isRequired]="true"
-    ></input-text> -->
+    ></input-text>
     <input-text
       title="New Password"
       formControlName="newPassword"
@@ -44,21 +44,12 @@
       data-testid="input-confirmNewPassword"
       [isRequired]="true"
     ></input-text>
-    <!--     <app-pass-match
-      [newPassword]="newPasswordFromForm"
-      [confirmPassword]="confirmNewPasswordFromForm"
-    ></app-pass-match> -->
-    <!--     <app-pass-strenght
+<!--     <app-pass-strenght
       [passwordToCheck]="newPasswordValueFromForm"
       (passwordStrength)="onPasswordStrengthChanged($event)"
     ></app-pass-strenght> -->
-
     <grid-buttons>
-      <button-submit
-        [name]="'Update Password'"
-        (click)="onSubmitUpdatePass()"
-        data-testid="button-submit"
-      ></button-submit>
+      <button-submit [name]="'Update Password'" (click)="onSubmitPass()" data-testid="button-submit"></button-submit>
       <div *ngIf="isUpdatingPassLoading">
         <mat-spinner diameter="24" color="accent"></mat-spinner>
       </div>

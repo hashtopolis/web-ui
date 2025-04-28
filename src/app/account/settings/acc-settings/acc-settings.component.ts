@@ -56,7 +56,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.createForm();
     this.loadUserSettings();
     this.createUpdatePassForm();
-    /* this.updatePassForm(); */
   }
 
   /**
@@ -90,7 +89,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   createUpdatePassForm() {
     this.changepasswordFormGroup = new FormGroup({
-      /* oldPassword: new FormControl('', Validators.required), */
+      oldPassword: new FormControl('', Validators.required),
       newPassword: new FormControl('', [
         Validators.required,
         Validators.minLength(AccountSettingsComponent.PWD_MIN),
@@ -103,44 +102,15 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       ])
     });
   }
-  /*   get oldPasswordValueFromForm() {
+  get oldPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('oldPassword').value;
-  } */
+  }
   get newPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('newPassword').value;
   }
   get confirmNewPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('confirmNewPassword').value;
   }
-  /**
-   * Creates and password update
-   *
-   */
-  /*   updatePassForm() {
-    // this.passform = new FormGroup(
-    //   {
-    //     oldpassword: new FormControl(''),
-    //     newpassword: new FormControl('', [
-    //       Validators.required,
-    //       Validators.minLength(AccountSettingsComponent.PWD_MIN),
-    //       Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-    //     ]),
-    //     confirmpass: new FormControl('', [
-    //       Validators.required,
-    //       Validators.minLength(AccountSettingsComponent.PWD_MIN),
-    //       Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-    //     ])
-    //   },
-    //   passwordMatchValidator
-    // );
-    this.passform = new FormGroup({
-      password: new FormControl('', [
-        Validators.required,
-        Validators.minLength(AccountSettingsComponent.PWD_MIN),
-        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-      ])
-    });
-  } */
 
   /**
    * Handles form basic form submission
@@ -162,27 +132,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
-    if (this.passform.valid) {
-      this.isUpdatingPassLoading = true;
-      const payload = {
-        userId: this.gs.userId,
-        password: this.passform.value['password']
-      };
-      console.log(payload);
-      this.subscriptions.push(
-        this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe(() => {
-          this.alert.okAlert('User password updated!', '');
-          this.isUpdatingPassLoading = false;
-          this.router.navigate(['users/all-users']);
-        })
-      );
-    }
-  }
-  /**
-   * Handles password submission
-   */
-  onSubmitUpdatePass() {
-    console.log(this.changepasswordFormGroup.valid);
     if (this.changepasswordFormGroup.valid && this.newPasswordValueFromForm === this.confirmNewPasswordValueFromForm) {
       console.log('valid');
       this.isUpdatingPassLoading = true;
@@ -191,11 +140,12 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         userId: this.gs.userId
       };
       console.log(payload);
-      /*       this.subscriptions.push(
+      // TODO: uncomment when backend is ready
+      /*       
+      this.subscriptions.push(
         this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe(() => {
           this.alert.okAlert('User password updated!', '');
           this.isUpdatingPassLoading = false;
-          this.router.navigate(['users/all-users']);
         })
       ); */
     } else {
@@ -214,23 +164,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /**
    * Loads user settings from the server and populates the form with initial data.
    */
-  /*   private loadUserSettings() {
-    this.subscriptions.push(
-      this.gs.get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] }).subscribe((result) => {
-        this.createForm(
-          result.globalPermissionGroup['name'],
-          this.datePipe.transform(result['registeredSince']),
-          result['email']
-        );
-      })
-    );
-  } */
   private loadUserSettings() {
     const params = new RequestParamBuilder().addInclude('globalPermissionGroup').create();
     this.subscriptions.push(
       this.gs.get(SERV.USERS, this.gs.userId, params).subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
-        console.log(user);
         this.createForm(user.name, this.datePipe.transform(user.registeredSince), user.email);
       })
     );
