@@ -9,6 +9,7 @@ import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.data
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import { JAgent } from 'src/app/core/_models/agent.model';
+import { NgStyle } from '@angular/common';
 import { SafeHtml } from '@angular/platform-browser';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -56,12 +57,14 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.DEVICE_UTILISATION,
         dataKey: 'avgDevice',
-        render: (agent: JAgent) => agent.avgDevice + '%'
+        render: (agent: JAgent) => agent.avgDevice + '%',
+        customCellColor: 'warning'
       },
       {
         id: AgentsViewTableCol.TEMPERATURE,
         dataKey: 'maxTemp',
-        render: (agent: JAgent) => agent.maxTemp + '°C'
+        render: (agent: JAgent) => agent.maxTemp + '°C',
+        customCellColor: ''
       },
       {
         id: AgentsViewTableCol.CPU_UTILISATION,

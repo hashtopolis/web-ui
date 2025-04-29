@@ -36,7 +36,6 @@ export class AgentsViewDataSource extends BaseDataSource<JAgent> {
       )
       .subscribe((agentStatsResponse: ResponseWrapper) => {
         const agents = this.serializer.deserialize<JAgent[]>(agentStatsResponse);
-        console.log('AFTER ', agents);
         agents.map((agent: JAgent) => {
           const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
           const statTemp = tempDateFilter.filter((u) => u.statType == ASC.GPU_TEMP);
