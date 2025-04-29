@@ -13,6 +13,7 @@ import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { JHash } from '@models/hash.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
@@ -165,7 +166,7 @@ export class BaseTableComponent {
   }
 
   @Cacheable(['chunkId'])
-  async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
+  async renderChunkLink(obj: JAgent | JHash): Promise<HTTableRouterLink[]> {
     return [
       {
         routerLink: obj && obj['chunkId'] ? ['/tasks', 'chunks', obj['chunkId'], 'view'] : [],

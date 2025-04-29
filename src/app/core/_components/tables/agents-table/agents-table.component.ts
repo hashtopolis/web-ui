@@ -3,30 +3,34 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { JAgent } from '@models/agent.model';
+import { ChunkData } from '@models/chunk.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
   AgentsTableCol,
   AgentsTableColumnLabel
-} from '@src/app/core/_components/tables/agents-table/agents-table.constants';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+} from '@components/tables/agents-table/agents-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   DataType,
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
-} from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
+} from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AgentsDataSource } from '@datasources/agents.datasource';
+
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { ChunkData } from '@src/app/core/_models/chunk.model';
-import { SERV } from '@src/app/core/_services/main.config';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({

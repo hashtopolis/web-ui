@@ -309,20 +309,25 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   /**
    * Updates agent assignment based on the provided value.
-   *
+   * Assigns the agent to the provided taskID or removes a current assignment
    * @param taskId The task ID.
    */
-  onUpdateAssign(taskId: number) {
+  onUpdateAssign(taskId: number): void {
+    let request$;
+
     if (taskId) {
       const payload = {
-        taskId: taskId,
+        taskId,
         agentId: this.editedAgentIndex
       };
-      const onCreateSubscription$ = this.gs.create(SERV.AGENT_ASSIGN, payload).subscribe();
-      this.unsubscribeService.add(onCreateSubscription$);
-    } else {
-      const onDeleteSubscription$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId).subscribe();
-      this.unsubscribeService.add(onDeleteSubscription$);
+      request$ = this.gs.create(SERV.AGENT_ASSIGN, payload);
+    } else if (this.assignId) {
+      request$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
+    }
+
+    if (request$) {
+      const subscription = request$.subscribe();
+      this.unsubscribeService.add(subscription);
     }
   }
 
