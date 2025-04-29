@@ -1,5 +1,5 @@
-import { BaseModel } from '@models/base.model';
 import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
 import { JTask } from '@models/task.model';
 
 /**

@@ -6,7 +6,7 @@ import { BaseModel } from '@models/base.model';
  * @prop time     Timestamp
  * @prop voucher  Voucher value
  */
-export interface Voucher extends BaseModel {
+export interface JVoucher extends BaseModel {
   time: number;
   voucher: string;
 }

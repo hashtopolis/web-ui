@@ -1,35 +1,35 @@
-import { NotificationsTableCol } from '@components/tables/notifications-table/notifications-table.constants';
-import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
-import { PermissionsTableCol } from '@components/tables/permissions-table/permissions-table.constants';
-import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
-import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
-import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
-import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
-import { HashlistsTableCol } from '@components/tables/hashlists-table/hashlists-table.constants';
-import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
-import { HashtypesTableCol } from '@components/tables/hashtypes-table/hashtypes-table.constants';
-import { FilesTableCol } from '@components/tables/files-table/files-table.constants';
-import { FilesAttackTableCol } from '@components/tables/files-attack-table/files-attack-table.constants';
-import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
-import { PreprocessorsTableCol } from '@components/tables/preprocessors-table/preprocessors-table.constants';
-import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { HealthChecksTableCol } from '@components/tables/health-checks-table/health-checks-table.constants';
-import { HealthCheckAgentsTableCol } from '@components/tables/health-check-agents-table/health-check-agents-table.constants';
-import { PretasksTableCol } from '@components/tables/pretasks-table/pretasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
-import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
-import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
-import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
-import { HashesTableCol } from '@components/tables/hashes-table/hashes-table.constants';
-import { SearchHashTableCol } from '@components/tables/search-hash-table/search-hash-table.constants';
-import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
-import { LogsTableCol } from '@components/tables/logs-table/logs-table.constants';
+import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '@components/tables/access-groups-table/access-groups-table.constants';
 import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-users-table/access-groups-users-table.constants';
 import { AccessPermissionGroupsUserTableCol } from '@components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
 import { AccessPermissionGroupsUsersTableCol } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
-import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
+import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
+import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
+import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
+import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
+import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
+import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
+import { FilesAttackTableCol } from '@components/tables/files-attack-table/files-attack-table.constants';
+import { FilesTableCol } from '@components/tables/files-table/files-table.constants';
+import { HashesTableCol } from '@components/tables/hashes-table/hashes-table.constants';
+import { HashlistsTableCol } from '@components/tables/hashlists-table/hashlists-table.constants';
+import { HashtypesTableCol } from '@components/tables/hashtypes-table/hashtypes-table.constants';
+import { HealthCheckAgentsTableCol } from '@components/tables/health-check-agents-table/health-check-agents-table.constants';
+import { HealthChecksTableCol } from '@components/tables/health-checks-table/health-checks-table.constants';
+import { LogsTableCol } from '@components/tables/logs-table/logs-table.constants';
+import { NotificationsTableCol } from '@components/tables/notifications-table/notifications-table.constants';
+import { PermissionsTableCol } from '@components/tables/permissions-table/permissions-table.constants';
+import { PreprocessorsTableCol } from '@components/tables/preprocessors-table/preprocessors-table.constants';
+import { PretasksTableCol } from '@components/tables/pretasks-table/pretasks-table.constants';
+import { SearchHashTableCol } from '@components/tables/search-hash-table/search-hash-table.constants';
+import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
+import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
+import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
+import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
+import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
+import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
+import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -116,11 +116,7 @@ export const uiConfigDefault: UIConfig = {
     vouchersTable: {
       start: 0,
       page: 25,
-      columns: [
-        VouchersTableCol.ID,
-        VouchersTableCol.KEY,
-        VouchersTableCol.CREATED
-      ],
+      columns: [VouchersTableCol.ID, VouchersTableCol.KEY, VouchersTableCol.CREATED],
       order: {
         id: VouchersTableCol.ID,
         dataKey: '',
@@ -132,11 +128,7 @@ export const uiConfigDefault: UIConfig = {
     permissionsTable: {
       start: 0,
       page: 25,
-      columns: [
-        PermissionsTableCol.ID,
-        PermissionsTableCol.NAME,
-        PermissionsTableCol.MEMBERS
-      ],
+      columns: [PermissionsTableCol.ID, PermissionsTableCol.NAME, PermissionsTableCol.MEMBERS],
       order: {
         id: PermissionsTableCol.ID,
         dataKey: '',
@@ -342,11 +334,7 @@ export const uiConfigDefault: UIConfig = {
     filesAttackTable: {
       start: 0,
       page: 25,
-      columns: [
-        FilesAttackTableCol.ID,
-        FilesAttackTableCol.NAME,
-        FilesAttackTableCol.SIZE
-      ],
+      columns: [FilesAttackTableCol.ID, FilesAttackTableCol.NAME, FilesAttackTableCol.SIZE],
       order: {
         id: FilesAttackTableCol.ID,
         dataKey: '',
@@ -358,11 +346,7 @@ export const uiConfigDefault: UIConfig = {
     crackersTable: {
       start: 0,
       page: 25,
-      columns: [
-        CrackersTableCol.ID,
-        CrackersTableCol.NAME,
-        CrackersTableCol.VERSIONS
-      ],
+      columns: [CrackersTableCol.ID, CrackersTableCol.NAME, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
         dataKey: '',
@@ -527,11 +511,7 @@ export const uiConfigDefault: UIConfig = {
     supertasksTable: {
       start: 0,
       page: 25,
-      columns: [
-        SupertasksTableCol.ID,
-        SupertasksTableCol.NAME,
-        SupertasksTableCol.PRETASKS
-      ],
+      columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
         id: SupertasksTableCol.ID,
         dataKey: '',
@@ -582,12 +562,7 @@ export const uiConfigDefault: UIConfig = {
     hashlistTasksTable: {
       start: 0,
       page: 25,
-      columns: [
-        TaskTableCol.ID,
-        TaskTableCol.NAME,
-        TaskTableCol.DISPATCHED_SEARCHED,
-        TaskTableCol.CRACKED
-      ],
+      columns: [TaskTableCol.ID, TaskTableCol.NAME, TaskTableCol.DISPATCHED_SEARCHED, TaskTableCol.CRACKED],
       order: {
         id: TaskTableCol.ID,
         dataKey: '',
@@ -651,13 +626,7 @@ export const uiConfigDefault: UIConfig = {
     logsTable: {
       start: 0,
       page: 25,
-      columns: [
-        LogsTableCol.ID,
-        LogsTableCol.ISSUER,
-        LogsTableCol.LEVEL,
-        LogsTableCol.MESSAGE,
-        LogsTableCol.TIME
-      ],
+      columns: [LogsTableCol.ID, LogsTableCol.ISSUER, LogsTableCol.LEVEL, LogsTableCol.MESSAGE, LogsTableCol.TIME],
       order: {
         id: LogsTableCol.ID,
         dataKey: '',
@@ -686,11 +655,7 @@ export const uiConfigDefault: UIConfig = {
     accessGroupsUsersTable: {
       start: 0,
       page: 25,
-      columns: [
-        AccessGroupsUsersTableCol.ID,
-        AccessGroupsUsersTableCol.NAME,
-        AccessGroupsUsersTableCol.STATUS
-      ],
+      columns: [AccessGroupsUsersTableCol.ID, AccessGroupsUsersTableCol.NAME, AccessGroupsUsersTableCol.STATUS],
       order: {
         id: AccessGroupsUsersTableCol.ID,
         dataKey: '',

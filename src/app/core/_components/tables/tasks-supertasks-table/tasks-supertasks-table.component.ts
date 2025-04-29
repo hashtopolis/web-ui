@@ -3,7 +3,7 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { ChunkDataData } from '@models/chunk.model';
+import { ChunkData } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 
 import {
@@ -36,7 +36,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksSupertasksDataSource;
-  chunkData: { [key: number]: ChunkDataData } = {};
+  chunkData: { [key: number]: ChunkData } = {};
   private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
@@ -285,7 +285,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   async getDispatchedSearchedString(task: JTask): Promise<string> {
     if (task.keyspace > 0) {
-      const cd: ChunkDataData = await this.getChunkData(task);
+      const cd: ChunkData = await this.getChunkData(task);
       const disp = (cd.dispatched * 100).toFixed(2);
       const sear = (cd.searched * 100).toFixed(2);
 
@@ -295,7 +295,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   async getNumAgents(task: JTask): Promise<number> {
-    const cd: ChunkDataData = await this.getChunkData(task);
+    const cd: ChunkData = await this.getChunkData(task);
     return cd.agents.length;
   }
 
@@ -439,7 +439,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     );
   }
 
-  private async getChunkData(task: JTask): Promise<ChunkDataData> {
+  private async getChunkData(task: JTask): Promise<ChunkData> {
     if (!this.chunkDataLock[task.id]) {
       // If there is no lock, create a new one
       this.chunkDataLock[task.id] = (async () => {

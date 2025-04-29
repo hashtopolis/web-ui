@@ -1,6 +1,6 @@
+import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
-import { BaseModel } from '@models/base.model';
 
 /**
  * Interface definition of hash object

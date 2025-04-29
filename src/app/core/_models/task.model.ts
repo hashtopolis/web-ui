@@ -1,9 +1,9 @@
-import { JFile } from '@models/file.model';
-import { SpeedStat } from '@models/speed-stat.model';
 import { JAgent } from '@models/agent.model';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { JHashlist } from '@models/hashlist.model';
 import { BaseModel } from '@models/base.model';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JFile } from '@models/file.model';
+import { JHashlist } from '@models/hashlist.model';
+import { SpeedStat } from '@models/speed-stat.model';
 
 /**
  * Interface definition for a cracking task

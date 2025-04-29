@@ -1,4 +1,4 @@
-import { BaseModel } from '@src/app/core/_models/base.model';
+import { BaseModel } from '@models/base.model';
 
 /**
  * Interface for the agent binary running on the nodes
@@ -17,4 +17,3 @@ export interface JAgentBinary extends BaseModel {
   updateTrack: string;
   version: string;
 }
-
