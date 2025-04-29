@@ -1,29 +1,31 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '../ht-table/ht-table.models';
+
+import { JPretask } from '@models/pretask.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksPretasksTableCol,
   SupertasksPretasksTableColumnLabel,
   SupertasksPretasksTableEditableAction
-} from './supertasks-pretasks-table.constants';
-import { catchError } from 'rxjs';
+} from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { JPretask } from 'src/app/core/_models/pretask.model';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { SuperTasksPretasksDataSource } from 'src/app/core/_datasources/supertasks-pretasks.datasource';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { SuperTasksPretasksDataSource } from '@datasources/supertasks-pretasks.datasource';
 
 @Component({
-    selector: 'supertasks-pretasks-table',
-    templateUrl: './supertasks-pretasks-table.component.html',
-    standalone: false
+  selector: 'app-supertasks-pretasks-table',
+  templateUrl: './supertasks-pretasks-table.component.html',
+  standalone: false
 })
 export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() supertaskId = 0;
@@ -53,11 +55,11 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: SupertasksPretasksTableCol.ID,
         dataKey: 'id',
-        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
+        routerLinkNoCache: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
         export: async (pretask: JPretask) => pretask.id + ''
       },
@@ -95,8 +97,6 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
         export: async (pretask: JPretask) => pretask.maxAgents + ''
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JPretask>) {
@@ -218,13 +218,12 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     );
   }
 
-  @Cacheable(['id'])
-  async renderPretaskLink(pretask: JPretask): Promise<HTTableRouterLink[]> {
-    return [
+  private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
+    return of([
       {
         routerLink: ['/tasks/preconfigured-tasks/', pretask.id, 'edit']
       }
-    ];
+    ]);
   }
 
   /**
@@ -337,8 +336,10 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   }
 
   private rowActionEdit(pretasks: JPretask): void {
-    this.renderPretaskLink(pretasks).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
+    this.renderPretaskLink(pretasks)
+      .subscribe((links: HTTableRouterLink[]) => {
+        this.router.navigate(links[0].routerLink).then(() => {});
+      })
+      .unsubscribe();
   }
 }

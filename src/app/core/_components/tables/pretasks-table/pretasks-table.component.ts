@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -49,7 +49,7 @@ declare let defaultOptions: AttackOptions;
   standalone: false
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
-  // Input property to specify an supertask ID for filtering pretasks.
+  // Input property to specify a supertask ID for filtering pretasks.
   @Input() supertTaskId = 0;
   // Estimate runtime attack
   @Input() benchmarkA0 = 0;
@@ -90,7 +90,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       {
         id: PretasksTableCol.NAME,
         dataKey: 'taskName',
-        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
+        routerLinkNoCache: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
         export: async (pretask: JPretask) => pretask.taskName
       },
@@ -342,13 +342,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     return icons;
   }
 
-  @Cacheable(['id'])
-  async renderPretaskLink(pretask: JPretask): Promise<HTTableRouterLink[]> {
-    return [
+  private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
+    return of([
       {
         routerLink: ['/tasks/preconfigured-tasks', pretask.id, 'edit']
       }
-    ];
+    ]);
   }
 
   @Cacheable(['id', 'taskName'])
@@ -492,9 +491,11 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   private rowActionEdit(pretask: JPretask): void {
-    this.renderPretaskLink(pretask).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
+    this.renderPretaskLink(pretask)
+      .subscribe((links: HTTableRouterLink[]) => {
+        this.router.navigate(links[0].routerLink).then(() => {});
+      })
+      .unsubscribe();
   }
 
   calculateKeyspaceTime(a0: number, a3: number): void {

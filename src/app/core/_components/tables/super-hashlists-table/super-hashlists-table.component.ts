@@ -1,4 +1,4 @@
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -89,7 +89,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       {
         id: SuperHashlistsTableCol.HASHLISTS,
         dataKey: 'hashlists',
-        routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
+        routerLinkNoCache: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       }
@@ -118,19 +118,22 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     );
   }
 
-  // --- Render functions ---
-  @Cacheable(['id', 'taskType', 'hashlists'])
-  async renderHashlistLinks(superHashlist: JHashlist): Promise<HTTableRouterLink[]> {
+  /**
+   * Render hashlist links contained in a super hashlist
+   * @param superHashlist - superhashlist object to render links for
+   * @return observable object containing a router link array
+   */
+  private renderHashlistLinks(superHashlist: JHashlist): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (superHashlist && superHashlist.hashlists && superHashlist.hashlists.length) {
-      for (const entry of superHashlist.hashlists) {
+      superHashlist.hashlists.forEach((entry) => {
         links.push({
           label: entry.name,
           routerLink: ['/hashlists', 'hashlist', entry.id, 'edit']
         });
-      }
+      });
     }
-    return links;
+    return of(links);
   }
 
   @Cacheable(['_id', 'isSecret'])

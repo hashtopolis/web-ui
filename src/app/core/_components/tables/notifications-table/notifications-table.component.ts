@@ -1,34 +1,33 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JNotification } from '@models/notification.model';
 
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   NotificationsTableCol,
   NotificationsTableColumnLabel
 } from '@components/tables/notifications-table/notifications-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-
-import { SERV } from '@services/main.config';
-
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
-import { ACTION } from '@src/app/core/_constants/notifications.config';
 
 import { NotificationsDataSource } from '@datasources/notifications.datasource';
 
+import { ACTION } from '@src/app/core/_constants/notifications.config';
+
 @Component({
-    selector: 'notifications-table',
-    templateUrl: './notifications-table.component.html',
-    standalone: false
+  selector: 'notifications-table',
+  templateUrl: './notifications-table.component.html',
+  standalone: false
 })
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
@@ -49,11 +48,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JNotification, filterValue: string): boolean {
-    if (item.notification.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.notification.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -82,7 +77,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
       {
         id: NotificationsTableCol.APPLIED_TO,
         dataKey: 'appliedTo',
-        routerLink: (notification: JNotification) => this.renderAppliedToLink(notification),
+        routerLinkNoCache: (notification: JNotification) => this.renderAppliedToLink(notification),
         isSortable: true,
         export: async (notification: JNotification) => notification.action
       },
@@ -293,8 +288,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     this.router.navigate(['/account', 'notifications', notification.id, 'edit']);
   }
 
-  @Cacheable(['id', 'actions', 'objectId'])
-  async renderAppliedToLink(notification: JNotification): Promise<HTTableRouterLink[]> {
+  private renderAppliedToLink(notification: JNotification): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
 
     switch (notification.action) {
@@ -335,6 +329,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         break;
     }
 
-    return links;
+    return of(links);
   }
 }
