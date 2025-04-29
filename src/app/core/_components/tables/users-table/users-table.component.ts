@@ -73,7 +73,7 @@ export class UsersTableComponent
       {
         id: UsersTableCol.NAME,
         dataKey: 'name',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.name
       },
@@ -352,8 +352,8 @@ export class UsersTableComponent
   }
 
   private rowActionEdit(user: JUser): void {
-    this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(['/users', user.id, 'edit']);
+    this.renderUserLink(user).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 }

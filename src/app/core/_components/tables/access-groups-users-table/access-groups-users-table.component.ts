@@ -69,7 +69,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       {
         id: AccessGroupsUsersTableCol.ID,
         dataKey: 'id',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.id + ''
       },
@@ -207,11 +207,5 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
           this.reload();
         })
     );
-  }
-
-  private rowActionEdit(user: JUser): void {
-    this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
   }
 }

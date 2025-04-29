@@ -78,15 +78,6 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['id']) async renderTaskLink(obj: JAgent | JChunk): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj.taskId ? ['/tasks', 'show-tasks', obj.taskId, 'edit'] : [],
-        label: obj.taskName
-      }
-    ];
-  }
-
   @Cacheable(['id']) async renderSupertaskLink(obj: JSuperTask): Promise<HTTableRouterLink[]> {
     return [
       {
@@ -101,35 +92,6 @@ export class BaseTableComponent {
       {
         routerLink: obj && obj['taskId'] ? ['/hashlists', 'hashes', 'tasks', obj['taskId']] : [],
         label: obj['cracked']
-      }
-    ];
-  }
-
-  @Cacheable(['id']) async renderUserLink(obj: JUser | JAgent): Promise<HTTableRouterLink[]> {
-    let userId: number;
-    let userName: string;
-    if (obj.type === 'user') {
-      obj = obj as JUser;
-      userId = obj.id;
-      userName = obj.name;
-    } else if (obj.type === 'agent') {
-      obj = obj as JAgent;
-      userId = obj.user.id;
-      userName = obj.user.name;
-    }
-    return [
-      {
-        routerLink: obj && userId ? ['/users', userId, 'edit'] : [],
-        label: obj && userName ? userName : ''
-      }
-    ];
-  }
-
-  @Cacheable(['chunkId']) async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['chunkId'] ? ['/tasks', 'chunks', obj['chunkId'], 'view'] : [],
-        label: obj['chunkId']
       }
     ];
   }
@@ -159,21 +121,6 @@ export class BaseTableComponent {
         label: obj['name']
       }
     ];
-  }
-
-  @Cacheable(['id', 'accessGroup']) async renderAccessGroupLinks(agent: JAgent): Promise<HTTableRouterLink[]> {
-    let links: HTTableRouterLink[] = [];
-
-    if (agent && agent.accessGroups) {
-      // Iterate over each access group and create a link for it
-      links = agent.accessGroups.map((accessGroup) => ({
-        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
-        label: accessGroup.groupName
-      }));
-      return links;
-    } else {
-      return links;
-    }
   }
 
   @Cacheable(['isActive']) async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
@@ -207,6 +154,22 @@ export class BaseTableComponent {
   }
 
   /**
+   * Render all access group links and agent belongs to to be displayed in HTML code
+   * @param agent - agent model to render all access group objects for
+   * @return observable object containing a router link array
+   */
+  renderAccessGroupLinks(agent: JAgent): Observable<HTTableRouterLink[]> {
+    let links: HTTableRouterLink[] = [];
+    if (agent && agent.accessGroups) {
+      links = agent.accessGroups.map((accessGroup) => ({
+        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
+        label: accessGroup.groupName
+      }));
+    }
+    return of(links);
+  }
+
+  /**
    * Render agent edit link to be displayed in HTML code
    * @param model - Agent, Chunk or HealthcheckAgent model to render agent router link for
    * @return observable object containing a router link array
@@ -217,6 +180,54 @@ export class BaseTableComponent {
       links.push({
         routerLink: ['/agents', 'show-agents', model.id, 'edit'],
         label: model.agentName
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render edit user link from a user model
+   * @param user - User to render edit link for
+   * @return observable object containing a router link array
+   */
+  renderUserLink(user: JUser): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (user) {
+      links.push({
+        routerLink: ['/users', user.id, 'edit'],
+        label: user.name
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render edit user link for agent owner, if any
+   * @param agent - Agent to render owner link for
+   * @return observable object containing a router link array
+   */
+  renderUserLinkFromAgent(agent: JAgent): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (agent && agent.user) {
+      links.push({
+        routerLink: ['/users', agent.user.id, 'edit'],
+        label: agent.user.name
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render edit link for task
+   * @param model - agent or chunk to render tasl link for
+   * @return observable object containing a router link array
+   */
+  renderTaskLink(model: JAgent | JChunk): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (model) {
+      links.push({
+        routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
+        label: model.taskName
       });
     }
     return of(links);

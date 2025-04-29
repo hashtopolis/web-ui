@@ -215,8 +215,8 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   }
 
   private rowActionEdit(agent: JAgent): void {
-    this.renderUserLink(agent).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
+    this.renderUserLinkFromAgent(agent).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 }

@@ -60,7 +60,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.ID,
         dataKey: 'id',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.id + ''
       },

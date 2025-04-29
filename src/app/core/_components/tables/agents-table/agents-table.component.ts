@@ -1,4 +1,4 @@
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -101,7 +101,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         id: AgentsTableCol.USER,
         dataKey: 'userId',
         render: (agent: JAgent) => this.renderOwner(agent),
-        routerLink: (agent: JAgent) => this.renderUserLink(agent),
+        routerLinkNoCache: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.user ? agent.user.name : '')
       },
@@ -123,7 +123,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.CURRENT_CHUNK,
         dataKey: 'chunkId',
-        routerLink: (agent: JAgent) => this.renderChunkLink(agent),
+        routerLinkNoCache: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
       },
@@ -144,7 +144,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (agent: JAgent) => this.renderCracked(agent),
+        //routerLinkNoCache: (agent: JAgent) => this.renderCrackedLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => (await this.getCracked(agent)) + ''
       }
@@ -155,14 +155,14 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       tableColumns.push({
         id: AgentsTableCol.CURRENT_TASK,
         dataKey: 'taskName',
-        routerLink: (agent: JAgent) => this.renderTaskLink(agent),
+        routerLinkNoCache: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
       });
       tableColumns.push({
         id: AgentsTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupId',
-        routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
+        routerLinkNoCache: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.accessGroup
       });
@@ -239,8 +239,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   // --- Render functions ---
-  @Cacheable(['id', 'agentName', 'isTrusted'])
-  renderName(agent: JAgent): SafeHtml {
+  @Cacheable(['id', 'agentName', 'isTrusted']) renderName(agent: JAgent): SafeHtml {
     const agentName = agent.agentName?.length > 40 ? `${agent.agentName.substring(40)}...` : agent.agentName;
     const isTrusted = agent.isTrusted
       ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
@@ -249,8 +248,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return this.sanitize(`<a href="#" data-view-agent-id="${agent.id}">${agentName}</a>${isTrusted}`);
   }
 
-  @Cacheable(['id'])
-  async renderCurrentSpeed(agent: JAgent): Promise<SafeHtml> {
+  @Cacheable(['id']) async renderCurrentSpeed(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const speed = await this.getSpeed(agent);
     if (speed) {
@@ -259,8 +257,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return this.sanitize(html);
   }
 
-  @Cacheable(['id'])
-  async renderTimeSpent(agent: JAgent): Promise<SafeHtml> {
+  @Cacheable(['id']) async renderTimeSpent(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const timeSpent = await this.getTimeSpent(agent);
     if (timeSpent) {
@@ -269,8 +266,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return this.sanitize(html);
   }
 
-  @Cacheable(['id'])
-  async renderSearched(agent: JAgent): Promise<SafeHtml> {
+  @Cacheable(['id']) async renderSearched(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const searched = await this.getSearched(agent);
     if (searched) {
@@ -309,6 +305,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   //@Cacheable(['id', 'isActive'])
+
   renderStatus(agent: JAgent): SafeHtml {
     let html: string;
     if (agent.isActive) {
@@ -321,6 +318,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   //@Cacheable(['id', 'userId'])
+
   renderOwner(agent: JAgent): SafeHtml {
     if (agent.user) {
       return this.sanitize(agent.user.name);
@@ -328,22 +326,17 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return '';
   }
 
-  @Cacheable(['clientSignature'])
-  renderClient(agent: JAgent): SafeHtml {
+  @Cacheable(['clientSignature']) renderClient(agent: JAgent): SafeHtml {
     if (agent.clientSignature) {
       return agent.clientSignature;
     }
     return '';
   }
 
-  @Cacheable(['id', 'lastTime'])
-  renderLastActivity(agent: JAgent): SafeHtml {
+  @Cacheable(['id', 'lastTime']) renderLastActivity(agent: JAgent): SafeHtml {
     const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
     //const data = `<code>${agent.lastAct}</code> at<br>${formattedDate}<br>IP:<code>${agent.lastIp}</code>`;
-    const data = `<time datetime="${formatUnixTimestamp(
-      agent.lastTime,
-      'yyyy-MM-ddThh:mm:ss'
-    )}">${formattedDate}</time>`;
+    const data = `<time datetime="${formatUnixTimestamp(agent.lastTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
     return this.sanitize(data);
   }
 
@@ -400,9 +393,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           rows: [event.data],
           title: `${this.assignAgents ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} ${
-            event.data.agentName
-          }? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} ${event.data.agentName}? Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -435,9 +426,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           rows: event.data,
           title: `${this.assignAgents ? 'Unassigning' : 'Deleting'} ${event.data.length} agents ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${
-            this.assignAgents ? 'unassign' : 'delete'
-          } the above agents? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} the above agents? Note that this action cannot be undone.`,
           warn: true,
           listAttribute: 'agentName',
           action: event.menuItem.action
@@ -445,6 +434,41 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         break;
     }
   }
+
+  /**
+   * Render a view chunk link for an agent
+   * @param agent - agent to render link for
+   * @return observable containing the link to render in HTML
+   * @private
+   */
+  private renderChunkLink(agent: JAgent): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (agent && agent.chunkId) {
+      links.push({
+        routerLink: ['/tasks', 'chunks', agent.chunkId, 'view'],
+        label: agent.chunkId
+      });
+    }
+    return of(links);
+  }
+
+  /**
+  private renderCrackedLink(agent: JAgent): Observable<HTTableRouterLink[]> {
+    const observable$ = new Observable<HTTableRouterLink[]>((subscriber) => {
+      (async () => {
+        try {
+          const response = await this.getCracked(agent);
+          subscriber.next([{ label: response + '', routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId] }]);
+          subscriber.complete();
+        } catch (error) {
+          subscriber.error(error);
+        }
+      })();
+    });
+
+    return observable$;
+  }
+  */
 
   private async getSpeed(agent: JAgent): Promise<number> {
     return this.getChunkDataParam(agent.id, 'speed');
