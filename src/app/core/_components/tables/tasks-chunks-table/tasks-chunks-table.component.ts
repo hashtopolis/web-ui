@@ -116,7 +116,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       {
         id: TasksChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
+        routerLinkNoCache: (chunk: JChunk) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];

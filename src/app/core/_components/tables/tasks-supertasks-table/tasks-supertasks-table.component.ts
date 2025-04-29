@@ -6,30 +6,30 @@ import { SafeHtml } from '@angular/platform-browser';
 import { ChunkData } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   TasksSupertasksDataSourceTableCol,
   TasksSupertasksDataSourceTableColumnLabel,
   TasksSupertasksDataSourceTableEditableAction
 } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
-import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
-
-import { SERV } from '@services/main.config';
 
 import { Cacheable } from '@src/app/core/_decorators/cacheable';
 
 @Component({
-    selector: 'tasks-supertasks-table',
-    templateUrl: './tasks-supertasks-table.component.html',
-    standalone: false
+  selector: 'tasks-supertasks-table',
+  templateUrl: './tasks-supertasks-table.component.html',
+  standalone: false
 })
 export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() supertaskId = 0;
@@ -84,7 +84,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (wrapper: JTask) => this.renderCrackedLink(wrapper),
+        //routerLinkNoCache: (wrapper: JTask) => this.renderCrackedLink(wrapper),
         isSortable: true
       },
       {

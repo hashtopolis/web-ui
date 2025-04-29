@@ -12,7 +12,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { JHashlist } from '@models/hashlist.model';
 import { JHealthCheckAgent } from '@models/health-check.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
@@ -78,51 +78,6 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['id']) async renderSupertaskLink(obj: JSuperTask): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/tasks/', obj.id, 'edit'],
-        label: obj.supertaskName
-      }
-    ];
-  }
-
-  @Cacheable(['id']) async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['taskId'] ? ['/hashlists', 'hashes', 'tasks', obj['taskId']] : [],
-        label: obj['cracked']
-      }
-    ];
-  }
-
-  @Cacheable(['id']) async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/hashlists', 'hashlist', obj['id'], 'edit'] : [],
-        label: obj['name']
-      }
-    ];
-  }
-
-  @Cacheable(['id']) async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/hashlists', 'hashes', 'hashlists', obj['id']] : [],
-        label: obj['hashCount']
-      }
-    ];
-  }
-
-  @Cacheable(['id']) async renderPermissionLink(obj: JGlobalPermissionGroup): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/users', 'global-permissions-groups', obj['id'], 'edit'] : [],
-        label: obj['name']
-      }
-    ];
-  }
-
   @Cacheable(['isActive']) async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
     if (obj) {
       return obj['isActive']
@@ -135,6 +90,54 @@ export class BaseTableComponent {
           ];
     }
     return [];
+  }
+
+  /**
+   * Render suopertask link to be displayed in HTML code
+   * @param superTask - supertaskgroup object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderSupertaskLink(superTask: JSuperTask): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (superTask) {
+      links.push({
+        routerLink: ['/tasks/', superTask.id, 'edit'],
+        label: superTask.supertaskName
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render cracked link to be displayed in HTML code
+   * @param chunk - chunk object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderCrackedLink(chunk: JChunk): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (chunk) {
+      links.push({
+        routerLink: ['/hashlists', 'hashes', 'tasks', chunk.taskId],
+        label: chunk.cracked
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render hashlist link to be displayed in HTML code
+   * @param hashlist - hashlist object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderHashlistLink(hashlist: JHashlist): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (hashlist) {
+      links.push({
+        routerLink: ['/hashlists', 'hashlist', hashlist.id, 'edit'],
+        label: hashlist.name
+      });
+    }
+    return of(links);
   }
 
   /**
@@ -154,7 +157,7 @@ export class BaseTableComponent {
   }
 
   /**
-   * Render all access group links and agent belongs to to be displayed in HTML code
+   * Render all access group links of an agent to be displayed in HTML code
    * @param agent - agent model to render all access group objects for
    * @return observable object containing a router link array
    */
