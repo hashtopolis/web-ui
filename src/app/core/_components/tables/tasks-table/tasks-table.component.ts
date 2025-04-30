@@ -768,7 +768,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
       links.push({
         label: taskWrapperName,
-        routerLink: ['/tasks', 'show-subtasks', wrapper.id],
+        routerLink: ['/tasks', 'show-subtasks', wrapper.id, 'edit'],
         tooltip: 'Supertask'
       });
     }
