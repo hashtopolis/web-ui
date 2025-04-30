@@ -107,7 +107,7 @@ export class BaseTableComponent {
     }
     return of(links);
   }
-  Ï;
+
   /**
    * Render cracked link to be displayed in HTML code
    * @param chunk - chunk object to render router link for
