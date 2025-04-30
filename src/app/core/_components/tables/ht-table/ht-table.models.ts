@@ -73,6 +73,7 @@ export interface HTTableColumn {
   dataKey?: string;
   position?: 'right' | 'left';
   customCellColor?: string;
+  customCellColor2?: (data: any)=> number;
   isSortable?: boolean;
   icons?: (data: any) => Promise<HTTableIcon[]>;
   render?: (data: any) => SafeHtml;

@@ -58,18 +58,19 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.DEVICE_UTILISATION,
         dataKey: 'avgDevice',
         render: (agent: JAgent) => agent.avgDevice + '%',
-        customCellColor: 'warning'
+        customCellColor2: (agent: JAgent) => agent.avgDevice
       },
       {
         id: AgentsViewTableCol.TEMPERATURE,
         dataKey: 'maxTemp',
         render: (agent: JAgent) => agent.maxTemp + '°C',
-        customCellColor: ''
+        customCellColor2: (agent: JAgent) => agent.maxTemp
       },
       {
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
-        render: (agent: JAgent) => agent.avgCpu + '%'
+        render: (agent: JAgent) => agent.avgCpu + '%',
+        customCellColor2: (agent: JAgent) => agent.avgCpu
       },
       {
         id: AgentsViewTableCol.LAST_ACTIVITY,

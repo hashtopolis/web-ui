@@ -166,7 +166,7 @@
       <td
         mat-cell
         *matCellDef="let element"
-        [ngStyle]="{ 'background-color': tableColumn.customCellColor === 'warning' ? 'blue' : tableColumn.customCellColor ?  tableColumn.customCellColor : ''}"
+        [ngStyle]="{ 'background-color': tableColumn.customCellColor2 && tableColumn.customCellColor2(element) < 90  ? 'pink' : tableColumn.customCellColor ? tableColumn.customCellColor : ''}"
         [class.text-right]="tableColumn.position === 'right'"
       >
         <div
