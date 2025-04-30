@@ -152,7 +152,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (agent: JAgent) => this.renderCracked(agent),
+        async: (agent: JAgent) => this.renderCracked(agent),
         isSortable: true,
         export: async (agent: JAgent) => (await this.getCracked(agent)) + ''
       }
@@ -288,17 +288,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   @Cacheable(['id'])
-  async renderCracked(agent: JAgent): Promise<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
+  async renderCracked(agent: JAgent): Promise<SafeHtml> {
+    let html = '';
     const cracked = await this.getCracked(agent);
     if (cracked) {
-      links.push({
-        label: cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId]
-      });
+      html = `<span>${cracked}</span>`;
     }
-
-    return links;
+    return this.sanitize(html);
   }
 
   @Cacheable(['id'])
