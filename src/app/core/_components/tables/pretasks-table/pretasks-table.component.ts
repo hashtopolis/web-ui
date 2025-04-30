@@ -6,7 +6,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
 
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -463,11 +463,14 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       const filter = this.dataSource['originalData'].filter((u) => u.id !== pretasks[0].id);
       const payload = [];
       for (let i = 0; i < filter.length; i++) {
-        payload.push(filter[i].id);
+        payload.push({ type: RelationshipType.PRETASKS, id: filter[i].id });
       }
+
+      const responseBody = { data: payload };
+
       this.subscriptions.push(
         this.gs
-          .update(SERV.SUPER_TASKS, this.supertTaskId, { pretasks: payload })
+          .updateRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASK, responseBody)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);

@@ -280,17 +280,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   @Cacheable(['id'])
-  async renderCracked(agent: JAgent): Promise<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
+  async renderCracked(agent: JAgent): Promise<SafeHtml> {
+    let html = '';
     const cracked = await this.getCracked(agent);
     if (cracked) {
-      links.push({
-        label: cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId]
-      });
+      html = `<span>${cracked}</span>`;
     }
-
-    return links;
+    return this.sanitize(html);
   }
 
   @Cacheable(['id'])
@@ -309,7 +305,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   //@Cacheable(['id', 'isActive'])
-
   renderStatus(agent: JAgent): SafeHtml {
     let html: string;
     if (agent.isActive) {
@@ -322,7 +317,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   //@Cacheable(['id', 'userId'])
-
   renderOwner(agent: JAgent): SafeHtml {
     if (agent.user) {
       return this.sanitize(agent.user.name);
