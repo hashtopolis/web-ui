@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Observable, Subscription, of } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
@@ -12,8 +12,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
-import { JHashlist } from '@models/hashlist.model';
-import { JHealthCheckAgent } from '@models/health-check.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
@@ -140,20 +139,14 @@ export class BaseTableComponent {
     return of(links);
   }
 
-  /**
-   * Render access group link to be displayed in HTML code
-   * @param accessGroup - access group object to render router link for
-   * @return observable object containing a router link array
-   */
-  renderAccessGroupLink(accessGroup: JAccessGroup): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (accessGroup) {
-      links.push({
-        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
-        label: accessGroup.groupName
-      });
-    }
-    return of(links);
+  @Cacheable(['chunkId'])
+  async renderChunkLink(obj: unknown): Promise<HTTableRouterLink[]> {
+    return [
+      {
+        routerLink: obj && obj['chunkId'] ? ['/tasks', 'chunks', obj['chunkId'], 'view'] : [],
+        label: obj['chunkId']
+      }
+    ];
   }
 
   /**
