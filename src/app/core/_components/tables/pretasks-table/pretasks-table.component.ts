@@ -471,7 +471,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
 
       this.subscriptions.push(
         this.gs
-          .updateRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASK, responseBody)
+          .updateRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
