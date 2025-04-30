@@ -4,16 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Params } from '@angular/router';
 
-import type { RequestParams } from '@src/app/core/_models/request-params.model';
+import { ServiceConfig } from '@services/main.config';
 
+import type { RequestParams } from '@src/app/core/_models/request-params.model';
 import { AuthService } from '@src/app/core/_services/access/auth.service';
-import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { setParameter } from '@src/app/core/_services/buildparams';
-
+import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
-
-import { ServiceConfig } from '@services/main.config';
 
 @Injectable({
   providedIn: 'root'
@@ -163,6 +161,20 @@ export class GlobalService {
     let data = { type: serviceConfig.URL, id: id, ...arr };
     data = new JsonAPISerializer().serialize({ stuff: data });
     return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, data).pipe(debounceTime(2000));
+  }
+
+  /**
+   * Update a Relationship
+   * @param serviceConfig - Serviceconfig
+   * @param id - element id
+   * @param relType - type of the Relationship
+   * @param data  - fields to be updated
+   * @returns Object
+   **/
+  updateRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+    return this.http
+      .patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .pipe(debounceTime(2000));
   }
 
   /**
