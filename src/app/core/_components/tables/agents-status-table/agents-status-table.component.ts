@@ -12,11 +12,7 @@ import {
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { AgentsStatusDataSource } from '@src/app/core/_datasources/agents-status.datasource';
@@ -24,11 +20,10 @@ import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { ChunkData } from '@src/app/core/_models/chunk.model';
 import { SERV } from '@src/app/core/_services/main.config';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'agents-status-table',
+  selector: 'app-agents-status-table',
   templateUrl: './agents-status-table.component.html',
   standalone: false
 })
@@ -153,7 +148,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return agentSpeed > 0 ? 'Running task' : 'Stopped task';
   }
 
-  @Cacheable(['id', 'agentName'])
   renderName(agent: JAgent): SafeHtml {
     const agentName = agent.agentName?.length > 40 ? `${agent.agentName.substring(40)}...` : agent.agentName;
     const isTrusted = agent.isTrusted
@@ -161,66 +155,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       : '';
 
     return this.sanitize(`<a>${agentName}</a>${isTrusted}`);
-  }
-
-  @Cacheable(['id'])
-  async renderCurrentSpeed(agent: JAgent): Promise<SafeHtml> {
-    let html = '-';
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      html = `${speed} H/s`;
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['id'])
-  async renderTimeSpent(agent: JAgent): Promise<SafeHtml> {
-    let html = '-';
-    const timeSpent = await this.getTimeSpent(agent);
-    if (timeSpent) {
-      html = `${formatSeconds(timeSpent)}`;
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['id'])
-  async renderSearched(agent: JAgent): Promise<SafeHtml> {
-    let html = '-';
-    const searched = await this.getSearched(agent);
-    if (searched) {
-      html = `${searched}`;
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['id'])
-  async renderCracked(agent: JAgent): Promise<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    const cracked = await this.getCracked(agent);
-
-    if (cracked) {
-      links.push({
-        label: cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId]
-      });
-    }
-
-    return links;
-  }
-
-  @Cacheable(['id'])
-  async renderProgressIcon(agent: JAgent): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      icons.push({
-        name: 'radio_button_checked',
-        cls: 'pulsing-progress'
-      });
-    }
-
-    return icons;
   }
 
   @Cacheable(['id', 'isActive'])
@@ -275,18 +209,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   private async getSpeed(agent: JAgent): Promise<number> {
     return this.getChunkDataParam(agent.id, 'speed');
-  }
-
-  private async getSearched(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'searched');
-  }
-
-  private async getTimeSpent(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'timeSpent');
-  }
-
-  private async getCracked(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'cracked');
   }
 
   private async getChunkDataParam(agentId: number, key: string): Promise<number> {
