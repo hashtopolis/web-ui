@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -7,12 +7,14 @@ import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
 
 import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -45,6 +47,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   // Edit
   editedSTIndex: number;
   assignPretasks: any;
+
+  @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -174,18 +178,23 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const concat = []; // We get the current values and then concat with the new value
+      const pretasks = []; // We get the current values and then concat with the new value
       for (let i = 0; i < this.assignPretasks.length; i++) {
-        concat.push(this.assignPretasks[i].pretaskId);
+        pretasks.push({ type: 'pretask', id: this.assignPretasks[i].id });
       }
-      const payload = concat.concat(this.updateForm.value['pretasks']);
+
+      this.updateForm.value['pretasks'].forEach((pretask) => {
+        pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
+      });
+
+      const responseBody = { data: pretasks };
 
       const updateSubscription$ = this.gs
-        .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
+        .updateRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
         .subscribe(() => {
           this.alert.okAlert('SuperTask saved!', '');
-          this.updateForm.reset(); // success, we reset form
-          this.onRefresh();
+          this.refresh(); // Reload the Pretask-Select-Component
+          this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
       this.unsubscribeService.add(updateSubscription$);
     }
