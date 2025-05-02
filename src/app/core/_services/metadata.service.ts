@@ -7,6 +7,7 @@ import { TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { environment } from '@src/environments/environment';
 
@@ -265,7 +266,7 @@ export class MetadataService {
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_GROUPS,
       selectOptions$: [],
-      fieldMapping: { id: 'id', name: 'groupName' }
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
   ];
