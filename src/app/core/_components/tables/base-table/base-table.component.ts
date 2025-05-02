@@ -31,7 +31,7 @@ import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
-  selector: 'base-table',
+  selector: 'app-base-table',
   template: '',
   standalone: false
 })
