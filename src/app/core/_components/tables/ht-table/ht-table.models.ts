@@ -87,6 +87,7 @@ export interface HTTableColumn {
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
   routerLinkNoCache?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
+  iconsNoCache?: (data: BaseModel) => HTTableIcon;
 }
 
 /** Column def for selectable checkbox */
