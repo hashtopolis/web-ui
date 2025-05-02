@@ -195,7 +195,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_SMALL,
         dataKey: 'isSmall',
-        icons: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
+        iconsNoCache: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === 0 ? (wrapper.tasks[0].isSmall ? 'Yes' : 'No') : ''
@@ -203,7 +203,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_CPU_TASK,
         dataKey: 'isCpuTask',
-        icons: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
+        iconsNoCache: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === 0 ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
@@ -417,16 +417,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     return icons;
   }
 
-  @Cacheable(['id', 'isSmall']) async renderIsSmallIcon(wrapper: JTaskWrapper): Promise<HTTableIcon[]> {
+  private renderIsSmallIcon(wrapper: JTaskWrapper): HTTableIcon {
     return this.renderBoolIcon(wrapper, 'isSmall');
   }
 
-  @Cacheable(['id', 'isCpuTask']) async renderIsCpuTaskIcon(wrapper: JTaskWrapper): Promise<HTTableIcon[]> {
+  private renderIsCpuTaskIcon(wrapper: JTaskWrapper): HTTableIcon {
     return this.renderBoolIcon(wrapper, 'isCpuTask');
-  }
-
-  @Cacheable(['id', 'taskType']) async renderTaskTypeIcon(wrapper: JTaskWrapper): Promise<HTTableIcon[]> {
-    return this.renderBoolIcon(wrapper, 'taskType', 1);
   }
 
   @Cacheable(['id', 'taskType', 'tasks']) async renderDispatchedSearched(wrapper: JTaskWrapper): Promise<SafeHtml> {
@@ -501,40 +497,40 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Action functions ---
 
-  private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: any = ''): HTTableIcon[] {
-    const icons: HTTableIcon[] = [];
+  private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
+    let icon: HTTableIcon = { name: '' };
     if (wrapper.taskType === 0) {
       const task: JTask = wrapper.tasks[0];
       if (equals === '') {
         if (task[key] === true) {
-          icons.push({
+          icon = {
             name: 'check',
             cls: 'text-ok'
-          });
+          };
         }
       } else if (task[key] === equals) {
-        icons.push({
+        icon = {
           name: 'check',
           cls: 'text-ok'
-        });
+        };
       }
     } else {
       if (equals === '') {
         if (wrapper[key] === true) {
-          icons.push({
+          icon = {
             name: 'check',
             cls: 'text-ok'
-          });
+          };
         }
       } else if (wrapper[key] === equals) {
-        icons.push({
+        icon = {
           name: 'check',
           cls: 'text-ok'
-        });
+        };
       }
     }
 
-    return icons;
+    return icon;
   }
 
   private rowActionEdit(task: JTaskWrapper): void {
