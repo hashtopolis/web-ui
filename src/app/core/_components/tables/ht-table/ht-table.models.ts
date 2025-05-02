@@ -72,8 +72,6 @@ export interface HTTableColumn {
   id: number;
   dataKey?: string;
   position?: 'right' | 'left';
-  customCellColor?: string;
-  customCellColor2?: (data: any)=> number;
   isSortable?: boolean;
   icons?: (data: any) => Promise<HTTableIcon[]>;
   render?: (data: any) => SafeHtml;
@@ -83,9 +81,18 @@ export interface HTTableColumn {
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
+  testC?: customCell;
 }
 
 /** Column def for selectable checkbox */
 export const COL_SELECT = 100;
 /** Column def for row action */
 export const COL_ROW_ACTION = 200;
+export interface customCell {
+  value: (data: any) => number;
+  treshold1:number; 
+  treshold2:number;
+  type: number;
+  isActive:(data: any) => boolean;
+  lastTime:(data: any) => number;
+}

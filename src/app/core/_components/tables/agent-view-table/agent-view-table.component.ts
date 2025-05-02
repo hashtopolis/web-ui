@@ -63,19 +63,41 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.DEVICE_UTILISATION,
         dataKey: 'avgDevice',
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
-        customCellColor2: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE)
+        testC:   {  
+          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE),
+          treshold1: this.getUtil1(),
+          treshold2: this.getUtil2(),
+          type: ASC.GPU_UTIL,
+          isActive: (agent: JAgent) => agent.isActive,
+          lastTime: (agent: JAgent) => agent.lastTime
+        },
+
       },
       {
         id: AgentsViewTableCol.TEMPERATURE,
         dataKey: 'maxTemp',
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE) + '°C',
-        customCellColor2: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE)
+        testC:   {  
+          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE),
+          treshold1: this.getTemp1(),
+          treshold2: this.getTemp2(),
+          type: ASC.GPU_TEMP,
+          isActive: (agent: JAgent) => agent.isActive,
+          lastTime: (agent: JAgent) => agent.lastTime
+        },
       },
       {
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
-        customCellColor2: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE)
+        testC:   {  
+          value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE),
+          treshold1: this.getUtil1(),
+          treshold2: this.getUtil2(),
+          type: ASC.CPU_UTIL,
+          isActive: (agent: JAgent) => agent.isActive,
+          lastTime: (agent: JAgent) => agent.lastTime
+        },
       },
       {
         id: AgentsViewTableCol.LAST_ACTIVITY,
@@ -104,4 +126,25 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         return 0; // Provide a default value for unhandled cases
     }
   }
+    // Modal Agent utilisation and OffCanvas menu
+
+    getTemp1() {
+      // Temperature Config Setting
+      return this.uiService.getUIsettings('agentTempThreshold1').value;
+    }
+  
+    getTemp2() {
+      // Temperature 2 Config Setting
+      return this.uiService.getUIsettings('agentTempThreshold2').value;
+    }
+  
+    getUtil1() {
+      // CPU Config Setting
+      return this.uiService.getUIsettings('agentUtilThreshold1').value;
+    }
+  
+    getUtil2() {
+      // CPU 2 Config Setting
+      return this.uiService.getUIsettings('agentUtilThreshold2').value;
+    }
 }
