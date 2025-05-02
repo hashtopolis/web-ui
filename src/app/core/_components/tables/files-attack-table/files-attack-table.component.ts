@@ -52,11 +52,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   }
 
   filter(item: JFile, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.filename.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
