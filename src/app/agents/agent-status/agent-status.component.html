@@ -60,7 +60,7 @@
             </button>
             <span>{{ result === 'No data'? result:result +'%' }}</span>
           </div>
-          <div *ngIf="statTemp | filterItem:'agentId':agent.id | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
+          <div *ngIf="statTemp | filterItem:'agentId':agent.id | max:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getTemp1():this.getTemp2():2:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
             <button mat-icon-button
                     (click)="openModal('Temperature','device_thermostat',result === 'No data'? result:result +'°','temp',result, agent)"
                     matTooltip="Temperature"
@@ -69,7 +69,7 @@
             </button>
             <span>{{ result === 'No data'? result:result +'°' }}</span>
           </div>
-          <div *ngIf="statCpu | filterItem:'agentId':agent.id | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():1:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
+          <div *ngIf="statCpu | filterItem:'agentId':agent.id | avg:'value' as result" [ngStyle]="{'background-image': 'linear-gradient(to right, transparent 50%, ' + (result | asColor:this.getUtil1():this.getUtil2():3:agent.isActive:agent.lastTime) + ' 50%)', 'margin-left': '0px'}">
             <button mat-icon-button
                     (click)="openModal('CPU Utilisation','computer',result === 'No data'? result:result +'%','util',result, agent)"
                     matTooltip="CPU Utilisation"
