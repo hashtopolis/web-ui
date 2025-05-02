@@ -8,7 +8,7 @@ import {
   AccessGroupsUsersTableColumnLabel
 } from '@src/app/core/_components/tables/access-groups-users-table/access-groups-users-table.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableIcon } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { UsersTableStatus } from '@src/app/core/_components/tables/users-table/users-table.constants';
 import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-groups-expand.datasource';
 import { JPretask } from '@src/app/core/_models/pretask.model';

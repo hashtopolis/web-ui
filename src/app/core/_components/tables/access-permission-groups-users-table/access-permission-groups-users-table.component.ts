@@ -11,12 +11,11 @@ import {
   AccessPermissionGroupsUsersTableColumnLabel
 } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { UsersTableStatus } from '@components/tables/users-table/users-table.constants';
 
 import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
