@@ -22,7 +22,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
@@ -70,7 +69,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       {
         id: HashlistsTableCol.NAME,
         dataKey: 'name',
-        icons: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
+        iconsNoCache: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
         routerLinkNoCache: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
         export: async (hashlist: JHashlist) => hashlist.name
@@ -85,7 +84,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       {
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
-        icons: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
+        iconsNoCache: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
         render: (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount),
         isSortable: true,
         export: async (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount)
@@ -137,33 +136,16 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     );
   }
 
-  // --- Render functions ---
-
-  @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(hashlist: JHashlist): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (hashlist.isSecret) {
-      icons.push({
-        name: 'lock',
-        tooltip: 'Secret'
-      });
-    }
-
-    return icons;
-  }
-
-  @Cacheable(['id', 'hashCount', 'cracked'])
-  async renderCrackedStatusIcon(hashlist: JHashlist): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
+  private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
     if (hashlist.hashCount === hashlist.cracked) {
-      icons.push({
+      return {
         name: 'check_circle',
         tooltip: 'Cracked',
         cls: 'text-ok'
-      });
+      };
     }
 
-    return icons;
+    return { name: '' };
   }
 
   // --- Action functions ---

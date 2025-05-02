@@ -324,7 +324,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
 
-  private renderSecretIcon(pretask: JPretask): HTTableIcon {
+  override renderSecretIcon(pretask: JPretask): HTTableIcon {
     const secretFilesCount = pretask.pretaskFiles.reduce((sum, file) => sum + (file.isSecret ? 1 : 0), 0);
     if (secretFilesCount > 0) {
       return {

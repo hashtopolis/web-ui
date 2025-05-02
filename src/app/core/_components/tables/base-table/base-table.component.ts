@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
@@ -241,6 +242,16 @@ export class BaseTableComponent {
    */
   renderIsValidIcon(user: JUser): HTTableIcon {
     return user.isValid ? { name: 'check_circle', cls: 'text-ok' } : { name: 'remove_circle', cls: 'text-critical' };
+  }
+
+  renderSecretIcon(model: BaseModel): HTTableIcon {
+    if (model && 'isSecret' in model && model.isSecret === true) {
+      return {
+        name: 'lock',
+        tooltip: 'Secret'
+      };
+    }
+    return { name: '' };
   }
 
   /**
