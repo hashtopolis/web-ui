@@ -243,15 +243,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   // --- Render functions ---
-  @Cacheable(['id', 'agentName', 'isTrusted']) renderName(agent: JAgent): SafeHtml {
-    const agentName = agent.agentName?.length > 40 ? `${agent.agentName.substring(40)}...` : agent.agentName;
-    const isTrusted = agent.isTrusted
-      ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
-      : '';
-
-    return this.sanitize(`<a href="#" data-view-agent-id="${agent.id}">${agentName}</a>${isTrusted}`);
-  }
-
   @Cacheable(['id']) async renderCurrentSpeed(agent: JAgent): Promise<SafeHtml> {
     let html = '-';
     const speed = await this.getSpeed(agent);
@@ -304,7 +295,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return icons;
   }
 
-  //@Cacheable(['id', 'isActive'])
   renderStatus(agent: JAgent): SafeHtml {
     let html: string;
     if (agent.isActive) {
@@ -316,7 +306,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return this.sanitize(html);
   }
 
-  //@Cacheable(['id', 'userId'])
   renderOwner(agent: JAgent): SafeHtml {
     if (agent.user) {
       return this.sanitize(agent.user.name);
@@ -324,16 +313,15 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return '';
   }
 
-  @Cacheable(['clientSignature']) renderClient(agent: JAgent): SafeHtml {
+  renderClient(agent: JAgent): SafeHtml {
     if (agent.clientSignature) {
       return agent.clientSignature;
     }
     return '';
   }
 
-  @Cacheable(['id', 'lastTime']) renderLastActivity(agent: JAgent): SafeHtml {
+  renderLastActivity(agent: JAgent): SafeHtml {
     const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    //const data = `<code>${agent.lastAct}</code> at<br>${formattedDate}<br>IP:<code>${agent.lastIp}</code>`;
     const data = `<time datetime="${formatUnixTimestamp(agent.lastTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
     return this.sanitize(data);
   }
