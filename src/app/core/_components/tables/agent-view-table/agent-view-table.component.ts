@@ -5,6 +5,7 @@ import { AgentsViewTableCol, AgentsViewTableColumnLabel } from './agents-view-ta
 } from './agents-view-table.constants'; */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
+import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { HTTableColumn } from '../ht-table/ht-table.models';
@@ -57,20 +58,20 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.DEVICE_UTILISATION,
         dataKey: 'avgDevice',
-        render: (agent: JAgent) => agent.avgDevice + '%',
-        customCellColor2: (agent: JAgent) => agent.avgDevice
+        render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, 'avg') + '%',
+        customCellColor2: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, 'avg')
       },
       {
         id: AgentsViewTableCol.TEMPERATURE,
         dataKey: 'maxTemp',
-        render: (agent: JAgent) => agent.maxTemp + '°C',
-        customCellColor2: (agent: JAgent) => agent.maxTemp
+        render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, 'max') + '°C',
+        customCellColor2: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, 'max')
       },
       {
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
-        render: (agent: JAgent) => agent.avgCpu + '%',
-        customCellColor2: (agent: JAgent) => agent.avgCpu
+        render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, 'avg') + '%',
+        customCellColor2: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, 'avg')
       },
       {
         id: AgentsViewTableCol.LAST_ACTIVITY,
@@ -79,5 +80,24 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       }
     ];
     return tableColumns;
+  }
+  private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: string) {
+    const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
+    const stat = tempDateFilter.filter((u) => u.statType == statType);
+    switch (avgOrMax) {
+      case 'avg':
+        const avgDevice = Math.round(
+          stat.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / stat.length
+        );
+        return avgDevice;
+      case 'max':
+        const maxTemp = Math.round(
+          stat.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]
+        );
+        return maxTemp;
+
+      default:
+        return 0; // Provide a default value for unhandled cases
+    }
   }
 }

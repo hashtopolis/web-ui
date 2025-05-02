@@ -36,24 +36,6 @@ export class AgentsViewDataSource extends BaseDataSource<JAgent> {
       )
       .subscribe((agentStatsResponse: ResponseWrapper) => {
         const agents = this.serializer.deserialize<JAgent[]>(agentStatsResponse);
-        agents.map((agent: JAgent) => {
-          const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
-          const statTemp = tempDateFilter.filter((u) => u.statType == ASC.GPU_TEMP);
-          const statDevice = tempDateFilter.filter((u) => u.statType == ASC.GPU_UTIL);
-          const statCpu = tempDateFilter.filter((u) => u.statType == ASC.CPU_UTIL);
-
-          agent.maxTemp = Math.round(
-            statTemp.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]
-          );
-
-          agent.avgCpu = Math.round(
-            statCpu.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / statCpu.length
-          );
-
-          agent.avgDevice = Math.round(
-            statDevice.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / statDevice.length
-          );
-        });
         this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
         this.setData(agents);
       });
