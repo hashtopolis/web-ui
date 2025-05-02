@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -44,7 +43,7 @@ declare let options: AttackOptions;
 declare let defaultOptions: AttackOptions;
 
 @Component({
-  selector: 'pretasks-table',
+  selector: 'app-pretasks-table',
   templateUrl: './pretasks-table.component.html',
   standalone: false
 })
@@ -104,7 +103,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         id: PretasksTableCol.FILES_TOTAL,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        icons: (pretask: JPretask) => this.renderSecretIcon(pretask),
+        iconsNoCache: (pretask: JPretask) => this.renderSecretIcon(pretask),
         render: (pretask: JPretask) => pretask.pretaskFiles?.length,
         export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
       },
@@ -166,14 +165,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
         dataKey: 'keyspaceSize',
         async: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
-        icons: undefined,
         isSortable: true,
         export: async (pretask: JPretask) => Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
       });
       tableColumns.push({
         id: PretasksTableCol.ATTACK_RUNTIME,
         dataKey: 'keyspaceTime',
-        icons: undefined,
         isSortable: true,
         async: () => this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3)
       });
@@ -327,19 +324,15 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
 
-  @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(pretask: JPretask): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
+  private renderSecretIcon(pretask: JPretask): HTTableIcon {
     const secretFilesCount = pretask.pretaskFiles.reduce((sum, file) => sum + (file.isSecret ? 1 : 0), 0);
-
     if (secretFilesCount > 0) {
-      icons.push({
+      return {
         name: 'lock',
         tooltip: `Secret: ${secretFilesCount} ${secretFilesCount > 1 ? 'files' : 'file'}`
-      });
+      };
     }
-
-    return icons;
+    return { name: '' };
   }
 
   private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
