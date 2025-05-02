@@ -63,7 +63,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         id: NotificationsTableCol.STATUS,
         dataKey: 'isActive',
         render: (notification: JNotification) => (notification.isActive ? 'Active' : 'Inactive'),
-        icons: (notification: JNotification) => this.renderStatusIcon(notification),
+        iconsNoCache: (notification: JNotification) => this.renderStatusIcon(notification),
         isSortable: true,
         export: async (notification: JNotification) => notification.isActive + ''
       },

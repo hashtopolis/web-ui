@@ -14,6 +14,7 @@ import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHealthCheckAgent } from '@models/health-check.model';
+import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
@@ -27,7 +28,6 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
@@ -79,18 +79,13 @@ export class BaseTableComponent {
     }
   }
 
-  @Cacheable(['isActive']) async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
-    if (obj) {
-      return obj['isActive']
-        ? [{ name: 'check_circle', cls: 'text-ok' }]
-        : [
-            {
-              name: 'remove_circle',
-              cls: 'text-critical'
-            }
-          ];
+  renderStatusIcon(model: JAgent | JNotification): HTTableIcon {
+    if (model) {
+      return model.isActive
+        ? { name: 'check_circle', cls: 'text-ok' }
+        : { name: 'remove_circle', cls: 'text-critical' };
     }
-    return [];
+    return { name: '' };
   }
 
   /**

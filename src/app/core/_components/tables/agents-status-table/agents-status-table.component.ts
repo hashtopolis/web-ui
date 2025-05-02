@@ -81,7 +81,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
         dataKey: 'isActive',
-        icons: (agent: JAgent) => this.renderStatusIcon(agent),
+        iconsNoCache: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive'),
         isSortable: true
