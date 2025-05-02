@@ -1,4 +1,4 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { faExclamation, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -53,7 +53,8 @@ export class BaseTableComponent {
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
   protected columnLabels: { [key: string]: string } = {};
-
+  faShieldHalved = faShieldHalved;
+  faExclamation = faExclamation;
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
@@ -180,9 +181,11 @@ export class BaseTableComponent {
   renderAgentLink(model: JAgent | JChunk | JHealthCheckAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (model) {
+      const agentIsTrusted = 'isTrusted' in model && model.isTrusted;
       links.push({
         routerLink: ['/agents', 'show-agents', model.id, 'edit'],
-        label: model.agentName
+        label: model.agentName,
+        icon: { faIcon: agentIsTrusted ? faShieldHalved : undefined, tooltip: agentIsTrusted ? 'Trusted Agent' : '' }
       });
     }
     return of(links);

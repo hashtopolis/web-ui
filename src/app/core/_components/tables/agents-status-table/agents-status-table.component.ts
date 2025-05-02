@@ -1,4 +1,4 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError, firstValueFrom, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -74,7 +74,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
-        render: (agent: JAgent) => this.renderName(agent),
         routerLinkNoCache: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
@@ -144,20 +143,10 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   @Cacheable(['id'])
   async renderActiveAgent(agent: JAgent): Promise<string> {
-    const agentSpeed = await this.utilService.calculateSpeed(agent.id, true).toPromise();
+    const agentSpeed = await firstValueFrom(this.utilService.calculateSpeed(agent.id, true));
     return agentSpeed > 0 ? 'Running task' : 'Stopped task';
   }
 
-  renderName(agent: JAgent): SafeHtml {
-    const agentName = agent.agentName?.length > 40 ? `${agent.agentName.substring(40)}...` : agent.agentName;
-    const isTrusted = agent.isTrusted
-      ? '<span><fa-icon icon="faLock" aria-hidden="true" ngbTooltip="Trust agent with secret data" /></span>'
-      : '';
-
-    return this.sanitize(`<a>${agentName}</a>${isTrusted}`);
-  }
-
-  @Cacheable(['id', 'isActive'])
   renderStatus(agent: JAgent): SafeHtml {
     let html: string;
     if (agent.isActive) {
@@ -165,7 +154,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     } else {
       html = '<span class="pill pill-inactive">Inactive</span>';
     }
-
     return this.sanitize(html);
   }
 
@@ -196,7 +184,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     }
   }
 
-  @Cacheable(['id', 'lastTime'])
   renderLastActivity(agent: JAgent): SafeHtml {
     const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
     const action = `Action: ${agent.lastAct}<br>`;

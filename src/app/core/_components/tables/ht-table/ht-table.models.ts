@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
 
 import { SafeHtml } from '@angular/platform-browser';
@@ -50,6 +51,7 @@ export interface HTTableRouterLink {
   label?: string | number;
   routerLink: Array<string | number>;
   tooltip?: string;
+  icon?: { faIcon: IconDefinition; tooltip?: string };
 }
 
 export interface HTTableEditable<T> {
