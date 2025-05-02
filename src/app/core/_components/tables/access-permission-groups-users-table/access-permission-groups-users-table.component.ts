@@ -72,7 +72,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
+        iconsNoCache: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
@@ -87,15 +87,6 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
           user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
       }
     ];
-  }
-
-  // --- Render functions ---
-
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
-    return user.isValid
-      ? [{ name: 'check_circle', cls: 'text-ok' }]
-      : [{ name: 'remove_circle', cls: 'text-critical' }];
   }
 
   // --- Action functions ---

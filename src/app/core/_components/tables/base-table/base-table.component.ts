@@ -240,6 +240,15 @@ export class BaseTableComponent {
   }
 
   /**
+   * Render a valid or invalid icon for the given user
+   * @param user - user th get icon for
+   * @return a valid or invalid icon depending on the user.isValid setting
+   */
+  renderIsValidIcon(user: JUser): HTTableIcon {
+    return user.isValid ? { name: 'check_circle', cls: 'text-ok' } : { name: 'remove_circle', cls: 'text-critical' };
+  }
+
+  /**
    * Sanitizes the given HTML string to create a safe HTML value.
    * @param html - The HTML string to be sanitized.
    * @returns A SafeHtml object that represents the sanitized HTML.

@@ -75,18 +75,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     ];
   }
 
-  /**
-   * Render a valid or invalid icon for the given user
-   * @param user - user th get icon for
-   * @return a valid or invalid icon depending on the user.isValid setting
-   * @private
-   */
-  private renderIsValidIcon(user: JUser): HTTableIcon {
-    return user.isValid ? { name: 'check_circle', cls: 'text-ok' } : { name: 'remove_circle', cls: 'text-critical' };
-  }
-
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
