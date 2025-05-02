@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -25,7 +24,7 @@ import { NotificationsDataSource } from '@datasources/notifications.datasource';
 import { ACTION } from '@src/app/core/_constants/notifications.config';
 
 @Component({
-  selector: 'notifications-table',
+  selector: 'app-notifications-table',
   templateUrl: './notifications-table.component.html',
   standalone: false
 })
