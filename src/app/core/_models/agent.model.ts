@@ -36,7 +36,4 @@ export interface JAgent extends BaseModel {
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
-  avgCpu?: number;
-  maxTemp?: number;
-  avgDevice?: number;
 }
