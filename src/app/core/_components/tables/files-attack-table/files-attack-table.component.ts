@@ -7,7 +7,7 @@ import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
 } from '@components/tables/files-attack-table/files-attack-table.constants';
-import { CheckboxChangeEvent, HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
+import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { FilesDataSource } from '@datasources/files.datasource';
 
