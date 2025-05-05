@@ -428,14 +428,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   getNumAgents(wrapper: JTaskWrapper): number {
-    if (wrapper.taskType === 0) {
-      const cd: ChunkData = this.getChunkData(wrapper);
-      if (cd) {
-        return cd.agents.length;
-      }
-    }
-
-    return 0;
+    return wrapper.taskType === 0 && wrapper.chunkData ? wrapper.chunkData.agents.length : 0;
   }
 
   renderAgents(wrapper: JTaskWrapper): SafeHtml {
@@ -446,9 +439,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   renderSpeed(wrapper: JTaskWrapper): SafeHtml {
     let html = '';
     if (wrapper.taskType === 0) {
-      const cd: ChunkData = this.getChunkData(wrapper);
-      if (cd && 'speed' in cd && cd.speed > 0) {
-        html = `${cd.speed}&nbsp;H/s`;
+      const chunkData: ChunkData = wrapper.chunkData;
+      if (chunkData && 'speed' in chunkData && chunkData.speed > 0) {
+        html = `${chunkData.speed}&nbsp;H/s`;
       }
     }
     return this.sanitize(html);
@@ -478,9 +471,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private getTaskStatus(wrapper: JTaskWrapper): TaskStatus {
     if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
-      const cd: ChunkData = this.getChunkData(wrapper);
-      if (cd) {
-        const speed = cd.speed;
+      const chunkData: ChunkData = wrapper.chunkData;
+      if (chunkData) {
+        const speed = chunkData.speed;
 
         if (speed > 0) {
           return TaskStatus.RUNNING;
@@ -687,24 +680,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           this.reload();
         })
     );
-  }
-
-  /**
-   * Retrieves or fetches chunk data associated with a given task from the data source.
-   * If the chunk data for the specified task ID is not already cached, it is fetched
-   * asynchronously from the data source and stored in the cache for future use.
-   *
-   * @param wrapper - The task wrapper containing the task for which chunk data is requested.
-   * @returns A promise that resolves to the chunk data associated with the specified task.
-   *
-   * @remarks
-   * This function uses a locking mechanism to ensure that concurrent calls for the same task ID
-   * do not interfere with each other. If another call is already fetching or has fetched
-   * the chunk data for the same task ID, subsequent calls will wait for the operation to complete
-   * before proceeding.
-   */
-  private getChunkData(wrapper: JTaskWrapper): ChunkData {
-    return wrapper.chunkData;
   }
 
   /**
