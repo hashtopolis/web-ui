@@ -4,6 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -44,12 +45,17 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
+        .subscribe(async (response: ResponseWrapper) => {
           const taskWrappers = this.serializer.deserialize<JTaskWrapper[]>({
             data: response.data,
             included: response.included
           });
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
+          for (const taskWrapper of taskWrappers) {
+            const task: JTask = taskWrapper.tasks[0];
+            taskWrapper.chunkData = await this.getChunkData(task.id, false, task.keyspace);
+            console.log(taskWrapper.chunkData);
+          }
           this.setData(taskWrappers);
         })
     );
