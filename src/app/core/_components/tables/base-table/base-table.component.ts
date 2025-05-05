@@ -1,5 +1,5 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Subscription } from 'rxjs';
+import { faExclamation, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
@@ -10,10 +10,12 @@ import { Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
-import { JHash } from '@models/hash.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JHealthCheckAgent } from '@models/health-check.model';
+import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
@@ -27,25 +29,17 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
-  selector: 'base-table',
+  selector: 'app-base-table',
   template: '',
   standalone: false
 })
 export class BaseTableComponent {
-  protected uiSettings: UISettingsUtilityClass;
-  protected dateFormat: string;
-  protected subscriptions: Subscription[] = [];
-  protected columnLabels: { [key: string]: string } = {};
-
   @ViewChild('table') table: HTTableComponent;
-
   @Input() hashlistId: number;
   @Input() shashlistId: number;
-
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
   /** Flag to enable bulk action menu */
@@ -56,7 +50,12 @@ export class BaseTableComponent {
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = true;
-
+  protected uiSettings: UISettingsUtilityClass;
+  protected dateFormat: string;
+  protected subscriptions: Subscription[] = [];
+  protected columnLabels: { [key: string]: string } = {};
+  faShieldHalved = faShieldHalved;
+  faExclamation = faExclamation;
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
@@ -75,14 +74,184 @@ export class BaseTableComponent {
     this.dateFormat = this.getDateFormat();
   }
 
-  /**
-   * Retrieves the date format for rendering timestamps.
-   * @returns The date format string.
-   */
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting<string>('timefmt');
+  reload(): void {
+    if (this.table) {
+      this.table.reload();
+    }
+  }
 
-    return fmt ? fmt : uiConfigDefault.timefmt;
+  renderStatusIcon(model: JAgent | JNotification): HTTableIcon {
+    if (model) {
+      return model.isActive
+        ? { name: 'check_circle', cls: 'text-ok' }
+        : { name: 'remove_circle', cls: 'text-critical' };
+    }
+    return { name: '' };
+  }
+
+  /**
+   * Render suopertask link to be displayed in HTML code
+   * @param superTask - supertaskgroup object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderSupertaskLink(superTask: JSuperTask): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (superTask) {
+      links.push({
+        routerLink: ['/tasks/', superTask.id, 'edit'],
+        label: superTask.supertaskName
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render cracked link to be displayed in HTML code
+   * @param chunk - chunk object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderCrackedLink(chunk: JChunk): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (chunk) {
+      links.push({
+        routerLink: ['/hashlists', 'hashes', 'tasks', chunk.taskId],
+        label: chunk.cracked
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render hashlist link to be displayed in HTML code
+   * @param hashlist - hashlist object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderHashlistLink(hashlist: JHashlist): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (hashlist) {
+      links.push({
+        routerLink: ['/hashlists', 'hashlist', hashlist.id, 'edit'],
+        label: hashlist.name
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render access group link to be displayed in HTML code
+   * @param accessGroup - access group object to render router link for
+   * @return observable object containing a router link array
+   */
+  renderAccessGroupLink(accessGroup: JAccessGroup): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (accessGroup) {
+      links.push({
+        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
+        label: accessGroup.groupName
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render all access group links of an agent to be displayed in HTML code
+   * @param agent - agent model to render all access group objects for
+   * @return observable object containing a router link array
+   */
+  renderAccessGroupLinks(agent: JAgent): Observable<HTTableRouterLink[]> {
+    let links: HTTableRouterLink[] = [];
+    if (agent && agent.accessGroups) {
+      links = agent.accessGroups.map((accessGroup) => ({
+        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
+        label: accessGroup.groupName
+      }));
+    }
+    return of(links);
+  }
+
+  /**
+   * Render agent edit link to be displayed in HTML code
+   * @param model - Agent, Chunk or HealthcheckAgent model to render agent router link for
+   * @return observable object containing a router link array
+   */
+  renderAgentLink(model: JAgent | JChunk | JHealthCheckAgent): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (model) {
+      const agentIsTrusted = 'isTrusted' in model && model.isTrusted;
+      links.push({
+        routerLink: ['/agents', 'show-agents', model.id, 'edit'],
+        label: model.agentName,
+        icon: { faIcon: agentIsTrusted ? faShieldHalved : undefined, tooltip: agentIsTrusted ? 'Trusted Agent' : '' }
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render edit user link from a user model
+   * @param user - User to render edit link for
+   * @return observable object containing a router link array
+   */
+  renderUserLink(user: JUser): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (user) {
+      links.push({
+        routerLink: ['/users', user.id, 'edit'],
+        label: user.name
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render edit user link for agent owner, if any
+   * @param agent - Agent to render owner link for
+   * @return observable object containing a router link array
+   */
+  renderUserLinkFromAgent(agent: JAgent): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (agent && agent.user) {
+      links.push({
+        routerLink: ['/users', agent.user.id, 'edit'],
+        label: agent.user.name
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render edit link for task
+   * @param model - agent or chunk to render tasl link for
+   * @return observable object containing a router link array
+   */
+  renderTaskLink(model: JAgent | JChunk): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (model) {
+      links.push({
+        routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
+        label: model.taskName
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render a valid or invalid icon for the given user
+   * @param user - user th get icon for
+   * @return a valid or invalid icon depending on the user.isValid setting
+   */
+  renderIsValidIcon(user: JUser): HTTableIcon {
+    return user.isValid ? { name: 'check_circle', cls: 'text-ok' } : { name: 'remove_circle', cls: 'text-critical' };
+  }
+
+  renderSecretIcon(model: BaseModel): HTTableIcon {
+    if (model && 'isSecret' in model && model.isSecret === true) {
+      return {
+        name: 'lock',
+        tooltip: 'Secret'
+      };
+    }
+    return { name: '' };
   }
 
   /**
@@ -98,146 +267,13 @@ export class BaseTableComponent {
     this.columnLabels = labels;
   }
 
-  reload(): void {
-    if (this.table) {
-      this.table.reload();
-    }
-  }
+  /**
+   * Retrieves the date format for rendering timestamps.
+   * @returns The date format string.
+   */
+  private getDateFormat(): string {
+    const fmt = this.uiSettings.getSetting<string>('timefmt');
 
-  @Cacheable(['id'])
-  async renderTaskLink(obj: JAgent | JChunk): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj.taskId ? ['/tasks', 'show-tasks', obj.taskId, 'edit'] : [],
-        label: obj.taskName
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderSupertaskLink(obj: JSuperTask): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/tasks/', obj.id, 'edit'],
-        label: obj.supertaskName
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderAgentLink(obj: object): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/agents', 'show-agents', obj['id'], 'edit'] : [],
-        label: obj['agentName']
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderCrackedLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['taskId'] ? ['/hashlists', 'hashes', 'tasks', obj['taskId']] : [],
-        label: obj['cracked']
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderUserLink(obj: JUser | JAgent): Promise<HTTableRouterLink[]> {
-    let userId: number;
-    let userName: string;
-    if (obj.type === 'user') {
-      obj = obj as JUser;
-      userId = obj.id;
-      userName = obj.name;
-    } else if (obj.type === 'agent') {
-      obj = obj as JAgent;
-      userId = obj.user.id;
-      userName = obj.user.name;
-    }
-    return [
-      {
-        routerLink: obj && userId ? ['/users', userId, 'edit'] : [],
-        label: obj && userName ? userName : ''
-      }
-    ];
-  }
-
-  @Cacheable(['chunkId'])
-  async renderChunkLink(obj: JAgent | JHash): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['chunkId'] ? ['/tasks', 'chunks', obj['chunkId'], 'view'] : [],
-        label: obj['chunkId']
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderHashlistLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/hashlists', 'hashlist', obj['id'], 'edit'] : [],
-        label: obj['name']
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderHashCountLink(obj: unknown): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/hashlists', 'hashes', 'hashlists', obj['id']] : [],
-        label: obj['hashCount']
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderPermissionLink(obj: JGlobalPermissionGroup): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj['id'] ? ['/users', 'global-permissions-groups', obj['id'], 'edit'] : [],
-        label: obj['name']
-      }
-    ];
-  }
-
-  @Cacheable(['id'])
-  async renderAccessGroupLink(obj: JAccessGroup): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: obj && obj.id ? ['/users', 'access-groups', obj.id, 'edit'] : [],
-        label: obj.groupName
-      }
-    ];
-  }
-
-  @Cacheable(['id', 'accessGroup'])
-  async renderAccessGroupLinks(agent: JAgent): Promise<HTTableRouterLink[]> {
-    let links: HTTableRouterLink[] = [];
-
-    if (agent && agent.accessGroups) {
-      // Iterate over each access group and create a link for it
-      links = agent.accessGroups.map((accessGroup) => ({
-        routerLink: ['/users', 'access-groups', accessGroup.id, 'edit'],
-        label: accessGroup.groupName
-      }));
-      return links;
-    } else {
-      return links;
-    }
-  }
-
-  @Cacheable(['isActive'])
-  async renderStatusIcon(obj: unknown): Promise<HTTableIcon[]> {
-    if (obj) {
-      return obj['isActive']
-        ? [{ name: 'check_circle', cls: 'text-ok' }]
-        : [{ name: 'remove_circle', cls: 'text-critical' }];
-    }
-    return [];
+    return fmt ? fmt : uiConfigDefault.timefmt;
   }
 }

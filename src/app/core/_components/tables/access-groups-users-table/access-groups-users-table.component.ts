@@ -1,39 +1,23 @@
-import { catchError } from 'rxjs';
-
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '@src/app/core/_components/tables/ht-table/ht-table.models';
 
-import { JUser } from '@src/app/core/_models/user.model';
-import { JPretask } from '@src/app/core/_models/pretask.model';
-
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
 import {
   AccessGroupsUsersTableCol,
   AccessGroupsUsersTableColumnLabel
 } from '@src/app/core/_components/tables/access-groups-users-table/access-groups-users-table.constants';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
-import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { UsersTableStatus } from '@src/app/core/_components/tables/users-table/users-table.constants';
-
 import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-groups-expand.datasource';
-
-import { SERV } from '@src/app/core/_services/main.config';
-
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { JPretask } from '@src/app/core/_models/pretask.model';
+import { JUser } from '@src/app/core/_models/user.model';
 
 @Component({
-    selector: 'access-groups-users-table',
-    templateUrl: './access-groups-users-table.component.html',
-    standalone: false
+  selector: 'access-groups-users-table',
+  templateUrl: './access-groups-users-table.component.html',
+  standalone: false
 })
 export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accessgroupId = 0;
@@ -69,7 +53,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       {
         id: AccessGroupsUsersTableCol.ID,
         dataKey: 'id',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.id + ''
       },
@@ -83,7 +67,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       {
         id: AccessGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
+        iconsNoCache: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
@@ -91,39 +75,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
     ];
   }
 
-  openDialog(data: DialogData<JUser>) {
-    const dialogRef = this.dialog.open(TableDialogComponent, {
-      data: data,
-      width: '450px'
-    });
-
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result && result.action) {
-          switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
-              break;
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionUnassign(result.data);
-              break;
-          }
-        }
-      })
-    );
-  }
-
-  // --- Render functions ---
-
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
-    return user.isValid
-      ? [{ name: 'check_circle', cls: 'text-ok' }]
-      : [{ name: 'remove_circle', cls: 'text-critical' }];
-  }
-
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
@@ -150,68 +102,5 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
           });
         break;
     }
-  }
-
-  /**
-   * Unassign user from access group
-   */
-  private bulkActionUnassign(users: JUser[]): void {
-    //Get the IDs of users to be deleted
-    const usersIdsToDelete = users.map((users) => users.id);
-    //Remove the selected users from the list
-    const updatedAccessGroups = this.dataSource
-      .getData()
-      .filter((accessGroup) => !usersIdsToDelete.includes(accessGroup.id));
-    //Update the accessGroup with the modified list of pretasks
-    const payload = { userMembers: updatedAccessGroups.map((accessGroup) => accessGroup.id) };
-    //Update the accessGroup with the new list of pretasks
-    const updateRequest = this.gs.update(SERV.ACCESS_GROUPS, this.accessgroupId, payload);
-    this.subscriptions.push(
-      updateRequest
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open(`Successfully unassigned ${users.length} users!`, 'Close');
-          this.reload();
-        })
-    );
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(users: JUser[]): void {
-    //Get the IDs of users to be deleted from the access group
-    const userIdsToDelete = users.map((users) => users.id);
-    //Remove the selected users from the list
-    const updatedAccessGroups = this.dataSource
-      .getData()
-      .filter((accessGroup) => !userIdsToDelete.includes(accessGroup.id));
-    //Update the access group with the modified list of users
-    const payload = { users: updatedAccessGroups.map((accessGroup) => accessGroup.id) };
-    this.subscriptions.push(
-      this.gs
-        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open('Successfully deleted users from access group!', 'Close');
-          this.reload();
-        })
-    );
-  }
-
-  private rowActionEdit(user: JUser): void {
-    this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
   }
 }

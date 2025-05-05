@@ -70,6 +70,9 @@ import { AgentsStatusTableComponent } from './tables/agents-status-table/agents-
 import { TasksSupertasksTableComponent } from './tables/tasks-supertasks-table/tasks-supertasks-table.component';
 import { TasksChunksTableComponent } from './tables/tasks-chunks-table/tasks-chunks-table.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  HTTableTypeLinkNoCacheComponent
+} from '@components/tables/ht-table/type/link-no-cache/ht-table-type-link-no-cache.component';
 
 @NgModule({
   declarations: [
@@ -119,7 +122,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     TasksTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
-    CracksTableComponent
+    CracksTableComponent,
+    HTTableTypeLinkNoCacheComponent
   ],
   imports: [
     ReactiveFormsModule,

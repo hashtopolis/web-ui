@@ -2,7 +2,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -12,7 +11,6 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { ChunksDataSource } from '@datasources/chunks.datasource';
 
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -73,13 +71,13 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
-        routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
+        routerLinkNoCache: (chunk: JChunk) => this.renderTaskLink(chunk),
         isSortable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
-        routerLink: (chunk: JChunk) => this.renderAgentLink(chunk),
+        routerLinkNoCache: (chunk: JChunk) => this.renderAgentLink(chunk),
         isSortable: true
       },
       {
@@ -109,25 +107,12 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
+        routerLinkNoCache: (chunk: JChunk) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];
   }
 
-  // --- Render functions ---
-
-  @Cacheable(['_id', 'cracked'])
-  renderCracked(chunk: JChunk): SafeHtml {
-    let html = `${chunk.cracked}`;
-    if (chunk.cracked && chunk.cracked > 0) {
-      html = `<a data-view-hashes-task-id="${chunk.task.id}">${chunk.cracked}</a>`;
-    }
-
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['id', 'state'])
   renderState(chunk: JChunk): SafeHtml {
     let html = `${chunk.state}`;
     if (chunk.state && chunk.state in chunkStates) {
@@ -137,7 +122,6 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     return this.sanitize(html);
   }
 
-  @Cacheable(['id', 'solveTime', 'dispatchTime'])
   renderTimeSpent(chunk: JChunk): SafeHtml {
     const seconds = chunk.solveTime - chunk.dispatchTime;
     if (seconds) {
@@ -147,7 +131,6 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     return this.sanitize('0');
   }
 
-  @Cacheable(['id', 'progress', 'checkpoint', 'skip', 'length'])
   renderCheckpoint(chunk: JChunk): SafeHtml {
     const percent = chunk.progress ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2) : 0;
     const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
@@ -155,7 +138,6 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     return this.sanitize(data);
   }
 
-  @Cacheable(['id', 'progress'])
   renderProgress(chunk: JChunk): SafeHtml {
     if (chunk.progress === undefined) {
       return this.sanitize('N/A');
@@ -166,32 +148,12 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     return `${chunk.progress ? chunk.progress : 0}`;
   }
 
-  @Cacheable(['id', 'taskId'])
-  renderTask(chunk: JChunk): SafeHtml {
-    if (chunk.task) {
-      return this.sanitize(chunk.task[0].taskName);
-    }
-
-    return this.sanitize(`${chunk.task.id}`);
-  }
-
-  @Cacheable(['id'])
-  renderAgent(agent: JAgent): SafeHtml {
-    if (agent) {
-      return this.sanitize(agent.agentName);
-    }
-
-    return `${agent.id}`;
-  }
-
-  @Cacheable(['id', 'dispatchTime'])
   renderDispatchTime(chunk: JChunk): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.dispatchTime, this.dateFormat);
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
 
-  @Cacheable(['id', 'solveTime'])
   renderLastActivity(chunk: JChunk): SafeHtml {
     if (chunk.solveTime === 0) {
       return '(No activity)';

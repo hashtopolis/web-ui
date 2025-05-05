@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { IconDefinition } from '@fortawesome/angular-fontawesome';
+import { Observable } from 'rxjs';
+
 import { SafeHtml } from '@angular/platform-browser';
+
+import { BaseModel } from '@models/base.model';
 
 export type DataType =
   | 'agents'
@@ -44,8 +49,9 @@ export interface HTTableIcon {
 
 export interface HTTableRouterLink {
   label?: string | number;
-  routerLink: any[];
+  routerLink: Array<string | number>;
   tooltip?: string;
+  icon?: { faIcon: IconDefinition; tooltip?: string };
 }
 
 export interface HTTableEditable<T> {
@@ -80,6 +86,8 @@ export interface HTTableColumn {
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
+  routerLinkNoCache?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
+  iconsNoCache?: (data: BaseModel) => HTTableIcon;
 }
 
 /** Column def for selectable checkbox */

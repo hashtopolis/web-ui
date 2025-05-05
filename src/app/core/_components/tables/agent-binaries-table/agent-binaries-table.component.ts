@@ -1,33 +1,34 @@
+import { catchError, forkJoin } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAgentBinary } from '@models/agent-binary.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentBinariesTableCol,
   AgentBinariesTableColumnLabel
-} from './agent-binaries-table.constants';
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { AgentBinariesDataSource } from 'src/app/core/_datasources/agent-binaries.datasource';
-import { JAgentBinary } from 'src/app/core/_models/agent-binary.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { environment } from 'src/environments/environment';
+import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
+
+import { environment } from '@src/environments/environment';
 
 @Component({
-    selector: 'agent-binaries-table',
-    templateUrl: './agent-binaries-table.component.html',
-    standalone: false
+  selector: 'app-agent-binaries-table',
+  templateUrl: './agent-binaries-table.component.html',
+  standalone: false
 })
-export class AgentBinariesTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
 
@@ -36,11 +37,7 @@ export class AgentBinariesTableComponent
   ngOnInit(): void {
     this.setColumnLabels(AgentBinariesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentBinariesDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AgentBinariesDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
 
@@ -55,15 +52,11 @@ export class AgentBinariesTableComponent
   }
 
   filter(item: JAgentBinary, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.filename.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: AgentBinariesTableCol.ID,
         dataKey: 'id',
@@ -106,8 +99,6 @@ export class AgentBinariesTableComponent
         export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JAgentBinary>) {
@@ -154,16 +145,9 @@ export class AgentBinariesTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JAgentBinary>(
-            this.tableColumns,
-            event.data,
-            AgentBinariesTableColumnLabel
-          )
+          .toClipboard<JAgentBinary>(this.tableColumns, event.data, AgentBinariesTableColumnLabel)
           .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
         break;
     }
@@ -226,10 +210,7 @@ export class AgentBinariesTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} agentBinaries!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} agentBinaries!`, 'Close');
           this.reload();
         })
     );
@@ -256,22 +237,13 @@ export class AgentBinariesTableComponent
   }
 
   private rowActionEdit(agentBinary: JAgentBinary): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'agent-binaries',
-      agentBinary.id,
-      'edit'
-    ]);
+    this.router.navigate(['/config', 'engine', 'agent-binaries', agentBinary.id, 'edit']);
   }
 
   private rowActionCopyLink(agentBinary: JAgentBinary): void {
     const link = `${this.agentdownloadURL}${agentBinary.id}`;
     this.clipboard.copy(link);
-    this.snackBar.open(
-      'The agent binary URL is copied to the clipboard',
-      'Close'
-    );
+    this.snackBar.open('The agent binary URL is copied to the clipboard', 'Close');
   }
 
   private rowActionDownload(agentBinary: JAgentBinary): void {

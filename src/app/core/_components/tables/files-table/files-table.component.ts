@@ -2,9 +2,8 @@
  * Contains table component for files
  * @module
  */
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-/* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
@@ -17,19 +16,18 @@ import { ExportMenuAction } from '@components/menus/export-menu/export-menu.cons
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { FilesDataSource } from '@datasources/files.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
-    selector: 'files-table',
-    templateUrl: './files-table.component.html',
-    standalone: false
+  selector: 'app-files-table',
+  templateUrl: './files-table.component.html',
+  standalone: false
 })
 export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() fileType: FileType = 0;
@@ -73,10 +71,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
    *          False, if not
    */
   filter(file: JFile, filterValue: string): boolean {
-    if (file.filename.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-    return false;
+    return file.filename.toLowerCase().includes(filterValue);
   }
 
   /**
@@ -84,7 +79,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
    * @returns List of table columns
    */
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: FilesTableCol.ID,
         dataKey: 'id',
@@ -94,8 +89,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: FilesTableCol.NAME,
         dataKey: 'filename',
-        icons: (file: JFile) => this.renderSecretIcon(file),
-        routerLink: (file: JFile) => this.renderFileLink(file),
+        iconsNoCache: (file: JFile) => this.renderSecretIcon(file),
+        routerLinkNoCache: (file: JFile) => this.renderFileLink(file),
         isSortable: true,
         export: async (file: JFile) => file.filename
       },
@@ -121,7 +116,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         export: async (file: JFile) => file.accessGroup?.groupName
       }
     ];
-    return tableColumns;
   }
 
   /**
@@ -148,19 +142,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         }
       })
     );
-  }
-
-  // --- Render functions ---
-  @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(file: JFile): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (file.isSecret) {
-      icons.push({
-        name: 'lock',
-        tooltip: 'Secret'
-      });
-    }
-    return icons;
   }
 
   // --- Action functions ---
@@ -228,10 +209,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} files!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} files!`, 'Close');
           this.reload();
         })
     );
@@ -257,19 +235,25 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     );
   }
 
-  @Cacheable(['id', 'fileType'])
-  async renderFileLink(file: JFile): Promise<HTTableRouterLink[]> {
-    return [
-      {
+  /**
+   * Render file link
+   * @param file - file object to render link for
+   * @return observable object containing a router link array
+   */
+  private renderFileLink(file: JFile): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (file) {
+      links.push({
         routerLink: ['/files', file.id, this.editPath],
         label: file['filename']
-      }
-    ];
+      });
+    }
+    return of(links);
   }
 
   private rowActionEdit(file: JFile): void {
-    this.renderFileLink(file).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
+    this.renderFileLink(file).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 }

@@ -170,8 +170,8 @@
       >
         <div
           class="flex-container"
-          [class.links]="tableColumn.routerLink"
-          [class.icons]="tableColumn.icons"
+          [class.links]="tableColumn.routerLinkNoCache"
+          [class.icons]="tableColumn.iconsNoCache"
         >
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate
@@ -184,6 +184,10 @@
               [tableColumn]="tableColumn"
               [element]="element"
             ></ht-table-link>
+            <app-ht-table-link-no-cache
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></app-ht-table-link-no-cache>
             <ht-table-default
               [tableColumn]="tableColumn"
               [element]="element"
@@ -217,6 +221,21 @@
                 }}</mat-icon>
               </ng-template>
             </ng-container>
+          </ng-container>
+
+          <!-- Icons without cache test element -->
+          <ng-container *ngIf="tableColumn.iconsNoCache">
+            <mat-icon
+              *ngIf="tableColumn.iconsNoCache(element).tooltip; else iconTmpl"
+              [matTooltip]="tableColumn.iconsNoCache(element).tooltip"
+              [ngClass]="tableColumn.iconsNoCache(element).cls ? tableColumn.iconsNoCache(element).cls : ''"
+            >{{ tableColumn.iconsNoCache(element).name }}</mat-icon
+            >
+            <ng-template #iconTmpl>
+              <mat-icon [ngClass]="tableColumn.iconsNoCache(element).cls ? tableColumn.iconsNoCache(element).cls : ''">{{
+                  tableColumn.iconsNoCache(element).name
+                }}</mat-icon>
+            </ng-template>
           </ng-container>
         </div>
       </td>

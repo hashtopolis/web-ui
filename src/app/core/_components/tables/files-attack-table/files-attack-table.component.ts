@@ -7,20 +7,14 @@ import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
 } from '@components/tables/files-attack-table/files-attack-table.constants';
-import {
-  CheckboxChangeEvent,
-  CheckboxFiles,
-  HTTableColumn,
-  HTTableIcon
-} from '@components/tables/ht-table/ht-table.models';
+import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { FilesDataSource } from '@datasources/files.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
-  selector: 'files-attack-table',
+  selector: 'app-files-attack-table',
   templateUrl: './files-attack-table.component.html',
   standalone: false
 })
@@ -58,11 +52,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   }
 
   filter(item: JFile, filterValue: string): boolean {
-    if (item.filename.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.filename.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -76,7 +66,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       {
         id: FilesAttackTableCol.NAME,
         dataKey: 'filename',
-        icons: (file: JFile) => this.renderSecretIcon(file),
+        iconsNoCache: (file: JFile) => this.renderSecretIcon(file),
         render: (file: JFile) => file.filename,
         isSortable: true,
         export: async (file: JFile) => file.filename
@@ -89,19 +79,6 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
         export: async (file: JFile) => formatFileSize(file.size, 'short')
       }
     ];
-  }
-
-  @Cacheable(['id', 'isSecret'])
-  async renderSecretIcon(file: JFile): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    if (file.isSecret) {
-      icons.push({
-        name: 'lock',
-        tooltip: 'Secret'
-      });
-    }
-
-    return icons;
   }
 
   onCheckboxChanged(event: CheckboxChangeEvent): void {

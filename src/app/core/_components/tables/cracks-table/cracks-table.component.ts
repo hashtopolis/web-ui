@@ -1,5 +1,4 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -20,11 +19,10 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'cracks-table',
+  selector: 'app-cracks-table',
   templateUrl: './cracks-table.component.html',
   standalone: false
 })
@@ -47,11 +45,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   filter(item: JHash, filterValue: string): boolean {
-    if (item.plaintext.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.plaintext.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -82,21 +76,21 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.AGENT,
         dataKey: 'agentId',
         isSortable: true,
-        routerLink: (crack: JHash) => this.renderAgentLink(crack),
+        routerLinkNoCache: (crack: JHash) => this.renderAgentLinkFromHash(crack),
         export: async (crack: JHash) => crack.chunk.agentId + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
         isSortable: true,
-        routerLink: (crack: JHash) => this.renderTaskLinkId(crack),
+        routerLinkNoCache: (crack: JHash) => this.renderTaskLinkFromHash(crack),
         export: async (crack: JHash) => crack.chunk.taskId + ''
       },
       {
         id: CracksTableCol.CHUNK,
         dataKey: 'chunkId',
         isSortable: true,
-        routerLink: (crack: JHash) => this.renderChunkLink(crack),
+        routerLinkNoCache: (crack: JHash) => this.renderChunkLinkFromHash(crack),
         export: async (crack: JHash) => crack.chunkId + ''
       },
       {
@@ -131,30 +125,66 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     );
   }
 
-  // --- Render functions ---
-  @Cacheable(['id'])
-  override async renderAgentLink(obj: JHash): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        //crack.chunk.agentId
-        routerLink: obj && obj['chunk']['agentId'] ? ['/agents', 'show-agents', obj['chunk']['agentId'], 'edit'] : [],
-        label: obj['chunk']['agentId']
+  /**
+   * Render an edit link to a defined object from a given chunk contained in a hash
+   * @param hash - the hash model to render the link for
+   * @param relativePath - relative URL path fot the link
+   * @param context - the context path of the link
+   * @param modelIDKey - the parameter of the model ID based on the hashes chunk model
+   * @private
+   */
+  private renderEditLinkFromHash(hash: JHash, relativePath: string, context: string, modelIDKey: string) {
+    const links: HTTableRouterLink[] = [];
+    if (hash) {
+      const chunk = hash.chunk;
+      if (chunk) {
+        const modelID = chunk[modelIDKey];
+        links.push({
+          routerLink: [relativePath, context, modelID, 'edit'],
+          label: modelID
+        });
       }
-    ];
+    }
+    return of(links);
   }
 
-  @Cacheable(['id'])
-  async renderTaskLinkId(hash: JHash): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: hash && hash.chunk.taskId ? ['/tasks', 'show-tasks', hash.chunk.taskId, 'edit'] : [],
-        label: hash.chunk.taskName
-      }
-    ];
+  /**
+   * Render edit link to agent for a given hash model
+   * @param hash - the hash model to render the link for
+   * @return observable containing an array of router links to be rendered in HTML
+   * @private
+   */
+  private renderAgentLinkFromHash(hash: JHash): Observable<HTTableRouterLink[]> {
+    return this.renderEditLinkFromHash(hash, '/agents', 'show-agents', 'agentId');
+  }
+
+  /**
+   * Render edit link to task for a given hash model
+   * @param hash - the hash model to render the link for
+   * @return observable containing an array of router links to be rendered in HTML
+   * @private
+   */
+  private renderTaskLinkFromHash(hash: JHash): Observable<HTTableRouterLink[]> {
+    return this.renderEditLinkFromHash(hash, '/tasks', 'show-tasks', 'taskId');
+  }
+
+  /**
+   * Render chunk link to be displayed in HTML code
+   * @param crack - cracked hash object to render router link for
+   * @return observable object containing a router link array
+   */
+  private renderChunkLinkFromHash(crack: JHash): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (crack) {
+      links.push({
+        routerLink: ['/tasks', 'chunks', crack.chunkId, 'view'],
+        label: crack.chunkId
+      });
+    }
+    return of(links);
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:

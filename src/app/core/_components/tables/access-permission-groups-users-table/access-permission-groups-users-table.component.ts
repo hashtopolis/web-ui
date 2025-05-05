@@ -11,12 +11,11 @@ import {
   AccessPermissionGroupsUsersTableColumnLabel
 } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { UsersTableStatus } from '@components/tables/users-table/users-table.constants';
 
 import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -58,7 +57,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.ID,
         dataKey: 'id',
-        routerLink: (user: JUser) => this.renderUserLink(user),
+        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.id + ''
       },
@@ -72,7 +71,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
+        iconsNoCache: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
@@ -87,15 +86,6 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
           user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
       }
     ];
-  }
-
-  // --- Render functions ---
-
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
-    return user.isValid
-      ? [{ name: 'check_circle', cls: 'text-ok' }]
-      : [{ name: 'remove_circle', cls: 'text-critical' }];
   }
 
   // --- Action functions ---

@@ -95,7 +95,7 @@
             <span><b>Files</b></span>
           </mat-panel-title>
         </mat-expansion-panel-header>
-          <files-table [hasBulkActions]="false" [isSelectable]="false" [hasRowAction]="false" [editIndex]="editedTaskIndex" [editType]="0"></files-table>
+          <app-files-table [hasBulkActions]="false" [isSelectable]="false" [hasRowAction]="false" [editIndex]="editedTaskIndex" [editType]="0"></app-files-table>
       </mat-expansion-panel>
   </mat-accordion>
 </grid-main>
@@ -152,6 +152,6 @@
     {{ chunkview === 1 ? 'Live Chunks' : 'Show All' }}
   </mat-slide-toggle>
   <br /><br />
-  <tasks-chunks-table [taskId]="editedTaskIndex" [isChunksLive]="chunkview"></tasks-chunks-table>
+  <app-tasks-chunks-table [taskId]="editedTaskIndex" [isChunksLive]="chunkview"></app-tasks-chunks-table>
 </app-table>
 
