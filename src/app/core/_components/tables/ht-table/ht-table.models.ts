@@ -81,12 +81,11 @@ export interface HTTableColumn {
   icons?: (data: any) => Promise<HTTableIcon[]>;
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
-  routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
-  routerLinkNoCache?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
+  routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
   iconsNoCache?: (data: BaseModel) => HTTableIcon;
 }
 

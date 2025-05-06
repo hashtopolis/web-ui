@@ -60,7 +60,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
       {
         id: HealthCheckAgentsTableCol.AGENT_NAME,
         dataKey: 'agentName',
-        routerLinkNoCache: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLink(HealthCheckAgent),
+        routerLink: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLink(HealthCheckAgent),
         isSortable: true,
         export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.agentName + ''
       },

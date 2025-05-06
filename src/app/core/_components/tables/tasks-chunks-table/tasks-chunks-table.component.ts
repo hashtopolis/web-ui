@@ -85,7 +85,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
         render: (chunk: JChunk) => this.renderAgent(chunk),
-        routerLinkNoCache: (chunk: JChunk) => this.renderAgentLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderAgentLink(chunk),
         isSortable: true
       },
       {
@@ -115,7 +115,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       {
         id: TasksChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLinkNoCache: (chunk: JChunk) => this.renderCrackedLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];

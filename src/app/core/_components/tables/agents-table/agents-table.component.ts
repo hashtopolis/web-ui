@@ -82,7 +82,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.NAME,
         dataKey: 'agentName',
-        routerLinkNoCache: (agent: JAgent) => this.renderAgentLink(agent),
+        routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
       },
@@ -98,7 +98,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         id: AgentsTableCol.USER,
         dataKey: 'userId',
         render: (agent: JAgent) => this.renderOwner(agent),
-        routerLinkNoCache: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
+        routerLink: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.user ? agent.user.name : '')
       },
@@ -120,7 +120,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.CURRENT_CHUNK,
         dataKey: 'chunkId',
-        routerLinkNoCache: (agent: JAgent) => this.renderChunkLink(agent),
+        routerLink: (agent: JAgent) => this.renderChunkLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
       },
@@ -141,7 +141,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.CRACKED,
         dataKey: 'cracked',
-        //routerLinkNoCache: (agent: JAgent) => this.renderCrackedLink(agent),
+        //routerLink: (agent: JAgent) => this.renderCrackedLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => this.renderCracked(agent) + ''
       }
@@ -152,14 +152,14 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       tableColumns.push({
         id: AgentsTableCol.CURRENT_TASK,
         dataKey: 'taskName',
-        routerLinkNoCache: (agent: JAgent) => this.renderTaskLink(agent),
+        routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
       });
       tableColumns.push({
         id: AgentsTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupId',
-        routerLinkNoCache: (agent: JAgent) => this.renderAccessGroupLinks(agent),
+        routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.accessGroup
       });

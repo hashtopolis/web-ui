@@ -62,7 +62,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: UsersTableCol.NAME,
         dataKey: 'name',
-        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
+        routerLink: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.name
       },

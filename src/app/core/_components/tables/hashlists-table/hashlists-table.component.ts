@@ -70,7 +70,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.NAME,
         dataKey: 'name',
         iconsNoCache: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
-        routerLinkNoCache: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
+        routerLink: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
         export: async (hashlist: JHashlist) => hashlist.name
       },
@@ -78,7 +78,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.HASH_COUNT,
         dataKey: 'hashCount',
         isSortable: true,
-        routerLinkNoCache: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
+        routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
         export: async (hashlist: JHashlist) => hashlist.hashCount + ''
       },
       {

@@ -59,7 +59,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
       {
         id: SupertasksPretasksTableCol.ID,
         dataKey: 'id',
-        routerLinkNoCache: (pretask: JPretask) => this.renderPretaskLink(pretask),
+        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
         export: async (pretask: JPretask) => pretask.id + ''
       },

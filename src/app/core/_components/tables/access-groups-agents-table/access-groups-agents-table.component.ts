@@ -64,7 +64,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
       {
         id: AccessGroupsAgentsTableCol.NAME,
         dataKey: 'agentName',
-        routerLinkNoCache: (agent: JAgent) => this.renderAgentLink(agent),
+        routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
       }

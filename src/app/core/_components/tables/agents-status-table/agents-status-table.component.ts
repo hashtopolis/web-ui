@@ -70,7 +70,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
-        routerLinkNoCache: (agent: JAgent) => this.renderAgentLink(agent),
+        routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
       },
@@ -94,7 +94,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'taskName',
         isSortable: true,
         render: (agent: JAgent) => agent.taskName,
-        routerLinkNoCache: (agent: JAgent) => this.renderTaskLink(agent),
+        routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         export: async (agent: JAgent) => agent.taskName
       },
       {

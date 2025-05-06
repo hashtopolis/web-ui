@@ -88,7 +88,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       {
         id: PretasksTableCol.NAME,
         dataKey: 'taskName',
-        routerLinkNoCache: (pretask: JPretask) => this.renderPretaskLink(pretask),
+        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
         export: async (pretask: JPretask) => pretask.taskName
       },

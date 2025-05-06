@@ -57,7 +57,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
       {
         id: HealthChecksTableCol.ID,
         dataKey: 'id',
-        routerLinkNoCache: (healthCheck: JHealthCheck) => this.renderHealthCheckLink(healthCheck),
+        routerLink: (healthCheck: JHealthCheck) => this.renderHealthCheckLink(healthCheck),
         isSortable: true,
         export: async (healthCheck: JHealthCheck) => healthCheck.id + ''
       },

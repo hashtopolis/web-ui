@@ -61,7 +61,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLinkNoCache: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
+        routerLink: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
         isSortable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },

@@ -82,7 +82,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
-        routerLinkNoCache: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
+        routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
@@ -122,7 +122,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
-        routerLinkNoCache: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
+        routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
       },
@@ -136,7 +136,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLinkNoCache: (wrapper: JTaskWrapper) => this.renderCrackedLinkFromWrapper(wrapper),
+        routerLink: (wrapper: JTaskWrapper) => this.renderCrackedLinkFromWrapper(wrapper),
         isSortable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.cracked + ''
       },
@@ -150,7 +150,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
-        routerLinkNoCache: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
+        routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },

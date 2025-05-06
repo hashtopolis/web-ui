@@ -18,6 +18,9 @@
         <ng-container *ngIf="!link.label">
           {{ element[tableColumn.dataKey] }}
         </ng-container>
+        <ng-container *ngIf="link.icon && link.icon.faIcon">
+          <fa-icon [icon]="link.icon.faIcon" title="{{ link.icon.tooltip }}"></fa-icon>
+        </ng-container>
       </a>
     </ng-template>
   </span>

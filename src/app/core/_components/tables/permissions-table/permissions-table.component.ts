@@ -59,7 +59,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
       {
         id: PermissionsTableCol.NAME,
         dataKey: 'name',
-        routerLinkNoCache: (permission: JGlobalPermissionGroup) => this.renderPermissionLink(permission),
+        routerLink: (permission: JGlobalPermissionGroup) => this.renderPermissionLink(permission),
         isSortable: true,
         export: async (permission: JGlobalPermissionGroup) => permission.name
       },

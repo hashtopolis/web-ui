@@ -170,7 +170,7 @@
       >
         <div
           class="flex-container"
-          [class.links]="tableColumn.routerLinkNoCache"
+          [class.links]="tableColumn.routerLink"
           [class.icons]="tableColumn.iconsNoCache"
         >
           <ng-container *ngIf="tableColumn.truncate">
@@ -180,14 +180,10 @@
             ></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">
-            <ht-table-link
+            <app-ht-table-link
               [tableColumn]="tableColumn"
               [element]="element"
-            ></ht-table-link>
-            <app-ht-table-link-no-cache
-              [tableColumn]="tableColumn"
-              [element]="element"
-            ></app-ht-table-link-no-cache>
+            ></app-ht-table-link>
             <ht-table-default
               [tableColumn]="tableColumn"
               [element]="element"

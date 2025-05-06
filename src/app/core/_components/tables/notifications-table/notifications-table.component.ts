@@ -76,7 +76,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
       {
         id: NotificationsTableCol.APPLIED_TO,
         dataKey: 'appliedTo',
-        routerLinkNoCache: (notification: JNotification) => this.renderAppliedToLink(notification),
+        routerLink: (notification: JNotification) => this.renderAppliedToLink(notification),
         isSortable: true,
         export: async (notification: JNotification) => notification.action
       },

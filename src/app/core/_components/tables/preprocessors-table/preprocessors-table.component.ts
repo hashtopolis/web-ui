@@ -59,7 +59,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
       {
         id: PreprocessorsTableCol.NAME,
         dataKey: 'name',
-        routerLinkNoCache: (preprocessor: JPreprocessor) => this.renderPreproLink(preprocessor),
+        routerLink: (preprocessor: JPreprocessor) => this.renderPreproLink(preprocessor),
         isSortable: true,
         export: async (preprocessor: JPreprocessor) => preprocessor.name
       }
