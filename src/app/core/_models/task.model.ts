@@ -1,5 +1,6 @@
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
+import { ChunkData } from '@models/chunk.model';
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { JFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
@@ -40,4 +41,5 @@ export interface JTask extends BaseModel {
   dispatched: string;
   searched: string;
   speeds: SpeedStat[];
+  chunkData?: ChunkData;
 }
