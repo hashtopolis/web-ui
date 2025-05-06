@@ -62,14 +62,14 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
       {
         id: HashtypesTableCol.SALTED,
         dataKey: 'isSalted',
-        iconsNoCache: (hashtype: JHashtype) => this.renderCheckmarkIcon(hashtype, 'isSalted'),
+        icon: (hashtype: JHashtype) => this.renderCheckmarkIcon(hashtype, 'isSalted'),
         isSortable: true,
         export: async (hashtype: JHashtype) => (hashtype.isSalted ? 'Yes' : 'No')
       },
       {
         id: HashtypesTableCol.SLOW_HASH,
         dataKey: 'isSlowHash',
-        iconsNoCache: (hashtype: JHashtype) => this.renderCheckmarkIcon(hashtype, 'isSlowHash'),
+        icon: (hashtype: JHashtype) => this.renderCheckmarkIcon(hashtype, 'isSlowHash'),
         isSortable: true,
         export: async (hashtype: JHashtype) => (hashtype.isSlowHash ? 'Yes' : 'No')
       }

@@ -66,7 +66,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       {
         id: FilesAttackTableCol.NAME,
         dataKey: 'filename',
-        iconsNoCache: (file: JFile) => this.renderSecretIcon(file),
+        icon: (file: JFile) => this.renderSecretIcon(file),
         render: (file: JFile) => file.filename,
         isSortable: true,
         export: async (file: JFile) => file.filename

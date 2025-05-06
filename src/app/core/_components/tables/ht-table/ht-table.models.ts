@@ -78,7 +78,6 @@ export interface HTTableColumn {
   dataKey?: string;
   position?: 'right' | 'left';
   isSortable?: boolean;
-  icons?: (data: any) => Promise<HTTableIcon[]>;
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
   export?: (data: any) => Promise<string>;
@@ -86,7 +85,7 @@ export interface HTTableColumn {
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
   routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
-  iconsNoCache?: (data: BaseModel) => HTTableIcon;
+  icon?: (data: BaseModel) => HTTableIcon;
 }
 
 /** Column def for selectable checkbox */

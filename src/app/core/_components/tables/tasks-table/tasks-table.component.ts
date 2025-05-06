@@ -90,7 +90,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.STATUS,
         dataKey: 'keyspaceProgress',
         render: (wrapper: JTaskWrapper) => this.renderSpeed(wrapper),
-        iconsNoCache: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
+        icon: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => {
           const status = this.getTaskStatus(wrapper);
@@ -192,7 +192,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_SMALL,
         dataKey: 'isSmall',
-        iconsNoCache: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
+        icon: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === 0 ? (wrapper.tasks[0].isSmall ? 'Yes' : 'No') : ''
@@ -200,7 +200,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.IS_CPU_TASK,
         dataKey: 'isCpuTask',
-        iconsNoCache: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
+        icon: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
           wrapper.taskType === 0 ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''

@@ -89,7 +89,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: FilesTableCol.NAME,
         dataKey: 'filename',
-        iconsNoCache: (file: JFile) => this.renderSecretIcon(file),
+        icon: (file: JFile) => this.renderSecretIcon(file),
         routerLink: (file: JFile) => this.renderFileLink(file),
         isSortable: true,
         export: async (file: JFile) => file.filename

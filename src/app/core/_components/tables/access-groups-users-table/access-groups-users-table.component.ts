@@ -67,7 +67,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       {
         id: AccessGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        iconsNoCache: (user: JUser) => this.renderIsValidIcon(user),
+        icon: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
