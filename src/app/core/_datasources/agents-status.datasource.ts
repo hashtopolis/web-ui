@@ -1,19 +1,39 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
-import { JAgent } from '@src/app/core/_models/agent.model';
+import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JTask } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { SERV } from '@src/app/core/_services/main.config';
-
-import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
+  private chunktime = this.uiService.getUIsettings('chunktime').value;
+
+  /**
+   * Get current agent cracking speed from all asssigned chunks
+   * @param agent - agent instance to get cracking speed for
+   * @param chunks - collection of all available chunks
+   * @return current agent's cracking speed
+   * @private
+   */
+  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
+    let chunkSpeed: number = 0;
+    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
+      if (
+        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
+        chunk.progress < 10000
+      ) {
+        chunkSpeed += chunk.speed;
+      }
+    }
+    return chunkSpeed;
+  }
+
   loadAll(): void {
     this.loading = true;
     const agentParams = new RequestParamBuilder()
@@ -36,7 +56,7 @@ export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
+        async ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
           ResponseWrapper,
           ResponseWrapper,
           ResponseWrapper,
@@ -68,6 +88,7 @@ export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
               agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
               if (agent.chunk) {
                 agent.chunkId = agent.chunk.id;
+                agent.agentSpeed = this.getAgentSpeed(agent, chunks);
               }
             }
 

@@ -69,8 +69,8 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       {
         id: HashlistsTableCol.NAME,
         dataKey: 'name',
-        iconsNoCache: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
-        routerLinkNoCache: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
+        icon: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
+        routerLink: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
         export: async (hashlist: JHashlist) => hashlist.name
       },
@@ -78,13 +78,13 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.HASH_COUNT,
         dataKey: 'hashCount',
         isSortable: true,
-        routerLinkNoCache: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
+        routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
         export: async (hashlist: JHashlist) => hashlist.hashCount + ''
       },
       {
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
-        iconsNoCache: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
+        icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
         render: (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount),
         isSortable: true,
         export: async (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount)

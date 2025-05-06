@@ -62,7 +62,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: UsersTableCol.NAME,
         dataKey: 'name',
-        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
+        routerLink: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.name
       },
@@ -92,7 +92,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: UsersTableCol.STATUS,
         dataKey: 'isValid',
-        iconsNoCache: (user: JUser) => this.renderIsValidIcon(user),
+        icon: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)

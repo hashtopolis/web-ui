@@ -57,7 +57,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.ID,
         dataKey: 'id',
-        routerLinkNoCache: (user: JUser) => this.renderUserLink(user),
+        routerLink: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
         export: async (user: JUser) => user.id + ''
       },
@@ -71,7 +71,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        iconsNoCache: (user: JUser) => this.renderIsValidIcon(user),
+        icon: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)

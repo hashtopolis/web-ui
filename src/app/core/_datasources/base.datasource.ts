@@ -6,11 +6,13 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { ChunkData, JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -326,16 +328,13 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     const tasks: number[] = !isAgent ? [id] : [];
     const agents: number[] = isAgent ? [id] : [];
     const current = 0;
-    let params: {};
-
+    const params: RequestParamBuilder = new RequestParamBuilder();
     if (isAgent) {
-      params = { 'filter[agentId__eq]': id };
+      params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: id });
     } else {
-      params = { 'filter[taskId__eq]': id };
+      params.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: id });
     }
-
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params));
-
+    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params.create()));
     const responseBody = { data: response.data, included: response.included };
     const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
 

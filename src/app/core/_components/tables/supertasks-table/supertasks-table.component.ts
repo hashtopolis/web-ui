@@ -61,7 +61,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       {
         id: SupertasksTableCol.NAME,
         dataKey: 'supertaskName',
-        routerLinkNoCache: (supertask: JSuperTask) => this.renderSupertaskLink(supertask),
+        routerLink: (supertask: JSuperTask) => this.renderSupertaskLink(supertask),
         isSortable: true,
         export: async (supertask: JSuperTask) => supertask.supertaskName
       },

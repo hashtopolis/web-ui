@@ -20,22 +20,17 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _taskId = 0;
-  private _assignAgents = false;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
 
-  setAssignAgents(assign: boolean): void {
-    this._assignAgents = assign;
-  }
-
   loadAll(): void {
     this.loading = true;
     const agentParams = new RequestParamBuilder().addInitial(this).addInclude('accessGroups').create();
-    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
-
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
+
+    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);
     const tasks$ = this.service.getAll(SERV.TASKS, params);
@@ -49,7 +44,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
+        async ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
           ResponseWrapper,
           ResponseWrapper,
           ResponseWrapper,
@@ -90,7 +85,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
             return agent;
           });
-
+          for (const agent of agents) {
+            agent.chunkData = await this.getChunkData(agent.id, true);
+          }
           this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
           this.setData(agents);
         }
@@ -120,7 +117,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([userResponse, assignmentResponse, chunkResponse]: [ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
+        async ([userResponse, assignmentResponse, chunkResponse]: [
+          ResponseWrapper,
+          ResponseWrapper,
+          ResponseWrapper
+        ]) => {
           const users = serializer.deserialize<JUser[]>({
             data: userResponse.data,
             included: userResponse.included
@@ -151,6 +152,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
             agents.push(agent);
           });
+
+          for (const agent of agents) {
+            agent.chunkData = await this.getChunkData(agent.id, true);
+          }
 
           this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
           this.setData(agents);

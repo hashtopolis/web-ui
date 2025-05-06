@@ -1,4 +1,4 @@
-import { catchError, firstValueFrom, forkJoin } from 'rxjs';
+import { catchError, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -16,9 +16,7 @@ import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tabl
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { AgentsStatusDataSource } from '@src/app/core/_datasources/agents-status.datasource';
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { JAgent } from '@src/app/core/_models/agent.model';
-import { ChunkData } from '@src/app/core/_models/chunk.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -30,8 +28,6 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsStatusDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
-  private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -68,20 +64,20 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: true,
-        async: (agent: JAgent) => this.renderActiveAgent(agent),
-        export: async (agent: JAgent) => await this.renderActiveAgent(agent)
+        render: (agent: JAgent) => this.renderActiveAgent(agent),
+        export: async (agent: JAgent) => this.renderActiveAgent(agent)
       },
       {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
-        routerLinkNoCache: (agent: JAgent) => this.renderAgentLink(agent),
+        routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
       },
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
         dataKey: 'isActive',
-        iconsNoCache: (agent: JAgent) => this.renderStatusIcon(agent),
+        icon: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive'),
         isSortable: true
@@ -89,16 +85,16 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.WORKING_ON,
         dataKey: 'workingOn',
-        async: (agent: JAgent) => this.renderWorkingOn(agent),
+        render: (agent: JAgent) => this.renderWorkingOn(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (await this.exportWorkingOn(agent)) + ''
+        export: async (agent: JAgent) => this.exportWorkingOn(agent) + ''
       },
       {
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
         render: (agent: JAgent) => agent.taskName,
-        routerLinkNoCache: (agent: JAgent) => this.renderTaskLink(agent),
+        routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         export: async (agent: JAgent) => agent.taskName
       },
       {
@@ -139,74 +135,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     );
   }
 
-  // --- Render functions ---
-
-  @Cacheable(['id'])
-  async renderActiveAgent(agent: JAgent): Promise<string> {
-    const agentSpeed = await firstValueFrom(this.utilService.calculateSpeed(agent.id, true));
-    return agentSpeed > 0 ? 'Running task' : 'Stopped task';
-  }
-
-  renderStatus(agent: JAgent): SafeHtml {
-    let html: string;
-    if (agent.isActive) {
-      html = '<span class="pill pill-active">Active</span>';
-    } else {
-      html = '<span class="pill pill-inactive">Inactive</span>';
-    }
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['id', 'speed'])
-  async renderWorkingOn(agent: JAgent): Promise<SafeHtml> {
-    let html = '';
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      html = `
-        <div>
-        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
-        <div>at ${speed} H/s,<br></div>
-        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
-        </div>
-      `;
-    }
-
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['id', 'speed'])
-  async exportWorkingOn(agent: JAgent): Promise<SafeHtml> {
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      return `Task: ${agent.taskName} at ${speed} H/s, working on chunk ${agent.chunkId}`;
-    } else {
-      return '-';
-    }
-  }
-
-  renderLastActivity(agent: JAgent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    const action = `Action: ${agent.lastAct}<br>`;
-    const time = `Time: ${formattedDate}<br>`;
-    const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : '';
-
-    const data = `${action}${time}${ip}`;
-    return this.sanitize(data);
-  }
-
-  private async getSpeed(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'speed');
-  }
-
-  private async getChunkDataParam(agentId: number, key: string): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(agentId);
-    if (cd[key]) {
-      return cd[key];
-    }
-
-    return 0;
-  }
-
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
@@ -234,7 +162,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         break;
     }
   }
-
   rowActionClicked(event: ActionMenuEvent<JAgent>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
@@ -361,36 +288,79 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   /**
-   * Retrieves or fetches chunk data associated with a given agent from the data source.
-   * If the chunk data for the specified agent ID is not already cached, it is fetched
-   * asynchronously from the data source and stored in the cache for future use.
-   *
-   * @param {number} agentId - The ID of the agent for which chunk data is requested.
-   * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified agent.
-   *
-   * @remarks
-   * This function uses a locking mechanism to ensure that concurrent calls for the same agent ID
-   * do not interfere with each other. If another call is already fetching or has fetched
-   * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
-   * before proceeding.
+   * Render message, if agent is working on a task or in idle mode
+   * @param agent - agent instance to check state for
+   * @return message containing the current agent state
+   * @private
    */
-  private async getChunkData(agentId: number): Promise<ChunkData> {
-    if (!this.chunkDataLock[agentId]) {
-      // If there is no lock, create a new one
-      this.chunkDataLock[agentId] = (async () => {
-        if (!(agentId in this.chunkData)) {
-          // Inside the lock, await the asynchronous operation
-          this.chunkData[agentId] = await this.dataSource.getChunkData(agentId);
-        }
+  private renderActiveAgent(agent: JAgent): string {
+    return agent.agentSpeed > 0 ? 'Running task' : 'Stopped task';
+  }
 
-        // Release the lock when the operation is complete
-        delete this.chunkDataLock[agentId];
-      })();
+  /**
+   * Render agent status - active or inactive
+   * @param agent - agent instance to check state for
+   * @return html code containing current state and an icon for the state
+   * @private
+   */
+  private renderStatus(agent: JAgent): SafeHtml {
+    let html: string;
+    if (agent.isActive) {
+      html = '<span class="pill pill-active">Active</span>';
+    } else {
+      html = '<span class="pill pill-inactive">Inactive</span>';
+    }
+    return this.sanitize(html);
+  }
+
+  /**
+   * Render agent information conecnrning the task, agent is working on at the moment
+   * @param agent - agent instance to check working state for
+   * @return html code containing task information, if agent is processing a task
+   * @private
+   */
+  private renderWorkingOn(agent: JAgent): SafeHtml {
+    let html = '';
+    if (agent.agentSpeed) {
+      html = `
+        <div>
+        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
+        <div>at ${agent.agentSpeed} H/s,<br></div>
+        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
+        </div>
+      `;
     }
 
-    // Wait for the lock to be released before returning the data
-    await this.chunkDataLock[agentId];
+    return this.sanitize(html);
+  }
 
-    return this.chunkData[agentId];
+  /**
+   * Export working on information
+   * @param agent - agent instance to check state for
+   * @return html code containing task information, if agent is processing a task
+   * @private
+   */
+  private exportWorkingOn(agent: JAgent): SafeHtml {
+    if (agent.agentSpeed) {
+      return `Task: ${agent.taskName} at ${agent.agentSpeed} H/s, working on chunk ${agent.chunkId}`;
+    } else {
+      return '-';
+    }
+  }
+
+  /**
+   * Render information abaout task's last activity
+   * @return html code containing task information, if agent is processing a task
+   * @return html code containing information abaout tasks last activity
+   * @private
+   */
+  private renderLastActivity(agent: JAgent): SafeHtml {
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
+    const action = `Action: ${agent.lastAct}<br>`;
+    const time = `Time: ${formattedDate}<br>`;
+    const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : '';
+
+    const data = `${action}${time}${ip}`;
+    return this.sanitize(data);
   }
 }

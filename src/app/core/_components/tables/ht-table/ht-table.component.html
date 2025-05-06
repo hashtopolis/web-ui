@@ -170,8 +170,8 @@
       >
         <div
           class="flex-container"
-          [class.links]="tableColumn.routerLinkNoCache"
-          [class.icons]="tableColumn.iconsNoCache"
+          [class.links]="tableColumn.routerLink"
+          [class.icons]="tableColumn.icon"
         >
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate
@@ -180,14 +180,10 @@
             ></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">
-            <ht-table-link
+            <app-ht-table-link
               [tableColumn]="tableColumn"
               [element]="element"
-            ></ht-table-link>
-            <app-ht-table-link-no-cache
-              [tableColumn]="tableColumn"
-              [element]="element"
-            ></app-ht-table-link-no-cache>
+            ></app-ht-table-link>
             <ht-table-default
               [tableColumn]="tableColumn"
               [element]="element"
@@ -205,35 +201,16 @@
           </ng-container>
 
           <!-- Check if icon function is defined -->
-          <ng-container *ngIf="tableColumn.icons">
-            <ng-container
-              *ngFor="let icon of tableColumn.icons(element) | async"
-            >
-              <mat-icon
-                *ngIf="icon.tooltip; else iconTmpl"
-                [matTooltip]="icon.tooltip"
-                [ngClass]="icon.cls ? icon.cls : ''"
-                >{{ icon.name }}</mat-icon
-              >
-              <ng-template #iconTmpl>
-                <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
-                  icon.name
-                }}</mat-icon>
-              </ng-template>
-            </ng-container>
-          </ng-container>
-
-          <!-- Icons without cache test element -->
-          <ng-container *ngIf="tableColumn.iconsNoCache">
+          <ng-container *ngIf="tableColumn.icon">
             <mat-icon
-              *ngIf="tableColumn.iconsNoCache(element).tooltip; else iconTmpl"
-              [matTooltip]="tableColumn.iconsNoCache(element).tooltip"
-              [ngClass]="tableColumn.iconsNoCache(element).cls ? tableColumn.iconsNoCache(element).cls : ''"
-            >{{ tableColumn.iconsNoCache(element).name }}</mat-icon
+              *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
+              [matTooltip]="tableColumn.icon(element).tooltip"
+              [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''"
+            >{{ tableColumn.icon(element).name }}</mat-icon
             >
             <ng-template #iconTmpl>
-              <mat-icon [ngClass]="tableColumn.iconsNoCache(element).cls ? tableColumn.iconsNoCache(element).cls : ''">{{
-                  tableColumn.iconsNoCache(element).name
+              <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
+                  tableColumn.icon(element).name
                 }}</mat-icon>
             </ng-template>
           </ng-container>

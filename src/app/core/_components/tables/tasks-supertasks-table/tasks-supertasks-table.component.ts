@@ -24,10 +24,8 @@ import {
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
-
 @Component({
-  selector: 'tasks-supertasks-table',
+  selector: 'app-tasks-supertasks-table',
   templateUrl: './tasks-supertasks-table.component.html',
   standalone: false
 })
@@ -36,8 +34,6 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksSupertasksDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
-  private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnInit(): void {
     this.setColumnLabels(TasksSupertasksDataSourceTableColumnLabel);
@@ -78,21 +74,21 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.DISPATCHED_SEARCHED,
         dataKey: 'clientSignature',
-        async: (task: JTask) => this.renderDispatchedSearched(task),
+        render: (task: JTask) => this.renderDispatchedSearched(task),
         isSortable: true
       },
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
         dataKey: 'cracked',
-        //routerLinkNoCache: (wrapper: JTask) => this.renderCrackedLink(wrapper),
+        //routerLink: (wrapper: JTask) => this.renderCrackedLink(wrapper),
         isSortable: true
       },
       {
         id: TasksSupertasksDataSourceTableCol.AGENTS,
         dataKey: 'agents',
-        async: (task: JTask) => this.renderAgents(task),
+        render: (task: JTask) => this.renderAgents(task),
         isSortable: true,
-        export: async (task: JTask) => (await this.getNumAgents(task)) + ''
+        export: async (task: JTask) => this.getNumAgents(task) + ''
       },
       {
         id: TasksSupertasksDataSourceTableCol.PRIORITY,
@@ -283,31 +279,27 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     );
   }
 
-  async getDispatchedSearchedString(task: JTask): Promise<string> {
+  private getDispatchedSearchedString(task: JTask): string {
     if (task.keyspace > 0) {
-      const cd: ChunkData = await this.getChunkData(task);
-      const disp = (cd.dispatched * 100).toFixed(2);
-      const sear = (cd.searched * 100).toFixed(2);
-
+      const chunkData: ChunkData = task.chunkData;
+      const disp = (chunkData.dispatched * 100).toFixed(2);
+      const sear = (chunkData.searched * 100).toFixed(2);
       return `${disp}% / ${sear}%`;
     }
     return '';
   }
 
-  async getNumAgents(task: JTask): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(task);
-    return cd.agents.length;
+  private getNumAgents(task: JTask): number {
+    return task.chunkData ? task.chunkData.agents.length : 0;
   }
 
-  @Cacheable(['id', 'taskName'])
-  async renderAgents(task: JTask): Promise<SafeHtml> {
-    const numAgents = await this.getNumAgents(task);
+  private renderAgents(task: JTask): SafeHtml {
+    const numAgents = this.getNumAgents(task);
     return this.sanitize(`${numAgents}`);
   }
 
-  @Cacheable(['id', 'taskName'])
-  async renderDispatchedSearched(task: JTask): Promise<SafeHtml> {
-    const html = await this.getDispatchedSearchedString(task);
+  private renderDispatchedSearched(task: JTask): SafeHtml {
+    const html = this.getDispatchedSearchedString(task);
     return this.sanitize(html);
   }
 
@@ -437,24 +429,5 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
         this.reload();
       })
     );
-  }
-
-  private async getChunkData(task: JTask): Promise<ChunkData> {
-    if (!this.chunkDataLock[task.id]) {
-      // If there is no lock, create a new one
-      this.chunkDataLock[task.id] = (async () => {
-        if (!(task.id in this.chunkData)) {
-          // Inside the lock, await the asynchronous operation
-          this.chunkData[task.id] = await this.dataSource.getChunkData(task.id, false, task.keyspace);
-        }
-
-        // Release the lock when the operation is complete
-        delete this.chunkDataLock[task.id];
-      })();
-    }
-
-    // Wait for the lock to be released before returning the data
-    await this.chunkDataLock[task.id];
-    return this.chunkData[task.id];
   }
 }

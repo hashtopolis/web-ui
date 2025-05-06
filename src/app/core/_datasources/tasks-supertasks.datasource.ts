@@ -35,7 +35,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ResponseWrapper) => {
+        .subscribe(async (response: ResponseWrapper) => {
           const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>({
             data: response.data,
             included: response.included
@@ -44,6 +44,11 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
 
           const subtasks = taskWrappers[0].tasks;
+
+          for (const subtask of subtasks) {
+            subtask.chunkData = await this.getChunkData(subtask.id, false, subtask.keyspace);
+          }
+
           this.setData(subtasks);
         })
     );

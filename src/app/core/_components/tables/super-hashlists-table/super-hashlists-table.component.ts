@@ -65,15 +65,15 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       {
         id: SuperHashlistsTableCol.NAME,
         dataKey: 'name',
-        iconsNoCache: (superHashlist: JHashlist) => this.renderSecretIcon(superHashlist),
-        routerLinkNoCache: (superHashlist: JHashlist) => this.renderHashlistLink(superHashlist),
+        icon: (superHashlist: JHashlist) => this.renderSecretIcon(superHashlist),
+        routerLink: (superHashlist: JHashlist) => this.renderHashlistLink(superHashlist),
         isSortable: true,
         export: async (superHashlist: JHashlist) => superHashlist.name
       },
       {
         id: SuperHashlistsTableCol.CRACKED,
         dataKey: 'cracked',
-        iconsNoCache: (superHashlist: JHashlist) => this.renderCrackedStatusIcon(superHashlist),
+        icon: (superHashlist: JHashlist) => this.renderCrackedStatusIcon(superHashlist),
         render: (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount),
         isSortable: true,
         export: async (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount)
@@ -88,7 +88,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       {
         id: SuperHashlistsTableCol.HASHLISTS,
         dataKey: 'hashlists',
-        routerLinkNoCache: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
+        routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       }

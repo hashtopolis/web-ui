@@ -23,7 +23,6 @@ import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UtilService } from '@services/shared/util.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
@@ -67,8 +66,7 @@ export class BaseTableComponent {
     protected uiService: UIConfigService,
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog,
-    public utilService: UtilService
+    public dialog: MatDialog
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();

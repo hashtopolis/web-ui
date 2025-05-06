@@ -1,5 +1,6 @@
 import { JAccessGroup } from '@models/access-group.model';
 import { BaseModel } from '@models/base.model';
+import { ChunkData } from '@models/chunk.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
 import { JTask } from '@models/task.model';
@@ -23,4 +24,5 @@ export interface JTaskWrapper extends BaseModel {
   taskWrapperName: string;
   tasks?: JTask[];
   taskName?: string;
+  chunkData?: ChunkData;
 }

@@ -63,7 +63,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
       {
         id: CrackersTableCol.VERSIONS,
         dataKey: 'crackerVersions',
-        routerLinkNoCache: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
+        routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
         export: async (cracker: JCrackerBinaryType) =>
           cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')

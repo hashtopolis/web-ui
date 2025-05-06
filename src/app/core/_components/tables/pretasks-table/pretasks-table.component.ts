@@ -88,7 +88,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       {
         id: PretasksTableCol.NAME,
         dataKey: 'taskName',
-        routerLinkNoCache: (pretask: JPretask) => this.renderPretaskLink(pretask),
+        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
         export: async (pretask: JPretask) => pretask.taskName
       },
@@ -102,7 +102,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         id: PretasksTableCol.FILES_TOTAL,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        iconsNoCache: (pretask: JPretask) => this.renderSecretIcon(pretask),
+        icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
         render: (pretask: JPretask) => pretask.pretaskFiles?.length,
         export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
       },
