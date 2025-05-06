@@ -1,6 +1,4 @@
-import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
-
-import { FilterType } from '@models/request-params.model';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
 import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
@@ -12,29 +10,28 @@ import { JUser } from '@src/app/core/_models/user.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SERV } from '@src/app/core/_services/main.config';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { environment } from '@src/environments/environment';
 
 export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
 
-  private async getAgentSpeed(agent: JAgent): Promise<number> {
-    const cspeed = [];
-    const params = new RequestParamBuilder()
-      .setPageSize(environment.config.prodApiMaxResults)
-      .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: agent.id })
-      .create();
-    const res = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params));
-
-    for (let i = 0; i < res.data.length; i++) {
+  /**
+   * Get current agent cracking speed from all asssigned chunks
+   * @param agent - agent instance to get cracking speed for
+   * @param chunks - collection of all available chunks
+   * @return current agent's cracking speed
+   * @private
+   */
+  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
+    let chunkSpeed: number = 0;
+    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
       if (
-        Date.now() / 1000 - Math.max(res.data[i].attributes.solveTime, res.data[i].attributes.dispatchTime) <
-          this.chunktime &&
-        res.data[i].attributes.progress < 10000
+        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
+        chunk.progress < 10000
       ) {
-        cspeed.push(res.data[i].attributes.speed);
+        chunkSpeed += chunk.speed;
       }
     }
-    return cspeed.reduce((a, i) => a + i, 0);
+    return chunkSpeed;
   }
 
   loadAll(): void {
@@ -91,15 +88,12 @@ export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
               agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
               if (agent.chunk) {
                 agent.chunkId = agent.chunk.id;
+                agent.agentSpeed = this.getAgentSpeed(agent, chunks);
               }
             }
 
             return agent;
           });
-
-          for (const agent of agents) {
-            agent.agentSpeed = await this.getAgentSpeed(agent);
-          }
 
           this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
           this.setData(agents);

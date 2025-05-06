@@ -20,22 +20,17 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private _taskId = 0;
-  private _assignAgents = false;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
 
-  setAssignAgents(assign: boolean): void {
-    this._assignAgents = assign;
-  }
-
   loadAll(): void {
     this.loading = true;
     const agentParams = new RequestParamBuilder().addInitial(this).addInclude('accessGroups').create();
-    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
-
     const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
+
+    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
     const users$ = this.service.getAll(SERV.USERS, params);
     const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);
     const tasks$ = this.service.getAll(SERV.TASKS, params);

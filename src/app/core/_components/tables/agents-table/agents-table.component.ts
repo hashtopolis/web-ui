@@ -63,9 +63,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    if (this.assignAgents) {
-      this.dataSource.setAssignAgents(this.assignAgents);
-    }
     this.dataSource.reload();
   }
 
