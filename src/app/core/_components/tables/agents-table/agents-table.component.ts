@@ -271,16 +271,34 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return { name: '' };
   }
 
+  /**
+   * Render time spent the agent is working on a task
+   * @param agent - agent instance to render time for
+   * @return html code containing time spent on the taks
+   * @private
+   */
   private renderTimeSpent(agent: JAgent): SafeHtml {
     const timeSpent: number = this.getChunkDataValue(agent, 'timeSpent');
     return this.sanitize(timeSpent ? `${formatSeconds(timeSpent)}` : '-');
   }
 
+  /**
+   * Render searched keyspace
+   * @param agent - agent instance to render time for
+   * @return html code containing the amount of searched keyspace
+   * @private
+   */
   private renderSearched(agent: JAgent): SafeHtml {
     const searched = this.getChunkDataValue(agent, 'searched');
     return this.sanitize(searched ? `${searched}` : '-');
   }
 
+  /**
+   * Render amount of cracked hashes
+   * @param agent - agent instance to render time for
+   * @return html code containing the amount of cracked hashes
+   * @private
+   */
   private renderCracked(agent: JAgent): SafeHtml {
     const cracked = this.getChunkDataValue(agent, 'cracked');
     return this.sanitize(cracked ? `<span>${cracked}</span>` : '-');
