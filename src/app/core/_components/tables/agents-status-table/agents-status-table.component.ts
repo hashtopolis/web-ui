@@ -68,8 +68,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.STATUS,
         dataKey: 'status',
         isSortable: true,
-        async: (agent: JAgent) => this.renderActiveAgent(agent),
-        export: async (agent: JAgent) => await this.renderActiveAgent(agent)
+        render: (agent: JAgent) => this.renderActiveAgent(agent),
+        export: async (agent: JAgent) => this.renderActiveAgent(agent)
       },
       {
         id: AgentsStatusTableCol.NAME,
@@ -141,9 +141,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   // --- Render functions ---
 
-  @Cacheable(['id'])
-  async renderActiveAgent(agent: JAgent): Promise<string> {
-    const agentSpeed = await firstValueFrom(this.utilService.calculateSpeed(agent.id, true));
+  renderActiveAgent(agent: JAgent): string {
+    const agentSpeed = agent.agentSpeed;
     return agentSpeed > 0 ? 'Running task' : 'Stopped task';
   }
 

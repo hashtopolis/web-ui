@@ -1,19 +1,42 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, firstValueFrom, forkJoin, of } from 'rxjs';
 
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
-import { JChunk } from '@src/app/core/_models/chunk.model';
-import { JTask } from '@src/app/core/_models/task.model';
-import { JUser } from '@src/app/core/_models/user.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
+import { FilterType } from '@models/request-params.model';
 
 import { BaseDataSource } from '@src/app/core/_datasources/base.datasource';
+import { JAgentAssignment } from '@src/app/core/_models/agent-assignment.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { JChunk } from '@src/app/core/_models/chunk.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JTask } from '@src/app/core/_models/task.model';
+import { JUser } from '@src/app/core/_models/user.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { SERV } from '@src/app/core/_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { environment } from '@src/environments/environment';
 
 export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
+  private chunktime = this.uiService.getUIsettings('chunktime').value;
+
+  private async getAgentSpeed(agent: JAgent): Promise<number> {
+    const cspeed = [];
+    const params = new RequestParamBuilder()
+      .setPageSize(environment.config.prodApiMaxResults)
+      .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: agent.id })
+      .create();
+    const res = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params));
+
+    for (let i = 0; i < res.data.length; i++) {
+      if (
+        Date.now() / 1000 - Math.max(res.data[i].attributes.solveTime, res.data[i].attributes.dispatchTime) <
+          this.chunktime &&
+        res.data[i].attributes.progress < 10000
+      ) {
+        cspeed.push(res.data[i].attributes.speed);
+      }
+    }
+    return cspeed.reduce((a, i) => a + i, 0);
+  }
+
   loadAll(): void {
     this.loading = true;
     const agentParams = new RequestParamBuilder()
@@ -36,7 +59,7 @@ export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
+        async ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
           ResponseWrapper,
           ResponseWrapper,
           ResponseWrapper,
@@ -73,6 +96,10 @@ export class AgentsStatusDataSource extends BaseDataSource<JAgent> {
 
             return agent;
           });
+
+          for (const agent of agents) {
+            agent.agentSpeed = await this.getAgentSpeed(agent);
+          }
 
           this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
           this.setData(agents);

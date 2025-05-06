@@ -36,4 +36,5 @@ export interface JAgent extends BaseModel {
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
+  agentSpeed?: number;
 }
