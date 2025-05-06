@@ -54,7 +54,6 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           for (const taskWrapper of taskWrappers) {
             const task: JTask = taskWrapper.tasks[0];
             taskWrapper.chunkData = await this.getChunkData(task.id, false, task.keyspace);
-            console.log(taskWrapper.chunkData);
           }
           this.setData(taskWrappers);
         })
