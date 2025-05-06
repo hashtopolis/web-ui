@@ -1,7 +1,7 @@
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgentStat } from '@models/agent-stats.model';
 import { BaseModel } from '@models/base.model';
-import { JChunk } from '@models/chunk.model';
+import { ChunkData, JChunk } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
@@ -37,4 +37,5 @@ export interface JAgent extends BaseModel {
   benchmark?: string;
   assignmentId?: number;
   agentSpeed?: number;
+  chunkData?: ChunkData;
 }

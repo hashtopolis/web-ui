@@ -4,7 +4,6 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
-import { ChunkData } from '@models/chunk.model';
 
 import { SERV } from '@services/main.config';
 
@@ -30,7 +29,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -46,8 +44,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  chunkData: { [key: number]: ChunkData } = {};
-  private chunkDataLock: { [key: string]: Promise<void> } = {};
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -116,10 +112,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: AgentsTableCol.TASK_SPEED,
         dataKey: 'taskId',
-        icons: (agent: JAgent) => this.renderProgressIcon(agent),
-        async: (agent: JAgent) => this.renderCurrentSpeed(agent),
+        iconsNoCache: (agent: JAgent) => this.renderProgressIcon(agent),
+        render: (agent: JAgent) => this.renderCurrentSpeed(agent),
         isSortable: false,
-        export: async (agent: JAgent) => (await this.getSpeed(agent)) + ''
+        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'speed') + ''
       },
       {
         id: AgentsTableCol.CURRENT_CHUNK,
@@ -147,7 +143,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'cracked',
         //routerLinkNoCache: (agent: JAgent) => this.renderCrackedLink(agent),
         isSortable: true,
-        export: async (agent: JAgent) => (await this.getCracked(agent)) + ''
+        export: async (agent: JAgent) => this.renderCracked(agent) + ''
       }
     ];
 
@@ -185,18 +181,16 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       tableColumns.push({
         id: AgentsTableCol.TIME_SPENT,
         dataKey: 'timeSpent',
-        async: (agent: JAgent) => this.renderTimeSpent(agent),
-        icons: undefined,
+        render: (agent: JAgent) => this.renderTimeSpent(agent),
         isSortable: true,
-        export: async (agent: JAgent) => (await this.getTimeSpent(agent)) + ''
+        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'timeSpent') + ''
       });
       tableColumns.push({
         id: AgentsTableCol.SEARCHED,
         dataKey: 'searched',
-        async: (agent: JAgent) => this.renderSearched(agent),
-        icons: undefined,
+        render: (agent: JAgent) => this.renderSearched(agent),
         isSortable: true,
-        export: async (agent: JAgent) => (await this.getSearched(agent)) + ''
+        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'searched') + ''
       });
     }
 
@@ -239,57 +233,57 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     );
   }
 
-  // --- Render functions ---
-  @Cacheable(['id']) async renderCurrentSpeed(agent: JAgent): Promise<SafeHtml> {
-    let html = '-';
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      html = `${speed} H/s`;
+  /**
+   * Get a value from the agent's chunkdata attribute
+   * @param agent - agent instance to get value from
+   * @param property name of chunkdata property
+   * @return property value or undefined, if property or chunkdata are not defined
+   * @private
+   */
+  private getChunkDataValue(agent: JAgent, property: string): number | undefined {
+    if (agent.chunkData && property in agent.chunkData) {
+      return agent.chunkData[property];
     }
-    return this.sanitize(html);
+    return undefined;
   }
 
-  @Cacheable(['id']) async renderTimeSpent(agent: JAgent): Promise<SafeHtml> {
-    let html = '-';
-    const timeSpent = await this.getTimeSpent(agent);
-    if (timeSpent) {
-      html = `${formatSeconds(timeSpent)}`;
-    }
-    return this.sanitize(html);
+  /**
+   * Get current agent speed as safe html ready to be rendered
+   * @param agent - agent instance to get value from
+   * @return html code containing the current speed including a unit
+   * @private
+   */
+  private renderCurrentSpeed(agent: JAgent): SafeHtml {
+    const agentSpeed: number = this.getChunkDataValue(agent, 'speed');
+    return this.sanitize(agentSpeed ? `${agentSpeed} H/s` : '-');
   }
 
-  @Cacheable(['id']) async renderSearched(agent: JAgent): Promise<SafeHtml> {
-    let html = '-';
-    const searched = await this.getSearched(agent);
-    if (searched) {
-      html = `${searched}`;
+  /**
+   * Render a progress icon, if the task is working on a chunk
+   * @param agent - agent instance to render icon for
+   * @return icon object to render, may be empty, if task is not working on a chunk
+   * @private
+   */
+  private renderProgressIcon(agent: JAgent): HTTableIcon {
+    if (this.getChunkDataValue(agent, 'speed')) {
+      return { name: 'radio_button_checked', cls: 'pulsing-progress' };
     }
-    return this.sanitize(html);
+    return { name: '' };
   }
 
-  @Cacheable(['id'])
-  async renderCracked(agent: JAgent): Promise<SafeHtml> {
-    let html = '';
-    const cracked = await this.getCracked(agent);
-    if (cracked) {
-      html = `<span>${cracked}</span>`;
-    }
-    return this.sanitize(html);
+  private renderTimeSpent(agent: JAgent): SafeHtml {
+    const timeSpent: number = this.getChunkDataValue(agent, 'timeSpent');
+    return this.sanitize(timeSpent ? `${formatSeconds(timeSpent)}` : '-');
   }
 
-  @Cacheable(['id'])
-  async renderProgressIcon(agent: JAgent): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
+  private renderSearched(agent: JAgent): SafeHtml {
+    const searched = this.getChunkDataValue(agent, 'searched');
+    return this.sanitize(searched ? `${searched}` : '-');
+  }
 
-    const speed = await this.getSpeed(agent);
-    if (speed) {
-      icons.push({
-        name: 'radio_button_checked',
-        cls: 'pulsing-progress'
-      });
-    }
-
-    return icons;
+  private renderCracked(agent: JAgent): SafeHtml {
+    const cracked = this.getChunkDataValue(agent, 'cracked');
+    return this.sanitize(cracked ? `<span>${cracked}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -436,51 +430,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   /**
-  private renderCrackedLink(agent: JAgent): Observable<HTTableRouterLink[]> {
-    const observable$ = new Observable<HTTableRouterLink[]>((subscriber) => {
-      (async () => {
-        try {
-          const response = await this.getCracked(agent);
-          subscriber.next([{ label: response + '', routerLink: ['/hashlists', 'hashes', 'tasks', agent.taskId] }]);
-          subscriber.complete();
-        } catch (error) {
-          subscriber.error(error);
-        }
-      })();
-    });
-
-    return observable$;
-  }
-  */
-
-  private async getSpeed(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'speed');
-  }
-
-  private async getSearched(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'searched');
-  }
-
-  // --- Action functions ---
-
-  private async getTimeSpent(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'timeSpent');
-  }
-
-  private async getCracked(agent: JAgent): Promise<number> {
-    return this.getChunkDataParam(agent.id, 'cracked');
-  }
-
-  private async getChunkDataParam(agentId: number, key: string): Promise<number> {
-    const cd: ChunkData = await this.getChunkData(agentId);
-    if (cd[key]) {
-      return cd[key];
-    }
-
-    return 0;
-  }
-
-  /**
    * @todo Implement error handling.
    */
   private bulkActionActivate(agents: JAgent[], isActive: boolean): void {
@@ -560,40 +509,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink).then(() => {});
     });
-  }
-
-  /**
-   * Retrieves or fetches chunk data associated with a given agent from the data source.
-   * If the chunk data for the specified agent ID is not already cached, it is fetched
-   * asynchronously from the data source and stored in the cache for future use.
-   *
-   * @param {number} agentId - The ID of the agent for which chunk data is requested.
-   * @returns {Promise<ChunkData>} - A promise that resolves to the chunk data associated with the specified agent.
-   *
-   * @remarks
-   * This function uses a locking mechanism to ensure that concurrent calls for the same agent ID
-   * do not interfere with each other. If another call is already fetching or has fetched
-   * the chunk data for the same agent ID, subsequent calls will wait for the operation to complete
-   * before proceeding.
-   */
-  private async getChunkData(agentId: number): Promise<ChunkData> {
-    if (!this.chunkDataLock[agentId]) {
-      // If there is no lock, create a new one
-      this.chunkDataLock[agentId] = (async () => {
-        if (!(agentId in this.chunkData)) {
-          // Inside the lock, await the asynchronous operation
-          this.chunkData[agentId] = await this.dataSource.getChunkData(agentId);
-        }
-
-        // Release the lock when the operation is complete
-        delete this.chunkDataLock[agentId];
-      })();
-    }
-
-    // Wait for the lock to be released before returning the data
-    await this.chunkDataLock[agentId];
-
-    return this.chunkData[agentId];
   }
 
   private changeBenchmark(agent: JAgent, benchmark: string): void {

@@ -44,7 +44,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
+        async ([agentResponse, userResponse, assignmentResponse, taskResponse, chunkResponse]: [
           ResponseWrapper,
           ResponseWrapper,
           ResponseWrapper,
@@ -85,7 +85,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
             return agent;
           });
-
+          for (const agent of agents) {
+            agent.chunkData = await this.getChunkData(agent.id, true);
+          }
           this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
           this.setData(agents);
         }
@@ -115,7 +117,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(
-        ([userResponse, assignmentResponse, chunkResponse]: [ResponseWrapper, ResponseWrapper, ResponseWrapper]) => {
+        async ([userResponse, assignmentResponse, chunkResponse]: [
+          ResponseWrapper,
+          ResponseWrapper,
+          ResponseWrapper
+        ]) => {
           const users = serializer.deserialize<JUser[]>({
             data: userResponse.data,
             included: userResponse.included
@@ -146,6 +152,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
             agents.push(agent);
           });
+
+          for (const agent of agents) {
+            agent.chunkData = await this.getChunkData(agent.id, true);
+          }
 
           this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
           this.setData(agents);
