@@ -66,7 +66,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'avgDevice',
         isSortable: true,
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
-        testC: {
+        customCellColor: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.AVG_VALUE),
           treshold1: this.getUtil1(),
           treshold2: this.getUtil2(),
@@ -80,7 +80,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'maxTemp',
         isSortable: true,
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE) + '°C',
-        testC: {
+        customCellColor: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE),
           treshold1: this.getTemp1(),
           treshold2: this.getTemp2(),
@@ -94,7 +94,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'avgCpu',
         isSortable: true,
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
-        testC: {
+        customCellColor: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE),
           treshold1: this.getUtil1(),
           treshold2: this.getUtil2(),

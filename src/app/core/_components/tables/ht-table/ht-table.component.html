@@ -158,14 +158,14 @@
         mat-cell
         *matCellDef="let element"
         [ngStyle]="{
-          color: tableColumn.testC
-            ? (tableColumn.testC.value(element)
+          color: tableColumn.customCellColor
+            ? (tableColumn.customCellColor.value(element)
               | asColor
-                : tableColumn.testC.treshold1
-                : tableColumn.testC.treshold2
-                : tableColumn.testC.type
-                : tableColumn.testC.isActive(element)
-                : tableColumn.testC.lastTime(element))
+                : tableColumn.customCellColor.treshold1
+                : tableColumn.customCellColor.treshold2
+                : tableColumn.customCellColor.type
+                : tableColumn.customCellColor.isActive(element)
+                : tableColumn.customCellColor.lastTime(element))
             : ''
         }"
         [class.text-right]="tableColumn.position === 'right'"
