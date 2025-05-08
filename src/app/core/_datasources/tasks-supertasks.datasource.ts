@@ -1,5 +1,6 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
@@ -35,21 +36,34 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe(async (response: ResponseWrapper) => {
+        .subscribe((response: ResponseWrapper) => {
           const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>({
             data: response.data,
             included: response.included
           });
-
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
-
           const subtasks = taskWrappers[0].tasks;
 
-          for (const subtask of subtasks) {
-            subtask.chunkData = await this.getChunkData(subtask.id, false, subtask.keyspace);
-          }
+          const chunkParams = new RequestParamBuilder().addFilter({
+            field: 'taskId',
+            operator: FilterType.IN,
+            value: subtasks.map((task) => task.id)
+          });
 
-          this.setData(subtasks);
+          this.subscriptions.push(
+            this.service
+              .getAll(SERV.CHUNKS, chunkParams.create())
+              .pipe(finalize(() => this.setData(subtasks)))
+              .subscribe((chunkResponse: ResponseWrapper) => {
+                const chunks = this.serializer.deserialize<JChunk[]>({
+                  data: chunkResponse.data,
+                  included: chunkResponse.included
+                });
+                subtasks.forEach((task) => {
+                  task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                });
+              })
+          );
         })
     );
   }

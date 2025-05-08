@@ -49,9 +49,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource = new TasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
-    if (this.hashlistId) {
-      this.dataSource.setHashlistId(this.hashlistId);
-    }
     this.dataSource.loadAll();
   }
 

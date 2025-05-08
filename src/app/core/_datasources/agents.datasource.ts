@@ -83,11 +83,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
                 agent.chunkId = agent.chunk.id;
               }
             }
+            agent.chunkData = this.convertChunks(agent.id, chunks, true);
             return agent;
           });
-          for (const agent of agents) {
-            agent.chunkData = await this.getChunkData(agent.id, true);
-          }
           this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
           this.setData(agents);
         }
@@ -148,14 +146,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             if (agent.chunk) {
               agent.chunkId = agent.chunk.id;
             }
+            agent.chunkData = this.convertChunks(agent.id, chunks, true);
             agent.benchmark = assignment.benchmark;
 
             agents.push(agent);
           });
-
-          for (const agent of agents) {
-            agent.chunkData = await this.getChunkData(agent.id, true);
-          }
 
           this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
           this.setData(agents);

@@ -1,4 +1,4 @@
-import { catchError, firstValueFrom, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { JChunk } from '@models/chunk.model';
@@ -14,14 +14,9 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
-  private _hashlistId = 0;
 
   setIsArchived(isArchived: boolean): void {
     this._isArchived = isArchived;
-  }
-
-  setHashlistId(hashlistId: number): void {
-    this._hashlistId = hashlistId;
   }
 
   loadAll(): void {
@@ -46,30 +41,33 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe(async (response: ResponseWrapper) => {
+        .subscribe((response: ResponseWrapper) => {
           const taskWrappers = this.serializer.deserialize<JTaskWrapper[]>({
             data: response.data,
             included: response.included
           });
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
-          const taskIDs: Array<number> = taskWrappers.map((wrapper) => wrapper.tasks[0].id);
           const chunkParams = new RequestParamBuilder().addFilter({
             field: 'taskId',
             operator: FilterType.IN,
-            value: taskIDs
+            value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
           });
 
-          const chunkResponse: ResponseWrapper = await firstValueFrom(
-            this.service.getAll(SERV.CHUNKS, chunkParams.create())
+          this.subscriptions.push(
+            this.service
+              .getAll(SERV.CHUNKS, chunkParams.create())
+              .pipe(finalize(() => this.setData(taskWrappers)))
+              .subscribe((chunkResponse: ResponseWrapper) => {
+                const chunks = this.serializer.deserialize<JChunk[]>({
+                  data: chunkResponse.data,
+                  included: chunkResponse.included
+                });
+                taskWrappers.forEach((taskWrapper) => {
+                  const task: JTask = taskWrapper.tasks[0];
+                  taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                });
+              })
           );
-          const chunkBody = { data: chunkResponse.data, included: chunkResponse.included };
-          const chunks = this.serializer.deserialize<JChunk[]>(chunkBody);
-
-          for (const taskWrapper of taskWrappers) {
-            const task: JTask = taskWrapper.tasks[0];
-            taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
-          }
-          this.setData(taskWrappers);
         })
     );
   }

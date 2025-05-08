@@ -1,18 +1,14 @@
-import { BehaviorSubject, Observable, Subscription, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { ChunkData, JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -31,7 +27,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
-  public sortingColumn;
+  public sortingColumn: { id: string; direction: SortDirection; isSortable: boolean };
   /**
    * Selection model for row selection in the table.
    */
@@ -74,12 +70,18 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   private originalData: T[] = [];
 
+  private readonly chunkTime: number = 600;
+
   constructor(
     protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
     protected uiService: UIConfigService
   ) {
     this.serializer = new JsonAPISerializer();
+    const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
+    if (chunktimeSetting) {
+      this.chunkTime = Number(chunktimeSetting);
+    }
   }
 
   /**
@@ -219,21 +221,6 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     return !!(numSelected > 0 && numSelected === numRows);
   }
 
-  // Select all rows.
-  selectAll(): void {
-    this.dataSubject.value.forEach((row) => this.selection.select(row));
-  }
-
-  // Select a specific row.
-  selectRow(row: T): void {
-    this.selection.select(row);
-  }
-
-  // Deselect a specific row.
-  deselectRow(row: T): void {
-    this.selection.deselect(row);
-  }
-
   // Checks if a row is selected.
   isSelected(row: T): boolean {
     return this.selection.isSelected(row);
@@ -304,118 +291,64 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     this.filter = '';
   }
 
-  getFirstRow(): T | undefined {
-    const data = this.dataSubject.value;
-
-    if (data.length > 0) {
-      return data[0];
-    } else {
-      return undefined;
-    }
-  }
-
   abstract reload(): void;
 
-  async getChunkData(id: number, isAgent = true, keyspace = 0): Promise<ChunkData> {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
+  /**
+   * Convert all JChunk objects related to a task or agent to a ChunkData object
+   * @param id - model ID of task or agent
+   * @param chunks - JChunk collection containing all tasks or agents related to the currenty displayed table object
+   * @param isAgent - true, ID is an agent ID, false: ID is a task ID
+   * @param keyspace - keyspace index
+   * @return mew ChunkData object containing data from all related JChunk objects
+   * @protected
+   */
+  protected convertChunks(id: number, chunks: Array<JChunk>, isAgent: boolean = true, keyspace = 0): ChunkData {
+    let dispatched = 0;
+    let searched = 0;
+    let cracked: number = 0;
+    let speed: number = 0;
+    let timespent: number = 0;
+    const tasks: Set<number> = new Set();
+    const agents: Set<number> = new Set();
 
-    const dispatched: number[] = [];
-    const searched: number[] = [];
-    const cracked: number[] = [];
-    const speed: number[] = [];
-    const timespent: number[] = [];
-    const now = Date.now();
-    const tasks: number[] = !isAgent ? [id] : [];
-    const agents: number[] = isAgent ? [id] : [];
-    const current = 0;
-    const params: RequestParamBuilder = new RequestParamBuilder();
-    if (isAgent) {
-      params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: id });
-    } else {
-      params.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: id });
-    }
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, params.create()));
-    const responseBody = { data: response.data, included: response.included };
-    const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
+    if (isAgent) agents.add(id);
+    else tasks.add(id);
 
-    for (const chunk of chunks) {
-      agents.push(chunk.agentId);
-      tasks.push(chunk.taskId);
-
-      // If progress is 100%, add total chunk length to dispatched
-      if (chunk.progress >= 10000) {
-        dispatched.push(chunk.length);
-      }
-      cracked.push(chunk.cracked);
-      searched.push(chunk.checkpoint - chunk.skip);
-
-      // Calculate speed for chunks completed within the last chunktime
-      if (now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime && chunk.progress < 10000) {
-        speed.push(chunk.speed);
-      }
-
-      if (chunk.dispatchTime > current) {
-        timespent.push(chunk.solveTime - chunk.dispatchTime);
-      } else if (chunk.solveTime > current) {
-        timespent.push(chunk.solveTime - current);
-      }
-    }
-
-    return {
-      tasks: Array.from(new Set(tasks)),
-      agents: Array.from(new Set(agents)),
-      dispatched: keyspace && dispatched.length ? dispatched.reduce((a, i) => a + i, 0) / keyspace : 0,
-      searched: keyspace && searched.length ? searched.reduce((a, i) => a + i, 0) / keyspace : 0,
-      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
-      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
-      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
-    };
-  }
-
-  convertChunks(id: number, chunks: Array<JChunk>, isAgent: boolean = true, keyspace = 0): ChunkData {
-    const chunktime = this.uiService.getUIsettings('chunktime').value;
-
-    const dispatched: number[] = [];
-    const searched: number[] = [];
-    const cracked: number[] = [];
-    const speed: number[] = [];
-    const timespent: number[] = [];
-    const now = Date.now();
-    const tasks: number[] = !isAgent ? [id] : [];
-    const agents: number[] = isAgent ? [id] : [];
-    const current = 0;
-
-    for (const chunk of chunks.filter((element) => element.id === id)) {
-      agents.push(chunk.agentId);
-      tasks.push(chunk.taskId);
+    const filterFn = isAgent ? (element: JChunk) => element.agentId === id : (element: JChunk) => element.taskId === id;
+    chunks.filter(filterFn).forEach((chunk) => {
+      agents.add(chunk.agentId);
+      tasks.add(chunk.taskId);
 
       // If progress is 100%, add total chunk length to dispatched
       if (chunk.progress >= 10000) {
-        dispatched.push(chunk.length);
+        dispatched += chunk.length;
       }
-      cracked.push(chunk.cracked);
-      searched.push(chunk.checkpoint - chunk.skip);
+      cracked += chunk.cracked;
+      searched += chunk.checkpoint - chunk.skip;
 
       // Calculate speed for chunks completed within the last chunktime
-      if (now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime && chunk.progress < 10000) {
-        speed.push(chunk.speed);
+      if (
+        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunkTime &&
+        chunk.progress < 10000
+      ) {
+        speed += chunk.speed;
       }
 
-      if (chunk.dispatchTime > current) {
-        timespent.push(chunk.solveTime - chunk.dispatchTime);
-      } else if (chunk.solveTime > current) {
-        timespent.push(chunk.solveTime - current);
+      if (chunk.dispatchTime > 0) {
+        timespent += chunk.solveTime - chunk.dispatchTime;
+      } else if (chunk.solveTime > 0) {
+        timespent += chunk.solveTime;
       }
-    }
+    });
 
     return {
-      tasks: Array.from(new Set(tasks)),
-      agents: Array.from(new Set(agents)),
-      dispatched: keyspace && dispatched.length ? dispatched.reduce((a, i) => a + i, 0) / keyspace : 0,
-      searched: keyspace && searched.length ? searched.reduce((a, i) => a + i, 0) / keyspace : 0,
-      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
-      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
-      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
+      tasks: Array.from(tasks),
+      agents: Array.from(agents),
+      dispatched: keyspace ? dispatched / keyspace : 0,
+      searched: keyspace ? searched / keyspace : 0,
+      cracked: cracked,
+      speed: speed,
+      timeSpent: timespent
     };
   }
 
