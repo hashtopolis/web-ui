@@ -50,11 +50,13 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.ID,
         dataKey: '_id',
+        isSortable: true,
         render: (agent: JAgent) => agent.id
       },
       {
         id: AgentsViewTableCol.NAME,
         dataKey: 'agentName',
+        isSortable: true,
         icons: (agent: JAgent) => this.renderStatusIcon(agent),
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         render: (agent: JAgent) => agent.agentName
@@ -62,6 +64,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.DEVICE_UTILISATION,
         dataKey: 'avgDevice',
+        isSortable: true,
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
         testC: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.AVG_VALUE),
@@ -75,6 +78,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.TEMPERATURE,
         dataKey: 'maxTemp',
+        isSortable: true,
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE) + '°C',
         testC: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE),
@@ -88,6 +92,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
+        isSortable: true,
         render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
         testC: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE),
@@ -101,6 +106,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       {
         id: AgentsViewTableCol.LAST_ACTIVITY,
         dataKey: 'lastTime',
+        isSortable: true,
         render: (agent: JAgent) => 'Time: ' + formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
