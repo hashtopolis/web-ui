@@ -158,7 +158,7 @@
         mat-cell
         *matCellDef="let element"
         [ngStyle]="{
-          'background-color': tableColumn.testC
+          color: tableColumn.testC
             ? (tableColumn.testC.value(element)
               | asColor
                 : tableColumn.testC.treshold1
