@@ -158,7 +158,7 @@
         mat-cell
         *matCellDef="let element"
         [ngStyle]="{
-          color: tableColumn.customCellColor
+          color: tableColumn.customCellColor && element.isActive
             ? (tableColumn.customCellColor.value(element)
               | asColor
                 : tableColumn.customCellColor.treshold1

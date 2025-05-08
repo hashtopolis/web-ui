@@ -65,7 +65,13 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.DEVICE_UTILISATION,
         dataKey: 'avgDevice',
         isSortable: true,
-        render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
+        render: (agent: JAgent) => {
+          if (agent.isActive) {
+            return this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%';
+          } else {
+            return 'No data';
+          }
+        },
         customCellColor: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.AVG_VALUE),
           treshold1: this.getUtil1(),
@@ -79,7 +85,13 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.TEMPERATURE,
         dataKey: 'maxTemp',
         isSortable: true,
-        render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE) + '°C',
+        render: (agent: JAgent) => {
+          if (agent.isActive) {
+            return this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE) + '°C';
+          } else {
+            return 'No data';
+          }
+        },
         customCellColor: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE),
           treshold1: this.getTemp1(),
@@ -93,7 +105,13 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.CPU_UTILISATION,
         dataKey: 'avgCpu',
         isSortable: true,
-        render: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE) + '%',
+        render: (agent: JAgent) => {
+          if (agent.isActive) {
+            return this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE) + '%';
+          } else {
+            return 'No data';
+          }
+        },
         customCellColor: {
           value: (agent: JAgent) => this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE),
           treshold1: this.getUtil1(),
