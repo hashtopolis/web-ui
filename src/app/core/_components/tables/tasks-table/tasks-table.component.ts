@@ -693,7 +693,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === 0) {
       links.push({
         label: wrapper.cracked + '',
-        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id]
+        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
       });
     }
 
