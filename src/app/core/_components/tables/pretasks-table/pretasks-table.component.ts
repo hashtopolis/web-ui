@@ -100,7 +100,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       },
       {
         id: PretasksTableCol.FILES_TOTAL,
-        dataKey: 'pretaskFiles',
+        dataKey: 'filesTotal',
         isSortable: true,
         icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
         render: (pretask: JPretask) => pretask.pretaskFiles?.length,
