@@ -372,6 +372,53 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     };
   }
 
+  convertChunks(id: number, chunks: Array<JChunk>, isAgent: boolean = true, keyspace = 0): ChunkData {
+    const chunktime = this.uiService.getUIsettings('chunktime').value;
+
+    const dispatched: number[] = [];
+    const searched: number[] = [];
+    const cracked: number[] = [];
+    const speed: number[] = [];
+    const timespent: number[] = [];
+    const now = Date.now();
+    const tasks: number[] = !isAgent ? [id] : [];
+    const agents: number[] = isAgent ? [id] : [];
+    const current = 0;
+
+    for (const chunk of chunks.filter((element) => element.id === id)) {
+      agents.push(chunk.agentId);
+      tasks.push(chunk.taskId);
+
+      // If progress is 100%, add total chunk length to dispatched
+      if (chunk.progress >= 10000) {
+        dispatched.push(chunk.length);
+      }
+      cracked.push(chunk.cracked);
+      searched.push(chunk.checkpoint - chunk.skip);
+
+      // Calculate speed for chunks completed within the last chunktime
+      if (now / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime && chunk.progress < 10000) {
+        speed.push(chunk.speed);
+      }
+
+      if (chunk.dispatchTime > current) {
+        timespent.push(chunk.solveTime - chunk.dispatchTime);
+      } else if (chunk.solveTime > current) {
+        timespent.push(chunk.solveTime - current);
+      }
+    }
+
+    return {
+      tasks: Array.from(new Set(tasks)),
+      agents: Array.from(new Set(agents)),
+      dispatched: keyspace && dispatched.length ? dispatched.reduce((a, i) => a + i, 0) / keyspace : 0,
+      searched: keyspace && searched.length ? searched.reduce((a, i) => a + i, 0) / keyspace : 0,
+      cracked: cracked.length ? cracked.reduce((a, i) => a + i, 0) : 0,
+      speed: speed.length ? speed.reduce((a, i) => a + i, 0) : 0,
+      timeSpent: timespent.length ? timespent.reduce((a, i) => a + i) : 0
+    };
+  }
+
   /**
    * Compare function used for sorting.
    */

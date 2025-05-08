@@ -1,6 +1,7 @@
-import { catchError, of } from 'rxjs';
+import { catchError, firstValueFrom, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
+import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
@@ -51,9 +52,22 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
             included: response.included
           });
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
+          const taskIDs: Array<number> = taskWrappers.map((wrapper) => wrapper.tasks[0].id);
+          const chunkParams = new RequestParamBuilder().addFilter({
+            field: 'taskId',
+            operator: FilterType.IN,
+            value: taskIDs
+          });
+
+          const chunkResponse: ResponseWrapper = await firstValueFrom(
+            this.service.getAll(SERV.CHUNKS, chunkParams.create())
+          );
+          const chunkBody = { data: chunkResponse.data, included: chunkResponse.included };
+          const chunks = this.serializer.deserialize<JChunk[]>(chunkBody);
+
           for (const taskWrapper of taskWrappers) {
             const task: JTask = taskWrapper.tasks[0];
-            taskWrapper.chunkData = await this.getChunkData(task.id, false, task.keyspace);
+            taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
           }
           this.setData(taskWrappers);
         })
