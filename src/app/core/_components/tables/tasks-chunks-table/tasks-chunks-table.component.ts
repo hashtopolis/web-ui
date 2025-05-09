@@ -85,7 +85,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
         render: (chunk: JChunk) => this.renderAgent(chunk),
-        routerLink: (chunk: JChunk) => this.renderAgentLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
         isSortable: true
       },
       {

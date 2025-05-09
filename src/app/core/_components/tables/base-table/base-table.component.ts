@@ -1,4 +1,4 @@
-import { faExclamation, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { faExclamation, faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -129,7 +129,11 @@ export class BaseTableComponent {
     if (hashlist) {
       links.push({
         routerLink: ['/hashlists', 'hashlist', hashlist.id, 'edit'],
-        label: hashlist.name
+        label: hashlist.name,
+        icon: {
+          faIcon: hashlist.isSecret ? faKey : undefined,
+          tooltip: hashlist.isSecret ? 'Secret hashlist' : ''
+        }
       });
     }
     return of(links);
@@ -172,7 +176,7 @@ export class BaseTableComponent {
    * @param model - Agent, Chunk or HealthcheckAgent model to render agent router link for
    * @return observable object containing a router link array
    */
-  renderAgentLink(model: JAgent | JChunk | JHealthCheckAgent): Observable<HTTableRouterLink[]> {
+  renderAgentLink(model: JAgent | JHealthCheckAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (model) {
       const agentIsTrusted = 'isTrusted' in model && model.isTrusted;
@@ -180,6 +184,17 @@ export class BaseTableComponent {
         routerLink: ['/agents', 'show-agents', model.id, 'edit'],
         label: model.agentName,
         icon: { faIcon: agentIsTrusted ? faShieldHalved : undefined, tooltip: agentIsTrusted ? 'Trusted Agent' : '' }
+      });
+    }
+    return of(links);
+  }
+
+  renderAgentLinkFromChunk(chunk: JChunk): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (chunk) {
+      links.push({
+        routerLink: ['/agents', 'show-agents', chunk.agentId, 'edit'],
+        label: chunk.agentName
       });
     }
     return of(links);

@@ -69,7 +69,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       {
         id: HashlistsTableCol.NAME,
         dataKey: 'name',
-        icon: (hashlist: JHashlist) => this.renderSecretIcon(hashlist),
         routerLink: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
         export: async (hashlist: JHashlist) => hashlist.name
