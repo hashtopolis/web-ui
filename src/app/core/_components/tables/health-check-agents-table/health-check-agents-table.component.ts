@@ -3,7 +3,6 @@ import { Observable, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JAgent } from '@models/agent.model';
 import { JHealthCheckAgent } from '@models/health-check.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
