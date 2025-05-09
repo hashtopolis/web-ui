@@ -147,23 +147,25 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
    * @private
    */
   private async loadChunkData(agents: JAgent[], assignments: JAgentAssignment[]): Promise<void> {
-    const chunkParams = new RequestParamBuilder().addFilter({
-      field: 'agentId',
-      operator: FilterType.IN,
-      value: agents.map((agent) => agent.id)
-    });
+    if (agents.length) {
+      const chunkParams = new RequestParamBuilder().addFilter({
+        field: 'agentId',
+        operator: FilterType.IN,
+        value: agents.map((agent) => agent.id)
+      });
 
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, chunkParams.create()));
-    const responseBody = { data: response.data, included: response.included };
-    const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
+      const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, chunkParams.create()));
+      const responseBody = { data: response.data, included: response.included };
+      const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
 
-    agents.forEach((agent: JAgent) => {
-      agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
-      agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
-      if (agent.chunk) {
-        agent.chunkId = agent.chunk.id;
-      }
-      agent.chunkData = this.convertChunks(agent.id, chunks, true);
-    });
+      agents.forEach((agent: JAgent) => {
+        agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
+        agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
+        if (agent.chunk) {
+          agent.chunkId = agent.chunk.id;
+        }
+        agent.chunkData = this.convertChunks(agent.id, chunks, true);
+      });
+    }
   }
 }

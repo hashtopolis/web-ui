@@ -47,27 +47,29 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
             included: response.included
           });
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
-          const chunkParams = new RequestParamBuilder().addFilter({
-            field: 'taskId',
-            operator: FilterType.IN,
-            value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
-          });
+          if (taskWrappers.length > 0) {
+            const chunkParams = new RequestParamBuilder().addFilter({
+              field: 'taskId',
+              operator: FilterType.IN,
+              value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
+            });
 
-          this.subscriptions.push(
-            this.service
-              .getAll(SERV.CHUNKS, chunkParams.create())
-              .pipe(finalize(() => this.setData(taskWrappers)))
-              .subscribe((chunkResponse: ResponseWrapper) => {
-                const chunks = this.serializer.deserialize<JChunk[]>({
-                  data: chunkResponse.data,
-                  included: chunkResponse.included
-                });
-                taskWrappers.forEach((taskWrapper) => {
-                  const task: JTask = taskWrapper.tasks[0];
-                  taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
-                });
-              })
-          );
+            this.subscriptions.push(
+              this.service
+                .getAll(SERV.CHUNKS, chunkParams.create())
+                .pipe(finalize(() => this.setData(taskWrappers)))
+                .subscribe((chunkResponse: ResponseWrapper) => {
+                  const chunks = this.serializer.deserialize<JChunk[]>({
+                    data: chunkResponse.data,
+                    included: chunkResponse.included
+                  });
+                  taskWrappers.forEach((taskWrapper) => {
+                    const task: JTask = taskWrapper.tasks[0];
+                    taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                  });
+                })
+            );
+          }
         })
     );
   }
