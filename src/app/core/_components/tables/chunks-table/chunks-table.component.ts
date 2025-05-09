@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -14,7 +13,7 @@ import { chunkStates } from '@src/app/core/_constants/chunks.config';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'chunks-table',
+  selector: 'app-chunks-table',
   templateUrl: './chunks-table.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
@@ -77,7 +76,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
-        routerLink: (chunk: JChunk) => this.renderAgentLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
         isSortable: true
       },
       {

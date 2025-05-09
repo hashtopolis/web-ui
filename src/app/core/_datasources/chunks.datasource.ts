@@ -1,11 +1,13 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { JChunk } from '../_models/chunk.model';
-import { ResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
-import { FilterType } from '../_models/request-params.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
@@ -19,7 +21,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
 
     const params = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent');
     if (this._agentId) {
-      params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._agentId });
+      params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
 
     const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());

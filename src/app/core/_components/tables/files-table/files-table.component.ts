@@ -2,6 +2,7 @@
  * Contains table component for files
  * @module
  */
+import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -89,7 +90,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: FilesTableCol.NAME,
         dataKey: 'filename',
-        icon: (file: JFile) => this.renderSecretIcon(file),
         routerLink: (file: JFile) => this.renderFileLink(file),
         isSortable: true,
         export: async (file: JFile) => file.filename
@@ -245,7 +245,11 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     if (file) {
       links.push({
         routerLink: ['/files', file.id, this.editPath],
-        label: file['filename']
+        label: file['filename'],
+        icon: {
+          faIcon: file.isSecret ? faKey : undefined,
+          tooltip: file.isSecret ? 'Secret file' : ''
+        }
       });
     }
     return of(links);
