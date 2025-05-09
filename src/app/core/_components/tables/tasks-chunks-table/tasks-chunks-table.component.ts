@@ -84,7 +84,6 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       {
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
-        render: (chunk: JChunk) => this.renderAgent(chunk),
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
         isSortable: true
       },
@@ -155,14 +154,6 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     }
 
     return `${chunk.progress ? chunk.progress : 0}`;
-  }
-
-  renderAgent(chunk: JChunk): SafeHtml {
-    if (chunk.agent) {
-      return this.sanitize(chunk.agent.agentName);
-    }
-
-    return `${chunk.agentId}`;
   }
 
   renderDispatchTime(chunk: JChunk): SafeHtml {
