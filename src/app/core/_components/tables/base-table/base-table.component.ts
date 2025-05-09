@@ -173,10 +173,10 @@ export class BaseTableComponent {
 
   /**
    * Render agent edit link to be displayed in HTML code
-   * @param model - Agent, Chunk or HealthcheckAgent model to render agent router link for
+   * @param model - Agent model to render agent router link for
    * @return observable object containing a router link array
    */
-  renderAgentLink(model: JAgent | JHealthCheckAgent): Observable<HTTableRouterLink[]> {
+  renderAgentLink(model: JAgent): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (model) {
       const agentIsTrusted = 'isTrusted' in model && model.isTrusted;
@@ -189,6 +189,11 @@ export class BaseTableComponent {
     return of(links);
   }
 
+  /**
+   * Render agent edit link to be displayed in HTML code given a chunk instance
+   * @param chunk - chunk model to render agent router link for
+   * @return observable object containing a router link array
+   */
   renderAgentLinkFromChunk(chunk: JChunk): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (chunk) {
