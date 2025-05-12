@@ -84,7 +84,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   loadAssignments(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().setPageSize(this.maxResults).create();
     const assignParams = new RequestParamBuilder()
       .setPageSize(this.pageSize)
       .setPageAfter(this.currentPage * this.pageSize)
@@ -93,27 +92,26 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this._taskId })
       .create();
 
-    const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);
-    const users$ = this.service.getAll(SERV.USERS, params);
-
-    const serializer = new JsonAPISerializer();
-
-    forkJoin([users$, agentAssign$])
+    this.service
+      .getAll(SERV.AGENT_ASSIGN, assignParams)
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
-      .subscribe(async ([userResponse, assignmentResponse]: [ResponseWrapper, ResponseWrapper]) => {
-        const users = serializer.deserialize<JUser[]>({
-          data: userResponse.data,
-          included: userResponse.included
-        });
+      .subscribe(async (response: ResponseWrapper) => {
+        const serializer = new JsonAPISerializer();
+        const responseBody = { data: response.data, included: response.included };
         const assignments = serializer.deserialize<JAgentAssignment[]>({
-          data: assignmentResponse.data,
-          included: assignmentResponse.included
+          data: responseBody.data,
+          included: responseBody.included
         });
-        const agents: JAgent[] = [];
 
+        const userIds: Array<number> = assignments
+          .map((assignment) => assignment.agent.userId)
+          .filter((userId) => userId !== null);
+        const users = await this.loadUserData(userIds);
+
+        const agents: JAgent[] = [];
         assignments.forEach((assignment) => {
           const task = assignment.task;
           const agent = assignment.agent;
@@ -167,5 +165,26 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         agent.chunkData = this.convertChunks(agent.id, chunks, true);
       });
     }
+  }
+
+  /**
+   * Load user data from backend given an array of user IDs
+   * @param userIds - array of user ids
+   * @return promise containing an array of user objects matching the fiven IDs
+   * @private
+   */
+  private async loadUserData(userIds: Array<number>): Promise<JUser[]> {
+    let users: Array<JUser> = [];
+    if (userIds.length > 0) {
+      const userParams = new RequestParamBuilder().addFilter({
+        field: 'id',
+        operator: FilterType.IN,
+        value: userIds
+      });
+      const response = await firstValueFrom(this.service.getAll(SERV.USERS, userParams.create()));
+      const responseBody = { data: response.data, included: response.included };
+      users = this.serializer.deserialize<JUser[]>(responseBody);
+    }
+    return users;
   }
 }
