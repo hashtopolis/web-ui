@@ -727,7 +727,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       });
     }
 
-    return of<HTTableRouterLink[]>(links);
+    return of(links);
   }
 
   /**
