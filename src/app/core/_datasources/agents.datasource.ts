@@ -18,6 +18,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
+  private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
 
   setTaskId(taskId: number): void {
@@ -157,6 +158,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
     if (agent.chunk) {
       agent.chunkId = agent.chunk.id;
+      if (agent.chunks) {
+        agent.agentSpeed = this.getAgentSpeed(agent, agent.chunks);
+      }
     }
     agent.chunkData = this.convertChunks(agent.id, chunks, true);
   }
@@ -180,5 +184,25 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       users = this.serializer.deserialize<JUser[]>(responseBody);
     }
     return users;
+  }
+
+  /**
+   * Get current agent cracking speed from all asssigned chunks
+   * @param agent - agent instance to get cracking speed for
+   * @param chunks - collection of all available chunks
+   * @return current agent's cracking speed
+   * @private
+   */
+  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
+    let chunkSpeed: number = 0;
+    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
+      if (
+        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
+        chunk.progress < 10000
+      ) {
+        chunkSpeed += chunk.speed;
+      }
+    }
+    return chunkSpeed;
   }
 }
