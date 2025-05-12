@@ -1,4 +1,4 @@
-import { faExclamation, faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -14,7 +14,6 @@ import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
 import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
-import { JHealthCheckAgent } from '@models/health-check.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
@@ -53,8 +52,6 @@ export class BaseTableComponent {
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
   protected columnLabels: { [key: string]: string } = {};
-  faShieldHalved = faShieldHalved;
-  faExclamation = faExclamation;
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
