@@ -54,7 +54,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
         agents.forEach((agent: JAgent) => {
           agent.user = users.find((user: JUser) => user.id === agent.userId);
-          if (agent.tasks) {
+          if (agent.tasks && agent.tasks.length > 0) {
             agent.taskId = agent.tasks[0].id;
             agent.task = agent.tasks[0];
             agent.taskName = agent.task.taskName;
