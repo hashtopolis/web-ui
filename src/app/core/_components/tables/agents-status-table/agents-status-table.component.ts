@@ -3,6 +3,8 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { AgentsDataSource } from '@datasources/agents.datasource';
+
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
@@ -15,7 +17,6 @@ import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/
 import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { AgentsStatusDataSource } from '@src/app/core/_datasources/agents-status.datasource';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
@@ -27,7 +28,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 })
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
-  dataSource: AgentsStatusDataSource;
+  dataSource: AgentsDataSource;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -38,7 +39,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsStatusDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.reload();
   }
