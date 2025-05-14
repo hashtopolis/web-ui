@@ -6,6 +6,7 @@ import { AgentsViewTableCol, AgentsViewTableColumnLabel } from './agents-view-ta
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
+import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { HTTableColumn } from '../ht-table/ht-table.models';
@@ -169,5 +170,22 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
   getUtil2() {
     // CPU 2 Config Setting
     return this.uiService.getUIsettings('agentUtilThreshold2').value;
+  }
+
+    /**
+   * Opens modal containing agent stat legend.
+   * @param title Modal title
+   * @param icon Modal icon
+   * @param content Modal content
+   * @param thresholdType
+   * @param result
+   * @param form
+   */
+  openDialog(title: string): void {
+    const dialogRef = this.dialog.open(AgentStatusModalComponent, {
+      data: { }
+    });
+
+    dialogRef.afterClosed().subscribe();
   }
 }

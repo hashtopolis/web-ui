@@ -160,6 +160,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() defaultPageSize = this.paginationSizes[1];
 
   /** Default start page. */
+  @Input() defaultStartPage = 0;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
