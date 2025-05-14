@@ -50,6 +50,13 @@
         Columns
       </button>
     </div>
+    <!-- temrature information -->
+    <div class="table-action-wrapper">
+      <button mat-button (click)="temratureInformationEmit()">
+        <mat-icon>device_thermostat</mat-icon>
+        Temprature Information
+      </button>
+    </div>
     <!-- filter -->
     <div class="table-action-wrapper right-aligned">
       <mat-form-field *ngIf="isFilterable">
