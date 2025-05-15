@@ -2,12 +2,13 @@ import { Component, Inject, Input, inject } from '@angular/core';
 
 import { AgentViewDialogData } from './agent-view-dialog.model';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 
 @Component({
   selector: 'app-agent-view-dialog',
-  imports: [MatTabsModule],
+  imports: [MatTabsModule, MatIconModule],
   templateUrl: './agent-view-dialog.component.html',
   styleUrl: './agent-view-dialog.component.scss'
 })

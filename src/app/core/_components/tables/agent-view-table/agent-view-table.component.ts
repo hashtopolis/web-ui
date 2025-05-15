@@ -182,36 +182,47 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
    * @param result
    * @param form
    */
-  openDialog(title: string): void {
+  openDialog(): void {
+    console.log(this.dataSource.getOriginalData());
+    let hej = this.dataSource.getOriginalData().map((agent: JAgent) => {});
     const dialogRef = this.dialog.open(AgentViewDialogComponent, {
       data: {
         agentData: [
           {
-            tabName: 'Device Utilisation',
+            tabName: 'Device Utilisation ',
+            icon: 'devices',
             agentName: '1234',
             agentId: 'Agent ID',
             agentStatus: 'Agent Status',
-            threshold1: 'threshold1',
-            threshold2: 'threshold2',
-            dataValue: 'dataValue'
+            threshold1: this.getUtil1(),
+            threshold2: this.getUtil2(),
+            dataValue: 'dataValue',
+            unitLabel: 'Device',
+            statusLabel: 'CPU'
           },
           {
-            tabName: 'Temperature ',
+            tabName: 'Temperature',
+            icon: 'device_thermostat',
             agentName: 'Name',
             agentId: 'ID',
             agentStatus: 'Status',
-            threshold1: 'agent threshold1',
-            threshold2: 'agent threshold2',
-            dataValue: 'agent dataValue'
+            threshold1: this.getTemp1(),
+            threshold2: this.getTemp2(),
+            dataValue: 'agent dataValue',
+            unitLabel: 'Temprature',
+            statusLabel: 'Device'
           },
           {
-            tabName: ' CPU Utilisation',
+            tabName: 'CPU Utilisation',
+            icon: 'computer',
             agentName: 'Name',
             agentId: 'ID',
             agentStatus: 'Status',
-            threshold1: 'agent threshold1',
-            threshold2: 'agent threshold2',
-            dataValue: 'agent dataValue'
+            threshold1: this.getUtil1(),
+            threshold2: this.getUtil2(),
+            dataValue: 'agent dataValue',
+            unitLabel: 'CPU',
+            statusLabel: 'Device'
           }
         ]
       }
