@@ -187,6 +187,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       data: {
         agentData: [
           {
+            tabName: 'Device Utilisation',
             agentName: '1234',
             agentId: 'Agent ID',
             agentStatus: 'Agent Status',
@@ -195,6 +196,16 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
             dataValue: 'dataValue'
           },
           {
+            tabName: 'Temperature ',
+            agentName: 'Name',
+            agentId: 'ID',
+            agentStatus: 'Status',
+            threshold1: 'agent threshold1',
+            threshold2: 'agent threshold2',
+            dataValue: 'agent dataValue'
+          },
+          {
+            tabName: ' CPU Utilisation',
             agentName: 'Name',
             agentId: 'ID',
             agentStatus: 'Status',
