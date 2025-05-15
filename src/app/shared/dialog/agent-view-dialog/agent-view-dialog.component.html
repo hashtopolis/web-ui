@@ -1,54 +1,56 @@
 <!-- <p>agent-view-dialog works!</p> -->
-<mat-tab-group>
-  @for (item of data.agentData; track $index) {
-    <!--     <h2 mat-dialog-title>
+<mat-dialog-content>
+  <mat-tab-group>
+    @for (item of data.agentData; track $index) {
+      <!--     <h2 mat-dialog-title>
   <mat-icon>{{ icon }}</mat-icon> {{ title }} -
   <span [ngStyle]="{'color':data.result | asColor:+threshold1:+threshold2:statusNumber:data.form.isActive:data.form.lastTime}">&#9673;</span> {{ content }}
 </h2> -->
 
-    <mat-tab>
-      <ng-template mat-tab-label>
-        <mat-icon>{{ item.icon }}</mat-icon>
-        {{ item.tabName }}
-      </ng-template>
-      <p>
-        {{ data.agentName }}
-      </p>
-      <ng-container>
-        <div class="row">
-          <p>
-            <span style="color: #009933">&#9673;</span>
-            {{ item.statusLabel }}
-            is good (> {{ item.threshold1 }} {{ item.unitLabel }})
-          </p>
-          <p>
-            <span style="color: #ff9900">&#9673;</span>
-            {{ item.statusLabel }}
-            not ideal (<= {{ item.threshold2 }} {{ item.unitLabel }})
-          </p>
-          <p>
-            <span style="color: #800000">&#9673;</span>
-            {{ item.statusLabel }}
-            low (<= {{ item.threshold2 }} {{ item.unitLabel }})
-          </p>
-          <p><span style="color: #cccccc">&#9673;</span> Agent is not active</p>
-          <p>
-            <span style="color: #42d4f4">&#9673;</span> Agent is active but not working or not providing device data
-          </p>
-          <p>
-            <span style="color: #ff0000">&#9673;</span> Invalid
-            <!-- {{ statusInvalid }} -->
-            data from agent or values being 0
-          </p>
-          <p>Threshold can be configured in the config section.</p>
-        </div>
-      </ng-container>
-      <!--       {{ item.agentName }}
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>{{ item.icon }}</mat-icon>
+          {{ item.tabName }}
+        </ng-template>
+        <p>
+          {{ data.agentName }}
+        </p>
+        <ng-container>
+          <div class="row">
+            <p>
+              <span style="color: #009933">&#9673;</span>
+              {{ item.statusLabel }}
+              is good (> {{ item.threshold1 }} {{ item.unitLabel }})
+            </p>
+            <p>
+              <span style="color: #ff9900">&#9673;</span>
+              {{ item.statusLabel }}
+              not ideal (<= {{ item.threshold2 }} {{ item.unitLabel }})
+            </p>
+            <p>
+              <span style="color: #800000">&#9673;</span>
+              {{ item.statusLabel }}
+              low (<= {{ item.threshold2 }} {{ item.unitLabel }})
+            </p>
+            <p><span style="color: #cccccc">&#9673;</span> Agent is not active</p>
+            <p>
+              <span style="color: #42d4f4">&#9673;</span> Agent is active but not working or not providing device data
+            </p>
+            <p>
+              <span style="color: #ff0000">&#9673;</span> Invalid
+              <!-- {{ statusInvalid }} -->
+              data from agent or values being 0
+            </p>
+            <p>Threshold can be configured in the config section.</p>
+          </div>
+        </ng-container>
+        <!--       {{ item.agentName }}
       {{ item.agentId }}
       {{ item.agentStatus }}
       {{ item.threshold1 }}
       {{ item.threshold2 }}
       {{ item.dataValue }} -->
-    </mat-tab>
-  }
-</mat-tab-group>
+      </mat-tab>
+    }
+  </mat-tab-group>
+</mat-dialog-content>

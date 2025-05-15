@@ -183,8 +183,6 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
    * @param form
    */
   openDialog(): void {
-    console.log(this.dataSource.getOriginalData());
-    let hej = this.dataSource.getOriginalData().map((agent: JAgent) => {});
     const dialogRef = this.dialog.open(AgentViewDialogComponent, {
       data: {
         agentData: [

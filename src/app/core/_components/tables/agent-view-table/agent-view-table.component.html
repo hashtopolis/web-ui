@@ -1,5 +1,3 @@
-HELLO
-<button mat-button (click)="openDialog()">OPEN MODAL</button>
 <ht-table
   #table
   name="agentViewTable"
@@ -12,4 +10,5 @@ HELLO
   [hasRowAction]="false"
   [hasBulkActions]="false"
   [isPageable]="true"
+  (temratureInformationClicked)="openDialog()"
 />
