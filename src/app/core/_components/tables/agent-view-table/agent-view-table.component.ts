@@ -7,6 +7,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
+import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog/agent-view-dialog.component';
 import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { HTTableColumn } from '../ht-table/ht-table.models';
@@ -172,7 +173,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
     return this.uiService.getUIsettings('agentUtilThreshold2').value;
   }
 
-    /**
+  /**
    * Opens modal containing agent stat legend.
    * @param title Modal title
    * @param icon Modal icon
@@ -182,8 +183,8 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
    * @param form
    */
   openDialog(title: string): void {
-    const dialogRef = this.dialog.open(AgentStatusModalComponent, {
-      data: { }
+    const dialogRef = this.dialog.open(AgentViewDialogComponent, {
+      data: { title: ['1', '2', '3', '4'] }
     });
 
     dialogRef.afterClosed().subscribe();
