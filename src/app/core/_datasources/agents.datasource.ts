@@ -17,6 +17,8 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
+import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
+
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
@@ -32,7 +34,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
-      .addInclude('chunks')
       .create();
 
     this.service
@@ -50,7 +51,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         });
 
         const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
-        const users = await this.loadUserData(userIds);
+        const responseData = await Promise.all([this.loadUserData(userIds), this.loadChunkData(agents)]);
+        const users = responseData[0];
+        const chunks: JChunk[] = responseData[1];
 
         agents.forEach((agent: JAgent) => {
           agent.user = users.find((user: JUser) => user.id === agent.userId);
@@ -58,8 +61,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             agent.taskId = agent.tasks[0].id;
             agent.task = agent.tasks[0];
             agent.taskName = agent.task.taskName;
+            this.setChunkParams(agent, chunks, agent.assignments);
           }
-          this.setChunkParams(agent, agent.chunks, agent.assignments);
         });
         this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
         this.setData(agents);
@@ -107,7 +110,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           agents.push(agent);
         });
 
-        await this.loadChunkData(agents, assignments);
+        const chunks = await this.loadChunkData(agents);
+        agents.forEach((agent: JAgent) => {
+          this.setChunkParams(agent, chunks, assignments);
+        });
+
         this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
         this.setData(agents);
       });
@@ -123,27 +130,25 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   }
 
   /**
-   * Load related chunks for all agents and convert them to ChunkData objects
+   * Load related running chunks for all agents and convert them to ChunkData objects
    * @param agents - agents collection
-   * @param assignments - agent assignment collection
    * @private
    */
-  private async loadChunkData(agents: JAgent[], assignments: JAgentAssignment[]): Promise<void> {
+  private async loadChunkData(agents: JAgent[]): Promise<JChunk[]> {
     if (agents.length) {
-      const chunkParams = new RequestParamBuilder().addFilter({
-        field: 'agentId',
-        operator: FilterType.IN,
-        value: agents.map((agent) => agent.id)
-      });
+      const chunkParams = new RequestParamBuilder()
+        .addFilter({
+          field: 'agentId',
+          operator: FilterType.IN,
+          value: agents.map((agent) => agent.id)
+        })
+        .addFilter({ field: 'state', operator: FilterType.EQUAL, value: chunkStates.indexOf(ChunkState.RUNNING) });
 
       const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, chunkParams.create()));
       const responseBody = { data: response.data, included: response.included };
-      const chunks = this.serializer.deserialize<JChunk[]>(responseBody);
-
-      agents.forEach((agent: JAgent) => {
-        this.setChunkParams(agent, chunks, assignments);
-      });
+      return this.serializer.deserialize<JChunk[]>(responseBody);
     }
+    return [];
   }
 
   /**
@@ -158,8 +163,8 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
     if (agent.chunk) {
       agent.chunkId = agent.chunk.id;
-      if (agent.chunks) {
-        agent.agentSpeed = this.getAgentSpeed(agent, agent.chunks);
+      if (chunks) {
+        agent.agentSpeed = this.getAgentSpeed(agent, chunks);
       }
     }
     agent.chunkData = this.convertChunks(agent.id, chunks, true);
