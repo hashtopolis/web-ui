@@ -1,0 +1,9 @@
+<!-- <p>agent-view-dialog works!</p> -->
+@for (item of data.agentData; track $index) {
+  {{ item.agentName }}
+  {{ item.agentId }}
+  {{ item.agentStatus }}
+  {{ item.threshold1 }}
+  {{ item.threshold2 }}
+  {{ item.dataValue }}
+}

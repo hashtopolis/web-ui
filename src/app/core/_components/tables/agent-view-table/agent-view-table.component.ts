@@ -7,7 +7,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
-import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog/agent-view-dialog.component';
+import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog.component';
 import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { HTTableColumn } from '../ht-table/ht-table.models';
@@ -184,7 +184,26 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
    */
   openDialog(title: string): void {
     const dialogRef = this.dialog.open(AgentViewDialogComponent, {
-      data: { title: ['1', '2', '3', '4'] }
+      data: {
+        agentData: [
+          {
+            agentName: '1234',
+            agentId: 'Agent ID',
+            agentStatus: 'Agent Status',
+            threshold1: 'threshold1',
+            threshold2: 'threshold2',
+            dataValue: 'dataValue'
+          },
+          {
+            agentName: 'Name',
+            agentId: 'ID',
+            agentStatus: 'Status',
+            threshold1: 'agent threshold1',
+            threshold2: 'agent threshold2',
+            dataValue: 'agent dataValue'
+          }
+        ]
+      }
     });
 
     dialogRef.afterClosed().subscribe();

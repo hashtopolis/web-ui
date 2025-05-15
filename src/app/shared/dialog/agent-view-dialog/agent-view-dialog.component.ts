@@ -1,5 +1,6 @@
 import { Component, Inject, Input, inject } from '@angular/core';
 
+import { AgentViewDialogData } from './agent-view-dialog.model';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 
@@ -12,5 +13,5 @@ import { UIConfigService } from '@src/app/core/_services/shared/storage.service'
 export class AgentViewDialogComponent {
   data = inject(MAT_DIALOG_DATA);
   private uiService = Inject(UIConfigService); // Inject the UIConfigService
-  @Input() title: string[] = []; // Title of the dialog
+  @Input() agentData: AgentViewDialogData[] = [];
 }
