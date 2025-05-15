@@ -12,9 +12,6 @@
           <mat-icon>{{ item.icon }}</mat-icon>
           {{ item.tabName }}
         </ng-template>
-        <p>
-          {{ data.agentName }}
-        </p>
         <ng-container>
           <div class="row">
             <p>
@@ -38,19 +35,16 @@
             </p>
             <p>
               <span style="color: #ff0000">&#9673;</span> Invalid
-              <!-- {{ statusInvalid }} -->
+              {{ item.statusLabel | lowercase }}
               data from agent or values being 0
             </p>
             <p>Threshold can be configured in the config section.</p>
           </div>
         </ng-container>
-        <!--       {{ item.agentName }}
-      {{ item.agentId }}
-      {{ item.agentStatus }}
-      {{ item.threshold1 }}
-      {{ item.threshold2 }}
-      {{ item.dataValue }} -->
       </mat-tab>
     }
   </mat-tab-group>
 </mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="closeDialog()">Close</button>
+</mat-dialog-actions>

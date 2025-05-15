@@ -189,36 +189,24 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
           {
             tabName: 'Device Utilisation ',
             icon: 'devices',
-            agentName: '1234',
-            agentId: 'Agent ID',
-            agentStatus: 'Agent Status',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
-            dataValue: 'dataValue',
             unitLabel: 'Device',
             statusLabel: 'CPU'
           },
           {
             tabName: 'Temperature',
             icon: 'device_thermostat',
-            agentName: 'Name',
-            agentId: 'ID',
-            agentStatus: 'Status',
             threshold1: this.getTemp1(),
             threshold2: this.getTemp2(),
-            dataValue: 'agent dataValue',
             unitLabel: 'Temprature',
             statusLabel: 'Device'
           },
           {
             tabName: 'CPU Utilisation',
             icon: 'computer',
-            agentName: 'Name',
-            agentId: 'ID',
-            agentStatus: 'Status',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
-            dataValue: 'agent dataValue',
             unitLabel: 'CPU',
             statusLabel: 'Device'
           }
