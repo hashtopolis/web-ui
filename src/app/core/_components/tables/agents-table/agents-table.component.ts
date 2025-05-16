@@ -137,13 +137,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
         export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
-      },
-      {
-        id: AgentsTableCol.CRACKED,
-        dataKey: 'cracked',
-        //routerLink: (agent: JAgent) => this.renderCrackedLink(agent),
-        isSortable: true,
-        export: async (agent: JAgent) => this.renderCracked(agent) + ''
       }
     ];
 
@@ -165,6 +158,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       });
     } else {
       // If this is assigned agents, add benchmark, time spent and keyspace searched
+      tableColumns.push({
+        id: AgentsTableCol.CRACKED,
+        dataKey: 'cracked',
+        render: (agent: JAgent) => this.renderCracked(agent),
+        isSortable: true,
+        export: async (agent: JAgent) => this.renderCracked(agent) + ''
+      });
       tableColumns.push({
         id: AgentsTableCol.BENCHMARK,
         dataKey: 'benchmark',
@@ -290,7 +290,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderSearched(agent: JAgent): SafeHtml {
     const searched = this.getChunkDataValue(agent, 'searched');
-    return this.sanitize(searched ? `${searched}` : '-');
+    const percentSearched = `${parseFloat(String(searched * 100)).toFixed(2)}%`;
+    return this.sanitize(searched ? `${percentSearched}` : '-');
   }
 
   /**
