@@ -6,6 +6,7 @@ import { AccessPermissionGroupsUsersTableCol } from '@components/tables/access-p
 import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
+import { AgentsViewTableCol } from '../_components/tables/agent-view-table/agents-view-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
@@ -25,9 +26,9 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
@@ -191,6 +192,25 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentsStatusTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    agentViewTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentsViewTableCol.ID,
+        AgentsViewTableCol.NAME,
+        AgentsViewTableCol.CPU_UTILISATION,
+        AgentsViewTableCol.TEMPERATURE,
+        AgentsViewTableCol.DEVICE_UTILISATION,
+        AgentsViewTableCol.LAST_ACTIVITY
+      ],
+      order: {
+        id: AgentsViewTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'

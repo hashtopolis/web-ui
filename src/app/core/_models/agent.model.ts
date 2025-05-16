@@ -1,8 +1,9 @@
+import { ChunkData, JChunk } from '@models/chunk.model';
+
+import { BaseModel } from '@models/base.model';
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentStat } from '@models/agent-stats.model';
-import { BaseModel } from '@models/base.model';
-import { ChunkData, JChunk } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
 

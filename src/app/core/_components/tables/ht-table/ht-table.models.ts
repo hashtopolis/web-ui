@@ -1,15 +1,14 @@
+import { BaseModel } from '@models/base.model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
-
 import { SafeHtml } from '@angular/platform-browser';
-
-import { BaseModel } from '@models/base.model';
 
 export type DataType =
   | 'agents'
   | 'agents-status'
   | 'agents-assign'
+  | 'agents-view'
   | 'access-groups'
   | 'access-groups-users'
   | 'access-permission-groups-user'
@@ -84,6 +83,7 @@ export interface HTTableColumn {
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
+  customCellColor?: customCellColorInput;
   routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
   icon?: (data: BaseModel) => HTTableIcon;
 }
@@ -92,3 +92,11 @@ export interface HTTableColumn {
 export const COL_SELECT = 100;
 /** Column def for row action */
 export const COL_ROW_ACTION = 200;
+export interface customCellColorInput {
+  value: (data: any) => number;
+  treshold1: number;
+  treshold2: number;
+  type: number;
+  isActive: (data: any) => boolean;
+  lastTime: (data: any) => number;
+}

@@ -1,0 +1,44 @@
+<mat-dialog-content cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle class="moveable-cursor">
+  <mat-tab-group>
+    @for (item of data.agentData; track $index) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon-margin">{{ item.icon }}</mat-icon>
+          {{ item.tabName }}
+        </ng-template>
+        <ng-container>
+          <div class="row">
+            <p>
+              <span style="color: #009933">&#9673;</span>
+              {{ item.statusLabel }}
+              is good (> {{ item.threshold1 }} {{ item.unitLabel }})
+            </p>
+            <p>
+              <span style="color: #ff9900">&#9673;</span>
+              {{ item.statusLabel }}
+              not ideal (<= {{ item.threshold2 }} {{ item.unitLabel }})
+            </p>
+            <p>
+              <span style="color: #800000">&#9673;</span>
+              {{ item.statusLabel }}
+              low (<= {{ item.threshold2 }} {{ item.unitLabel }})
+            </p>
+            <p><span style="color: #cccccc">&#9673;</span> Agent is not active</p>
+            <p>
+              <span style="color: #42d4f4">&#9673;</span> Agent is active but not working or not providing device data
+            </p>
+            <p>
+              <span style="color: #ff0000">&#9673;</span> Invalid
+              {{ item.statusLabel | lowercase }}
+              data from agent or values being 0
+            </p>
+            <p>Threshold can be configured in the config section.</p>
+          </div>
+        </ng-container>
+      </mat-tab>
+    }
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="closeDialog()">Close</button>
+</mat-dialog-actions>

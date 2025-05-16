@@ -1,0 +1,15 @@
+<ht-table
+  #table
+  name="agentViewTable"
+  [columnLabels]="columnLabels"
+  dataType="agents-view"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="!isSelectable"
+  [isFilterable]="false"
+  [hasRowAction]="false"
+  [hasBulkActions]="false"
+  [isPageable]="true"
+  (temperatureInformationClicked)="openDialog()"
+  [hasTemperatureInformation]="hasTemperatureInformation"
+/>
