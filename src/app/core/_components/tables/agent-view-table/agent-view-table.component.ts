@@ -1,8 +1,4 @@
 import { AgentsViewTableCol, AgentsViewTableColumnLabel } from './agents-view-table.constants';
-/* import {
-  AgentsViewTableCol,
-  AgentsViewTableColumnLabel
-} from './agents-view-table.constants'; */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
@@ -214,6 +210,6 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       }
     });
 
-    dialogRef.afterClosed().subscribe();
+    // dialogRef.afterClosed().subscribe();
   }
 }

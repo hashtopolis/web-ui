@@ -20,7 +20,6 @@ import { MatButtonModule } from '@angular/material/button';
     DragDropModule
   ],
   templateUrl: './agent-view-dialog.component.html',
-  styleUrl: './agent-view-dialog.component.scss'
 })
 export class AgentViewDialogComponent {
   data = inject(MAT_DIALOG_DATA);
