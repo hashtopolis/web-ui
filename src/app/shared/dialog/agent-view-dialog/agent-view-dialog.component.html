@@ -3,7 +3,7 @@
     @for (item of data.agentData; track $index) {
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>{{ item.icon }}</mat-icon>
+          <mat-icon class="tab-icon-margin">{{ item.icon }}</mat-icon>
           {{ item.tabName }}
         </ng-template>
         <ng-container>
