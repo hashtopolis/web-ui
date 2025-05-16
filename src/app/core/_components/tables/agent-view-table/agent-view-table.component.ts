@@ -19,7 +19,6 @@ export class STATCALCULATION {
 @Component({
   selector: 'app-agent-view-table',
   templateUrl: './agent-view-table.component.html',
-  styleUrls: ['./agent-view-table.component.scss'],
   standalone: false
 })
 export class AgentViewTableComponent extends BaseTableComponent implements OnInit {
@@ -209,7 +208,5 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         ]
       }
     });
-
-    // dialogRef.afterClosed().subscribe();
   }
 }
