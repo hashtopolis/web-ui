@@ -1,5 +1,3 @@
-import { S } from '@angular/cdk/scrolling-module.d-aa3aedaa';
-
 export interface AgentViewDialogData {
   tabName: string;
   icon: string;

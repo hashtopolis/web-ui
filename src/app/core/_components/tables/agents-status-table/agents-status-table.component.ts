@@ -4,7 +4,7 @@ import {
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-
+import { catchError, forkJoin } from 'rxjs';
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';

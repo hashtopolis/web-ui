@@ -54,7 +54,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.NAME,
         dataKey: 'agentName',
         isSortable: true,
-        icons: (agent: JAgent) => this.renderStatusIcon(agent),
+        icon: (agent: JAgent) => this.renderStatusIcon(agent),
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         render: (agent: JAgent) => agent.agentName
       },
