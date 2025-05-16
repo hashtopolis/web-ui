@@ -1,4 +1,4 @@
-FROM node:22.14.0-bookworm as hashtopolis-web-ui-base
+FROM node:22.14.0-bookworm AS hashtopolis-web-ui-base
 ENV PUPPETEER_SKIP_DOWNLOAD='true'
 EXPOSE 4200
 
@@ -24,7 +24,7 @@ COPY docker-entrypoint.sh /usr/local/bin
 
 # BUILD Image
 #----BEGIN----
-FROM hashtopolis-web-ui-base as hashtopolis-web-ui-build
+FROM hashtopolis-web-ui-base AS hashtopolis-web-ui-build
 # Coping the app into the container
 COPY . ./
 
@@ -38,7 +38,7 @@ RUN npm run build
 
 # DEVELOPMENT Image
 # ----BEGIN----
-FROM hashtopolis-web-ui-base as hashtopolis-web-ui-dev
+FROM hashtopolis-web-ui-base AS hashtopolis-web-ui-dev
 # Enable tooling like 'ng' for regular users
 RUN echo "export PATH=/app/node_modules/.bin:${PATH}" >> /etc/profile.d/npm.inc.sh
 
@@ -52,7 +52,7 @@ ENTRYPOINT [ "/bin/bash", "/usr/local/bin/docker-entrypoint.sh", "development" ]
 
 # PRODUCTION Image
 # ----BEGIN----
-FROM nginx:bookworm as hashtopolis-web-ui-prod
+FROM nginx:bookworm AS hashtopolis-web-ui-prod
 COPY --from=hashtopolis-web-ui-build /app/dist/ /usr/share/nginx/html
 COPY --from=hashtopolis-web-ui-build /usr/local/bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

@@ -1,3 +1,4 @@
+import { LineChart, LineSeriesOption } from 'echarts/charts';
 import {
   DataZoomComponent,
   DataZoomComponentOption,
@@ -14,47 +15,51 @@ import {
   VisualMapComponent,
   VisualMapComponentOption
 } from 'echarts/components';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { LineChart, LineSeriesOption } from 'echarts/charts';
-import { FormControl, FormGroup } from '@angular/forms';
+import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import * as echarts from 'echarts/core';
-
-import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
-import { SERV } from '../../core/_services/main.config';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { finalize } from 'rxjs';
-import { FilterType } from 'src/app/core/_models/request-params.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { JHashtype } from '@models/hashtype.model';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
+import { JCrackerBinary } from '@models/cracker-binary.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JHashtype } from '@models/hashtype.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+
+import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
+
+import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 
 @Component({
-    selector: 'app-edit-tasks',
-    templateUrl: './edit-tasks.component.html',
-    providers: [FileSizePipe],
-    standalone: false
+  selector: 'app-edit-tasks',
+  templateUrl: './edit-tasks.component.html',
+  providers: [FileSizePipe],
+  standalone: false
 })
 export class EditTasksComponent implements OnInit {
   editMode = false;
   editedTaskIndex: number;
   taskWrapperId: number;
-  editedTask: any; // Change to Model
-  originalValue: any; // Change to Model
+  originalValue: JTask;
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
@@ -62,20 +67,19 @@ export class EditTasksComponent implements OnInit {
   isUpdatingLoading = false;
 
   color = '';
-  tusepreprocessor: any;
-  hashlistDescrip: any;
-  hashlistinform: any;
-  assigAgents: any;
-  availAgents = [];
-  crackerinfo: any;
-  tkeyspace: any;
+  tusepreprocessor: number;
+  hashlistDescrip: string;
+  hashlistinform: JHashlist;
+  availAgents: JAgent[] = [];
+  crackerinfo: JCrackerBinary;
+  tkeyspace: number;
 
-  @ViewChild('table') table: AgentsTableComponent;
+  @ViewChild('agentsTable') agentsTable: AgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
 
   //Time calculation
-  cprogress: any; // Keyspace searched
-  ctimespent: any; // Time Spent
+  cprogress: number; // Keyspace searched
+  ctimespent: number; // Time Spent
 
   // Chunk View
   chunkview: number;
@@ -83,7 +87,6 @@ export class EditTasksComponent implements OnInit {
   isactive = 0;
   currenspeed = 0;
   chunkresults: number;
-  activechunks: Object;
 
   constructor(
     private titleService: AutoTitleService,
@@ -103,7 +106,7 @@ export class EditTasksComponent implements OnInit {
     this.onInitialize();
     this.buildForm();
     this.initForm();
-    this.assignChunksInit(this.editedTaskIndex);
+    this.assignChunksInit();
   }
 
   onInitialize() {
@@ -137,12 +140,6 @@ export class EditTasksComponent implements OnInit {
     });
     this.createForm = new FormGroup({
       agentId: new FormControl()
-    });
-  }
-
-  OnChangeValue(value) {
-    this.updateForm.patchValue({
-      updateData: { color: value }
     });
   }
 
@@ -194,13 +191,12 @@ export class EditTasksComponent implements OnInit {
         this.originalValue = task;
         this.color = task.color;
         this.crackerinfo = task.crackerBinary;
-        this.taskWrapperId - task.taskWrapperId;
+        this.taskWrapperId = task.taskWrapperId;
         // Graph Speed
         this.initTaskSpeed(task.speeds);
         // Assigned Agents init
         this.assingAgentInit();
         // Hashlist Description and Type
-        this.hashlistinform = '';
         if (task.hashlist) {
           this.hashlistinform = task.hashlist;
           if (this.hashlistinform) {
@@ -217,44 +213,26 @@ export class EditTasksComponent implements OnInit {
         }
         this.tkeyspace = task.keyspace;
         this.tusepreprocessor = task.preprocessorId;
-        this.updateForm = new FormGroup({
-          taskId: new FormControl({
-            value: task.id,
-            disabled: true
-          }),
-          forcePipe: new FormControl({
-            value: task.forcePipe == true ? 'Yes' : 'No',
-            disabled: true
-          }),
-          skipKeyspace: new FormControl({
-            value: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
-            disabled: true
-          }),
-          keyspace: new FormControl({
-            value: task.keyspace,
-            disabled: true
-          }),
-          keyspaceProgress: new FormControl({
-            value: task.keyspaceProgress,
-            disabled: true
-          }),
-          crackerBinaryId: new FormControl(task.crackerBinaryId),
-          chunkSize: new FormControl({
-            value: task.chunkSize,
-            disabled: true
-          }),
-          updateData: new FormGroup({
-            taskName: new FormControl(task.taskName),
-            attackCmd: new FormControl(task.attackCmd),
-            notes: new FormControl(task.notes),
-            color: new FormControl(task.color),
-            chunkTime: new FormControl(Number(task.chunkTime)),
-            statusTimer: new FormControl(task.statusTimer),
-            priority: new FormControl(task.priority),
-            maxAgents: new FormControl(task.maxAgents),
-            isCpuTask: new FormControl(task.isCpuTask),
-            isSmall: new FormControl(task.isSmall)
-          })
+        this.updateForm.setValue({
+          taskId: task.id,
+          forcePipe: task.forcePipe === true ? 'Yes' : 'No',
+          skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
+          keyspace: task.keyspace,
+          keyspaceProgress: task.keyspaceProgress,
+          crackerBinaryId: task.crackerBinaryId,
+          chunkSize: task.chunkSize,
+          updateData: {
+            taskName: task.taskName,
+            attackCmd: task.attackCmd,
+            notes: task.notes,
+            color: task.color,
+            chunkTime: Number(task.chunkTime),
+            statusTimer: task.statusTimer,
+            priority: task.priority,
+            maxAgents: task.maxAgents,
+            isCpuTask: task.isCpuTask,
+            isSmall: task.isSmall
+          }
         });
       });
     }
@@ -279,13 +257,7 @@ export class EditTasksComponent implements OnInit {
 
       this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
         const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
-        const agents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
-        this.availAgents = agents;
-
-        // this.assigAgents = res.values.map((mainObject) => {
-        //   const matchObject = agents.values.find((element) => element.agentId === mainObject.agentId);
-        //   return { ...mainObject, ...matchObject };
-        // });
+        this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
       });
     });
   }
@@ -301,7 +273,7 @@ export class EditTasksComponent implements OnInit {
         .pipe(
           finalize(() => {
             this.assingAgentInit();
-            this.table.reload();
+            this.agentsTable.reload();
           })
         )
         .subscribe(() => {
@@ -327,11 +299,15 @@ export class EditTasksComponent implements OnInit {
         timespent.push(chunks[i].solveTime - current);
       }
     }
-    this.cprogress = cprogress.reduce((a, i) => a + i);
-    this.ctimespent = timespent.reduce((a, i) => a + i);
+    if (cprogress.length > 0) {
+      this.cprogress = cprogress.reduce((a, i) => a + i);
+    }
+    if (timespent.length > 0) {
+      this.ctimespent = timespent.reduce((a, i) => a + i);
+    }
   }
 
-  assignChunksInit(id: number) {
+  assignChunksInit() {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
         case 'edit-task':
@@ -350,8 +326,6 @@ export class EditTasksComponent implements OnInit {
     });
 
     //TODO. It is repeting code to get the speed
-    const page = { size: this.chunkresults };
-
     const paramsChunks = new RequestParamBuilder()
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex })
       .create();
@@ -394,7 +368,7 @@ export class EditTasksComponent implements OnInit {
     });
   }
 
-  toggleIsAll(event) {
+  toggleIsAll() {
     if (this.chunkview === 0) {
       this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit', 'show-all-chunks']);
     } else {
@@ -504,11 +478,10 @@ export class EditTasksComponent implements OnInit {
 
     const chartDom = document.getElementById('tspeed');
     const myChart = echarts.init(chartDom);
-    let option: EChartsOption;
 
     const self = this;
 
-    option = {
+    const option: EChartsOption = {
       title: {
         subtext: 'Last record: ' + datelabel
       },

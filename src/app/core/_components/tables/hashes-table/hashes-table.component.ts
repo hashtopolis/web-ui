@@ -4,21 +4,21 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
 
-import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { HashesDataSource } from '@datasources/hashes.datasource';
 
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'hashes-table',
-    templateUrl: './hashes-table.component.html',
-    standalone: false
+  selector: 'hashes-table',
+  templateUrl: './hashes-table.component.html',
+  standalone: false
 })
 export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() id: number;

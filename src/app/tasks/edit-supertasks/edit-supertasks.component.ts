@@ -1,27 +1,31 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { ResponseWrapper } from 'src/app/core/_models/response.model';
-import { SERV } from '../../core/_services/main.config';
-import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { JPretask } from '@src/app/core/_models/pretask.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { JSuperTask } from '@src/app/core/_models/supertask.model';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RelationshipType, SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
+
+import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 declare let options: any;
 declare let defaultOptions: any;
-declare let parser: any;
 
 @Component({
-    selector: 'app-edit-supertasks',
-    templateUrl: './edit-supertasks.component.html',
-    standalone: false
+  selector: 'app-edit-supertasks',
+  templateUrl: './edit-supertasks.component.html',
+  standalone: false
 })
 export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -42,8 +46,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
   // Edit
   editedSTIndex: number;
-  editedST: any; // Change to Model
   assignPretasks: any;
+
+  @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -57,7 +62,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   ) {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit SuperTasks']);
+    this.titleService.set(['Edit SuperTasks']);
   }
 
   /**
@@ -110,8 +115,6 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    console.log(this.editedSTIndex);
-
     const params = new RequestParamBuilder().addInclude('pretasks').create();
 
     const loadSTSubscription$ = this.gs
@@ -137,8 +140,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
           const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
 
-          const transformedOptions = transformSelectOptions(availablePretasks, this.selectSuperTaskMap);
-          this.selectPretasks = transformedOptions;
+          this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
           this.isLoading = false;
           this.changeDetectorRef.detectChanges();
         });
@@ -160,9 +162,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   /**
    * Retrieves the available pre-tasks that are not assigned.
    *
-   * @param {Array} assigning - An array of assigned tasks with pre-task information.
-   * @param {Array} pretasks - An array of all available pre-tasks.
-   * @returns {Array} - An array containing pre-tasks that are not assigned.
+   * @param assigning An array of assigned tasks with pre-task information.
+   * @param  pretasks An array of all available pre-tasks.
+   * @returns An array containing pre-tasks that are not assigned.
    */
   getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
     // Use filter to find pre-tasks not present in the assigning array
@@ -176,18 +178,23 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const concat = []; // We get the current values and then concat with the new value
+      const pretasks = []; // We get the current values and then concat with the new value
       for (let i = 0; i < this.assignPretasks.length; i++) {
-        concat.push(this.assignPretasks[i].pretaskId);
+        pretasks.push({ type: 'pretask', id: this.assignPretasks[i].id });
       }
-      const payload = concat.concat(this.updateForm.value['pretasks']);
+
+      this.updateForm.value['pretasks'].forEach((pretask) => {
+        pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
+      });
+
+      const responseBody = { data: pretasks };
 
       const updateSubscription$ = this.gs
-        .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
+        .updateRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
         .subscribe(() => {
           this.alert.okAlert('SuperTask saved!', '');
-          this.updateForm.reset(); // success, we reset form
-          this.onRefresh();
+          this.refresh(); // Reload the Pretask-Select-Component
+          this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
       this.unsubscribeService.add(updateSubscription$);
     }

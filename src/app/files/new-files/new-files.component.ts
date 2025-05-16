@@ -18,16 +18,16 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
-import { handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { handleEncode, SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
  */
 @Component({
-    selector: 'app-new-files',
-    templateUrl: './new-files.component.html',
-    standalone: false
+  selector: 'app-new-files',
+  templateUrl: './new-files.component.html',
+  standalone: false
 })
 export class NewFilesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -47,7 +47,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   redirect: string;
 
   // Lists of Selected inputs
-  selectAccessgroup: any[];
+  selectAccessgroup: SelectOption[];
 
   // Upload files
   selectedFiles: FileList | null = null;
@@ -146,10 +146,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   async loadData() {
     this.isLoading = true;
 
-    const fieldAccess = {
-      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
-    };
-
     try {
       const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.ACCESS_GROUPS));
 
@@ -158,7 +154,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
         included: response.included
       });
 
-      this.selectAccessgroup = transformSelectOptions(accessGroups, fieldAccess);
+      this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
     } catch (error) {
       console.error('Error fetching access groups:', error);
     } finally {

@@ -56,3 +56,38 @@ export class SERV {
   // PROJECTS
   public static PROJECTS = { URL: '/ui/tasks', RESOURCE: 'Projects' };
 }
+
+/**
+ * Different RelationshipTypes used in API requests
+ * @enum
+ */
+export enum RelationshipType {
+  ACCESSGROUP = 'accessGroup',
+  ACCESSGROUPS = 'accessGroups',
+  AGENT = 'agent',
+  AGENTMEMBER = 'agentMembers',
+  AGENTSTAT = 'agentStats',
+  ASSIGNMENT = 'assignments',
+  ASSIGNEDAGENTS = 'assignedAgents',
+  CHUNK = 'chunk',
+  CHUNKS = 'chunks',
+  CONFIGSECTION = 'configSection',
+  CRACKERBINARY = 'crackerBinary',
+  CRACKERBINARYTYPE = 'crackerBinaryType',
+  CRACKERVERSION = 'crackerVersions',
+  FILES = 'files',
+  GLOBALPERMISSIONGROUP = 'globalPermissionGroup',
+  HASHES = 'hashes',
+  HASHLIST = 'hashlist',
+  HASHLISTS = 'hashlists',
+  HASHTYPE = 'hashtype',
+  HEALTHCHECK = 'healthCheck',
+  HEALTHCHECKAGENTS = 'healthCheckAgents',
+  PRETASKS = 'pretasks',
+  PRETASKFILES = 'pretaskFiles',
+  SPEEDS = 'speeds',
+  TASK = 'task',
+  TASKS = 'tasks',
+  USER = 'user',
+  USERMEMERS = 'userMembers'
+}

@@ -1,49 +1,74 @@
-import { catchError, finalize, of } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { JHash } from '../_models/hash.model';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { ResponseWrapper } from '../_models/response.model';
-import { FilterType } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JHash } from '@models/hash.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class CracksDataSource extends BaseDataSource<JHash> {
-  loadAll(): void {
+  /**
+   * Set table rows loaded from server
+   */
+  async loadAll() {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk').addFilter({
-      field: 'isCracked',
-      operator: FilterType.EQUAL,
-      value: true
-    }).create();
+    try {
+      const crackedHashes = await this.loadCrackedHashes();
 
-    const cracks$ = this.service.getAll(SERV.HASHES, params);
-    this.subscriptions.push(
-      cracks$
-        .pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loading = false))
-        )
-        .subscribe((response: ResponseWrapper) => {
-          const serializer = new JsonAPISerializer();
-          const responseData = { data: response.data, included: response.included };
-          const crackedHashes = serializer.deserialize<JHash[]>(responseData);
-          const rows: JHash[] = [];
-          crackedHashes.forEach((crackedHash) => {
-            rows.push(crackedHash);
-          });
-
-          this.setPaginationConfig(
-            this.pageSize,
-            this.currentPage,
-            crackedHashes.length
-          );
-          this.setData(rows);
+      const rows: JHash[] = await Promise.all(
+        crackedHashes.map(async (crackedHash) => {
+          const task = await this.loadTask(crackedHash.chunk.taskId);
+          crackedHash.chunk.taskName = task.taskName;
+          return crackedHash;
         })
-    );
+      );
+
+      this.setPaginationConfig(this.pageSize, this.currentPage, crackedHashes.length);
+      this.setData(rows);
+    } catch (error) {
+      console.error('Error loading data', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
-  reload(): void {
+  /**
+   * Load cracked hashes from server
+   * @return Promise of cracked hashes
+   */
+  async loadCrackedHashes() {
+    const params = new RequestParamBuilder()
+      .addInitial(this)
+      .addInclude('hashlist')
+      .addInclude('chunk')
+      .addFilter({
+        field: 'isCracked',
+        operator: FilterType.EQUAL,
+        value: true
+      })
+      .create();
+
+    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.HASHES, params));
+    const serializer = new JsonAPISerializer();
+    return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
+  }
+
+  /**
+   * Load task from server
+   * @param taskId ID of task
+   * @return Promise of task
+   */
+  async loadTask(taskId: number) {
+    const response = await firstValueFrom<ResponseWrapper>(this.service.get(SERV.TASKS, taskId));
+    return new JsonAPISerializer().deserialize<JTask>({ data: response.data, included: response.included });
+  }
+
+  reload() {
     this.clearSelection();
     this.loadAll();
   }

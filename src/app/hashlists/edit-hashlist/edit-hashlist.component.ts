@@ -1,37 +1,36 @@
+import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
-import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
-
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { FormControl, FormGroup } from '@angular/forms';
-import { DataTableDirective } from 'angular-datatables';
 
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
-import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
-
-import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
-import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-
-import { transformSelectOptions } from '@src/app/shared/utils/forms';
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { JAccessGroup } from '@models/access-group.model';
 import { JHashlist } from '@models/hashlist.model';
-import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
 import { JHashtype } from '@models/hashtype.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { CanComponentDeactivate } from '@src/app/core/_guards/pendingchanges.guard';
+import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
+import { getEditHashlistForm } from '@src/app/hashlists/edit-hashlist/edit-hashlist.form';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 /**
  * Represents the EditHashlistComponent responsible for editing a new hashlists.
  */
 @Component({
-    selector: 'app-edit-hashlist',
-    templateUrl: './edit-hashlist.component.html',
-    standalone: false
+  selector: 'app-edit-hashlist',
+  templateUrl: './edit-hashlist.component.html',
+  standalone: false
 })
 export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   /** Flag indicating whether data is still loading. */
@@ -54,14 +53,12 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   dtElement: DataTableDirective;
 
   dtTrigger: Subject<any> = new Subject<any>();
-  dtTrigger1: Subject<any> = new Subject<any>();
-  dtOptions: any = {};
-  dtOptions1: any = {};
 
   /**
    * Constructor for the YourComponent class.
    * Initializes and injects required services and dependencies.
    * Calls necessary methods to set up the component.
+   * @param unsavedChangesService
    * @param {UnsubscribeService} unsubscribeService - Service for managing subscriptions.
    * @param {ChangeDetectorRef} changeDetectorRef - Reference to the Angular change detector.
    * @param {AutoTitleService} titleService - Service for managing page titles.
@@ -84,7 +81,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   ) {
     this.getInitialization();
     this.buildForm();
-    titleService.set(['Edit Hashlist']);
+    this.titleService.set(['Edit Hashlist']);
   }
 
   /**
@@ -123,15 +120,12 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Loads data, specifically access groups, for the component.
    */
   loadData() {
-    const fieldAccess = {
-      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
-    };
     const accedgroupSubscription$ = this.gs.getAll(SERV.ACCESS_GROUPS).subscribe((response: ResponseWrapper) => {
       const accessGroups = new JsonAPISerializer().deserialize<JAccessGroup[]>({
         data: response.data,
         included: response.included
       });
-      this.selectAccessgroup = transformSelectOptions(accessGroups, fieldAccess);
+      this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
       this.isLoading = false;
       this.changeDetectorRef.detectChanges();
     });

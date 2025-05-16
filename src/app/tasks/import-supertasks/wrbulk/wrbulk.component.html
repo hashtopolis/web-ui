@@ -38,21 +38,21 @@
         <mat-expansion-panel-header>
           <span><b>Wordlists</b></span>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="0" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></files-attack-table>
+        <app-files-attack-table [fileType]="0" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Rules</b></span>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="1" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></files-attack-table>
+        <app-files-attack-table [fileType]="1" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Other</b></span>
         </mat-expansion-panel-header>
-        <files-attack-table [fileType]="2" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></files-attack-table>
+        <app-files-attack-table [fileType]="2" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></app-files-attack-table>
       </mat-expansion-panel>
     </mat-accordion>
   </div>

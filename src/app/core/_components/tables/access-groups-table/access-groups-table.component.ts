@@ -1,43 +1,40 @@
+import { catchError, forkJoin } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAccessGroup } from '@models/access-group.model';
+
+import { SERV } from '@services/main.config';
+import { LruCacheService } from '@services/shared/lru-cache.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsTableCol,
   AccessGroupsTableColumnLabel
-} from './access-groups-table.constants';
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/access-groups-table/access-groups-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { JAccessGroup } from 'src/app/core/_models/access-group.model';
-import { AccessGroupsDataSource } from 'src/app/core/_datasources/access-groups.datasource';
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 
 @Component({
-    selector: 'access-groups-table',
-    templateUrl: './access-groups-table.component.html',
-    standalone: false
+  selector: 'app-access-groups-table',
+  templateUrl: './access-groups-table.component.html',
+  standalone: false
 })
-export class AccessGroupsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AccessGroupsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -46,18 +43,15 @@ export class AccessGroupsTableComponent
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+    LruCacheService.getInstance().clear();
   }
 
   filter(item: JAccessGroup, filterValue: string): boolean {
-    if (item.groupName.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.groupName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: AccessGroupsTableCol.ID,
         dataKey: 'id',
@@ -67,8 +61,7 @@ export class AccessGroupsTableComponent
       {
         id: AccessGroupsTableCol.NAME,
         dataKey: 'groupName',
-        routerLink: (accessGroup: JAccessGroup) =>
-          this.renderAccessGroupLink(accessGroup),
+        routerLink: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
         isSortable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
@@ -79,8 +72,7 @@ export class AccessGroupsTableComponent
         render: (accessGroup: JAccessGroup) => {
           return accessGroup.userMembers.length.toString();
         },
-        export: async (accessGroup: JAccessGroup) =>
-          accessGroup.userMembers.length.toString()
+        export: async (accessGroup: JAccessGroup) => accessGroup.userMembers.length.toString()
       },
       {
         id: AccessGroupsTableCol.NAGENTS,
@@ -89,12 +81,9 @@ export class AccessGroupsTableComponent
         render: (accessGroup: JAccessGroup) => {
           return accessGroup.agentMembers.length.toString();
         },
-        export: async (accessGroup: JAccessGroup) =>
-          accessGroup.agentMembers.length.toString()
+        export: async (accessGroup: JAccessGroup) => accessGroup.agentMembers.length.toString()
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JAccessGroup>) {
@@ -124,33 +113,35 @@ export class AccessGroupsTableComponent
   exportActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JAccessGroup>(
-          'hashtopolis-access-groups',
-          this.tableColumns,
-          event.data,
-          AccessGroupsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JAccessGroup>(
-          'hashtopolis-access-groups',
-          this.tableColumns,
-          event.data,
-          AccessGroupsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JAccessGroup>(
+          .toExcel<JAccessGroup>(
+            'hashtopolis-access-groups',
             this.tableColumns,
             event.data,
             AccessGroupsTableColumnLabel
           )
           .then(() => {
             this.snackBar.open(
-              'The selected rows are copied to the clipboard',
+              'The selected rows were saved as Excel file, please check the download folder of your browser',
               'Close'
             );
+          });
+        break;
+      case ExportMenuAction.CSV:
+        this.exportService
+          .toCsv<JAccessGroup>('hashtopolis-access-groups', this.tableColumns, event.data, AccessGroupsTableColumnLabel)
+          .then(() => {
+            this.snackBar.open(
+              'The selected rows were saved as CSV file, please check the download folder of your browser',
+              'Close'
+            );
+          });
+        break;
+      case ExportMenuAction.COPY:
+        this.exportService
+          .toClipboard<JAccessGroup>(this.tableColumns, event.data, AccessGroupsTableColumnLabel)
+          .then(() => {
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
         break;
     }
@@ -207,10 +198,7 @@ export class AccessGroupsTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} access groups!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} access groups!`, 'Close');
           this.reload();
         })
     );
@@ -237,10 +225,8 @@ export class AccessGroupsTableComponent
   }
 
   private rowActionEdit(accessGroup: JAccessGroup): void {
-    this.renderAccessGroupLink(accessGroup).then(
-      (links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink);
-      }
-    );
+    this.renderAccessGroupLink(accessGroup).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
+    });
   }
 }

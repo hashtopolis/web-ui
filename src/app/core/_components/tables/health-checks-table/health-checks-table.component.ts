@@ -1,35 +1,34 @@
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
+
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheck } from '@models/health-check.model';
 
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HealthChecksTableCol,
   HealthChecksTableColumnLabel,
   HealthChecksTableStatusLabel
 } from '@components/tables/health-checks-table/health-checks-table.constants';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
 
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
-
-import { SERV } from '@services/main.config';
-
 @Component({
-    selector: 'health-checks-table',
-    templateUrl: './health-checks-table.component.html',
-    standalone: false
+  selector: 'health-checks-table',
+  templateUrl: './health-checks-table.component.html',
+  standalone: false
 })
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
@@ -50,15 +49,11 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JHealthCheck, filterValue: string): boolean {
-    if (item.attackCmd.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.attackCmd.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: HealthChecksTableCol.ID,
         dataKey: 'id',
@@ -90,8 +85,6 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         export: async (healthCheck: JHealthCheck) => HealthChecksTableStatusLabel[healthCheck.status]
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JHealthCheck>) {
@@ -116,14 +109,20 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     );
   }
 
-  @Cacheable(['id'])
-  async renderHealthCheckLink(hc: JHealthCheck): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/config/health-checks', hc.id],
-        label: hc.id
-      }
-    ];
+  /**
+   * Render healthcheck link
+   * @param healthCheck - healthcheck object to render link for
+   * @return observable object containing a router link array
+   */
+  private renderHealthCheckLink(healthCheck: JHealthCheck): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (healthCheck) {
+      links.push({
+        routerLink: ['/config/health-checks', healthCheck.id],
+        label: healthCheck.id
+      });
+    }
+    return of(links);
   }
 
   // --- Action functions ---

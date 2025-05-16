@@ -1,28 +1,28 @@
 import { catchError } from 'rxjs';
+
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { UserPermissions } from '@src/app/core/_models/user-permissions.model';
+import { UserPermissions } from '@models/global-permission-group.model';
 
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import {
   APGUTableEditableAction,
   AccessPermissionGroupsUserTableCol,
   AccessPermissionGroupsUserTableColumnLabel
-} from '@src/app/core/_components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+} from '@components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-
-import { SERV } from '@src/app/core/_services/main.config';
-
-import { AccessPermissionGroupsExpandDataSource } from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
+import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
 @Component({
-    selector: 'access-permission-groups-user-table',
-    templateUrl: './access-permission-groups-user-table.component.html',
-    standalone: false
+  selector: 'access-permission-groups-user-table',
+  templateUrl: './access-permission-groups-user-table.component.html',
+  standalone: false
 })
 export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;
@@ -122,7 +122,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
   exportActionClicked(event: ActionMenuEvent<UserPermissions[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<UserPermissions>(
+        void this.exportService.toExcel<UserPermissions>(
           'hashtopolis-access-permission-groups-user',
           this.tableColumns,
           event.data,
@@ -130,7 +130,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
         );
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<UserPermissions>(
+        void this.exportService.toCsv<UserPermissions>(
           'hashtopolis-access-permission-groups-user',
           this.tableColumns,
           event.data,
@@ -147,34 +147,24 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
     }
   }
 
-  editableCheckSaved(editable: any): void {
-    switch (editable.action) {
-      case APGUTableEditableAction.CHANGE_CREATE_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-      case APGUTableEditableAction.CHANGE_READ_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-      case APGUTableEditableAction.CHANGE_UPDATE_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-      case APGUTableEditableAction.CHANGE_DELETE_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-    }
+  /**
+   * Update Permissions on checkbox change event
+   * @param editable Editable object containing current permission, action and changed value
+   */
+  onCheckboxChange(editable: HTTableEditable<UserPermissions>): void {
+    this.changePermision(editable, editable.value);
   }
 
   /**
    * Updates the permission for a specific user permission.
-   *
-   * @param {UserPermissions} userperm - The user permissions object.
-   * @param {string} value - The new value for the permission (as a string).
+   * @param editable Editable object containing current permission, action and changed value.
+   * @param value The new value for the permission (as a string).
    */
-  private changePermision(userperm: UserPermissions, value: string): void {
-    const capitalizedPerm = (userperm['action'].match(/-(.*?)-/)?.[1] || '')
+  private changePermision(editable: HTTableEditable<UserPermissions>, value: string): void {
+    const capitalizedPerm = (editable['action'].match(/-(.*?)-/)?.[1] || '')
       .toLowerCase()
       .replace(/^\w/, (c) => c.toUpperCase());
-    const keyPerm = userperm['data']['originalName'] + capitalizedPerm;
+    const keyPerm = editable['data']['originalName'] + capitalizedPerm;
     const boolValue = value === 'true' ? true : value === 'false' ? false : Boolean(value);
     // Payload
     const payload = {

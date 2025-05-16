@@ -1,39 +1,35 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { catchError, forkJoin } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  HTTableColumn,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
+
+import { JUser } from '@models/user.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   UsersTableCol,
   UsersTableColumnLabel,
   UsersTableStatus
-} from './users-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/users-table/users-table.constants';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { JUser } from 'src/app/core/_models/user.model';
-import { UsersDataSource } from 'src/app/core/_datasources/users.datasource';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { UsersDataSource } from '@datasources/users.datasource';
+
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'users-table',
-    templateUrl: './users-table.component.html',
-    standalone: false
+  selector: 'app-users-table',
+  templateUrl: './users-table.component.html',
+  standalone: false
 })
-export class UsersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class UsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: UsersDataSource;
 
@@ -52,18 +48,11 @@ export class UsersTableComponent
   }
 
   filter(item: JUser, filterValue: string): boolean {
-    if (
-      item.name.toLowerCase().includes(filterValue) ||
-      item.email.toLowerCase().includes(filterValue)
-    ) {
-      return true;
-    }
-
-    return false;
+    return item.name.toLowerCase().includes(filterValue) || item.email.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: UsersTableCol.ID,
         dataKey: 'id',
@@ -80,24 +69,18 @@ export class UsersTableComponent
       {
         id: UsersTableCol.REGISTERED,
         dataKey: 'registeredSince',
-        render: (user: JUser) =>
-          formatUnixTimestamp(user.registeredSince, this.dateFormat),
+        render: (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateFormat),
         isSortable: true,
-        export: async (user: JUser) =>
-          formatUnixTimestamp(user.registeredSince, this.dateFormat)
+        export: async (user: JUser) => formatUnixTimestamp(user.registeredSince, this.dateFormat)
       },
       {
         id: UsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
         render: (user: JUser) =>
-          user.lastLoginDate
-            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
-            : 'Never',
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never',
         isSortable: true,
         export: async (user: JUser) =>
-          user.lastLoginDate
-            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
-            : 'Never'
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
       },
       {
         id: UsersTableCol.EMAIL,
@@ -109,12 +92,10 @@ export class UsersTableComponent
       {
         id: UsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
-        render: (user: JUser) =>
-          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
+        icon: (user: JUser) => this.renderIsValidIcon(user),
+        render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
-        export: async (user: JUser) =>
-          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
+        export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
       },
       {
         id: UsersTableCol.SESSION,
@@ -131,8 +112,6 @@ export class UsersTableComponent
         export: async (user: JUser) => user.globalPermissionGroup.name
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JUser>) {
@@ -163,58 +142,19 @@ export class UsersTableComponent
     );
   }
 
-  // --- Render functions ---
-
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
-    return user.isValid
-      ? [
-          {
-            name: 'check_circle',
-            cls: 'text-ok'
-          }
-        ]
-      : [
-          {
-            name: 'remove_circle',
-            cls: 'text-critical'
-          }
-        ];
-  }
-
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>(
-          'hashtopolis-users',
-          this.tableColumns,
-          event.data,
-          UsersTableColumnLabel
-        );
+        this.exportService.toExcel<JUser>('hashtopolis-users', this.tableColumns, event.data, UsersTableColumnLabel);
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>(
-          'hashtopolis-users',
-          this.tableColumns,
-          event.data,
-          UsersTableColumnLabel
-        );
+        this.exportService.toCsv<JUser>('hashtopolis-users', this.tableColumns, event.data, UsersTableColumnLabel);
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JUser>(
-            this.tableColumns,
-            event.data,
-            UsersTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<JUser>(this.tableColumns, event.data, UsersTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
@@ -294,10 +234,7 @@ export class UsersTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} users!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} users!`, 'Close');
           this.reload();
         })
     );
@@ -322,10 +259,7 @@ export class UsersTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully ${action} ${results.length} users!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully ${action} ${results.length} users!`, 'Close');
           this.dataSource.reload();
         })
     );
@@ -352,8 +286,8 @@ export class UsersTableComponent
   }
 
   private rowActionEdit(user: JUser): void {
-    this.renderUserLink(user).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(['/users', user.id, 'edit']);
+    this.renderUserLink(user).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 }

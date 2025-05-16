@@ -116,7 +116,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       const responseBody = { data: response.data, included: response.included };
       const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
 
-      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, this.selectCrackertypeMap);
+      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
     });
     this.unsubscribeService.add(loadSubscription$);
   }

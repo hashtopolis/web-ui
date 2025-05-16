@@ -1,9 +1,10 @@
-import { AccessGroup } from '@models/access-group.model';
-import { JUser } from '@models/user.model';
-import { JChunk } from '@models/chunk.model';
-import { BaseModel } from '@models/base.model';
-import { JTask } from '@models/task.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentStat } from '@models/agent-stats.model';
+import { BaseModel } from '@models/base.model';
+import { ChunkData, JChunk } from '@models/chunk.model';
+import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
 
 /**
  * Interface for cracking agent
@@ -27,7 +28,7 @@ export interface JAgent extends BaseModel {
   cpuOnly: number;
   clientSignature: string;
   agentStats?: JAgentStat[];
-  accessGroups?: AccessGroup[];
+  accessGroups?: JAccessGroup[];
   accessGroup?: string;
   task?: JTask;
   taskId?: number;
@@ -36,4 +37,9 @@ export interface JAgent extends BaseModel {
   chunkId?: number;
   benchmark?: string;
   assignmentId?: number;
+  agentSpeed?: number;
+  chunks?: JChunk[];
+  chunkData?: ChunkData;
+  tasks?: JTask[];
+  assignments?: JAgentAssignment[];
 }

@@ -1,26 +1,28 @@
 /* eslint-disable @angular-eslint/component-selector */
+import { Observable, of } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HealthCheckAgentsTableCol,
   HealthCheckAgentsTableColColumnLabel
 } from '@components/tables/health-check-agents-table/health-check-agents-table.constants';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { HealthChecksTableStatusLabel } from '@components/tables/health-checks-table/health-checks-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
 import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.datasource';
 
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'health-check-agents-table',
-    templateUrl: './health-check-agents-table.component.html',
-    standalone: false
+  selector: 'health-check-agents-table',
+  templateUrl: './health-check-agents-table.component.html',
+  standalone: false
 })
 export class HealthCheckAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() healthCheckId = 0;
@@ -46,11 +48,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   }
 
   filter(item: JHealthCheckAgent, filterValue: string): boolean {
-    if (item.agentName.toLowerCase().includes(filterValue) || item.status.toString().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.agentName.toLowerCase().includes(filterValue) || item.status.toString().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -64,7 +62,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
       {
         id: HealthCheckAgentsTableCol.AGENT_NAME,
         dataKey: 'agentName',
-        routerLink: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLink(HealthCheckAgent),
+        routerLink: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLinkFromHealthCheck(HealthCheckAgent),
         isSortable: true,
         export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.agentName + ''
       },
@@ -132,5 +130,21 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
           });
         break;
     }
+  }
+
+  /**
+   * Render agent edit link to be displayed in HTML code from healthcheck
+   * @param healthCheck - HealthCheck model to render agent router link for
+   * @return observable object containing a router link array
+   */
+  private renderAgentLinkFromHealthCheck(healthCheck: JHealthCheckAgent): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (healthCheck) {
+      links.push({
+        routerLink: ['/agents', 'show-agents', healthCheck.agentId, 'edit'],
+        label: healthCheck.agentName
+      });
+    }
+    return of(links);
   }
 }

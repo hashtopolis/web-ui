@@ -2,10 +2,10 @@
   <app-page-title title="New Agent" [subbutton]="false"></app-page-title>
   <mat-stepper #stepper>
     <mat-step label="Download Agent Binary" state="download">
-      <agent-binaries-table
+      <app-agent-binaries-table
         [hasBulkActions]="false"
         [isSelectable]="false"
-      ></agent-binaries-table>
+      ></app-agent-binaries-table>
       <div class="highlight-box">
         <p>
           <strong>Download the agent binary</strong> and execute it on the
@@ -50,7 +50,7 @@
           </button>
         </mat-form-field>
       </form>
-      <vouchers-table #table></vouchers-table>
+      <app-vouchers-table #table></app-vouchers-table>
       <div class="highlight-box">
         <p>
           <strong>Generate a voucher</strong> to register the agent. Note that

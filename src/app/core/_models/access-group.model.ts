@@ -1,55 +1,16 @@
-import { BaseModel } from './base.model';
+import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
+import { JUser } from '@models/user.model';
 
-export interface AccessGroup {
-  _id: number;
-  _self: string;
-  accessGroupId: number;
+/**
+ * Interface for access group defining user access to agents
+ * @extends BaseModel
+ * @prop groupName    Name of access group
+ * @prop userMembers  Users which are members of the group
+ * @prop agentMembers Agents which are members of the group
+ */
+export interface JAccessGroup extends BaseModel {
   groupName: string;
-  userMembers?: [];
-  agentMembers?: [];
-}
-
-export interface JAccessGroup extends BaseModel  {
-  accessGroupId: number;
-  groupName: string;
-  userMembers?: [];
-  agentMembers?: [];
-}
-
-export interface AccessGroupData {
-  type: string;
-  id: number;
-  attributes: AccessGroupDataAttributes;
-  links: AccessGroupDataLinks;
-  relationships: AccessGroupRelationships;
-}
-
-export interface AccessGroupDataAttributes {
-  groupName: string;
-  userMembers?: number;
-  agentMembers?: number;
-}
-
-export interface AccessGroupDataLinks {
-  self: string;
-}
-
-export interface AccessGroupRelationships {
-  agentMembers: AccGrpRelationshipAttributes;
-  userMembers: AccGrpRelationshipAttributes;
-}
-
-export interface AccGrpRelationshipAttributes {
-  links: AccGrpAttributesLinks;
-  data?: AccGrpRelAttrDataAttributes[];
-}
-
-export interface AccGrpAttributesLinks {
-  self: string;
-  related: string;
-}
-
-export interface AccGrpRelAttrDataAttributes {
-  type: string;
-  id: number;
+  userMembers?: JUser[];
+  agentMembers?: JAgent[];
 }
