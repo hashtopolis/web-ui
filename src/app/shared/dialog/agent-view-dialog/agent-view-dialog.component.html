@@ -1,12 +1,6 @@
-<!-- <p>agent-view-dialog works!</p> -->
-<mat-dialog-content>
+<mat-dialog-content cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle>
   <mat-tab-group>
     @for (item of data.agentData; track $index) {
-      <!--     <h2 mat-dialog-title>
-  <mat-icon>{{ icon }}</mat-icon> {{ title }} -
-  <span [ngStyle]="{'color':data.result | asColor:+threshold1:+threshold2:statusNumber:data.form.isActive:data.form.lastTime}">&#9673;</span> {{ content }}
-</h2> -->
-
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon>{{ item.icon }}</mat-icon>

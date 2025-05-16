@@ -1,6 +1,6 @@
 import { Component, Inject, Input, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AgentViewDialogData } from './agent-view-dialog.model';
 import { LowerCasePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,7 +10,15 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-agent-view-dialog',
-  imports: [MatTabsModule, MatIconModule, MatDialogContent, MatDialogActions, LowerCasePipe, MatButtonModule],
+  imports: [
+    MatTabsModule,
+    MatIconModule,
+    MatDialogContent,
+    MatDialogActions,
+    LowerCasePipe,
+    MatButtonModule,
+    DragDropModule
+  ],
   templateUrl: './agent-view-dialog.component.html',
   styleUrl: './agent-view-dialog.component.scss'
 })
