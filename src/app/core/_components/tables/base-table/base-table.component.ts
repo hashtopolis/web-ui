@@ -1,34 +1,29 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Subscription } from 'rxjs';
-
 import { ChangeDetectorRef, Component, Input, Renderer2, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Clipboard } from '@angular/cdk/clipboard';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-
+import { HTTableIcon, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { UIConfig, uiConfigDefault } from '@src/app/core/_models/config-ui.model';
-import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
-import { JAccessGroup } from '@src/app/core/_models/access-group.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JChunk } from '@src/app/core/_models/chunk.model';
-import { JSuperTask } from '@src/app/core/_models/supertask.model';
 
+import { Cacheable } from '@src/app/core/_decorators/cacheable';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { ExportService } from '@src/app/core/_services/export/export.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
-import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
-import { UtilService } from '@src/app/core/_services/shared/util.service';
-
-import { HTTableIcon, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { HTTableComponent } from '@src/app/core/_components/tables/ht-table/ht-table.component';
-
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { JAccessGroup } from '@src/app/core/_models/access-group.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { JChunk } from '@src/app/core/_models/chunk.model';
+import { JGlobalPermissionGroup } from '@src/app/core/_models/global-permission-group.model';
+import { JSuperTask } from '@src/app/core/_models/supertask.model';
 import { JUser } from '@src/app/core/_models/user.model';
+import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+/* eslint-disable @angular-eslint/component-selector */
+import { Subscription } from 'rxjs';
+import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { UtilService } from '@src/app/core/_services/shared/util.service';
 
 @Component({
     selector: 'base-table',
@@ -56,7 +51,8 @@ export class BaseTableComponent {
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = true;
-
+  /** Flag to enable  temperature Information dialog */
+  @Input() hasTemperatureInformation = true;
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,

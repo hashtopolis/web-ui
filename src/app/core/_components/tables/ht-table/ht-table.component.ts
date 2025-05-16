@@ -162,6 +162,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Default start page. */
   @Input() defaultStartPage = 0;
 
+  /** Flag to enable  temperature Information dialog */
+  @Input() hasTemperatureInformation = false;
+
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
@@ -181,7 +184,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> = new EventEmitter();
 
   /** Event emitter for checkbox attack */
-  @Output() temratureInformationClicked: EventEmitter<any> = new EventEmitter();
+  @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
@@ -451,8 +454,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   // emit when temprature information is clicked
-  temratureInformationEmit() {
-    this.temratureInformationClicked.emit();
+ temperatureInformationEmit() {
+    this.temperatureInformationClicked.emit();
   }
   /**
    * Reloads the data in the table and the bulk menu.
