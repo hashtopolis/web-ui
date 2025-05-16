@@ -1,43 +1,39 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { Observable, catchError, forkJoin, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   PermissionsTableCol,
   PermissionsTableColumnLabel
-} from './permissions-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/permissions-table/permissions-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { JGlobalPermissionGroup } from 'src/app/core/_models/global-permission-group.model';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { PermissionsDataSource } from 'src/app/core/_datasources/permissions.datasource';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { PermissionsDataSource } from '@datasources/permissions.datasource';
 
 @Component({
-    selector: 'permissions-table',
-    templateUrl: './permissions-table.component.html',
-    standalone: false
+  selector: 'app-permissions-table',
+  templateUrl: './permissions-table.component.html',
+  standalone: false
 })
-export class PermissionsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PermissionsDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new PermissionsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -49,15 +45,11 @@ export class PermissionsTableComponent
   }
 
   filter(item: JGlobalPermissionGroup, filterValue: string): boolean {
-    if (item.name.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.name.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: PermissionsTableCol.ID,
         dataKey: 'id',
@@ -67,8 +59,7 @@ export class PermissionsTableComponent
       {
         id: PermissionsTableCol.NAME,
         dataKey: 'name',
-        routerLink: (permission: JGlobalPermissionGroup) =>
-          this.renderPermissionLink(permission),
+        routerLink: (permission: JGlobalPermissionGroup) => this.renderPermissionLink(permission),
         isSortable: true,
         export: async (permission: JGlobalPermissionGroup) => permission.name
       },
@@ -80,8 +71,6 @@ export class PermissionsTableComponent
         export: async (permission: JGlobalPermissionGroup) => permission.userMembers.length + ''
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JGlobalPermissionGroup>) {
@@ -128,16 +117,9 @@ export class PermissionsTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JGlobalPermissionGroup>(
-            this.tableColumns,
-            event.data,
-            PermissionsTableColumnLabel
-          )
+          .toClipboard<JGlobalPermissionGroup>(this.tableColumns, event.data, PermissionsTableColumnLabel)
           .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
         break;
     }
@@ -194,10 +176,7 @@ export class PermissionsTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} permissions!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} permissions!`, 'Close');
           this.reload();
         })
     );
@@ -224,11 +203,23 @@ export class PermissionsTableComponent
   }
 
   private rowActionEdit(permission: JGlobalPermissionGroup): void {
-    this.router.navigate([
-      '/users',
-      'global-permissions-groups',
-      permission.id,
-      'edit'
-    ]);
+    this.router.navigate(['/users', 'global-permissions-groups', permission.id, 'edit']);
+  }
+
+  /**
+   * Render edit permission group link
+   * @param permissionGroup - permissiongroup object to render edit link for
+   * @return observable araay containing link
+   * @private
+   */
+  private renderPermissionLink(permissionGroup: JGlobalPermissionGroup): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (permissionGroup) {
+      links.push({
+        routerLink: ['/users', 'global-permissions-groups', permissionGroup.id, 'edit'],
+        label: permissionGroup.name
+      });
+    }
+    return of(links);
   }
 }

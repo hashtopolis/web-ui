@@ -179,13 +179,23 @@
         }"
         [class.text-right]="tableColumn.position === 'right'"
       >
-        <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icons">
+        <div
+          class="flex-container"
+          [class.links]="tableColumn.routerLink"
+          [class.icons]="tableColumn.icon"
+        >
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">
-            <ht-table-link [tableColumn]="tableColumn" [element]="element"></ht-table-link>
-            <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
+            <app-ht-table-link
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></app-ht-table-link>
+            <ht-table-default
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></ht-table-default>
             <ht-table-editable
               [tableColumn]="tableColumn"
               [element]="element"
@@ -199,18 +209,18 @@
           </ng-container>
 
           <!-- Check if icon function is defined -->
-          <ng-container *ngIf="tableColumn.icons">
-            <ng-container *ngFor="let icon of tableColumn.icons(element) | async">
-              <mat-icon
-                *ngIf="icon.tooltip; else iconTmpl"
-                [matTooltip]="icon.tooltip"
-                [ngClass]="icon.cls ? icon.cls : ''"
-                >{{ icon.name }}</mat-icon
-              >
-              <ng-template #iconTmpl>
-                <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
-              </ng-template>
-            </ng-container>
+          <ng-container *ngIf="tableColumn.icon">
+            <mat-icon
+              *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
+              [matTooltip]="tableColumn.icon(element).tooltip"
+              [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''"
+            >{{ tableColumn.icon(element).name }}</mat-icon
+            >
+            <ng-template #iconTmpl>
+              <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
+                  tableColumn.icon(element).name
+                }}</mat-icon>
+            </ng-template>
           </ng-container>
         </div>
       </td>

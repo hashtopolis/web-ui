@@ -1,37 +1,34 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JPretask } from '@src/app/core/_models/pretask.model';
-import { JUser } from '@src/app/core/_models/user.model';
+import { JPretask } from '@models/pretask.model';
+import { JUser } from '@models/user.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import {
   AccessPermissionGroupsUsersTableCol,
   AccessPermissionGroupsUsersTableColumnLabel
-} from '@src/app/core/_components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
-import { HTTableColumn, HTTableIcon } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { UsersTableStatus } from '@src/app/core/_components/tables/users-table/users-table.constants';
+} from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { UsersTableStatus } from '@components/tables/users-table/users-table.constants';
 
-import {
-  AccessPermissionGroupsExpandDataSource
-} from '@src/app/core/_datasources/access-permission-groups-expand.datasource';
+import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
-import { Cacheable } from '@src/app/core/_decorators/cacheable';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'access-permission-groups-users-table',
-    templateUrl: './access-permission-groups-users-table.component.html',
-    standalone: false
+  selector: 'access-permission-groups-users-table',
+  templateUrl: './access-permission-groups-users-table.component.html',
+  standalone: false
 })
 export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessPermissionGroupsExpandDataSource;
-  expand = 'user';
+  expand = 'userMembers';
 
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUsersTableColumnLabel);
@@ -74,7 +71,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: JUser) => this.renderIsValidIcon(user),
+        icon: (user: JUser) => this.renderIsValidIcon(user),
         render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
         export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
@@ -89,15 +86,6 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
           user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
       }
     ];
-  }
-
-  // --- Render functions ---
-
-  @Cacheable(['id', 'isValid'])
-  async renderIsValidIcon(user: JUser): Promise<HTTableIcon[]> {
-    return user.isValid
-      ? [{ name: 'check_circle', cls: 'text-ok' }]
-      : [{ name: 'remove_circle', cls: 'text-critical' }];
   }
 
   // --- Action functions ---

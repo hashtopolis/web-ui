@@ -117,11 +117,7 @@ export const uiConfigDefault: UIConfig = {
     vouchersTable: {
       start: 0,
       page: 25,
-      columns: [
-        VouchersTableCol.ID,
-        VouchersTableCol.KEY,
-        VouchersTableCol.CREATED
-      ],
+      columns: [VouchersTableCol.ID, VouchersTableCol.KEY, VouchersTableCol.CREATED],
       order: {
         id: VouchersTableCol.ID,
         dataKey: '',
@@ -133,11 +129,7 @@ export const uiConfigDefault: UIConfig = {
     permissionsTable: {
       start: 0,
       page: 25,
-      columns: [
-        PermissionsTableCol.ID,
-        PermissionsTableCol.NAME,
-        PermissionsTableCol.MEMBERS
-      ],
+      columns: [PermissionsTableCol.ID, PermissionsTableCol.NAME, PermissionsTableCol.MEMBERS],
       order: {
         id: PermissionsTableCol.ID,
         dataKey: '',
@@ -362,11 +354,7 @@ export const uiConfigDefault: UIConfig = {
     filesAttackTable: {
       start: 0,
       page: 25,
-      columns: [
-        FilesAttackTableCol.ID,
-        FilesAttackTableCol.NAME,
-        FilesAttackTableCol.SIZE
-      ],
+      columns: [FilesAttackTableCol.ID, FilesAttackTableCol.NAME, FilesAttackTableCol.SIZE],
       order: {
         id: FilesAttackTableCol.ID,
         dataKey: '',
@@ -378,11 +366,7 @@ export const uiConfigDefault: UIConfig = {
     crackersTable: {
       start: 0,
       page: 25,
-      columns: [
-        CrackersTableCol.ID,
-        CrackersTableCol.NAME,
-        CrackersTableCol.VERSIONS
-      ],
+      columns: [CrackersTableCol.ID, CrackersTableCol.NAME, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
         dataKey: '',
@@ -547,11 +531,7 @@ export const uiConfigDefault: UIConfig = {
     supertasksTable: {
       start: 0,
       page: 25,
-      columns: [
-        SupertasksTableCol.ID,
-        SupertasksTableCol.NAME,
-        SupertasksTableCol.PRETASKS
-      ],
+      columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
         id: SupertasksTableCol.ID,
         dataKey: '',
@@ -602,12 +582,7 @@ export const uiConfigDefault: UIConfig = {
     hashlistTasksTable: {
       start: 0,
       page: 25,
-      columns: [
-        TaskTableCol.ID,
-        TaskTableCol.NAME,
-        TaskTableCol.DISPATCHED_SEARCHED,
-        TaskTableCol.CRACKED
-      ],
+      columns: [TaskTableCol.ID, TaskTableCol.NAME, TaskTableCol.DISPATCHED_SEARCHED, TaskTableCol.CRACKED],
       order: {
         id: TaskTableCol.ID,
         dataKey: '',
@@ -671,13 +646,7 @@ export const uiConfigDefault: UIConfig = {
     logsTable: {
       start: 0,
       page: 25,
-      columns: [
-        LogsTableCol.ID,
-        LogsTableCol.ISSUER,
-        LogsTableCol.LEVEL,
-        LogsTableCol.MESSAGE,
-        LogsTableCol.TIME
-      ],
+      columns: [LogsTableCol.ID, LogsTableCol.ISSUER, LogsTableCol.LEVEL, LogsTableCol.MESSAGE, LogsTableCol.TIME],
       order: {
         id: LogsTableCol.ID,
         dataKey: '',
@@ -706,11 +675,7 @@ export const uiConfigDefault: UIConfig = {
     accessGroupsUsersTable: {
       start: 0,
       page: 25,
-      columns: [
-        AccessGroupsUsersTableCol.ID,
-        AccessGroupsUsersTableCol.NAME,
-        AccessGroupsUsersTableCol.STATUS
-      ],
+      columns: [AccessGroupsUsersTableCol.ID, AccessGroupsUsersTableCol.NAME, AccessGroupsUsersTableCol.STATUS],
       order: {
         id: AccessGroupsUsersTableCol.ID,
         dataKey: '',

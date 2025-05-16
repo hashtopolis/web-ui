@@ -1,4 +1,7 @@
+import { BaseModel } from '@models/base.model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { IconDefinition } from '@fortawesome/angular-fontawesome';
+import { Observable } from 'rxjs';
 import { SafeHtml } from '@angular/platform-browser';
 
 export type DataType =
@@ -45,8 +48,9 @@ export interface HTTableIcon {
 
 export interface HTTableRouterLink {
   label?: string | number;
-  routerLink: any[];
+  routerLink: Array<string | number>;
   tooltip?: string;
+  icon?: { faIcon: IconDefinition; tooltip?: string };
 }
 
 export interface HTTableEditable<T> {
@@ -73,15 +77,15 @@ export interface HTTableColumn {
   dataKey?: string;
   position?: 'right' | 'left';
   isSortable?: boolean;
-  icons?: (data: any) => Promise<HTTableIcon[]>;
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
-  routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
   customCellColor?: customCellColorInput;
+  routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
+  icon?: (data: BaseModel) => HTTableIcon;
 }
 
 /** Column def for selectable checkbox */

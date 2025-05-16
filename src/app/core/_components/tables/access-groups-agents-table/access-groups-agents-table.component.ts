@@ -1,30 +1,27 @@
 import { catchError } from 'rxjs';
-/* eslint-disable @angular-eslint/component-selector */
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-import { JAgent } from '@src/app/core/_models/agent.model';
-
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsAgentsTableCol,
   AccessGroupsAgentsTableColumnLabel
 } from '@src/app/core/_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-groups-expand.datasource';
-
+import { JAgent } from '@src/app/core/_models/agent.model';
 import { SERV } from '@src/app/core/_services/main.config';
 
 @Component({
-    selector: 'access-groups-agents-table',
-    templateUrl: './access-groups-agents-table.component.html',
-    standalone: false
+  selector: 'app-access-groups-agents-table',
+  templateUrl: './access-groups-agents-table.component.html',
+  standalone: false
 })
 export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accessgroupId = 0;
@@ -218,8 +215,8 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   }
 
   private rowActionEdit(agent: JAgent): void {
-    this.renderUserLink(agent).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
+    this.renderUserLinkFromAgent(agent).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 }

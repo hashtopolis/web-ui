@@ -1,5 +1,6 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
@@ -40,11 +41,29 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
             data: response.data,
             included: response.included
           });
-
           this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
-
           const subtasks = taskWrappers[0].tasks;
-          this.setData(subtasks);
+
+          const chunkParams = new RequestParamBuilder().addFilter({
+            field: 'taskId',
+            operator: FilterType.IN,
+            value: subtasks.map((task) => task.id)
+          });
+
+          this.subscriptions.push(
+            this.service
+              .getAll(SERV.CHUNKS, chunkParams.create())
+              .pipe(finalize(() => this.setData(subtasks)))
+              .subscribe((chunkResponse: ResponseWrapper) => {
+                const chunks = this.serializer.deserialize<JChunk[]>({
+                  data: chunkResponse.data,
+                  included: chunkResponse.included
+                });
+                subtasks.forEach((task) => {
+                  task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                });
+              })
+          );
         })
     );
   }

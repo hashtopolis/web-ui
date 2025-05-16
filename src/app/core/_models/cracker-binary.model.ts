@@ -1,4 +1,4 @@
-import { BaseModel } from '@src/app/core/_models/base.model';
+import { BaseModel } from '@models/base.model';
 
 /**
  * Interface definition for cracker binary

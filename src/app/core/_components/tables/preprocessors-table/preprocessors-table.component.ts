@@ -1,25 +1,30 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { PreprocessorsTableCol, PreprocessorsTableColumnLabel } from './preprocessors-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { JPreprocessor } from 'src/app/core/_models/preprocessor.model';
-import { PreprocessorsDataSource } from 'src/app/core/_datasources/preprocessors.datasource';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JPreprocessor } from '@models/preprocessor.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import {
+  PreprocessorsTableCol,
+  PreprocessorsTableColumnLabel
+} from '@components/tables/preprocessors-table/preprocessors-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
 
 @Component({
-    selector: 'preprocessors-table',
-    templateUrl: './preprocessors-table.component.html',
-    standalone: false
+  selector: 'app-preprocessors-table',
+  templateUrl: './preprocessors-table.component.html',
+  standalone: false
 })
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
@@ -40,11 +45,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JPreprocessor, filterValue: string): boolean {
-    if (item.name.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.name.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -87,19 +88,21 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     );
   }
 
-  // --- Render functions ---
-
-  @Cacheable(['id'])
-  async renderPreproLink(preprocessor: JPreprocessor): Promise<HTTableRouterLink[]> {
+  /**
+   * Render preprocessor link
+   * @param preprocessor - preprocessor object to render link for
+   * @return observable object containing a router link array
+   */
+  private renderPreproLink(preprocessor: JPreprocessor): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-
-    links.push({
-      label: preprocessor.name,
-      routerLink: ['/config/engine/preprocessors', preprocessor.id, 'edit'],
-      tooltip: 'Preprocessor Name'
-    });
-
-    return links;
+    if (preprocessor) {
+      links.push({
+        label: preprocessor.name,
+        routerLink: ['/config/engine/preprocessors', preprocessor.id, 'edit'],
+        tooltip: 'Preprocessor Name'
+      });
+    }
+    return of(links);
   }
 
   // --- Action functions ---

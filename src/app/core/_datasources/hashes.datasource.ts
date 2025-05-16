@@ -1,14 +1,15 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { FilterType } from '@models/request-params.model';
 import { JHash } from '@models/hash.model';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-
-import { BaseDataSource } from '@datasources/base.datasource';
+import { JTaskWrapper } from '@models/task-wrapper.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
@@ -24,32 +25,78 @@ export class HashesDataSource extends BaseDataSource<JHash> {
 
   loadAll(): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk');
 
-    if (this._dataType === 'chunks') {
-      params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
-    } else if (this._dataType === 'hashlists') {
-      params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._id });
+    if (this._dataType === 'tasks') {
+      const paramsTaskwrapper = new RequestParamBuilder().addInitial(this).addInclude('tasks');
+
+      const taskwrapperService = this.service.get(SERV.TASKS_WRAPPER, this._id, paramsTaskwrapper.create());
+
+      this.subscriptions.push(
+        taskwrapperService
+          .pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loading = false))
+          )
+          .subscribe((response: ResponseWrapper) => {
+            const taskwrapper = new JsonAPISerializer().deserialize<JTaskWrapper>({
+              data: response.data,
+              included: response.included
+            });
+
+            const hashlistId = taskwrapper.hashlistId;
+
+            const paramsHashlist = new RequestParamBuilder()
+              .addInitial(this)
+              .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId });
+
+            const hashlistService = this.service.getAll(SERV.HASHES, paramsHashlist.create());
+
+            this.subscriptions.push(
+              hashlistService
+                .pipe(
+                  catchError(() => of([])),
+                  finalize(() => (this.loading = false))
+                )
+                .subscribe((responseHash: ResponseWrapper) => {
+                  const hashes = new JsonAPISerializer().deserialize<JHash[]>({
+                    data: responseHash.data,
+                    included: responseHash.included
+                  });
+
+                  this.setPaginationConfig(this.pageSize, this.currentPage, hashes.length);
+                  this.setData(hashes);
+                })
+            );
+          })
+      );
+    } else {
+      const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk');
+
+      if (this._dataType === 'chunks') {
+        params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
+      } else if (this._dataType === 'hashlists') {
+        params.addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: this._id });
+      }
+
+      const hashes$ = this.service.getAll(SERV.HASHES, params.create());
+
+      this.subscriptions.push(
+        hashes$
+          .pipe(
+            catchError(() => of([])),
+            finalize(() => (this.loading = false))
+          )
+          .subscribe((response: ResponseWrapper) => {
+            const hashes = new JsonAPISerializer().deserialize<JHash[]>({
+              data: response.data,
+              included: response.included
+            });
+
+            this.setPaginationConfig(this.pageSize, this.currentPage, hashes.length);
+            this.setData(hashes);
+          })
+      );
     }
-
-    const hashes$ = this.service.getAll(SERV.HASHES, params.create());
-
-    this.subscriptions.push(
-      hashes$
-        .pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loading = false))
-        )
-        .subscribe((response: ResponseWrapper) => {
-          const hashes = new JsonAPISerializer().deserialize<JHash[]>({
-            data: response.data,
-            included: response.included
-          });
-
-          this.setPaginationConfig(this.pageSize, this.currentPage, hashes.length);
-          this.setData(hashes);
-        })
-    );
   }
 
   reload(): void {

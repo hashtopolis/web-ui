@@ -1,36 +1,29 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  JCrackerBinary,
-  JCrackerBinaryType
-} from 'src/app/core/_models/cracker-binary.model';
-import {
-  CrackersTableCol,
-  CrackersTableColumnLabel
-} from './crackers-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { CrackersDataSource } from 'src/app/core/_datasources/crackers.datasource';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { CrackersDataSource } from '@datasources/crackers.datasource';
 
 @Component({
-    selector: 'crackers-table',
-    templateUrl: './crackers-table.component.html',
-    standalone: false
+  selector: 'app-crackers-table',
+  templateUrl: './crackers-table.component.html',
+  standalone: false
 })
-export class CrackersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
 
@@ -49,15 +42,11 @@ export class CrackersTableComponent
   }
 
   filter(item: JCrackerBinaryType, filterValue: string): boolean {
-    if (item.typeName.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.typeName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: CrackersTableCol.ID,
         dataKey: 'id',
@@ -74,17 +63,12 @@ export class CrackersTableComponent
       {
         id: CrackersTableCol.VERSIONS,
         dataKey: 'crackerVersions',
-        routerLink: (cracker: JCrackerBinaryType) =>
-          this.renderVersions(cracker),
+        routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
         export: async (cracker: JCrackerBinaryType) =>
-          cracker.crackerVersions
-            .map((bin: JCrackerBinary) => bin.version)
-            .join(', ')
+          cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')
       }
     ];
-
-    return tableColumns;
   }
 
   openDialog(data: DialogData<JCrackerBinaryType>) {
@@ -131,16 +115,9 @@ export class CrackersTableComponent
         break;
       case ExportMenuAction.COPY:
         this.exportService
-          .toClipboard<JCrackerBinaryType>(
-            this.tableColumns,
-            event.data,
-            CrackersTableColumnLabel
-          )
+          .toClipboard<JCrackerBinaryType>(this.tableColumns, event.data, CrackersTableColumnLabel)
           .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
           });
         break;
     }
@@ -197,10 +174,7 @@ export class CrackersTableComponent
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} crackers!`,
-            'Close'
-          );
+          this.snackBar.open(`Successfully deleted ${results.length} crackers!`, 'Close');
           this.reload();
         })
     );
@@ -227,27 +201,25 @@ export class CrackersTableComponent
   }
 
   private rowActionAddVersion(cracker: JCrackerBinaryType): void {
-    this.router.navigate([
-      '/config',
-      'engine',
-      'crackers',
-      cracker.id,
-      'new'
-    ]);
+    this.router.navigate(['/config', 'engine', 'crackers', cracker.id, 'new']);
   }
 
-  @Cacheable(['id', 'crackerVersions'])
-  async renderVersions(
-    cracker: JCrackerBinaryType
-  ): Promise<HTTableRouterLink[]> {
+  /**
+   * Render cracker versions link
+   * @param cracker - cracker object to render bersion links for
+   * @return observable object containing a router link array
+   * @private
+   */
+  private renderVersions(cracker: JCrackerBinaryType): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    for (const link of cracker.crackerVersions) {
-      links.push({
-        label: link.version,
-        routerLink: ['/config', 'engine', 'crackers', link.id, 'edit']
+    if (cracker) {
+      cracker.crackerVersions.forEach((entry) => {
+        links.push({
+          label: entry.version,
+          routerLink: ['/config', 'engine', 'crackers', entry.id, 'edit']
+        });
       });
     }
-
-    return links;
+    return of(links);
   }
 }

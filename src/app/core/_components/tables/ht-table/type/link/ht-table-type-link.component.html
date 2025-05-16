@@ -1,7 +1,7 @@
 <ng-container *ngIf="tableColumn.routerLink">
   <span *ngFor="let link of tableColumn.routerLink(element) | async">
     <ng-container *ngIf="link.tooltip; else linkTmpl">
-      <a [routerLink]="link.routerLink" [matTooltip]="link.tooltip">
+      <a [routerLink]="link.routerLink" title="{{ link.tooltip }}">
         <ng-container *ngIf="link.label">
           {{ link.label }}
         </ng-container>
@@ -17,6 +17,9 @@
         </ng-container>
         <ng-container *ngIf="!link.label">
           {{ element[tableColumn.dataKey] }}
+        </ng-container>
+        <ng-container *ngIf="link.icon && link.icon.faIcon">
+          <fa-icon [icon]="link.icon.faIcon" title="{{ link.icon.tooltip }}"></fa-icon>
         </ng-container>
       </a>
     </ng-template>

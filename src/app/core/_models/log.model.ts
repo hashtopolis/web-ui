@@ -1,4 +1,4 @@
-import { BaseModel } from '@src/app/core/_models/base.model';
+import { BaseModel } from '@models/base.model';
 
 export type LogLevel = 'warning' | 'error' | 'fatal error' | 'information';
 export type Issuer = 'API' | 'User';
@@ -19,4 +19,3 @@ export interface JLog extends BaseModel {
   message: string;
   time: number;
 }
-
