@@ -46,6 +46,11 @@ export class BaseTableComponent {
   @Input() isFilterable = true;
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = true;
+  
+  protected uiSettings: UISettingsUtilityClass;
+  protected dateFormat: string;
+  protected subscriptions: Subscription[] = [];
+  protected columnLabels: { [key: string]: string } = {};
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
