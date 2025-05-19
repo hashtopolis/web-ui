@@ -451,25 +451,14 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @todo Implement error handling.
    */
   private bulkActionActivate(agents: JAgent[], isActive: boolean): void {
-    const requests = agents.map((agent: JAgent) => {
-      return this.gs.update(SERV.AGENTS, agent.id, { isActive: isActive });
-    });
-
     const action = isActive ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during activation:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} agents!`, 'Close');
+        this.gs.bulkUpdate(SERV.AGENTS, agents, {isActive: isActive}).subscribe((results) => {
+          this.snackBar.open(`Successfully ${action} agents!`, 'Close');
           this.dataSource.reload();
         })
-    );
+      );
   }
 
   /**

@@ -32,6 +32,8 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { wrap } from 'module';
+import { error, log } from 'console';
 
 @Component({
   selector: 'app-tasks-table',
@@ -533,27 +535,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   /**
    * @todo Implement error handling.
    */
-  private bulkActionArchive(wrapper: JTaskWrapper[], isArchived: boolean): void {
-    const requests = wrapper.map((w: JTaskWrapper) => {
-      return this.gs.update(SERV.TASKS, w.tasks[0].id, {
-        isArchived: isArchived
-      });
-    });
-
+  private bulkActionArchive(wrappers: JTaskWrapper[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
-
+    var tasks = [];
+    for(var wrapper of wrappers) {
+      tasks.push(wrapper.tasks[0]);
+    }
+    
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during archiving:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} tasks!`, 'Close');
-          this.reload();
-        })
+      this.gs.bulkUpdate(SERV.TASKS, tasks, {isArchived: isArchived}).subscribe((results) => {
+        this.snackBar.open(`Successfully ${action} tasks!`, 'Close');
+        this.reload();
+      })
     );
   }
 
