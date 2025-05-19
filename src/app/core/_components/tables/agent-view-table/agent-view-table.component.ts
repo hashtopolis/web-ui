@@ -1,15 +1,19 @@
-import { AgentsViewTableCol, AgentsViewTableColumnLabel } from './agents-view-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JAgent } from '@models/agent.model';
+
+import {
+  AgentsViewTableCol,
+  AgentsViewTableColumnLabel
+} from '@components/tables/agent-view-table/agents-view-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { AgentsViewDataSource } from '@datasources/agents-view.datasource';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
-import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog.component';
-import { AgentsViewDataSource } from 'src/app/core/_datasources/agents-view.datasource';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { JAgent } from 'src/app/core/_models/agent.model';
-import { NgStyle } from '@angular/common';
-import { SafeHtml } from '@angular/platform-browser';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 export class STATCALCULATION {
@@ -43,7 +47,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
     return this.sanitize(html);
   }
   getColumns(): HTTableColumn[] {
-    const tableColumns: HTTableColumn[] = [
+    return [
       {
         id: AgentsViewTableCol.ID,
         dataKey: '_id',
@@ -125,26 +129,23 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         render: (agent: JAgent) => 'Time: ' + formatUnixTimestamp(agent.lastTime, this.dateFormat)
       }
     ];
-    return tableColumns;
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
     const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
     const stat = tempDateFilter.filter((u) => u.statType == statType);
-    switch (avgOrMax) {
-      case 1:
-        const avgDevice = Math.round(
-          stat.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / stat.length
-        );
-        return avgDevice;
-      case 2:
-        const maxTemp = Math.round(
-          stat.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]
-        );
-        return maxTemp;
-
-      default:
-        return 0; // Provide a default value for unhandled cases
+    if (stat && stat.length > 0) {
+      switch (avgOrMax) {
+        case 1:
+          return Math.round(
+            stat.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / stat.length
+          );
+        case 2:
+          return Math.round(stat.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]);
+        default:
+          return 0; // Provide a default value for unhandled cases
+      }
     }
+    return 0;
   }
   // Modal Agent utilisation and OffCanvas menu
 
