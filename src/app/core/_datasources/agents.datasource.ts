@@ -14,6 +14,7 @@ import { JUser } from '@models/user.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -50,20 +51,32 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           included: responseBody.included
         });
 
-        const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
-        const responseData = await Promise.all([this.loadUserData(userIds), this.loadChunkData(agents)]);
-        const users = responseData[0];
-        const chunks: JChunk[] = responseData[1];
+        if (agents && agents.length > 0) {
+          const chunkParams = new RequestParamBuilder()
+            .addFilter({
+              field: 'agentId',
+              operator: FilterType.IN,
+              value: agents.map((agent) => agent.id)
+            })
+            .addFilter({
+              field: 'state',
+              operator: FilterType.EQUAL,
+              value: chunkStates.indexOf(ChunkState.RUNNING)
+            });
 
-        agents.forEach((agent: JAgent) => {
-          agent.user = users.find((user: JUser) => user.id === agent.userId);
-          if (agent.tasks && agent.tasks.length > 0) {
-            agent.taskId = agent.tasks[0].id;
-            agent.task = agent.tasks[0];
-            agent.taskName = agent.task.taskName;
-            this.setChunkParams(agent, chunks, agent.assignments);
-          }
-        });
+          const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
+          const [users, chunks] = await Promise.all([this.loadUserData(userIds), this.loadChunkData(chunkParams)]);
+
+          agents.forEach((agent: JAgent) => {
+            agent.user = users.find((user: JUser) => user.id === agent.userId);
+            if (agent.tasks && agent.tasks.length > 0) {
+              agent.taskId = agent.tasks[0].id;
+              agent.task = agent.tasks[0];
+              agent.taskName = agent.task.taskName;
+              this.setChunkParams(agent, chunks, agent.assignments);
+            }
+          });
+        }
         this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
         this.setData(agents);
       });
@@ -92,31 +105,43 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           data: responseBody.data,
           included: responseBody.included
         });
+        if (assignments && assignments.length > 0) {
+          const userIds: Array<number> = assignments
+            .map((assignment) => assignment.agent.userId)
+            .filter((userId) => userId !== null);
+          const users = await this.loadUserData(userIds);
 
-        const userIds: Array<number> = assignments
-          .map((assignment) => assignment.agent.userId)
-          .filter((userId) => userId !== null);
-        const users = await this.loadUserData(userIds);
+          const agents: JAgent[] = [];
+          assignments.forEach((assignment) => {
+            const task = assignment.task;
+            const agent = assignment.agent;
+            agent.task = task;
+            agent.user = users.find((user) => user.id === agent.userId);
+            agent.taskName = agent.task.taskName;
+            agent.taskId = agent.task.id;
+            agent.benchmark = assignment.benchmark;
+            agents.push(agent);
+          });
 
-        const agents: JAgent[] = [];
-        assignments.forEach((assignment) => {
-          const task = assignment.task;
-          const agent = assignment.agent;
-          agent.task = task;
-          agent.user = users.find((user) => user.id === agent.userId);
-          agent.taskName = agent.task.taskName;
-          agent.taskId = agent.task.id;
-          agent.benchmark = assignment.benchmark;
-          agents.push(agent);
-        });
+          const chunkParams = new RequestParamBuilder()
+            .addFilter({
+              field: 'taskId',
+              operator: FilterType.EQUAL,
+              value: this._taskId
+            })
+            .addFilter({
+              field: 'agentId',
+              operator: FilterType.IN,
+              value: agents.map((agent) => agent.id)
+            });
+          const chunks = await this.loadChunkData(chunkParams);
+          agents.forEach((agent: JAgent) => {
+            this.setChunkParams(agent, chunks, assignments);
+          });
 
-        const chunks = await this.loadChunkData(agents);
-        agents.forEach((agent: JAgent) => {
-          this.setChunkParams(agent, chunks, assignments);
-        });
-
-        this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
-        this.setData(agents);
+          this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
+          this.setData(agents);
+        }
       });
   }
 
@@ -131,24 +156,13 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   /**
    * Load related running chunks for all agents and convert them to ChunkData objects
-   * @param agents - agents collection
+   * @param requestParams
    * @private
    */
-  private async loadChunkData(agents: JAgent[]): Promise<JChunk[]> {
-    if (agents.length) {
-      const chunkParams = new RequestParamBuilder()
-        .addFilter({
-          field: 'agentId',
-          operator: FilterType.IN,
-          value: agents.map((agent) => agent.id)
-        })
-        .addFilter({ field: 'state', operator: FilterType.EQUAL, value: chunkStates.indexOf(ChunkState.RUNNING) });
-
-      const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, chunkParams.create()));
-      const responseBody = { data: response.data, included: response.included };
-      return this.serializer.deserialize<JChunk[]>(responseBody);
-    }
-    return [];
+  private async loadChunkData(requestParams: IParamBuilder): Promise<JChunk[]> {
+    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, requestParams.create()));
+    const responseBody = { data: response.data, included: response.included };
+    return this.serializer.deserialize<JChunk[]>(responseBody);
   }
 
   /**
@@ -159,7 +173,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
    * @private
    */
   private setChunkParams(agent: JAgent, chunks: JChunk[], assignments: JAgentAssignment[]): void {
-    agent.chunk = chunks.find((chunk) => chunk.agentId === agent.id);
+    agent.chunk = chunks
+      .filter((chunk) => chunk.state == chunkStates.indexOf(ChunkState.RUNNING))
+      .find((chunk) => chunk.agentId === agent.id);
+
     agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
     if (agent.chunk) {
       agent.chunkId = agent.chunk.id;
@@ -167,7 +184,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         agent.agentSpeed = this.getAgentSpeed(agent, chunks);
       }
     }
-    agent.chunkData = this.convertChunks(agent.id, chunks, true);
+    agent.chunkData = this.convertChunks(agent.id, chunks, true, agent.task.keyspace);
   }
 
   /**
