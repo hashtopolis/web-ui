@@ -1,19 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JAgent } from '@models/agent.model';
-
 import {
   AgentsViewTableCol,
   AgentsViewTableColumnLabel
 } from '@components/tables/agent-view-table/agents-view-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-
-import { AgentsViewDataSource } from '@datasources/agents-view.datasource';
+import { Component, OnInit } from '@angular/core';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog.component';
+import { AgentsViewDataSource } from '@datasources/agents-view.datasource';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JAgent } from '@models/agent.model';
+import { SafeHtml } from '@angular/platform-browser';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 export class STATCALCULATION {
@@ -61,6 +58,13 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         icon: (agent: JAgent) => this.renderStatusIcon(agent),
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         render: (agent: JAgent) => agent.agentName
+      },
+      {
+        id: AgentsViewTableCol.STATUS,
+        dataKey: 'status',
+        isSortable: true,
+        render: (agent: JAgent) => this.renderActiveAgent(agent),
+        export: async (agent: JAgent) => this.renderActiveAgent(agent)
       },
       {
         id: AgentsViewTableCol.DEVICE_UTILISATION,
@@ -126,7 +130,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         id: AgentsViewTableCol.LAST_ACTIVITY,
         dataKey: 'lastTime',
         isSortable: true,
-        render: (agent: JAgent) => 'Time: ' + formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        render: (agent: JAgent) => this.renderLastActivity(agent)
       }
     ];
   }
@@ -168,7 +172,29 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
     // CPU 2 Config Setting
     return this.uiService.getUIsettings('agentUtilThreshold2').value;
   }
+  /**
+   * Render message, if agent is working on a task or in idle mode
+   * @param agent - agent instance to check state for
+   * @return message containing the current agent state
+   * @private
+   */
+  private renderActiveAgent(agent: JAgent): string {
+    return agent.agentSpeed > 0 ? 'Running task' : 'Stopped task';
+  }
+  /**
+   * Render information abaout task's last activity
+   * @return html code containing task information, if agent is processing a task
+   * @return html code containing information abaout tasks last activity
+   * @private
+   */
+  private renderLastActivity(agent: JAgent): SafeHtml {
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
+    const action = `Action: ${agent.lastAct}<br>`;
+    const time = `Time: ${formattedDate}<br>`;
 
+    const data = `${action}${time}`;
+    return this.sanitize(data);
+  }
   /**
    * Opens modal containing agent stat legend.
    * @param title Modal title

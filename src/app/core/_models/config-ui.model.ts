@@ -204,6 +204,7 @@ export const uiConfigDefault: UIConfig = {
       columns: [
         AgentsViewTableCol.ID,
         AgentsViewTableCol.NAME,
+        AgentsViewTableCol.STATUS,
         AgentsViewTableCol.CPU_UTILISATION,
         AgentsViewTableCol.TEMPERATURE,
         AgentsViewTableCol.DEVICE_UTILISATION,
