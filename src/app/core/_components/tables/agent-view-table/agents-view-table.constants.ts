@@ -5,7 +5,8 @@ export enum AgentsViewTableCol {
   DEVICE_UTILISATION,
   TEMPERATURE,
   CPU_UTILISATION,
-  LAST_ACTIVITY
+  LAST_ACTIVITY,
+  WORKING_ON
 }
 
 export const AgentsViewTableColumnLabel = {
@@ -15,5 +16,6 @@ export const AgentsViewTableColumnLabel = {
   [AgentsViewTableCol.DEVICE_UTILISATION]: 'Average Device Utilisation',
   [AgentsViewTableCol.TEMPERATURE]: 'Max Temperature',
   [AgentsViewTableCol.CPU_UTILISATION]: 'Average CPU Utilisation',
+  [AgentsViewTableCol.WORKING_ON]: 'Currently working on',
   [AgentsViewTableCol.LAST_ACTIVITY]: 'Last Activity'
 };

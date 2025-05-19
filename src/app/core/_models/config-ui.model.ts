@@ -208,6 +208,7 @@ export const uiConfigDefault: UIConfig = {
         AgentsViewTableCol.CPU_UTILISATION,
         AgentsViewTableCol.TEMPERATURE,
         AgentsViewTableCol.DEVICE_UTILISATION,
+        AgentsViewTableCol.WORKING_ON,
         AgentsViewTableCol.LAST_ACTIVITY
       ],
       order: {

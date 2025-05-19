@@ -131,6 +131,13 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
         }
       },
       {
+        id: AgentsViewTableCol.WORKING_ON,
+        dataKey: 'workingOn',
+        render: (agent: JAgent) => this.renderWorkingOn(agent),
+        isSortable: false,
+        export: async (agent: JAgent) => this.exportWorkingOn(agent) + ''
+      },
+      {
         id: AgentsViewTableCol.LAST_ACTIVITY,
         dataKey: 'lastTime',
         isSortable: true,
@@ -175,6 +182,40 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
   getUtil2() {
     // CPU 2 Config Setting
     return this.uiService.getUIsettings('agentUtilThreshold2').value;
+  }
+  /**
+   * Render agent information conecnrning the task, agent is working on at the moment
+   * @param agent - agent instance to check working state for
+   * @return html code containing task information, if agent is processing a task
+   * @private
+   */
+  private renderWorkingOn(agent: JAgent): SafeHtml {
+    let html = '';
+    if (agent.agentSpeed) {
+      html = `
+        <div>
+        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
+        <div>at ${agent.agentSpeed} H/s,<br></div>
+        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
+        </div>
+      `;
+    }
+
+    return this.sanitize(html);
+  }
+
+  /**
+   * Export working on information
+   * @param agent - agent instance to check state for
+   * @return html code containing task information, if agent is processing a task
+   * @private
+   */
+  private exportWorkingOn(agent: JAgent): SafeHtml {
+    if (agent.agentSpeed) {
+      return `Task: ${agent.taskName} at ${agent.agentSpeed} H/s, working on chunk ${agent.chunkId}`;
+    } else {
+      return '-';
+    }
   }
   /**
    * Render message, if agent is working on a task or in idle mode
