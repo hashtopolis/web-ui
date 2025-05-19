@@ -3,13 +3,17 @@ import {
   AgentsViewTableColumnLabel
 } from '@components/tables/agent-view-table/agents-view-table.constants';
 import { Component, OnInit } from '@angular/core';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { catchError, forkJoin } from 'rxjs';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog.component';
 import { AgentsViewDataSource } from '@datasources/agents-view.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { JAgent } from '@models/agent.model';
+import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -195,6 +199,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
     const data = `${action}${time}`;
     return this.sanitize(data);
   }
+
   /**
    * Opens modal containing agent stat legend.
    * @param title Modal title
@@ -204,7 +209,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
    * @param result
    * @param form
    */
-  openDialog(): void {
+  openStatDialog(): void {
     const dialogRef = this.dialog.open(AgentViewDialogComponent, {
       data: {
         agentData: [
@@ -234,6 +239,59 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
           }
         ]
       }
+    });
+  }
+  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
+    switch (event.menuItem.action) {
+      case RowActionMenuAction.EDIT:
+        this.rowActionEdit(event.data);
+        break;
+      case RowActionMenuAction.ACTIVATE:
+        this.bulkActionActivate([event.data], true);
+        break;
+      case RowActionMenuAction.DEACTIVATE:
+        this.bulkActionActivate([event.data], false);
+        break;
+
+      /*       case RowActionMenuAction.DELETE:
+        this.openDialog({
+          rows: [event.data],
+          title: `Deleting '${event.data.agentName}' ...`,
+          icon: 'warning',
+          body: `Are you sure you want to delete '${event.data.agentName}'? Note that this action cannot be undone.`,
+          warn: true,
+          action: event.menuItem.action
+        });
+        break; */
+    }
+  }
+  /**
+   * @todo Implement error handling.
+   */
+  private bulkActionActivate(agents: JAgent[], isActive: boolean): void {
+    const requests = agents.map((agent: JAgent) => {
+      return this.gs.update(SERV.AGENTS, agent.id, { isActive: isActive });
+    });
+
+    const action = isActive ? 'activated' : 'deactivated';
+
+    this.subscriptions.push(
+      forkJoin(requests)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during activation:', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully ${action} ${results.length} agents!`, 'Close');
+          this.dataSource.reload();
+        })
+    );
+  }
+  private rowActionEdit(agent: JAgent): void {
+    this.renderAgentLink(agent).subscribe((links: HTTableRouterLink[]) => {
+      this.router.navigate(links[0].routerLink).then(() => {});
     });
   }
 }
