@@ -11,10 +11,12 @@ import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog.component';
 import { AgentsViewDataSource } from '@datasources/agents-view.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { DialogData } from '../table-dialog/table-dialog.model';
 import { JAgent } from '@models/agent.model';
 import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '../table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 export class STATCALCULATION {
@@ -293,8 +295,7 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       case RowActionMenuAction.DEACTIVATE:
         this.bulkActionActivate([event.data], false);
         break;
-
-      /*       case RowActionMenuAction.DELETE:
+            case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
           title: `Deleting '${event.data.agentName}' ...`,
@@ -303,8 +304,46 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
           warn: true,
           action: event.menuItem.action
         });
-        break; */
+        break;
     }
+  }
+    openDialog(data: DialogData<JAgent>) {
+      const dialogRef = this.dialog.open(TableDialogComponent, {
+        data: data,
+        width: '450px'
+      });
+  
+      this.subscriptions.push(
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result && result.action) {
+            switch (result.action) {
+              case RowActionMenuAction.DELETE:
+                this.rowActionDelete(result.data);
+                break;
+/*               case BulkActionMenuAction.ACTIVATE:
+                this.bulkActionActivate(result.data, true);
+                break;
+              case BulkActionMenuAction.DEACTIVATE:
+                this.bulkActionActivate(result.data, false);
+                break;
+              case BulkActionMenuAction.DELETE:
+                this.bulkActionDelete(result.data);
+                break; */
+            }
+          }
+        })
+      );
+    }
+      /**
+   * @todo Implement error handling.
+   */
+  private rowActionDelete(agent: JAgent): void {
+    this.subscriptions.push(
+      this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+        this.snackBar.open('Successfully deleted agent!', 'Close');
+        this.dataSource.reload();
+      })
+    );
   }
   /**
    * @todo Implement error handling.
