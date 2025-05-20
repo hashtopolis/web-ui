@@ -255,28 +255,28 @@ export class AgentViewTableComponent extends BaseTableComponent implements OnIni
       data: {
         agentData: [
           {
-            tabName: 'Device Utilisation ',
+            tabName: 'GPU Utilization',
             icon: 'devices',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
-            unitLabel: 'Device',
-            statusLabel: 'CPU'
+            unitLabel: '%',
+            statusLabel: 'GPU Utilization'
           },
           {
-            tabName: 'Temperature',
+            tabName: ' GPU Temperature',
             icon: 'device_thermostat',
             threshold1: this.getTemp1(),
             threshold2: this.getTemp2(),
-            unitLabel: 'Temprature',
-            statusLabel: 'Device'
+            unitLabel: '°',
+            statusLabel: ' GPU Temperature'
           },
           {
             tabName: 'CPU Utilisation',
             icon: 'computer',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
-            unitLabel: 'CPU',
-            statusLabel: 'Device'
+            unitLabel: '%',
+            statusLabel: 'CPU Utilisation'
           }
         ]
       }
