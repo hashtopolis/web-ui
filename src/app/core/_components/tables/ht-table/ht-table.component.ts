@@ -453,7 +453,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       checked: checked // Boolean
     });
   }
-  // emit when temprature information is clicked
+  // emit when Temperature Information is clicked
  temperatureInformationEmit() {
     this.temperatureInformationClicked.emit();
   }
