@@ -196,22 +196,16 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private bulkActionDelete(files: JFile[]): void {
-    const requests = files.map((file: JFile) => {
-      return this.gs.delete(SERV.FILES, file.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} files!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.FILES, files).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted files!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

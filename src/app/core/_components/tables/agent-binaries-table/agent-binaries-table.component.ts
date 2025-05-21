@@ -197,22 +197,16 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionDelete(agentBinaries: JAgentBinary[]): void {
-    const requests = agentBinaries.map((agentBinary: JAgentBinary) => {
-      return this.gs.delete(SERV.AGENT_BINARY, agentBinary.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} agentBinaries!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.AGENT_BINARY, agentBinaries).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted agent binaries!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

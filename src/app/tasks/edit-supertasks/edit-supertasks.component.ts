@@ -178,10 +178,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const pretasks = []; // We get the current values and then concat with the new value
-      for (let i = 0; i < this.assignPretasks.length; i++) {
-        pretasks.push({ type: 'pretask', id: this.assignPretasks[i].id });
-      }
+      const pretasks = [];
 
       this.updateForm.value['pretasks'].forEach((pretask) => {
         pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
@@ -190,7 +187,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const responseBody = { data: pretasks };
 
       const updateSubscription$ = this.gs
-        .updateRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
+        .postRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
         .subscribe(() => {
           this.alert.okAlert('SuperTask saved!', '');
           this.refresh(); // Reload the Pretask-Select-Component

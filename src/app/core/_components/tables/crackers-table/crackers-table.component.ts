@@ -161,22 +161,16 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
    * @todo Implement error handling.
    */
   private bulkActionDelete(crackers: JCrackerBinaryType[]): void {
-    const requests = crackers.map((cracker: JCrackerBinaryType) => {
-      return this.gs.delete(SERV.CRACKERS_TYPES, cracker.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} crackers!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.CRACKERS_TYPES, crackers).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted crackers!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

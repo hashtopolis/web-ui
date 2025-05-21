@@ -465,29 +465,16 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @todo Implement error handling.
    */
   private bulkActionDelete(agents: JAgent[]): void {
-    let requests;
-    if (this.taskId === 0) {
-      requests = agents.map((agent: JAgent) => {
-        return this.gs.delete(SERV.AGENTS, agent.id);
-      });
-    } else {
-      requests = agents.map((agent: JAgent) => {
-        return this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId);
-      });
-    }
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} agents!`, 'Close');
-          this.dataSource.reload();
+      this.gs.bulkDelete(SERV.AGENTS, agents).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted agents!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

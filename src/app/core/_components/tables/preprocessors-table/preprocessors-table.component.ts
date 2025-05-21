@@ -173,22 +173,16 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionDelete(preprocessors: JPreprocessor[]): void {
-    const requests = preprocessors.map((preprocessor: JPreprocessor) => {
-      return this.gs.delete(SERV.PREPROCESSORS, preprocessor.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} preprocessors!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.PREPROCESSORS, preprocessors).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

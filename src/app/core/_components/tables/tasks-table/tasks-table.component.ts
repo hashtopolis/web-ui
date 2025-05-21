@@ -551,22 +551,16 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private bulkActionDelete(wrapper: JTaskWrapper[]): void {
-    const requests = wrapper.map((w: JTaskWrapper) => {
-      return this.gs.delete(SERV.TASKS_WRAPPER, w.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} tasks!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.TASKS_WRAPPER, wrapper).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted task!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 
