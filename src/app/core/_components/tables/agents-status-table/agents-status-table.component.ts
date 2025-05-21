@@ -17,10 +17,17 @@ import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/ex
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@src/app/core/_services/main.config';
-import { STATCALCULATION } from '../agent-view-table/agent-view-table.component';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+
+/**
+ * Provides static constants for different types of statistical calculations.
+ */
+export class STATCALCULATION {
+  public static AVG_VALUE = 1;
+  public static MAX_VALUE = 2;
+}
 
 @Component({
   selector: 'app-agents-status-table',

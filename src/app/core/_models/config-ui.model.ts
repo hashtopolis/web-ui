@@ -7,7 +7,6 @@ import { AccessPermissionGroupsUsersTableCol } from '@components/tables/access-p
 import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
-import { AgentsViewTableCol } from '../_components/tables/agent-view-table/agents-view-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
@@ -196,27 +195,6 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentsStatusTableCol.ID,
-        dataKey: '',
-        isSortable: true,
-        direction: 'asc'
-      },
-      search: ''
-    },
-    agentViewTable: {
-      start: 0,
-      page: 25,
-      columns: [
-        AgentsViewTableCol.ID,
-        AgentsViewTableCol.NAME,
-        AgentsViewTableCol.STATUS,
-        AgentsViewTableCol.CPU_UTILISATION,
-        AgentsViewTableCol.TEMPERATURE,
-        AgentsViewTableCol.DEVICE_UTILISATION,
-        AgentsViewTableCol.WORKING_ON,
-        AgentsViewTableCol.LAST_ACTIVITY
-      ],
-      order: {
-        id: AgentsViewTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'

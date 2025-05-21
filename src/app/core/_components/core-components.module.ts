@@ -8,7 +8,6 @@ import { AccessPermissionGroupsUserTableComponent } from '@components/tables/acc
 import { AccessPermissionGroupsUsersTableComponent } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.component';
 import { ActionMenuComponent } from '@components/menus/action-menu/action-menu.component';
 import { AgentBinariesTableComponent } from '@components/tables/agent-binaries-table/agent-binaries-table.component';
-import { AgentViewTableComponent } from './tables/agent-view-table/agent-view-table.component';
 import { AgentsStatusTableComponent } from '@components/tables/agents-status-table/agents-status-table.component';
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
@@ -118,8 +117,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     TasksTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
-    CracksTableComponent,
-    AgentViewTableComponent
+    CracksTableComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -146,7 +144,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     FormsModule,
     FontAwesomeModule,
     PipesModule
-],
+  ],
   exports: [
     BaseTableComponent,
     TableTruncateComponent,
@@ -193,8 +191,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     TasksTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
-    CracksTableComponent,
-    AgentViewTableComponent
+    CracksTableComponent
   ],
   providers: [
     {
