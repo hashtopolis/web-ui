@@ -705,25 +705,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderTaskWrapperLink(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-
-    if (wrapper.taskType === 0) {
-      for (const task of wrapper.tasks) {
-        const taskName = task.taskName?.length > 40 ? `${task.taskName.substring(40)}...` : task.taskName;
-
-        links.push({
-          label: taskName,
-          routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
-          tooltip: task.attackCmd
-        });
-      }
-    } else if (wrapper.taskType === 1) {
-      const taskWrapperName =
-        wrapper.taskWrapperName.length > 40 ? `${wrapper.taskWrapperName.substring(40)}...` : wrapper.taskWrapperName;
+    for (const task of wrapper.tasks) {
+      const taskName = task.taskName?.length > 40 ? `${task.taskName.substring(40)}...` : task.taskName;
 
       links.push({
-        label: taskWrapperName,
-        routerLink: ['/tasks', 'show-subtasks', wrapper.id, 'edit'],
-        tooltip: 'Supertask'
+        label: taskName,
+        routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
+        tooltip: task.attackCmd
       });
     }
 
