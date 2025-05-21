@@ -5,7 +5,6 @@ import { AgentTemperatureInformationDialogData } from './agent-temperature-infor
 import { LowerCasePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
