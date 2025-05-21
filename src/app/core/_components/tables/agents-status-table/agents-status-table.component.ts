@@ -394,9 +394,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     if (agent.agentSpeed) {
       html = `
         <div>
-        <div>Task: <a href="/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
+        <div>Task: <a href="/#/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
         <div>at ${agent.agentSpeed} H/s,<br></div>
-        <div>working on chunk <a href="/tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
+        <div>working on chunk <a href="/#//tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
         </div>
       `;
     }
