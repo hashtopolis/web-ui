@@ -511,5 +511,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         ]
       }
     });
+    dialogRef.afterClosed().subscribe();
   }
 }
