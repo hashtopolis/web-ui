@@ -115,7 +115,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       },
       {
         id: AgentsStatusTableCol.GPU_UTILIZATION,
-        dataKey: 'avgDevice',
+        dataKey: 'averageGpuUtilization',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -135,7 +135,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       },
       {
         id: AgentsStatusTableCol.GPU_TEMPERATURE,
-        dataKey: 'maxTemp',
+        dataKey: 'maxGpuTemperature',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -155,7 +155,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       },
       {
         id: AgentsStatusTableCol.CPU_UTILIZATION,
-        dataKey: 'avgCpu',
+        dataKey: 'averageCpuUtilization',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
