@@ -184,10 +184,9 @@ export const uiConfigDefault: UIConfig = {
       page: 25,
       columns: [
         AgentsStatusTableCol.ID,
-
         AgentsStatusTableCol.NAME,
-        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.AGENT_STATUS,
+        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
         AgentsStatusTableCol.LAST_ACTIVITY,
