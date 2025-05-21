@@ -9,7 +9,7 @@ import { UIConfigService } from '@src/app/core/_services/shared/storage.service'
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-agent-view-dialog',
+  selector: 'app-agent-temperature-information-dialog',
   imports: [
     MatTabsModule,
     MatIconModule,

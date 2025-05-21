@@ -8,7 +8,7 @@ import { catchError, forkJoin } from 'rxjs';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-temperature-information-dialog.component';
+import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
 import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -257,7 +257,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    console.log('buld');
+    console.log('bulk CLICK');
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
