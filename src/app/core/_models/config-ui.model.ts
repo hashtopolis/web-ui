@@ -184,15 +184,16 @@ export const uiConfigDefault: UIConfig = {
       page: 25,
       columns: [
         AgentsStatusTableCol.ID,
-        AgentsStatusTableCol.STATUS,
+
         AgentsStatusTableCol.NAME,
+        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.AGENT_STATUS,
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
         AgentsStatusTableCol.LAST_ACTIVITY,
-        AgentsStatusTableCol.DEVICE_UTILISATION,
-        AgentsStatusTableCol.TEMPERATURE,
-        AgentsStatusTableCol.CPU_UTILISATION
+        AgentsStatusTableCol.GPU_UTILIZATION,
+        AgentsStatusTableCol.GPU_TEMPERATURE,
+        AgentsStatusTableCol.CPU_UTILIZATION
       ],
       order: {
         id: AgentsStatusTableCol.ID,

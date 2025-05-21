@@ -63,18 +63,18 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         export: async (agent: JAgent) => agent.id + ''
       },
       {
-        id: AgentsStatusTableCol.STATUS,
-        dataKey: 'status',
-        isSortable: true,
-        render: (agent: JAgent) => this.renderActiveAgent(agent),
-        export: async (agent: JAgent) => this.renderActiveAgent(agent)
-      },
-      {
         id: AgentsStatusTableCol.NAME,
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
         export: async (agent: JAgent) => agent.agentName
+      },
+      {
+        id: AgentsStatusTableCol.STATUS,
+        dataKey: 'status',
+        isSortable: true,
+        render: (agent: JAgent) => this.renderActiveAgent(agent),
+        export: async (agent: JAgent) => this.renderActiveAgent(agent)
       },
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
@@ -107,9 +107,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
-        id: AgentsStatusTableCol.DEVICE_UTILISATION,
+        id: AgentsStatusTableCol.GPU_UTILIZATION,
         dataKey: 'avgDevice',
-        isSortable: false,
+        isSortable: true,
         render: (agent: JAgent) => {
           if (agent.isActive) {
             return this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%';
@@ -127,7 +127,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         }
       },
       {
-        id: AgentsStatusTableCol.TEMPERATURE,
+        id: AgentsStatusTableCol.GPU_TEMPERATURE,
         dataKey: 'maxTemp',
         isSortable: true,
         render: (agent: JAgent) => {
@@ -147,7 +147,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         }
       },
       {
-        id: AgentsStatusTableCol.CPU_UTILISATION,
+        id: AgentsStatusTableCol.CPU_UTILIZATION,
         dataKey: 'avgCpu',
         isSortable: true,
         render: (agent: JAgent) => {
@@ -250,6 +250,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
+    console.log('buld');
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -421,7 +422,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     const action = `Action: ${agent.lastAct}<br>`;
     const time = `Time: ${formattedDate}<br>`;
     /*     const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : ''; */
-/*     const data = `${action}${time}${ip}`; */
+    /*     const data = `${action}${time}${ip}`; */
     const data = `${action}${time}`;
     return this.sanitize(data);
   }
@@ -442,7 +443,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     }
     return 0;
   }
-  // Modal Agent utilisation and OffCanvas menu
+  // Modal Agent Utilization and OffCanvas menu
 
   getTemp1() {
     // Temperature Config Setting
@@ -493,12 +494,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
             statusLabel: ' GPU Temperature'
           },
           {
-            tabName: 'CPU Utilisation',
+            tabName: 'CPU Utilization',
             icon: 'computer',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
             unitLabel: '%',
-            statusLabel: 'CPU Utilisation'
+            statusLabel: 'CPU Utilization'
           }
         ]
       }
