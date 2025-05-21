@@ -1,4 +1,4 @@
-export interface AgentViewDialogData {
+export interface AgentTemperatureInformationDialogData { 
   tabName: string;
   icon: string;
   threshold1: string;

@@ -1,7 +1,7 @@
 import { Component, Inject, Input, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { AgentViewDialogData } from './agent-view-dialog.model';
+import { AgentTemperatureInformationDialogData } from './agent-temperature-information-dialog.model';
 import { LowerCasePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -19,14 +19,13 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
     DragDropModule
   ],
-  templateUrl: './agent-view-dialog.component.html',
+  templateUrl: './agent-temperature-information-dialog.component.html',
 })
-export class AgentViewDialogComponent {
+export class AgentTemperatureInformationDialogComponent {
   data = inject(MAT_DIALOG_DATA);
-  private dialogRef = inject(MatDialogRef<AgentViewDialogComponent>);
+  private dialogRef = inject(MatDialogRef<AgentTemperatureInformationDialogComponent>);
 
-  private uiService = Inject(UIConfigService); // Inject the UIConfigService
-  @Input() agentData: AgentViewDialogData[] = [];
+  @Input() agentData: AgentTemperatureInformationDialogData[] = [];
   closeDialog(): void {
     this.dialogRef.close();
   }

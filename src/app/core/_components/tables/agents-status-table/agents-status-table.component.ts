@@ -8,7 +8,7 @@ import { catchError, forkJoin } from 'rxjs';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { AgentViewDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-view-dialog.component';
+import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-view-dialog/agent-temperature-information-dialog.component';
 import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -116,7 +116,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.GPU_UTILIZATION,
         dataKey: 'avgDevice',
-        isSortable: true,
+        isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
             return this.getMaxOrAvgValue(agent, ASC.GPU_UTIL, STATCALCULATION.AVG_VALUE) + '%';
@@ -136,7 +136,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.GPU_TEMPERATURE,
         dataKey: 'maxTemp',
-        isSortable: true,
+        isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
             return this.getMaxOrAvgValue(agent, ASC.GPU_TEMP, STATCALCULATION.MAX_VALUE) + '°C';
@@ -156,7 +156,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       {
         id: AgentsStatusTableCol.CPU_UTILIZATION,
         dataKey: 'avgCpu',
-        isSortable: true,
+        isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
             return this.getMaxOrAvgValue(agent, ASC.CPU_UTIL, STATCALCULATION.AVG_VALUE) + '%';
@@ -481,7 +481,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @param form
    */
   openStatDialog(): void {
-    const dialogRef = this.dialog.open(AgentViewDialogComponent, {
+    const dialogRef = this.dialog.open(AgentTemperatureInformationDialogComponent, {
       data: {
         agentData: [
           {
