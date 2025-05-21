@@ -11,7 +11,9 @@
   [hasBulkActions]="hasBulkActions"
   [filterFn]="filter"
   [isPageable]="true"
+  [hasTemperatureInformation]="hasTemperatureInformation"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (temperatureInformationClicked)="openStatDialog()"
 />

@@ -1,24 +1,21 @@
+import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
 /**
  * Contains data source for agents resource
  * @module
  */
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
-import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JUser } from '@models/user.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { IParamBuilder } from '@services/params/builder-types.service';
-
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
+import { FilterType } from '@models/request-params.model';
+import { IParamBuilder } from '@services/params/builder-types.service';
+import { JAgent } from '@models/agent.model';
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JChunk } from '@models/chunk.model';
+import { JUser } from '@models/user.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
@@ -35,6 +32,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
+      .addInclude('agentStats')
       .create();
 
     this.service
