@@ -3,7 +3,7 @@
  * @module
  */
 import { faKey } from '@fortawesome/free-solid-svg-icons';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
@@ -105,7 +105,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
-        render: (file: JFile) => file.lineCount,
+        render: (file: JFile) => file.lineCount.toLocaleString(),
         export: async (file: JFile) => file.lineCount + ''
       },
       {
@@ -197,15 +197,18 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   private bulkActionDelete(files: JFile[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.FILES, files).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.FILES, files)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted files!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted files!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

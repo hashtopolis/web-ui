@@ -1,25 +1,28 @@
+import { catchError, forkJoin } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { AgentsDataSource } from '@datasources/agents.datasource';
+
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentsStatusTableCol,
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
-
-import { ASC } from '@src/app/core/_constants/agentsc.config';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
-import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@src/app/core/_services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
+import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { ASC } from '@src/app/core/_constants/agentsc.config';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { SERV } from '@src/app/core/_services/main.config';
+import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 /**
  * Provides static constants for different types of statistical calculations.
@@ -321,15 +324,18 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(agents: JAgent[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.AGENTS, agents).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.AGENTS, agents)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted agents!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted agents!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -386,10 +392,11 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   private renderWorkingOn(agent: JAgent): SafeHtml {
     let html = '';
     if (agent.agentSpeed) {
+      const agentSpeed = convertCrackingSpeed(agent.agentSpeed);
       html = `
         <div>
         <div>Task: <a href="/#/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
-        <div>at ${agent.agentSpeed} H/s,<br></div>
+        <div>at ${agentSpeed},<br></div>
         <div>working on chunk <a href="/#//tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
         </div>
       `;
@@ -465,14 +472,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     // CPU 2 Config Setting
     return this.uiService.getUIsettings('agentUtilThreshold2').value;
   }
+
   /**
    * Opens modal containing agent stat legend.
-   * @param title Modal title
-   * @param icon Modal icon
-   * @param content Modal content
-   * @param thresholdType
-   * @param result
-   * @param form
    */
   openStatDialog(): void {
     const dialogRef = this.dialog.open(AgentTemperatureInformationDialogComponent, {
@@ -505,6 +507,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         ]
       }
     });
-    this.subscriptions.push(dialogRef?.afterClosed().subscribe())
+    this.subscriptions.push(dialogRef?.afterClosed().subscribe());
   }
 }

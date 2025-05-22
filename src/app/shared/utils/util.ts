@@ -69,7 +69,7 @@ export const formatPercentage = (value: number, total: number): string => {
   }
 
   const percentage = (value / total) * 100;
-  const formattedPercentage = percentage.toFixed(1);
+  const formattedPercentage = percentage.toFixed(1).toLocaleString();
 
   return `${formattedPercentage}%`;
 };
@@ -116,14 +116,31 @@ export const formatFileSize = (
   }
 
   const scale = sizeInBytes > threshold ? sizeInBytes / threshold : sizeInBytes;
-  const power = Math.min(
-    Math.round(Math.log(scale) / Math.log(baseSize)),
-    units.length - 1
-  );
+  const power = Math.min(Math.round(Math.log(scale) / Math.log(baseSize)), units.length - 1);
   const size = sizeInBytes / Math.pow(baseSize, power);
   const unit = units ? units[power] : '';
 
   formattedSize = Math.round(size * 100) / 100;
 
-  return `${formattedSize} ${unit}`;
+  return `${formattedSize.toLocaleString()} ${unit}`;
+};
+
+/**
+ * Convert a given speed from number to string containing a unit
+ * @param speed - speed to conbert
+ */
+export const convertCrackingSpeed = (speed: number): string => {
+  const units: Array<string> = ['H/s', 'kH/s', 'MH/s', 'GH/s', 'TH/s'];
+  const splitter: number = 1000;
+  let hashSpeed: number = speed;
+
+  for (const unit of units) {
+    if (hashSpeed < splitter) {
+      return `${(Math.round(hashSpeed * 100) / 100).toLocaleString()} ${unit}`;
+    }
+    hashSpeed /= splitter;
+  }
+
+  hashSpeed *= splitter;
+  return `${(Math.round(hashSpeed * 100) / 100).toLocaleString()} ${units[-1]}`;
 };
