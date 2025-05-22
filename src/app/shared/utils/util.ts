@@ -78,7 +78,7 @@ export const formatPercentage = (value: number, total: number): string => {
  * Formats a file size in bytes into a human-readable string.
  *
  * @param sizeInBytes - The size in bytes to be formatted.
- * @param useLongForm - If true, use long-form units (e.g., "Kilobytes" instead of "KB").
+ * @param suffix - define type of suffix
  * @param baseSize - The base for size conversion (default is 1024).
  * @param threshold - The threshold for switching to the next unit (default is 1024).
  *
