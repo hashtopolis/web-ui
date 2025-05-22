@@ -323,7 +323,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   }
 
   /**
-   * Show hashcounbt and render hashlist link
+   * Show hashcount and render hashlist link
    * @param hashlist - hashlist object to show count for
    * @return observable array containing the link to render
    * @private
@@ -333,7 +333,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (hashlist) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id],
-        label: hashlist.hashCount
+        label: hashlist.hashCount.toLocaleString()
       });
     }
     return of(links);
