@@ -1,3 +1,4 @@
+import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
 import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '@components/tables/access-groups-table/access-groups-table.constants';
 import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-users-table/access-groups-users-table.constants';
@@ -25,9 +26,9 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
@@ -182,12 +183,15 @@ export const uiConfigDefault: UIConfig = {
       page: 25,
       columns: [
         AgentsStatusTableCol.ID,
-        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.NAME,
         AgentsStatusTableCol.AGENT_STATUS,
+        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
-        AgentsStatusTableCol.LAST_ACTIVITY
+        AgentsStatusTableCol.LAST_ACTIVITY,
+        AgentsStatusTableCol.GPU_UTILIZATION,
+        AgentsStatusTableCol.GPU_TEMPERATURE,
+        AgentsStatusTableCol.CPU_UTILIZATION
       ],
       order: {
         id: AgentsStatusTableCol.ID,

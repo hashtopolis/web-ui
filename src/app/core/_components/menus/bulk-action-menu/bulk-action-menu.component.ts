@@ -1,8 +1,4 @@
-import {
-  BulkActionMenuAction,
-  BulkActionMenuIcon,
-  BulkActionMenuLabel
-} from './bulk-action-menu.constants';
+import { BulkActionMenuAction, BulkActionMenuIcon, BulkActionMenuLabel } from './bulk-action-menu.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
@@ -14,14 +10,11 @@ import { DataType } from '../../tables/ht-table/ht-table.models';
  * Component representing the bulk action menu for various data types.
  */
 @Component({
-    selector: 'bulk-action-menu',
-    templateUrl: './bulk-action-menu.component.html',
-    standalone: false
+  selector: 'bulk-action-menu',
+  templateUrl: './bulk-action-menu.component.html',
+  standalone: false
 })
-export class BulkActionMenuComponent
-  extends BaseMenuComponent
-  implements OnInit
-{
+export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit {
   /** The type of data for which the bulk action menu is displayed. */
   @Input() dataType: DataType;
   /** Flag indicating whether the data is archived. */
@@ -60,24 +53,21 @@ export class BulkActionMenuComponent
         BulkActionMenuLabel.DELETE_NOTIFICATIONS
       );
     } else if (this.dataType === 'hashlists') {
-      this.setArchiveDeleteMenu(
-        BulkActionMenuLabel.DELETE_HASHLISTS,
-        BulkActionMenuLabel.ARCHIVE_HASHLISTS
+      this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_HASHLISTS, BulkActionMenuLabel.ARCHIVE_HASHLISTS);
+    } else if (this.dataType === 'agents-status') {
+      this.setActivateDeleteMenu(
+        BulkActionMenuLabel.ACTIVATE_AGENTS,
+        BulkActionMenuLabel.DEACTIVATE_AGENTS,
+        BulkActionMenuLabel.DELETE_AGENTS
       );
     } else if (this.dataType === 'superhashlists') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PRETASKS);
     } else if (this.dataType === 'tasks') {
-      this.setArchiveDeleteMenu(
-        BulkActionMenuLabel.DELETE_TASKS,
-        BulkActionMenuLabel.ARCHIVE_TASKS
-      );
+      this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
     } else if (this.dataType === 'tasks-chunks') {
-      this.setArchiveDeleteMenu(
-        BulkActionMenuLabel.DELETE_TASKS,
-        BulkActionMenuLabel.ARCHIVE_TASKS
-      );
+      this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
     } else if (this.dataType === 'tasks-supertasks') {
       this.setResetMenu(BulkActionMenuLabel.RESET_CHUNKS);
     } else if (this.dataType === 'supertasks') {
@@ -110,23 +100,14 @@ export class BulkActionMenuComponent
    */
   private setHashlistMenu(): void {
     if (this.isArchived) {
-      this.setActionMenuItems(0, [
-        this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)
-      ]);
+      this.setActionMenuItems(0, [this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)]);
     } else {
-      this.setActionMenuItems(0, [
-        this.getArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_HASHLISTS)
-      ]);
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)
-      ]);
+      this.setActionMenuItems(0, [this.getArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_HASHLISTS)]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)]);
     }
   }
 
-  private setArchiveDeleteMenu(
-    deleteLabel: string,
-    archiveLabel: string
-  ): void {
+  private setArchiveDeleteMenu(deleteLabel: string, archiveLabel: string): void {
     if (this.isArchived) {
       this.setActionMenuItems(0, [this.getDeleteMenuItem(deleteLabel)]);
     } else {
@@ -149,15 +130,8 @@ export class BulkActionMenuComponent
    * @param deactivateLabel Deactiviate action label.
    * @param deleteLabel Delete action label.
    */
-  private setActivateDeleteMenu(
-    activateLabel: string,
-    deactivateLabel: string,
-    deleteLabel: string
-  ): void {
-    this.setActionMenuItems(0, [
-      this.getActivateMenuItem(activateLabel),
-      this.getDeactivateMenuItem(deactivateLabel)
-    ]);
+  private setActivateDeleteMenu(activateLabel: string, deactivateLabel: string, deleteLabel: string): void {
+    this.setActionMenuItems(0, [this.getActivateMenuItem(activateLabel), this.getDeactivateMenuItem(deactivateLabel)]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
   }
 

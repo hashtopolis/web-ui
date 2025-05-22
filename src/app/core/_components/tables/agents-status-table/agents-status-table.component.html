@@ -9,9 +9,11 @@
   [isFilterable]="isFilterable"
   [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
+  [hasTemperatureInformation]="hasTemperatureInformation"
   [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (temperatureInformationClicked)="openStatDialog()"
 />

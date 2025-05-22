@@ -7,7 +7,7 @@ export const DEFAULT_CONFIG = {
   favicon: 'assets/img/favicon.ico',
   header: {
     brand: {
-      logo: 'assets/img/logo.png',
+      logo: 'assets/img/logo_blue.svg',
       logored: 'assets/img/logo_red.png',
       name: '',
       height: '60',

@@ -1,24 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
-
-import { PageTitle } from '@src/app/core/_decorators/autotitle';
-import { environment } from '@src/environments/environment';
-
+import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { CookieService } from '@src/app/core/_services/shared/cookies.service';
 import { FilterService } from '@src/app/core/_services/shared/filter.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
-
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JAgentStat } from '@src/app/core/_models/agent-stats.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { MatDialog } from '@angular/material/dialog';
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
-
-import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
+import { SERV } from '@src/app/core/_services/main.config';
+import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
+import { environment } from '@src/environments/environment';
 
 @Component({
     selector: 'app-agent-status',
