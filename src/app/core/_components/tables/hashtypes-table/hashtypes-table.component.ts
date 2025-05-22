@@ -168,22 +168,16 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    * @todo Implement error handling.
    */
   private bulkActionDelete(hashtypes: JHashtype[]): void {
-    const requests = hashtypes.map((hashtype: JHashtype) => {
-      return this.gs.delete(SERV.HASHTYPES, hashtype.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} hashtypes!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.HASHTYPES, hashtypes).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted hashtypes!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

@@ -221,22 +221,16 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
    * @todo Implement error handling.
    */
   private bulkActionDelete(superHashlists: JHashlist[]): void {
-    const requests = superHashlists.map((superHashlist: JHashlist) => {
-      return this.gs.delete(SERV.HASHLISTS, superHashlist.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} Super-hashlists!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.HASHLISTS, superHashlists).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

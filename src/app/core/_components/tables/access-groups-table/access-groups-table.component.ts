@@ -185,22 +185,16 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
    * @todo Implement error handling.
    */
   private bulkActionDelete(accessGroups: JAccessGroup[]): void {
-    const requests = accessGroups.map((accessGroup: JAccessGroup) => {
-      return this.gs.delete(SERV.ACCESS_GROUPS, accessGroup.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} access groups!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.ACCESS_GROUPS, accessGroups).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted accessgroups!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

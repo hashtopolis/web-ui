@@ -217,22 +217,16 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionDelete(notifications: JNotification[]): void {
-    const requests = notifications.map((notification: JNotification) => {
-      return this.gs.delete(SERV.NOTIFICATIONS, notification.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} notifications!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.NOTIFICATIONS, notifications).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted notifications!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 
@@ -240,27 +234,14 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionActivate(notifications: JNotification[], isActive: boolean): void {
-    const requests = notifications.map((notification: JNotification) => {
-      return this.gs.update(SERV.NOTIFICATIONS, notification.id, {
-        isActive: isActive
-      });
-    });
-
     const action = isActive ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during activation:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} notifications!`, 'Close');
+        this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, {isActive: isActive}).subscribe((results) => {
+          this.snackBar.open(`Successfully ${action} notifications!`, 'Close');
           this.dataSource.reload();
         })
-    );
+      );
   }
 
   /**

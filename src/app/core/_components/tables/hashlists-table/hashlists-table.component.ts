@@ -235,26 +235,12 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
    * @todo Implement error handling.
    */
   private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
-    const requests = hashlists.map((hashlist: JHashlist) => {
-      return this.gs.update(SERV.HASHLISTS, hashlist.id, {
-        isArchived: isArchived
-      });
-    });
-
     const action = isArchived ? 'archived' : 'unarchived';
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during archiving:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} hashlists!`, 'Close');
+      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, {isArchived: isArchived}).subscribe((results) => {
+          this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
           this.reload();
-        })
+      })
     );
   }
 
@@ -262,22 +248,16 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
    * @todo Implement error handling.
    */
   private bulkActionDelete(hashlists: JHashlist[]): void {
-    const requests = hashlists.map((hashlist: JHashlist) => {
-      return this.gs.delete(SERV.HASHLISTS, hashlist.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} hashlists!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.HASHLISTS, hashlists).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

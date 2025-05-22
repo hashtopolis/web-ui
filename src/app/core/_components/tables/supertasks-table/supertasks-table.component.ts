@@ -171,23 +171,10 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
    * @todo Implement error handling.
    */
   private bulkActionDelete(supertask: JSuperTask[]): void {
-    const requests = supertask.map((supertask: JSuperTask) => {
-      return this.gs.delete(SERV.SUPER_TASKS, supertask.id);
+    this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe((results) => {
+      this.snackBar.open(`Successfully deleted supertasks!`, 'Close');
+      this.dataSource.reload();
     });
-
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} supertasks!`, 'Close');
-          this.reload();
-        })
-    );
   }
 
   /**

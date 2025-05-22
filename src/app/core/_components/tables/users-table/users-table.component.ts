@@ -221,22 +221,16 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
    * @todo Implement error handling.
    */
   private bulkActionDelete(users: JUser[]): void {
-    const requests = users.map((user: JUser) => {
-      return this.gs.delete(SERV.USERS, user.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} users!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.USERS, users).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted users!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 
@@ -244,24 +238,13 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
    * @todo Implement error handling.
    */
   private bulkActionActivate(users: JUser[], isValid: boolean): void {
-    const requests = users.map((user: JUser) => {
-      return this.gs.update(SERV.USERS, user.id, { isValid: isValid });
-    });
-
     const action = isValid ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during activation:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} users!`, 'Close');
-          this.dataSource.reload();
-        })
+      this.gs.bulkUpdate(SERV.USERS, users, {isValid: isValid}).subscribe((results) => {
+          this.snackBar.open(`Successfully ${action} users!`, 'Close');
+          this.reload();
+      })
     );
   }
 

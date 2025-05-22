@@ -163,22 +163,16 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
    * @todo Implement error handling.
    */
   private bulkActionDelete(vouchers: JVoucher[]): void {
-    const requests = vouchers.map((voucher: JVoucher) => {
-      return this.gs.delete(SERV.VOUCHER, voucher.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} vouchers!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.VOUCHER, vouchers).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted vouchers!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

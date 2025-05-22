@@ -12,6 +12,7 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
+import { faThumbTackSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Injectable({
   providedIn: 'root'
@@ -150,6 +151,16 @@ export class GlobalService {
     */
   }
 
+  bulkDelete(serviceConfig: ServiceConfig, objects: any): Observable<any> {
+    let objectdata = []
+
+    for(var object of objects) {
+      objectdata.push({"id": object.id, "type": serviceConfig.RESOURCE});
+    }
+    let data = {data: objectdata};
+    return this.http.delete<number>(this.cs.getEndpoint() + serviceConfig.URL, {body: data}).pipe(debounceTime(2000))
+  }
+
   /**
    * Update element information
    * @param id - element id
@@ -158,9 +169,25 @@ export class GlobalService {
    * @returns Object
    **/
   update(serviceConfig: ServiceConfig, id: number, arr: any): Observable<any> {
-    let data = { type: serviceConfig.URL, id: id, ...arr };
+    let data = { type: serviceConfig.RESOURCE, id: id, ...arr };
     data = new JsonAPISerializer().serialize({ stuff: data });
     return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, data).pipe(debounceTime(2000));
+  }
+
+  bulkUpdate(serviceConfig: ServiceConfig, objects: any, attributes: any) {
+    /**
+     * Bulk update information of object
+     * @param serviceConfig the serviceconfig of the API endpoint
+     * @param objects the objects that needs to be updated
+     * @param attributes the attributes that needs to be changed
+     */
+    let objectdata = []
+
+    for(var object of objects) {
+      objectdata.push({"id": object.id, "type": serviceConfig.RESOURCE, "attributes": attributes});
+    }
+    let data = {data: objectdata};
+    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000))
   }
 
   /**
@@ -174,6 +201,18 @@ export class GlobalService {
   updateRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
     return this.http
       .patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .pipe(debounceTime(2000));
+  }
+
+  postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+    return this.http
+    .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+    .pipe(debounceTime(2000));
+  }
+
+  deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
+    return this.http
+      .delete<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {body: data})
       .pipe(debounceTime(2000));
   }
 
