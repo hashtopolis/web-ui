@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -237,9 +237,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, {isArchived: isArchived}).subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
-          this.reload();
+      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe(() => {
+        this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
+        this.reload();
       })
     );
   }
@@ -249,15 +249,18 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
    */
   private bulkActionDelete(hashlists: JHashlist[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHLISTS, hashlists).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHLISTS, hashlists)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
