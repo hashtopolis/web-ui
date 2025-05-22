@@ -35,7 +35,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     this.tableColumns = this.getColumns();
     this.dataSource = new CracksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.loadAll();
+    this.dataSource.loadAll().then(() => {});
   }
 
   ngOnDestroy(): void {

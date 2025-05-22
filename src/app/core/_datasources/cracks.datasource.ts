@@ -21,11 +21,13 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       const crackedHashes = await this.loadCrackedHashes();
 
       const rows: JHash[] = await Promise.all(
-        crackedHashes.map(async (crackedHash) => {
-          const task = await this.loadTask(crackedHash.chunk.taskId);
-          crackedHash.chunk.taskName = task.taskName;
-          return crackedHash;
-        })
+        crackedHashes
+          .filter((element) => element.chunk)
+          .map(async (crackedHash) => {
+            const task = await this.loadTask(crackedHash.chunk.taskId);
+            crackedHash.chunk.taskName = task.taskName;
+            return crackedHash;
+          })
       );
 
       this.setPaginationConfig(this.pageSize, this.currentPage, crackedHashes.length);
