@@ -69,7 +69,7 @@ export const formatPercentage = (value: number, total: number): string => {
   }
 
   const percentage = (value / total) * 100;
-  const formattedPercentage = percentage.toFixed(1);
+  const formattedPercentage = percentage.toFixed(1).toLocaleString();
 
   return `${formattedPercentage}%`;
 };
@@ -78,7 +78,7 @@ export const formatPercentage = (value: number, total: number): string => {
  * Formats a file size in bytes into a human-readable string.
  *
  * @param sizeInBytes - The size in bytes to be formatted.
- * @param useLongForm - If true, use long-form units (e.g., "Kilobytes" instead of "KB").
+ * @param suffix - define type of suffix
  * @param baseSize - The base for size conversion (default is 1024).
  * @param threshold - The threshold for switching to the next unit (default is 1024).
  *
@@ -116,14 +116,31 @@ export const formatFileSize = (
   }
 
   const scale = sizeInBytes > threshold ? sizeInBytes / threshold : sizeInBytes;
-  const power = Math.min(
-    Math.round(Math.log(scale) / Math.log(baseSize)),
-    units.length - 1
-  );
+  const power = Math.min(Math.round(Math.log(scale) / Math.log(baseSize)), units.length - 1);
   const size = sizeInBytes / Math.pow(baseSize, power);
   const unit = units ? units[power] : '';
 
   formattedSize = Math.round(size * 100) / 100;
 
-  return `${formattedSize} ${unit}`;
+  return `${formattedSize.toLocaleString()} ${unit}`;
+};
+
+/**
+ * Convert a given speed from number to string containing a unit
+ * @param speed - speed to conbert
+ */
+export const convertCrackingSpeed = (speed: number): string => {
+  const units: Array<string> = ['H/s', 'kH/s', 'MH/s', 'GH/s', 'TH/s'];
+  const splitter: number = 1000;
+  let hashSpeed: number = speed;
+
+  for (const unit of units) {
+    if (hashSpeed < splitter) {
+      return `${(Math.round(hashSpeed * 100) / 100).toLocaleString()} ${unit}`;
+    }
+    hashSpeed /= splitter;
+  }
+
+  hashSpeed *= splitter;
+  return `${(Math.round(hashSpeed * 100) / 100).toLocaleString()} ${units[-1]}`;
 };
