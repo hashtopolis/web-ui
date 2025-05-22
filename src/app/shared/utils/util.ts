@@ -105,8 +105,6 @@ export const formatFileSize = (
     units = fileSizeUnitsLong;
   }
 
-  let formattedSize: number | string = 0;
-
   if (sizeInBytes < 1) {
     return '0';
   }
