@@ -33,7 +33,7 @@ export class SearchHashTableComponent
   @Input() search: any[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
-
+  private initDone: boolean = false;
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -47,6 +47,7 @@ export class SearchHashTableComponent
     }
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
+    this.initDone = true;
   }
 
   ngOnDestroy(): void {
@@ -123,9 +124,12 @@ export class SearchHashTableComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['search']) {
-      this.dataSource.setSearch(changes['search'].currentValue);
-      this.dataSource.setColumns(this.tableColumns);
-      this.dataSource.loadAll();
+      this.search = changes['search'].currentValue;
+      if (this.initDone) {
+        this.dataSource.setSearch(this.search);
+        this.dataSource.setColumns(this.tableColumns);
+        this.dataSource.loadAll();
+      }
     }
   }
 

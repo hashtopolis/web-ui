@@ -67,11 +67,7 @@ export const formatPercentage = (value: number, total: number): string => {
   if (total === 0) {
     return '';
   }
-
-  const percentage = (value / total) * 100;
-  const formattedPercentage = percentage.toFixed(1).toLocaleString();
-
-  return `${formattedPercentage}%`;
+  return `${convertToLocale((value / total) * 100)}%`;
 };
 
 /**
@@ -119,15 +115,12 @@ export const formatFileSize = (
   const power = Math.min(Math.round(Math.log(scale) / Math.log(baseSize)), units.length - 1);
   const size = sizeInBytes / Math.pow(baseSize, power);
   const unit = units ? units[power] : '';
-
-  formattedSize = Math.round(size * 100) / 100;
-
-  return `${formattedSize.toLocaleString()} ${unit}`;
+  return `${convertToLocale(size)} ${unit}`;
 };
 
 /**
  * Convert a given speed from number to string containing a unit
- * @param speed - speed to conbert
+ * @param speed - speed to convert
  */
 export const convertCrackingSpeed = (speed: number): string => {
   const units: Array<string> = ['H/s', 'kH/s', 'MH/s', 'GH/s', 'TH/s'];
@@ -136,11 +129,20 @@ export const convertCrackingSpeed = (speed: number): string => {
 
   for (const unit of units) {
     if (hashSpeed < splitter) {
-      return `${(Math.round(hashSpeed * 100) / 100).toLocaleString()} ${unit}`;
+      return `${convertToLocale(hashSpeed)} ${unit}`;
     }
     hashSpeed /= splitter;
   }
 
   hashSpeed *= splitter;
-  return `${(Math.round(hashSpeed * 100) / 100).toLocaleString()} ${units[-1]}`;
+  return `${convertToLocale(hashSpeed)} ${units[-1]}`;
 };
+
+/**
+ * Convert a given number to a locale string (thousand and decimal separators) with to decimal places
+ * @param value - numeric value to convert
+ * @return formatted string with two decimal places
+ */
+export const convertToLocale = (value: number) => {
+  return (Math.round(value * 100) / 100).toLocaleString();
+}
