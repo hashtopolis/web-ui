@@ -1,25 +1,17 @@
 /* eslint-disable @angular-eslint/component-selector */
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges
-} from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { SearchHashDataSource } from '@datasources/search-hash.datasource';
 import {
   SearchHashTableCol,
   SearchHashTableColumnLabel
-} from './search-hash-table.constants';
-
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { SearchHashDataSource } from 'src/app/core/_datasources/search-hash.datasource';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+} from '@components/tables/search-hash-table/search-hash-table.constants';
+import { JHash } from '@models/hash.model';
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { SafeHtml } from '@angular/platform-browser';
-import { JHash } from '../../../_models/hash.model';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
     selector: 'search-hash-table',
@@ -33,7 +25,7 @@ export class SearchHashTableComponent
   @Input() search: any[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
-
+  private initDone: boolean = false;
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -47,6 +39,7 @@ export class SearchHashTableComponent
     }
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
+    this.initDone = true;
   }
 
   ngOnDestroy(): void {
@@ -56,15 +49,11 @@ export class SearchHashTableComponent
   }
 
   filter(item: JHash, filterValue: string): boolean {
-    if (item.hash.toLowerCase().includes(filterValue)) {
-      return true;
-    }
-
-    return false;
+    return item.hash.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: SearchHashTableCol.HASH,
         dataKey: 'hash',
@@ -80,8 +69,6 @@ export class SearchHashTableComponent
         export: async (hash: JHash) => this.renderHashInfo(hash) + ''
       }
     ];
-
-    return tableColumns;
   }
 
   // --- Action functions ---
@@ -123,14 +110,17 @@ export class SearchHashTableComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['search']) {
-      this.dataSource.setSearch(changes['search'].currentValue);
-      this.dataSource.setColumns(this.tableColumns);
-      this.dataSource.loadAll();
+      this.search = changes['search'].currentValue;
+      if (this.initDone) {
+        this.dataSource.setSearch(this.search);
+        this.dataSource.setColumns(this.tableColumns);
+        this.dataSource.loadAll();
+      }
     }
   }
 
   renderHashInfo(hash: JHash): SafeHtml {
-    let htmlContent = '';
+    let htmlContent: string;
     if (hash.id !== undefined) {
       htmlContent = `
           ${hash.isCracked ? 'Cracked' : 'Uncracked'} on ${formatUnixTimestamp(
