@@ -56,28 +56,18 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   }
 
   private async loadPretaskFiles(pretaskIds: number[]): Promise<JPretask[]> {
-    let response: ResponseWrapper = undefined;
-
-    if (pretaskIds.length === 1) {
-      const paramsPretaskFiles = new RequestParamBuilder()
-        .addInitial(this)
-        .addInclude('pretaskFiles')
-        .addFilter({ field: 'pretaskId', operator: FilterType.EQUAL, value: pretaskIds })
-        .create();
-
-      response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, paramsPretaskFiles));
-    } else {
+    if (pretaskIds && pretaskIds.length > 0) {
       const paramsPretaskFiles = new RequestParamBuilder()
         .addInitial(this)
         .addInclude('pretaskFiles')
         .addFilter({ field: 'pretaskId', operator: FilterType.IN, value: pretaskIds })
         .create();
 
-      response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, paramsPretaskFiles));
+      const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, paramsPretaskFiles));
+      const responseData = { data: response.data, included: response.included };
+      return this.serializer.deserialize<JPretask[]>(responseData);
     }
-
-    const responseData = { data: response.data, included: response.included };
-    return this.serializer.deserialize<JPretask[]>(responseData);
+    return [];
   }
 
   reload(): void {
