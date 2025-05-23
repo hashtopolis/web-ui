@@ -306,7 +306,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderCracked(agent: JAgent): SafeHtml {
     const cracked = this.getChunkDataValue(agent, 'cracked');
-    return this.sanitize(cracked ? `<span>${cracked}</span>` : '-');
+    return this.sanitize(cracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {
