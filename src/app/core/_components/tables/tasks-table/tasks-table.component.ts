@@ -678,7 +678,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
       links.push({
-        label: wrapper.cracked + '',
+        label: wrapper.cracked.toLocaleString(),
         routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
       });
     }
