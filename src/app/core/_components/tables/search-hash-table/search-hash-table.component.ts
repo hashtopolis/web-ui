@@ -62,6 +62,13 @@ export class SearchHashTableComponent
         export: async (hash: JHash) => hash.hash + ''
       },
       {
+        id: SearchHashTableCol.PLAINTEXT,
+        dataKey: 'plaintext',
+        isSortable: true,
+        render: (hash: JHash) => hash.plaintext,
+        export: async (hash: JHash) => hash.plaintext + ''
+      },
+      {
         id: SearchHashTableCol.INFO,
         dataKey: 'isCracked',
         isSortable: true,

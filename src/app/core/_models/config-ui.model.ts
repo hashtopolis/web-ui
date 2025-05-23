@@ -597,7 +597,7 @@ export const uiConfigDefault: UIConfig = {
     searchHashTable: {
       start: 0,
       page: 25,
-      columns: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
+      columns: [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT, SearchHashTableCol.INFO],
       order: {
         id: SearchHashTableCol.HASH,
         dataKey: '',
