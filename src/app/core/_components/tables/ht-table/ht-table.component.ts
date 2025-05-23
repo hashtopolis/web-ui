@@ -188,7 +188,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
-
+  selected = 'option2';
   private sortingColumn;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
@@ -454,7 +454,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   // emit when Temperature Information is clicked
- temperatureInformationEmit() {
+  temperatureInformationEmit() {
     this.temperatureInformationClicked.emit();
   }
   /**
