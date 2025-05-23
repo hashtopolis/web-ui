@@ -1,5 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -13,17 +11,17 @@ import {
   ViewChild
 } from '@angular/core';
 import {
-  COL_ROW_ACTION,
-  COL_SELECT,
   CheckboxChangeEvent,
   CheckboxFiles,
+  COL_ROW_ACTION,
+  COL_SELECT,
   DataType,
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Subscription, take, timer } from 'rxjs';
-import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
@@ -329,7 +327,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.displayedColumns.push(COL_SELECT + '');
     }
     for (const num of columnNames) {
-      this.displayedColumns.push(num + '');
+      if (num < this.tableColumns.length) {
+        this.displayedColumns.push(num + '');
+      }
     }
 
     if (this.hasRowAction) {
