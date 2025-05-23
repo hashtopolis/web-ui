@@ -1,5 +1,5 @@
 import { catchError, map } from 'rxjs/operators';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, firstValueFrom } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import { GlobalService } from '@services/main.service';
@@ -64,7 +64,7 @@ export class BulkService {
     });
 
     // Use forkJoin to wait for all item observables to complete
-    const resultsArray = await forkJoin(itemObservables).toPromise();
+    const resultsArray = await firstValueFrom(forkJoin(itemObservables));
 
     // Check if any item deletion has failed
     const hasFailure = resultsArray.some((result) => result === false);
@@ -108,7 +108,7 @@ export class BulkService {
     });
 
     // Use forkJoin to wait for all item observables to complete
-    const resultsArray = await forkJoin(itemObservables).toPromise();
+    const resultsArray = await firstValueFrom(forkJoin(itemObservables));
 
     // Check if any item deletion has failed
     const hasFailure = resultsArray.some((result) => result === false);

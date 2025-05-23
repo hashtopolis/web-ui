@@ -327,7 +327,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.displayedColumns.push(COL_SELECT + '');
     }
     for (const num of columnNames) {
-      if (num < this.tableColumns.length) {
+      if (num < Object.keys(this.columnLabels).length) {
         this.displayedColumns.push(num + '');
       }
     }
