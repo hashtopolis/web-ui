@@ -415,7 +415,6 @@ export const uiConfigDefault: UIConfig = {
         HealthCheckAgentsTableCol.STATUS,
         HealthCheckAgentsTableCol.START,
         HealthCheckAgentsTableCol.GPUS,
-        HealthCheckAgentsTableCol.CRACKED,
         HealthCheckAgentsTableCol.ERRORS
       ],
       order: {

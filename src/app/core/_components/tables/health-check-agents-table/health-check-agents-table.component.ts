@@ -88,12 +88,6 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.numGpus + ''
       },
       {
-        id: HealthCheckAgentsTableCol.CRACKED,
-        dataKey: 'cracked',
-        isSortable: true,
-        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.cracked + ''
-      },
-      {
         id: HealthCheckAgentsTableCol.ERRORS,
         dataKey: 'errors',
         isSortable: true,
