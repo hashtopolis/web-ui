@@ -55,10 +55,11 @@
       <div class="table-action-wrapper">
         <button mat-button (click)="temperatureInformationEmit()">
           <mat-icon>info</mat-icon>
-         Temperature Information
+          Temperature Information
         </button>
       </div>
     }
+
     <!-- filter -->
     <div class="table-action-wrapper right-aligned">
       <mat-form-field *ngIf="isFilterable">
@@ -70,7 +71,15 @@
       </mat-form-field>
     </div>
   </div>
-
+  <mat-form-field>
+    <mat-label>Select an option</mat-label>
+    <mat-select [(value)]="selected">
+      @for (column of tableColumns; track column) {
+        <mat-option [value]="column.dataKey">{{ column.dataKey }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <p>You selected: {{ selected }}</p>
   <!-- Table -->
   <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
@@ -179,23 +188,13 @@
         }"
         [class.text-right]="tableColumn.position === 'right'"
       >
-        <div
-          class="flex-container"
-          [class.links]="tableColumn.routerLink"
-          [class.icons]="tableColumn.icon"
-        >
+        <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link
-              [tableColumn]="tableColumn"
-              [element]="element"
-            ></app-ht-table-link>
-            <ht-table-default
-              [tableColumn]="tableColumn"
-              [element]="element"
-            ></ht-table-default>
+            <app-ht-table-link [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
+            <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable
               [tableColumn]="tableColumn"
               [element]="element"
@@ -214,12 +213,12 @@
               *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
               [matTooltip]="tableColumn.icon(element).tooltip"
               [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''"
-            >{{ tableColumn.icon(element).name }}</mat-icon
+              >{{ tableColumn.icon(element).name }}</mat-icon
             >
             <ng-template #iconTmpl>
               <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-                  tableColumn.icon(element).name
-                }}</mat-icon>
+                tableColumn.icon(element).name
+              }}</mat-icon>
             </ng-template>
           </ng-container>
         </div>
