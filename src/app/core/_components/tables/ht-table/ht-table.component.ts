@@ -368,6 +368,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
+  applyFilter2(event: Event) {
+    console.log('applyFilter2', (event.target as HTMLInputElement).value);
+    if (this.filterFn) {
+      const filterValue = (event.target as HTMLInputElement).value;
+      this.dataSource.filter = filterValue.trim().toLowerCase();
+    }
+  }
 
   /**
    * Clears a filter to the table based on user input.
