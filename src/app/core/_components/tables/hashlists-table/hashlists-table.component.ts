@@ -1,27 +1,23 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JHashlist } from '@models/hashlist.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   HashlistsTableCol,
   HashlistsTableColumnLabel
 } from '@components/tables/hashlists-table/hashlists-table.constants';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { HashlistsDataSource } from '@datasources/hashlists.datasource';
-
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { HashlistsDataSource } from '@datasources/hashlists.datasource';
+import { J } from '@angular/cdk/keycodes';
+import { JHashlist } from '@models/hashlist.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
@@ -54,10 +50,18 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   filter(item: JHashlist, filterValue: string): boolean {
     return (
+      item['name'].toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
+    );
+  }
+  filter2(item: JHashlist, filterValue: string, key: any): boolean {
+    console.log(filterValue, item[key], item);
+    return (
       item.name.toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
     );
   }
-
+  filterTest($event): void {
+    console.log('filterTest', $event);
+  }
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
@@ -237,9 +241,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, {isArchived: isArchived}).subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
-          this.reload();
+      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe((results) => {
+        this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
+        this.reload();
       })
     );
   }
@@ -249,15 +253,18 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
    */
   private bulkActionDelete(hashlists: JHashlist[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHLISTS, hashlists).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHLISTS, hashlists)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

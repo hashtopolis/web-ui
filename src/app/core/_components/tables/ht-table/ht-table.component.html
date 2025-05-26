@@ -82,7 +82,7 @@
   </div>
   <mat-form-field>
     <mat-label>Select an option</mat-label>
-    <mat-select [(value)]="selected">
+    <mat-select [(value)]="selected" (selectionChange)="onSelectionChange()">
       @for (column of tableColumns; track column) {
         <mat-option [value]="column.dataKey">{{ column.dataKey }}</mat-option>
       }

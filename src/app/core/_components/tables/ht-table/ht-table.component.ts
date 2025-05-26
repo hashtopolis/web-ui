@@ -186,6 +186,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
 
+  /** Event emitter for checkbox attack */
+  @Output() filterTest: EventEmitter<any> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
   selected = 'option2';
@@ -375,7 +377,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.filter = filterValue.trim().toLowerCase();
     }
   }
-
+  filterKeyEmit() {}
+  onSelectionChange(): void {
+    this.filterTest.emit(this.selected);
+    console.log('Checkbox changed:', this.selected);
+  }
   /**
    * Clears a filter to the table based on user input.
    */
