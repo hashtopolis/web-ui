@@ -1,8 +1,11 @@
-import { BaseModel } from '@models/base.model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
+
+import { SortDirection } from '@angular/material/sort';
 import { SafeHtml } from '@angular/platform-browser';
+
+import { BaseModel } from '@models/base.model';
 
 export type DataType =
   | 'agents'
@@ -99,4 +102,10 @@ export interface customCellColorInput {
   type: number;
   isActive: (data: any) => boolean;
   lastTime: (data: any) => number;
+}
+
+export interface SortingColumn {
+  id: string;
+  direction: SortDirection;
+  isSortable: boolean;
 }
