@@ -207,10 +207,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   loadData() {
     // Load Hahslists Select Options
-    const filter = new Array<Filter>(
-      { field: 'isArchived', operator: FilterType.EQUAL, value: false },
-      { field: 'format', operator: FilterType.EQUAL, value: 0 }
-    );
+    const filter = new Array<Filter>({ field: 'isArchived', operator: FilterType.EQUAL, value: false });
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, {
         filter: filter
@@ -220,7 +217,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           data: response.data,
           included: response.included
         });
-        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING)
+        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
           this.alert.errorConfirmation('You need to create a Hashlist to continue creating a Task');
