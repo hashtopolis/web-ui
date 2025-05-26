@@ -296,7 +296,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       pretasks.forEach((pretask) => {
         pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
       });
-    
+
       const responseBody = { data: pretaskData };
 
       this.subscriptions.push(
@@ -336,7 +336,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
-    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
+    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false).toLocaleString();
   }
 
   renderKeyspaceTime(a0: number, a3: number): SafeHtml {

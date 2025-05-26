@@ -2,6 +2,7 @@
  * Interface and intermediate type definitions for request param builder design pattern
  */
 import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
+import { BaseDataSource } from '@datasources/base.datasource';
 
 /**
  * Intermediate class to build RequestParams from using a builder interface implementation
@@ -33,6 +34,8 @@ export interface IParamBuilder {
   addFilter(filter: Filter): IParamBuilder;
 
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
+
+  addInitial(datasource: BaseDataSource<any>): IParamBuilder;
 
   create(): RequestParams;
 }

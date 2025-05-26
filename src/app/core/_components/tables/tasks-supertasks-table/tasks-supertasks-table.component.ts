@@ -23,6 +23,7 @@ import {
 } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 
 import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasource';
+import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -282,8 +283,8 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   private getDispatchedSearchedString(task: JTask): string {
     if (task.keyspace > 0) {
       const chunkData: ChunkData = task.chunkData;
-      const disp = (chunkData.dispatched * 100).toFixed(2);
-      const sear = (chunkData.searched * 100).toFixed(2);
+      const disp = convertToLocale(chunkData.dispatched * 100);
+      const sear = convertToLocale(chunkData.searched * 100);
       return `${disp}% / ${sear}%`;
     }
     return '';
