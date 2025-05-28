@@ -41,8 +41,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
-/*   public filterTemplate: (data: T, filter: string) => boolean;
- */  /**
+  /*   public filterTemplate: (data: T, filter: string) => boolean;
+   */ /**
    * Array of subscriptions that will be unsubscribed on disconnect.
    */
   protected subscriptions: Subscription[] = [];
@@ -196,10 +196,34 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     }
   }
   newFilterData(filterFn?: (item: T, filterValue: string) => boolean): void {
-    console.log('newFilterData called ', this.filter.trim().toLowerCase());
+    const filterValue = this.filter.toString().trim().toLowerCase() || '';
+    if (!filterValue) {
+      this.dataSubject.next(this.originalData);
+      return;
+    }
+    if (filterFn) {
+      const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
+      this.dataSubject.next(filteredData);
+    } else {
+      const filterData = this.originalData.filter((item) => this.defaultFilterTemplate(item, filterValue));
+      this.dataSubject.next(filterData);
+    }
   }
-  private defaultFilterTemplate(item: T, filterValue:string):boolean {
-    return true;
+
+  private defaultFilterTemplate(item: T, filterValue: string): boolean {
+    switch (this.selectedColumn) {
+      case 'all': {
+        /* search all properties */
+        return Object.keys(item).some((key) => {
+          const value = item[key];
+          return value !== undefined && value !== null && value.toString().toLowerCase().includes(filterValue);
+        });
+      }
+      default: {
+        const value = item[this.selectedColumn];
+        return value !== undefined && value !== null && value.toString().toLowerCase().includes(filterValue);
+      }
+    }
   }
   setSelectedColumn(column: string): void {
     this.selectedColumn = column;
