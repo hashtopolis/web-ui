@@ -41,6 +41,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
+  public filterTemplate: (data: T, filter: string) => boolean;
   /**
    * Array of subscriptions that will be unsubscribed on disconnect.
    */
@@ -67,7 +68,10 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   private originalData: T[] = [];
 
   private readonly chunkTime: number = 600;
-
+  /**
+   * The currently selected column for filtering
+   */
+  private selectedColumn: string = 'all';
   constructor(
     protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
