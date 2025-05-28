@@ -24,7 +24,15 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           const responseData = { data: response.data, included: response.included };
           const notifications = this.serializer.deserialize<JNotification[]>(responseData);
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, notifications.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(notifications);
         })
     );

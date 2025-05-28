@@ -21,11 +21,14 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
 
           const responseBody = { data: response.data, included: response.included };
           const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
+          const length = response.meta.page.total_elements;
 
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            hashtypes.length
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(hashtypes);
         })

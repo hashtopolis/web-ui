@@ -42,7 +42,9 @@ export class UISettingsUtilityClass {
     key: string,
     settings: {
       page?: number;
+      index?: number;
       start?: number;
+      before?: number;
       columns?: number[];
       order?: any[];
       search?: string;
@@ -56,8 +58,10 @@ export class UISettingsUtilityClass {
         if (settings.page !== undefined) {
           existingTableSettings['page'] = settings.page;
         }
-        if (settings.start !== undefined) {
-          existingTableSettings['start'] = settings.start;
+        existingTableSettings['start'] = settings.start;
+        existingTableSettings['before'] = settings.before;
+        if (settings.index !== undefined) {
+          existingTableSettings['index'] = settings.index;
         }
         if (settings.columns !== undefined) {
           // Save columns

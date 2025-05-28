@@ -62,10 +62,14 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             });
           }
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            hashlists.length // TODO: This is incorrect because we exclude superhashlists
+            length,// TODO: This is incorrect because we exclude superhashlists?
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(rows);
         })

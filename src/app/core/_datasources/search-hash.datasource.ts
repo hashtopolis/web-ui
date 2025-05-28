@@ -53,10 +53,14 @@ export class SearchHashDataSource extends BaseDataSource<JHash> {
             } else {
               arr.push({ hash: this._search[i], isCracked: 3 });
             }
+            const length = response.meta.page.total_elements;
+
             this.setPaginationConfig(
               this.pageSize,
-              this.currentPage,
-              hashes.length
+              length,
+              this.pageAfter,
+              this.pageBefore,
+              this.index
             );
             this.setData(arr);
           })

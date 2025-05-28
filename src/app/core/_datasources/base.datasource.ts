@@ -28,6 +28,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public currentPage = 0;
   public totalItems = 0;
   public sortingColumn: { id: string; direction: SortDirection; isSortable: boolean };
+  public pageAfter = undefined;
+  public pageBefore = undefined;
+  public index = 0;
   /**
    * Selection model for row selection in the table.
    */
@@ -260,10 +263,12 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param currentPage - The index of the current page.
    * @param totalItems - The total number of items in the data source.
    */
-  setPaginationConfig(pageSize: number, currentPage: number, totalItems: number): void {
+  setPaginationConfig(pageSize: number, totalItems: number, pageAfter: number, pageBefore: number, index: number): void {
     this.pageSize = pageSize;
-    this.currentPage = currentPage;
     this.totalItems = totalItems;
+    this.pageAfter = pageAfter;
+    this.pageBefore = pageBefore;
+    this.index = index;
   }
 
   /**
