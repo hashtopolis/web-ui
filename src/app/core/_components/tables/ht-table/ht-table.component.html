@@ -72,22 +72,23 @@
     </div>
      -->
     <!-- Filter section -->
+    <!-- TODO MOVE STYLE TO CLASS-->
     <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
       <div class="filter-container" style="display: flex; align-items: center; gap: 16px">
         <!-- Column selector dropdown -->
-        <mat-form-field style="min-width: 150px">
+        <mat-form-field>
           <mat-label>Filter by column</mat-label>
           <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
             <mat-option value="all">All Columns</mat-option>
             @for (column of filterableColumns; track column) {
-              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] || column.dataKey }}</mat-option>
+              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <!-- Filter input -->
         <mat-form-field style="min-width: 200px">
-<!--           <mat-icon matPrefix>filter_list</mat-icon> -->
+          <!--           <mat-icon matPrefix>filter_list</mat-icon> -->
           <input matInput (keyup)="applyColumnFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
           <button mat-icon-button matSuffix (click)="clearFilter()">
             <mat-icon>clear</mat-icon>
