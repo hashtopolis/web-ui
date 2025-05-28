@@ -33,10 +33,14 @@ export class LogsDataSource extends BaseDataSource<JLog> {
             return;
           }
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            logs.length,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(logs);
         })

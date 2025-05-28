@@ -24,10 +24,14 @@ export class UsersDataSource extends BaseDataSource<JUser> {
 
           const users = this.serializer.deserialize<JUser[]>(responseBody);
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            users.length
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(users);
         })

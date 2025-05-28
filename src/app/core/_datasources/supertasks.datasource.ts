@@ -27,7 +27,15 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
           const responseBody = { data: response.data, included: response.included };
           const supertasks = this.serializer.deserialize<JSuperTask[]>(responseBody);
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, supertasks.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(supertasks);
         })
     );

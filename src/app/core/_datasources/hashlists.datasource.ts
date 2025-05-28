@@ -42,7 +42,8 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
               included: responseData.included
             });
             this.setData(superHashList.hashlists);
-            this.setPaginationConfig(this.pageSize, this.currentPage, superHashList.hashlists.length);
+            const length = response.meta.page.total_elements;
+            this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           })
       );
     } else {
@@ -72,7 +73,9 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
               element.hashTypeId = element.hashType.id;
               return element;
             });
-            this.setPaginationConfig(this.pageSize, this.currentPage, hashlists.length);
+
+            const length = response.meta.page.total_elements;
+            this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
             this.setData(hashlists);
           })
       );

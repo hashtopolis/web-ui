@@ -27,7 +27,15 @@ export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
           const responseData = { data: response.data, included: response.included };
           const preprocessors = this.serializer.deserialize<JPreprocessor[]>(responseData);
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, preprocessors.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(preprocessors);
         })
     );

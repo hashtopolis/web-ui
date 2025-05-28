@@ -81,9 +81,17 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const serializer = new JsonAPISerializer();
             const responseData = { data: response.data, included: response.included };
             const tasks = serializer.deserialize<JTask>(responseData);
+            const length = response.meta.page.total_elements;
 
             if (!this.editType) {
-              this.setPaginationConfig(this.pageSize, this.currentPage, tasks.files.length);
+
+              this.setPaginationConfig(
+                this.pageSize,
+                length,
+                this.pageAfter,
+                this.pageBefore,
+                this.index
+              );
             }
 
             this.setData(tasks.files);
@@ -93,7 +101,13 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const pretask = serializer.deserialize<JPretask>(responseData);
 
             if (!this.editType) {
-              this.setPaginationConfig(this.pageSize, this.currentPage, pretask.pretaskFiles.length);
+              this.setPaginationConfig(
+                this.pageSize,
+                length,
+                this.pageAfter,
+                this.pageBefore,
+                this.index
+              );
             }
 
             this.setData(pretask.pretaskFiles);
@@ -102,7 +116,13 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const responseData = { data: response.data, included: response.included };
             const files = serializer.deserialize<JFile[]>(responseData);
 
-            this.setPaginationConfig(this.pageSize, this.currentPage, files.length);
+              this.setPaginationConfig(
+                this.pageSize,
+                length,
+                this.pageAfter,
+                this.pageBefore,
+                this.index
+              );
             this.setData(files);
           }
         })

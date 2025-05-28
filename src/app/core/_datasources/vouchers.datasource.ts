@@ -25,7 +25,15 @@ export class VouchersDataSource extends BaseDataSource<JVoucher> {
             included: response.included
           });
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, vouchers.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(vouchers);
         })
     );

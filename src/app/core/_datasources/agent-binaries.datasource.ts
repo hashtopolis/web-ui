@@ -34,10 +34,14 @@ export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
           const responseData = { data: response.data, included: response.included };
           const agentBinaries = this.serializer.deserialize<JAgentBinary[]>(responseData);
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            agentBinaries.length
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(agentBinaries);
         })

@@ -26,10 +26,14 @@ export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
 
           const accessgroups = this.serializer.deserialize<JAccessGroup[]>(responseBody);
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            accessgroups.length
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(accessgroups);
         })

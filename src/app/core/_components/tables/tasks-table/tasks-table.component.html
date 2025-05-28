@@ -1,19 +1,6 @@
-<ht-table
-  #table
-  dataType="tasks"
-  [name]="name"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="isSelectable"
-  [hasRowAction]="hasRowAction"
-  [hasBulkActions]="hasBulkActions"
-  [isArchived]="isArchived"
-  [isFilterable]="true"
-  (rowActionClicked)="rowActionClicked($event)"
-  (bulkActionClicked)="bulkActionClicked($event)"
-  (exportActionClicked)="exportActionClicked($event)"
-  (editableSaved)="editableSaved($event)"
-  [filterFn]="filter"
-  [isPageable]="true"
-/>
+<ht-table #table dataType="tasks" [name]="name" [columnLabels]="columnLabels" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [isSelectable]="isSelectable" [hasRowAction]="hasRowAction"
+  [hasBulkActions]="hasBulkActions" [isArchived]="isArchived" [isFilterable]="true"
+  (rowActionClicked)="rowActionClicked($event)" (bulkActionClicked)="bulkActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)" (editableSaved)="editableSaved($event)" [filterFn]="filter"
+  [isPageable]="true" />

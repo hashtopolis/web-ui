@@ -28,7 +28,15 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
             healthCheck.hashTypeDescription = healthCheck.hashType?.description;
           });
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, healthChecks.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(healthChecks);
         })
     );

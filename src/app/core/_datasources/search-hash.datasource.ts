@@ -38,8 +38,10 @@ export class SearchHashDataSource extends BaseDataSource<JHash> {
               this.setData(result);
               this.setPaginationConfig(
                 this.pageSize,
-                this.currentPage,
-                result.length
+                result.length,
+                this.pageAfter,
+                this.pageBefore,
+                this.index
               );
             })
           )

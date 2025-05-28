@@ -46,7 +46,15 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
             data: response.data,
             included: response.included
           });
-          this.setPaginationConfig(this.pageSize, this.currentPage, taskWrappers.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           if (taskWrappers.length > 0) {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',

@@ -17,14 +17,17 @@ export class RequestParamBuilder implements IParamBuilder {
 
   /**
    * Sets page size, page after and sorting from datasource
-   * @param dataSource the datasoutce to get the values from
+   * @param dataSource the datasource to get the values from
    */
   addInitial(dataSource: BaseDataSource<any>) {
     if (dataSource.pageSize != undefined) {
       this.setPageSize(dataSource.pageSize);
     }
-    if (dataSource.currentPage != undefined && dataSource.pageSize != undefined) {
-      this.setPageAfter(dataSource.currentPage * dataSource.pageSize);
+    if (dataSource.pageAfter != undefined) {
+      this.setPageAfter(dataSource.pageAfter);
+    }
+    if (dataSource.pageBefore != undefined) {
+      this.setPageBefore(dataSource.pageBefore);
     }
     if (dataSource.sortingColumn != undefined) {
       this.addSorting(dataSource.sortingColumn);
