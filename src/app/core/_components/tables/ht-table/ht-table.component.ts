@@ -223,7 +223,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   // Handle filter column change
   onFilterColumnChange(): void {
-    // this.applyColumnFilter();
     this.dataSource.setSelectedColumn(this.selectedFilterColumn);
     if (this.dataSource.filter) {
       this.applyColumnFilter();
@@ -384,9 +383,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   applyColumnFilter(): void {
     const filterValue = this.dataSource.filter?.trim().toLowerCase() || '';
     console.log('applyColumnFilter', filterValue, this.selectedFilterColumn);
-    this.dataSource.filterTemplate = (data: any, filter: string) => {
+/*     this.dataSource.filterTemplate = (data: any, filter: string) => {
       return true;
-    };
+    }; */
     this.dataSource.newFilterData();
   }
 

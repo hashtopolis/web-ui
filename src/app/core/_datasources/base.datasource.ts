@@ -41,8 +41,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
-  public filterTemplate: (data: T, filter: string) => boolean;
-  /**
+/*   public filterTemplate: (data: T, filter: string) => boolean;
+ */  /**
    * Array of subscriptions that will be unsubscribed on disconnect.
    */
   protected subscriptions: Subscription[] = [];
@@ -197,6 +197,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
   newFilterData(filterFn?: (item: T, filterValue: string) => boolean): void {
     console.log('newFilterData called ', this.filter.trim().toLowerCase());
+  }
+  private defaultFilterTemplate(item: T, filterValue:string):boolean {
+    return true;
   }
   setSelectedColumn(column: string): void {
     this.selectedColumn = column;
