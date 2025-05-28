@@ -381,12 +381,15 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   applyColumnFilter(): void {
-    const filterValue = this.dataSource.filter?.trim().toLowerCase() || '';
-    console.log('applyColumnFilter', filterValue, this.selectedFilterColumn);
-/*     this.dataSource.filterTemplate = (data: any, filter: string) => {
-      return true;
-    }; */
-    this.dataSource.newFilterData();
+    if (this.filterFn) {
+      this.dataSource.newFilterData(this.filterFn);
+    } else {
+      this.dataSource.newFilterData();
+    }
+    this.uiSettings.updateTableSettings(this.name, {
+      search: this.dataSource.filter
+      // filterColumn: this.selectedFilterColumn
+    });
   }
 
   /**
