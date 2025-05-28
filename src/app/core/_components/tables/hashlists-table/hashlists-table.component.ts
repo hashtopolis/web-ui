@@ -53,15 +53,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       item['name'].toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
     );
   }
-  filter2(item: JHashlist, filterValue: string, key: any): boolean {
-    console.log(filterValue, item[key], item);
-    return (
-      item.name.toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
-    );
-  }
-  filterTest($event): void {
-    console.log('filterTest', $event);
-  }
+
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
