@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { ChunkData, JChunk } from '@models/chunk.model';
 
@@ -11,7 +11,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
-import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { environment } from '@src/environments/environment';
 
@@ -27,13 +27,10 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public pageSize = 10;
   public currentPage = 0;
   public totalItems = 0;
-
+  public sortingColumn: { id: string; direction: SortDirection; isSortable: boolean };
   public pageAfter = undefined;
   public pageBefore = undefined;
   public index = 0;
-
-  public sortingColumn: SortingColumn;
-
   /**
    * Selection model for row selection in the table.
    */
@@ -263,8 +260,10 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * Sets the pagination configuration for the data source, including page size, current page, and total items.
    *
    * @param pageSize - The number of items to display per page.
-   * @param currentPage - The index of the current page.
    * @param totalItems - The total number of items in the data source.
+   * @param pageAfter - the pagination after parameter to retrieve data after this index.
+   * @param pageAfter - the pagination before parameter to retrieve data before this index.
+   * @param index - the pagination index.
    */
   setPaginationConfig(pageSize: number, totalItems: number, pageAfter: number, pageBefore: number, index: number): void {
     this.pageSize = pageSize;

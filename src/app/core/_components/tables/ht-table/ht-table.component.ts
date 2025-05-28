@@ -165,6 +165,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
+  
+  /** Default total items index */
+  @Input() defaultTotalItems = 0;
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
@@ -210,6 +213,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.defaultStartPage = this.uiSettings['uiConfig']['tableSettings'][this.name]['start'];
     this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
     this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
+    this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
 
     if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
@@ -235,6 +239,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // Get saved before page
     this.dataSource.pageBefore = this.defaultBeforePage;
     this.dataSource.index = this.defaultIndex;
+    this.dataSource.totalItems = this.defaultTotalItems;
 
     // Search item
     this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
@@ -490,14 +495,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     let pageAfter = undefined;
     let pageBefore = undefined;
     let index = event.pageIndex;
-    let page = event.pageSize;
     if (event.pageSize !== this.dataSource.pageSize) {
       // TODO This code happens when user changes the page size, now we will just reset and
       // go to the first page, ideally you want to stay on the page you previously were
-      // and recaculate the page index. The problem is that, this is very hard to do,
+      // and recalculate the page index. The problem is that, this is very hard to do,
       // because we use cursor-based pagination.
-      page = undefined;
-      index = undefined;
+      index = 0;
     }
     else if (event.pageIndex !== 0) {
       const originalData = this.dataSource.getOriginalData();
@@ -512,8 +515,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.uiSettings.updateTableSettings(this.name, {
       start: pageAfter, // Store the new page index
       before: pageBefore, // Store the new page before
-      page: page, // Store the new page size
-      index: index //store the new table index
+      page: event.pageSize, // Store the new page size
+      index: index, //store the new table index
+      totalItems: this.dataSource.totalItems
     });
 
     // Update pagination configuration in the data source

@@ -45,6 +45,7 @@ export class UISettingsUtilityClass {
       index?: number;
       start?: number;
       before?: number;
+      totalItems?: number;
       columns?: number[];
       order?: any[];
       search?: string;
