@@ -224,10 +224,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   // Handle filter column change
   onFilterColumnChange(): void {
     // this.applyColumnFilter();
-    this.applyFilter();
+    this.dataSource.setSelectedColumn(this.selectedFilterColumn);
+    if (this.dataSource.filter) {
+      this.applyColumnFilter();
+    }
   }
-  /*  // Apply filter based on selected column
-  applyColumnFilter(): void {} */
 
   ngAfterViewInit(): void {
     // Configure paginator and sorting
@@ -380,7 +381,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-  applyFilter2() {
+  applyColumnFilter(): void {
+    const filterValue = this.dataSource.filter?.trim().toLowerCase() || '';
+    console.log('applyColumnFilter', filterValue, this.selectedFilterColumn);
+    this.dataSource.filterTemplate = (data: any, filter: string) => {
+      return true;
+    };
     this.dataSource.newFilterData();
   }
 

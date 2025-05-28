@@ -198,7 +198,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   newFilterData(filterFn?: (item: T, filterValue: string) => boolean): void {
     console.log('newFilterData called ', this.filter.trim().toLowerCase());
   }
-
+  setSelectedColumn(column: string): void {
+    this.selectedColumn = column;
+  }
   /**
    * Toggle all rows' selection.
    */
