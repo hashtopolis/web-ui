@@ -16,7 +16,7 @@
             <mat-icon>dns</mat-icon>
           </div>
           <h3>Agents</h3>
-          <span class="value">{{ activeAgents }} / {{ totalAgents }}</span>
+          <span class="value">{{ activeAgents.toLocaleString() }} / {{ totalAgents.toLocaleString() }}</span>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Active / Total Agents
@@ -31,7 +31,7 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Tasks</h3>
-          <span class="value">{{ completedTasks }} / {{ totalTasks }} </span>
+          <span class="value">{{ completedTasks.toLocaleString() }} / {{ totalTasks.toLocaleString() }} </span>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Tasks
@@ -46,7 +46,7 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Supertasks</h3>
-          <span class="value">{{ completedSupertasks }} /  {{ totalSupertasks }}</span>
+          <span class="value">{{ completedSupertasks.toLocaleString() }} /  {{ totalSupertasks.toLocaleString() }}</span>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Supertasks
@@ -61,7 +61,7 @@
             <mat-icon>lock_open</mat-icon>
           </div>
           <h3>Cracks</h3>
-          <span class="value">{{ totalCracks }}</span>
+          <span class="value">{{ totalCracks.toLocaleString() }}</span>
           <span class="label">
             <mat-icon>event_available</mat-icon>
             Last 7 days

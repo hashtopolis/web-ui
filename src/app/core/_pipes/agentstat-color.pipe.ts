@@ -4,7 +4,7 @@ import { ASC } from '../_constants/agentsc.config';
 import { UIConfigService } from '../_services/shared/storage.service';
 
 /**
- * Returns different hex color depending on thresholds and Agent type (Device Temperature, Device Utilizations, CPU utilization)
+ * Returns different hex color depending on thresholds and Agent type (Device Temperature, Device Utilisations, CPU Utilisation)
  * @param value - The input number value
  * Usage:
  *   value | asColor

@@ -1,4 +1,4 @@
-import { catchError, Observable, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -41,7 +41,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     if (this.shashlistId) {
-      this.dataSource.setSHashlistId(this.shashlistId);
+      this.dataSource.setSuperHashListID(this.shashlistId);
     }
     this.dataSource.loadAll();
   }

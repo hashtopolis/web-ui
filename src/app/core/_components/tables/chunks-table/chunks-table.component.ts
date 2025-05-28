@@ -11,6 +11,7 @@ import { ChunksDataSource } from '@datasources/chunks.datasource';
 
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-chunks-table',
@@ -132,7 +133,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   renderCheckpoint(chunk: JChunk): SafeHtml {
     const percent = chunk.progress ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2) : 0;
-    const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
+    const data = chunk.checkpoint ? `${chunk.checkpoint} (${convertToLocale(Number(percent))}%)` : '0';
 
     return this.sanitize(data);
   }
@@ -141,7 +142,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     if (chunk.progress === undefined) {
       return this.sanitize('N/A');
     } else if (chunk.progress > 0) {
-      return this.sanitize(`${chunk.progress / 100}%`);
+      return this.sanitize(`${convertToLocale(chunk.progress / 100)}%`);
     }
 
     return `${chunk.progress ? chunk.progress : 0}`;

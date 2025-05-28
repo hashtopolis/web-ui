@@ -1,71 +1,61 @@
+import { BaseDataSource } from '@datasources/base.datasource';
+import { JHash } from '@models/hash.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { FilterType } from '@models/request-params.model';
+import { SERV } from '@services/main.config';
 import { catchError, finalize, of } from 'rxjs';
-import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
-import { FilterType } from '../_models/request-params.model';
-import { JHash } from '../_models/hash.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
 
 export class SearchHashDataSource extends BaseDataSource<JHash> {
   private _search: string[];
 
   setSearch(hashArray: string[]): void {
-    this._search = hashArray;
+    if (hashArray && hashArray.length > 0) {
+      this._search = [...hashArray[0]];
+    }
   }
 
   loadAll(): void {
     this.loading = true;
+    const result = [];
 
-    const arr = [];
-
-    for (let i = 0; i < this._search.length; i++) {
-      const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addFilter({
+    this._search.forEach(hashToSearch => {
+      const params = new RequestParamBuilder().addInclude('hashlist').addFilter({
         field: 'hash',
         operator: FilterType.EQUAL,
-        value: this._search[i]
-      }).create();
-
-      const hashs$ = this.service.getAll(SERV.HASHES, params);
+        value: hashToSearch,
+      });
 
       this.subscriptions.push(
-        hashs$
+        this.service.getAll(SERV.HASHES, params.create())
           .pipe(
             catchError((error) => {
-              console.error(`Error loading hash: ${this._search[i]}`, error);
+              console.error(`Error loading hash: ${hashToSearch}`, error);
               return of([]);
             }),
             finalize(() => {
-              if (i === this._search.length - 1) {
-                this.loading = false;
-                this.setData(arr);
-              }
+              this.loading = false;
+              this.setData(result);
+              this.setPaginationConfig(
+                this.pageSize,
+                result.length,
+                this.pageAfter,
+                this.pageBefore,
+                this.index
+              );
             })
           )
           .subscribe((response: ResponseWrapper) => {
-
             const responseData = { data: response.data, included: response.included };
             const hashes = this.serializer.deserialize<JHash[]>(responseData);
-
-            // const hashs: any[] = response.values;
-
             if (hashes[0]) {
-              arr.push(hashes[0]);
+              result.push(hashes[0]);
             } else {
-              arr.push({ hash: this._search[i], isCracked: 3 });
+              result.push({ hash: hashToSearch, isCracked: false });
             }
-            const length = response.meta.page.total_elements;
-
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              this.pageAfter,
-              this.pageBefore,
-              this.index
-            );
-            this.setData(arr);
           })
       );
-    }
+    })
   }
 
   reload(): void {

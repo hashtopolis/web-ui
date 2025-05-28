@@ -4,13 +4,14 @@ import vfsFonts from 'pdfmake/build/vfs_fonts';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 
 pdfMake.vfs = vfsFonts.vfs;
 
 @Component({
-    selector: 'app-report-builder',
-    templateUrl: './report-builder.component.html',
-    standalone: false
+  selector: 'app-report-builder',
+  templateUrl: './report-builder.component.html',
+  standalone: false
 })
 export class ReportBuilderComponent implements OnInit {
   @Input() templateName: string;
@@ -66,8 +67,9 @@ export class ReportBuilderComponent implements OnInit {
 
   async loadTemplate(templateName: string): Promise<void> {
     try {
-      const template = await this.http.get(`assets/report-templates/${templateName}.json`).toPromise();
-      this.templates[templateName] = template;
+      this.templates[templateName] = await firstValueFrom(
+        this.http.get(`assets/report-templates/${templateName}.json`)
+      );
       this.populateFormWithDefaults();
     } catch (error) {
       console.error('Error loading template:', error);

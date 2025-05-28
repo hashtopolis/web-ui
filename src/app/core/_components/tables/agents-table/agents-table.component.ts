@@ -293,8 +293,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderSearched(agent: JAgent): SafeHtml {
-    const searched = this.getChunkDataValue(agent, 'searched');
-    const percentSearched = `${parseFloat(String(searched * 100)).toLocaleString()}%`;
+    const searched = this.getChunkDataValue(agent, 'searched') * 100;
+    const percentSearched = `${(Math.round(searched * 100) / 100).toLocaleString()}%`;
     return this.sanitize(searched ? `${percentSearched}` : '-');
   }
 
@@ -306,7 +306,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderCracked(agent: JAgent): SafeHtml {
     const cracked = this.getChunkDataValue(agent, 'cracked');
-    return this.sanitize(cracked ? `<span>${cracked}</span>` : '-');
+    return this.sanitize(cracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {

@@ -46,7 +46,7 @@ export class BaseTableComponent {
   @Input() isFilterable = true;
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = true;
-  
+
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
@@ -109,7 +109,7 @@ export class BaseTableComponent {
     if (chunk) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'tasks', chunk.taskId],
-        label: chunk.cracked
+        label: chunk.cracked.toLocaleString()
       });
     }
     return of(links);

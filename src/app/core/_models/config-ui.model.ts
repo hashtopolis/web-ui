@@ -1,4 +1,3 @@
-import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
 import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '@components/tables/access-groups-table/access-groups-table.constants';
 import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-users-table/access-groups-users-table.constants';
@@ -189,9 +188,9 @@ export const uiConfigDefault: UIConfig = {
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
         AgentsStatusTableCol.LAST_ACTIVITY,
-        AgentsStatusTableCol.GPU_UTILIZATION,
+        AgentsStatusTableCol.GPU_UTILISATION,
         AgentsStatusTableCol.GPU_TEMPERATURE,
-        AgentsStatusTableCol.CPU_UTILIZATION
+        AgentsStatusTableCol.CPU_UTILISATION
       ],
       order: {
         id: AgentsStatusTableCol.ID,
@@ -416,7 +415,6 @@ export const uiConfigDefault: UIConfig = {
         HealthCheckAgentsTableCol.STATUS,
         HealthCheckAgentsTableCol.START,
         HealthCheckAgentsTableCol.GPUS,
-        HealthCheckAgentsTableCol.CRACKED,
         HealthCheckAgentsTableCol.ERRORS
       ],
       order: {
@@ -597,7 +595,7 @@ export const uiConfigDefault: UIConfig = {
     searchHashTable: {
       start: 0,
       page: 25,
-      columns: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
+      columns: [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT, SearchHashTableCol.INFO],
       order: {
         id: SearchHashTableCol.HASH,
         dataKey: '',

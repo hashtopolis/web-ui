@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -280,23 +280,26 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   private bulkActionDelete(pretasks: JPretask[]): void {
     if (this.supertTaskId === 0) {
       this.subscriptions.push(
-        this.gs.bulkDelete(SERV.PRETASKS, pretasks).pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
+        this.gs
+          .bulkDelete(SERV.PRETASKS, pretasks)
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion: ', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.snackBar.open(`Successfully deleted pretasks!`, 'Close');
+            this.dataSource.reload();
           })
-        ).subscribe((results) => {
-          this.snackBar.open(`Successfully deleted pretasks!`, 'Close');
-          this.dataSource.reload();
-        })
       );
     } else {
-      let pretaskData = [];
+      const pretaskData = [];
 
       pretasks.forEach((pretask) => {
         pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
       });
-    
+
       const responseBody = { data: pretaskData };
 
       this.subscriptions.push(
@@ -336,7 +339,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
-    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
+    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false).toLocaleString();
   }
 
   renderKeyspaceTime(a0: number, a3: number): SafeHtml {
@@ -442,8 +445,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           })
       );
     } else {
-
-      const responseBody = { data: [{type: RelationshipType.PRETASKS, id: pretasks[0].id }] };
+      const responseBody = { data: [{ type: RelationshipType.PRETASKS, id: pretasks[0].id }] };
 
       this.subscriptions.push(
         this.gs
