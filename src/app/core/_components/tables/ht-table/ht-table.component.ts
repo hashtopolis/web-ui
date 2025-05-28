@@ -219,10 +219,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initFilterableColumns();
   }
   initFilterableColumns(): void {
-    console.log('initFilterableColumns', this.tableColumns);
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSortable);
-    console.log('filterableColumns', this.filterableColumns);
-    // If no filterable columns are found, set the filter function to null
   }
   // Handle filter column change
   onFilterColumnChange(): void {
@@ -383,12 +380,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-  applyFilter2(event: Event) {
-    console.log('applyFilter2', (event.target as HTMLInputElement).value);
-    if (this.filterFn) {
-      const filterValue = (event.target as HTMLInputElement).value;
-      this.dataSource.filter = filterValue.trim().toLowerCase();
-    }
+  applyFilter2() {
+    this.dataSource.newFilterData();
   }
 
   /**

@@ -1,18 +1,14 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-
-import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
-import { ChangeDetectorRef } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-
 import { ChunkData, JChunk } from '@models/chunk.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { GlobalService } from '@services/main.service';
-import { UIConfigService } from '@services/shared/storage.service';
-
+import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
 import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
+import { ChangeDetectorRef } from '@angular/core';
+import { GlobalService } from '@services/main.service';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { UIConfigService } from '@services/shared/storage.service';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -194,6 +190,9 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
 
       this.dataSubject.next(filteredData);
     }
+  }
+  newFilterData(filterFn?: (item: T, filterValue: string) => boolean): void {
+    console.log('newFilterData called ', this.filter.trim().toLowerCase());
   }
 
   /**
