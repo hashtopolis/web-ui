@@ -1,28 +1,26 @@
-import { catchError, forkJoin } from 'rxjs';
-
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { AgentsDataSource } from '@datasources/agents.datasource';
-
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentsStatusTableCol,
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { catchError, forkJoin } from 'rxjs';
+
 import { ASC } from '@src/app/core/_constants/agentsc.config';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { SERV } from '@src/app/core/_services/main.config';
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { AgentsDataSource } from '@datasources/agents.datasource';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@src/app/core/_services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
  * Provides static constants for different types of statistical calculations.
@@ -117,8 +115,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
-        id: AgentsStatusTableCol.GPU_UTILIZATION,
-        dataKey: 'averageGpuUtilization',
+        id: AgentsStatusTableCol.GPU_UTILISATION,
+        dataKey: 'averageGpuUtilisation',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -157,8 +155,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         }
       },
       {
-        id: AgentsStatusTableCol.CPU_UTILIZATION,
-        dataKey: 'averageCpuUtilization',
+        id: AgentsStatusTableCol.CPU_UTILISATION,
+        dataKey: 'averageCpuUtilisation',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -451,7 +449,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     }
     return 0;
   }
-  // Modal Agent Utilization and OffCanvas menu
+  // Modal Agent Utilisation and OffCanvas menu
 
   getTemp1() {
     // Temperature Config Setting
@@ -481,12 +479,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       data: {
         agentData: [
           {
-            tabName: 'GPU Utilization',
+            tabName: 'GPU Utilisation',
             icon: 'devices',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
             unitLabel: '%',
-            statusLabel: 'GPU Utilization'
+            statusLabel: 'GPU Utilisation'
           },
           {
             tabName: ' GPU Temperature',
@@ -497,12 +495,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
             statusLabel: ' GPU Temperature'
           },
           {
-            tabName: 'CPU Utilization',
+            tabName: 'CPU Utilisation',
             icon: 'computer',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
             unitLabel: '%',
-            statusLabel: 'CPU Utilization'
+            statusLabel: 'CPU Utilisation'
           }
         ]
       }

@@ -1,4 +1,19 @@
-import { LineChart } from 'echarts/charts';
+import * as echarts from 'echarts/core';
+
+import {
+  ACCESS_GROUP_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING,
+  TASKS_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  EditAgentForm,
+  UpdateAssignmentForm,
+  getEditAgentForm,
+  getUpdateAssignmentForm
+} from '@src/app/agents/edit-agent/edit-agent.form';
 import {
   GridComponent,
   GridComponentOption,
@@ -13,46 +28,29 @@ import {
   TooltipComponent,
   TooltipComponentOption
 } from 'echarts/components';
-import * as echarts from 'echarts/core';
-import { UniversalTransition } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
-import { firstValueFrom } from 'rxjs';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-
-import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentStat } from '@models/agent-stats.model';
-import { JAgent } from '@models/agent.model';
-import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
-import { JUser } from '@models/user.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
+import { CanvasRenderer } from 'echarts/renderers';
+import { FilterType } from '@models/request-params.model';
+import { FormGroup } from '@angular/forms';
+import { GlobalService } from '@services/main.service';
+import { JAgent } from '@models/agent.model';
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgentStat } from '@models/agent-stats.model';
+import { JChunk } from '@models/chunk.model';
+import { JTask } from '@models/task.model';
+import { JUser } from '@models/user.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { LineChart } from 'echarts/charts';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 import { UIConfigService } from '@services/shared/storage.service';
+import { UniversalTransition } from 'echarts/features';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-
-import {
-  EditAgentForm,
-  UpdateAssignmentForm,
-  getEditAgentForm,
-  getUpdateAssignmentForm
-} from '@src/app/agents/edit-agent/edit-agent.form';
-import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
-import {
-  ACCESS_GROUP_FIELD_MAPPING,
-  DEFAULT_FIELD_MAPPING,
-  TASKS_FIELD_MAPPING
-} from '@src/app/core/_constants/select.config';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-edit-agent',
@@ -368,12 +366,12 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_UTIL),
       ASC.GPU_UTIL,
       'devicegraph'
-    ); // filter Device Utilization
+    ); // filter Device Utilisation
     this.drawGraph(
       agentStatList.filter((agentStat) => agentStat.statType == ASC.CPU_UTIL),
       ASC.CPU_UTIL,
       'cpugraph'
-    ); // filter CPU utilization
+    ); // filter CPU Utilisation
   }
 
   /**
