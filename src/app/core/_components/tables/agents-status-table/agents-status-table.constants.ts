@@ -19,7 +19,7 @@ export const AgentsStatusTableColumnLabel = {
   [AgentsStatusTableCol.WORKING_ON]: 'Currently working on',
   [AgentsStatusTableCol.ASSIGNED]: 'Assigned to',
   [AgentsStatusTableCol.LAST_ACTIVITY]: 'Last Activity',
-  [AgentsStatusTableCol.GPU_UTILIZATION]: 'Average GPU Utilization',
+  [AgentsStatusTableCol.GPU_UTILIZATION]: 'Average GPU Utilisation',
   [AgentsStatusTableCol.GPU_TEMPERATURE]: 'Max GPU Temperature',
-  [AgentsStatusTableCol.CPU_UTILIZATION]: 'Average CPU Utilization'
+  [AgentsStatusTableCol.CPU_UTILIZATION]: 'Average CPU Utilisation'
 };
