@@ -1,15 +1,14 @@
-import { Injectable } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-
-import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { TooltipService } from '@services/shared/tooltip.service';
-
-import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
-import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { FormControl, Validators } from '@angular/forms';
 import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { GlobalService } from '@services/main.service';
+import { Injectable } from '@angular/core';
+import { SERV } from '@services/main.config';
+import { TooltipService } from '@services/shared/tooltip.service';
 import { environment } from '@src/environments/environment';
+import { fileFormat } from '@src/app/core/_constants/files.config';
 
 @Injectable({
   providedIn: 'root'
@@ -720,7 +719,7 @@ export class MetadataService {
     },
     {
       name: 'agentDataLifetime',
-      label: 'Retention Period for Utilization and Temperature Data',
+      label: 'Retention Period for Utilisation and Temperature Data',
       type: 'number',
       tooltip: false
     },
@@ -767,13 +766,13 @@ export class MetadataService {
     },
     {
       name: 'agentUtilThreshold1',
-      label: 'Orange Status Threshold for Agent Utilization',
+      label: 'Orange Status Threshold for Agent Utilisation',
       type: 'number',
       tooltip: false
     },
     {
       name: 'agentUtilThreshold2',
-      label: 'Red Status Threshold for Agent Utilization',
+      label: 'Red Status Threshold for Agent Utilisation',
       type: 'number',
       tooltip: false
     }

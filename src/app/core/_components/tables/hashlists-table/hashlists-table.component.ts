@@ -4,7 +4,7 @@ import {
   HashlistsTableCol,
   HashlistsTableColumnLabel
 } from '@components/tables/hashlists-table/hashlists-table.constants';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -37,7 +37,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     if (this.shashlistId) {
-      this.dataSource.setSHashlistId(this.shashlistId);
+      this.dataSource.setSuperHashListID(this.shashlistId);
     }
     this.dataSource.loadAll();
   }
@@ -241,7 +241,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe((results) => {
+      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe(() => {
         this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
         this.reload();
       })
@@ -261,7 +261,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
           this.dataSource.reload();
         })
@@ -330,7 +330,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   }
 
   /**
-   * Show hashcounbt and render hashlist link
+   * Show hashcount and render hashlist link
    * @param hashlist - hashlist object to show count for
    * @return observable array containing the link to render
    * @private
@@ -340,7 +340,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (hashlist) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id],
-        label: hashlist.hashCount
+        label: hashlist.hashCount.toLocaleString()
       });
     }
     return of(links);

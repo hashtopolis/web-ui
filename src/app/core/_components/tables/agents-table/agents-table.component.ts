@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -30,6 +30,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -255,7 +256,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderCurrentSpeed(agent: JAgent): SafeHtml {
     const agentSpeed: number = this.getChunkDataValue(agent, 'speed');
-    return this.sanitize(agentSpeed ? `${agentSpeed} H/s` : '-');
+    if (agentSpeed) {
+      return this.sanitize(convertCrackingSpeed(agentSpeed));
+    }
+    return this.sanitize('-');
   }
 
   /**
@@ -289,8 +293,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @private
    */
   private renderSearched(agent: JAgent): SafeHtml {
-    const searched = this.getChunkDataValue(agent, 'searched');
-    const percentSearched = `${parseFloat(String(searched * 100)).toFixed(2)}%`;
+    const searched = this.getChunkDataValue(agent, 'searched') * 100;
+    const percentSearched = `${(Math.round(searched * 100) / 100).toLocaleString()}%`;
     return this.sanitize(searched ? `${percentSearched}` : '-');
   }
 
@@ -302,7 +306,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private renderCracked(agent: JAgent): SafeHtml {
     const cracked = this.getChunkDataValue(agent, 'cracked');
-    return this.sanitize(cracked ? `<span>${cracked}</span>` : '-');
+    return this.sanitize(cracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
   }
 
   renderStatus(agent: JAgent): SafeHtml {
@@ -455,11 +459,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     const action = isActive ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-        this.gs.bulkUpdate(SERV.AGENTS, agents, {isActive: isActive}).subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} agents!`, 'Close');
-          this.dataSource.reload();
-        })
-      );
+      this.gs.bulkUpdate(SERV.AGENTS, agents, { isActive: isActive }).subscribe(() => {
+        this.snackBar.open(`Successfully ${action} agents!`, 'Close');
+        this.dataSource.reload();
+      })
+    );
   }
 
   /**
@@ -467,15 +471,18 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    */
   private bulkActionDelete(agents: JAgent[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.AGENTS, agents).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.AGENTS, agents)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted agents!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted agents!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

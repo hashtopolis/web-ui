@@ -19,6 +19,7 @@ import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-
 import { SERV } from '@src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
@@ -114,8 +115,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
-        id: AgentsStatusTableCol.GPU_UTILIZATION,
-        dataKey: 'averageGpuUtilization',
+        id: AgentsStatusTableCol.GPU_UTILISATION,
+        dataKey: 'averageGpuUtilisation',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -154,8 +155,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         }
       },
       {
-        id: AgentsStatusTableCol.CPU_UTILIZATION,
-        dataKey: 'averageCpuUtilization',
+        id: AgentsStatusTableCol.CPU_UTILISATION,
+        dataKey: 'averageCpuUtilisation',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -321,15 +322,18 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(agents: JAgent[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.AGENTS, agents).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.AGENTS, agents)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted agents!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted agents!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -386,10 +390,11 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   private renderWorkingOn(agent: JAgent): SafeHtml {
     let html = '';
     if (agent.agentSpeed) {
+      const agentSpeed = convertCrackingSpeed(agent.agentSpeed);
       html = `
         <div>
         <div>Task: <a href="/#/tasks/show-tasks/${agent.taskId}/edit">${agent.taskName}</a></div>
-        <div>at ${agent.agentSpeed} H/s,<br></div>
+        <div>at ${agentSpeed},<br></div>
         <div>working on chunk <a href="/#//tasks/chunks/${agent.chunkId}/view">${agent.chunkId}</a></div>
         </div>
       `;
@@ -444,7 +449,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     }
     return 0;
   }
-  // Modal Agent Utilization and OffCanvas menu
+  // Modal Agent Utilisation and OffCanvas menu
 
   getTemp1() {
     // Temperature Config Setting
@@ -465,26 +470,21 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     // CPU 2 Config Setting
     return this.uiService.getUIsettings('agentUtilThreshold2').value;
   }
+
   /**
    * Opens modal containing agent stat legend.
-   * @param title Modal title
-   * @param icon Modal icon
-   * @param content Modal content
-   * @param thresholdType
-   * @param result
-   * @param form
    */
   openStatDialog(): void {
     const dialogRef = this.dialog.open(AgentTemperatureInformationDialogComponent, {
       data: {
         agentData: [
           {
-            tabName: 'GPU Utilization',
+            tabName: 'GPU Utilisation',
             icon: 'devices',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
             unitLabel: '%',
-            statusLabel: 'GPU Utilization'
+            statusLabel: 'GPU Utilisation'
           },
           {
             tabName: ' GPU Temperature',
@@ -495,16 +495,16 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
             statusLabel: ' GPU Temperature'
           },
           {
-            tabName: 'CPU Utilization',
+            tabName: 'CPU Utilisation',
             icon: 'computer',
             threshold1: this.getUtil1(),
             threshold2: this.getUtil2(),
             unitLabel: '%',
-            statusLabel: 'CPU Utilization'
+            statusLabel: 'CPU Utilisation'
           }
         ]
       }
     });
-    this.subscriptions.push(dialogRef?.afterClosed().subscribe())
+    this.subscriptions.push(dialogRef?.afterClosed().subscribe());
   }
 }

@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -32,8 +32,7 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
-import { wrap } from 'module';
-import { error, log } from 'console';
+import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-tasks-table',
@@ -362,7 +361,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === 0) {
       const task: JTask = wrapper.tasks[0];
       if (task.keyspace > 0) {
-        return `${task.dispatched}% / ${task.searched}%`;
+        return `${convertToLocale(Number(task.dispatched))}% / ${convertToLocale(Number(task.searched))}%`;
       }
     }
     return '';
@@ -440,7 +439,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === 0) {
       const chunkData: ChunkData = wrapper.chunkData;
       if (chunkData && 'speed' in chunkData && chunkData.speed > 0) {
-        html = `${chunkData.speed}&nbsp;H/s`;
+        html = `${convertCrackingSpeed(chunkData.speed)}`;
       }
     }
     return this.sanitize(html);
@@ -537,13 +536,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private bulkActionArchive(wrappers: JTaskWrapper[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
-    var tasks = [];
-    for(var wrapper of wrappers) {
+    const tasks = [];
+    for (const wrapper of wrappers) {
       tasks.push(wrapper.tasks[0]);
     }
-    
+
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.TASKS, tasks, {isArchived: isArchived}).subscribe((results) => {
+      this.gs.bulkUpdate(SERV.TASKS, tasks, { isArchived: isArchived }).subscribe(() => {
         this.snackBar.open(`Successfully ${action} tasks!`, 'Close');
         this.reload();
       })
@@ -552,15 +551,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private bulkActionDelete(wrapper: JTaskWrapper[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.TASKS_WRAPPER, wrapper).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.TASKS_WRAPPER, wrapper)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted task!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted task!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -676,7 +678,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
       links.push({
-        label: wrapper.cracked + '',
+        label: wrapper.cracked.toLocaleString(),
         routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
       });
     }

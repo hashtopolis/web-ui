@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
-import { BaseModel } from '@models/base.model';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -76,7 +77,7 @@ export class BaseMenuComponent {
   }
 
   protected isVoucher(): boolean {
-    return this.checkId('regVoucherId') && this.hasKeys('voucher');
+    return this.checkId('id') && this.hasKeys('voucher');
   }
 
   protected isUser(): boolean {
