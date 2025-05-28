@@ -115,8 +115,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
-        id: AgentsStatusTableCol.GPU_UTILIZATION,
-        dataKey: 'averageGpuUtilization',
+        id: AgentsStatusTableCol.GPU_UTILISATION,
+        dataKey: 'averageGpuUtilisation',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {
@@ -155,8 +155,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         }
       },
       {
-        id: AgentsStatusTableCol.CPU_UTILIZATION,
-        dataKey: 'averageCpuUtilization',
+        id: AgentsStatusTableCol.CPU_UTILISATION,
+        dataKey: 'averageCpuUtilisation',
         isSortable: false,
         render: (agent: JAgent) => {
           if (agent.isActive) {

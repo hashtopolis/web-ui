@@ -188,9 +188,9 @@ export const uiConfigDefault: UIConfig = {
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
         AgentsStatusTableCol.LAST_ACTIVITY,
-        AgentsStatusTableCol.GPU_UTILIZATION,
+        AgentsStatusTableCol.GPU_UTILISATION,
         AgentsStatusTableCol.GPU_TEMPERATURE,
-        AgentsStatusTableCol.CPU_UTILIZATION
+        AgentsStatusTableCol.CPU_UTILISATION
       ],
       order: {
         id: AgentsStatusTableCol.ID,
