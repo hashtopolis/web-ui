@@ -67,6 +67,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
@@ -75,6 +76,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.agentName
       },
       {
@@ -103,6 +105,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
+        isSearchable: true,
         render: (agent: JAgent) => agent.taskName,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         export: async (agent: JAgent) => agent.taskName
