@@ -83,6 +83,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         id: PretasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.id + ''
       },
       {
@@ -90,12 +91,14 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'taskName',
         routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.taskName
       },
       {
         id: PretasksTableCol.ATTACK_COMMAND,
         dataKey: 'attackCmd',
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.attackCmd
       },
       {
