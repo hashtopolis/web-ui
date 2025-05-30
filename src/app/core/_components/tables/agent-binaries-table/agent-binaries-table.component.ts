@@ -1,26 +1,21 @@
-import { catchError, forkJoin } from 'rxjs';
-
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JAgentBinary } from '@models/agent-binary.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentBinariesTableCol,
   AgentBinariesTableColumnLabel
 } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { catchError, forkJoin } from 'rxjs';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
-
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JAgentBinary } from '@models/agent-binary.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -61,6 +56,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         id: AgentBinariesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
@@ -74,6 +70,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         id: AgentBinariesTableCol.OS,
         dataKey: 'operatingSystems',
         isSortable: true,
+        isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.operatingSystems,
         export: async (agentBinary: JAgentBinary) => agentBinary.operatingSystems
       },
@@ -81,6 +78,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         id: AgentBinariesTableCol.FILENAME,
         dataKey: 'filename',
         isSortable: true,
+        isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.filename,
         export: async (agentBinary: JAgentBinary) => agentBinary.filename
       },
@@ -88,6 +86,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         id: AgentBinariesTableCol.VERSION,
         dataKey: 'version',
         isSortable: true,
+        isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.version,
         export: async (agentBinary: JAgentBinary) => agentBinary.version
       },
@@ -95,6 +94,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         id: AgentBinariesTableCol.UPDATE_TRACK,
         dataKey: 'updateTrack',
         isSortable: true,
+        isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.updateTrack,
         export: async (agentBinary: JAgentBinary) => agentBinary.updateTrack
       }
@@ -198,15 +198,18 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
    */
   private bulkActionDelete(agentBinaries: JAgentBinary[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.AGENT_BINARY, agentBinaries).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.AGENT_BINARY, agentBinaries)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted agent binaries!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted agent binaries!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
