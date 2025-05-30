@@ -1,16 +1,13 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JChunk } from '@models/chunk.model';
+import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-
 import { ChunksDataSource } from '@datasources/chunks.datasource';
-
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JChunk } from '@models/chunk.model';
+import { SafeHtml } from '@angular/platform-browser';
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
@@ -42,6 +39,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.ID,
         dataKey: 'id',
+        isSearchable: true,
         isSortable: true
       },
       {
@@ -72,13 +70,15 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: ChunksTableCol.DISPATCH_TIME,
@@ -102,7 +102,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.STATE,
         dataKey: 'state',
         render: (chunk: JChunk) => this.renderState(chunk),
-        isSortable: true
+        isSortable: true,
       },
       {
         id: ChunksTableCol.CRACKED,
