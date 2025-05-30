@@ -1,22 +1,9 @@
-import { Observable, catchError, of } from 'rxjs';
-
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JAgent } from '@models/agent.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
   AgentsTableCol,
   AgentsTableColumnLabel
 } from '@components/tables/agents-table/agents-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   DataType,
   HTTableColumn,
@@ -24,12 +11,20 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { AgentsDataSource } from '@datasources/agents.datasource';
-
+import { Observable, catchError, of } from 'rxjs';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { AgentsDataSource } from '@datasources/agents.datasource';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JAgent } from '@models/agent.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
@@ -77,6 +72,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         id: AgentsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
@@ -85,6 +81,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.agentName
       },
       {
@@ -101,6 +98,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         render: (agent: JAgent) => this.renderOwner(agent),
         routerLink: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => (agent.user ? agent.user.name : '')
       },
       {
@@ -108,6 +106,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'clientSignature',
         render: (agent: JAgent) => this.renderClient(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => (agent.clientSignature ? agent.clientSignature : '')
       },
       {
@@ -130,6 +129,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'devices',
         render: (agent: JAgent) => this.renderDevices(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.devices
       },
       {
