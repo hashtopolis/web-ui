@@ -54,6 +54,7 @@ export class LogsTableComponent
         id: LogsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (log: JLog) => log.id + ''
       },
       {
@@ -68,6 +69,7 @@ export class LogsTableComponent
         id: LogsTableCol.LEVEL,
         dataKey: 'level',
         isSortable: true,
+        isSearchable: true,
         render: (log: JLog) =>
           log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
         export: async (log: JLog) =>
@@ -77,6 +79,7 @@ export class LogsTableComponent
         id: LogsTableCol.ISSUER,
         dataKey: 'issuer',
         isSortable: true,
+        isSearchable: true,
         render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
         export: async (log: JLog) => `${log.issuer}-ID-${log.issuerId}`
       },
