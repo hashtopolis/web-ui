@@ -1,25 +1,21 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 import {
   PermissionsTableCol,
   PermissionsTableColumnLabel
 } from '@components/tables/permissions-table/permissions-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 import { PermissionsDataSource } from '@datasources/permissions.datasource';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-permissions-table',
@@ -54,6 +50,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
         id: PermissionsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (permission: JGlobalPermissionGroup) => permission.id + ''
       },
       {
@@ -61,6 +58,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'name',
         routerLink: (permission: JGlobalPermissionGroup) => this.renderPermissionLink(permission),
         isSortable: true,
+        isSearchable: true,
         export: async (permission: JGlobalPermissionGroup) => permission.name
       },
       {
