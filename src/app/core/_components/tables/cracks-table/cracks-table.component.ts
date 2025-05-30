@@ -1,24 +1,19 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JHash } from '@models/hash.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/cracks-table/cracks-table.constants';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { CracksDataSource } from '@datasources/cracks.datasource';
-
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { JHash } from '@models/hash.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -61,6 +56,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
+        isSearchable: true,
         render: (crack: JHash) => crack.plaintext,
         export: async (crack: JHash) => crack.plaintext
       },
