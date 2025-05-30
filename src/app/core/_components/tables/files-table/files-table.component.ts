@@ -1,28 +1,23 @@
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FileType, JFile } from '@models/file.model';
+import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, of } from 'rxjs';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { FilesDataSource } from '@datasources/files.datasource';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 /**
  * Contains table component for files
  * @module
  */
 import { faKey } from '@fortawesome/free-solid-svg-icons';
-import { Observable, catchError, of } from 'rxjs';
-
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-
-import { FileType, JFile } from '@models/file.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { FilesDataSource } from '@datasources/files.datasource';
-
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
@@ -85,6 +80,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => file.id + ''
       },
       {
@@ -92,6 +88,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'filename',
         routerLink: (file: JFile) => this.renderFileLink(file),
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => file.filename
       },
       {
@@ -99,12 +96,14 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'size',
         render: (file: JFile) => formatFileSize(file.size, 'short'),
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => formatFileSize(file.size, 'short')
       },
       {
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
+        isSearchable: true,
         render: (file: JFile) => file.lineCount.toLocaleString(),
         export: async (file: JFile) => file.lineCount + ''
       },
