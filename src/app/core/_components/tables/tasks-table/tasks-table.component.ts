@@ -1,38 +1,33 @@
-import { catchError, Observable, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { ChunkData } from '@models/chunk.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Observable, catchError, of } from 'rxjs';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-
-import { TasksDataSource } from '@datasources/tasks.datasource';
-
-import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ChunkData } from '@models/chunk.model';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JTask } from '@models/task.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { TasksDataSource } from '@datasources/tasks.datasource';
 
 @Component({
   selector: 'app-tasks-table',
@@ -69,6 +64,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.id + ''
       },
       {
@@ -82,6 +78,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
         isSortable: false,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
       {
