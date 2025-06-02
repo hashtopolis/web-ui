@@ -382,9 +382,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   applyColumnFilter(): void {
     if (this.filterFn) {
-      this.dataSource.newFilterData(this.filterFn);
+      this.dataSource.filterData(this.filterFn);
     } else {
-      this.dataSource.newFilterData();
+      this.dataSource.filterData();
     }
     this.uiSettings.updateTableSettings(this.name, {
       search: this.dataSource.filter

@@ -185,17 +185,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    *
    * @param filterFn - A function to filter the data based on filterValue.
    */
-  filterData(filterFn: (item: T, filterValue: string) => boolean): void {
-    const filterValue = this.filter.trim().toLowerCase();
-    if (!filterValue) {
-      this.dataSubject.next(this.originalData);
-    } else {
-      const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
-
-      this.dataSubject.next(filteredData);
-    }
-  }
-  newFilterData(filterFn?: (item: T, filterValue: string) => boolean): void {
+  filterData(filterFn?: (item: T, filterValue: string) => boolean): void {
     const filterValue = this.filter.toString().trim().toLowerCase() || '';
     if (!filterValue) {
       this.dataSubject.next(this.originalData);
