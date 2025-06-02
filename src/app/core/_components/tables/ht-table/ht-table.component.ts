@@ -184,7 +184,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
-
+  @Output() filterValue: EventEmitter<string> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
@@ -223,10 +223,15 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   // Handle filter column change
   onFilterColumnChange(): void {
+    console.log('Filter column changed:', this.selectedFilterColumn);
     this.dataSource.setSelectedColumn(this.selectedFilterColumn);
     if (this.dataSource.filter) {
       this.applyColumnFilter();
     }
+  }
+  emitOnFilterValueChange(): void {
+    console.log('Filter value emitted:', this.selectedFilterColumn);
+    this.filterValue.emit(this.selectedFilterColumn);
   }
 
   ngAfterViewInit(): void {

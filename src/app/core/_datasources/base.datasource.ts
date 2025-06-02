@@ -194,29 +194,13 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     if (filterFn) {
       const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
       this.dataSubject.next(filteredData);
-    } else {
-      const filterData = this.originalData.filter((item) => this.defaultFilterTemplate(item, filterValue));
-      this.dataSubject.next(filterData);
-    }
-  }
-
-  private defaultFilterTemplate(item: T, filterValue: string): boolean {
-    switch (this.selectedColumn) {
-      case 'all': {
-        /* search all properties */
-        return Object.keys(item).some((key) => {
-          const value = item[key];
-          return value !== undefined && value !== null && value.toString().toLowerCase().includes(filterValue);
-        });
-      }
-      default: {
-        const value = item[this.selectedColumn];
-        return value !== undefined && value !== null && value.toString().toLowerCase().includes(filterValue);
-      }
     }
   }
   setSelectedColumn(column: string): void {
     this.selectedColumn = column;
+  }
+  getSelectedColumn(): string {
+    return this.selectedColumn;
   }
   /**
    * Toggle all rows' selection.

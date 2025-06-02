@@ -55,7 +55,78 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   filter(item: JTaskWrapper, filterValue: string): boolean {
-    return item.tasks[0].taskName.toLowerCase().includes(filterValue);
+    // Get lowercase filter value for case-insensitive comparison
+    filterValue = filterValue.toLowerCase();
+
+    // Access component instance's selectedFilterColumn via dataSource
+    const selectedColumn = this.dataSource?.getSelectedColumn() || 'all';
+    console.log('Filter value changed:', filterValue, 'Selected column:', selectedColumn);
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all':
+        // Search across multiple relevant fields
+        return (
+          item.tasks[0]?.taskName?.toLowerCase().includes(filterValue) ||
+          item.id?.toString().toLowerCase().includes(filterValue) ||
+          item.accessGroup?.groupName?.toLowerCase().includes(filterValue) ||
+          (item.hashType &&
+            (item.hashType.id?.toString().includes(filterValue) ||
+              item.hashType.description?.toLowerCase().includes(filterValue)))
+        );
+
+      case 'id':
+        return item.id?.toString().toLowerCase().includes(filterValue);
+
+      case 'taskName':
+        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+
+      case 'taskType':
+        const typeText = item.taskType === 0 ? 'task' : 'supertask';
+        return typeText.includes(filterValue);
+
+      case 'hashtype':
+        if (item.hashType) {
+          return (
+            item.hashType.description?.toLowerCase().includes(filterValue) ||
+            item.hashType.id?.toString().toLowerCase().includes(filterValue)
+          );
+        }
+        return false;
+
+      case 'priority':
+        return item.priority?.toString().toLowerCase().includes(filterValue);
+
+      case 'maxAgents':
+        return item.maxAgents?.toString().toLowerCase().includes(filterValue);
+
+      case 'cracked':
+        return item.cracked?.toString().toLowerCase().includes(filterValue);
+
+      case 'hashlistId':
+        return (
+          item.hashlist?.name?.toLowerCase().includes(filterValue) ||
+          item.hashlistId?.toString().toLowerCase().includes(filterValue)
+        );
+
+      case 'accessGroupName':
+        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
+
+      // Add more cases for other searchable columns
+
+      default:
+        // For direct properties on the wrapper
+        if (item[selectedColumn] !== undefined) {
+          return String(item[selectedColumn]).toLowerCase().includes(filterValue);
+        }
+
+        // For nested properties in tasks array
+        if (item.tasks?.[0]?.[selectedColumn] !== undefined) {
+          return String(item.tasks[0][selectedColumn]).toLowerCase().includes(filterValue);
+        }
+
+        // Default fallback to task name
+        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -77,6 +148,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
+        isSearchable: true,
+
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
@@ -146,6 +219,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'accessGroupName',
         routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
+        isSearchable: true,
+
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },
       {
