@@ -78,7 +78,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
         isSortable: false,
-        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
       {
