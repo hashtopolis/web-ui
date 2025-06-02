@@ -223,8 +223,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   // Handle filter column change
   onFilterColumnChange(): void {
+    this.filterValue.emit(this.selectedFilterColumn);
     console.log('Filter column changed:', this.selectedFilterColumn);
-    this.dataSource.setSelectedColumn(this.selectedFilterColumn);
+    // this.dataSource.setSelectedColumn(this.selectedFilterColumn);
     if (this.dataSource.filter) {
       this.applyColumnFilter();
     }

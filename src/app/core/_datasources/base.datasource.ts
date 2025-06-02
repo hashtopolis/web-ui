@@ -196,12 +196,12 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
       this.dataSubject.next(filteredData);
     }
   }
-  setSelectedColumn(column: string): void {
+/*   setSelectedColumn(column: string): void {
     this.selectedColumn = column;
   }
   getSelectedColumn(): string {
     return this.selectedColumn;
-  }
+  } */
   /**
    * Toggle all rows' selection.
    */

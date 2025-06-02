@@ -38,7 +38,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -53,13 +53,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       sub.unsubscribe();
     }
   }
-
   filter(item: JTaskWrapper, filterValue: string): boolean {
     // Get lowercase filter value for case-insensitive comparison
     filterValue = filterValue.toLowerCase();
 
     // Access component instance's selectedFilterColumn via dataSource
-    const selectedColumn = this.dataSource?.getSelectedColumn() || 'all';
+    // const selectedColumn = this.dataSource?.getSelectedColumn() || 'all';
+    const selectedColumn = this.selectedFilterColumn;
     console.log('Filter value changed:', filterValue, 'Selected column:', selectedColumn);
     // Filter based on selected column
     switch (selectedColumn) {
