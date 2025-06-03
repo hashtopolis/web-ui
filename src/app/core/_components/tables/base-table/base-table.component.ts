@@ -1,32 +1,28 @@
-import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { Observable, Subscription, of } from 'rxjs';
-
-import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, Subscription, of } from 'rxjs';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 
+import { BaseModel } from '@models/base.model';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { ConfigService } from '@services/shared/config.service';
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
-import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
-
-import { ExportService } from '@services/export/export.service';
-import { GlobalService } from '@services/main.service';
-import { ConfigService } from '@services/shared/config.service';
-import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-
-import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
-import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { UIConfigService } from '@services/shared/storage.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
@@ -48,6 +44,9 @@ export class BaseTableComponent {
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = true;
+  /** Flag to enable  temperature Information dialog */
+  @Input() hasTemperatureInformation = true;
+
   protected uiSettings: UISettingsUtilityClass;
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
@@ -110,7 +109,7 @@ export class BaseTableComponent {
     if (chunk) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'tasks', chunk.taskId],
-        label: chunk.cracked
+        label: chunk.cracked.toLocaleString()
       });
     }
     return of(links);

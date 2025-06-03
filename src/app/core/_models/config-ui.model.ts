@@ -25,9 +25,9 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
@@ -182,12 +182,15 @@ export const uiConfigDefault: UIConfig = {
       page: 25,
       columns: [
         AgentsStatusTableCol.ID,
-        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.NAME,
         AgentsStatusTableCol.AGENT_STATUS,
+        AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
-        AgentsStatusTableCol.LAST_ACTIVITY
+        AgentsStatusTableCol.LAST_ACTIVITY,
+        AgentsStatusTableCol.GPU_UTILISATION,
+        AgentsStatusTableCol.GPU_TEMPERATURE,
+        AgentsStatusTableCol.CPU_UTILISATION
       ],
       order: {
         id: AgentsStatusTableCol.ID,
@@ -412,7 +415,6 @@ export const uiConfigDefault: UIConfig = {
         HealthCheckAgentsTableCol.STATUS,
         HealthCheckAgentsTableCol.START,
         HealthCheckAgentsTableCol.GPUS,
-        HealthCheckAgentsTableCol.CRACKED,
         HealthCheckAgentsTableCol.ERRORS
       ],
       order: {
@@ -593,7 +595,7 @@ export const uiConfigDefault: UIConfig = {
     searchHashTable: {
       start: 0,
       page: 25,
-      columns: [SearchHashTableCol.HASH, SearchHashTableCol.INFO],
+      columns: [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT, SearchHashTableCol.INFO],
       order: {
         id: SearchHashTableCol.HASH,
         dataKey: '',

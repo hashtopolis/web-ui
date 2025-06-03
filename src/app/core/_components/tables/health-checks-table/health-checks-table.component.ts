@@ -193,22 +193,16 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
    * @todo Implement error handling.
    */
   private bulkActionDelete(healthChecks: JHealthCheck[]): void {
-    const requests = healthChecks.map((healthCheck: JHealthCheck) => {
-      return this.gs.delete(SERV.HEALTH_CHECKS, healthCheck.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} healthChecks!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.HEALTH_CHECKS, healthChecks).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted healthchecks!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

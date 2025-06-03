@@ -1,42 +1,37 @@
 <grid-main>
   <app-page-title [title]="'Supertask Details'"></app-page-title>
-    <form [formGroup]="viewForm" >
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <input-text title="ID" formControlName="supertaskId" [disabled]="true"></input-text>
-        <input-text title="Name" formControlName="supertaskName" [disabled]="true"></input-text>
+  <form [formGroup]="viewForm">
+    <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <input-text title="ID" formControlName="supertaskId" [disabled]="true"></input-text>
+      <input-text title="Name" formControlName="supertaskName" [disabled]="true"></input-text>
+    </div>
+    <div fxLayout="row">
+      <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+      <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']"
+        (click)="onSubmit()"></button-submit>
+    </div>
+  </form>
+  <hr>
+  <h5>Add Pretasks</h5>
+  <form [formGroup]="updateForm">
+    <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
+      <input-multiselect [isLoading]="isLoading" [placeholder]="'Pretasks...'" [items]="selectPretasks"
+        [label]="'Select or search Pretasks *'" [mergeIdAndName]="true" formControlName="pretasks"
+        style="flex: 1;"></input-multiselect>
+      <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
+        <button-submit [name]="'Add'" (click)="onSubmit()"></button-submit>
+        <button mat-icon-button (click)="refresh()">
+          <mat-icon>refresh</mat-icon>
+        </button>
       </div>
-      <div fxLayout="row">
-        <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
-        <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']" (click)="onSubmit()"></button-submit>
+    </div>
+    <ng-template #loadingTemplate>
+      <div class="loading-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading Pretasks...</span>
       </div>
-    </form>
-    <hr>
-    <h5>Add Pretasks</h5>
-    <form [formGroup]="updateForm">
-      <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
-        <input-multiselect
-            [isLoading]="isLoading"
-            [placeholder]="'Pretasks...'"
-            [items]="selectPretasks"
-            [label]="'Select or search Pretasks *'"
-            [mergeIdAndName]="true"
-            formControlName="pretasks"
-            style="flex: 1;"
-          ></input-multiselect>
-          <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
-            <button-submit [name]="'Add'" (click)="onSubmit()"></button-submit>
-            <button mat-icon-button (click)="refresh()">
-              <mat-icon>refresh</mat-icon>
-            </button>
-          </div>
-      </div>
-      <ng-template #loadingTemplate>
-        <div class="loading-spinner">
-          <mat-spinner diameter="32"></mat-spinner>
-          <span>Loading Pretasks...</span>
-        </div>
-      </ng-template>
-    </form>
+    </ng-template>
+  </form>
 </grid-main>
 <!-- Benckmark calculation -->
 <mat-accordion *ngIf="isLoading">
@@ -46,24 +41,28 @@
         <span><b>Attack Runtime Estimation</b></span>
       </mat-panel-title>
     </mat-expansion-panel-header>
-      <p>
-        The benchmark number to enter below is the total amount of hashes per second per attack type of all the agents combined that will run the supertask.
-      </p>
-      <p>
-        For example, if you have two agents running -a0 attacks and three agents running -a3 attacks, and each -a0 agent processes 100 hashes per second, and each -a3 agent processes 150 hashes per second, you would enter 200 for "Benchmark for -a0 attacks" and 450 for "Benchmark for -a3 attacks".
-      </p>
-      <p>
-        Note: For this tool to work correctly, ensure that the columns "Estimated Keyspace" and "Attack Runtime" are displayed in your application.
-      </p>
-      <br>
-      <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
+    <p>
+      The benchmark number to enter below is the total amount of hashes per second per attack type of all the agents
+      combined that will run the supertask.
+    </p>
+    <p>
+      For example, if you have two agents running -a0 attacks and three agents running -a3 attacks, and each -a0 agent
+      processes 100 hashes per second, and each -a3 agent processes 150 hashes per second, you would enter 200 for
+      "Benchmark for -a0 attacks" and 450 for "Benchmark for -a3 attacks".
+    </p>
+    <p>
+      Note: For this tool to work correctly, ensure that the columns "Estimated Keyspace" and "Attack Runtime" are
+      displayed in your application.
+    </p>
+    <br>
+    <form [formGroup]="etForm" (ngSubmit)="keyspaceTimeCalc()">
 
-        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Benchmark for -a0 attacks" formControlName="benchmarka0"></input-number>
-          <input-number title="Benchmark for -a3 attacks" formControlName="benchmarka3"></input-number>
-        </div>
+      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+        <input-number title="Benchmark for -a0 attacks" formControlName="benchmarka0"></input-number>
+        <input-number title="Benchmark for -a3 attacks" formControlName="benchmarka3"></input-number>
+      </div>
 
-        <button-submit [name]="'Calculate Runtime'"></button-submit>
+      <button-submit [name]="'Calculate Runtime'"></button-submit>
 
       <div *ngIf="etForm.get('benchmarka0').value !== 0 && etForm.get('benchmarka3').value !== 0">
         &nbsp;
@@ -75,13 +74,12 @@
           </td>
         </tr>
       </div>
-     </form>
+    </form>
   </mat-expansion-panel>
 </mat-accordion>
 <!--Table Pretasks-->
 <app-table>
   <app-page-title [title]="'Preconfigured Tasks'"></app-page-title>
-  <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex" [hasBulkActions]="false"></app-pretasks-table>
+  <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex"
+    [hasBulkActions]="true"></app-pretasks-table>
 </app-table>
-
-

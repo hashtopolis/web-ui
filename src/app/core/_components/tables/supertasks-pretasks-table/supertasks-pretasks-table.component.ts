@@ -4,7 +4,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { JPretask } from '@models/pretask.model';
 
-import { SERV } from '@services/main.config';
+import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -196,26 +196,38 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
    */
   private bulkActionDelete(pretasks: JPretask[]): void {
     //Get the IDs of pretasks to be deleted
-    const pretaskIdsToDelete = pretasks.map((pretask) => pretask.id);
-    //Remove the selected pretasks from the list
-    const updatedPretasks = this.dataSource.getData().filter((pretask) => !pretaskIdsToDelete.includes(pretask.id));
-    //Update the supertask with the modified list of pretasks
-    const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
-    //Update the supertask with the new list of pretasks
-    const updateRequest = this.gs.update(SERV.SUPER_TASKS, this.supertaskId, payload);
-    this.subscriptions.push(
-      updateRequest
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open(`Successfully deleted ${pretasks.length} pretasks!`, 'Close');
-          this.reload();
-        })
-    );
+    // const pretaskIdsToDelete = pretasks.map((pretask) => pretask.id);
+    // //Remove the selected pretasks from the list
+    // const updatedPretasks = this.dataSource.getData().filter((pretask) => !pretaskIdsToDelete.includes(pretask.id));
+    // //Update the supertask with the modified list of pretasks
+    // const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
+    // //Update the supertask with the new list of pretasks
+    let pretaskData = [];
+
+    pretasks.forEach((pretask) => {
+      pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
+    });
+
+    const responseBody = { data: pretasks };
+    this.gs.deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody).subscribe((results => {
+      this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+      this.dataSource.reload();
+    }))
+
+    // const updateRequest = this.gs.update(SERV.SUPER_TASKS, this.supertaskId, payload);
+    // this.subscriptions.push(
+    //   updateRequest
+    //     .pipe(
+    //       catchError((error) => {
+    //         console.error('Error during deletion:', error);
+    //         return [];
+    //       })
+    //     )
+    //     .subscribe(() => {
+    //       this.snackBar.open(`Successfully deleted ${pretasks.length} pretasks!`, 'Close');
+    //       this.reload();
+    //     })
+    // );
   }
 
   private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
@@ -230,25 +242,23 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
    * @todo Implement error handling.
    */
   private rowActionDelete(pretasks: JPretask[]): void {
-    //Get the IDs of pretasks to be deleted
-    const pretaskIdsToDelete = pretasks.map((pretask) => pretask.id);
-    //Remove the selected pretasks from the list
-    const updatedPretasks = this.dataSource.getData().filter((pretask) => !pretaskIdsToDelete.includes(pretask.id));
-    //Update the supertask with the modified list of pretasks
-    const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
+    let pretaskData = [];
+
+    pretasks.forEach((pretask) => {
+      pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
+    });
+
+    const responseBody = { data: pretaskData };
     this.subscriptions.push(
-      this.gs
-        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open('Successfully deleted pretasks!', 'Close');
-          this.reload();
+      this.gs.deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody).pipe(
+        catchError((error) => {
+          console.error("Error during deleting: ", error);
+          return [];
         })
+      ).subscribe(() => {
+        this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

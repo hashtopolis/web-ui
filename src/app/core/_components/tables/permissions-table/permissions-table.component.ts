@@ -163,22 +163,16 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
    * @todo Implement error handling.
    */
   private bulkActionDelete(permissions: JGlobalPermissionGroup[]): void {
-    const requests = permissions.map((permission: JGlobalPermissionGroup) => {
-      return this.gs.delete(SERV.ACCESS_PERMISSIONS_GROUPS, permission.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} permissions!`, 'Close');
-          this.reload();
+      this.gs.bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions).pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
         })
+      ).subscribe((results) => {
+        this.snackBar.open(`Successfully deleted permission groups!`, 'Close');
+        this.dataSource.reload();
+      })
     );
   }
 

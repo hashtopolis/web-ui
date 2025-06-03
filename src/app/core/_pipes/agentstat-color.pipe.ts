@@ -1,9 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
+
 import { ASC } from '../_constants/agentsc.config';
 import { UIConfigService } from '../_services/shared/storage.service';
 
 /**
- * Returns different hex color depending on thresholds and Agent type (Device Temperature, Device Utilizations, CPU utilization)
+ * Returns different hex color depending on thresholds and Agent type (Device Temperature, Device Utilisations, CPU Utilisation)
  * @param value - The input number value
  * Usage:
  *   value | asColor
@@ -13,20 +14,14 @@ import { UIConfigService } from '../_services/shared/storage.service';
  **/
 
 @Pipe({
-    name: 'asColor',
-    standalone: false
+  name: 'asColor',
+  standalone: false
 })
 export class AgentSColorPipe implements PipeTransform {
   constructor(private uiService: UIConfigService) {}
 
-  transform(
-    value: any,
-    threshold1: number,
-    threshold2: number,
-    stattype: number,
-    isActive: any,
-    lastactivity: number
-  ) {
+  transform(value: any, threshold1: number, threshold2: number, stattype: number, isActive: any, lastactivity: number) {
+    if (!isActive) return '';
     if (value === 'No data') {
       if (isActive == 1 && Date.now() - lastactivity < this.gettime()) {
         return '#42d4f4';
@@ -34,16 +29,8 @@ export class AgentSColorPipe implements PipeTransform {
       return '#CCCCCC';
     }
     if (+value == 0) return '#FF0000';
-    if (
-      +value > threshold1 &&
-      (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)
-    )
-      return '#009933';
-    else if (
-      +value > threshold2 &&
-      (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)
-    )
-      return '#ff9900';
+    if (+value > threshold1 && (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)) return '#009933';
+    else if (+value > threshold2 && (stattype == ASC.GPU_TEMP || stattype == ASC.CPU_UTIL)) return '#ff9900';
     if (+value <= threshold1 && stattype == ASC.GPU_UTIL) return '#009933';
     else if (+value <= threshold2 && stattype == ASC.GPU_UTIL) return '#ff9900';
     else return '#800000';

@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -279,44 +279,40 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
    */
   private bulkActionDelete(pretasks: JPretask[]): void {
     if (this.supertTaskId === 0) {
-      const requests = pretasks.map((pretask: JPretask) => {
-        return this.gs.delete(SERV.PRETASKS, pretask.id);
-      });
-
       this.subscriptions.push(
-        forkJoin(requests)
+        this.gs
+          .bulkDelete(SERV.PRETASKS, pretasks)
           .pipe(
             catchError((error) => {
-              console.error('Error during deletion:', error);
+              console.error('Error during deletion: ', error);
               return [];
             })
           )
-          .subscribe((results) => {
-            this.snackBar.open(`Successfully deleted ${results.length} pretasks!`, 'Close');
-            this.reload();
+          .subscribe(() => {
+            this.snackBar.open(`Successfully deleted pretasks!`, 'Close');
+            this.dataSource.reload();
           })
       );
     } else {
-      const filter = this.dataSource['originalData'].filter((u) => u.id !== pretasks[0].id);
-      const payload = [];
-      for (let i = 0; i < filter.length; i++) {
-        payload.push(filter[i].id);
-      }
+      const pretaskData = [];
 
-      const requests = pretasks.map((pretask: JPretask) => {
-        return this.gs.delete(SERV.PRETASKS, pretask.id);
+      pretasks.forEach((pretask) => {
+        pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
       });
 
+      const responseBody = { data: pretaskData };
+
       this.subscriptions.push(
-        forkJoin(requests)
+        this.gs
+          .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
               return [];
             })
           )
-          .subscribe((results) => {
-            this.snackBar.open(`Successfully deleted ${results.length} pretasks!`, 'Close');
+          .subscribe(() => {
+            this.snackBar.open('Successfully unassigned pretask!', 'Close');
             this.reload();
           })
       );
@@ -343,7 +339,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
-    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
+    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false).toLocaleString();
   }
 
   renderKeyspaceTime(a0: number, a3: number): SafeHtml {
@@ -449,17 +445,11 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           })
       );
     } else {
-      const filter = this.dataSource['originalData'].filter((u) => u.id !== pretasks[0].id);
-      const payload = [];
-      for (let i = 0; i < filter.length; i++) {
-        payload.push({ type: RelationshipType.PRETASKS, id: filter[i].id });
-      }
-
-      const responseBody = { data: payload };
+      const responseBody = { data: [{ type: RelationshipType.PRETASKS, id: pretasks[0].id }] };
 
       this.subscriptions.push(
         this.gs
-          .updateRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
+          .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);

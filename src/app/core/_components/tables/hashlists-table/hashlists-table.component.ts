@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -41,7 +41,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     if (this.shashlistId) {
-      this.dataSource.setSHashlistId(this.shashlistId);
+      this.dataSource.setSuperHashListID(this.shashlistId);
     }
     this.dataSource.loadAll();
   }
@@ -235,26 +235,12 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
    * @todo Implement error handling.
    */
   private bulkActionArchive(hashlists: JHashlist[], isArchived: boolean): void {
-    const requests = hashlists.map((hashlist: JHashlist) => {
-      return this.gs.update(SERV.HASHLISTS, hashlist.id, {
-        isArchived: isArchived
-      });
-    });
-
     const action = isArchived ? 'archived' : 'unarchived';
-
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during archiving:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} hashlists!`, 'Close');
-          this.reload();
-        })
+      this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe(() => {
+        this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
+        this.reload();
+      })
     );
   }
 
@@ -262,21 +248,18 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
    * @todo Implement error handling.
    */
   private bulkActionDelete(hashlists: JHashlist[]): void {
-    const requests = hashlists.map((hashlist: JHashlist) => {
-      return this.gs.delete(SERV.HASHLISTS, hashlist.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.HASHLISTS, hashlists)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} hashlists!`, 'Close');
-          this.reload();
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.dataSource.reload();
         })
     );
   }
@@ -343,7 +326,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   }
 
   /**
-   * Show hashcounbt and render hashlist link
+   * Show hashcount and render hashlist link
    * @param hashlist - hashlist object to show count for
    * @return observable array containing the link to render
    * @private
@@ -353,7 +336,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (hashlist) {
       links.push({
         routerLink: ['/hashlists', 'hashes', 'hashlists', hashlist.id],
-        label: hashlist.hashCount
+        label: hashlist.hashCount.toLocaleString()
       });
     }
     return of(links);

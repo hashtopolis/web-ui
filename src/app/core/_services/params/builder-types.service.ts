@@ -1,6 +1,12 @@
 /**
  * Interface and intermediate type definitions for request param builder design pattern
  */
+import { MatPaginator } from '@angular/material/paginator';
+
+import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { Filter, type RequestParams } from '@src/app/core/_models/request-params.model';
 
 /**
@@ -28,11 +34,13 @@ export interface IParamBuilder {
 
   addInclude(include: string): IParamBuilder;
 
-  addSorting(sortingColumn: any): IParamBuilder;
+  addSorting(sortingColumn: SortingColumn): IParamBuilder;
 
   addFilter(filter: Filter): IParamBuilder;
 
   addIncludeTotal(includeTotal: boolean): IParamBuilder;
+
+  addInitial(datasource: BaseDataSource<MatPaginator>): IParamBuilder;
 
   create(): RequestParams;
 }

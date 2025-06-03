@@ -1,5 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -13,30 +11,27 @@ import {
   ViewChild
 } from '@angular/core';
 import {
-  COL_ROW_ACTION,
-  COL_SELECT,
   CheckboxChangeEvent,
   CheckboxFiles,
+  COL_ROW_ACTION,
+  COL_SELECT,
   DataType,
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import {
-  UIConfig,
-  uiConfigDefault
-} from 'src/app/core/_models/config-ui.model';
+import { Subscription, take, timer } from 'rxjs';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
 import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
 import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { Subscription, take, timer } from 'rxjs';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -83,10 +78,10 @@ import { Subscription, take, timer } from 'rxjs';
  *
  */
 @Component({
-    selector: 'ht-table',
-    templateUrl: './ht-table.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'ht-table',
+  templateUrl: './ht-table.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
@@ -165,29 +160,29 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Default start page. */
   @Input() defaultStartPage = 0;
 
+  /** Flag to enable  temperature Information dialog */
+  @Input() hasTemperatureInformation = false;
+
   /** Event emitter for when the user triggers a row action */
-  @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> =
-    new EventEmitter<ActionMenuEvent<any>>();
+  @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
   /** Event emitter for when the user triggers a bulk action */
-  @Output() bulkActionClicked: EventEmitter<ActionMenuEvent<any>> =
-    new EventEmitter<ActionMenuEvent<any>>();
+  @Output() bulkActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
   /** Event emitter for when the user triggers an export action */
-  @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> =
-    new EventEmitter<ActionMenuEvent<any>>();
+  @Output() exportActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
   /** Event emitter for when the user saves an editable input */
-  @Output() editableSaved: EventEmitter<HTTableEditable<any>> =
-    new EventEmitter<HTTableEditable<any>>();
+  @Output() editableSaved: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
 
   /** Event emitter for when the user saves a checkbox */
-  @Output() editableCheckbox: EventEmitter<HTTableEditable<any>> =
-    new EventEmitter<HTTableEditable<any>>();
+  @Output() editableCheckbox: EventEmitter<HTTableEditable<any>> = new EventEmitter<HTTableEditable<any>>();
 
   /** Event emitter for checkbox attack */
-  @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> =
-    new EventEmitter();
+  @Output() checkboxChanged: EventEmitter<CheckboxChangeEvent> = new EventEmitter();
+
+  /** Event emitter for checkbox attack */
+  @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
@@ -205,10 +200,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
-    this.defaultPageSize =
-      this.uiSettings['uiConfig']['tableSettings'][this.name]['page'];
-    this.defaultStartPage =
-      this.uiSettings['uiConfig']['tableSettings'][this.name]['start'];
+    this.defaultPageSize = this.uiSettings['uiConfig']['tableSettings'][this.name]['page'];
+    this.defaultStartPage = this.uiSettings['uiConfig']['tableSettings'][this.name]['start'];
 
     if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
@@ -232,11 +225,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     // Get saved start page
     this.dataSource.currentPage = this.defaultStartPage;
     // Search item
-    this.dataSource.filter =
-      this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
+    this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
     // Sorted header arrow and sorting initialization
-    this.dataSource.sortingColumn =
-      this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+    this.dataSource.sortingColumn = this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
     if (this.dataSource.sortingColumn) {
       this.matSort.sort({
         id: this.dataSource.sortingColumn.id,
@@ -300,10 +291,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private filterKeys(
-    original: { [key: string]: string },
-    include: string[]
-  ): any {
+  private filterKeys(original: { [key: string]: string }, include: string[]): any {
     const filteredObject: { [key: string]: string } = {};
 
     for (const attribute of include) {
@@ -339,7 +327,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.displayedColumns.push(COL_SELECT + '');
     }
     for (const num of columnNames) {
-      this.displayedColumns.push(num + '');
+      if (num < Object.keys(this.columnLabels).length) {
+        this.displayedColumns.push(num + '');
+      }
     }
 
     if (this.hasRowAction) {
@@ -360,13 +350,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    *   - null: No sorting arrow should be displayed for the column.
    */
   setColumnSorting(tableColumn: any): 'before' | 'after' {
-    if (
-      this.dataSource.sortingColumn &&
-      this.dataSource.sortingColumn.id === tableColumn.id
-    ) {
-      return this.dataSource.sortingColumn.direction === 'asc'
-        ? 'before'
-        : 'after';
+    if (this.dataSource.sortingColumn && this.dataSource.sortingColumn.id === tableColumn.id) {
+      return this.dataSource.sortingColumn.direction === 'asc' ? 'before' : 'after';
     } else {
       return null; // or set a default arrow position if no saved sorting
     }
@@ -468,7 +453,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       checked: checked // Boolean
     });
   }
-
+  // emit when Temperature Information is clicked
+ temperatureInformationEmit() {
+    this.temperatureInformationClicked.emit();
+  }
   /**
    * Reloads the data in the table and the bulk menu.
    */
@@ -494,11 +482,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Update pagination configuration in the data source
-    this.dataSource.setPaginationConfig(
-      event.pageSize,
-      event.pageIndex,
-      this.dataSource.totalItems
-    );
+    this.dataSource.setPaginationConfig(event.pageSize, event.pageIndex, this.dataSource.totalItems);
 
     // Reload data with updated pagination settings
     this.dataSource.reload();

@@ -2,7 +2,7 @@ import { UnsavedChangesService } from '../_services/shared/unsaved-changes.servi
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { CanDeactivate, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 export interface CanComponentDeactivate {
   canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
@@ -31,7 +31,7 @@ export class PendingChangesGuard
     deactivate: Observable<boolean> | Promise<boolean> | boolean
   ): Promise<boolean> {
     if (deactivate instanceof Observable) {
-      return await deactivate.toPromise();
+      return await firstValueFrom(deactivate);
     } else {
       return deactivate;
     }

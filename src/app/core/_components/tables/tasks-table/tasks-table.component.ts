@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
@@ -32,6 +32,7 @@ import {
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-tasks-table',
@@ -360,7 +361,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === 0) {
       const task: JTask = wrapper.tasks[0];
       if (task.keyspace > 0) {
-        return `${task.dispatched}% / ${task.searched}%`;
+        return `${convertToLocale(Number(task.dispatched))}% / ${convertToLocale(Number(task.searched))}%`;
       }
     }
     return '';
@@ -438,7 +439,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (wrapper.taskType === 0) {
       const chunkData: ChunkData = wrapper.chunkData;
       if (chunkData && 'speed' in chunkData && chunkData.speed > 0) {
-        html = `${chunkData.speed}&nbsp;H/s`;
+        html = `${convertCrackingSpeed(chunkData.speed)}`;
       }
     }
     return this.sanitize(html);
@@ -533,46 +534,34 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   /**
    * @todo Implement error handling.
    */
-  private bulkActionArchive(wrapper: JTaskWrapper[], isArchived: boolean): void {
-    const requests = wrapper.map((w: JTaskWrapper) => {
-      return this.gs.update(SERV.TASKS, w.tasks[0].id, {
-        isArchived: isArchived
-      });
-    });
-
+  private bulkActionArchive(wrappers: JTaskWrapper[], isArchived: boolean): void {
     const action = isArchived ? 'archived' : 'unarchived';
+    const tasks = [];
+    for (const wrapper of wrappers) {
+      tasks.push(wrapper.tasks[0]);
+    }
 
     this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during archiving:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} tasks!`, 'Close');
-          this.reload();
-        })
+      this.gs.bulkUpdate(SERV.TASKS, tasks, { isArchived: isArchived }).subscribe(() => {
+        this.snackBar.open(`Successfully ${action} tasks!`, 'Close');
+        this.reload();
+      })
     );
   }
 
   private bulkActionDelete(wrapper: JTaskWrapper[]): void {
-    const requests = wrapper.map((w: JTaskWrapper) => {
-      return this.gs.delete(SERV.TASKS_WRAPPER, w.id);
-    });
-
     this.subscriptions.push(
-      forkJoin(requests)
+      this.gs
+        .bulkDelete(SERV.TASKS_WRAPPER, wrapper)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deletion: ', error);
             return [];
           })
         )
-        .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} tasks!`, 'Close');
-          this.reload();
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted task!`, 'Close');
+          this.dataSource.reload();
         })
     );
   }
@@ -689,7 +678,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const links: HTTableRouterLink[] = [];
     if (wrapper.taskType === 0) {
       links.push({
-        label: wrapper.cracked + '',
+        label: wrapper.cracked.toLocaleString(),
         routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
       });
     }
@@ -705,25 +694,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderTaskWrapperLink(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-
-    if (wrapper.taskType === 0) {
-      for (const task of wrapper.tasks) {
-        const taskName = task.taskName?.length > 40 ? `${task.taskName.substring(40)}...` : task.taskName;
-
-        links.push({
-          label: taskName,
-          routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
-          tooltip: task.attackCmd
-        });
-      }
-    } else if (wrapper.taskType === 1) {
-      const taskWrapperName =
-        wrapper.taskWrapperName.length > 40 ? `${wrapper.taskWrapperName.substring(40)}...` : wrapper.taskWrapperName;
+    for (const task of wrapper.tasks) {
+      const taskName = task.taskName?.length > 40 ? `${task.taskName.substring(40)}...` : task.taskName;
 
       links.push({
-        label: taskWrapperName,
-        routerLink: ['/tasks', 'show-subtasks', wrapper.id, 'edit'],
-        tooltip: 'Supertask'
+        label: taskName,
+        routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
+        tooltip: task.attackCmd
       });
     }
 
