@@ -22,7 +22,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -32,6 +32,34 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       this.dataSource.setAgentId(this.agentId);
     }
     this.dataSource.loadAll();
+  }
+  filter(item: JChunk, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.taskName.toLowerCase().includes(filterValue) ||
+          item.agentName.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName.toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.agentName.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -102,7 +130,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.STATE,
         dataKey: 'state',
         render: (chunk: JChunk) => this.renderState(chunk),
-        isSortable: true,
+        isSortable: true
       },
       {
         id: ChunksTableCol.CRACKED,
