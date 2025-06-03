@@ -79,7 +79,7 @@
         <mat-form-field>
           <mat-label>Filter by column</mat-label>
           <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
-            <mat-option value="all">All Columns</mat-option>
+            <mat-option value="all">All filterable columns</mat-option>
             @for (column of filterableColumns; track column) {
               <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
             }
@@ -88,7 +88,6 @@
 
         <!-- Filter input -->
         <mat-form-field style="min-width: 200px">
-          <!--           <mat-icon matPrefix>filter_list</mat-icon> -->
           <input matInput (keyup)="applyColumnFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
           <button mat-icon-button matSuffix (click)="clearFilter()">
             <mat-icon>clear</mat-icon>

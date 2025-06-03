@@ -60,7 +60,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     // Access component instance's selectedFilterColumn via dataSource
     // const selectedColumn = this.dataSource?.getSelectedColumn() || 'all';
     const selectedColumn = this.selectedFilterColumn;
-    console.log('Filter value changed:', filterValue, 'Selected column:', selectedColumn);
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all':
@@ -71,7 +70,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           item.accessGroup?.groupName?.toLowerCase().includes(filterValue) ||
           (item.hashType &&
             (item.hashType.id?.toString().includes(filterValue) ||
-              item.hashType.description?.toLowerCase().includes(filterValue)))
+              item.hashType.description?.toLowerCase().includes(filterValue) ||
+              (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
+                filterValue
+              ))) ||
+          item.hashlist?.name?.toLowerCase().includes(filterValue)
         );
 
       case 'id':
@@ -88,30 +91,22 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         if (item.hashType) {
           return (
             item.hashType.description?.toLowerCase().includes(filterValue) ||
-            item.hashType.id?.toString().toLowerCase().includes(filterValue)
+            item.hashType.id?.toString().toLowerCase().includes(filterValue) ||
+            (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
+              filterValue
+            )
           );
         }
         return false;
-
-      case 'priority':
-        return item.priority?.toString().toLowerCase().includes(filterValue);
-
-      case 'maxAgents':
-        return item.maxAgents?.toString().toLowerCase().includes(filterValue);
-
-      case 'cracked':
-        return item.cracked?.toString().toLowerCase().includes(filterValue);
-
-      case 'hashlistId':
+      case 'hashlistId': {
         return (
           item.hashlist?.name?.toLowerCase().includes(filterValue) ||
           item.hashlistId?.toString().toLowerCase().includes(filterValue)
         );
-
-      case 'accessGroupName':
+      }
+      case 'accessGroupName': {
         return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
-
-      // Add more cases for other searchable columns
+      }
 
       default:
         // For direct properties on the wrapper
@@ -177,6 +172,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHTYPE,
         dataKey: 'hashtype',
         isSortable: false,
+        isSearchable: true,
         render: (wrapper: JTaskWrapper) => {
           const hashType = wrapper.hashType;
           return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
@@ -191,6 +187,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
         isSortable: false,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
       },
       {

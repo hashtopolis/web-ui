@@ -225,14 +225,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   onFilterColumnChange(): void {
     this.filterValue.emit(this.selectedFilterColumn);
     console.log('Filter column changed:', this.selectedFilterColumn);
-    // this.dataSource.setSelectedColumn(this.selectedFilterColumn);
     if (this.dataSource.filter) {
       this.applyColumnFilter();
     }
-  }
-  emitOnFilterValueChange(): void {
-    console.log('Filter value emitted:', this.selectedFilterColumn);
-    this.filterValue.emit(this.selectedFilterColumn);
   }
 
   ngAfterViewInit(): void {
