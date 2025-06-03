@@ -60,21 +60,9 @@
       </div>
     }
 
-    <!-- filter -->
-    <!--     <div class="table-action-wrapper right-aligned">
-      <mat-form-field *ngIf="isFilterable">
-        <mat-icon matPrefix>filter_list</mat-icon>
-        <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
-        <button mat-icon-button matSuffix (click)="clearFilter()">
-          <mat-icon>clear</mat-icon>
-        </button>
-      </mat-form-field>
-    </div>
-     -->
     <!-- Filter section -->
-    <!-- TODO MOVE STYLE TO CLASS-->
     <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
-      <div class="filter-container" style="display: flex; align-items: center; gap: 16px">
+      <div class="filter-container">
         <!-- Column selector dropdown -->
         <mat-form-field>
           <mat-label>Filter by column</mat-label>

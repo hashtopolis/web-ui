@@ -340,7 +340,11 @@ table.hashtopolis-table {
     }
   }
 }
-
+.filter-container{
+  display: flex; 
+  align-items: center; 
+  gap: 16px
+}
 div.table-actions {
   display: flex;
   justify-content: space-between;
