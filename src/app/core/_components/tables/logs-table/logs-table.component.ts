@@ -11,16 +11,14 @@ import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'logs-table',
-    templateUrl: './logs-table.component.html',
-    standalone: false
+  selector: 'logs-table',
+  templateUrl: './logs-table.component.html',
+  standalone: false
 })
-export class LogsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);
@@ -37,15 +35,41 @@ export class LogsTableComponent
   }
 
   filter(item: JLog, filterValue: string): boolean {
-    if (
-      item.message.toLowerCase().includes(filterValue) ||
-      item.level.toLowerCase().includes(filterValue) ||
-      item.issuer.toLowerCase().includes(filterValue)
-    ) {
-      return true;
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.issuer.toLowerCase().includes(filterValue) ||
+          item.issuerId.toString().includes(filterValue) ||
+          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue) ||
+          item.level.toLowerCase().includes(filterValue) ||
+          item.message.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'issuer': {
+        return (
+          item.issuer.toLowerCase().includes(filterValue) ||
+          item.issuerId.toString().includes(filterValue) ||
+          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue)
+        );
+      }
+      case 'level': {
+        return item.level.toLowerCase().includes(filterValue);
+      }
+      case 'message': {
+        return item.message.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.message?.toLowerCase().includes(filterValue);
     }
-
-    return false;
   }
 
   getColumns(): HTTableColumn[] {
@@ -62,18 +86,15 @@ export class LogsTableComponent
         dataKey: 'time',
         isSortable: true,
         render: (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat),
-        export: async (log: JLog) =>
-          formatUnixTimestamp(log.time, this.dateFormat)
+        export: async (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat)
       },
       {
         id: LogsTableCol.LEVEL,
         dataKey: 'level',
         isSortable: true,
         isSearchable: true,
-        render: (log: JLog) =>
-          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
-        export: async (log: JLog) =>
-          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
+        render: (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
+        export: async (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
         id: LogsTableCol.ISSUER,
@@ -87,6 +108,7 @@ export class LogsTableComponent
         id: LogsTableCol.MESSAGE,
         dataKey: 'message',
         isSortable: true,
+        isSearchable: true,
         render: (log: JLog) => log.message,
         export: async (log: JLog) => log.message
       }
@@ -100,30 +122,15 @@ export class LogsTableComponent
   exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JLog>(
-          'hashtopolis-logs',
-          this.tableColumns,
-          event.data,
-          LogsTableColumnLabel
-        );
+        this.exportService.toExcel<JLog>('hashtopolis-logs', this.tableColumns, event.data, LogsTableColumnLabel);
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JLog>(
-          'hashtopolis-logs',
-          this.tableColumns,
-          event.data,
-          LogsTableColumnLabel
-        );
+        this.exportService.toCsv<JLog>('hashtopolis-logs', this.tableColumns, event.data, LogsTableColumnLabel);
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JLog>(this.tableColumns, event.data, LogsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<JLog>(this.tableColumns, event.data, LogsTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
