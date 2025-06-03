@@ -33,7 +33,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     const pathMap = {
       [FileType.WORDLIST]: 'wordlist-edit',
@@ -66,10 +66,33 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
    * @returns True, if filename contains filterValue
    *          False, if not
    */
-  filter(file: JFile, filterValue: string): boolean {
-    return file.filename.toLowerCase().includes(filterValue);
+  filter(item: JFile, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.filename?.toLowerCase().includes(filterValue) ||
+          item.accessGroup?.groupName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'filename': {
+        return item.filename?.toLowerCase().includes(filterValue);
+      }
+      case 'accessGroupName': {
+        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.filename?.toLowerCase().includes(filterValue);
+    }
   }
-
   /**
    * Get all table columns
    * @returns List of table columns
@@ -96,14 +119,12 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'size',
         render: (file: JFile) => formatFileSize(file.size, 'short'),
         isSortable: true,
-        isSearchable: true,
         export: async (file: JFile) => formatFileSize(file.size, 'short')
       },
       {
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
-        isSearchable: true,
         render: (file: JFile) => file.lineCount.toLocaleString(),
         export: async (file: JFile) => file.lineCount + ''
       },
@@ -111,6 +132,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
+        isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
       }
