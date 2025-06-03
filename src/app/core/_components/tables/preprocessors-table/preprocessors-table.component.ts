@@ -25,7 +25,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -40,10 +40,30 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     }
   }
 
-  filter(item: JPreprocessor, filterValue: string): boolean {
+  /*   filter(item: JPreprocessor, filterValue: string): boolean {
     return item.name.toLowerCase().includes(filterValue);
+  } */
+  filter(item: JPreprocessor, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -172,15 +192,18 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
    */
   private bulkActionDelete(preprocessors: JPreprocessor[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.PREPROCESSORS, preprocessors).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.PREPROCESSORS, preprocessors)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
