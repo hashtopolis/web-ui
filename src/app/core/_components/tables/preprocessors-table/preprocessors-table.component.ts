@@ -40,16 +40,12 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     }
   }
 
-  /*   filter(item: JPreprocessor, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
-  } */
   filter(item: JPreprocessor, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
-        console.log(item);
         // Search across multiple relevant fields
         return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
       }
