@@ -76,6 +76,27 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           item.task?.taskName?.toLowerCase().includes(filterValue)
         );
       }
+      case 'id': {
+        return String(item.id).toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName?.toLowerCase().includes(filterValue);
+      }
+      case 'userId': {
+        return item.user?.name?.toLowerCase().includes(filterValue);
+      }
+      case 'clientSignature': {
+        return item.clientSignature?.toLowerCase().includes(filterValue);
+      }
+      case 'devices': {
+        return item.devices?.toLowerCase().includes(filterValue);
+      }
+      case 'accessGroupId': {
+        return item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue));
+      }
+      case 'taskName': {
+        return item.task?.taskName?.toLowerCase().includes(filterValue);
+      }
       default:
         // For direct properties on the wrapper
         if (item[selectedColumn] !== undefined) {
