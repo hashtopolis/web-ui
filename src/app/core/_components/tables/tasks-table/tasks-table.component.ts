@@ -61,7 +61,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all':
-        console.log(item);
         // Search across multiple relevant fields
         return (
           item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue)) ||
