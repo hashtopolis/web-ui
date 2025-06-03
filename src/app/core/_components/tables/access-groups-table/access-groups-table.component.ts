@@ -26,6 +26,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
@@ -43,9 +44,25 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JAccessGroup, filterValue: string): boolean {
-    return item.groupName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.groupName?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'groupName': {
+        return item.groupName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.groupName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
