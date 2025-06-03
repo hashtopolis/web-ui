@@ -1,28 +1,23 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JHealthCheck } from '@models/health-check.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   HealthChecksTableCol,
   HealthChecksTableColumnLabel,
   HealthChecksTableStatusLabel
 } from '@components/tables/health-checks-table/health-checks-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
-
+import { JHealthCheck } from '@models/health-check.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -33,6 +28,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
@@ -49,9 +45,28 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JHealthCheck, filterValue: string): boolean {
-    return item.attackCmd.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) || item.hashTypeDescription?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'hashtypeDescription': {
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -59,6 +74,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         dataKey: 'id',
         routerLink: (healthCheck: JHealthCheck) => this.renderHealthCheckLink(healthCheck),
         isSortable: true,
+        isSearchable: true,
         export: async (healthCheck: JHealthCheck) => healthCheck.id + ''
       },
       {
@@ -74,6 +90,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         render: (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
         isSortable: true,
+        isSearchable: true,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''
       },
@@ -194,15 +211,18 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(healthChecks: JHealthCheck[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HEALTH_CHECKS, healthChecks).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HEALTH_CHECKS, healthChecks)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted healthchecks!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted healthchecks!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
