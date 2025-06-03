@@ -38,7 +38,7 @@ export class STATCALCULATION {
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -54,11 +54,43 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JAgent, filterValue: string): boolean {
-    return (
-      item.agentName.toLowerCase().includes(filterValue) ||
-      item.clientSignature.toLowerCase().includes(filterValue) ||
-      item.devices.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id?.toString().includes(filterValue) ||
+          item.agentName?.toLowerCase().includes(filterValue) ||
+          item.taskName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName?.toLowerCase().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName?.toLowerCase().includes(filterValue);
+      }
+      // Assuming status is a string, adjust if it's an enum or object
+      default:
+        // For direct properties on the wrapper
+        if (item[selectedColumn] !== undefined) {
+          return String(item[selectedColumn]).toLowerCase().includes(filterValue);
+        }
+
+        // For nested properties in tasks array
+        if (item.tasks?.[0]?.[selectedColumn] !== undefined) {
+          return String(item.tasks[0][selectedColumn]).toLowerCase().includes(filterValue);
+        }
+
+        // Default fallback to task name
+        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
