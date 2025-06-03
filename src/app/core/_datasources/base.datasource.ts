@@ -41,8 +41,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   public sort: MatSort;
   public serializer: JsonAPISerializer;
-  /*   public filterTemplate: (data: T, filter: string) => boolean;
-   */ /**
+  /**
    * Array of subscriptions that will be unsubscribed on disconnect.
    */
   protected subscriptions: Subscription[] = [];
@@ -68,10 +67,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   private originalData: T[] = [];
 
   private readonly chunkTime: number = 600;
-  /**
-   * The currently selected column for filtering
-   */
-  private selectedColumn: string = 'all';
+
   constructor(
     protected cdr: ChangeDetectorRef,
     protected service: GlobalService,
@@ -185,23 +181,16 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    *
    * @param filterFn - A function to filter the data based on filterValue.
    */
-  filterData(filterFn?: (item: T, filterValue: string) => boolean): void {
-    const filterValue = this.filter.toString().trim().toLowerCase() || '';
+  filterData(filterFn: (item: T, filterValue: string) => boolean): void {
+    const filterValue = this.filter.trim().toLowerCase();
     if (!filterValue) {
       this.dataSubject.next(this.originalData);
-      return;
-    }
-    if (filterFn) {
+    } else {
       const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
+
       this.dataSubject.next(filteredData);
     }
   }
-/*   setSelectedColumn(column: string): void {
-    this.selectedColumn = column;
-  }
-  getSelectedColumn(): string {
-    return this.selectedColumn;
-  } */
   /**
    * Toggle all rows' selection.
    */

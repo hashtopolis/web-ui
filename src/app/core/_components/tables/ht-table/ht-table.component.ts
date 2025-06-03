@@ -223,7 +223,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
     if (this.dataSource.filter) {
-      this.applyColumnFilter();
+      this.applyFilter();
     }
   }
 
@@ -377,17 +377,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         search: this.dataSource.filter
       });
     }
-  }
-  applyColumnFilter(): void {
-    if (this.filterFn) {
-      this.dataSource.filterData(this.filterFn);
-    } else {
-      this.dataSource.filterData();
-    }
-    this.uiSettings.updateTableSettings(this.name, {
-      search: this.dataSource.filter
-      // filterColumn: this.selectedFilterColumn
-    });
   }
 
   /**
