@@ -55,7 +55,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -74,9 +74,32 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue) || item.attackCmd.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.taskName.toLowerCase().includes(filterValue) ||
+          item.attackCmd.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName?.toLowerCase().includes(filterValue);
+      }
+      case 'attackCmd': {
+        return item.attackCmd?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.taskName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
