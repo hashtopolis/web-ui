@@ -26,7 +26,7 @@ import { environment } from '@src/environments/environment';
 export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
-
+  selectedFilterColumn: string = 'all';
   agentdownloadURL: string;
 
   ngOnInit(): void {
@@ -47,9 +47,45 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JAgentBinary, filterValue: string): boolean {
-    return item.filename.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.filename?.toLowerCase().includes(filterValue) ||
+          item.operatingSystems?.toLowerCase().includes(filterValue) ||
+          item.agentbinaryType?.toLowerCase().includes(filterValue) ||
+          item.updateTrack?.toLowerCase().includes(filterValue) ||
+          item.version?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'filename': {
+        return item.filename?.toLowerCase().includes(filterValue);
+      }
+      case 'operatingSystems': {
+        return item.operatingSystems?.toLowerCase().includes(filterValue);
+      }
+      case 'type': {
+        return item.agentbinaryType?.toLowerCase().includes(filterValue);
+      }
+      case 'updateTrack': {
+        return item.updateTrack?.toLowerCase().includes(filterValue);
+      }
+      case 'version': {
+        return item.version?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.filename?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -63,6 +99,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         id: AgentBinariesTableCol.TYPE,
         dataKey: 'type',
         isSortable: true,
+        isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.agentbinaryType,
         export: async (agentBinary: JAgentBinary) => agentBinary.agentbinaryType
       },
