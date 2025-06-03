@@ -55,7 +55,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
-        console.log(item);
         // Search across multiple relevant fields
         return (
           item.id.toString().includes(filterValue) ||

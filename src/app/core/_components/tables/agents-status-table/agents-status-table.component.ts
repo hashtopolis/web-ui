@@ -59,7 +59,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
-        console.log(item);
         // Search across multiple relevant fields
         return (
           item.id?.toString().includes(filterValue) ||
@@ -76,20 +75,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       case 'taskName': {
         return item.taskName?.toLowerCase().includes(filterValue);
       }
-      // Assuming status is a string, adjust if it's an enum or object
       default:
-        // For direct properties on the wrapper
-        if (item[selectedColumn] !== undefined) {
-          return String(item[selectedColumn]).toLowerCase().includes(filterValue);
-        }
-
-        // For nested properties in tasks array
-        if (item.tasks?.[0]?.[selectedColumn] !== undefined) {
-          return String(item.tasks[0][selectedColumn]).toLowerCase().includes(filterValue);
-        }
-
-        // Default fallback to task name
-        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+        return item.agentName?.toLowerCase().includes(filterValue);
     }
   }
 

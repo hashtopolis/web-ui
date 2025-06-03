@@ -57,13 +57,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     // Get lowercase filter value for case-insensitive comparison
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
-  
+
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all':
+        console.log(item);
         // Search across multiple relevant fields
         return (
-          item.tasks[0]?.taskName?.toLowerCase().includes(filterValue) ||
+          item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue)) ||
           item.id?.toString().toLowerCase().includes(filterValue) ||
           item.accessGroup?.groupName?.toLowerCase().includes(filterValue) ||
           (item.hashType &&
@@ -79,7 +80,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         return item.id?.toString().toLowerCase().includes(filterValue);
 
       case 'taskName':
-        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
 
       case 'taskType':
         const typeText = item.taskType === 0 ? 'task' : 'supertask';
@@ -107,18 +108,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       }
 
       default:
-        // For direct properties on the wrapper
-        if (item[selectedColumn] !== undefined) {
-          return String(item[selectedColumn]).toLowerCase().includes(filterValue);
-        }
-
-        // For nested properties in tasks array
-        if (item.tasks?.[0]?.[selectedColumn] !== undefined) {
-          return String(item.tasks[0][selectedColumn]).toLowerCase().includes(filterValue);
-        }
-
-        // Default fallback to task name
-        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
     }
   }
 

@@ -52,7 +52,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
-        console.log(item);
         // Search across multiple relevant fields
         return (
           item.id.toString().includes(filterValue) ||
