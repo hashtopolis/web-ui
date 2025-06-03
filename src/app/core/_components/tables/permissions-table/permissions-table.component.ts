@@ -25,6 +25,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
@@ -41,9 +42,25 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   }
 
   filter(item: JGlobalPermissionGroup, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -162,15 +179,18 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
    */
   private bulkActionDelete(permissions: JGlobalPermissionGroup[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted permission groups!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted permission groups!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
