@@ -29,7 +29,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -48,12 +48,43 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     }
   }
 
-  filter(item: JHashlist, filterValue: string): boolean {
-    return (
-      item['name'].toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
-    );
-  }
 
+  filter(item: JHashlist, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.name?.toLowerCase().includes(filterValue) ||
+          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
+          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
+            filterValue
+          )
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'hashTypeDescription': {
+        return (
+          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
+          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
+            filterValue
+          )
+        );
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
+  }
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
