@@ -27,7 +27,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -44,11 +44,37 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   }
 
   filter(item: JHashlist, filterValue: string): boolean {
-    return (
-      item.name.toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id?.toString().includes(filterValue) ||
+          item.name?.toLowerCase().includes(filterValue) ||
+          item.hashTypeDescription?.toLowerCase().includes(filterValue) ||
+          item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue))
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'hashTypeDescription': {
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+      }
+      case 'hashlists': {
+        return item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue));
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -88,6 +114,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         dataKey: 'hashlists',
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       }
     ];
@@ -220,15 +247,18 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
    */
   private bulkActionDelete(superHashlists: JHashlist[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHLISTS, superHashlists).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHLISTS, superHashlists)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
