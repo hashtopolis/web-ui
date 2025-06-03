@@ -26,6 +26,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
@@ -42,7 +43,27 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   }
 
   filter(item: JSuperTask, filterValue: string): boolean {
-    return item.supertaskName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.supertaskName.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'supertaskName': {
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
