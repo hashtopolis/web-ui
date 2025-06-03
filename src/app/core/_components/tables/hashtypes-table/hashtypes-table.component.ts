@@ -26,7 +26,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -75,11 +75,27 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   }
 
   filter(item: JHashtype, filterValue: string): boolean {
-    return (
-      item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'hashTypeId': {
+        return item.id.toString().toLowerCase().includes(filterValue);
+      }
+      case 'description': {
+        return item.description.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.id.toString().toLowerCase().includes(filterValue);
+    }
   }
-
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
