@@ -9,6 +9,8 @@
   [hasBulkActions]="false"
   [hasRowAction]="false"
   [isFilterable]="true"
+  [filterFn]="filter.bind(this)"
   [isPageable]="true"
   (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
 />

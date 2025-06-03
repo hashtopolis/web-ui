@@ -24,7 +24,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(CracksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -39,10 +39,29 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     }
   }
 
-  filter(item: JHash, filterValue: string): boolean {
+  /*   filter(item: JHash, filterValue: string): boolean {
     return item.plaintext.toLowerCase().includes(filterValue);
+  } */
+  filter(item: JHash, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.plaintext.toLowerCase().includes(filterValue) || item.hash.toLowerCase().includes(filterValue);
+      }
+      case 'plaintext': {
+        return item.plaintext?.toLowerCase().includes(filterValue);
+      }
+      case 'hash': {
+        return item.hash?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.plaintext?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -64,6 +83,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
+        isSearchable: true,
         truncate: true,
         render: (crack: JHash) => crack.hash,
         export: async (crack: JHash) => crack.hash
