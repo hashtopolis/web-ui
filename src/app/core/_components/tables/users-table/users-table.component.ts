@@ -27,6 +27,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class UsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: UsersDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(UsersTableColumnLabel);
@@ -43,9 +44,36 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   filter(item: JUser, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue) || item.email.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.name.toLowerCase().includes(filterValue) ||
+          item.email.toLowerCase().includes(filterValue) ||
+          item.globalPermissionGroup.name.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name.toLowerCase().includes(filterValue);
+      }
+      case 'email': {
+        return item.email.toLowerCase().includes(filterValue);
+      }
+      case 'globalPermissionGroupName': {
+        return item.globalPermissionGroup.name.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -106,6 +134,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: true,
+        isSearchable: true,
         render: (user: JUser) => user.globalPermissionGroup.name,
         export: async (user: JUser) => user.globalPermissionGroup.name
       }
@@ -220,15 +249,18 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
    */
   private bulkActionDelete(users: JUser[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.USERS, users).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.USERS, users)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted users!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted users!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -239,9 +271,9 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     const action = isValid ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.USERS, users, {isValid: isValid}).subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} users!`, 'Close');
-          this.reload();
+      this.gs.bulkUpdate(SERV.USERS, users, { isValid: isValid }).subscribe((results) => {
+        this.snackBar.open(`Successfully ${action} users!`, 'Close');
+        this.reload();
       })
     );
   }
