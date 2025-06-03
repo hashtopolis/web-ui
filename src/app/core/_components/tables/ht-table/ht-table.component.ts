@@ -184,11 +184,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
-  @Output() filterValue: EventEmitter<string> = new EventEmitter();
+  @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
-
-  private sortingColumn;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
 
@@ -223,7 +221,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   // Handle filter column change
   onFilterColumnChange(): void {
-    this.filterValue.emit(this.selectedFilterColumn);
+    this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
     console.log('Filter column changed:', this.selectedFilterColumn);
     if (this.dataSource.filter) {
       this.applyColumnFilter();
