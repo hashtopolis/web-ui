@@ -22,6 +22,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
@@ -36,11 +37,36 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
       sub.unsubscribe();
     }
   }
-
+  
   filter(item: JCrackerBinaryType, filterValue: string): boolean {
-    return item.typeName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.typeName.toLowerCase().includes(filterValue) ||
+          item.crackerVersions.some((version: JCrackerBinary) => version.version.toLowerCase().includes(filterValue))
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'typeName': {
+        return item.typeName?.toLowerCase().includes(filterValue);
+      }
+      case 'crackerVersions': {
+        return item.crackerVersions.some((version: JCrackerBinary) =>
+          version.version.toLowerCase().includes(filterValue)
+        );
+      }
+      default:
+        // Default fallback to task name
+        return item.typeName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -63,6 +89,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'crackerVersions',
         routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
+        isSearchable: true,
         export: async (cracker: JCrackerBinaryType) =>
           cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')
       }
