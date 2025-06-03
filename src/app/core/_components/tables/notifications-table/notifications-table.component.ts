@@ -26,6 +26,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);
@@ -42,7 +43,35 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JNotification, filterValue: string): boolean {
-    return item.notification.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.notification?.toLowerCase().includes(filterValue) ||
+          item.action?.toLowerCase().includes(filterValue) ||
+          item.receiver?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'action': {
+        return item.action?.toLowerCase().includes(filterValue);
+      }
+      case 'receiver': {
+        return item.receiver?.toLowerCase().includes(filterValue);
+      }
+      case 'notification': {
+        return item.notification?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.notification?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -66,6 +95,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         id: NotificationsTableCol.ACTION,
         dataKey: 'action',
         isSortable: true,
+        isSearchable: true,
         render: (notification: JNotification) => notification.action,
         export: async (notification: JNotification) => notification.action
       },
