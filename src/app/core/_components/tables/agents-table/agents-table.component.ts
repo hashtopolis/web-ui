@@ -40,7 +40,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -59,11 +59,37 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   filter(item: JAgent, filterValue: string): boolean {
-    return (
-      item.agentName.toLowerCase().includes(filterValue) ||
-      item.clientSignature.toLowerCase().includes(filterValue) ||
-      item.devices.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        console.log(item);
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.agentName?.toLowerCase().includes(filterValue) ||
+          item.user.name?.toLowerCase().includes(filterValue) ||
+          item.clientSignature?.toLowerCase().includes(filterValue) ||
+          item.devices?.toLowerCase().includes(filterValue) ||
+          item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue)) ||
+          item.task?.taskName?.toLowerCase().includes(filterValue)
+        );
+      }
+      default:
+        // For direct properties on the wrapper
+        if (item[selectedColumn] !== undefined) {
+          return String(item[selectedColumn]).toLowerCase().includes(filterValue);
+        }
+
+        // For nested properties in tasks array
+        if (item.tasks?.[0]?.[selectedColumn] !== undefined) {
+          return String(item.tasks[0][selectedColumn]).toLowerCase().includes(filterValue);
+        }
+
+        // Default fallback to task name
+        return item.tasks[0]?.taskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -148,6 +174,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'taskName',
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
       });
       tableColumns.push({
@@ -155,6 +182,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'accessGroupId',
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.accessGroup
       });
     } else {

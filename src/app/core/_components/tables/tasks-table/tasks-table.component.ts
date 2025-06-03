@@ -56,10 +56,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   filter(item: JTaskWrapper, filterValue: string): boolean {
     // Get lowercase filter value for case-insensitive comparison
     filterValue = filterValue.toLowerCase();
-
-    // Access component instance's selectedFilterColumn via dataSource
-    // const selectedColumn = this.dataSource?.getSelectedColumn() || 'all';
     const selectedColumn = this.selectedFilterColumn;
+  
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all':
