@@ -69,7 +69,15 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
             })
             .filter((joinedObject: { [key: string]: any } | null) => joinedObject !== null);
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, healthChecksAgent.length);
+          const length = healthCheckResponse.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(joinedData as JHealthCheckAgent[]);
         })
     );

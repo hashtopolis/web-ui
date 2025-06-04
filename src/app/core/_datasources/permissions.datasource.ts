@@ -23,10 +23,14 @@ export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup
           const responseBody = { data: response.data, included: response.included };
           const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            globalPermissionGroups.length
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(globalPermissionGroups);
         })
