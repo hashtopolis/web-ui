@@ -38,7 +38,7 @@ export class STATCALCULATION {
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -54,11 +54,30 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JAgent, filterValue: string): boolean {
-    return (
-      item.agentName.toLowerCase().includes(filterValue) ||
-      item.clientSignature.toLowerCase().includes(filterValue) ||
-      item.devices.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id?.toString().includes(filterValue) ||
+          item.agentName?.toLowerCase().includes(filterValue) ||
+          item.taskName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName?.toLowerCase().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.agentName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -67,6 +86,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
@@ -75,6 +95,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.agentName
       },
       {
@@ -103,6 +124,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
+        isSearchable: true,
         render: (agent: JAgent) => agent.taskName,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         export: async (agent: JAgent) => agent.taskName

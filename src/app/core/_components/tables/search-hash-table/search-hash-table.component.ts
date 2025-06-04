@@ -1,39 +1,34 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { SearchHashDataSource } from '@datasources/search-hash.datasource';
 import {
   SearchHashTableCol,
   SearchHashTableColumnLabel
 } from '@components/tables/search-hash-table/search-hash-table.constants';
-import { JHash } from '@models/hash.model';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JHash } from '@models/hash.model';
 import { SafeHtml } from '@angular/platform-browser';
+import { SearchHashDataSource } from '@datasources/search-hash.datasource';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'search-hash-table',
-    templateUrl: './search-hash-table.component.html',
-    standalone: false
+  selector: 'search-hash-table',
+  templateUrl: './search-hash-table.component.html',
+  standalone: false
 })
-export class SearchHashTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy, OnChanges
-{
+export class SearchHashTableComponent extends BaseTableComponent implements OnInit, OnDestroy, OnChanges {
   @Input() search: any[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
+  selectedFilterColumn: string = 'all';
   private initDone: boolean = false;
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SearchHashDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new SearchHashDataSource(this.cdr, this.gs, this.uiService);
     if (this.search) {
       this.dataSource.setSearch(this.search);
     }
@@ -49,15 +44,32 @@ export class SearchHashTableComponent
   }
 
   filter(item: JHash, filterValue: string): boolean {
-    return item.hash.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.hash.toString().includes(filterValue) || item.plaintext.toLowerCase().includes(filterValue);
+      }
+      case 'hash': {
+        return item.hash?.toLowerCase().includes(filterValue);
+      }
+      case 'plaintext': {
+        return item.plaintext?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.hash?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: SearchHashTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
+        isSearchable: true,
         render: (hash: JHash) => hash.hash,
         export: async (hash: JHash) => hash.hash + ''
       },
@@ -65,6 +77,7 @@ export class SearchHashTableComponent
         id: SearchHashTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
+        isSearchable: true,
         render: (hash: JHash) => hash.plaintext,
         export: async (hash: JHash) => hash.plaintext + ''
       },
@@ -99,18 +112,9 @@ export class SearchHashTableComponent
         );
         break;
       case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHash>(
-            this.tableColumns,
-            event.data,
-            SearchHashTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
+        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, SearchHashTableColumnLabel).then(() => {
+          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+        });
         break;
     }
   }
@@ -130,16 +134,11 @@ export class SearchHashTableComponent
     let htmlContent: string;
     if (hash.id !== undefined) {
       htmlContent = `
-          ${hash.isCracked ? 'Cracked' : 'Uncracked'} on ${formatUnixTimestamp(
-            hash.timeCracked,
-            this.dateFormat
-          )}
+          ${hash.isCracked ? 'Cracked' : 'Uncracked'} on ${formatUnixTimestamp(hash.timeCracked, this.dateFormat)}
           <br>
           Hashlist:
           <a
-            href="#/hashlists/hashlist/${
-              hash.hashlistId
-            }/edit"
+            href="#/hashlists/hashlist/${hash.hashlistId}/edit"
           >${hash.hashlist.name}</a>
         `;
     } else {

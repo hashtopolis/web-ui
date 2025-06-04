@@ -1,26 +1,21 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JHashlist } from '@models/hashlist.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 import {
   SuperHashlistsTableCol,
   SuperHashlistsTableColumnLabel
 } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JHashlist } from '@models/hashlist.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
-
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
@@ -32,7 +27,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -49,17 +44,43 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   }
 
   filter(item: JHashlist, filterValue: string): boolean {
-    return (
-      item.name.toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id?.toString().includes(filterValue) ||
+          item.name?.toLowerCase().includes(filterValue) ||
+          item.hashTypeDescription?.toLowerCase().includes(filterValue) ||
+          item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue))
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'hashTypeDescription': {
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+      }
+      case 'hashlists': {
+        return item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue));
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: SuperHashlistsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.id + ''
       },
       {
@@ -68,6 +89,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         icon: (superHashlist: JHashlist) => this.renderSecretIcon(superHashlist),
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLink(superHashlist),
         isSortable: true,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.name
       },
       {
@@ -82,6 +104,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: true,
+        isSearchable: true,
         render: (hashlist: JHashlist) => hashlist.hashTypeDescription,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       },
@@ -90,6 +113,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         dataKey: 'hashlists',
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       }
     ];
@@ -222,15 +246,18 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
    */
   private bulkActionDelete(superHashlists: JHashlist[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHLISTS, superHashlists).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHLISTS, superHashlists)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

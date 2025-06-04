@@ -1,25 +1,21 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JPreprocessor } from '@models/preprocessor.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 import {
   PreprocessorsTableCol,
   PreprocessorsTableColumnLabel
 } from '@components/tables/preprocessors-table/preprocessors-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JPreprocessor } from '@models/preprocessor.model';
 import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-preprocessors-table',
@@ -29,7 +25,7 @@ import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -45,15 +41,32 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JPreprocessor, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: PreprocessorsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (preprocessor: JPreprocessor) => preprocessor.id + ''
       },
       {
@@ -61,6 +74,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
         dataKey: 'name',
         routerLink: (preprocessor: JPreprocessor) => this.renderPreproLink(preprocessor),
         isSortable: true,
+        isSearchable: true,
         export: async (preprocessor: JPreprocessor) => preprocessor.name
       }
     ];
@@ -174,15 +188,18 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
    */
   private bulkActionDelete(preprocessors: JPreprocessor[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.PREPROCESSORS, preprocessors).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.PREPROCESSORS, preprocessors)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

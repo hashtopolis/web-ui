@@ -1,25 +1,21 @@
-import { catchError, forkJoin } from 'rxjs';
-
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-
-import { JHashtype } from '@models/hashtype.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import {
   HashtypesTableCol,
   HashtypesTableColumnLabel
 } from '@components/tables/hashtypes-table/hashtypes-table.constants';
-import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { catchError, forkJoin } from 'rxjs';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
+import { JHashtype } from '@models/hashtype.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-hashtypes-table',
@@ -30,7 +26,7 @@ import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -49,6 +45,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         id: HashtypesTableCol.HASHTYPE,
         dataKey: 'hashTypeId',
         isSortable: true,
+        isSearchable: true,
         render: (hashtype: JHashtype) => hashtype.id,
         export: async (hashtype: JHashtype) => hashtype.id + ''
       },
@@ -56,6 +53,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         id: HashtypesTableCol.DESCRIPTION,
         dataKey: 'description',
         isSortable: true,
+        isSearchable: true,
         render: (hashtype: JHashtype) => hashtype.description,
         export: async (hashtype: JHashtype) => hashtype.description
       },
@@ -77,11 +75,27 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   }
 
   filter(item: JHashtype, filterValue: string): boolean {
-    return (
-      item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'hashTypeId': {
+        return item.id.toString().toLowerCase().includes(filterValue);
+      }
+      case 'description': {
+        return item.description.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.id.toString().toLowerCase().includes(filterValue);
+    }
   }
-
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
@@ -169,15 +183,18 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    */
   private bulkActionDelete(hashtypes: JHashtype[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHTYPES, hashtypes).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHTYPES, hashtypes)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted hashtypes!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashtypes!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

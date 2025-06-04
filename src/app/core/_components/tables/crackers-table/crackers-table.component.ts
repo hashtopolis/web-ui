@@ -1,22 +1,18 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { Observable, catchError, forkJoin, of } from 'rxjs';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { CrackersDataSource } from '@datasources/crackers.datasource';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-crackers-table',
@@ -26,6 +22,7 @@ import { CrackersDataSource } from '@datasources/crackers.datasource';
 export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
@@ -40,23 +37,50 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
       sub.unsubscribe();
     }
   }
-
+  
   filter(item: JCrackerBinaryType, filterValue: string): boolean {
-    return item.typeName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.typeName.toLowerCase().includes(filterValue) ||
+          item.crackerVersions.some((version: JCrackerBinary) => version.version.toLowerCase().includes(filterValue))
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'typeName': {
+        return item.typeName?.toLowerCase().includes(filterValue);
+      }
+      case 'crackerVersions': {
+        return item.crackerVersions.some((version: JCrackerBinary) =>
+          version.version.toLowerCase().includes(filterValue)
+        );
+      }
+      default:
+        // Default fallback to task name
+        return item.typeName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: CrackersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (cracker: JCrackerBinaryType) => cracker.id + ''
       },
       {
         id: CrackersTableCol.NAME,
         dataKey: 'typeName',
         isSortable: true,
+        isSearchable: true,
         render: (cracker: JCrackerBinaryType) => cracker.typeName,
         export: async (cracker: JCrackerBinaryType) => cracker.typeName
       },
@@ -65,6 +89,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'crackerVersions',
         routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
+        isSearchable: true,
         export: async (cracker: JCrackerBinaryType) =>
           cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')
       }
@@ -162,15 +187,18 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
    */
   private bulkActionDelete(crackers: JCrackerBinaryType[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.CRACKERS_TYPES, crackers).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.CRACKERS_TYPES, crackers)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted crackers!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted crackers!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

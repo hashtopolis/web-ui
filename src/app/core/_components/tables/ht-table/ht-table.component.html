@@ -59,18 +59,31 @@
         </button>
       </div>
     }
-    <!-- filter -->
-    <div class="table-action-wrapper right-aligned">
-      <mat-form-field *ngIf="isFilterable">
-        <mat-icon matPrefix>filter_list</mat-icon>
-        <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
-        <button mat-icon-button matSuffix (click)="clearFilter()">
-          <mat-icon>clear</mat-icon>
-        </button>
-      </mat-form-field>
+
+    <!-- Filter section -->
+    <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
+      <div class="filter-container">
+        <!-- Column selector dropdown -->
+        <mat-form-field>
+          <mat-label>Filter by column</mat-label>
+          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+            <mat-option value="all">All filterable columns</mat-option>
+            @for (column of filterableColumns; track column) {
+              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filter input -->
+        <mat-form-field style="min-width: 200px">
+          <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
+          <button mat-icon-button matSuffix (click)="clearFilter()">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
     </div>
   </div>
-
   <!-- Table -->
   <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
@@ -83,7 +96,7 @@
         <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
           <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{
             isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
-          }}</span>
+            }}</span>
         </ng-container>
         <!-- Check if only isCmdTask is true -->
         <ng-template #checkCmdAttack>
@@ -240,12 +253,7 @@
   <!-- Pagination -->
   <ng-container *ngIf="isPageable">
     <hr />
-    <mat-paginator
-      [length]="dataSource.totalItems"
-      [pageSize]="dataSource.pageSize"
-      [pageSizeOptions]="paginationSizes"
-      [pageIndex]="dataSource.currentPage"
-      (page)="onPageChange($event)"
-    ></mat-paginator>
+    <mat-paginator [length]="dataSource.totalItems" [pageSize]="dataSource.pageSize" [pageSizeOptions]="paginationSizes"
+      [pageIndex]="dataSource.index" (page)="onPageChange($event)"></mat-paginator>
   </ng-container>
 </ng-container>

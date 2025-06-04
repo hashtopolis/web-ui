@@ -1,28 +1,23 @@
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FileType, JFile } from '@models/file.model';
+import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, of } from 'rxjs';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { FilesDataSource } from '@datasources/files.datasource';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 /**
  * Contains table component for files
  * @module
  */
 import { faKey } from '@fortawesome/free-solid-svg-icons';
-import { Observable, catchError, of } from 'rxjs';
-
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-
-import { FileType, JFile } from '@models/file.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { FilesDataSource } from '@datasources/files.datasource';
-
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
@@ -38,7 +33,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     const pathMap = {
       [FileType.WORDLIST]: 'wordlist-edit',
@@ -71,10 +66,33 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
    * @returns True, if filename contains filterValue
    *          False, if not
    */
-  filter(file: JFile, filterValue: string): boolean {
-    return file.filename.toLowerCase().includes(filterValue);
+  filter(item: JFile, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.filename?.toLowerCase().includes(filterValue) ||
+          item.accessGroup?.groupName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'filename': {
+        return item.filename?.toLowerCase().includes(filterValue);
+      }
+      case 'accessGroupName': {
+        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.filename?.toLowerCase().includes(filterValue);
+    }
   }
-
   /**
    * Get all table columns
    * @returns List of table columns
@@ -85,6 +103,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => file.id + ''
       },
       {
@@ -92,6 +111,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'filename',
         routerLink: (file: JFile) => this.renderFileLink(file),
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => file.filename
       },
       {
@@ -112,6 +132,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
+        isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
       }

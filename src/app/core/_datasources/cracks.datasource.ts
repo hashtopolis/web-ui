@@ -12,6 +12,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class CracksDataSource extends BaseDataSource<JHash> {
+  public length = 0;
   /**
    * Set table rows loaded from server
    */
@@ -30,7 +31,13 @@ export class CracksDataSource extends BaseDataSource<JHash> {
           })
       );
 
-      this.setPaginationConfig(this.pageSize, this.currentPage, crackedHashes.length);
+      this.setPaginationConfig(
+        this.pageSize,
+        this.length,
+        this.pageAfter,
+        this.pageBefore,
+        this.index
+      );
       this.setData(rows);
     } catch (error) {
       console.error('Error loading data', error);
@@ -56,6 +63,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       .create();
 
     const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.HASHES, params));
+    this.length = response.meta.page.total_elements;
     const serializer = new JsonAPISerializer();
     return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
   }

@@ -1,27 +1,22 @@
-import { catchError, forkJoin } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JSuperTask } from '@models/supertask.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksTableCol,
   SupertasksTableColumnLabel
 } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError, forkJoin } from 'rxjs';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
-
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JSuperTask } from '@models/supertask.model';
 import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-supertasks-table',
@@ -31,6 +26,7 @@ import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks
 export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
@@ -47,7 +43,26 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   }
 
   filter(item: JSuperTask, filterValue: string): boolean {
-    return item.supertaskName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.supertaskName.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'supertaskName': {
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -56,6 +71,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         id: SupertasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {
@@ -63,6 +79,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         dataKey: 'supertaskName',
         routerLink: (supertask: JSuperTask) => this.renderSupertaskLink(supertask),
         isSortable: true,
+        isSearchable: true,
         export: async (supertask: JSuperTask) => supertask.supertaskName
       },
       {
