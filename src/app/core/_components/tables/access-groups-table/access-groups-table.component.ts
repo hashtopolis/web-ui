@@ -1,26 +1,22 @@
-import { catchError, forkJoin } from 'rxjs';
-
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JAccessGroup } from '@models/access-group.model';
-
-import { SERV } from '@services/main.config';
-import { LruCacheService } from '@services/shared/lru-cache.service';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsTableCol,
   AccessGroupsTableColumnLabel
 } from '@components/tables/access-groups-table/access-groups-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { catchError, forkJoin } from 'rxjs';
 
 import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JAccessGroup } from '@models/access-group.model';
+import { LruCacheService } from '@services/shared/lru-cache.service';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-access-groups-table',
@@ -30,6 +26,7 @@ import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
@@ -47,15 +44,32 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JAccessGroup, filterValue: string): boolean {
-    return item.groupName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.groupName?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'groupName': {
+        return item.groupName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.groupName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {
@@ -63,6 +77,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'groupName',
         routerLink: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
         isSortable: true,
+        isSearchable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
       {
@@ -186,15 +201,18 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(accessGroups: JAccessGroup[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.ACCESS_GROUPS, accessGroups).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.ACCESS_GROUPS, accessGroups)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe((results) => {
+          this.snackBar.open(`Successfully deleted accessgroups!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted accessgroups!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

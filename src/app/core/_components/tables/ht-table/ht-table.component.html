@@ -17,8 +17,14 @@
         </button>
       </ng-container>
       <ng-template #bulkActionMenu>
-        <bulk-action-menu #bulkMenu [dataType]="dataType" [isArchived]="isArchived"
-          [data]="dataSource.selection.selected" [disabled]="!hasSelected()" (menuItemClicked)="bulkAction($event)" />
+        <bulk-action-menu
+          #bulkMenu
+          [dataType]="dataType"
+          [isArchived]="isArchived"
+          [data]="dataSource.selection.selected"
+          [disabled]="!hasSelected()"
+          (menuItemClicked)="bulkAction($event)"
+        />
       </ng-template>
     </div>
     <!-- export -->
@@ -30,8 +36,11 @@
         </button>
       </ng-container>
       <ng-template #exportMenu>
-        <export-menu [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
-          (menuItemClicked)="exportAction($event)" />
+        <export-menu
+          [data]="dataSource.selection.selected"
+          [disabled]="!hasSelected()"
+          (menuItemClicked)="exportAction($event)"
+        />
       </ng-template>
     </div>
     <!-- columns -->
@@ -43,25 +52,38 @@
     </div>
     <!-- temrature information -->
     @if (hasTemperatureInformation) {
-    <div class="table-action-wrapper">
-      <button mat-button (click)="temperatureInformationEmit()">
-        <mat-icon>info</mat-icon>
-        Temperature Information
-      </button>
-    </div>
-    }
-    <!-- filter -->
-    <div class="table-action-wrapper right-aligned">
-      <mat-form-field *ngIf="isFilterable">
-        <mat-icon matPrefix>filter_list</mat-icon>
-        <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
-        <button mat-icon-button matSuffix (click)="clearFilter()">
-          <mat-icon>clear</mat-icon>
+      <div class="table-action-wrapper">
+        <button mat-button (click)="temperatureInformationEmit()">
+          <mat-icon>info</mat-icon>
+         Temperature Information
         </button>
-      </mat-form-field>
+      </div>
+    }
+
+    <!-- Filter section -->
+    <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
+      <div class="filter-container">
+        <!-- Column selector dropdown -->
+        <mat-form-field>
+          <mat-label>Filter by column</mat-label>
+          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+            <mat-option value="all">All filterable columns</mat-option>
+            @for (column of filterableColumns; track column) {
+              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filter input -->
+        <mat-form-field style="min-width: 200px">
+          <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
+          <button mat-icon-button matSuffix (click)="clearFilter()">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
     </div>
   </div>
-
   <!-- Table -->
   <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
@@ -83,31 +105,46 @@
           </ng-container>
         </ng-template>
         <ng-template #defaultHeader>
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()" [checked]="isAllSelected()"
-            [indeterminate]="indeterminate()" />
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="toggleAll()"
+            [checked]="isAllSelected()"
+            [indeterminate]="indeterminate()"
+          />
         </ng-template>
       </th>
-      <td mat-cell *matCellDef="let row" [ngStyle]="{
+      <td
+        mat-cell
+        *matCellDef="let row"
+        [ngStyle]="{
           'border-left':
             (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row && row.color)
               ? '8px solid ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color)
               : '',
           'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || row.color ? '8px' : '16px'
-        }">
+        }"
+      >
         <ng-container *ngIf="!isCmdTask; else defaultCell">
           <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleSelect(row)" [checked]="isSelected(row)" />
         </ng-container>
         <ng-template #defaultCell>
           <!-- CMD Task -->
           <ng-container>
-            <mat-checkbox *ngIf="isCmdTask" (click)="$event.stopPropagation()"
-              (change)="toggleAttack($event, row, 'CMD')" [checked]="isSelected(row)" />
+            <mat-checkbox
+              *ngIf="isCmdTask"
+              (click)="$event.stopPropagation()"
+              (change)="toggleAttack($event, row, 'CMD')"
+              [checked]="isSelected(row)"
+            />
           </ng-container>
         </ng-template>
         <ng-container>
           <!-- CMD Preprocessor -->
-          <mat-checkbox *ngIf="isCmdPreproAttack" (click)="$event.stopPropagation()"
-            (change)="toggleAttack($event, row, 'CMD_PREPRO')" />
+          <mat-checkbox
+            *ngIf="isCmdPreproAttack"
+            (click)="$event.stopPropagation()"
+            (change)="toggleAttack($event, row, 'CMD_PREPRO')"
+          />
         </ng-container>
       </td>
     </ng-container>
@@ -123,8 +160,12 @@
     <ng-container *ngFor="let tableColumn of tableColumns; let first = first" [matColumnDef]="tableColumn.id + ''">
       <!-- if sortable column header -->
       <ng-container *ngIf="tableColumn.isSortable; else notSortable">
-        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="tableColumn.id + ''"
-          (click)="onColumnHeaderClick(tableColumn)">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          [mat-sort-header]="tableColumn.id + ''"
+          (click)="onColumnHeaderClick(tableColumn)"
+        >
           {{ columnLabels[tableColumn.id] }}
         </th>
       </ng-container>
@@ -135,7 +176,10 @@
         </th>
       </ng-template>
       <!-- column data -->
-      <td mat-cell *matCellDef="let element" [ngStyle]="{
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [ngStyle]="{
           color: tableColumn.customCellColor
             ? (tableColumn.customCellColor.value(element)
               | asColor
@@ -145,29 +189,49 @@
                 : tableColumn.customCellColor.isActive(element)
                 : tableColumn.customCellColor.lastTime(element))
             : ''
-        }" [class.text-right]="tableColumn.position === 'right'">
-        <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
+        }"
+        [class.text-right]="tableColumn.position === 'right'"
+      >
+        <div
+          class="flex-container"
+          [class.links]="tableColumn.routerLink"
+          [class.icons]="tableColumn.icon"
+        >
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
-            <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
-            <ht-table-editable [tableColumn]="tableColumn" [element]="element"
-              (editableInputSaved)="editableInputSaved($event)"></ht-table-editable>
-            <ht-table-editable-checkbox [tableColumn]="tableColumn" [element]="element"
-              (editableCheckboxSaved)="editableCheckboxSaved($event)"></ht-table-editable-checkbox>
+            <app-ht-table-link
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></app-ht-table-link>
+            <ht-table-default
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></ht-table-default>
+            <ht-table-editable
+              [tableColumn]="tableColumn"
+              [element]="element"
+              (editableInputSaved)="editableInputSaved($event)"
+            ></ht-table-editable>
+            <ht-table-editable-checkbox
+              [tableColumn]="tableColumn"
+              [element]="element"
+              (editableCheckboxSaved)="editableCheckboxSaved($event)"
+            ></ht-table-editable-checkbox>
           </ng-container>
 
           <!-- Check if icon function is defined -->
           <ng-container *ngIf="tableColumn.icon">
-            <mat-icon *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
+            <mat-icon
+              *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
               [matTooltip]="tableColumn.icon(element).tooltip"
-              [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-              tableColumn.icon(element).name }}</mat-icon>
+              [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''"
+            >{{ tableColumn.icon(element).name }}</mat-icon
+            >
             <ng-template #iconTmpl>
               <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-                tableColumn.icon(element).name
+                  tableColumn.icon(element).name
                 }}</mat-icon>
             </ng-template>
           </ng-container>

@@ -11,17 +11,16 @@ import {
   ViewChild
 } from '@angular/core';
 import {
-  CheckboxChangeEvent,
-  CheckboxFiles,
   COL_ROW_ACTION,
   COL_SELECT,
+  CheckboxChangeEvent,
+  CheckboxFiles,
   DataType,
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Subscription, take, timer } from 'rxjs';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
@@ -31,6 +30,7 @@ import { LocalStorageService } from 'src/app/core/_services/storage/local-storag
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
@@ -86,7 +86,8 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-
+  selectedFilterColumn: string = 'all';
+  filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
 
@@ -192,11 +193,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
-
+  @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
-
-  private sortingColumn;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
 
@@ -227,6 +226,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.loading = false;
       });
+    this.initFilterableColumns();
+  }
+  initFilterableColumns(): void {
+    this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
+  }
+  // Handle filter column change
+  onFilterColumnChange(): void {
+    this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
+    if (this.dataSource.filter) {
+      this.applyFilter();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -471,7 +481,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   // emit when Temperature Information is clicked
- temperatureInformationEmit() {
+  temperatureInformationEmit() {
     this.temperatureInformationClicked.emit();
   }
   /**

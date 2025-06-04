@@ -1,38 +1,33 @@
-import { catchError, Observable, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { ChunkData } from '@models/chunk.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Observable, catchError, of } from 'rxjs';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-
-import { TasksDataSource } from '@datasources/tasks.datasource';
-
-import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ChunkData } from '@models/chunk.model';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { JTask } from '@models/task.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { TasksDataSource } from '@datasources/tasks.datasource';
 
 @Component({
   selector: 'app-tasks-table',
@@ -43,7 +38,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -58,9 +53,62 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       sub.unsubscribe();
     }
   }
-
   filter(item: JTaskWrapper, filterValue: string): boolean {
-    return item.tasks[0].taskName.toLowerCase().includes(filterValue);
+    // Get lowercase filter value for case-insensitive comparison
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all':
+        // Search across multiple relevant fields
+        return (
+          item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue)) ||
+          item.id?.toString().toLowerCase().includes(filterValue) ||
+          item.accessGroup?.groupName?.toLowerCase().includes(filterValue) ||
+          (item.hashType &&
+            (item.hashType.id?.toString().includes(filterValue) ||
+              item.hashType.description?.toLowerCase().includes(filterValue) ||
+              (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
+                filterValue
+              ))) ||
+          item.hashlist?.name?.toLowerCase().includes(filterValue)
+        );
+
+      case 'id':
+        return item.id?.toString().toLowerCase().includes(filterValue);
+
+      case 'taskName':
+        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
+
+      case 'taskType':
+        const typeText = item.taskType === 0 ? 'task' : 'supertask';
+        return typeText.includes(filterValue);
+
+      case 'hashtype':
+        if (item.hashType) {
+          return (
+            item.hashType.description?.toLowerCase().includes(filterValue) ||
+            item.hashType.id?.toString().toLowerCase().includes(filterValue) ||
+            (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
+              filterValue
+            )
+          );
+        }
+        return false;
+      case 'hashlistId': {
+        return (
+          item.hashlist?.name?.toLowerCase().includes(filterValue) ||
+          item.hashlistId?.toString().toLowerCase().includes(filterValue)
+        );
+      }
+      case 'accessGroupName': {
+        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
+      }
+
+      default:
+        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -69,6 +117,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.id + ''
       },
       {
@@ -81,6 +130,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
+        isSearchable: true,
+
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
@@ -108,6 +159,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHTYPE,
         dataKey: 'hashtype',
         isSortable: false,
+        isSearchable: true,
         render: (wrapper: JTaskWrapper) => {
           const hashType = wrapper.hashType;
           return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
@@ -122,6 +174,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
         isSortable: false,
+        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
       },
       {
@@ -150,6 +203,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'accessGroupName',
         routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
+        isSearchable: true,
+
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },
       {

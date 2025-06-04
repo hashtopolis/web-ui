@@ -1,16 +1,13 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JChunk } from '@models/chunk.model';
+import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-
 import { ChunksDataSource } from '@datasources/chunks.datasource';
-
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JChunk } from '@models/chunk.model';
+import { SafeHtml } from '@angular/platform-browser';
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
@@ -25,7 +22,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -36,12 +33,40 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     }
     this.dataSource.loadAll();
   }
+  filter(item: JChunk, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.taskName.toLowerCase().includes(filterValue) ||
+          item.agentName.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName.toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.agentName.toLowerCase().includes(filterValue);
+    }
+  }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: ChunksTableCol.ID,
         dataKey: 'id',
+        isSearchable: true,
         isSortable: true
       },
       {
@@ -72,13 +97,15 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: ChunksTableCol.DISPATCH_TIME,

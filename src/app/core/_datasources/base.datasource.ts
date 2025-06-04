@@ -262,10 +262,16 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param pageSize - The number of items to display per page.
    * @param totalItems - The total number of items in the data source.
    * @param pageAfter - the pagination after parameter to retrieve data after this index.
-   * @param pageAfter - the pagination before parameter to retrieve data before this index.
+   * @param pageBefore - the pagination before parameter to retrieve data before this index.
    * @param index - the pagination index.
    */
-  setPaginationConfig(pageSize: number, totalItems: number, pageAfter: number, pageBefore: number, index: number): void {
+  setPaginationConfig(
+    pageSize: number,
+    totalItems: number,
+    pageAfter: number,
+    pageBefore: number,
+    index: number
+  ): void {
     this.pageSize = pageSize;
     this.totalItems = totalItems;
     this.pageAfter = pageAfter;
