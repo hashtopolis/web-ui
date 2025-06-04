@@ -300,7 +300,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     hashtypesTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         HashtypesTableCol.HASHTYPE,

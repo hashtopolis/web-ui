@@ -43,9 +43,13 @@ export interface Links {
 /**
  * Interface for json:api metadata
  * @prop count Amount of returned objects/resources
- * @prop total_count Total amount of objects/resources on the server
+ * @prop total_count Total amount of objects/resources on the server for a count api call
+ * @prop total_elements Total amount of elements that can be paginated through.
  */
 export interface Meta {
   count?: number;
   total_count?: number;
+  page?: {
+    total_elements?: number;
+  }
 }
