@@ -1,5 +1,4 @@
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { GlobalService } from 'src/app/core/_services/main.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
