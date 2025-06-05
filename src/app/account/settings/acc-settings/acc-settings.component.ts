@@ -14,6 +14,11 @@ import { Subscription } from 'rxjs';
 import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
+export interface UpdateUserPassword {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 @Component({
   selector: 'app-acc-settings',
   templateUrl: './acc-settings.component.html',
@@ -112,6 +117,12 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     return this.changepasswordFormGroup.get('confirmNewPassword').value;
   }
 
+  resetPasswordForm() {
+    this.changepasswordFormGroup.reset();
+    this.changepasswordFormGroup.markAsPristine();
+    this.changepasswordFormGroup.markAsUntouched();
+    this.changepasswordFormGroup.updateValueAndValidity();
+  }
   /**
    * Handles form basic form submission
    */
@@ -132,9 +143,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
-    console.log('valid');
     this.isUpdatingPassLoading = true;
-    const payload = {
+    const payload: UpdateUserPassword = {
       oldPassword: this.oldPasswordValueFromForm,
       newPassword: this.newPasswordValueFromForm,
       confirmPassword: this.confirmNewPasswordValueFromForm
@@ -142,8 +152,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     console.log(payload);
     this.subscriptions.push(
       this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
-        next: () => {
-          this.alert.okAlert('User password updated!', '');
+        next: (val) => {
+          this.alert.okAlert(val.meta['Change password'], '');
+          this.resetPasswordForm();
           this.isUpdatingPassLoading = false;
         },
         error: () => {
