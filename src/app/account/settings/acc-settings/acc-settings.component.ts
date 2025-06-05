@@ -137,20 +137,21 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       this.isUpdatingPassLoading = true;
       const payload = {
         password: this.newPasswordValueFromForm,
-        userId: this.gs.userId
+        oldPassword: this.oldPasswordValueFromForm
       };
       console.log(payload);
-      // TODO: uncomment when backend is ready
-      /*       
       this.subscriptions.push(
-        this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe(() => {
-          this.alert.okAlert('User password updated!', '');
-          this.isUpdatingPassLoading = false;
+        this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
+          next: (val) => {
+        this.alert.okAlert('User password updated!', '');
+        this.isUpdatingPassLoading = false;
+          },
+          error: (err) => {
+        this.isUpdatingPassLoading = false;
+        this.alert.okAlert('Failed to update password', '');
+          }
         })
-      ); */
-    } else {
-      this.alert.okAlert('ERROR updating password', '');
-      console.log('invalid');
+      );
     }
   }
   onPasswordStrengthChanged(event: boolean) {

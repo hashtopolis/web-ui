@@ -15,7 +15,6 @@ export interface ServiceConfig {
 export class SERV {
   // HELPER
   public static HELPER = { URL: '/helper', RESOURCE: 'Helper' };
-  public static HELPER_CHANGE_OWN_PASSWORD = { URL: '/helper/changeOwnPassword', RESOURCE: 'ChangeOwnPassword' };
   // ACCESS
   public static AUTH = { URL: '/auth', RESOURCE: 'Auth' };
   public static ACCESS_GROUPS = { URL: '/ui/accessgroups', RESOURCE: 'AccessGroups' };
