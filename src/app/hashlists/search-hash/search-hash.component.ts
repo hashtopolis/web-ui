@@ -18,7 +18,7 @@ export class SearchHashComponent implements OnInit, OnDestroy {
 
   pageTitle = 'Search Hash';
   /** Result of the search. */
-  private _searchResults: any[] = [];
+  private _searchResults: string[] = [];
 
   /** On form create show a spinner loading */
   isCreatingLoading = false;
@@ -53,11 +53,11 @@ export class SearchHashComponent implements OnInit, OnDestroy {
     this.unsubscribeService.unsubscribeAll();
   }
 
-  get searchResults(): any[] {
+  get searchResults(): string[] {
     return this._searchResults;
   }
 
-  set searchResults(value: any[]) {
+  set searchResults(value: string[]) {
     this._searchResults = value;
   }
 
