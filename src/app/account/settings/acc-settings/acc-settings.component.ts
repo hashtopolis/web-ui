@@ -132,27 +132,25 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
-    if (this.changepasswordFormGroup.valid && this.newPasswordValueFromForm === this.confirmNewPasswordValueFromForm) {
-      console.log('valid');
-      this.isUpdatingPassLoading = true;
-      const payload = {
-        password: this.newPasswordValueFromForm,
-        oldPassword: this.oldPasswordValueFromForm
-      };
-      console.log(payload);
-      this.subscriptions.push(
-        this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
-          next: (val) => {
-        this.alert.okAlert('User password updated!', '');
-        this.isUpdatingPassLoading = false;
-          },
-          error: (err) => {
-        this.isUpdatingPassLoading = false;
-        this.alert.okAlert('Failed to update password', '');
-          }
-        })
-      );
-    }
+    console.log('valid');
+    this.isUpdatingPassLoading = true;
+    const payload = {
+      oldPassword: this.oldPasswordValueFromForm,
+      newPassword: this.newPasswordValueFromForm,
+      confirmPassword: this.confirmNewPasswordValueFromForm
+    };
+    console.log(payload);
+    this.subscriptions.push(
+      this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
+        next: () => {
+          this.alert.okAlert('User password updated!', '');
+          this.isUpdatingPassLoading = false;
+        },
+        error: () => {
+          this.isUpdatingPassLoading = false;
+        }
+      })
+    );
   }
   onPasswordStrengthChanged(event: boolean) {
     this.strongPassword = event;
