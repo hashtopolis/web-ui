@@ -24,7 +24,7 @@ export enum FilterType {
 export interface Filter {
   field: string;
   operator: FilterType;
-  value: string | number | number[] | boolean;
+  value: string | number | number[] | boolean | string[];
 }
 
 /**
