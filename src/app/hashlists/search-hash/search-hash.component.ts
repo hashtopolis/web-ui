@@ -26,8 +26,7 @@ export class SearchHashComponent implements OnInit, OnDestroy {
   constructor(
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
-    private cdr: ChangeDetectorRef,
-    private gs: GlobalService
+    private cdr: ChangeDetectorRef
   ) {
     titleService.set(['Search Hash']);
   }
