@@ -1,9 +1,21 @@
 @use "../base/colors";
 
-.snackbar-error{
+.snackbar-error, .snackbar-success {
   .mat-mdc-snack-bar-label {
-    font-size: 12pt !important;
+    font-size: 14pt !important;
   }
+  .mdc-snackbar__surface{
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+  }
+  .mat-mdc-snack-bar-actions{
+    button{
+      font-size: 10pt !important;
+    }
+  }
+}
+
+.snackbar-error {
   .mdc-snackbar__surface{
     background-color: #ffe7e6 !important;
     color: #ff5757!important;
@@ -12,8 +24,21 @@
   .mat-mdc-snack-bar-actions{
     button{
       color: #ff5757!important;
-      font-size: 10pt !important;
       border: 1px solid #ff5757;
+    }
+  }
+}
+
+.snackbar-success{
+  .mdc-snackbar__surface{
+    background-color: #e4f8f0 !important;
+    color: #1ea97c!important;
+    border-left: 5px solid #1ea97c;
+  }
+  .mat-mdc-snack-bar-actions{
+    button{
+      color: #1ea97c!important;
+      border: 1px solid #1ea97c;
     }
   }
 }

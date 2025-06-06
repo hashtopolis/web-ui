@@ -1,4 +1,5 @@
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 //import { BulkService } from './bulk.service';
@@ -7,11 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   providedIn: 'root'
 })
 export class AlertService {
-  constructor(
-    //private bulk: BulkService,
-    private snackBar: MatSnackBar
-  ) {
-  }
+  constructor(private snackBar: MatSnackBar) {}
 
   cancelButtonColor = '#8A8584';
   confirmButtonColor = '#C53819';
@@ -29,11 +26,7 @@ export class AlertService {
    * @param {string} type - Type of warning, default success
    */
 
-  okAlert(
-    title: string,
-    text: string,
-    type: 'success' | 'error' | 'warning' = 'success'
-  ) {
+  okAlert(title: string, text: string, type: 'success' | 'error' | 'warning' = 'success') {
     this.snackBar.open(title, 'Close');
   }
 
@@ -96,109 +89,34 @@ export class AlertService {
       return result.isConfirmed;
     });
   }
+
+  /**
+   * Shows a success message
+   * @param message - message to display
+   */
+  showSuccessMessage(message: string) {
+    this.showToast(message, 'snackbar-success');
+  }
+
+  /**
+   * Shows an error message
+   * @param message - error message to display
+   */
+  showErrorMessage(message: string) {
+    this.showToast(message, 'snackbar-error');
+  }
+
+  /**
+   * Shows a toast like message for 10 seconds in the upper left corner using a material snackbar
+   * @param message - message to display
+   * @param panelClass - CSS class for the  snackbar component
+   * @private
+   */
+  private showToast(message: string, panelClass: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 10000,
+      panelClass: panelClass,
+      horizontalPosition: 'start'
+    });
+  }
 }
-
-// /**
-//  * Bulk delete modal with progress bar
-//  * Uses a bulk action service to delete on bulk
-//  *
-//  * @param {array} items - Array of ids to be deleted
-//  * @param {string} text - Text to use in the display i.e Hashtypes
-//  * @param {string} path - API path call to delete the items on the array
-//  */
-
-//   bulkDeleteAlert(items: any[], text: string, path: string) {
-//     this.bulk.setItems(items); // Items to be deleted
-//     this.bulk.setPath(path); //Path route
-//     Swal.fire({
-//       title: `Deleting ${items.length} ${text}`,
-//       html: '<div class="progress"><div class="progress-bar"></div></div>',
-//       showCancelButton: false,
-//       showConfirmButton: false,
-//       allowEscapeKey: false, //Dont let user escape modal until its finish
-//       allowOutsideClick: false, //Dont let user close modal until its finish
-//       didOpen: () => {
-//         const progressBar =
-//           Swal.getHtmlContainer().querySelector('.progress-bar');
-//         progressBar.style.width = '0%';
-//
-//         this.bulk
-//           .performBulkDelete((percentage) => {
-//             progressBar.style.width = percentage + '%';
-//           })
-//           .then((success) => {
-//             if (success) {
-//               this.okAlert(`${items.length} ${text} deleted`, '');
-//             } else {
-//               Swal.update({
-//                 icon: 'error',
-//                 title: 'Error Deleting Items',
-//                 showConfirmButton: true
-//               });
-//             }
-//           })
-//           .catch((error) => {
-//             Swal.update({
-//               icon: 'error',
-//               title: 'Error Deleting Items',
-//               text: error.message,
-//               showConfirmButton: true
-//             });
-//           });
-//       }
-//     });
-//   }
-//
-//   /**
-//    * Bulk update modal with progress bar
-//    * Uses a bulk action service to delete on bulk
-//    *
-//    * @param {array} items - Array of ids to be deleted
-//    * @param {any} value - Value to be updated
-//    * @param {string} text - Text to use in the display i.e Hashtypes
-//    * @param {string} path - API path call to delete the items on the array
-//    */
-//
-//   bulkUpdateAlert(items: any[], value: any, text: string, path: string) {
-//     this.bulk.setItems(items); // Items to be deleted
-//     this.bulk.setValue(value);
-//     this.bulk.setPath(path); //Path route
-//     Swal.fire({
-//       title: `Updating ${items.length} ${text}`,
-//       html: '<div class="progress"><div class="progress-bar"></div></div>',
-//       showCancelButton: false,
-//       showConfirmButton: false,
-//       allowEscapeKey: false, //Dont let user escape modal until its finish
-//       allowOutsideClick: false, //Dont let user close modal until its finish
-//       didOpen: () => {
-//         const progressBar =
-//           Swal.getHtmlContainer().querySelector('.progress-bar');
-//         progressBar.style.width = '0%';
-//
-//         this.bulk
-//           .performBulkUpdate((percentage) => {
-//             progressBar.style.width = percentage + '%';
-//           })
-//           .then((success) => {
-//             if (success) {
-//               this.okAlert(`${items.length} ${text} updated`, '');
-//             } else {
-//               Swal.update({
-//                 icon: 'error',
-//                 title: 'Error Updating Items',
-//                 showConfirmButton: true
-//               });
-//             }
-//           })
-//           .catch((error) => {
-//             Swal.update({
-//               icon: 'error',
-//               title: 'Error Updating Items',
-//               text: error.message,
-//               showConfirmButton: true
-//             });
-//           });
-//       }
-//     });
-//   }
-// }

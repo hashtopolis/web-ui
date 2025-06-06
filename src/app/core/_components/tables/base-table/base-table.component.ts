@@ -1,28 +1,32 @@
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { Observable, Subscription, of } from 'rxjs';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { Observable, Subscription, of } from 'rxjs';
 
-import { BaseModel } from '@models/base.model';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ConfigService } from '@services/shared/config.service';
-import { ExportService } from '@services/export/export.service';
-import { GlobalService } from '@services/main.service';
-import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({

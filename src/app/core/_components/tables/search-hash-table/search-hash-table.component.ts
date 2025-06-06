@@ -111,30 +111,12 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<SearchHashModel[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService
-          .toExcel<SearchHashModel>(
-            'hashtopolis-search-hash',
-            this.tableColumns,
-            event.data,
-            SearchHashTableColumnLabel
-          )
-          .then(() => {});
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService
-          .toCsv<SearchHashModel>('hashtopolis-search-hash', this.tableColumns, event.data, SearchHashTableColumnLabel)
-          .then(() => {});
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<SearchHashModel>(this.tableColumns, event.data, SearchHashTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<SearchHashModel>(
+      event,
+      this.tableColumns,
+      SearchHashTableColumnLabel,
+      'hashtopolis-search-hash'
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
