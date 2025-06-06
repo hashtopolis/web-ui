@@ -8,7 +8,6 @@ import { UserPermissions } from '@models/global-permission-group.model';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import {
   APGUTableEditableAction,
   AccessPermissionGroupsUserTableCol,
@@ -120,31 +119,12 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<UserPermissions[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        void this.exportService.toExcel<UserPermissions>(
-          'hashtopolis-access-permission-groups-user',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUserTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        void this.exportService.toCsv<UserPermissions>(
-          'hashtopolis-access-permission-groups-user',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUserTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<UserPermissions>(this.tableColumns, event.data, AccessPermissionGroupsUserTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<UserPermissions>(
+      event,
+      this.tableColumns,
+      AccessPermissionGroupsUserTableColumnLabel,
+      'hashtopolis-access-permission-groups-user'
+    );
   }
 
   /**

@@ -5,7 +5,6 @@ import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
@@ -101,29 +100,12 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashesTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashesTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, HashesTableColColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JHash>(
+      event,
+      this.tableColumns,
+      HashesTableColColumnLabel,
+      'hashtopolis-hashes'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHashlist>): void {

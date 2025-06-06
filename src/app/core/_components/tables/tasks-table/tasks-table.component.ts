@@ -1,33 +1,37 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { ChunkData } from '@models/chunk.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JTask } from '@models/task.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, of } from 'rxjs';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ChunkData } from '@models/chunk.model';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JTask } from '@models/task.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { TasksDataSource } from '@datasources/tasks.datasource';
+
+import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
   selector: 'app-tasks-table',
@@ -81,9 +85,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       case 'taskName':
         return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
 
-      case 'taskType':
+      case 'taskType': {
         const typeText = item.taskType === 0 ? 'task' : 'supertask';
         return typeText.includes(filterValue);
+      }
 
       case 'hashtype':
         if (item.hashType) {
@@ -357,29 +362,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   exportActionClicked(event: ActionMenuEvent<JTaskWrapper[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JTaskWrapper>(
-          'hashtopolis-tasks',
-          this.tableColumns,
-          event.data,
-          TaskTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JTaskWrapper>(
-          'hashtopolis-tasks',
-          this.tableColumns,
-          event.data,
-          TaskTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JTaskWrapper>(this.tableColumns, event.data, TaskTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JTaskWrapper>(
+      event,
+      this.tableColumns,
+      TaskTableColumnLabel,
+      'hashtopolis-tasks'
+    );
   }
 
   openDialog(data: DialogData<JTaskWrapper>) {
