@@ -95,7 +95,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.HASHLIST,
         dataKey: 'hashlists',
         routerLink: (hash: SearchHashModel) => this.renderHashlistLinks(hash),
-        export: async (hash: SearchHashModel) => (hash.hashlists ? hash.hashlists.join(', ') : '')
+        export: async (hash: SearchHashModel) => this.exportHashLists(hash)
       },
       {
         id: SearchHashTableCol.INFO,
@@ -165,5 +165,20 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
       });
     }
     return of(links);
+  }
+
+  /**
+   * Convert hashlist names to a string for export
+   * @param hash - hash to get hashlists for
+   * @return string containing names of all hashlists
+   * @private
+   */
+  private exportHashLists(hash: SearchHashModel) {
+    let retValue: string = '';
+    if (hash.hashlists && hash.hashlists.length > 0) {
+      retValue = hash.hashlists.map((element) => element.name).join('|');
+    }
+
+    return Promise.resolve(retValue);
   }
 }
