@@ -1,22 +1,24 @@
+import { Observable, of } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { JHealthCheckAgent } from '@models/health-check.model';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HealthCheckAgentsTableCol,
   HealthCheckAgentsTableColColumnLabel
 } from '@components/tables/health-check-agents-table/health-check-agents-table.constants';
-/* eslint-disable @angular-eslint/component-selector */
-import { Observable, of } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.datasource';
 import { HealthChecksTableStatusLabel } from '@components/tables/health-checks-table/health-checks-table.constants';
-import { JHealthCheckAgent } from '@models/health-check.model';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.datasource';
+
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'health-check-agents-table',
+  selector: 'app-health-check-agents-table',
   templateUrl: './health-check-agents-table.component.html',
   standalone: false
 })
@@ -95,31 +97,12 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHealthCheckAgent[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHealthCheckAgent>(
-          'hashtopolis-health-checks-view',
-          this.tableColumns,
-          event.data,
-          HealthCheckAgentsTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHealthCheckAgent>(
-          'hashtopolis-health-checks-view',
-          this.tableColumns,
-          event.data,
-          HealthCheckAgentsTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHealthCheckAgent>(this.tableColumns, event.data, HealthCheckAgentsTableColColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JHealthCheckAgent>(
+      event,
+      this.tableColumns,
+      HealthCheckAgentsTableColColumnLabel,
+      'hashtopolis-health-checks-view'
+    );
   }
 
   /**

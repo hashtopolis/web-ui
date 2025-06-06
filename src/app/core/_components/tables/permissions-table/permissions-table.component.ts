@@ -1,21 +1,24 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
 import {
   PermissionsTableCol,
   PermissionsTableColumnLabel
 } from '@components/tables/permissions-table/permissions-table.constants';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
-import { PermissionsDataSource } from '@datasources/permissions.datasource';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { PermissionsDataSource } from '@datasources/permissions.datasource';
 
 @Component({
   selector: 'app-permissions-table',
@@ -113,31 +116,12 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JGlobalPermissionGroup>(
-          'hashtopolis-permissions',
-          this.tableColumns,
-          event.data,
-          PermissionsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JGlobalPermissionGroup>(
-          'hashtopolis-permissions',
-          this.tableColumns,
-          event.data,
-          PermissionsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JGlobalPermissionGroup>(this.tableColumns, event.data, PermissionsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JGlobalPermissionGroup>(
+      event,
+      this.tableColumns,
+      PermissionsTableColumnLabel,
+      'hashtopolis-permissions'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup>): void {
@@ -187,7 +171,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted permission groups!`, 'Close');
           this.dataSource.reload();
         })

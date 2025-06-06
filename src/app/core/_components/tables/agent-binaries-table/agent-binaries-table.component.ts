@@ -1,21 +1,25 @@
+import { catchError } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAgentBinary } from '@models/agent-binary.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentBinariesTableCol,
   AgentBinariesTableColumnLabel
 } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { catchError, forkJoin } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JAgentBinary } from '@models/agent-binary.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
+
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -162,31 +166,12 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAgentBinary[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JAgentBinary>(
-          'hashtopolis-agent-binaries',
-          this.tableColumns,
-          event.data,
-          AgentBinariesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JAgentBinary>(
-          'hashtopolis-agent-binaries',
-          this.tableColumns,
-          event.data,
-          AgentBinariesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JAgentBinary>(this.tableColumns, event.data, AgentBinariesTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JAgentBinary>(
+      event,
+      this.tableColumns,
+      AgentBinariesTableColumnLabel,
+      'hashtopolis-agent-binaries'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JAgentBinary>): void {
@@ -242,7 +227,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted agent binaries!`, 'Close');
           this.dataSource.reload();
         })

@@ -9,7 +9,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -176,29 +175,12 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JChunk[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JChunk>(
-          'hashtopolis-tasks-chunks',
-          this.tableColumns,
-          event.data,
-          TasksChunksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JChunk>(
-          'hashtopolis-tasks-chunks',
-          this.tableColumns,
-          event.data,
-          TasksChunksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JChunk>(this.tableColumns, event.data, TasksChunksTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JChunk>(
+      event,
+      this.tableColumns,
+      TasksChunksTableColumnLabel,
+      'hashtopolis-tasks-chunks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JChunk>): void {

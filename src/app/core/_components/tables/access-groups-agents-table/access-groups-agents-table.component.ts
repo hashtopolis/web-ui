@@ -4,7 +4,6 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsAgentsTableCol,
@@ -96,31 +95,12 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JAgent>(
-          'hashtopolis-access-groups-agents',
-          this.tableColumns,
-          event.data,
-          AccessGroupsAgentsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JAgent>(
-          'hashtopolis-access-groups-agents',
-          this.tableColumns,
-          event.data,
-          AccessGroupsAgentsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JAgent>(this.tableColumns, event.data, AccessGroupsAgentsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JAgent>(
+      event,
+      this.tableColumns,
+      AccessGroupsAgentsTableColumnLabel,
+      'hashtopolis-access-groups-agents'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JAgent>): void {

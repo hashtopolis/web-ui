@@ -1,23 +1,28 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FileType, JFile } from '@models/file.model';
-import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { FilesDataSource } from '@datasources/files.datasource';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+
+import { FileType, JFile } from '@models/file.model';
+
 import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { FilesDataSource } from '@datasources/files.datasource';
+
 /**
  * Contains table component for files
  * @module
  */
-import { faKey } from '@fortawesome/free-solid-svg-icons';
+
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
@@ -61,7 +66,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   /**
    * Filter function for files
-   * @param file File object
+   * @param item File object
    * @param filterValue String value to filter filename
    * @returns True, if filename contains filterValue
    *          False, if not
@@ -167,19 +172,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JFile[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JFile>('hashtopolis-files', this.tableColumns, event.data, FilesTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JFile>('hashtopolis-files', this.tableColumns, event.data, FilesTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JFile>(this.tableColumns, event.data, FilesTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JFile>(event, this.tableColumns, FilesTableColumnLabel, 'hashtopolis-files');
   }
 
   rowActionClicked(event: ActionMenuEvent<JFile>): void {

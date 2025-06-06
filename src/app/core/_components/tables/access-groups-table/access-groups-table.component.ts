@@ -1,22 +1,24 @@
+import { catchError } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAccessGroup } from '@models/access-group.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsTableCol,
   AccessGroupsTableColumnLabel
 } from '@components/tables/access-groups-table/access-groups-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JAccessGroup } from '@models/access-group.model';
-import { LruCacheService } from '@services/shared/lru-cache.service';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-access-groups-table',
@@ -40,7 +42,6 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-    LruCacheService.getInstance().clear();
   }
 
   filter(item: JAccessGroup, filterValue: string): boolean {
@@ -126,40 +127,12 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService
-          .toExcel<JAccessGroup>(
-            'hashtopolis-access-groups',
-            this.tableColumns,
-            event.data,
-            AccessGroupsTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows were saved as Excel file, please check the download folder of your browser',
-              'Close'
-            );
-          });
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService
-          .toCsv<JAccessGroup>('hashtopolis-access-groups', this.tableColumns, event.data, AccessGroupsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows were saved as CSV file, please check the download folder of your browser',
-              'Close'
-            );
-          });
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JAccessGroup>(this.tableColumns, event.data, AccessGroupsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JAccessGroup>(
+      event,
+      this.tableColumns,
+      AccessGroupsTableColumnLabel,
+      'hashtopolis-access-groups'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JAccessGroup>): void {
@@ -209,7 +182,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted accessgroups!`, 'Close');
           this.dataSource.reload();
         })

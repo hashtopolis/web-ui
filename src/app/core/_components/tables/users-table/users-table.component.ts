@@ -1,22 +1,26 @@
+import { catchError } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JUser } from '@models/user.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   UsersTableCol,
   UsersTableColumnLabel,
   UsersTableStatus
 } from '@components/tables/users-table/users-table.constants';
-import { catchError, forkJoin } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JUser } from '@models/user.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { UsersDataSource } from '@datasources/users.datasource';
+
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -171,19 +175,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>('hashtopolis-users', this.tableColumns, event.data, UsersTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>('hashtopolis-users', this.tableColumns, event.data, UsersTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JUser>(this.tableColumns, event.data, UsersTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JUser>(event, this.tableColumns, UsersTableColumnLabel, 'hashtopolis-users');
   }
 
   rowActionClicked(event: ActionMenuEvent<JUser>): void {
@@ -257,7 +249,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted users!`, 'Close');
           this.dataSource.reload();
         })
@@ -271,7 +263,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     const action = isValid ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.USERS, users, { isValid: isValid }).subscribe((results) => {
+      this.gs.bulkUpdate(SERV.USERS, users, { isValid: isValid }).subscribe(() => {
         this.snackBar.open(`Successfully ${action} users!`, 'Close');
         this.reload();
       })

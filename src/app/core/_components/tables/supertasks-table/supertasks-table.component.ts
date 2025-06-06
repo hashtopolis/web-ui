@@ -1,22 +1,26 @@
+import { catchError } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JSuperTask } from '@models/supertask.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksTableCol,
   SupertasksTableColumnLabel
 } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { catchError, forkJoin } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JSuperTask } from '@models/supertask.model';
-import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
+
+import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 
 @Component({
   selector: 'app-supertasks-table',
@@ -49,10 +53,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
     switch (selectedColumn) {
       case 'all': {
         // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.supertaskName.toLowerCase().includes(filterValue)
-        );
+        return item.id.toString().includes(filterValue) || item.supertaskName.toLowerCase().includes(filterValue);
       }
       case 'id': {
         return item.id?.toString().includes(filterValue);
@@ -117,31 +118,12 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JSuperTask>(
-          'hashtopolis-supertasks',
-          this.tableColumns,
-          event.data,
-          SupertasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JSuperTask>(
-          'hashtopolis-supertasks',
-          this.tableColumns,
-          event.data,
-          SupertasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JSuperTask>(this.tableColumns, event.data, SupertasksTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JSuperTask>(
+      event,
+      this.tableColumns,
+      SupertasksTableColumnLabel,
+      'hashtopolis-supertasks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JSuperTask>): void {
@@ -188,7 +170,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
    * @todo Implement error handling.
    */
   private bulkActionDelete(supertask: JSuperTask[]): void {
-    this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe((results) => {
+    this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe(() => {
       this.snackBar.open(`Successfully deleted supertasks!`, 'Close');
       this.dataSource.reload();
     });

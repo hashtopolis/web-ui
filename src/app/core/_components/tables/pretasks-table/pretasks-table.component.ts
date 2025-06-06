@@ -9,7 +9,6 @@ import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
@@ -228,29 +227,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JPretask>(
-          'hashtopolis-pretasks',
-          this.tableColumns,
-          event.data,
-          PretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JPretask>(
-          'hashtopolis-pretasks',
-          this.tableColumns,
-          event.data,
-          PretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JPretask>(this.tableColumns, event.data, PretasksTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JPretask>(
+      event,
+      this.tableColumns,
+      PretasksTableColumnLabel,
+      'hashtopolis-pretasks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JPretask>): void {

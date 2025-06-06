@@ -2,7 +2,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
 import {
   AccessGroupsUsersTableCol,
   AccessGroupsUsersTableColumnLabel
@@ -77,30 +76,11 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>(
-          'hashtopolis-access-groups-users',
-          this.tableColumns,
-          event.data,
-          AccessGroupsUsersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>(
-          'hashtopolis-access-groups-users',
-          this.tableColumns,
-          event.data,
-          AccessGroupsUsersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JUser>(this.tableColumns, event.data, AccessGroupsUsersTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JUser>(
+      event,
+      this.tableColumns,
+      AccessGroupsUsersTableColumnLabel,
+      'hashtopolis-access-groups-users'
+    );
   }
 }

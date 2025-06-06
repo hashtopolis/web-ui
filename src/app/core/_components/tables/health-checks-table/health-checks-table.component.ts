@@ -1,23 +1,27 @@
 /* eslint-disable @angular-eslint/component-selector */
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { JHealthCheck } from '@models/health-check.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HealthChecksTableCol,
   HealthChecksTableColumnLabel,
   HealthChecksTableStatusLabel
 } from '@components/tables/health-checks-table/health-checks-table.constants';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
-import { JHealthCheck } from '@models/health-check.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
+
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -144,31 +148,12 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHealthCheck[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHealthCheck>(
-          'hashtopolis-health-checks',
-          this.tableColumns,
-          event.data,
-          HealthChecksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHealthCheck>(
-          'hashtopolis-health-checks',
-          this.tableColumns,
-          event.data,
-          HealthChecksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHealthCheck>(this.tableColumns, event.data, HealthChecksTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JHealthCheck>(
+      event,
+      this.tableColumns,
+      HealthChecksTableColumnLabel,
+      'hashtopolis-health-checks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHealthCheck>): void {
@@ -218,7 +203,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted healthchecks!`, 'Close');
           this.dataSource.reload();
         })

@@ -1,14 +1,14 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LogsTableCol, LogsTableColumnLabel } from './logs-table.constants';
-
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { JLog } from 'src/app/core/_models/log.model';
 import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
+import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
 @Component({
   selector: 'logs-table',
@@ -73,7 +73,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: LogsTableCol.ID,
         dataKey: 'id',
@@ -113,25 +113,11 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         export: async (log: JLog) => log.message
       }
     ];
-
-    return tableColumns;
   }
 
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JLog>('hashtopolis-logs', this.tableColumns, event.data, LogsTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JLog>('hashtopolis-logs', this.tableColumns, event.data, LogsTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JLog>(this.tableColumns, event.data, LogsTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JLog>(event, this.tableColumns, LogsTableColumnLabel, 'hashtopolis-logs');
   }
 }

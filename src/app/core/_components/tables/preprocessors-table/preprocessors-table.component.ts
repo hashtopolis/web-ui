@@ -1,21 +1,24 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JPreprocessor } from '@models/preprocessor.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
 import {
   PreprocessorsTableCol,
   PreprocessorsTableColumnLabel
 } from '@components/tables/preprocessors-table/preprocessors-table.constants';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JPreprocessor } from '@models/preprocessor.model';
-import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
 
 @Component({
   selector: 'app-preprocessors-table',
@@ -122,31 +125,12 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPreprocessor[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JPreprocessor>(
-          'hashtopolis-preprocessors',
-          this.tableColumns,
-          event.data,
-          PreprocessorsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JPreprocessor>(
-          'hashtopolis-preprocessors',
-          this.tableColumns,
-          event.data,
-          PreprocessorsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JPreprocessor>(this.tableColumns, event.data, PreprocessorsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JPreprocessor>(
+      event,
+      this.tableColumns,
+      PreprocessorsTableColumnLabel,
+      'hashtopolis-preprocessors'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JPreprocessor>): void {
@@ -196,7 +180,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
           this.dataSource.reload();
         })

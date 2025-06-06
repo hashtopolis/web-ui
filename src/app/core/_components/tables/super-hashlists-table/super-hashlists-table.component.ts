@@ -1,21 +1,25 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JHashlist } from '@models/hashlist.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
 import {
   SuperHashlistsTableCol,
   SuperHashlistsTableColumnLabel
 } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JHashlist } from '@models/hashlist.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
+
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
@@ -174,31 +178,12 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHashlist>(
-          'hashtopolis-super-hashlists',
-          this.tableColumns,
-          event.data,
-          SuperHashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHashlist>(
-          'hashtopolis-super-hashlists',
-          this.tableColumns,
-          event.data,
-          SuperHashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHashlist>(this.tableColumns, event.data, SuperHashlistsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JHashlist>(
+      event,
+      this.tableColumns,
+      SuperHashlistsTableColumnLabel,
+      'hashtopolis-super-hashlists'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
@@ -254,7 +239,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
           this.dataSource.reload();
         })
@@ -287,7 +272,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
 
   /**
    * Executes a row action to export cracked hashes from a superhashlist.
-   * @param {Hashlist} hashlist - The Superhaslist containing the cracked hashes to export.
+   * @param {superhashlist} superhashlist - The Superhaslist containing the cracked hashes to export.
    * @private
    * @returns {void}
    */
