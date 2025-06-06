@@ -1,18 +1,20 @@
 /* eslint-disable @angular-eslint/component-selector */
+import { Observable, of } from 'rxjs';
+
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+
+import { SearchHashModel } from '@models/hash.model';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SearchHashTableCol,
   SearchHashTableColumnLabel
 } from '@components/tables/search-hash-table/search-hash-table.constants';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JHash } from '@models/hash.model';
-import { SafeHtml } from '@angular/platform-browser';
 import { SearchHashDataSource } from '@datasources/search-hash.datasource';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'search-hash-table',
@@ -20,7 +22,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   standalone: false
 })
 export class SearchHashTableComponent extends BaseTableComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() search: any[];
+  @Input() search: string[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
   selectedFilterColumn: string = 'all';
@@ -32,6 +34,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     if (this.search) {
       this.dataSource.setSearch(this.search);
     }
+    this.dataSource.setDateFormat(this.dateFormat);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
     this.initDone = true;
@@ -43,20 +46,27 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     }
   }
 
-  filter(item: JHash, filterValue: string): boolean {
+  filter(item: SearchHashModel, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
         // Search across multiple relevant fields
-        return item.hash.toString().includes(filterValue) || item.plaintext.toLowerCase().includes(filterValue);
+        return (
+          item.hash.toString().includes(filterValue) ||
+          item.plaintext.toLowerCase().includes(filterValue) ||
+          item.hashInfo.toLowerCase().includes(filterValue)
+        );
       }
       case 'hash': {
         return item.hash?.toLowerCase().includes(filterValue);
       }
       case 'plaintext': {
         return item.plaintext?.toLowerCase().includes(filterValue);
+      }
+      case 'hashinfo': {
+        return item.hashInfo.toLowerCase().includes(filterValue);
       }
       default:
         // Default fallback to task name
@@ -70,51 +80,59 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         dataKey: 'hash',
         isSortable: true,
         isSearchable: true,
-        render: (hash: JHash) => hash.hash,
-        export: async (hash: JHash) => hash.hash + ''
+        render: (hash: SearchHashModel) => hash.hash,
+        export: async (hash: SearchHashModel) => hash.hash + ''
       },
       {
         id: SearchHashTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
         isSearchable: true,
-        render: (hash: JHash) => hash.plaintext,
-        export: async (hash: JHash) => hash.plaintext + ''
+        render: (hash: SearchHashModel) => hash.plaintext,
+        export: async (hash: SearchHashModel) => hash.plaintext + ''
+      },
+      {
+        id: SearchHashTableCol.HASHLIST,
+        dataKey: 'hashlists',
+        routerLink: (hash: SearchHashModel) => this.renderHashlistLinks(hash),
+        export: async (hash: SearchHashModel) => this.exportHashLists(hash)
       },
       {
         id: SearchHashTableCol.INFO,
-        dataKey: 'isCracked',
+        dataKey: 'hashinfo',
         isSortable: true,
-        render: (hash: JHash) => this.renderHashInfo(hash),
-        export: async (hash: JHash) => this.renderHashInfo(hash) + ''
+        isSearchable: true,
+        render: (hash: SearchHashModel) => hash.hashInfo,
+        export: async (hash: SearchHashModel) => hash.hashInfo
       }
     ];
   }
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
+  exportActionClicked(event: ActionMenuEvent<SearchHashModel[]>): void {
     switch (event.menuItem.action) {
       case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>(
-          'hashtopolis-search-hash',
-          this.tableColumns,
-          event.data,
-          SearchHashTableColumnLabel
-        );
+        this.exportService
+          .toExcel<SearchHashModel>(
+            'hashtopolis-search-hash',
+            this.tableColumns,
+            event.data,
+            SearchHashTableColumnLabel
+          )
+          .then(() => {});
         break;
       case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>(
-          'hashtopolis-search-hash',
-          this.tableColumns,
-          event.data,
-          SearchHashTableColumnLabel
-        );
+        this.exportService
+          .toCsv<SearchHashModel>('hashtopolis-search-hash', this.tableColumns, event.data, SearchHashTableColumnLabel)
+          .then(() => {});
         break;
       case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, SearchHashTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
+        this.exportService
+          .toClipboard<SearchHashModel>(this.tableColumns, event.data, SearchHashTableColumnLabel)
+          .then(() => {
+            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
+          });
         break;
     }
   }
@@ -130,20 +148,37 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     }
   }
 
-  renderHashInfo(hash: JHash): SafeHtml {
-    let htmlContent: string;
-    if (hash.id !== undefined) {
-      htmlContent = `
-          ${hash.isCracked ? 'Cracked' : 'Uncracked'} on ${formatUnixTimestamp(hash.timeCracked, this.dateFormat)}
-          <br>
-          Hashlist:
-          <a
-            href="#/hashlists/hashlist/${hash.hashlistId}/edit"
-          >${hash.hashlist.name}</a>
-        `;
-    } else {
-      htmlContent = 'Not Found';
+  /**
+   * Render links to all hashlists the hash belongs to
+   * @param hash - hash model to render edit links for all hashlists
+   * @return observable containing all hashlist links as array
+   * @private
+   */
+  private renderHashlistLinks(hash: SearchHashModel): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (hash.hashlists && hash.hashlists.length > 0) {
+      hash.hashlists.forEach((element) => {
+        links.push({
+          routerLink: ['/hashlists', 'hashlist', element.id, 'edit'],
+          label: element.name
+        });
+      });
     }
-    return this.sanitizer.bypassSecurityTrustHtml(htmlContent);
+    return of(links);
+  }
+
+  /**
+   * Convert hashlist names to a string for export
+   * @param hash - hash to get hashlists for
+   * @return string containing names of all hashlists
+   * @private
+   */
+  private exportHashLists(hash: SearchHashModel) {
+    let retValue: string = '';
+    if (hash.hashlists && hash.hashlists.length > 0) {
+      retValue = hash.hashlists.map((element) => element.name).join('|');
+    }
+
+    return Promise.resolve(retValue);
   }
 }
