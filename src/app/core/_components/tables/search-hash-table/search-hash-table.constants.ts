@@ -11,3 +11,6 @@ export const SearchHashTableColumnLabel = {
   [SearchHashTableCol.HASHLIST]: 'HashLists',
   [SearchHashTableCol.INFO]: 'Info'
 };
+
+export const MAX_SEARCH_LENGTH = 100;
+export const MAX_SEARCH_SIZE = 5000;

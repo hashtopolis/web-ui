@@ -4,6 +4,9 @@ import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { MAX_SEARCH_LENGTH, MAX_SEARCH_SIZE } from '@components/tables/search-hash-table/search-hash-table.constants';
 
 @Component({
   selector: 'app-search-hash',
@@ -25,7 +28,8 @@ export class SearchHashComponent implements OnInit, OnDestroy {
   constructor(
     private unsubscribeService: UnsubscribeService,
     private titleService: AutoTitleService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    protected snackBar: MatSnackBar
   ) {
     titleService.set(['Search Hash']);
   }
@@ -60,19 +64,38 @@ export class SearchHashComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Shows an errir message in a snackbar popup
+   * @param message - error message to display
+   * @private
+   */
+  private showErrorMessage(message: string) {
+    this.snackBar.open(message, 'Close', { duration: 10000, panelClass: 'snackbar-error' });
+  }
+
+  /**
    * Search Hash and return results
    */
   onSubmit() {
     if (this.form.valid) {
-      this.isCreatingLoading = true;
-      const currentSearchResult = this.form.value['hashes'].split(/(\s+)/).filter(function (e) {
-        return e.trim().length > 0;
+      const currentSearchResult = this.form.value['hashes'].split(/(\s+)/).filter(function (element: string) {
+        return element.trim().length > 0;
       });
-
-      this.searchResults = [...currentSearchResult];
-      this.cdr.detectChanges();
-      this.isCreatingLoading = false;
-      this.form.reset();
+      const totalLength: number = currentSearchResult.reduce((length: number, str: string) => length + str.length, 0);
+      if (currentSearchResult.length > MAX_SEARCH_LENGTH) {
+        this.showErrorMessage(
+          `You have exceeded the maximum hash search size of ${MAX_SEARCH_LENGTH} hashes. You have entered ${currentSearchResult.length} hashes. Please reduce your hash list.`
+        );
+      } else if (totalLength > MAX_SEARCH_SIZE) {
+        this.showErrorMessage(
+          `You have exceeded the maximum request limit size of ${MAX_SEARCH_SIZE} characters. Your current input size is ${totalLength} characters. Please reduce your search input.`
+        );
+      } else {
+        this.isCreatingLoading = true;
+        this.searchResults = [...currentSearchResult];
+        this.cdr.detectChanges();
+        this.isCreatingLoading = false;
+        this.form.reset();
+      }
     }
   }
 }
