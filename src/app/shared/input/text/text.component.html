@@ -31,9 +31,9 @@
       matSuffix
       (click)="emitShowPassword()"
       [attr.aria-label]="'Hide password'"
-      [attr.aria-pressed]="isVisible"
+      [attr.aria-pressed]="passwordIsVisible"
     >
-      <mat-icon>{{ isVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+      <mat-icon>{{ passwordIsVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
     </button>
   }
 

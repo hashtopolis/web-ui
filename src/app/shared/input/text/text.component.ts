@@ -35,12 +35,12 @@ export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() inputType: 'text' | 'password' = 'text';
   @Input() icon: string;
   @Input() showPasswordToggle: boolean = false;
+  @Input() passwordIsVisible: boolean = true;
   @Output() ShowPasswordEmit = new EventEmitter<boolean>();
-  isVisible = true;
-  
+
   emitShowPassword() {
-    this.isVisible = !this.isVisible;
-    this.ShowPasswordEmit.emit(this.isVisible);
+    this.passwordIsVisible = !this.passwordIsVisible;
+    this.ShowPasswordEmit.emit(this.passwordIsVisible);
   }
   constructor() {
     super();

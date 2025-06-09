@@ -29,6 +29,7 @@
       data-testid="input-oldPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
+      [passwordIsVisible]="hej1"
       (ShowPasswordEmit)="hej1 = $event"
     ></input-text>
     <input-text
@@ -38,6 +39,7 @@
       data-testid="input-newPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
+      [passwordIsVisible]="hej2"
       (ShowPasswordEmit)="hej2 = $event"
     ></input-text>
 
@@ -47,6 +49,7 @@
       [inputType]="hej3 ? 'password' : 'text'"
       data-testid="input-confirmNewPassword"
       [isRequired]="true"
+      [passwordIsVisible]="hej3"
       [showPasswordToggle]="true"
       (ShowPasswordEmit)="hej3 = $event"
     ></input-text>
