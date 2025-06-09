@@ -1,8 +1,12 @@
-<div class="strength">
-  <ul class="strengthBar mt-2">
-    <li class="strength-point" [style.background-color]="bar0"></li>
-    <li class="strength-point" [style.background-color]="bar1"></li>
-    <li class="strength-point" [style.background-color]="bar2"></li>
-    <li class="strength-point" [style.background-color]="bar3"></li>
-  </ul>
+<div class="password-strength-container">
+  <div class="strength-bars">
+    <div
+      *ngFor="let bar of bars; let i = index"
+      class="strength-bar"
+      [style.background-color]="i < strength.score ? strength.color : '#e0e0e0'"
+    ></div>
+  </div>
+  <div class="strength-label" [style.color]="strength.color">
+    {{ strength.label }}
+  </div>
 </div>

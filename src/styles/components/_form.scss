@@ -206,6 +206,31 @@ progress::-webkit-progress-value {
   flex-grow: 0.1;
 }
 
+/* pass strength */
+      .password-strength-container {
+        margin-top: 8px;
+      }
+
+      .strength-bars {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 4px;
+      }
+
+      .strength-bar {
+        height: 6px;
+        flex: 1;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+      }
+
+      .strength-label {
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        transition: color 0.3s ease;
+      }
+/* end pass strength  */
 /*
   05- End
 */

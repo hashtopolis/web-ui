@@ -1,128 +1,85 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange } from '@angular/core';
-
-export const PasswordStrengthVal = {
-  1: 'Poor',
-  2: 'Not Good',
-  3: 'Average',
-  4: 'Good'
-};
-
-export enum PasswordStrengthColors {
-  '#DDDDDD',
-  '#8b0000',
-  '#ff4500',
-  '#FFA500',
-  '#9ACD32'
+interface PasswordStrength {
+  score: number;
+  label: string;
+  color: string;
 }
-
 @Component({
   selector: 'app-pass-strenght',
   templateUrl: './pass-strenght.component.html',
   standalone: false
 })
 export class PassStrenghtComponent implements OnChanges {
-  bar0: string;
-  bar1: string;
-  bar2: string;
-  bar3: string;
-  @Input() public passwordToCheck: string;
-  @Output() passwordStrength = new EventEmitter<boolean>();
+  @Input() passwordToCheck: string = '';
 
-  message: string;
-  messageColor: string;
+  bars = [1, 2, 3, 4]; // Array to create 4 bars
 
-  checkStrength(password: string) {
-    let force = 0;
+  strength: PasswordStrength = {
+    score: 0,
+    label: 'Enter password',
+    color: '#666666'
+  };
 
-    // Identify if password contains
-    const regex = /[$-/:-?{-~!"^_@`\[\]]/g;
-    const lowerLetters = /[a-z]+/.test(password);
-    const upperLetters = /[A-Z]+/.test(password);
-    const numbers = /[0-9]+/.test(password);
-    const special = regex.test(password);
-
-    // Get boolean
-    const flags = [lowerLetters, upperLetters, numbers, special];
-
-    // See how many flags are in the password
-    let passedMatches = 0;
-    for (const flag of flags) {
-      passedMatches += flag === true ? 1 : 0;
-    }
-
-    // 5
-    force += 2 * password.length + (password.length >= 10 ? 1 : 0);
-    force += passedMatches * 10;
-
-    // 6
-    force = password.length <= 6 ? Math.min(force, 10) : force;
-
-    // 7
-    force = passedMatches === 1 ? Math.min(force, 10) : force;
-    force = passedMatches === 2 ? Math.min(force, 20) : force;
-    force = passedMatches === 3 ? Math.min(force, 30) : force;
-    force = passedMatches === 4 ? Math.min(force, 40) : force;
-    return force;
+  ngOnChanges(): void {
+    this.evaluatePassword();
   }
 
-  ngOnChanges(changes: { [propName: string]: SimpleChange }): void {
-    const password = changes['passwordToCheck'].currentValue;
+  private evaluatePassword(): void {
+    if (!this.passwordToCheck) {
+      this.strength = {
+        score: 0,
+        label: 'Enter password',
+        color: '#666666'
+      };
+      return;
+    }
 
-    this.setBarColors(5, PasswordStrengthColors[0]);
+    const score = this.calculatePasswordScore(this.passwordToCheck);
 
-    if (password) {
-      const pwdStrength = this.checkStrength(password);
-
-      pwdStrength === 40 ? this.passwordStrength.emit(true) : this.passwordStrength.emit(false);
-
-      const color = this.getColor(pwdStrength);
-      this.setBarColors(color.index, color.color);
-
-      switch (pwdStrength) {
-        case 10:
-          this.message = 'Poor';
-          break;
-        case 20:
-          this.message = 'Not Good';
-          break;
-        case 30:
-          this.message = 'Average';
-          break;
-        case 40:
-          this.message = 'Good';
-          break;
-      }
+    if (score <= 2) {
+      this.strength = {
+        score: 1,
+        label: 'Weak',
+        color: '#ff4444'
+      };
+    } else if (score <= 4) {
+      this.strength = {
+        score: 2,
+        label: 'Fair',
+        color: '#ff8800'
+      };
+    } else if (score <= 6) {
+      this.strength = {
+        score: 3,
+        label: 'Good',
+        color: '#ffbb00'
+      };
     } else {
-      this.message = '';
+      this.strength = {
+        score: 4,
+        label: 'Excellent',
+        color: '#00cc44'
+      };
     }
   }
 
-  private getColor(strength: number) {
-    let index = 0;
+  private calculatePasswordScore(password: string): number {
+    let score = 0;
 
-    if (strength === 10) {
-      index = 0;
-    } else if (strength === 20) {
-      index = 1;
-    } else if (strength === 30) {
-      index = 2;
-    } else if (strength === 40) {
-      index = 3;
-    } else {
-      index = 4;
-    }
+    // Length criteria
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
 
-    this.messageColor = PasswordStrengthColors[index + 1];
+    // Character variety
+    if (/[a-z]/.test(password)) score++; // lowercase
+    if (/[A-Z]/.test(password)) score++; // uppercase
+    if (/[0-9]/.test(password)) score++; // numbers
+    if (/[^A-Za-z0-9]/.test(password)) score++; // special characters
 
-    return {
-      index: index + 1,
-      color: PasswordStrengthColors[index + 1]
-    };
-  }
+    // Additional complexity
+    if (password.length >= 16) score++;
+    if (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/.test(password)) score++;
 
-  private setBarColors(count: number, color: string) {
-    for (let n = 0; n < count; n++) {
-      (this as any)['bar' + n] = color;
-    }
+    return score;
   }
 }
