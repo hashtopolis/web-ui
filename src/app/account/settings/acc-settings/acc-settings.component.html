@@ -25,33 +25,33 @@
     <input-text
       title="Old Password"
       formControlName="oldPassword"
-      [inputType]="hej1 ? 'password' : 'text'"
+      [inputType]="showOldPassword ? 'text' : 'password'"
       data-testid="input-oldPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
-      [passwordIsVisible]="hej1"
-      (ShowPasswordEmit)="hej1 = $event"
+      [passwordIsVisible]="showOldPassword"
+      (ShowPasswordEmit)="showOldPassword = $event"
     ></input-text>
     <input-text
       title="New Password"
       formControlName="newPassword"
-      [inputType]="hej2 ? 'password' : 'text'"
+      [inputType]="showNewPassword ? 'text' : 'password'"
       data-testid="input-newPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
-      [passwordIsVisible]="hej2"
-      (ShowPasswordEmit)="hej2 = $event"
+      [passwordIsVisible]="showNewPassword"
+      (ShowPasswordEmit)="showNewPassword = $event"
     ></input-text>
 
     <input-text
       title="Confirm New Password"
       formControlName="confirmNewPassword"
-      [inputType]="hej3 ? 'password' : 'text'"
+      [inputType]="showConfirmNewPassword ? 'text' : 'password'"
       data-testid="input-confirmNewPassword"
       [isRequired]="true"
-      [passwordIsVisible]="hej3"
+      [passwordIsVisible]="showConfirmNewPassword"
       [showPasswordToggle]="true"
-      (ShowPasswordEmit)="hej3 = $event"
+      (ShowPasswordEmit)="showConfirmNewPassword = $event"
     ></input-text>
     <grid-buttons>
       <button-submit [name]="'Update Password'" (click)="onSubmitPass()" data-testid="button-submit"></button-submit>

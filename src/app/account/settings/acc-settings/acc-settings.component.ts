@@ -40,7 +40,15 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
   isUpdatingPassLoading = false;
-
+  /*
+   * Toggles for showing/hiding password fields in the form.
+   * These are used to toggle visibility of the old, new, and confirm new password fields.
+   * Hides the password input by default.
+   * @type {boolean}
+   */
+  showOldPassword: boolean = false;
+  showNewPassword: boolean = false;
+  showConfirmNewPassword: boolean = false;
   strongPassword = false;
   subscriptions: Subscription[] = [];
 
@@ -53,10 +61,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   ) {
     this.titleService.set(['Account Settings']);
   }
-  hej1: boolean = true;
-  hej2: boolean = true;
-  hej3: boolean = true;
-  test(event?: boolean) {}
   /**
    * Initializes the form, loads user settings, and sets up initial data.
    */
@@ -152,7 +156,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       newPassword: this.newPasswordValueFromForm,
       confirmPassword: this.confirmNewPasswordValueFromForm
     };
-    console.log(payload);
     this.subscriptions.push(
       this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
         next: (val) => {
