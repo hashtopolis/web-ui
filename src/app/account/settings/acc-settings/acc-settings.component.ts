@@ -53,7 +53,10 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   ) {
     this.titleService.set(['Account Settings']);
   }
-
+  hej1: boolean = true;
+  hej2: boolean = true;
+  hej3: boolean = true;
+  test(event?: boolean) {}
   /**
    * Initializes the form, loads user settings, and sets up initial data.
    */

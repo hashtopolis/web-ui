@@ -29,7 +29,7 @@
     <button
       mat-icon-button
       matSuffix
-      (click)="isVisible = !isVisible"
+      (click)="emitShowPassword()"
       [attr.aria-label]="'Hide password'"
       [attr.aria-pressed]="isVisible"
     >

@@ -25,34 +25,31 @@
     <input-text
       title="Old Password"
       formControlName="oldPassword"
-      inputType="password"
+      [inputType]="hej1 ? 'password' : 'text'"
       data-testid="input-oldPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
+      (ShowPasswordEmit)="hej1 = $event"
     ></input-text>
     <input-text
       title="New Password"
       formControlName="newPassword"
-      inputType="password"
+      [inputType]="hej2 ? 'password' : 'text'"
       data-testid="input-newPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
+      (ShowPasswordEmit)="hej2 = $event"
     ></input-text>
 
     <input-text
       title="Confirm New Password"
       formControlName="confirmNewPassword"
-      inputType="password"
+      [inputType]="hej3 ? 'password' : 'text'"
       data-testid="input-confirmNewPassword"
       [isRequired]="true"
       [showPasswordToggle]="true"
+      (ShowPasswordEmit)="hej3 = $event"
     ></input-text>
-    <!--     <div class="smaller-pass-strength">
-      <app-pass-strenght
-        [passwordToCheck]="newPasswordValueFromForm"
-        (passwordStrength)="onPasswordStrengthChanged($event)"
-      ></app-pass-strenght>
-    </div> -->
     <grid-buttons>
       <button-submit [name]="'Update Password'" (click)="onSubmitPass()" data-testid="button-submit"></button-submit>
       <div *ngIf="isUpdatingPassLoading">
