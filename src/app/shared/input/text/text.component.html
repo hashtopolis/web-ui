@@ -1,15 +1,16 @@
 <mat-form-field>
-  <mat-label>{{ title }}
+  <mat-label
+    >{{ title }}
     <mat-icon
-          matTooltip="{{ tooltip }}"
-          matTooltipPosition="below"
-          matTooltipClass="tooltip-custom-style"
-          container="body"
-          aria-hidden="true"
-          *ngIf="tooltip"
-        >
-          info
-        </mat-icon>
+      matTooltip="{{ tooltip }}"
+      matTooltipPosition="below"
+      matTooltipClass="tooltip-custom-style"
+      container="body"
+      aria-hidden="true"
+      *ngIf="tooltip"
+    >
+      info
+    </mat-icon>
   </mat-label>
   <mat-icon matPrefix *ngIf="icon">{{ icon }}</mat-icon>
   <input
@@ -24,6 +25,18 @@
     [type]="inputType"
     [required]="isRequired"
   />
+  @if (showPasswordToggle) {
+    <button
+      mat-icon-button
+      matSuffix
+      (click)="isVisible = !isVisible"
+      [attr.aria-label]="'Hide password'"
+      [attr.aria-pressed]="isVisible"
+    >
+      <mat-icon>{{ isVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
+    </button>
+  }
+
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
   <mat-error>{{ title }} is required</mat-error>
 </mat-form-field>
