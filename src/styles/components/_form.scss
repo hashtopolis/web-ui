@@ -177,36 +177,6 @@ progress::-webkit-progress-value {
 /*
   05- Password Strength
 */
-
-.strength {
-  display: flex;
-  flex-direction: row;
-}
-
-.strengthBar {
-  display: flex;
-  flex-grow: 1;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  vertical-align: 2px;
-}
-
-.strength-point {
-  background: #ddd;
-  border-radius: 2px;
-  display: inline-block;
-  height: 5px;
-  margin-right: 1px;
-  flex-grow: 1;
-}
-
-.str-margin {
-  font-weight: bold;
-  flex-grow: 0.1;
-}
-
-/* pass strength */
       .password-strength-container {
         margin-top: 8px;
       }
@@ -230,7 +200,6 @@ progress::-webkit-progress-value {
         text-align: center;
         transition: color 0.3s ease;
       }
-/* end pass strength  */
 /*
   05- End
 */
