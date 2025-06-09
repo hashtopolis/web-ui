@@ -173,10 +173,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.strongPassword = event;
   }
 
-  onPasswordMatchChanged(event: boolean) {
-    this.strongPassword = event;
-  }
-
   /**
    * Loads user settings from the server and populates the form with initial data.
    */

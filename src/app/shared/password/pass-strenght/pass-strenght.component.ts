@@ -1,12 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChange
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange } from '@angular/core';
 
 export const PasswordStrengthVal = {
   1: 'Poor',
@@ -24,26 +16,9 @@ export enum PasswordStrengthColors {
 }
 
 @Component({
-    selector: 'app-pass-strenght',
-    template: `
-    <div class="strength">
-      <ul class="strengthBar mt-2">
-        <li class="strength-point" [style.background-color]="bar0"></li>
-        <li class="strength-point" [style.background-color]="bar1"></li>
-        <li class="strength-point" [style.background-color]="bar2"></li>
-        <li class="strength-point" [style.background-color]="bar3"></li>
-      </ul>
-
-      <p
-        class="text-center mb-0 str-margin"
-        [style.color]="messageColor"
-        *ngIf="passwordToCheck?.length"
-      >
-        {{ message }}
-      </p>
-    </div>
-  `,
-    standalone: false
+  selector: 'app-pass-strenght',
+  templateUrl: './pass-strenght.component.html',
+  standalone: false
 })
 export class PassStrenghtComponent implements OnChanges {
   bar0: string;
@@ -98,9 +73,7 @@ export class PassStrenghtComponent implements OnChanges {
     if (password) {
       const pwdStrength = this.checkStrength(password);
 
-      pwdStrength === 40
-        ? this.passwordStrength.emit(true)
-        : this.passwordStrength.emit(false);
+      pwdStrength === 40 ? this.passwordStrength.emit(true) : this.passwordStrength.emit(false);
 
       const color = this.getColor(pwdStrength);
       this.setBarColors(color.index, color.color);

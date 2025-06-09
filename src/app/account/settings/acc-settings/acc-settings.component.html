@@ -53,6 +53,9 @@
       [showPasswordToggle]="true"
       (ShowPasswordEmit)="showConfirmNewPassword = $event"
     ></input-text>
+    <div class="smaller-pass-strength">
+      <app-pass-strenght [passwordToCheck]="newPasswordValueFromForm"></app-pass-strenght>
+    </div>
     <grid-buttons>
       <button-submit [name]="'Update Password'" (click)="onSubmitPass()" data-testid="button-submit"></button-submit>
       <div *ngIf="isUpdatingPassLoading">
