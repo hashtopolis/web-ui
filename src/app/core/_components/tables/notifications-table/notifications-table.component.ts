@@ -1,22 +1,26 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JNotification } from '@models/notification.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   NotificationsTableCol,
   NotificationsTableColumnLabel
 } from '@components/tables/notifications-table/notifications-table.constants';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { NotificationsDataSource } from '@datasources/notifications.datasource';
 
 import { ACTION } from '@src/app/core/_constants/notifications.config';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { JNotification } from '@models/notification.model';
-import { NotificationsDataSource } from '@datasources/notifications.datasource';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-notifications-table',
@@ -156,31 +160,12 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JNotification[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JNotification>(
-          'hashtopolis-notifications',
-          this.tableColumns,
-          event.data,
-          NotificationsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JNotification>(
-          'hashtopolis-notifications',
-          this.tableColumns,
-          event.data,
-          NotificationsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JNotification>(this.tableColumns, event.data, NotificationsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JNotification>(
+      event,
+      this.tableColumns,
+      NotificationsTableColumnLabel,
+      'hashtopolis-notifications'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JNotification>): void {
@@ -254,7 +239,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted notifications!`, 'Close');
           this.dataSource.reload();
         })
@@ -268,7 +253,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     const action = isActive ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, { isActive: isActive }).subscribe((results) => {
+      this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, { isActive: isActive }).subscribe(() => {
         this.snackBar.open(`Successfully ${action} notifications!`, 'Close');
         this.dataSource.reload();
       })

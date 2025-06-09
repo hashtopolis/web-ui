@@ -1,18 +1,21 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+
+import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { CrackersDataSource } from '@datasources/crackers.datasource';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { CrackersDataSource } from '@datasources/crackers.datasource';
 
 @Component({
   selector: 'app-crackers-table',
@@ -37,7 +40,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
       sub.unsubscribe();
     }
   }
-  
+
   filter(item: JCrackerBinaryType, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
@@ -121,31 +124,12 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JCrackerBinaryType[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JCrackerBinaryType>(
-          'hashtopolis-crackers',
-          this.tableColumns,
-          event.data,
-          CrackersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JCrackerBinaryType>(
-          'hashtopolis-crackers',
-          this.tableColumns,
-          event.data,
-          CrackersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JCrackerBinaryType>(this.tableColumns, event.data, CrackersTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JCrackerBinaryType>(
+      event,
+      this.tableColumns,
+      CrackersTableColumnLabel,
+      'hashtopolis-crackers'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JCrackerBinaryType>): void {
@@ -195,7 +179,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
             return [];
           })
         )
-        .subscribe((results) => {
+        .subscribe(() => {
           this.snackBar.open(`Successfully deleted crackers!`, 'Close');
           this.dataSource.reload();
         })

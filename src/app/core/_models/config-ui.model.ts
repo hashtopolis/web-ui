@@ -25,9 +25,9 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
@@ -595,7 +595,12 @@ export const uiConfigDefault: UIConfig = {
     searchHashTable: {
       start: 0,
       page: 25,
-      columns: [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT, SearchHashTableCol.INFO],
+      columns: [
+        SearchHashTableCol.HASH,
+        SearchHashTableCol.PLAINTEXT,
+        SearchHashTableCol.PLAINTEXT,
+        SearchHashTableCol.INFO
+      ],
       order: {
         id: SearchHashTableCol.HASH,
         dataKey: '',
