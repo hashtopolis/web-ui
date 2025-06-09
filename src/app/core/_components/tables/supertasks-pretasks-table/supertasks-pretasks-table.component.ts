@@ -8,7 +8,6 @@ import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -124,31 +123,12 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JPretask>(
-          'hashtopolis-supertasks-pretasks',
-          this.tableColumns,
-          event.data,
-          SupertasksPretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JPretask>(
-          'hashtopolis-supertasks-pretasks',
-          this.tableColumns,
-          event.data,
-          SupertasksPretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JPretask>(this.tableColumns, event.data, SupertasksPretasksTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JPretask>(
+      event,
+      this.tableColumns,
+      SupertasksPretasksTableColumnLabel,
+      'hashtopolis-supertasks-pretasks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JPretask>): void {
@@ -202,32 +182,19 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     // //Update the supertask with the modified list of pretasks
     // const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
     // //Update the supertask with the new list of pretasks
-    let pretaskData = [];
+    const pretaskData = [];
 
     pretasks.forEach((pretask) => {
       pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
     });
 
     const responseBody = { data: pretasks };
-    this.gs.deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody).subscribe((results => {
-      this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
-      this.dataSource.reload();
-    }))
-
-    // const updateRequest = this.gs.update(SERV.SUPER_TASKS, this.supertaskId, payload);
-    // this.subscriptions.push(
-    //   updateRequest
-    //     .pipe(
-    //       catchError((error) => {
-    //         console.error('Error during deletion:', error);
-    //         return [];
-    //       })
-    //     )
-    //     .subscribe(() => {
-    //       this.snackBar.open(`Successfully deleted ${pretasks.length} pretasks!`, 'Close');
-    //       this.reload();
-    //     })
-    // );
+    this.gs
+      .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
+      .subscribe(() => {
+        this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+        this.dataSource.reload();
+      });
   }
 
   private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
@@ -242,7 +209,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
    * @todo Implement error handling.
    */
   private rowActionDelete(pretasks: JPretask[]): void {
-    let pretaskData = [];
+    const pretaskData = [];
 
     pretasks.forEach((pretask) => {
       pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
@@ -250,15 +217,18 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
 
     const responseBody = { data: pretaskData };
     this.subscriptions.push(
-      this.gs.deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody).pipe(
-        catchError((error) => {
-          console.error("Error during deleting: ", error);
-          return [];
+      this.gs
+        .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deleting: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+          this.dataSource.reload();
         })
-      ).subscribe(() => {
-        this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 

@@ -1,23 +1,26 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { JHashlist } from '@models/hashlist.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HashlistsTableCol,
   HashlistsTableColumnLabel
 } from '@components/tables/hashlists-table/hashlists-table.constants';
-import { Observable, catchError, of } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
-import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { HashlistsDataSource } from '@datasources/hashlists.datasource';
-import { J } from '@angular/cdk/keycodes';
-import { JHashlist } from '@models/hashlist.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { HashlistsDataSource } from '@datasources/hashlists.datasource';
+
+import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
@@ -47,7 +50,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       sub.unsubscribe();
     }
   }
-
 
   filter(item: JHashlist, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
@@ -179,29 +181,12 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHashlist>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHashlist>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHashlist>(this.tableColumns, event.data, HashlistsTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JHashlist>(
+      event,
+      this.tableColumns,
+      HashlistsTableColumnLabel,
+      'hashtopolis-hashlists'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
