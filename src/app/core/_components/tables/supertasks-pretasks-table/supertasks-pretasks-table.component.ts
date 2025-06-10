@@ -248,7 +248,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     try {
       val = parseInt(priority);
     } catch (error) {
-      // Do nothing
+      this.alertService.showErrorMessage(`Error while changing priority: ${error.message}`);
     }
 
     if (!val || pretask.priority == val) {
@@ -280,7 +280,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     try {
       val = parseInt(max);
     } catch (error) {
-      // Do nothing
+      this.alertService.showErrorMessage(`Error while changing max agents: ${error.message}`);
     }
 
     if (!val || pretask.maxAgents == val) {
