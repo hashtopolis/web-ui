@@ -228,7 +228,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted agent binaries!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted agent binaries!`);
           this.dataSource.reload();
         })
     );
@@ -248,7 +248,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted agent binary!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted agent binary!');
           this.reload();
         })
     );
@@ -261,7 +261,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   private rowActionCopyLink(agentBinary: JAgentBinary): void {
     const link = `${this.agentdownloadURL}${agentBinary.id}`;
     this.clipboard.copy(link);
-    this.snackBar.open('The agent binary URL is copied to the clipboard', 'Close');
+    this.alertService.showSuccessMessage('The agent binary URL is copied to the clipboard');
   }
 
   private rowActionDownload(agentBinary: JAgentBinary): void {

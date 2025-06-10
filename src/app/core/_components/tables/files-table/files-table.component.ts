@@ -220,7 +220,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted files!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted files!`);
           this.dataSource.reload();
         })
     );
@@ -240,7 +240,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted file!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted file!');
           this.reload();
         })
     );

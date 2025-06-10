@@ -265,7 +265,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} cracks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted ${results.length} cracks!`);
           this.reload();
         })
     );
@@ -285,7 +285,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted crack!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted crack!');
           this.reload();
         })
     );

@@ -4,7 +4,6 @@ import { Observable, Subscription, of } from 'rxjs';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -20,6 +19,7 @@ import { JUser } from '@models/user.model';
 
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -62,7 +62,7 @@ export class BaseTableComponent {
     protected router: Router,
     protected settingsService: LocalStorageService<UIConfig>,
     protected sanitizer: DomSanitizer,
-    protected snackBar: MatSnackBar,
+    protected alertService: AlertService,
     protected uiService: UIConfigService,
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,

@@ -181,7 +181,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted preprocessors!`);
           this.dataSource.reload();
         })
     );
@@ -201,7 +201,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted preprocessor!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted preprocessor!');
           this.reload();
         })
     );

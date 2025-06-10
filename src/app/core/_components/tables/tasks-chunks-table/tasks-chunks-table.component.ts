@@ -242,7 +242,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully reseted chunk!', 'Close');
+          this.alertService.showSuccessMessage('Successfully reseted chunk!');
           this.reload();
         })
     );

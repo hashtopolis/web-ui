@@ -240,7 +240,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted notifications!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted notifications!`);
           this.dataSource.reload();
         })
     );
@@ -254,7 +254,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
 
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, { isActive: isActive }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} notifications!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} notifications!`);
         this.dataSource.reload();
       })
     );
@@ -274,7 +274,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted notification!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted notification!');
           this.reload();
         })
     );

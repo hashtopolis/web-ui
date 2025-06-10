@@ -183,7 +183,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted accessgroups!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted accessgroups!`);
           this.dataSource.reload();
         })
     );
@@ -203,7 +203,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted accessGroup!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted accessGroup!');
           this.reload();
         })
     );

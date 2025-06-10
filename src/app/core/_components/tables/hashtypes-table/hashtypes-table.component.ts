@@ -178,7 +178,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted hashtypes!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted hashtypes!`);
           this.dataSource.reload();
         })
     );
@@ -198,7 +198,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted hashtype!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted hashtype!');
           this.reload();
         })
     );

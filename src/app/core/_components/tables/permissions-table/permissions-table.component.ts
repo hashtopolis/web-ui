@@ -172,7 +172,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted permission groups!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted permission groups!`);
           this.dataSource.reload();
         })
     );
@@ -192,7 +192,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted permission group!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted permission group!');
           this.reload();
         })
     );

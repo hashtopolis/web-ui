@@ -24,7 +24,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
@@ -92,8 +91,7 @@ export class EditTasksComponent implements OnInit {
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private alert: AlertService,
+    private alertService: AlertService,
     private gs: GlobalService,
     private fs: FileSizePipe,
     private router: Router,
@@ -149,11 +147,11 @@ export class EditTasksComponent implements OnInit {
       if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
         const warning =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
-        this.alert.customConfirmation(warning).then((confirmed) => {
+        this.alertService.customConfirmation(warning).then((confirmed) => {
           if (confirmed) {
             this.updateTask();
           } else {
-            this.alert.showSuccessMessage('Task Information has not been updated');
+            this.alertService.showInfoMessage('Task Information has not been updated');
           }
         });
       } else {
@@ -165,7 +163,7 @@ export class EditTasksComponent implements OnInit {
   private updateTask() {
     this.isUpdatingLoading = true;
     this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.alert.showSuccessMessage('Task saved');
+      this.alertService.showSuccessMessage('Task saved');
       this.isUpdatingLoading = false;
       this.router.navigate(['tasks/show-tasks']).then(() => {
         window.location.reload();
@@ -277,7 +275,7 @@ export class EditTasksComponent implements OnInit {
         )
         .subscribe(() => {
           this.createForm.reset();
-          this.snackBar.open('Agent assigned!', 'Close');
+          this.alertService.showSuccessMessage('Agent assigned!');
         });
     }
   }
@@ -394,14 +392,14 @@ export class EditTasksComponent implements OnInit {
       icon: 'warning',
       reverseButtons: true,
       showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.purgeText
+      cancelButtonColor: this.alertService.cancelButtonColor,
+      confirmButtonColor: this.alertService.confirmButtonColor,
+      confirmButtonText: this.alertService.purgeText
     }).then((result) => {
       if (result.isConfirmed) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
-          this.alert.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
+          this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
         });
       } else {
         swalWithBootstrapButtons.fire({

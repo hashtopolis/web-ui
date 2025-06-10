@@ -204,7 +204,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted healthchecks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted healthchecks!`);
           this.dataSource.reload();
         })
     );
@@ -224,7 +224,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted health check!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted health check!');
           this.reload();
         })
     );

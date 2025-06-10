@@ -125,6 +125,7 @@ export class ExportService {
     const data = await this.exportUtil.toCsvRows(tableColumns, rawData);
     const textToCopy = [columns, ...data].map((row: string[]) => row.join('\t')).join('\n');
     this.clipboard.copy(textToCopy);
+    throw new Error('Something went wrong');
   }
 
   /**

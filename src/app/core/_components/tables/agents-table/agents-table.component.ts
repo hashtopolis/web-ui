@@ -494,7 +494,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.AGENTS, agents, { isActive: isActive }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} agents!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} agents!`);
         this.dataSource.reload();
       })
     );
@@ -514,7 +514,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted agents!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
           this.dataSource.reload();
         })
     );
@@ -527,14 +527,14 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId === 0) {
       this.subscriptions.push(
         this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
-          this.snackBar.open('Successfully deleted agent!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
         this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
-          this.snackBar.open('Successfully unassigned agent!', 'Close');
+          this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
@@ -549,7 +549,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   private changeBenchmark(agent: JAgent, benchmark: string): void {
     if (!benchmark || agent.benchmark == benchmark) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showSuccessMessage('Nothing changed!');
       return;
     }
 
@@ -560,13 +560,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update benchmark!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update benchmark!`);
             console.error('Failed to update benchmark:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`);
           this.reload();
         })
     );

@@ -171,7 +171,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
    */
   private bulkActionDelete(supertask: JSuperTask[]): void {
     this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe(() => {
-      this.snackBar.open(`Successfully deleted supertasks!`, 'Close');
+      this.alertService.showSuccessMessage(`Successfully deleted supertasks!`);
       this.dataSource.reload();
     });
   }
@@ -190,7 +190,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted supertask!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted supertask!');
           this.reload();
         })
     );
