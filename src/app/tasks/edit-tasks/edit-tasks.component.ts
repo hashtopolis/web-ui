@@ -19,7 +19,6 @@ import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { finalize } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -379,17 +378,8 @@ export class EditTasksComponent implements OnInit {
    **/
 
   purgeTask() {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "It'll purge the Task!",
-      icon: 'warning',
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alertService.cancelButtonColor,
-      confirmButtonColor: this.alertService.confirmButtonColor,
-      confirmButtonText: this.alertService.purgeText
-    }).then((result) => {
-      if (result.isConfirmed) {
+    this.alertService.customConfirmation('Do you really want to purge the task').then((result) => {
+      if (result) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
