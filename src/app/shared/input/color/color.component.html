@@ -2,20 +2,14 @@
   <mat-form-field>
     <mat-label>{{ title }}</mat-label>
     <input
-          #selectInput
-          matInput
-          [id]="inputId"
-          [(ngModel)]="value"
-          (ngModelChange)="onChange(value)"
-          (colorPickerChange)="onChangeValue($event)"
-          [style.background]="value"
-          [value]="defaultColor"
-          [(colorPicker)]="defaultColor"
-          [cpAddColorButtonText]="defaultColor"
-          [cpPresetColors]="presetColors"
-          [cpOKButton]="true"
-          [cpOKButtonText]="'Save'"
-          >
+      matInput
+      #selectInput
+      type="color"
+      [id]="inputId"
+      [(ngModel)]="value"
+      (ngModelChange)="onChange(value)"
+      [value]="defaultColor"
+    />
   </mat-form-field>
 
   <div *ngIf="randomColor">
