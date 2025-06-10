@@ -379,13 +379,6 @@ export class EditTasksComponent implements OnInit {
    **/
 
   purgeTask() {
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    });
     Swal.fire({
       title: 'Are you sure?',
       text: "It'll purge the Task!",
@@ -402,13 +395,7 @@ export class EditTasksComponent implements OnInit {
           this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: 'Cancelled',
-          text: 'Purge was cancelled!',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 1500
-        });
+        this.alertService.showInfoMessage('Purge was cancelled');
       }
     });
   }
