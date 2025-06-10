@@ -1,4 +1,4 @@
-@import '../base/colors';
+@use '../base/colors';
 /* ==================================
           SECTION TABLES
    ================================== */
@@ -228,11 +228,11 @@ input.dt-button {
 table.hashtopolis-table {
   .no-data {
     text-align: center;
-    color: $primary-900;
+    color: colors.$primary-900;
     padding: 1em;
   }
   .mat-mdc-header-cell {
-    background-color: $primary-800;
+    background-color: colors.$primary-800;
     color: #fff;
 
     .mat-sort-header-arrow {
@@ -241,7 +241,7 @@ table.hashtopolis-table {
   }
 
   .mat-mdc-row:hover {
-    background-color: $primary-100;
+    background-color: colors.$primary-100;
   }
 
   .mat-mdc-cell {
@@ -273,7 +273,7 @@ table.hashtopolis-table {
       }
       .editable-text {
         display: inline-block;
-        border-bottom: 1px dashed $primary-400;
+        border-bottom: 1px dashed colors.$primary-400;
         cursor: pointer;
       }
       .mat-mdc-icon-button {
@@ -287,12 +287,12 @@ table.hashtopolis-table {
       }
     }
     .pulsing-progress {
-      color: $warn-900;
+      color: colors.$warn-900;
       animation: pulse 1s infinite;
     }
 
     .text-container button {
-      color: $accent-900;
+      color: colors.$accent-900;
     }
 
     .row-action {
@@ -312,7 +312,7 @@ table.hashtopolis-table {
 
       a {
         display: inline;
-        border-bottom: 1px dotted $primary-300;
+        border-bottom: 1px dotted colors.$primary-300;
         &:last-child {
           border-bottom: none;
         }
@@ -340,7 +340,11 @@ table.hashtopolis-table {
     }
   }
 }
-
+.filter-container{
+  display: flex; 
+  align-items: center; 
+  gap: 16px
+}
 div.table-actions {
   display: flex;
   justify-content: space-between;
@@ -358,7 +362,7 @@ div.table-actions {
 
     .mat-icon {
       padding-right: 0;
-      color: $primary-100;
+      color: colors.$primary-100;
     }
 
     .mat-mdc-form-field-subscript-wrapper {
@@ -372,20 +376,20 @@ div.table-actions {
     background-color: var(--mat-toolbar-container-background-color);
 
     .mat-mdc-row:hover {
-      background-color: $primary-900;
+      background-color: colors.$primary-900;
     }
 
     .mat-mdc-cell {
       .pulsing-progress {
-        color: $warn-300;
+        color: colors.$warn-300;
       }
       .text-container button {
-        color: $accent-600;
+        color: colors.$accent-600;
       }
     }
 
     .no-data {
-      color: $primary-100;
+      color: colors.$primary-100;
     }
   }
   .mat-mdc-paginator {

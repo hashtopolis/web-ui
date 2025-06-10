@@ -1,28 +1,19 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { Log } from '../_models/log.model';
-import { RequestParams } from '../_models/request-params.model';
+import { ResponseWrapper } from '../_models/response.model';
+import { JLog } from '../_models/log.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class LogsDataSource extends BaseDataSource<Log> {
+export class LogsDataSource extends BaseDataSource<JLog> {
   loadAll(): void {
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
+    //ToDo: Reactivate sorting
+    this.sortingColumn.isSortable = false;
 
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
-
+    const params = new RequestParamBuilder().addInitial(this).create();
     const logs$ = this.service.getAll(SERV.LOGS, params);
 
     this.subscriptions.push(
@@ -31,19 +22,25 @@ export class LogsDataSource extends BaseDataSource<Log> {
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<Log>) => {
-          const logs: Log[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
 
-          if (startAt >= response.total) {
+          const responseData = { data: response.data, included: response.included };
+          const logs = this.serializer.deserialize<JLog[]>(responseData);
+
+          if (this.currentPage * this.pageSize >= logs.length) {
             this.currentPage = 0;
             this.loadAll();
             return;
           }
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            response.total
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(logs);
         })

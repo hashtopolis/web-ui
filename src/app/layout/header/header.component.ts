@@ -8,12 +8,13 @@ import { MainMenuItem } from './header.model';
 import { Subscription } from 'rxjs';
 import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { User } from 'src/app/core/_models/auth-user.model';
+import { AuthUser } from 'src/app/core/_models/auth-user.model';
 import { environment } from './../../../environments/environment';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html'
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    standalone: false
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
@@ -47,7 +48,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscriptions.push(
-      this.authService.user.subscribe((user: User) => {
+      this.authService.user.subscribe((user: AuthUser) => {
         if (user) {
           this.username = user._username;
         }

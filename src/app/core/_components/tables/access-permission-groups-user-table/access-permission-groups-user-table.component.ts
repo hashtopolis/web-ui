@@ -1,43 +1,40 @@
+import { catchError } from 'rxjs';
+
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn } from '../ht-table/ht-table.models';
+
+import { UserPermissions } from '@models/global-permission-group.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import {
   APGUTableEditableAction,
   AccessPermissionGroupsUserTableCol,
   AccessPermissionGroupsUserTableColumnLabel
-} from './access-permission-groups-user-table.constants';
+} from '@components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { AccessPermissionGroupsExpandDataSource } from 'src/app/core/_datasources/access-permission-groups-expand.datasource';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { UserPermissions } from 'src/app/core/_models/user-permissions.model';
-import { SERV } from 'src/app/core/_services/main.config';
-import { catchError } from 'rxjs';
+import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
 
 @Component({
   selector: 'access-permission-groups-user-table',
-  templateUrl: './access-permission-groups-user-table.component.html'
+  templateUrl: './access-permission-groups-user-table.component.html',
+  standalone: false
 })
-export class AccessPermissionGroupsUserTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessPermissionGroupsExpandDataSource;
-  expand = 'user';
+  expand = 'userMembers';
   permissions = 1;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUserTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
@@ -58,7 +55,7 @@ export class AccessPermissionGroupsUserTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: AccessPermissionGroupsUserTableCol.NAME,
         dataKey: 'name',
@@ -118,85 +115,43 @@ export class AccessPermissionGroupsUserTableComponent
         export: async (perm: UserPermissions) => perm.delete + ''
       }
     ];
-    return tableColumns;
   }
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<UserPermissions[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<UserPermissions>(
-          'hashtopolis-access-permission-groups-user',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUserTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<UserPermissions>(
-          'hashtopolis-access-permission-groups-user',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUserTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<UserPermissions>(
-            this.tableColumns,
-            event.data,
-            AccessPermissionGroupsUserTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+    this.exportService.handleExportAction<UserPermissions>(
+      event,
+      this.tableColumns,
+      AccessPermissionGroupsUserTableColumnLabel,
+      'hashtopolis-access-permission-groups-user'
+    );
   }
 
-  editableCheckSaved(editable: any): void {
-    switch (editable.action) {
-      case APGUTableEditableAction.CHANGE_CREATE_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-      case APGUTableEditableAction.CHANGE_READ_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-      case APGUTableEditableAction.CHANGE_UPDATE_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-      case APGUTableEditableAction.CHANGE_DELETE_PERMISSION:
-        this.changePermision(editable, editable.value);
-        break;
-    }
+  /**
+   * Update Permissions on checkbox change event
+   * @param editable Editable object containing current permission, action and changed value
+   */
+  onCheckboxChange(editable: HTTableEditable<UserPermissions>): void {
+    this.changePermision(editable, editable.value);
   }
 
   /**
    * Updates the permission for a specific user permission.
-   *
-   * @param {UserPermissions} userperm - The user permissions object.
-   * @param {string} value - The new value for the permission (as a string).
+   * @param editable Editable object containing current permission, action and changed value.
+   * @param value The new value for the permission (as a string).
    */
-  private changePermision(userperm: UserPermissions, value: string): void {
-    const capitalizedPerm = (userperm['action'].match(/-(.*?)-/)?.[1] || '')
+  private changePermision(editable: HTTableEditable<UserPermissions>, value: string): void {
+    const capitalizedPerm = (editable['action'].match(/-(.*?)-/)?.[1] || '')
       .toLowerCase()
       .replace(/^\w/, (c) => c.toUpperCase());
-    const keyPerm = userperm['data']['originalName'] + capitalizedPerm;
-    const boolValue =
-      value === 'true' ? true : value === 'false' ? false : Boolean(value);
+    const keyPerm = editable['data']['originalName'] + capitalizedPerm;
+    const boolValue = value === 'true' ? true : value === 'false' ? false : Boolean(value);
     // Payload
     const payload = {
       permissions: { [keyPerm]: boolValue }
     };
 
-    const request$ = this.gs.update(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      this.accesspermgroupId,
-      payload
-    );
+    const request$ = this.gs.update(SERV.ACCESS_PERMISSIONS_GROUPS, this.accesspermgroupId, payload);
     this.subscriptions.push(
       request$
         .pipe(

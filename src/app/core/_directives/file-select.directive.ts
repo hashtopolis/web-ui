@@ -16,7 +16,8 @@ import {
 */
 
 @Directive({
-  selector: '[fileSelect]',
+    selector: '[fileSelect]',
+    standalone: false
 })
 export class FileSelectDirective {
   @Output() selectedFiles = new EventEmitter<FileList>();

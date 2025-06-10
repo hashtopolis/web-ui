@@ -1,14 +1,14 @@
-import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { RouterModule, Routes } from '@angular/router';
-
-import { AgentStatusComponent } from './agent-status/agent-status.component';
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { EditAgentComponent } from './edit-agent/edit-agent.component';
-import { IsAuth } from '../core/_guards/auth.guard';
-import { NewAgentComponent } from './new-agent/new-agent.component';
 import { NgModule } from '@angular/core';
-import { PendingChangesGuard } from '../core/_guards/pendingchanges.guard';
-import { ShowAgentsComponent } from './show-agents/show-agents.component';
+import { RouterModule } from '@angular/router';
+
+import { MyRoute } from '@models/routes.model';
+
+import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
+import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
+import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
+import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 
 const routes: MyRoute[] = [
   {

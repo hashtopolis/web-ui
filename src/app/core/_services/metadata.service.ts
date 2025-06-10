@@ -1,21 +1,14 @@
-import {
-  dateFormats,
-  proxytype,
-  serverlog
-} from '../../core/_constants/settings.config';
-import {
-  ACTIONARRAY,
-  NOTIFARRAY
-} from '../../core/_constants/notifications.config';
-import { fileFormat } from '../../core/_constants/files.config';
-import { TooltipService } from '../../core/_services/shared/tooltip.service';
-import { environment } from 'src/environments/environment';
+import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
 import { FormControl, Validators } from '@angular/forms';
-import { SERV } from '../../core/_services/main.config';
-import { BehaviorSubject, Observable, map } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { GlobalService } from './main.service';
+import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { GlobalService } from '@services/main.service';
 import { Injectable } from '@angular/core';
+import { SERV } from '@services/main.config';
+import { TooltipService } from '@services/shared/tooltip.service';
+import { environment } from '@src/environments/environment';
+import { fileFormat } from '@src/app/core/_constants/files.config';
 
 @Injectable({
   providedIn: 'root'
@@ -60,11 +53,9 @@ export class MetadataService {
       type: 'Type of the form field; (e.g., select, text, checkbox)',
       placeholder: 'Type option text, then add placeholder',
       selectOptions: "Select options if the type is 'select'",
-      selectOptions$:
-        "Select options if the type is 'selectd', used with selectEndpoint",
+      selectOptions$: "Select options if the type is 'selectd', used with selectEndpoint",
       selectEndpoint$: 'API endpoint route, use SERV',
-      fieldMapping:
-        'Object with the dropdown options to be mapped, that is id and name. ie. id: _id, name:groupName',
+      fieldMapping: 'Object with the dropdown options to be mapped, that is id and name. ie. id: _id, name:groupName',
       requiredasterisk: 'Indicates if the field is required',
       tooltip: 'Tooltip information as string or using ',
       validators: 'Validation rules',
@@ -259,7 +250,7 @@ export class MetadataService {
 
   //This variable defines the fields and properties required when editing a wonrdlist, rule or other file.
   editfile = [
-    { name: 'fileId', label: 'ID', type: 'number', disabled: true },
+    { name: 'id', label: 'ID', type: 'number', disabled: true },
     { name: 'filename', label: 'Name', type: 'text' },
     {
       name: 'fileType',
@@ -274,7 +265,7 @@ export class MetadataService {
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_GROUPS,
       selectOptions$: [],
-      fieldMapping: { id: '_id', name: 'groupName' }
+      fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
   ];
@@ -441,8 +432,7 @@ export class MetadataService {
       label: 'Binary Base Name',
       type: 'text',
       requiredasterisk: true,
-      tooltip:
-        'Which needs to be called on the client without os-dependent extension',
+      tooltip: 'Which needs to be called on the client without os-dependent extension',
       validators: [Validators.required]
     },
     {
@@ -479,8 +469,7 @@ export class MetadataService {
       label: 'Binary Base Name',
       type: 'text',
       requiredasterisk: true,
-      tooltip:
-        'Which needs to be called on the client without os-dependent extension',
+      tooltip: 'Which needs to be called on the client without os-dependent extension',
       validators: [Validators.required]
     },
     {
@@ -625,12 +614,7 @@ export class MetadataService {
       type: 'number',
       requiredasterisk: true,
       tooltip: 'ie. Hashcat -m',
-      validators: [
-        Validators.required,
-        Validators.pattern('^[0-9]*$'),
-        Validators.minLength(1),
-        this.numberValidator
-      ]
+      validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator]
     },
     {
       name: 'description',
@@ -668,12 +652,7 @@ export class MetadataService {
       type: 'number',
       requiredasterisk: true,
       tooltip: 'ie. Hashcat -m',
-      validators: [
-        Validators.required,
-        Validators.pattern('^[0-9]*$'),
-        Validators.minLength(1),
-        this.numberValidator
-      ],
+      validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator],
       disabled: true
     },
     {
@@ -740,7 +719,7 @@ export class MetadataService {
     },
     {
       name: 'agentDataLifetime',
-      label: 'Retention Period for Utilization and Temperature Data',
+      label: 'Retention Period for Utilisation and Temperature Data',
       type: 'number',
       tooltip: false
     },
@@ -787,13 +766,13 @@ export class MetadataService {
     },
     {
       name: 'agentUtilThreshold1',
-      label: 'Orange Status Threshold for Agent Utilization',
+      label: 'Orange Status Threshold for Agent Utilisation',
       type: 'number',
       tooltip: false
     },
     {
       name: 'agentUtilThreshold2',
-      label: 'Red Status Threshold for Agent Utilization',
+      label: 'Red Status Threshold for Agent Utilisation',
       type: 'number',
       tooltip: false
     }
@@ -850,8 +829,7 @@ export class MetadataService {
     },
     {
       name: 'priority0Start',
-      label:
-        'Automatic Assignment of Tasks with Priority 0 (Needed, Check File)',
+      label: 'Automatic Assignment of Tasks with Priority 0 (Needed, Check File)',
       type: 'checkbox',
       tooltip: false
     },
@@ -870,8 +848,7 @@ export class MetadataService {
     },
     {
       name: 'ruleSplitAlways',
-      label:
-        'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
+      label: 'Rule Splitting with Benchmark Constraint: Allow Subtasks with a Single Rule',
       type: 'checkbox',
       tooltip: false
     },
@@ -921,8 +898,7 @@ export class MetadataService {
     },
     {
       name: 'hashlistImportCheck',
-      label:
-        'Check for Previous Cracks in Other Hashlists at Hashlist Creation',
+      label: 'Check for Previous Cracks in Other Hashlists at Hashlist Creation',
       type: 'checkbox',
       tooltip: false
     },
@@ -1051,8 +1027,7 @@ export class MetadataService {
     },
     {
       name: 'hcErrorIgnore',
-      label:
-        'Ignore Error Messages Containing the Following String from Crackers',
+      label: 'Ignore Error Messages Containing the Following String from Crackers',
       type: 'textarea',
       tooltip: false
     },
@@ -1342,29 +1317,19 @@ export class MetadataService {
   getFormMetadata(formName: string): any[] {
     if (formName === 'authforgot') {
       return this.authforgot;
-    } else if (
-      formName === 'editwordlist' ||
-      formName === 'editrule' ||
-      formName === 'editother'
-    ) {
+    } else if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {
       return this.editfile;
     } else if (formName === 'uisettings') {
       return this.uisettings;
     } else if (formName === 'newcracker') {
       return this.newcracker;
-    } else if (
-      formName === 'newagentbinary' ||
-      formName === 'editagentbinary'
-    ) {
+    } else if (formName === 'newagentbinary' || formName === 'editagentbinary') {
       return this.agentbinary;
     } else if (formName === 'newcrackerversion') {
       return this.newcrackerversion;
     } else if (formName === 'editcrackerversion') {
       return this.editcrackerversion;
-    } else if (
-      formName === 'newpreprocessor' ||
-      formName === 'editpreprocessor'
-    ) {
+    } else if (formName === 'newpreprocessor' || formName === 'editpreprocessor') {
       return this.preprocessor;
     } else if (formName === 'newhashtype') {
       return this.newhashtype;
@@ -1372,10 +1337,7 @@ export class MetadataService {
       return this.edithashtype;
     } else if (formName === 'newglobalpermissionsgp') {
       return this.newglobalpermissionsgp;
-    } else if (
-      formName === 'newaccessgroups' ||
-      formName === 'editaccessgroups'
-    ) {
+    } else if (formName === 'newaccessgroups' || formName === 'editaccessgroups') {
       return this.accessgroups;
     } else if (formName === 'serveragent') {
       return this.serveragent;
@@ -1453,24 +1415,6 @@ export class MetadataService {
     } else {
       return [];
     }
-  }
-
-  /**
-   * Fetches select options for a form control from an API endpoint.
-   *
-   * @param apiEndpoint - The API endpoint to retrieve select options from.
-   * @returns An observable that emits an array of select options.
-   */
-  fetchOptions(apiEndpoint: string): Observable<any[]> {
-    return this.gs.getAll(apiEndpoint).pipe(
-      map((data: any) => {
-        // Adjust this based on your API response structure
-        return data.options.map((option: any) => ({
-          label: option.label,
-          value: option.value
-        }));
-      })
-    );
   }
 
   // Custom validator to convert the input value to a number

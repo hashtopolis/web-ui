@@ -1,11 +1,14 @@
 <app-table>
-
   <app-page-title [title]="pageTitle"></app-page-title>
   <br /><br />
   <form [formGroup]="form">
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
       <input-text title="Account Type" formControlName="name" data-testid="input-name"></input-text>
-      <input-text title="Creation date" formControlName="registeredSince" data-testid="input-registered-since"></input-text>
+      <input-text
+        title="Creation date"
+        formControlName="registeredSince"
+        data-testid="input-registered-since"
+      ></input-text>
     </div>
     <input-text title="Email" formControlName="email" data-testid="input-email"></input-text>
     <grid-buttons>
@@ -17,27 +20,47 @@
   </form>
 
   <br />
-
   <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
-    <form [formGroup]="passform">
-      <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-        <input-text title="Password" placeholder="Password" formControlName="password" inputType="password"  data-testid="input-password" [isRequired]="true"></input-text>
-        <!-- Down is how it should be -->
-        <!-- <input-text title="Old Password" placeholder="Enter Old Password" formControlName="oldpassword" inputType="password"  data-testid="input-password" [isRequired]="true"></input-text> -->
-        <!-- <input-text title="New Password" placeholder="Enter New Password" formControlName="newpassword" inputType="password"  data-testid="input-newpassword" [isRequired]="true"></input-text> -->
-        <!-- <div class="smaller-pass-strength">
-          <app-pass-strenght [passwordToCheck]="form.controls['newpassword'].value" (passwordStrength)="onPasswordStrengthChanged($event)"></app-pass-strenght>
-        </div> -->
-        <!-- <input-text title="Confirm Password" placeholder="Confirm Password" formControlName="confirmpass" inputType="password"  data-testid="input-confirmpass" [isRequired]="true"></input-text> -->
-        <!-- Todo Erros here -->
-        <!-- <app-pass-match [newPassword]="form.controls['newpassword'].value" [confirmPassword]="form.controls['confirmpass'].value" ></app-pass-match> -->
-      </div>
-      <grid-buttons>
-        <button-submit [name]="'Update Password'" (click)="onSubmitPass()" data-testid="button-submit"></button-submit>
-        <div *ngIf="isUpdatingPassLoading">
-          <mat-spinner diameter="24" color="accent"></mat-spinner>
-        </div>
-      </grid-buttons>
-    </form>
+  <form [formGroup]="changepasswordFormGroup" style="display: flex; flex-direction: column; gap: 0.625rem">
+    <input-text
+      title="Old Password"
+      formControlName="oldPassword"
+      [inputType]="showOldPassword ? 'text' : 'password'"
+      data-testid="input-oldPassword"
+      [isRequired]="true"
+      [showPasswordToggle]="true"
+      [passwordIsVisible]="showOldPassword"
+      (ShowPasswordEmit)="showOldPassword = $event"
+    ></input-text>
+    <input-text
+      title="New Password"
+      formControlName="newPassword"
+      [inputType]="showNewPassword ? 'text' : 'password'"
+      data-testid="input-newPassword"
+      [isRequired]="true"
+      [showPasswordToggle]="true"
+      [passwordIsVisible]="showNewPassword"
+      (ShowPasswordEmit)="showNewPassword = $event"
+    ></input-text>
 
+    <input-text
+      title="Confirm New Password"
+      formControlName="confirmNewPassword"
+      [inputType]="showConfirmNewPassword ? 'text' : 'password'"
+      data-testid="input-confirmNewPassword"
+      [isRequired]="true"
+      [passwordIsVisible]="showConfirmNewPassword"
+      [showPasswordToggle]="true"
+      (ShowPasswordEmit)="showConfirmNewPassword = $event"
+    ></input-text>
+    <div class="smaller-pass-strength">
+      <app-pass-strenght [passwordToCheck]="newPasswordValueFromForm"></app-pass-strenght>
+    </div>
+    <grid-buttons>
+      <button-submit [name]="'Update Password'" (click)="onSubmitPass()" data-testid="button-submit"></button-submit>
+      <div *ngIf="isUpdatingPassLoading">
+        <mat-spinner diameter="24" color="accent"></mat-spinner>
+      </div>
+    </grid-buttons>
+  </form>
 </app-table>

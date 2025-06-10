@@ -1,44 +1,41 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { catchError } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '../ht-table/ht-table.models';
+
+import { JSuperTask } from '@models/supertask.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksTableCol,
   SupertasksTableColumnLabel
-} from './supertasks-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/supertasks-table/supertasks-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { ModalPretasksComponent } from 'src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { SuperTask } from 'src/app/core/_models/supertask.model';
-import { SuperTasksDataSource } from 'src/app/core/_datasources/supertasks.datasource';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
+
+import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 
 @Component({
-  selector: 'supertasks-table',
-  templateUrl: './supertasks-table.component.html'
+  selector: 'app-supertasks-table',
+  templateUrl: './supertasks-table.component.html',
+  standalone: false
 })
-export class SuperTasksTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperTasksDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new SuperTasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }
@@ -49,40 +46,54 @@ export class SuperTasksTableComponent
     }
   }
 
-  filter(item: SuperTask, filterValue: string): boolean {
-    return item.supertaskName.toLowerCase().includes(filterValue);
+  filter(item: JSuperTask, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.supertaskName.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'supertaskName': {
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: SupertasksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (supertask: SuperTask) => supertask._id + ''
+        isSearchable: true,
+        export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {
         id: SupertasksTableCol.NAME,
         dataKey: 'supertaskName',
-        routerLink: (supertask: SuperTask) =>
-          this.renderSupertaskLink(supertask),
+        routerLink: (supertask: JSuperTask) => this.renderSupertaskLink(supertask),
         isSortable: true,
-        export: async (supertask: SuperTask) => supertask.supertaskName
+        isSearchable: true,
+        export: async (supertask: JSuperTask) => supertask.supertaskName
       },
       {
         id: SupertasksTableCol.PRETASKS,
         dataKey: 'pretasks',
         isSortable: true,
-        render: (supertask: SuperTask) => supertask.pretasks.length,
-        export: async (supertask: SuperTask) =>
-          supertask.pretasks.length.toString()
+        render: (supertask: JSuperTask) => supertask.pretasks.length,
+        export: async (supertask: JSuperTask) => supertask.pretasks.length.toString()
       }
     ];
-
-    return tableColumns;
   }
 
-  openDialog(data: DialogData<SuperTask>) {
+  openDialog(data: DialogData<JSuperTask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -106,42 +117,16 @@ export class SuperTasksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<SuperTask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<SuperTask>(
-          'hashtopolis-supertasks',
-          this.tableColumns,
-          event.data,
-          SupertasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<SuperTask>(
-          'hashtopolis-supertasks',
-          this.tableColumns,
-          event.data,
-          SupertasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<SuperTask>(
-            this.tableColumns,
-            event.data,
-            SupertasksTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
+    this.exportService.handleExportAction<JSuperTask>(
+      event,
+      this.tableColumns,
+      SupertasksTableColumnLabel,
+      'hashtopolis-supertasks'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<SuperTask>): void {
+  rowActionClicked(event: ActionMenuEvent<JSuperTask>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -165,7 +150,7 @@ export class SuperTasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<SuperTask[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -184,36 +169,20 @@ export class SuperTasksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(supertask: SuperTask[]): void {
-    const requests = supertask.map((supertask: SuperTask) => {
-      return this.gs.delete(SERV.SUPER_TASKS, supertask._id);
+  private bulkActionDelete(supertask: JSuperTask[]): void {
+    this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe(() => {
+      this.snackBar.open(`Successfully deleted supertasks!`, 'Close');
+      this.dataSource.reload();
     });
-
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.snackBar.open(
-            `Successfully deleted ${results.length} supertasks!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
   }
 
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(supertasks: SuperTask[]): void {
+  private rowActionDelete(supertasks: JSuperTask[]): void {
     this.subscriptions.push(
       this.gs
-        .delete(SERV.SUPER_TASKS, supertasks[0]._id)
+        .delete(SERV.SUPER_TASKS, supertasks[0].id)
         .pipe(
           catchError((error) => {
             console.error('Error during deletion:', error);
@@ -227,15 +196,15 @@ export class SuperTasksTableComponent
     );
   }
 
-  private rowActionApplyToHashlist(supertask: SuperTask): void {
-    this.router.navigate(['/tasks/', supertask._id, 'applyhashlist']);
+  private rowActionApplyToHashlist(supertask: JSuperTask): void {
+    this.router.navigate(['/tasks/', supertask.id, 'applyhashlist']).then(() => {});
   }
 
-  private rowActionEditSubtasks(supertask: SuperTask): void {
+  private rowActionEditSubtasks(supertask: JSuperTask): void {
     const dialogRef = this.dialog.open(ModalPretasksComponent, {
       width: '100%',
       data: {
-        supertaskId: supertask._id,
+        supertaskId: supertask.id,
         supertaskName: supertask.supertaskName
       }
     });
@@ -243,9 +212,11 @@ export class SuperTasksTableComponent
     dialogRef.afterClosed().subscribe();
   }
 
-  private rowActionEdit(supertask: SuperTask): void {
-    this.renderSupertaskLink(supertask).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
+  private rowActionEdit(supertask: JSuperTask): void {
+    this.renderSupertaskLink(supertask)
+      .subscribe((links: HTTableRouterLink[]) => {
+        this.router.navigate(links[0].routerLink).then(() => {});
+      })
+      .unsubscribe();
   }
 }

@@ -1,17 +1,21 @@
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule, Routes } from '@angular/router';
-import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { EditGlobalpermissionsgroupsComponent } from './globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
-import { GlobalpermissionsgroupsComponent } from './globalpermissionsgroups/globalpermissionsgroups.component';
-import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
-import { EditUsersComponent } from './edit-users/edit-users.component';
-import { AllUsersComponent } from './all-users/all-users.component';
-import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { GroupsComponent } from './groups/groups.component';
-import { SERV } from '../core/_services/main.config';
-import { EditGroupsComponent } from './edit-groups/edit-groups.component';
+import { MyRoute } from '@models/routes.model';
+
+import { SERV } from '@services/main.config';
+
+import { FormComponent } from '@components/forms/simple-forms/form.component';
+
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { AllUsersComponent } from '@src/app/users/all-users/all-users.component';
+import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
+import { EditUsersComponent } from '@src/app/users/edit-users/edit-users.component';
+import { EditGlobalpermissionsgroupsComponent } from '@src/app/users/globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
+import { GlobalpermissionsgroupsComponent } from '@src/app/users/globalpermissionsgroups/globalpermissionsgroups.component';
+import { GroupsComponent } from '@src/app/users/groups/groups.component';
+import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 const routes: MyRoute[] = [
   {
@@ -20,11 +24,11 @@ const routes: MyRoute[] = [
     children: [
       {
         path: '',
-        component: FormComponent,
+        component: NewUserComponent,
         data: {
           kind: 'newuser',
           type: 'create',
-          path: SERV.USERS,
+          serviceConfig: SERV.USERS,
           breadcrumb: 'New User',
           permission: 'User'
         },
@@ -66,7 +70,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newglobalpermissionsgp',
           type: 'create',
-          path: SERV.ACCESS_PERMISSIONS_GROUPS,
+          serviceConfig: SERV.ACCESS_PERMISSIONS_GROUPS,
           breadcrumb: 'New Global Permissions Groups',
           permission: 'RightGroup'
         },
@@ -98,7 +102,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'newaccessgroups',
           type: 'create',
-          path: SERV.ACCESS_GROUPS,
+          serviceConfig: SERV.ACCESS_GROUPS,
           breadcrumb: 'New Access Group',
           permission: 'GroupAccess'
         },

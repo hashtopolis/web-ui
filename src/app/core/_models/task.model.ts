@@ -1,53 +1,45 @@
-// import { Hashlist } from "./hashlist"
-
-import { CrackerBinary, CrackerBinaryType } from './cracker-binary.model';
-
-import { Agent } from './agent.model';
-import { Hashlist } from './hashlist.model';
+import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
+import { ChunkData } from '@models/chunk.model';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { JFile } from '@models/file.model';
+import { JHashlist } from '@models/hashlist.model';
+import { SpeedStat } from '@models/speed-stat.model';
 
 /**
- * @deprecated This interface is deprecated and should not be used.
- * Use the Task interface instead.
+ * Interface definition for a cracking task
  */
-export interface NormalTask {
-  id: number;
-  name: string;
-  priority: number;
-  maxAgents: number;
-
-  hashlistId: number;
-  // hashlist: Hashlist
-}
-
-export interface Task {
-  _id: number;
-  _self: string;
+export interface JTask extends BaseModel {
+  taskName: string;
   attackCmd: string;
-  chunkSize: number;
   chunkTime: number;
-  color?: string;
-  crackerBinaryId: number;
-  crackerBinaryTypeId: number;
-  forcePipe: boolean;
-  isArchived: boolean;
-  isCpuTask: boolean;
-  isSmall: boolean;
+  statusTimer: number;
   keyspace: number;
   keyspaceProgress: number;
-  notes: string;
-  preprocessorCommand: number;
-  preprocessorId: number;
-  skipKeyspace: number;
-  staticChunks: number;
-  statusTimer: number;
-  taskId: number;
-  taskName: string;
-  taskWrapperId: number;
-  taskWrapperName?: string;
+  files?: JFile[];
+  priority: number;
+  maxAgents: number;
+  color: null | string;
+  isSmall: boolean;
+  isCpuTask: boolean;
   useNewBench: boolean;
-  assignedAgents?: Agent[];
-  crackerBinary?: CrackerBinary;
-  crackerBinaryType?: CrackerBinaryType;
-  hashlist?: Hashlist[];
-  taskType?: number;
+  skipKeyspace: number;
+  crackerBinaryId: number;
+  crackerBinaryTypeId: number;
+  crackerBinary: JCrackerBinary;
+  crackerBinaryType: JCrackerBinaryType;
+  hashlist?: JHashlist;
+  assignedAgents?: JAgent[];
+  taskWrapperId: number;
+  isArchived: boolean;
+  notes: string;
+  staticChunks: number;
+  chunkSize: number;
+  forcePipe: boolean;
+  preprocessorId: number;
+  preprocessorCommand: string;
+  dispatched: string;
+  searched: string;
+  speeds: SpeedStat[];
+  chunkData?: ChunkData;
 }

@@ -9,9 +9,12 @@
   [isFilterable]="isFilterable"
   [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
-  [filterFn]="filter"
+  [hasTemperatureInformation]="hasTemperatureInformation"
   [isPageable]="true"
+  [filterFn]="filter.bind(this)"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (temperatureInformationClicked)="openStatDialog()"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
 />

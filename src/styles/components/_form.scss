@@ -1,3 +1,5 @@
+@use "../base/colors";
+
 /* ==================================
             SECTION FORM
    ================================== */
@@ -175,35 +177,29 @@ progress::-webkit-progress-value {
 /*
   05- Password Strength
 */
+      .password-strength-container {
+        margin-top: 8px;
+      }
 
-.strength {
-  display: flex;
-  flex-direction: row;
-}
+      .strength-bars {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 4px;
+      }
 
-.strengthBar {
-  display: flex;
-  flex-grow: 1;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  vertical-align: 2px;
-}
+      .strength-bar {
+        height: 6px;
+        flex: 1;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+      }
 
-.strength-point {
-  background: #ddd;
-  border-radius: 2px;
-  display: inline-block;
-  height: 5px;
-  margin-right: 1px;
-  flex-grow: 1;
-}
-
-.str-margin {
-  font-weight: bold;
-  flex-grow: 0.1;
-}
-
+      .strength-label {
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        transition: color 0.3s ease;
+      }
 /*
   05- End
 */
@@ -255,13 +251,13 @@ progress::-webkit-progress-value {
   text-align: center;
 
   a {
-    color: $hyperlink-color;
+    color: colors.$hyperlink-color;
     text-decoration: none;
   }
 }
 
 .mat-card-alert {
-  background-color: $alert-color;
+  background-color: colors.$alert-color;
   margin-top: 16px;
 }
 
@@ -273,9 +269,9 @@ progress::-webkit-progress-value {
   07- Horizontal Menu Select
 */
 .btn-toggle-select {
-  color: $btn-text-color;
-  background-color: $btn-bg-color;
-  border-color: $btn-border-color;
+  color: colors.$btn-text-color;
+  background-color: colors.$btn-bg-color;
+  border-color: colors.$btn-border-color;
 }
 
 /*
@@ -291,7 +287,7 @@ progress::-webkit-progress-value {
 }
 
 .highlight-text {
-  background-color: $search-text-highlight-color;
+  background-color: colors.$search-text-highlight-color;
 }
 
 

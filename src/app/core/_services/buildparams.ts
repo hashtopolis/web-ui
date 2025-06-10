@@ -8,23 +8,46 @@
  */
 
 import { HttpParams } from '@angular/common/http';
-import { Params } from '@angular/router';
+import { Filter, type RequestParams } from '../_models/request-params.model';
 
 export function setParameter(
-  routerParams: Params,
-  maxResults?: string | number
+  params: RequestParams
 ): HttpParams {
-  let queryParams = new HttpParams();
-  for (const key in routerParams) {
-    if (routerParams.hasOwnProperty(key)) {
-      queryParams = queryParams.set(key, routerParams[key]);
-    }
+  let httpParams = new HttpParams();
+
+  // Handle pagination parameters
+  const page = params.page;
+  if (page) {
+    Object.entries(page).forEach(([key, value]) => {
+      if (value !== undefined) {
+        httpParams = httpParams.set(`page[${key}]`, value.toString());
+      }
+    });
   }
 
-  // If maxResults is not present, add it to queryParams
-  if (!queryParams.has('maxResults')) {
-    queryParams = queryParams.set('maxResults', maxResults);
+  // Handle include array
+  const include = params.include;
+  if (Array.isArray(include) && include.length > 0) {
+    httpParams = httpParams.set('include', include.join(','));
   }
 
-  return queryParams;
+  // Handle filter parameters
+  const filters: Array<Filter> = params.filter;
+  if (Array.isArray(filters)) {
+    filters.forEach((filter) => {
+      httpParams = httpParams.set(`filter[${filter.field}__${filter.operator}]`, filter.value.toString());
+    });
+  }
+
+  // Handle ordering parameter
+  const sort = params.sort;
+  if (Array.isArray(sort) && sort.length > 0) {
+    httpParams = httpParams.set('sort', sort.join(','));
+  }
+
+  if (params.include_total) {
+    httpParams = httpParams.set('include_total', params.include_total);
+  }
+
+  return httpParams;
 }

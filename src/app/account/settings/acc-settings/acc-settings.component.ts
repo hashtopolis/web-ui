@@ -1,19 +1,29 @@
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 
-import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { JUser } from '@src/app/core/_models/user.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { Router } from '@angular/router';
 import { SERV } from '../../../core/_services/main.config';
-import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { Subscription } from 'rxjs';
+import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
+import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
+export interface UpdateUserPassword {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 @Component({
   selector: 'app-acc-settings',
   templateUrl: './acc-settings.component.html',
-  providers: [uiDatePipe]
+  providers: [uiDatePipe],
+  standalone: false
 })
 export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
@@ -25,11 +35,20 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /** Form group for main form. */
   form: FormGroup;
   passform: FormGroup;
+  changepasswordFormGroup: FormGroup;
 
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
   isUpdatingPassLoading = false;
-
+  /*
+   * Toggles for showing/hiding password fields in the form.
+   * These are used to toggle visibility of the old, new, and confirm new password fields.
+   * Hides the password input by default.
+   * @type {boolean}
+   */
+  showOldPassword: boolean = false;
+  showNewPassword: boolean = false;
+  showConfirmNewPassword: boolean = false;
   strongPassword = false;
   subscriptions: Subscription[] = [];
 
@@ -42,14 +61,13 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   ) {
     this.titleService.set(['Account Settings']);
   }
-
   /**
    * Initializes the form, loads user settings, and sets up initial data.
    */
   ngOnInit(): void {
     this.createForm();
     this.loadUserSettings();
-    this.updatePassForm();
+    this.createUpdatePassForm();
   }
 
   /**
@@ -60,7 +78,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       sub.unsubscribe();
     }
   }
-
   /**
    * Creates and configures basic controls
    *
@@ -82,36 +99,37 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Creates and password update
-   *
-   */
-  updatePassForm() {
-    // this.passform = new FormGroup(
-    //   {
-    //     oldpassword: new FormControl(''),
-    //     newpassword: new FormControl('', [
-    //       Validators.required,
-    //       Validators.minLength(AccountSettingsComponent.PWD_MIN),
-    //       Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-    //     ]),
-    //     confirmpass: new FormControl('', [
-    //       Validators.required,
-    //       Validators.minLength(AccountSettingsComponent.PWD_MIN),
-    //       Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-    //     ])
-    //   },
-    //   passwordMatchValidator
-    // );
-    this.passform = new FormGroup({
-      password: new FormControl('', [
+  createUpdatePassForm() {
+    this.changepasswordFormGroup = new FormGroup({
+      oldPassword: new FormControl('', Validators.required),
+      newPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(AccountSettingsComponent.PWD_MIN),
+        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+      ]),
+      confirmNewPassword: new FormControl('', [
         Validators.required,
         Validators.minLength(AccountSettingsComponent.PWD_MIN),
         Validators.maxLength(AccountSettingsComponent.PWD_MAX)
       ])
     });
   }
+  get oldPasswordValueFromForm() {
+    return this.changepasswordFormGroup.get('oldPassword').value;
+  }
+  get newPasswordValueFromForm() {
+    return this.changepasswordFormGroup.get('newPassword').value;
+  }
+  get confirmNewPasswordValueFromForm() {
+    return this.changepasswordFormGroup.get('confirmNewPassword').value;
+  }
 
+  resetPasswordForm() {
+    this.changepasswordFormGroup.reset();
+    this.changepasswordFormGroup.markAsPristine();
+    this.changepasswordFormGroup.markAsUntouched();
+    this.changepasswordFormGroup.updateValueAndValidity();
+  }
   /**
    * Handles form basic form submission
    */
@@ -119,13 +137,11 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs
-          .update(SERV.USERS, this.gs.userId, this.form.value)
-          .subscribe(() => {
-            this.alert.okAlert('User saved!', '');
-            this.isUpdatingLoading = false;
-            this.router.navigate(['users/all-users']);
-          })
+        this.gs.update(SERV.USERS, this.gs.userId, this.form.value).subscribe(() => {
+          this.alert.okAlert('User saved!', '');
+          this.isUpdatingLoading = false;
+          this.router.navigate(['users/all-users']);
+        })
       );
     }
   }
@@ -134,30 +150,26 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
-    if (this.passform.valid) {
-      this.isUpdatingPassLoading = true;
-      const payload = {
-        userId: this.gs.userId,
-        password: this.passform.value['password']
-      };
-      console.log(payload);
-      this.subscriptions.push(
-        this.gs
-          .chelper(SERV.HELPER, 'setUserPassword', payload)
-          .subscribe(() => {
-            this.alert.okAlert('User password updated!', '');
-            this.isUpdatingPassLoading = false;
-            this.router.navigate(['users/all-users']);
-          })
-      );
-    }
+    this.isUpdatingPassLoading = true;
+    const payload: UpdateUserPassword = {
+      oldPassword: this.oldPasswordValueFromForm,
+      newPassword: this.newPasswordValueFromForm,
+      confirmPassword: this.confirmNewPasswordValueFromForm
+    };
+    this.subscriptions.push(
+      this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
+        next: (val) => {
+          this.alert.okAlert(val.meta['Change password'], '');
+          this.resetPasswordForm();
+          this.isUpdatingPassLoading = false;
+        },
+        error: () => {
+          this.isUpdatingPassLoading = false;
+        }
+      })
+    );
   }
-
   onPasswordStrengthChanged(event: boolean) {
-    this.strongPassword = event;
-  }
-
-  onPasswordMatchChanged(event: boolean) {
     this.strongPassword = event;
   }
 
@@ -165,16 +177,12 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Loads user settings from the server and populates the form with initial data.
    */
   private loadUserSettings() {
+    const params = new RequestParamBuilder().addInclude('globalPermissionGroup').create();
     this.subscriptions.push(
-      this.gs
-        .get(SERV.USERS, this.gs.userId, { expand: 'globalPermissionGroup' })
-        .subscribe((result) => {
-          this.createForm(
-            result.globalPermissionGroup['name'],
-            this.datePipe.transform(result['registeredSince']),
-            result['email']
-          );
-        })
+      this.gs.get(SERV.USERS, this.gs.userId, params).subscribe((response: ResponseWrapper) => {
+        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
+        this.createForm(user.name, this.datePipe.transform(user.registeredSince), user.email);
+      })
     );
   }
 }

@@ -20,7 +20,8 @@ import { LoadingService } from 'src/app/core/_services/shared/loading.service';
   <img class="logoImage" *ngIf="currentTheme() !== 'dark'" [src]="this.headerConfig.brand.logo" alt="">
   <img class="logoImage" *ngIf="currentTheme() === 'dark'" [src]="this.headerConfig.brand.logored" alt="">
 </div>
-  `
+  `,
+    standalone: false
 })
 export class LoadingSpinnerComponent {
 

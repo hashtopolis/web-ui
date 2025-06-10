@@ -1,22 +1,31 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { ListResponseWrapper } from 'src/app/core/_models/response.model';
-import { SERV } from '../../core/_services/main.config';
-import { SUPER_TASK_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RelationshipType, SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
+
+import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 declare let options: any;
 declare let defaultOptions: any;
-declare let parser: any;
 
 @Component({
   selector: 'app-edit-supertasks',
-  templateUrl: './edit-supertasks.component.html'
+  templateUrl: './edit-supertasks.component.html',
+  standalone: false
 })
 export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -37,8 +46,9 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
   // Edit
   editedSTIndex: number;
-  editedST: any; // Change to Model
   assignPretasks: any;
+
+  @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -47,11 +57,12 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.onInitialize();
     this.buildForm();
-    titleService.set(['Edit SuperTasks']);
+    this.titleService.set(['Edit SuperTasks']);
   }
 
   /**
@@ -95,8 +106,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
 
     // Form calculate benchmark
     this.etForm = new FormGroup({
-      benchmarka0: new FormControl(null || 0),
-      benchmarka3: new FormControl(null || 0)
+      benchmarka0: new FormControl(0),
+      benchmarka3: new FormControl(0)
     });
   }
 
@@ -104,36 +115,35 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    console.log(this.editedSTIndex);
+    const params = new RequestParamBuilder().addInclude('pretasks').create();
+
     const loadSTSubscription$ = this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex, { expand: 'pretasks' })
-      .subscribe((res) => {
-        this.assignPretasks = res.pretasks;
+      .get(SERV.SUPER_TASKS, this.editedSTIndex, params)
+      .subscribe((response: ResponseWrapper) => {
+        const responseData = { data: response.data, included: response.included };
+        const supertask = this.serializer.deserialize<JSuperTask>(responseData);
+
+        this.assignPretasks = supertask.pretasks;
         this.viewForm = new FormGroup({
           supertaskId: new FormControl({
-            value: res['supertaskId'],
+            value: supertask.id,
             disabled: true
           }),
           supertaskName: new FormControl({
-            value: res['supertaskName'],
+            value: supertask.supertaskName,
             disabled: true
           })
         });
-        const loadPTSubscription$ = this.gs
-          .getAll(SERV.PRETASKS)
-          .subscribe((htypes: ListResponseWrapper<any>) => {
-            const response = this.getAvailablePretasks(
-              res.pretasks,
-              htypes.values
-            );
-            const transformedOptions = transformSelectOptions(
-              response,
-              this.selectSuperTaskMap
-            );
-            this.selectPretasks = transformedOptions;
-            this.isLoading = false;
-            this.changeDetectorRef.detectChanges();
-          });
+        const loadPTSubscription$ = this.gs.getAll(SERV.PRETASKS).subscribe((response: ResponseWrapper) => {
+          const responseData = { data: response.data, included: response.included };
+          const pretasks = this.serializer.deserialize<JPretask[]>(responseData);
+
+          const availablePretasks = this.getAvailablePretasks(supertask.pretasks, pretasks);
+
+          this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
+          this.isLoading = false;
+          this.changeDetectorRef.detectChanges();
+        });
         this.unsubscribeService.add(loadPTSubscription$);
       });
     this.unsubscribeService.add(loadSTSubscription$);
@@ -152,18 +162,13 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   /**
    * Retrieves the available pre-tasks that are not assigned.
    *
-   * @param {Array} assigning - An array of assigned tasks with pre-task information.
-   * @param {Array} pretasks - An array of all available pre-tasks.
-   * @returns {Array} - An array containing pre-tasks that are not assigned.
+   * @param assigning An array of assigned tasks with pre-task information.
+   * @param  pretasks An array of all available pre-tasks.
+   * @returns An array containing pre-tasks that are not assigned.
    */
-  getAvailablePretasks(assigning, pretasks) {
+  getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
     // Use filter to find pre-tasks not present in the assigning array
-    return pretasks.filter(
-      (pretask) =>
-        assigning.findIndex(
-          (assignedTask) => assignedTask.pretaskId === pretask.pretaskId
-        ) === -1
-    );
+    return pretasks.filter((pretask) => assigning.findIndex((assignedTask) => assignedTask.id === pretask.id) === -1);
   }
 
   /**
@@ -173,18 +178,20 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      const concat = []; // We get the current values and then concat with the new value
-      for (let i = 0; i < this.assignPretasks.length; i++) {
-        concat.push(this.assignPretasks[i].pretaskId);
-      }
-      const payload = concat.concat(this.updateForm.value['pretasks']);
+      const pretasks = [];
+
+      this.updateForm.value['pretasks'].forEach((pretask) => {
+        pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
+      });
+
+      const responseBody = { data: pretasks };
 
       const updateSubscription$ = this.gs
-        .update(SERV.SUPER_TASKS, this.editedSTIndex, { pretasks: payload })
+        .postRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
         .subscribe(() => {
           this.alert.okAlert('SuperTask saved!', '');
-          this.updateForm.reset(); // success, we reset form
-          this.onRefresh();
+          this.refresh(); // Reload the Pretask-Select-Component
+          this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
       this.unsubscribeService.add(updateSubscription$);
     }
@@ -199,13 +206,11 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     this.alert.deleteConfirmation('', 'Supertasks').then((confirmed) => {
       if (confirmed) {
         // Deletion
-        const deleteSubscription$ = this.gs
-          .delete(SERV.SUPER_TASKS, this.editedSTIndex)
-          .subscribe(() => {
-            // Successful deletion
-            this.alert.okAlert(`Deleted Supertask`, '');
-            this.router.navigate(['/tasks/supertasks']);
-          });
+        const deleteSubscription$ = this.gs.delete(SERV.SUPER_TASKS, this.editedSTIndex).subscribe(() => {
+          // Successful deletion
+          this.alert.okAlert(`Deleted Supertask`, '');
+          this.router.navigate(['/tasks/supertasks']);
+        });
         this.unsubscribeService.add(deleteSubscription$);
       } else {
         // Handle cancellation
@@ -223,10 +228,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Updates the HTML content to display the total runtime of the supertask.
    */
   keyspaceTimeCalc() {
-    if (
-      this.etForm.value.benchmarka0 !== 0 &&
-      this.etForm.value.benchmarka3 !== 0
-    ) {
+    if (this.etForm.value.benchmarka0 !== 0 && this.etForm.value.benchmarka3 !== 0) {
       let totalSecondsSupertask = 0;
       let unknown_runtime_included = 0;
       const benchmarka0 = this.etForm.value.benchmarka0;
@@ -248,21 +250,14 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
         // Iterate through each row
         for (let i = 0; i < numRows; i++) {
           // Extract the value from the "Attack Runtime" column
-          const keyspace_size_raw = $(table)
-            .find('tr')
-            .eq(i)
-            .find('td')
-            .eq(attackEstimatedKeyspaceColumnIndex)
-            .text();
+          const keyspace_size_raw = $(table).find('tr').eq(i).find('td').eq(attackEstimatedKeyspaceColumnIndex).text();
 
           // Extract keyspace size from the table cell
           let seconds = null;
           let runtime = null;
 
           // Remove special characters and convert to a valid number
-          const keyspace_size = parseFloat(
-            keyspace_size_raw.replace(/[^0-9.-]/g, '')
-          );
+          const keyspace_size = parseFloat(keyspace_size_raw.replace(/[^0-9.-]/g, ''));
 
           // Set default options for the attack
           options = defaultOptions;
@@ -302,11 +297,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
             .find('th .mat-sort-header-content:contains("Attack Runtime")')
             .closest('th')
             .index();
-          const attackRuntimeCell = $(table)
-            .find('tr')
-            .eq(i)
-            .find('td')
-            .eq(attackRuntimeColumnIndex);
+          const attackRuntimeCell = $(table).find('tr').eq(i).find('td').eq(attackRuntimeColumnIndex);
           attackRuntimeCell.html(runtime);
         }
       });
@@ -320,8 +311,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const mins = Math.floor(seconds / 60);
       seconds -= mins * 60;
 
-      let totalRuntimeSupertask =
-        days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+      let totalRuntimeSupertask = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
 
       // Append additional information if unknown runtime is included
       if (unknown_runtime_included === 1) {

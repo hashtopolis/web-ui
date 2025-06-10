@@ -1,43 +1,37 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  HostListener,
-  OnDestroy,
-  OnInit
-} from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { environment } from './../../../environments/environment';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { FileType } from '@models/file.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JPreprocessor } from '@models/preprocessor.model';
+import { JPretask } from '@models/pretask.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { TooltipService } from '@services/shared/tooltip.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import {
   CRACKER_TYPE_FIELD_MAPPING,
-  CRACKER_VERSION_FIELD_MAPPING
-} from 'src/app/core/_constants/select.config';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { TooltipService } from '../../core/_services/shared/tooltip.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../core/_services/main.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { MatDialog } from '@angular/material/dialog';
-import {
-  benchmarkType,
-  staticChunking
-} from 'src/app/core/_constants/tasks.config';
-import { CheatsheetComponent } from 'src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { Hashlist } from 'src/app/core/_models/hashlist.model';
-import {
-  compareVersions,
-  transformSelectOptions
-} from '../../shared/utils/forms';
-import { ListResponseWrapper } from 'src/app/core/_models/response.model';
-import { Preprocessor } from 'src/app/core/_models/preprocessor.model';
-import { FileType } from 'src/app/core/_models/file.model';
+  CRACKER_VERSION_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { environment } from '@src/environments/environment';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -45,12 +39,12 @@ import { FileType } from 'src/app/core/_models/file.model';
 @Component({
   selector: 'app-new-tasks',
   templateUrl: './new-tasks.component.html',
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.Default,
+  standalone: false
 })
 export class NewTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
-  isLoadingCopyForm = true;
 
   /** Form group for the new SuperHashlist. */
   form: FormGroup;
@@ -59,25 +53,13 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   /** Select Options. */
-  selectHashlists: any;
+  selectHashlists: SelectOption[];
   selectStaticChunking = staticChunking;
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: any;
-  selectCrackerversions: any = [];
-  selectPreprocessor: any;
-
-  /** Select Options Mapping */
-  selectCrackertypeMap = {
-    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
-  };
-
-  selectCrackervMap = {
-    fieldMapping: CRACKER_VERSION_FIELD_MAPPING
-  };
-
+  selectCrackertype: SelectOption[];
+  selectCrackerversions: SelectOption[];
+  selectPreprocessor: SelectOption[];
   // Initial Configuration
-  private priority = environment.config.tasks.priority;
-  private maxAgents = environment.config.tasks.maxAgents;
   private chunkSize = environment.config.tasks.chunkSize;
 
   // Copy Task or PreTask configuration
@@ -110,7 +92,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - The service providing global functionality.
    * @param {MatDialog} dialog - The Angular Material Dialog service for creating dialogs.
    * @param {Router} router - The Angular Router service for navigation.
-   * @returns {void}
    */
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -125,7 +106,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     private router: Router
   ) {
     this.onInitialize();
-    titleService.set(['New Task']);
+    this.titleService.set(['New Task']);
   }
 
   /**
@@ -201,44 +182,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Initializes the form controls with default or UI settings values.
    */
   buildForm(): void {
-    const attackCmdSetting = this.uiService.getUIsettings('hashlistAlias');
-    const chunktimeSetting = this.uiService.getUIsettings('chunktime');
-    const statustimerSetting = this.uiService.getUIsettings('statustimer');
-
-    this.form = new FormGroup({
-      taskName: new FormControl('', [Validators.required]),
-      notes: new FormControl(''),
-      hashlistId: new FormControl(),
-      attackCmd: new FormControl(
-        attackCmdSetting ? attackCmdSetting.value : '',
-        [Validators.required]
-      ),
-      priority: new FormControl(null || this.priority, [
-        Validators.required,
-        Validators.pattern('^[0-9]*$')
-      ]),
-      maxAgents: new FormControl(null || this.maxAgents),
-      chunkTime: new FormControl(
-        chunktimeSetting ? Number(chunktimeSetting.value) : null
-      ),
-      statusTimer: new FormControl(
-        statustimerSetting ? Number(statustimerSetting.value) : null
-      ),
-      color: new FormControl(''),
-      isCpuTask: new FormControl(null || false),
-      skipKeyspace: new FormControl(null || 0),
-      crackerBinaryId: new FormControl(null || 1),
-      crackerBinaryTypeId: new FormControl(),
-      isArchived: new FormControl(false),
-      staticChunks: new FormControl(null || 0),
-      chunkSize: new FormControl(null || this.chunkSize),
-      forcePipe: new FormControl(null || false),
-      preprocessorId: new FormControl(null || 0),
-      preprocessorCommand: new FormControl(''),
-      isSmall: new FormControl(null || false),
-      useNewBench: new FormControl(null || true),
-      files: new FormControl('' || [])
-    });
+    this.form = getNewTaskForm(this.uiService);
 
     //subscribe to changes to handle select cracker binary
     this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
@@ -263,17 +207,20 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   loadData() {
     // Load Hahslists Select Options
+    const filter = new Array<Filter>({ field: 'isArchived', operator: FilterType.EQUAL, value: false });
     const loadHashlistsSubscription$ = this.gs
       .getAll(SERV.HASHLISTS, {
-        filter: 'isArchived=false,format=0'
+        filter: filter
       })
-      .subscribe((response: ListResponseWrapper<Hashlist>) => {
-        this.selectHashlists = response.values;
+      .subscribe((response: ResponseWrapper) => {
+        const hashlists = new JsonAPISerializer().deserialize<JHashlist[]>({
+          data: response.data,
+          included: response.included
+        });
+        this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
-          this.alert.errorConfirmation(
-            'You need to create a Hashlist to continue creating a Task'
-          );
+          this.alert.errorConfirmation('You need to create a Hashlist to continue creating a Task');
         }
         if (this.copyMode) {
           this.checkHashlisId();
@@ -283,45 +230,47 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     this.unsubscribeService.add(loadHashlistsSubscription$);
 
     // Load Cracker Types and Crackers Select Options
-    const loadCrackerTypesSubscription$ = this.gs
-      .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          this.selectCrackertypeMap
-        );
-        this.selectCrackertype = transformedOptions;
-        let id = '';
-        if (this.selectCrackertype.find((obj) => obj.name === 'hashcat')._id) {
-          id = this.selectCrackertype.find((obj) => obj.name === 'hashcat')._id;
-        } else {
-          id = this.selectCrackertype.slice(-1)[0]['_id'];
-        }
-        const loadCrackersSubscription$ = this.gs
-          .getAll(SERV.CRACKERS, {
-            filter: 'crackerBinaryTypeId=' + id + ''
-          })
-          .subscribe((response) => {
-            const transformedOptions = transformSelectOptions(
-              response.values,
-              this.selectCrackervMap
-            );
-            this.selectCrackerversions = transformedOptions;
-            const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
-            this.form.get('crackerBinaryTypeId').patchValue(lastItem);
-          });
-        this.unsubscribeService.add(loadCrackersSubscription$);
+    const loadCrackerTypesSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+      const crackerTypes = new JsonAPISerializer().deserialize<JCrackerBinaryType[]>({
+        data: response.data,
+        included: response.included
       });
+
+      this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
+      let id = '';
+      if (this.selectCrackertype.find((obj) => obj.name === 'hashcat').id) {
+        id = this.selectCrackertype.find((obj) => obj.name === 'hashcat').id;
+      } else {
+        id = this.selectCrackertype.slice(-1)[0]['id'];
+      }
+      const requestParams = new RequestParamBuilder()
+        .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
+        .create();
+      const loadCrackersSubscription$ = this.gs
+        .getAll(SERV.CRACKERS, requestParams)
+        .subscribe((response: ResponseWrapper) => {
+          const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
+            data: response.data,
+            included: response.included
+          });
+          this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+          const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
+          this.form.get('crackerBinaryTypeId').patchValue(lastItem);
+        });
+      this.unsubscribeService.add(loadCrackersSubscription$);
+    });
 
     this.unsubscribeService.add(loadCrackerTypesSubscription$);
 
     // Load Preprocessor Select Options
-    const loadPreprocessorsSubscription$ = this.gs
-      .getAll(SERV.PREPROCESSORS)
-      .subscribe((response: ListResponseWrapper<Preprocessor>) => {
-        this.selectPreprocessor = response.values;
-        this.changeDetectorRef.detectChanges();
+    const loadPreprocessorsSubscription$ = this.gs.getAll(SERV.PREPROCESSORS).subscribe((response: ResponseWrapper) => {
+      const preprocessors = new JsonAPISerializer().deserialize<JPreprocessor[]>({
+        data: response.data,
+        included: response.included
       });
+      this.selectPreprocessor = transformSelectOptions(preprocessors, DEFAULT_FIELD_MAPPING);
+      this.changeDetectorRef.detectChanges();
+    });
     this.unsubscribeService.add(loadPreprocessorsSubscription$);
   }
 
@@ -368,15 +317,22 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * @param {string} id - The identifier of the selected cracker binary type.
    */
   handleChangeBinary(id: string) {
+    const requestParams = new RequestParamBuilder()
+      .addFilter({
+        field: 'crackerBinaryTypeId',
+        operator: FilterType.EQUAL,
+        value: id
+      })
+      .create();
     const onChangeBinarySubscription$ = this.gs
-      .getAll(SERV.CRACKERS, { filter: 'crackerBinaryTypeId=' + id + '' })
-      .subscribe((response: any) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          this.selectCrackervMap
-        );
-        this.selectCrackerversions = transformedOptions;
-        const lastItem = this.selectCrackerversions.slice(-1)[0]['_id'];
+      .getAll(SERV.CRACKERS, requestParams)
+      .subscribe((response: ResponseWrapper) => {
+        const crackers = new JsonAPISerializer().deserialize<JCrackerBinary[]>({
+          data: response.data,
+          included: response.included
+        });
+        this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+        const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
         this.form.get('crackerBinaryTypeId').patchValue(lastItem);
       });
     this.unsubscribeService.add(onChangeBinarySubscription$);
@@ -387,11 +343,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    *
    */
   checkHashlisId() {
-    const exists = this.selectHashlists.some(
-      (hashlist) => hashlist._id === this.isCopyHashlistId
-    );
+    const exists = this.selectHashlists.some((hashlist) => hashlist.id === this.isCopyHashlistId);
 
-    if (!exists || exists === undefined) {
+    if (!exists) {
       this.alert.errorConfirmation('Hashlist ID not found!');
     }
   }
@@ -402,70 +356,57 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   private initForm(isTask: boolean) {
     if (this.copyMode) {
-      console.log(this.copyType);
       const endpoint = isTask ? SERV.TASKS : SERV.PRETASKS;
-      const expandField = isTask
-        ? 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
-        : 'pretaskFiles';
-      this.gs
-        .get(endpoint, this.editedIndex, { expand: expandField })
-        .subscribe((result) => {
-          const arrFiles: Array<any> = [];
-          const filesField = isTask ? 'files' : 'pretaskFiles';
-          console.log(result);
-          this.isCopyHashlistId =
-            this.copyType === 1 ? 999999 : result['hashlist'][0]['_id'];
-          if (result[filesField]) {
-            for (let i = 0; i < result[filesField].length; i++) {
-              arrFiles.push(result[filesField][i]['fileId']);
-            }
-            this.copyFiles = arrFiles;
-          }
-          this.form = new FormGroup({
-            taskName: new FormControl(
-              result['taskName'] +
-                `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${
-                  this.editedIndex
-                })`,
-              [Validators.required, Validators.minLength(1)]
-            ),
-            notes: new FormControl(
-              `Copied from ${isTask ? 'task' : 'pretask'} id ${
-                this.editedIndex
-              }`
-            ),
-            hashlistId: new FormControl(this.isCopyHashlistId),
-            attackCmd: new FormControl(result['attackCmd'], [
-              Validators.required
-            ]),
-            maxAgents: new FormControl(result['maxAgents']),
-            chunkTime: new FormControl(result['chunkTime']),
-            statusTimer: new FormControl(result['statusTimer']),
-            priority: new FormControl(result['priority']),
-            color: new FormControl(result['color']),
-            isCpuTask: new FormControl(result['isCpuTask']),
-            crackerBinaryTypeId: new FormControl(result['crackerBinaryTypeId']),
-            isSmall: new FormControl(result['isSmall']),
-            useNewBench: new FormControl(result['useNewBench']),
-            skipKeyspace: new FormControl(isTask ? result['skipKeyspace'] : 0),
-            crackerBinaryId: new FormControl(
-              isTask ? result.crackerBinary['crackerBinaryId'] : 1
-            ),
-            isArchived: new FormControl(false),
-            staticChunks: new FormControl(isTask ? result['staticChunks'] : 0),
-            chunkSize: new FormControl(
-              isTask ? result['chunkSize'] : this.chunkSize
-            ),
-            forcePipe: new FormControl(isTask ? result['forcePipe'] : false),
-            preprocessorId: new FormControl(
-              isTask ? result['preprocessorId'] : 0
-            ),
-            preprocessorCommand: new FormControl(
-              isTask ? result['preprocessorCommand'] : ''
-            ),
-            files: new FormControl(arrFiles)
-          });
+      const includedResources = isTask
+        ? ['hashlist', 'speeds', 'crackerBinary', 'crackerBinaryType', 'files']
+        : ['pretaskFiles'];
+
+      const requestParamBuilder = new RequestParamBuilder();
+      for (const resource in includedResources) {
+        requestParamBuilder.addInclude(resource);
+      }
+      const requestParams = requestParamBuilder.create();
+
+      this.gs.get(endpoint, this.editedIndex, requestParams).subscribe((response: ResponseWrapper) => {
+        const task = new JsonAPISerializer().deserialize<JTask | JPretask>({
+          data: response.data,
+          included: response.included
         });
+
+        const arrFiles: Array<any> = [];
+        const filesField = isTask ? 'files' : 'pretaskFiles';
+        this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist'][0]['id'];
+        if (task[filesField]) {
+          for (let i = 0; i < task[filesField].length; i++) {
+            arrFiles.push(task[filesField][i]['fileId']);
+          }
+          this.copyFiles = arrFiles;
+        }
+
+        this.form.setValue({
+          taskName: task['taskName'] + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
+          notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
+          hashlistId: this.isCopyHashlistId,
+          attackCmd: task['attackCmd'],
+          maxAgents: task['maxAgents'],
+          chunkTime: task['chunkTime'],
+          priority: task['priority'],
+          color: task['color'],
+          isCpuTask: task['isCpuTask'],
+          crackerBinaryTypeId: task['crackerBinaryTypeId'],
+          isSmall: task['isSmall'],
+          useNewBench: task['useNewBench'],
+          skipKeyspace: isTask ? task['skipKeyspace'] : 0,
+          crackerBinaryId: isTask ? task['crackerBinary']['crackerBinaryId'] : 1,
+          isArchived: false,
+          staticChunks: isTask ? task['staticChunks'] : 0,
+          chunkSize: isTask ? task['chunkSize'] : this.chunkSize,
+          forcePipe: isTask ? task['forcePipe'] : false,
+          preprocessorId: isTask ? task['preprocessorId'] : 0,
+          preprocessorCommand: isTask ? task['preprocessorCommand'] : '',
+          files: arrFiles
+        });
+      });
     }
   }
 
@@ -475,22 +416,20 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.form.valid) {
       this.isCreatingLoading = true;
-      const onSubmitSubscription$ = this.gs
-        .create(SERV.TASKS, this.form.value)
-        .subscribe(() => {
-          this.alert.okAlert('New Task created!', '');
-          this.router
-            .navigate(['tasks/show-tasks'])
-            .then((success) => {
-              if (!success) {
-                console.error('Navigation failed.');
-              }
-            })
-            .catch((error) => {
-              console.error('Error navigating to tasks/show-tasks:', error);
-            });
-          this.isCreatingLoading = false;
-        });
+      const onSubmitSubscription$ = this.gs.create(SERV.TASKS, this.form.value).subscribe(() => {
+        this.alert.okAlert('New Task created!', '');
+        this.router
+          .navigate(['tasks/show-tasks'])
+          .then((success) => {
+            if (!success) {
+              console.error('Navigation failed.');
+            }
+          })
+          .catch((error) => {
+            console.error('Error navigating to tasks/show-tasks:', error);
+          });
+        this.isCreatingLoading = false;
+      });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
   }

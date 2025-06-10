@@ -1,9 +1,10 @@
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  selector: 'simulate-form-field',
-  templateUrl: './simulate-form-field.component.html',
-  encapsulation: ViewEncapsulation.None
+    selector: 'simulate-form-field',
+    templateUrl: './simulate-form-field.component.html',
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class SimulateFormFieldComponent {
   @Input() label: string;

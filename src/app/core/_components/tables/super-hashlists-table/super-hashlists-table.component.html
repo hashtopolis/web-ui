@@ -9,10 +9,11 @@
   [hasBulkActions]="true"
   [hasRowAction]="hasRowAction"
   [isFilterable]="true"
+  [filterFn]="filter.bind(this)"
   [isArchived]="isArchived"
-  [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
 />

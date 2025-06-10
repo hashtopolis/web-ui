@@ -27,8 +27,8 @@ import { Location } from '@angular/common';
  * ```
  */
 @Component({
-  selector: 'button-submit',
-  template: `
+    selector: 'button-submit',
+    template: `
     <button
       mat-raised-button
       class="separation-button"
@@ -40,7 +40,8 @@ import { Location } from '@angular/common';
       {{ name }}
     </button>
   `,
-  encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class ButtonSubmitComponent {
   /**

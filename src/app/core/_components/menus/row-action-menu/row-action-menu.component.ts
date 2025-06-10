@@ -1,79 +1,72 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnInit } from '@angular/core';
+
+import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 import {
   RowActionMenuAction,
   RowActionMenuIcon,
   RowActionMenuLabel
-} from './row-action-menu.constants';
-
-import { ActionMenuItem } from '../action-menu/action-menu.model';
-import { BaseMenuComponent } from '../base-menu/base-menu.component';
+} from '@components/menus/row-action-menu/row-action-menu.constants';
 
 /**
  * Component representing the row action menu for various data types.
  */
 @Component({
   selector: 'row-action-menu',
-  templateUrl: './row-action-menu.component.html'
+  templateUrl: './row-action-menu.component.html',
+  standalone: false
 })
-export class RowActionMenuComponent
-  extends BaseMenuComponent
-  implements OnInit
-{
+export class RowActionMenuComponent extends BaseMenuComponent implements OnInit {
   ngOnInit(): void {
-    if (this.isAgent()) {
-      this.setAgentMenu();
-    } else if (this.isAccessGroup()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_ACCESSGROUP,
-        RowActionMenuLabel.DELETE_ACCESSGROUP
-      );
-    } else if (this.isSuperHashlist()) {
-      this.setSuperHashlistMenu();
-    } else if (this.isFile()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_FILE,
-        RowActionMenuLabel.DELETE_FILE
-      );
-    } else if (this.isPreprocessor()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_PREPROCESSOR,
-        RowActionMenuLabel.DELETE_PREPROCESSOR
-      );
-    } else if (this.isHealthCheck()) {
-      this.setViewDeleteMenuItems(
-        RowActionMenuLabel.VIEW_HEALTHCHECK,
-        RowActionMenuLabel.DELETE_HEALTHCHECK
-      );
-    } else if (this.isPermission()) {
-      this.setPermissionMenu();
-    } else if (this.isHashtype()) {
-      this.setEditDeleteMenuItems(
-        RowActionMenuLabel.EDIT_HASHTYPE,
-        RowActionMenuLabel.DELETE_HASHTYPE
-      );
-    } else if (this.isVoucher()) {
-      this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER);
-    } else if (this.isUser()) {
-      this.setUserMenu();
-    } else if (this.isAgentBinary()) {
-      this.setAgentBinaryMenu();
-    } else if (this.isNotification()) {
-      this.setNotificationMenu();
-    } else if (this.isPretask()) {
-      this.setPretaskMenu();
-    } else if (this.isTaskWrapper()) {
-      this.setTaskWrapperMenu();
-    } else if (this.isTaskWrapperModal()) {
-      this.setTaskWrapperModalMenu();
-    } else if (this.isTaskChunks()) {
-      this.setTaskChunksMenu();
-    } else if (this.isSupertask()) {
-      this.setSupertaskMenu();
-    } else if (this.isHashlist()) {
-      this.setHashlistMenu();
-    } else if (this.isCrackerBinaryType()) {
-      this.setCrackerBinaryTypeMenu();
+    const actionMap: { condition: () => boolean; action: () => void }[] = [
+      { condition: this.isAgent, action: this.setAgentMenu },
+      {
+        condition: this.isAccessGroup,
+        action: () =>
+          this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_ACCESSGROUP, RowActionMenuLabel.DELETE_ACCESSGROUP)
+      },
+      { condition: this.isSuperHashlist, action: this.setSuperHashlistMenu },
+      {
+        condition: this.isFile,
+        action: () => this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_FILE, RowActionMenuLabel.DELETE_FILE)
+      },
+      {
+        condition: this.isPreprocessor,
+        action: () =>
+          this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_PREPROCESSOR, RowActionMenuLabel.DELETE_PREPROCESSOR)
+      },
+      {
+        condition: this.isHealthCheck,
+        action: () =>
+          this.setViewDeleteMenuItems(RowActionMenuLabel.VIEW_HEALTHCHECK, RowActionMenuLabel.DELETE_HEALTHCHECK)
+      },
+      { condition: this.isPermission, action: this.setPermissionMenu },
+      {
+        condition: this.isHashtype,
+        action: () => this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_HASHTYPE, RowActionMenuLabel.DELETE_HASHTYPE)
+      },
+      {
+        condition: this.isVoucher,
+        action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER)
+      },
+      { condition: this.isUser, action: this.setUserMenu },
+      { condition: this.isAgentBinary, action: this.setAgentBinaryMenu },
+      { condition: this.isNotification, action: this.setNotificationMenu },
+      { condition: this.isPretask, action: this.setPretaskMenu },
+      { condition: this.isTaskWrapper, action: this.setTaskWrapperMenu },
+      { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
+      { condition: this.isTaskChunks, action: this.setTaskChunksMenu },
+      { condition: this.isSupertask, action: this.setSupertaskMenu },
+      { condition: this.isHashlist, action: this.setHashlistMenu },
+      { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu }
+    ];
+
+    for (const item of actionMap) {
+      if (item.condition.call(this)) {
+        item.action.call(this);
+        break;
+      }
     }
   }
 
@@ -81,13 +74,9 @@ export class RowActionMenuComponent
    * Sets the context menu items for a permission data row.
    */
   private setPermissionMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_PERMISSION)
-    ]);
+    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_PERMISSION)]);
     if (!this.data.user || this.data.user.length === 0) {
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PERMISSION)
-      ]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PERMISSION)]);
     }
   }
 
@@ -95,12 +84,8 @@ export class RowActionMenuComponent
    * Sets the context menu items for a cracker data row.
    */
   private setCrackerBinaryTypeMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getNewMenuItem(RowActionMenuLabel.NEW_VERSION)
-    ]);
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_CRACKER)
-    ]);
+    this.setActionMenuItems(0, [this.getNewMenuItem(RowActionMenuLabel.NEW_VERSION)]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_CRACKER)]);
   }
 
   /**
@@ -140,37 +125,23 @@ export class RowActionMenuComponent
       this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_AGENT),
       this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
     ]);
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)
-    ]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)]);
   }
 
   /**
    * Sets the context menu items for an agent data row.
    */
   private setAgentMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)
-    ]);
+    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)]);
     if (this.data['isActive']) {
-      this.addActionMenuItem(
-        0,
-        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT)
-      );
+      this.addActionMenuItem(0, this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT));
     } else {
-      this.addActionMenuItem(
-        0,
-        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT)
-      );
+      this.addActionMenuItem(0, this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT));
     }
     if (this.data['assignmentId']) {
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)
-      ]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)]);
     } else {
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)
-      ]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)]);
     }
   }
 
@@ -181,18 +152,14 @@ export class RowActionMenuComponent
     this.setActionMenuItems(0, []);
 
     if (this.data['isArchived']) {
-      this.setActionMenuItems(0, [
-        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)
-      ]);
+      this.setActionMenuItems(0, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)]);
     } else {
       this.setActionMenuItems(0, [
         this.getEditMenuItem(RowActionMenuLabel.EDIT_HASHLIST),
         this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLIST),
         this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLIST)
       ]);
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)
-      ]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)]);
     }
   }
 
@@ -207,9 +174,7 @@ export class RowActionMenuComponent
       this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLISTS),
       this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLISTS)
     ]);
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERHASHLIST)
-    ]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERHASHLIST)]);
   }
 
   /**
@@ -217,22 +182,13 @@ export class RowActionMenuComponent
    */
   private setUserMenu(): void {
     if (this.data['isValid']) {
-      this.setActionMenuItems(0, [
-        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_USER)
-      ]);
+      this.setActionMenuItems(0, [this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_USER)]);
     } else {
-      this.setActionMenuItems(0, [
-        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_USER)
-      ]);
+      this.setActionMenuItems(0, [this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_USER)]);
     }
 
-    this.addActionMenuItem(
-      0,
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_USER)
-    );
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)
-    ]);
+    this.addActionMenuItem(0, this.getEditMenuItem(RowActionMenuLabel.EDIT_USER));
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)]);
   }
 
   /**
@@ -240,32 +196,21 @@ export class RowActionMenuComponent
    */
   private setNotificationMenu(): void {
     if (this.data['isActive']) {
-      this.setActionMenuItems(0, [
-        this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_NOTIFICATION)
-      ]);
+      this.setActionMenuItems(0, [this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_NOTIFICATION)]);
     } else {
-      this.setActionMenuItems(0, [
-        this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_NOTIFICATION)
-      ]);
+      this.setActionMenuItems(0, [this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_NOTIFICATION)]);
     }
 
-    this.addActionMenuItem(
-      0,
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_NOTIFICATION)
-    );
+    this.addActionMenuItem(0, this.getEditMenuItem(RowActionMenuLabel.EDIT_NOTIFICATION));
 
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)
-    ]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)]);
   }
 
   /**
    * Sets the context menu items for a pretask data row.
    */
   private setPretaskMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_PRETASK)
-    ]);
+    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_PRETASK)]);
     this.addActionMenuItem(0, {
       label: RowActionMenuLabel.COPY_TO_TASK,
       action: RowActionMenuAction.COPY_TO_TASK,
@@ -277,13 +222,9 @@ export class RowActionMenuComponent
       icon: RowActionMenuIcon.COPY
     });
     if (!this.data.editst) {
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)
-      ]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)]);
     } else {
-      this.setActionMenuItems(1, [
-        this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)
-      ]);
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)]);
     }
   }
 
@@ -295,9 +236,7 @@ export class RowActionMenuComponent
     //   this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
     // ]);
 
-    this.setActionMenuItems(0, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)
-    ]);
+    this.setActionMenuItems(0, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)]);
 
     if (this.data.taskType === 0) {
       this.addActionMenuItem(0, {
@@ -324,15 +263,9 @@ export class RowActionMenuComponent
     }
 
     if (this.data.isArchived) {
-      this.addActionMenuItem(
-        0,
-        this.getUnarchiveMenuItem(RowActionMenuLabel.UNARCHIVE_TASK)
-      );
+      this.addActionMenuItem(0, this.getUnarchiveMenuItem(RowActionMenuLabel.UNARCHIVE_TASK));
     } else {
-      this.addActionMenuItem(
-        0,
-        this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
-      );
+      this.addActionMenuItem(0, this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK));
     }
   }
 
@@ -340,12 +273,8 @@ export class RowActionMenuComponent
    * Sets the context menu items for a task data row.
    */
   private setTaskWrapperModalMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
-    ]);
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)
-    ]);
+    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)]);
     this.addActionMenuItem(0, {
       label: RowActionMenuLabel.COPY_TO_TASK,
       action: RowActionMenuAction.COPY_TO_TASK,
@@ -356,28 +285,21 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.COPY_TO_PRETASK,
       icon: RowActionMenuIcon.COPY
     });
-    this.addActionMenuItem(
-      0,
-      this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK)
-    );
+    this.addActionMenuItem(0, this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK));
   }
 
   /**
    * Sets the context menu items for a task chunks data row.
    */
   private setTaskChunksMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getResetMenuItem(RowActionMenuLabel.RESET_CHUNK)
-    ]);
+    this.setActionMenuItems(0, [this.getResetMenuItem(RowActionMenuLabel.RESET_CHUNK)]);
   }
 
   /**
    * Sets the context menu items for a pretask data row.
    */
   private setSupertaskMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERTASK)
-    ]);
+    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERTASK)]);
     this.addActionMenuItem(0, {
       label: RowActionMenuLabel.APPLY_HASHLIST,
       action: RowActionMenuAction.APPLY_TO_HASHLIST,
@@ -388,9 +310,7 @@ export class RowActionMenuComponent
       action: RowActionMenuAction.EDIT_SUBTASKS,
       icon: RowActionMenuIcon.EDIT
     });
-    this.setActionMenuItems(1, [
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERTASK)
-    ]);
+    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERTASK)]);
   }
 
   /**

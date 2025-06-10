@@ -1,12 +1,16 @@
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule, Routes } from '@angular/router';
-import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
-import { FormComponent } from '../core/_components/forms/simple-forms/form.component';
-import { NewFilesComponent } from './new-files/new-files.component';
-import { MyRoute, RouteData } from '../core/_models/routes.model';
-import { SERV } from '../core/_services/main.config';
-import { FilesComponent } from './files.component';
+import { RouterModule } from '@angular/router';
+
+import { MyRoute } from '@models/routes.model';
+
+import { SERV } from '@services/main.config';
+
+import { FormComponent } from '@components/forms/simple-forms/form.component';
+
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { FilesComponent } from '@src/app/files/files.component';
+import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
 
 const routes: MyRoute[] = [
   {
@@ -39,7 +43,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editwordlist',
           type: 'edit',
-          path: SERV.FILES,
+          serviceConfig: SERV.FILES,
           breadcrumb: 'Wordlist Edit',
           permission: 'File'
         },
@@ -71,7 +75,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editrule',
           type: 'edit',
-          path: SERV.FILES,
+          serviceConfig: SERV.FILES,
           breadcrumb: 'Rules Edit',
           permission: 'File'
         },
@@ -103,7 +107,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'editother',
           type: 'edit',
-          path: SERV.FILES,
+          serviceConfig: SERV.FILES,
           breadcrumb: 'Other Edit',
           permission: 'File'
         },

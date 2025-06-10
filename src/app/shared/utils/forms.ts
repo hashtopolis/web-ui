@@ -1,11 +1,23 @@
-import { Buffer } from 'buffer';
-
 /**
- * Section for reusable functions used in forms
+ * This module contains reusable functions used in forms
  *
  * Note: To use three-shaking is better do not use class
  * Comments use: https://tsdoc.org/
  */
+
+import { Buffer } from 'buffer';
+
+import { FieldMapping } from '@src/app/core/_constants/select.config';
+
+/**
+ * Interface definition for single select option
+ * @prop id ID of option
+ * @prop name Name of option
+ */
+export interface SelectOption {
+  id: string;
+  name: string;
+}
 
 /**
  * Extract Ids
@@ -17,7 +29,6 @@ import { Buffer } from 'buffer';
  * ```
  * @public
  */
-
 export function extractIds(dataArray: any[], idKey: string): number[] {
   return dataArray
     .map((item) => {
@@ -34,16 +45,16 @@ export function extractIds(dataArray: any[], idKey: string): number[] {
  * Transforms API response options based on a field mapping configuration.
  *
  * @param apiOptions - The options received from an API response.
- * @param field - The field configuration that contains the mapping between form fields and API fields.
+ * @param fieldMapping - The field configuration that contains the mapping between form fields and API fields.
  *
  * @returns An array of transformed select options to be used in the form.
  */
-export function transformSelectOptions(apiOptions: any[], field: any): any[] {
-  return apiOptions.map((apiOption: any) => {
-    const transformedOption: any = {};
+export function transformSelectOptions(apiOptions: object[], fieldMapping: FieldMapping) {
+  return apiOptions.map((apiOption) => {
+    const transformedOption: SelectOption = { id: undefined, name: undefined };
 
-    for (const formField of Object.keys(field.fieldMapping)) {
-      const apiField = field.fieldMapping[formField];
+    for (const formField of Object.keys(fieldMapping)) {
+      const apiField = fieldMapping[formField];
 
       if (Object.prototype.hasOwnProperty.call(apiOption, apiField)) {
         transformedOption[formField] = apiOption[apiField];

@@ -1,46 +1,52 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JPretask } from '@models/pretask.model';
+
+import { RelationshipType, SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
-} from '../ht-table/ht-table.models';
+} from '@components/tables/ht-table/ht-table.models';
 import {
   PretasksTableCol,
   PretasksTableColumnLabel,
   PretasksTableEditableAction
-} from './pretasks-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/pretasks-table/pretasks-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { calculateKeyspace } from 'src/app/shared/utils/estkeyspace_attack';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { PreTasksDataSource } from 'src/app/core/_datasources/preconfigured-tasks.datasource';
-import { Pretask } from 'src/app/core/_models/pretask.model';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SafeHtml } from '@angular/platform-browser';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { formatFileSize } from 'src/app/shared/utils/util';
+import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource';
 
-declare let options: any;
-declare let defaultOptions: any;
-declare let parser: any;
+import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
+import { formatFileSize } from '@src/app/shared/utils/util';
+
+export interface AttackOptions {
+  attackType: number;
+  ruleFiles: string[];
+  posArgs: string[];
+  unrecognizedFlag: string[];
+}
+
+declare let options: AttackOptions;
+declare let defaultOptions: AttackOptions;
 
 @Component({
-  selector: 'pretasks-table',
-  templateUrl: './pretasks-table.component.html'
+  selector: 'app-pretasks-table',
+  templateUrl: './pretasks-table.component.html',
+  standalone: false
 })
-export class PretasksTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
-  // Input property to specify an supertask ID for filtering pretasks.
+export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  // Input property to specify a supertask ID for filtering pretasks.
   @Input() supertTaskId = 0;
   // Estimate runtime attack
   @Input() benchmarkA0 = 0;
@@ -48,7 +54,7 @@ export class PretasksTableComponent
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -66,49 +72,70 @@ export class PretasksTableComponent
     }
   }
 
-  filter(item: Pretask, filterValue: string): boolean {
-    return (
-      item.taskName.toLowerCase().includes(filterValue) ||
-      item.attackCmd.toLowerCase().includes(filterValue)
-    );
+  filter(item: JPretask, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.taskName.toLowerCase().includes(filterValue) ||
+          item.attackCmd.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName?.toLowerCase().includes(filterValue);
+      }
+      case 'attackCmd': {
+        return item.attackCmd?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.taskName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
-        export: async (pretask: Pretask) => pretask._id + ''
+        isSearchable: true,
+        export: async (pretask: JPretask) => pretask.id + ''
       },
       {
         id: PretasksTableCol.NAME,
         dataKey: 'taskName',
-        routerLink: (pretask: Pretask) => this.renderPretaskLink(pretask),
+        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.taskName
+        isSearchable: true,
+        export: async (pretask: JPretask) => pretask.taskName
       },
       {
         id: PretasksTableCol.ATTACK_COMMAND,
         dataKey: 'attackCmd',
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.attackCmd
+        isSearchable: true,
+        export: async (pretask: JPretask) => pretask.attackCmd
       },
       {
         id: PretasksTableCol.FILES_TOTAL,
-        dataKey: 'pretaskFiles',
+        dataKey: 'filesTotal',
         isSortable: true,
-        icons: (pretask: Pretask) => this.renderSecretIcon(pretask),
-        render: (pretask: Pretask) => pretask.pretaskFiles.length,
-        export: async (pretask: Pretask) =>
-          pretask.pretaskFiles.length.toString()
+        icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
+        render: (pretask: JPretask) => pretask.pretaskFiles?.length,
+        export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
       },
       {
         id: PretasksTableCol.FILES_SIZE,
         dataKey: 'pretaskFiles',
         isSortable: true,
-        render: (pretask: Pretask) => {
-          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
+        render: (pretask: JPretask) => {
+          const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
             if (file && typeof file.size === 'number' && !isNaN(file.size)) {
               return sum + file.size;
             } else {
@@ -117,8 +144,8 @@ export class PretasksTableComponent
           }, 0);
           return formatFileSize(totalFileSize, 'short');
         },
-        export: async (pretask: Pretask) => {
-          const totalFileSize = pretask.pretaskFiles.reduce((sum, file) => {
+        export: async (pretask: JPretask) => {
+          const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
             if (file && typeof file.size === 'number' && !isNaN(file.size)) {
               return sum + file.size;
             } else {
@@ -131,7 +158,7 @@ export class PretasksTableComponent
       {
         id: PretasksTableCol.PRIORITY,
         dataKey: 'priority',
-        editable: (pretask: Pretask) => {
+        editable: (pretask: JPretask) => {
           return {
             data: pretask,
             value: pretask.priority + '',
@@ -139,12 +166,12 @@ export class PretasksTableComponent
           };
         },
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.priority.toString()
+        export: async (pretask: JPretask) => pretask.priority.toString()
       },
       {
         id: PretasksTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
-        editable: (pretask: Pretask) => {
+        editable: (pretask: JPretask) => {
           return {
             data: pretask,
             value: pretask.maxAgents + '',
@@ -152,7 +179,7 @@ export class PretasksTableComponent
           };
         },
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.maxAgents.toString()
+        export: async (pretask: JPretask) => pretask.maxAgents.toString()
       }
     ];
 
@@ -160,26 +187,22 @@ export class PretasksTableComponent
       tableColumns.push({
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
         dataKey: 'keyspaceSize',
-        async: (pretask: Pretask) => this.renderEstimatedKeyspace(pretask),
-        icons: undefined,
+        render: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
         isSortable: true,
-        export: async (pretask: Pretask) =>
-          Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
+        export: async (pretask: JPretask) => Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
       });
       tableColumns.push({
         id: PretasksTableCol.ATTACK_RUNTIME,
         dataKey: 'keyspaceTime',
-        icons: undefined,
-        isSortable: true
-        // render: (pretask: Pretask) =>
-        //   this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3, pretask)
+        isSortable: true,
+        render: () => this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3)
       });
     }
 
     return tableColumns;
   }
 
-  openDialog(data: DialogData<Pretask>) {
+  openDialog(data: DialogData<JPretask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -203,42 +226,16 @@ export class PretasksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Pretask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Pretask>(
-          'hashtopolis-pretasks',
-          this.tableColumns,
-          event.data,
-          PretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Pretask>(
-          'hashtopolis-pretasks',
-          this.tableColumns,
-          event.data,
-          PretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Pretask>(
-            this.tableColumns,
-            event.data,
-            PretasksTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+    this.exportService.handleExportAction<JPretask>(
+      event,
+      this.tableColumns,
+      PretasksTableColumnLabel,
+      'hashtopolis-pretasks'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<Pretask>): void {
+  rowActionClicked(event: ActionMenuEvent<JPretask>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -259,9 +256,7 @@ export class PretasksTableComponent
           }`,
           icon: 'warning',
           body: `Are you sure you want to ${
-            this.supertTaskId !== 0
-              ? `unassign it?`
-              : `delete it? Note that this action cannot be undone.`
+            this.supertTaskId !== 0 ? `unassign it?` : `delete it? Note that this action cannot be undone.`
           } `,
           warn: true,
           action: event.menuItem.action
@@ -270,7 +265,7 @@ export class PretasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Pretask[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JPretask[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -289,224 +284,34 @@ export class PretasksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private bulkActionDelete(pretasks: Pretask[]): void {
-    if (this.supertTaskId === 0) {
-      const requests = pretasks.map((pretask: Pretask) => {
-        return this.gs.delete(SERV.PRETASKS, pretask._id);
-      });
-
-      this.subscriptions.push(
-        forkJoin(requests)
-          .pipe(
-            catchError((error) => {
-              console.error('Error during deletion:', error);
-              return [];
-            })
-          )
-          .subscribe((results) => {
-            this.snackBar.open(
-              `Successfully deleted ${results.length} pretasks!`,
-              'Close'
-            );
-            this.reload();
-          })
-      );
-    } else {
-      const filter = this.dataSource['originalData'].filter(
-        (u) => u.pretaskId !== pretasks[0]._id
-      );
-      const payload = [];
-      for (let i = 0; i < filter.length; i++) {
-        payload.push(filter[i].pretaskId);
-      }
-
-      const requests = pretasks.map((pretask: Pretask) => {
-        return this.gs.delete(SERV.PRETASKS, pretask._id);
-      });
-
-      this.subscriptions.push(
-        forkJoin(requests)
-          .pipe(
-            catchError((error) => {
-              console.error('Error during deletion:', error);
-              return [];
-            })
-          )
-          .subscribe((results) => {
-            this.snackBar.open(
-              `Successfully deleted ${results.length} pretasks!`,
-              'Close'
-            );
-            this.reload();
-          })
-      );
-    }
-  }
-
-  @Cacheable(['_id', 'isSecret'])
-  async renderSecretIcon(pretask: Pretask): Promise<HTTableIcon[]> {
-    const icons: HTTableIcon[] = [];
-    const secretFilesCount = pretask.pretaskFiles.reduce(
-      (sum, file) => sum + (file.isSecret ? 1 : 0),
-      0
-    );
-
-    if (secretFilesCount > 0) {
-      icons.push({
-        name: 'lock',
-        tooltip: `Secret: ${secretFilesCount} ${
-          secretFilesCount > 1 ? 'files' : 'file'
-        }`
-      });
-    }
-
-    return icons;
-  }
-
-  @Cacheable(['_id'])
-  async renderPretaskLink(pretask: Pretask): Promise<HTTableRouterLink[]> {
-    return [
-      {
-        routerLink: ['/tasks/preconfigured-tasks', pretask._id, 'edit']
-      }
-    ];
-  }
-
-  @Cacheable(['_id'])
-  async renderEstimatedKeyspace(pretask: any): Promise<SafeHtml> {
-    return calculateKeyspace(
-      pretask.pretaskFiles[0].pretaskFiles,
-      'lineCount',
-      pretask.attackCmd,
-      false
-    );
-  }
-
-  @Cacheable(['_id'])
-  async renderKeyspaceTime(
-    a0: number,
-    a3: number,
-    pretask: any
-  ): Promise<SafeHtml> {
-    const result = await this.calculateKeyspaceTime(a0, a3, pretask);
-    return result as unknown as SafeHtml;
-  }
-
-  /**
-   * Inline Editing
-   */
-
-  editableSaved(editable: HTTableEditable<Pretask>): void {
-    switch (editable.action) {
-      case PretasksTableEditableAction.CHANGE_PRIORITY:
-        this.changePriority(editable.data, editable.value);
-        break;
-      case PretasksTableEditableAction.CHANGE_MAX_AGENTS:
-        this.changeMaxAgents(editable.data, editable.value);
-        break;
-    }
-  }
-
-  private changePriority(pretask: Pretask, priority: string): void {
-    let val = 0;
-    try {
-      val = parseInt(priority);
-    } catch (error) {
-      // Do nothing
-    }
-
-    if (!val || pretask.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
-      return;
-    }
-
-    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
-      priority: val
-    });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.snackBar.open(`Failed to update prio!`, 'Close');
-            console.error('Failed to update prio:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open(
-            `Changed prio to ${val} on Task #${pretask._id}!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
-  }
-
-  private changeMaxAgents(pretask: Pretask, max: string): void {
-    let val = 0;
-    try {
-      val = parseInt(max);
-    } catch (error) {
-      // Do nothing
-    }
-
-    if (!val || pretask.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
-      return;
-    }
-
-    const request$ = this.gs.update(SERV.PRETASKS, pretask._id, {
-      maxAgents: val
-    });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
-            console.error('Failed to update max agents:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open(
-            `Changed number of max agents to ${val} on Task #${pretask._id}!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(pretasks: Pretask[]): void {
+  private bulkActionDelete(pretasks: JPretask[]): void {
     if (this.supertTaskId === 0) {
       this.subscriptions.push(
         this.gs
-          .delete(SERV.PRETASKS, pretasks[0]._id)
+          .bulkDelete(SERV.PRETASKS, pretasks)
           .pipe(
             catchError((error) => {
-              console.error('Error during deletion:', error);
+              console.error('Error during deletion: ', error);
               return [];
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully deleted pretask!', 'Close');
-            this.reload();
+            this.snackBar.open(`Successfully deleted pretasks!`, 'Close');
+            this.dataSource.reload();
           })
       );
     } else {
-      const filter = this.dataSource['originalData'].filter(
-        (u) => u.pretaskId !== pretasks[0]._id
-      );
-      const payload = [];
-      for (let i = 0; i < filter.length; i++) {
-        payload.push(filter[i].pretaskId);
-      }
+      const pretaskData = [];
+
+      pretasks.forEach((pretask) => {
+        pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
+      });
+
+      const responseBody = { data: pretaskData };
+
       this.subscriptions.push(
         this.gs
-          .update(SERV.SUPER_TASKS, this.supertTaskId, { pretasks: payload })
+          .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
           .pipe(
             catchError((error) => {
               console.error('Error during deletion:', error);
@@ -521,93 +326,236 @@ export class PretasksTableComponent
     }
   }
 
-  private rowActionCopyToTask(pretask: Pretask): void {
-    this.router.navigate(['/tasks/new-tasks', pretask._id, 'copypretask']);
+  override renderSecretIcon(pretask: JPretask): HTTableIcon {
+    const secretFilesCount = pretask.pretaskFiles.reduce((sum, file) => sum + (file.isSecret ? 1 : 0), 0);
+    if (secretFilesCount > 0) {
+      return {
+        name: 'lock',
+        tooltip: `Secret: ${secretFilesCount} ${secretFilesCount > 1 ? 'files' : 'file'}`
+      };
+    }
+    return { name: '' };
   }
 
-  private rowActionCopyToPretask(pretask: Pretask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', pretask._id, 'copy']);
+  private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
+    return of([
+      {
+        routerLink: ['/tasks/preconfigured-tasks', pretask.id, 'edit']
+      }
+    ]);
   }
 
-  private rowActionEdit(pretask: Pretask): void {
-    this.renderPretaskLink(pretask).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
+  renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
+    return calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false).toLocaleString();
+  }
+
+  renderKeyspaceTime(a0: number, a3: number): SafeHtml {
+    return this.calculateKeyspaceTime(a0, a3);
+  }
+
+  /**
+   * Inline Editing
+   */
+
+  editableSaved(editable: HTTableEditable<JPretask>): void {
+    switch (editable.action) {
+      case PretasksTableEditableAction.CHANGE_PRIORITY:
+        this.changePriority(editable.data, editable.value);
+        break;
+      case PretasksTableEditableAction.CHANGE_MAX_AGENTS:
+        this.changeMaxAgents(editable.data, editable.value);
+        break;
+    }
+  }
+
+  private changePriority(pretask: JPretask, priority: string): void {
+    let val = 0;
+    try {
+      val = parseInt(priority);
+    } catch (error) {
+      console.log(error);
+    }
+
+    if (!val || pretask.priority == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
+      priority: val
     });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update prio!`, 'Close');
+            console.error('Failed to update prio:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Changed prio to ${val} on Task #${pretask.id}!`, 'Close');
+          this.reload();
+        })
+    );
   }
 
-  calculateKeyspaceTime(a0: number, a3: number, pretask: Pretask): void {
-    {
-      if (a0 !== 0 && a3 !== 0) {
-        let totalSecondsSupertask = 0;
-        let unknown_runtime_included = 0;
-        const benchmarka0 = a0;
-        const benchmarka3 = a3;
+  private changeMaxAgents(pretask: JPretask, max: string): void {
+    let val = 0;
+    try {
+      val = parseInt(max);
+    } catch (error) {
+      console.log(error);
+    }
 
-        // Iterate over each task in the supertask
-        $('.taskInSuper').each(function (index) {
-          // Extract keyspace size from the table cell
-          const keyspace_size = $(this).find('td:nth-child(4)').text();
-          let seconds = null;
-          let runtime = null;
+    if (!val || pretask.maxAgents == val) {
+      this.snackBar.open('Nothing changed!', 'Close');
+      return;
+    }
 
-          // Set default options for the attack
-          options = defaultOptions;
-          options.ruleFiles = [];
-          options.posArgs = [];
-          options.unrecognizedFlag = [];
+    const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
+      maxAgents: val
+    });
+    this.subscriptions.push(
+      request$
+        .pipe(
+          catchError((error) => {
+            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            console.error('Failed to update max agents:', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.snackBar.open(`Changed number of max agents to ${val} on Task #${pretask.id}!`, 'Close');
+          this.reload();
+        })
+    );
+  }
 
-          // Check if keyspace size is available
-          if (keyspace_size === null || !keyspace_size) {
-            unknown_runtime_included = 1;
-            runtime = 'Unknown';
-          } else if (options.attackType === 3) {
-            // Calculate seconds based on benchmarka3 for attackType 3
-            seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
-          } else if (options.attackType === 0) {
-            // Calculate seconds based on benchmarka0 for attackType 0
-            seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
-          }
+  /**
+   * @todo Implement error handling.
+   */
+  private rowActionDelete(pretasks: JPretask[]): void {
+    if (this.supertTaskId === 0) {
+      this.subscriptions.push(
+        this.gs
+          .delete(SERV.PRETASKS, pretasks[0].id)
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion:', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.reload();
+          })
+      );
+    } else {
+      const responseBody = { data: [{ type: RelationshipType.PRETASKS, id: pretasks[0].id }] };
 
-          // Convert seconds to human-readable runtime format
-          if (Number.isInteger(seconds)) {
-            totalSecondsSupertask += seconds;
-            const days = Math.floor(seconds / (3600 * 24));
-            seconds -= days * 3600 * 24;
-            const hrs = Math.floor(seconds / 3600);
-            seconds -= hrs * 3600;
-            const mins = Math.floor(seconds / 60);
-            seconds -= mins * 60;
+      this.subscriptions.push(
+        this.gs
+          .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
+          .pipe(
+            catchError((error) => {
+              console.error('Error during deletion:', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.snackBar.open('Successfully unassigned pretask!', 'Close');
+            this.reload();
+          })
+      );
+    }
+  }
 
-            runtime = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
-          } else {
-            unknown_runtime_included = 1;
-            runtime = 'Unknown';
-          }
+  private rowActionCopyToTask(pretask: JPretask): void {
+    this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
+  }
 
-          // Update the HTML content with the calculated runtime
-          $(this).find('td:nth-child(5)').html(runtime);
-        });
+  private rowActionCopyToPretask(pretask: JPretask): void {
+    this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
+  }
 
-        // Reduce total runtime to a human-readable format
-        let seconds = totalSecondsSupertask;
-        const days = Math.floor(seconds / (3600 * 24));
-        seconds -= days * 3600 * 24;
-        const hrs = Math.floor(seconds / 3600);
-        seconds -= hrs * 3600;
-        const mins = Math.floor(seconds / 60);
-        seconds -= mins * 60;
+  private rowActionEdit(pretask: JPretask): void {
+    this.renderPretaskLink(pretask)
+      .subscribe((links: HTTableRouterLink[]) => {
+        this.router.navigate(links[0].routerLink).then(() => {});
+      })
+      .unsubscribe();
+  }
 
-        let totalRuntimeSupertask =
-          days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+  calculateKeyspaceTime(a0: number, a3: number): string {
+    if (a0 !== 0 && a3 !== 0) {
+      let totalSecondsSupertask = 0;
+      let unknown_runtime_included = 0;
+      const benchmarka0 = a0;
+      const benchmarka3 = a3;
 
-        // Append additional information if unknown runtime is included
-        if (unknown_runtime_included === 1) {
-          totalRuntimeSupertask += ', plus additional unknown runtime';
+      // Iterate over each task in the supertask
+      $('.taskInSuper').each(function () {
+        // Extract keyspace size from the table cell
+        const keyspace_size = $(this).find('td:nth-child(4)').text();
+        let seconds = null;
+        let runtime = null;
+
+        // Set default options for the attack
+        options = defaultOptions;
+        options.ruleFiles = [];
+        options.posArgs = [];
+        options.unrecognizedFlag = [];
+
+        // Check if keyspace size is available
+        if (keyspace_size === null || !keyspace_size) {
+          unknown_runtime_included = 1;
+          runtime = 'Unknown';
+        } else if (options.attackType === 3) {
+          // Calculate seconds based on benchmarka3 for attackType 3
+          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka3));
+        } else if (options.attackType === 0) {
+          // Calculate seconds based on benchmarka0 for attackType 0
+          seconds = Math.floor(Number(keyspace_size) / Number(benchmarka0));
         }
 
-        // Update the HTML content with the total runtime of the supertask
-        $('.runtimeOfSupertask').html(totalRuntimeSupertask);
+        // Convert seconds to human-readable runtime format
+        if (Number.isInteger(seconds)) {
+          totalSecondsSupertask += seconds;
+          const days = Math.floor(seconds / (3600 * 24));
+          seconds -= days * 3600 * 24;
+          const hrs = Math.floor(seconds / 3600);
+          seconds -= hrs * 3600;
+          const mins = Math.floor(seconds / 60);
+          seconds -= mins * 60;
+
+          runtime = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+        } else {
+          unknown_runtime_included = 1;
+          runtime = 'Unknown';
+        }
+
+        // Update the HTML content with the calculated runtime
+        $(this).find('td:nth-child(5)').html(runtime);
+      });
+
+      // Reduce total runtime to a human-readable format
+      let seconds = totalSecondsSupertask;
+      const days = Math.floor(seconds / (3600 * 24));
+      seconds -= days * 3600 * 24;
+      const hrs = Math.floor(seconds / 3600);
+      seconds -= hrs * 3600;
+      const mins = Math.floor(seconds / 60);
+      seconds -= mins * 60;
+
+      let totalRuntimeSupertask = days + 'd, ' + hrs + 'h, ' + mins + 'm, ' + seconds + 's';
+
+      // Append additional information if unknown runtime is included
+      if (unknown_runtime_included === 1) {
+        totalRuntimeSupertask += ', plus additional unknown runtime';
       }
+      return totalRuntimeSupertask;
     }
+    return '';
   }
 }

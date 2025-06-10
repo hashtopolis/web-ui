@@ -1,25 +1,23 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { ChangeDetectorRef, Component } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import {
-  UIConfig,
-  uiConfigDefault
-} from 'src/app/core/_models/config-ui.model';
-import { ConfigService } from 'src/app/core/_services/shared/config.service';
+import { Subscription } from 'rxjs';
+import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
 import { ExportService } from 'src/app/core/_services/export/export.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { ConfigService } from 'src/app/core/_services/shared/config.service';
+import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { UtilService } from 'src/app/core/_services/shared/util.service';
 
 @Component({
   selector: 'base-report',
-  template: ''
+  template: '',
+  standalone: false
 })
 export class BaseReportComponent {
   protected uiSettings: UISettingsUtilityClass;
@@ -36,8 +34,7 @@ export class BaseReportComponent {
     protected uiService: UIConfigService,
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog,
-    public utilService: UtilService
+    public dialog: MatDialog
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();

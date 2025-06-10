@@ -1,148 +1,162 @@
-import { Chunk, ChunkData } from '../_models/chunk.model';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
+/**
+ * Contains data source for agents resource
+ * @module
+ */
+import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
-import { Agent } from '../_models/agent.model';
-import { AgentAssignment } from '../_models/agent-assignment.model';
-import { BaseDataSource } from './base.datasource';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
-import { Task } from '../_models/task.model';
-import { User } from '../_models/user.model';
+import { BaseDataSource } from '@datasources/base.datasource';
+import { FilterType } from '@models/request-params.model';
+import { IParamBuilder } from '@services/params/builder-types.service';
+import { JAgent } from '@models/agent.model';
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JChunk } from '@models/chunk.model';
+import { JUser } from '@models/user.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 
-export class AgentsDataSource extends BaseDataSource<Agent> {
+export class AgentsDataSource extends BaseDataSource<JAgent> {
+  private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
-  private _assignAgents = false;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
 
-  setAssignAgents(assign: boolean): void {
-    this._assignAgents = assign;
-  }
-
   loadAll(): void {
     this.loading = true;
+    const agentParams = new RequestParamBuilder()
+      .addInitial(this)
+      .addInclude('accessGroups')
+      .addInclude('tasks')
+      .addInclude('assignments')
+      .addInclude('agentStats')
+      .create();
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const agentParams: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'accessGroups'
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      agentParams.ordering = order;
-    }
-
-    const params = { maxResults: this.maxResults };
-    const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
-    const users$ = this.service.getAll(SERV.USERS, params);
-    const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, params);
-    const tasks$ = this.service.getAll(SERV.TASKS, params);
-    const chunks$ = this.service.getAll(SERV.CHUNKS, params);
-
-    forkJoin([agents$, users$, agentAssign$, tasks$, chunks$])
+    this.service
+      .getAll(SERV.AGENTS, agentParams)
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
-      .subscribe(
-        ([a, u, aa, t, c]: [
-          ListResponseWrapper<Agent>,
-          ListResponseWrapper<User>,
-          ListResponseWrapper<AgentAssignment>,
-          ListResponseWrapper<Task>,
-          ListResponseWrapper<Chunk>
-        ]) => {
-          const agents: Agent[] = a.values;
-          const users: User[] = u.values;
-          const assignments: AgentAssignment[] = aa.values;
-          const tasks: Task[] = t.values;
-          const chunks: Chunk[] = c.values;
+      .subscribe(async (response: ResponseWrapper) => {
+        const serializer = new JsonAPISerializer();
+        const responseBody = { data: response.data, included: response.included };
+        const agents = serializer.deserialize<JAgent[]>({
+          data: responseBody.data,
+          included: responseBody.included
+        });
 
-          agents.map((agent: Agent) => {
-            agent.user = users.find((e: User) => e._id === agent.userId);
-            agent.taskId = assignments.find((e) => e.agentId === agent._id)
-              ?.taskId;
-            if (agent.taskId) {
-              agent.task = tasks.find((e) => e._id === agent.taskId);
+        if (agents && agents.length > 0) {
+          const chunkParams = new RequestParamBuilder()
+            .addFilter({
+              field: 'agentId',
+              operator: FilterType.IN,
+              value: agents.map((agent) => agent.id)
+            })
+            .addFilter({
+              field: 'state',
+              operator: FilterType.EQUAL,
+              value: chunkStates.indexOf(ChunkState.RUNNING)
+            });
+
+          const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
+          const [users, chunks] = await Promise.all([this.loadUserData(userIds), this.loadChunkData(chunkParams)]);
+
+          agents.forEach((agent: JAgent) => {
+            agent.user = users.find((user: JUser) => user.id === agent.userId);
+            if (agent.tasks && agent.tasks.length > 0) {
+              agent.taskId = agent.tasks[0].id;
+              agent.task = agent.tasks[0];
               agent.taskName = agent.task.taskName;
-              agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
-              if (agent.chunk) {
-                agent.chunkId = agent.chunk._id;
-              }
+              this.setChunkParams(agent, chunks, agent.assignments);
             }
-
-            return agent;
           });
-
-          this.setPaginationConfig(this.pageSize, this.currentPage, a.total);
-          this.setData(agents);
         }
-      );
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
+        this.setData(agents);
+      });
   }
 
   loadAssignments(): void {
     this.loading = true;
+    const assignParams = new RequestParamBuilder()
+      .setPageSize(this.pageSize)
+      .setPageAfter(this.currentPage * this.pageSize)
+      .addInclude('agent')
+      .addInclude('task')
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this._taskId })
+      .create();
 
-    const params = { maxResults: this.maxResults };
-    const startAt = this.currentPage * this.pageSize;
-    const assignParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'agent,task',
-      filter: `taskId=${this._taskId}`
-    };
-
-    const agentAssign$ = this.service.getAll(SERV.AGENT_ASSIGN, assignParams);
-    const chunks$ = this.service.getAll(SERV.CHUNKS, params);
-    const users$ = this.service.getAll(SERV.USERS, params);
-
-    forkJoin([users$, agentAssign$, chunks$])
+    this.service
+      .getAll(SERV.AGENT_ASSIGN, assignParams)
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
-      .subscribe(
-        ([u, aa, c]: [
-          ListResponseWrapper<User>,
-          ListResponseWrapper<AgentAssignment>,
-          ListResponseWrapper<Chunk>
-        ]) => {
-          const users: User[] = u.values;
-          const assignments: AgentAssignment[] = aa.values;
-          const chunks: Chunk[] = c.values;
-          const agents: Agent[] = [];
+      .subscribe(async (response: ResponseWrapper) => {
+        const serializer = new JsonAPISerializer();
+        const responseBody = { data: response.data, included: response.included };
+        const assignments = serializer.deserialize<JAgentAssignment[]>({
+          data: responseBody.data,
+          included: responseBody.included
+        });
+        if (assignments && assignments.length > 0) {
+          const userIds: Array<number> = assignments
+            .map((assignment) => assignment.agent.userId)
+            .filter((userId) => userId !== null);
+          const users = await this.loadUserData(userIds);
 
-          assignments.forEach((assignment: AgentAssignment) => {
-            const task: Task = assignment.task;
-            const agent: Agent = assignment.agent;
-
+          const agents: JAgent[] = [];
+          assignments.forEach((assignment) => {
+            const task = assignment.task;
+            const agent = assignment.agent;
             agent.task = task;
-            agent.user = users.find((e: User) => e._id === agent.userId);
+            agent.user = users.find((user) => user.id === agent.userId);
             agent.taskName = agent.task.taskName;
-            agent.taskId = agent.task._id;
-            agent.chunk = chunks.find((e) => e.agentId === agent.agentId);
-            agent.assignmentId = assignments.find(
-              (e) => e.agentId === agent._id
-            )?.assignmentId;
-            if (agent.chunk) {
-              agent.chunkId = agent.chunk._id;
-            }
+            agent.taskId = agent.task.id;
             agent.benchmark = assignment.benchmark;
-
             agents.push(agent);
           });
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, aa.total);
+          const chunkParams = new RequestParamBuilder()
+            .addFilter({
+              field: 'taskId',
+              operator: FilterType.EQUAL,
+              value: this._taskId
+            })
+            .addFilter({
+              field: 'agentId',
+              operator: FilterType.IN,
+              value: agents.map((agent) => agent.id)
+            });
+          const chunks = await this.loadChunkData(chunkParams);
+          agents.forEach((agent: JAgent) => {
+            this.setChunkParams(agent, chunks, assignments);
+          });
+
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(agents);
         }
-      );
+      });
   }
 
   reload(): void {
@@ -152,5 +166,79 @@ export class AgentsDataSource extends BaseDataSource<Agent> {
     } else {
       this.loadAll();
     }
+  }
+
+  /**
+   * Load related running chunks for all agents and convert them to ChunkData objects
+   * @param requestParams
+   * @private
+   */
+  private async loadChunkData(requestParams: IParamBuilder): Promise<JChunk[]> {
+    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, requestParams.create()));
+    const responseBody = { data: response.data, included: response.included };
+    return this.serializer.deserialize<JChunk[]>(responseBody);
+  }
+
+  /**
+   * Set agent chunk parameters and convert to ch8unkdata
+   * @param agent - current agent instance
+   * @param chunks - current chunk collectioz
+   * @param assignments - current agent assignments
+   * @private
+   */
+  private setChunkParams(agent: JAgent, chunks: JChunk[], assignments: JAgentAssignment[]): void {
+    agent.chunk = chunks
+      .filter((chunk) => chunk.state == chunkStates.indexOf(ChunkState.RUNNING))
+      .find((chunk) => chunk.agentId === agent.id);
+
+    agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
+    if (agent.chunk) {
+      agent.chunkId = agent.chunk.id;
+      if (chunks) {
+        agent.agentSpeed = this.getAgentSpeed(agent, chunks);
+      }
+    }
+    agent.chunkData = this.convertChunks(agent.id, chunks, true, agent.task.keyspace);
+  }
+
+  /**
+   * Load user data from backend given an array of user IDs
+   * @param userIds - array of user ids
+   * @return promise containing an array of user objects matching the fiven IDs
+   * @private
+   */
+  private async loadUserData(userIds: Array<number>): Promise<JUser[]> {
+    let users: Array<JUser> = [];
+    if (userIds.length > 0) {
+      const userParams = new RequestParamBuilder().addFilter({
+        field: 'id',
+        operator: FilterType.IN,
+        value: userIds
+      });
+      const response = await firstValueFrom(this.service.getAll(SERV.USERS, userParams.create()));
+      const responseBody = { data: response.data, included: response.included };
+      users = this.serializer.deserialize<JUser[]>(responseBody);
+    }
+    return users;
+  }
+
+  /**
+   * Get current agent cracking speed from all asssigned chunks
+   * @param agent - agent instance to get cracking speed for
+   * @param chunks - collection of all available chunks
+   * @return current agent's cracking speed
+   * @private
+   */
+  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
+    let chunkSpeed: number = 0;
+    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
+      if (
+        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
+        chunk.progress < 10000
+      ) {
+        chunkSpeed += chunk.speed;
+      }
+    }
+    return chunkSpeed;
   }
 }

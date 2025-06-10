@@ -18,7 +18,8 @@ import { Router, NavigationEnd } from '@angular/router';
  * the custom class is added to the element.
  */
 @Directive({
-  selector: '[startsWithActive]'
+    selector: '[startsWithActive]',
+    standalone: false
 })
 export class StartsWithActiveDirective implements OnInit {
   @Input() startsWithActive: string;

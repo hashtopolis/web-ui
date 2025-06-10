@@ -9,7 +9,7 @@ export class ASC {
 }
 
 export const ignoreErrors = [
-  { _id: 'NO', name: 'Deactivate agent on error' },
-  { _id: 'IGNORE_SAVE', name: 'Keep agent running, but save errors' },
-  { _id: 'IGNORE_NOSAVE', name: 'Keep agent running and discard errors' }
+  { id: 'NO', name: 'Deactivate agent on error' },
+  { id: 'IGNORE_SAVE', name: 'Keep agent running, but save errors' },
+  { id: 'IGNORE_NOSAVE', name: 'Keep agent running and discard errors' }
 ];

@@ -1,45 +1,38 @@
-/* eslint-disable @angular-eslint/component-selector */
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnInit
-} from '@angular/core';
+import { catchError } from 'rxjs';
+
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JChunk } from '@models/chunk.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   TasksChunksTableCol,
   TasksChunksTableColumnLabel
-} from './tasks-chunks-table.constants';
-import {
-  formatSeconds,
-  formatUnixTimestamp
-} from 'src/app/shared/utils/datetime';
+} from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from '../../../_decorators/cacheable';
-import { Chunk } from '../../../_models/chunk.model';
-import { chunkStates } from '../../../_constants/chunks.config';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { SafeHtml } from '@angular/platform-browser';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from 'src/app/core/_services/main.config';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
-import { TasksChunksDataSource } from 'src/app/core/_datasources/tasks-chunks.datasource';
-import { catchError } from 'rxjs';
+import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
+
+import { chunkStates } from '@src/app/core/_constants/chunks.config';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
-  selector: 'tasks-chunks-table',
+  selector: 'app-tasks-chunks-table',
   templateUrl: './tasks-chunks-table.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
-export class TasksChunksTableComponent
-  extends BaseTableComponent
-  implements OnInit
-{
-  // Input property to specify an task ID for filtering chunks.
+export class TasksChunksTableComponent extends BaseTableComponent implements OnInit {
+  // Input property to specify a task ID for filtering chunks.
   @Input() taskId: number;
   // Input property to specify to filter all chunks or only live. Live = 0, All = 1
   @Input() isChunksLive: number;
@@ -50,11 +43,7 @@ export class TasksChunksTableComponent
   ngOnInit(): void {
     this.setColumnLabels(TasksChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksChunksDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new TasksChunksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
@@ -64,10 +53,10 @@ export class TasksChunksTableComponent
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: TasksChunksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true
       },
       {
@@ -83,83 +72,65 @@ export class TasksChunksTableComponent
       {
         id: TasksChunksTableCol.CHECKPOINT,
         dataKey: 'checkpoint',
-        render: (chunk: Chunk) => this.renderCheckpoint(chunk),
+        render: (chunk: JChunk) => this.renderCheckpoint(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.PROGRESS,
         dataKey: 'progress',
-        render: (chunk: Chunk) => this.renderProgress(chunk),
+        render: (chunk: JChunk) => this.renderProgress(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
-        render: (chunk: Chunk) => this.renderAgent(chunk),
-        routerLink: (chunk: Chunk) => this.renderAgentLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.DISPATCH_TIME,
         dataKey: 'dispatchTime',
-        render: (chunk: Chunk) => this.renderDispatchTime(chunk),
+        render: (chunk: JChunk) => this.renderDispatchTime(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.LAST_ACTIVITY,
         dataKey: 'solveTime',
-        render: (chunk: Chunk) => this.renderLastActivity(chunk),
+        render: (chunk: JChunk) => this.renderLastActivity(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.TIME_SPENT,
         dataKey: 'timeSpent',
-        render: (chunk: Chunk) => this.renderTimeSpent(chunk),
+        render: (chunk: JChunk) => this.renderTimeSpent(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.STATE,
         dataKey: 'state',
-        render: (chunk: Chunk) => this.renderState(chunk),
+        render: (chunk: JChunk) => this.renderState(chunk),
         isSortable: true
       },
       {
         id: TasksChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: Chunk) => this.renderCrackedLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
         isSortable: true
       }
     ];
-
-    return tableColumns;
   }
 
   // --- Render functions ---
-
-  @Cacheable(['_id', 'cracked'])
-  renderCracked(chunk: Chunk): SafeHtml {
-    let html = `${chunk.cracked}`;
-    if (chunk.cracked && chunk.cracked > 0) {
-      html = `<a data-view-hashes-task-id="${chunk.task._id}">${chunk.cracked}</a>`;
-    }
-
-    return this.sanitize(html);
-  }
-
-  @Cacheable(['_id', 'state'])
-  renderState(chunk: Chunk): SafeHtml {
+  renderState(chunk: JChunk): SafeHtml {
     let html = `${chunk.state}`;
     if (chunk.state && chunk.state in chunkStates) {
-      html = `<span class="pill pill-${chunkStates[
-        chunk.state
-      ].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
+      html = `<span class="pill pill-${chunkStates[chunk.state].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
     }
 
     return this.sanitize(html);
   }
 
-  @Cacheable(['_id', 'solveTime', 'dispatchTime'])
-  renderTimeSpent(chunk: Chunk): SafeHtml {
+  renderTimeSpent(chunk: JChunk): SafeHtml {
     const seconds = chunk.solveTime - chunk.dispatchTime;
     if (seconds) {
       return this.sanitize(formatSeconds(seconds));
@@ -168,63 +139,34 @@ export class TasksChunksTableComponent
     return this.sanitize('0');
   }
 
-  @Cacheable(['_id', 'progress', 'checkpoint', 'skip', 'length'])
-  renderCheckpoint(chunk: Chunk): SafeHtml {
-    const percent = chunk.progress
-      ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2)
-      : 0;
-    const data = chunk.checkpoint ? `${chunk.checkpoint} (${percent}%)` : '0';
+  renderCheckpoint(chunk: JChunk): SafeHtml {
+    const percent = chunk.progress ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2) : 0;
+    const data = chunk.checkpoint ? `${chunk.checkpoint} (${convertToLocale(Number(percent))}%)` : '0';
 
     return this.sanitize(data);
   }
 
-  @Cacheable(['_id', 'progress'])
-  renderProgress(chunk: Chunk): SafeHtml {
+  renderProgress(chunk: JChunk): SafeHtml {
     if (chunk.progress === undefined) {
       return this.sanitize('N/A');
     } else if (chunk.progress > 0) {
-      return this.sanitize(`${chunk.progress / 100}%`);
+      return this.sanitize(`${convertToLocale(chunk.progress / 100)}%`);
     }
 
     return `${chunk.progress ? chunk.progress : 0}`;
   }
 
-  @Cacheable(['_id', 'taskId'])
-  renderTask(chunk: Chunk): SafeHtml {
-    if (chunk.task) {
-      return this.sanitize(chunk.task.taskName);
-    }
-
-    return this.sanitize(`${chunk.taskId}`);
-  }
-
-  @Cacheable(['_id', 'agentId'])
-  renderAgent(chunk: Chunk): SafeHtml {
-    if (chunk.agent) {
-      return this.sanitize(chunk.agent.agentName);
-    }
-
-    return `${chunk.agentId}`;
-  }
-
-  @Cacheable(['_id', 'dispatchTime'])
-  renderDispatchTime(chunk: Chunk): SafeHtml {
-    const formattedDate = formatUnixTimestamp(
-      chunk.dispatchTime,
-      this.dateFormat
-    );
+  renderDispatchTime(chunk: JChunk): SafeHtml {
+    const formattedDate = formatUnixTimestamp(chunk.dispatchTime, this.dateFormat);
 
     return this.sanitize(formattedDate === '' ? 'N/A' : formattedDate);
   }
 
-  @Cacheable(['_id', 'solveTime'])
-  renderLastActivity(chunk: Chunk): SafeHtml {
+  renderLastActivity(chunk: JChunk): SafeHtml {
     if (chunk.solveTime === 0) {
       return '(No activity)';
     } else if (chunk.solveTime > 0) {
-      return this.sanitize(
-        formatUnixTimestamp(chunk.solveTime, this.dateFormat)
-      );
+      return this.sanitize(formatUnixTimestamp(chunk.solveTime, this.dateFormat));
     }
 
     return this.sanitize(`${chunk.solveTime}`);
@@ -232,42 +174,16 @@ export class TasksChunksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Chunk[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Chunk>(
-          'hashtopolis-tasks-chunks',
-          this.tableColumns,
-          event.data,
-          TasksChunksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Chunk>(
-          'hashtopolis-tasks-chunks',
-          this.tableColumns,
-          event.data,
-          TasksChunksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Chunk>(
-            this.tableColumns,
-            event.data,
-            TasksChunksTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JChunk[]>): void {
+    this.exportService.handleExportAction<JChunk>(
+      event,
+      this.tableColumns,
+      TasksChunksTableColumnLabel,
+      'hashtopolis-tasks-chunks'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<Chunk>): void {
+  rowActionClicked(event: ActionMenuEvent<JChunk>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.RESET:
         this.rowActionReset(event.data);
@@ -275,7 +191,7 @@ export class TasksChunksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Chunk[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JChunk[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.RESET:
         this.openDialog({
@@ -291,7 +207,7 @@ export class TasksChunksTableComponent
     }
   }
 
-  openDialog(data: DialogData<Chunk>) {
+  openDialog(data: DialogData<JChunk>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -313,9 +229,9 @@ export class TasksChunksTableComponent
   /**
    * @todo Implement error handling.
    */
-  private rowActionReset(chunks: Chunk): void {
+  private rowActionReset(chunks: JChunk): void {
     const path = chunks.state === 2 ? 'abortChunk' : 'resetChunk';
-    const payload = { chunkId: chunks.chunkId };
+    const payload = { chunkId: chunks.id };
     this.subscriptions.push(
       this.gs
         .chelper(SERV.HELPER, path, payload)

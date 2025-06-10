@@ -5,8 +5,9 @@ import { ExportMenuAction, ExportMenuLabel } from './export-menu.constants';
 import { BaseMenuComponent } from '../base-menu/base-menu.component';
 
 @Component({
-  selector: 'export-menu',
-  templateUrl: './export-menu.component.html'
+    selector: 'export-menu',
+    templateUrl: './export-menu.component.html',
+    standalone: false
 })
 export class ExportMenuComponent extends BaseMenuComponent implements OnInit {
   ngOnInit(): void {

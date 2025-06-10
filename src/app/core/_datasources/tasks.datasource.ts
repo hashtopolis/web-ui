@@ -1,91 +1,85 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, of } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
-import { BaseDataSource } from './base.datasource';
-import { Hashlist } from 'src/app/hashlists/hashlist.model';
-import { MatTableDataSourcePaginator } from '@angular/material/table';
-import { SERV } from '../_services/main.config';
-import { TaskWrapper } from '../_models/task-wrapper.model';
-import { Hashtype } from '../_models/hashtype.model';
-import { RequestParams } from '../_models/request-params.model';
+import { JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JTask } from '@models/task.model';
 
-export class TasksDataSource extends BaseDataSource<
-  TaskWrapper,
-  MatTableDataSourcePaginator
-> {
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
-  private _hashlistId = 0;
 
   setIsArchived(isArchived: boolean): void {
     this._isArchived = isArchived;
   }
 
-  setHashlistId(hashlistId: number): void {
-    this._hashlistId = hashlistId;
-  }
-
   loadAll(): void {
     this.loading = true;
+    const params = new RequestParamBuilder()
+      .addInitial(this)
+      .addInclude('accessGroup')
+      .addInclude('tasks')
+      .addInclude('hashlist')
+      .addInclude('hashType')
+      .addFilter({
+        field: 'isArchived',
+        operator: FilterType.EQUAL,
+        value: this._isArchived
+      });
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
+    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
 
-    const additionalFilter = this._hashlistId
-      ? `,hashlistId=${this._hashlistId}`
-      : '';
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'accessGroup,tasks',
-      filter: `isArchived=${this._isArchived}${additionalFilter}`
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
-
-    const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params);
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, {
-      maxResults: this.maxResults
-    });
-    const hashTypes$ = this.service.getAll(SERV.HASHTYPES, {
-      maxResults: this.maxResults
-    });
-
-    forkJoin([wrappers$, hashLists$, hashTypes$])
-      .pipe(
-        catchError(() => of([])),
-        finalize(() => (this.loading = false))
-      )
-      .subscribe(
-        ([taskWrapperResponse, hashlistResponse, hashtypeResponse]) => {
-          const wrappers: TaskWrapper[] = taskWrapperResponse.values.map(
-            (wrapper: TaskWrapper) => {
-              const matchingHashList = hashlistResponse.values.find(
-                (hashlist: Hashlist) => hashlist._id === wrapper.hashlistId
-              );
-              const matchingHashTypes = hashtypeResponse.values.find(
-                (hashtype: Hashtype) =>
-                  hashtype._id === matchingHashList.hashTypeId
-              );
-              wrapper.hashlists = [matchingHashList];
-              wrapper.hashtypes = [matchingHashTypes];
-              wrapper.taskName = wrapper.tasks[0]?.taskName;
-              wrapper.accessGroupName = wrapper.accessGroup?.groupName;
-              return wrapper;
-            }
-          );
+    this.subscriptions.push(
+      wrappers$
+        .pipe(
+          catchError(() => of([])),
+          finalize(() => (this.loading = false))
+        )
+        .subscribe((response: ResponseWrapper) => {
+          const taskWrappers = this.serializer.deserialize<JTaskWrapper[]>({
+            data: response.data,
+            included: response.included
+          });
+          const length = response.meta.page.total_elements;
 
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            taskWrapperResponse.total
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
-          console.log(wrappers);
-          this.setData(wrappers);
-        }
-      );
+          if (taskWrappers.length > 0) {
+            const chunkParams = new RequestParamBuilder().addFilter({
+              field: 'taskId',
+              operator: FilterType.IN,
+              value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
+            });
+
+            this.subscriptions.push(
+              this.service
+                .getAll(SERV.CHUNKS, chunkParams.create())
+                .pipe(finalize(() => this.setData(taskWrappers)))
+                .subscribe((chunkResponse: ResponseWrapper) => {
+                  const chunks = this.serializer.deserialize<JChunk[]>({
+                    data: chunkResponse.data,
+                    included: chunkResponse.included
+                  });
+                  taskWrappers.forEach((taskWrapper) => {
+                    const task: JTask = taskWrapper.tasks[0];
+                    taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                  });
+                })
+            );
+          }
+        })
+    );
   }
 
   reload(): void {

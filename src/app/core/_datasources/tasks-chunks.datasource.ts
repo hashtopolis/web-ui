@@ -1,13 +1,16 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
-import { Agent } from '../_models/agent.model';
-import { BaseDataSource } from './base.datasource';
-import { Chunk } from '../_models/chunk.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
+import { JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
-export class TasksChunksDataSource extends BaseDataSource<Chunk> {
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   private _taskId = 0;
   private _isChunksLive = 0;
 
@@ -20,74 +23,52 @@ export class TasksChunksDataSource extends BaseDataSource<Chunk> {
   }
 
   loadAll(): void {
+    const chunktime = this.uiService.getUIsettings('chunktime').value;
     this.loading = true;
 
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
+    const chunkParams = new RequestParamBuilder()
+      .addInitial(this)
+      .addInclude('task')
+      .addInclude('agent')
+      .addFilter({
+        field: 'taskId',
+        operator: FilterType.EQUAL,
+        value: this._taskId
+      })
+      .create();
 
-    const chunkParams: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'task',
-      filter: 'taskId=' + this._taskId + ''
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      chunkParams.ordering = order;
-    }
-
-    const agentParams = { maxResults: this.maxResults };
-    const chunks$ = this.service.getAll(SERV.CHUNKS, chunkParams);
-    const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
-
-    forkJoin([chunks$, agents$])
+    this.service
+      .getAll(SERV.CHUNKS, chunkParams)
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
       )
-      .subscribe(
-        ([c, a]: [ListResponseWrapper<Chunk>, ListResponseWrapper<Agent>]) => {
-          const getchunks: Chunk[] = c.values;
+      .subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const chunks = new JsonAPISerializer().deserialize<JChunk[]>({
+          data: responseBody.data,
+          included: responseBody.included
+        });
 
-          if (this._isChunksLive === 0) {
-            const chunktime = this.uiService.getUIsettings('chunktime').value;
-            const resultArray = [];
-            const cspeed = [];
-
-            for (let i = 0; i < getchunks.length; i++) {
-              if (
-                Date.now() / 1000 -
-                  Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
-                  chunktime &&
-                getchunks[i].progress < 10000
-              ) {
-                cspeed.push(getchunks[i].speed);
-                resultArray.push(getchunks[i]);
-              }
-            }
-
-            this.setData(resultArray);
-          } else {
-            const assignedChunks: Chunk[] = getchunks.map((chunk: Chunk) => {
-              chunk.agent = a.values.find(
-                (e: Agent) => e._id === chunk.agentId
-              );
-              // Flatten row so that we can access agent name and task name by key when rendering the table.
-              if (chunk.agent) {
-                chunk.agentName = chunk.agent.agentName;
-              }
-              if (chunk.task) {
-                chunk.taskName = chunk.task.taskName;
-              }
-
-              return chunk;
-            });
-
-            this.setData(assignedChunks);
+        const chunksToShow: JChunk[] = [];
+        chunks.forEach((chunk: JChunk) => {
+          if (chunk.agent) {
+            chunk.agentName = chunk.agent.agentName;
           }
-        }
-      );
+          if (chunk.task) {
+            chunk.taskName = chunk.task.taskName;
+          }
+          if (this._isChunksLive) {
+            chunksToShow.push(chunk);
+          } else if (
+            Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < chunktime &&
+            chunk.progress < 10000
+          ) {
+            chunksToShow.push(chunk);
+          }
+        });
+        this.setData(chunksToShow);
+      });
   }
 
   reload(): void {

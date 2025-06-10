@@ -2,8 +2,9 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-preprocessors',
-  templateUrl: './preprocessors.component.html'
+    selector: 'app-preprocessors',
+    templateUrl: './preprocessors.component.html',
+    standalone: false
 })
 export class PreprocessorsComponent {
   constructor(private titleService: AutoTitleService) {

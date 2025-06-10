@@ -1,43 +1,38 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon } from '../ht-table/ht-table.models';
+
+import { JPretask } from '@models/pretask.model';
+import { JUser } from '@models/user.model';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import {
   AccessPermissionGroupsUsersTableCol,
   AccessPermissionGroupsUsersTableColumnLabel
-} from './access-permission-groups-users-table.constants';
+} from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { UsersTableStatus } from '@components/tables/users-table/users-table.constants';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { AccessPermissionGroupsExpandDataSource } from 'src/app/core/_datasources/access-permission-groups-expand.datasource';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { Pretask } from 'src/app/core/_models/pretask.model';
-import { User } from 'src/app/core/_models/user.model';
-import { UsersTableStatus } from '../users-table/users-table.constants';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-permission-groups-expand.datasource';
+
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'access-permission-groups-users-table',
-  templateUrl: './access-permission-groups-users-table.component.html'
+  templateUrl: './access-permission-groups-users-table.component.html',
+  standalone: false
 })
-export class AccessPermissionGroupsUsersTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessPermissionGroupsExpandDataSource;
-  expand = 'user';
+  expand = 'userMembers';
 
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
@@ -52,106 +47,53 @@ export class AccessPermissionGroupsUsersTableComponent
     }
   }
 
-  filter(item: Pretask, filterValue: string): boolean {
+  filter(item: JPretask, filterValue: string): boolean {
     return item.taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: AccessPermissionGroupsUsersTableCol.ID,
-        dataKey: '_id',
-        routerLink: (user: User) => this.renderUserLink(user),
+        dataKey: 'id',
+        routerLink: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
-        export: async (user: User) => user._id + ''
+        export: async (user: JUser) => user.id + ''
       },
       {
         id: AccessPermissionGroupsUsersTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        render: (user: User) => user.name,
-        export: async (user: User) => user.name + ''
+        render: (user: JUser) => user.name,
+        export: async (user: JUser) => user.name + ''
       },
       {
         id: AccessPermissionGroupsUsersTableCol.STATUS,
         dataKey: 'isValid',
-        icons: (user: User) => this.renderIsValidIcon(user),
-        render: (user: User) =>
-          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID,
+        icon: (user: JUser) => this.renderIsValidIcon(user),
+        render: (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID),
         isSortable: true,
-        export: async (user: User) =>
-          user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID
+        export: async (user: JUser) => (user.isValid ? UsersTableStatus.VALID : UsersTableStatus.INVALID)
       },
       {
         id: AccessPermissionGroupsUsersTableCol.LAST_LOGIN,
         dataKey: 'lastLoginDate',
-        render: (user: User) =>
-          user.lastLoginDate
-            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
-            : 'Never',
+        render: (user: JUser) =>
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never',
         isSortable: true,
-        export: async (user: User) =>
-          user.lastLoginDate
-            ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat)
-            : 'Never'
+        export: async (user: JUser) =>
+          user.lastLoginDate ? formatUnixTimestamp(user.lastLoginDate, this.dateFormat) : 'Never'
       }
     ];
-    return tableColumns;
-  }
-
-  // --- Render functions ---
-
-  @Cacheable(['_id', 'isValid'])
-  async renderIsValidIcon(user: User): Promise<HTTableIcon[]> {
-    return user.isValid
-      ? [
-          {
-            name: 'check_circle',
-            cls: 'text-ok'
-          }
-        ]
-      : [
-          {
-            name: 'remove_circle',
-            cls: 'text-critical'
-          }
-        ];
   }
 
   // --- Action functions ---
-
-  exportActionClicked(event: ActionMenuEvent<User[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<User>(
-          'hashtopolis-access-permission-groups-users',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUsersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<User>(
-          'hashtopolis-access-permission-groups-users',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUsersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<User>(
-            this.tableColumns,
-            event.data,
-            AccessPermissionGroupsUsersTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
+    this.exportService.handleExportAction<JUser>(
+      event,
+      this.tableColumns,
+      AccessPermissionGroupsUsersTableColumnLabel,
+      'hashtopolis-access-permission-groups-users'
+    );
   }
 }

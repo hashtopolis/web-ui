@@ -1,39 +1,32 @@
-/* eslint-disable @angular-eslint/component-selector */
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import {
-  HTTableColumn,
-  HTTableEditable,
-  HTTableIcon,
-  HTTableRouterLink
-} from '../ht-table/ht-table.models';
+
+import { JPretask } from '@models/pretask.model';
+
+import { RelationshipType, SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableEditable, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksPretasksTableCol,
   SupertasksPretasksTableColumnLabel,
   SupertasksPretasksTableEditableAction
-} from './supertasks-pretasks-table.constants';
-import { catchError, forkJoin } from 'rxjs';
+} from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { Cacheable } from 'src/app/core/_decorators/cacheable';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { Pretask } from 'src/app/core/_models/pretask.model';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SafeHtml } from '@angular/platform-browser';
-import { SERV } from 'src/app/core/_services/main.config';
-import { SuperTasksPretasksDataSource } from 'src/app/core/_datasources/supertasks-pretasks.datasource';
-import { TableDialogComponent } from '../table-dialog/table-dialog.component';
+import { SuperTasksPretasksDataSource } from '@datasources/supertasks-pretasks.datasource';
 
 @Component({
-  selector: 'supertasks-pretasks-table',
-  templateUrl: './supertasks-pretasks-table.component.html'
+  selector: 'app-supertasks-pretasks-table',
+  templateUrl: './supertasks-pretasks-table.component.html',
+  standalone: false
 })
-export class SuperTasksPretasksTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() supertaskId = 0;
 
   tableColumns: HTTableColumn[] = [];
@@ -42,11 +35,7 @@ export class SuperTasksPretasksTableComponent
   ngOnInit(): void {
     this.setColumnLabels(SupertasksPretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperTasksPretasksDataSource(
-      this.cdr,
-      this.gs,
-      this.uiService
-    );
+    this.dataSource = new SuperTasksPretasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     if (this.supertaskId) {
       this.dataSource.setSuperTaskId(this.supertaskId);
@@ -60,30 +49,30 @@ export class SuperTasksPretasksTableComponent
     }
   }
 
-  filter(item: Pretask, filterValue: string): boolean {
+  filter(item: JPretask, filterValue: string): boolean {
     return item.taskName.toLowerCase().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: SupertasksPretasksTableCol.ID,
-        dataKey: 'pretaskId',
-        routerLink: (pretask: Pretask) => this.renderPretaskLink(pretask),
+        dataKey: 'id',
+        routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
-        export: async (pretask: Pretask) => pretask._id + ''
+        export: async (pretask: JPretask) => pretask.id + ''
       },
       {
         id: SupertasksPretasksTableCol.NAME,
         dataKey: 'taskName',
         isSortable: true,
-        render: (pretask: Pretask) => pretask.taskName,
-        export: async (pretask: Pretask) => pretask.taskName + ''
+        render: (pretask: JPretask) => pretask.taskName,
+        export: async (pretask: JPretask) => pretask.taskName + ''
       },
       {
         id: SupertasksPretasksTableCol.PRIORITY,
         dataKey: 'priority',
-        editable: (pretask: Pretask) => {
+        editable: (pretask: JPretask) => {
           return {
             data: pretask,
             value: pretask.priority + '',
@@ -91,12 +80,12 @@ export class SuperTasksPretasksTableComponent
           };
         },
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.priority + ''
+        export: async (pretask: JPretask) => pretask.priority + ''
       },
       {
         id: SupertasksPretasksTableCol.MAX_AGENTS,
         dataKey: 'maxAgents',
-        editable: (pretask: Pretask) => {
+        editable: (pretask: JPretask) => {
           return {
             data: pretask,
             value: pretask.maxAgents + '',
@@ -104,14 +93,12 @@ export class SuperTasksPretasksTableComponent
           };
         },
         isSortable: true,
-        export: async (pretask: Pretask) => pretask.maxAgents + ''
+        export: async (pretask: JPretask) => pretask.maxAgents + ''
       }
     ];
-
-    return tableColumns;
   }
 
-  openDialog(data: DialogData<Pretask>) {
+  openDialog(data: DialogData<JPretask>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
       width: '450px'
@@ -135,42 +122,16 @@ export class SuperTasksPretasksTableComponent
 
   // --- Action functions ---
 
-  exportActionClicked(event: ActionMenuEvent<Pretask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<Pretask>(
-          'hashtopolis-supertasks-pretasks',
-          this.tableColumns,
-          event.data,
-          SupertasksPretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<Pretask>(
-          'hashtopolis-supertasks-pretasks',
-          this.tableColumns,
-          event.data,
-          SupertasksPretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<Pretask>(
-            this.tableColumns,
-            event.data,
-            SupertasksPretasksTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+  exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
+    this.exportService.handleExportAction<JPretask>(
+      event,
+      this.tableColumns,
+      SupertasksPretasksTableColumnLabel,
+      'hashtopolis-supertasks-pretasks'
+    );
   }
 
-  rowActionClicked(event: ActionMenuEvent<Pretask>): void {
+  rowActionClicked(event: ActionMenuEvent<JPretask>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -194,7 +155,7 @@ export class SuperTasksPretasksTableComponent
     }
   }
 
-  bulkActionClicked(event: ActionMenuEvent<Pretask[]>): void {
+  bulkActionClicked(event: ActionMenuEvent<JPretask[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
         this.openDialog({
@@ -213,77 +174,65 @@ export class SuperTasksPretasksTableComponent
   /**
    * @todo Implement delete, currently we need to update to delete
    */
-  private bulkActionDelete(pretasks: Pretask[]): void {
+  private bulkActionDelete(pretasks: JPretask[]): void {
     //Get the IDs of pretasks to be deleted
-    const pretaskIdsToDelete = pretasks.map((pretask) => pretask._id);
-    //Remove the selected pretasks from the list
-    const updatedPretasks = this.dataSource
-      .getData()
-      .filter((pretask) => !pretaskIdsToDelete.includes(pretask._id));
-    //Update the supertask with the modified list of pretasks
-    const payload = { pretasks: updatedPretasks.map((pretask) => pretask._id) };
-    //Update the supertask with the new list of pretasks
-    const updateRequest = this.gs.update(
-      SERV.SUPER_TASKS,
-      this.supertaskId,
-      payload
-    );
-    this.subscriptions.push(
-      updateRequest
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open(
-            `Successfully deleted ${pretasks.length} pretasks!`,
-            'Close'
-          );
-          this.reload();
-        })
-    );
+    // const pretaskIdsToDelete = pretasks.map((pretask) => pretask.id);
+    // //Remove the selected pretasks from the list
+    // const updatedPretasks = this.dataSource.getData().filter((pretask) => !pretaskIdsToDelete.includes(pretask.id));
+    // //Update the supertask with the modified list of pretasks
+    // const payload = { pretasks: updatedPretasks.map((pretask) => pretask.id) };
+    // //Update the supertask with the new list of pretasks
+    const pretaskData = [];
+
+    pretasks.forEach((pretask) => {
+      pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
+    });
+
+    const responseBody = { data: pretasks };
+    this.gs
+      .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
+      .subscribe(() => {
+        this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+        this.dataSource.reload();
+      });
   }
 
-  @Cacheable(['pretaskId'])
-  async renderPretaskLink(pretask: Pretask): Promise<HTTableRouterLink[]> {
-    return [
+  private renderPretaskLink(pretask: JPretask): Observable<HTTableRouterLink[]> {
+    return of([
       {
-        routerLink: ['/tasks/preconfigured-tasks/', pretask._id, 'edit']
+        routerLink: ['/tasks/preconfigured-tasks/', pretask.id, 'edit']
       }
-    ];
+    ]);
   }
 
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(pretasks: Pretask[]): void {
-    //Get the IDs of pretasks to be deleted
-    const pretaskIdsToDelete = pretasks.map((pretask) => pretask._id);
-    //Remove the selected pretasks from the list
-    const updatedPretasks = this.dataSource
-      .getData()
-      .filter((pretask) => !pretaskIdsToDelete.includes(pretask._id));
-    //Update the supertask with the modified list of pretasks
-    const payload = { pretasks: updatedPretasks.map((pretask) => pretask._id) };
+  private rowActionDelete(pretasks: JPretask[]): void {
+    const pretaskData = [];
+
+    pretasks.forEach((pretask) => {
+      pretaskData.push({ type: RelationshipType.PRETASKS, id: pretask.id });
+    });
+
+    const responseBody = { data: pretaskData };
     this.subscriptions.push(
       this.gs
-        .update(SERV.SUPER_TASKS, this.supertaskId, payload)
+        .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            console.error('Error during deleting: ', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted pretasks!', 'Close');
-          this.reload();
+          this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+          this.dataSource.reload();
         })
     );
   }
 
-  editableSaved(editable: HTTableEditable<Pretask>): void {
+  editableSaved(editable: HTTableEditable<JPretask>): void {
     switch (editable.action) {
       case SupertasksPretasksTableEditableAction.CHANGE_PRIORITY:
         this.changePriority(editable.data, editable.value);
@@ -294,7 +243,7 @@ export class SuperTasksPretasksTableComponent
     }
   }
 
-  private changePriority(pretask: Pretask, priority: string): void {
+  private changePriority(pretask: JPretask, priority: string): void {
     let val = 0;
     try {
       val = parseInt(priority);
@@ -307,7 +256,7 @@ export class SuperTasksPretasksTableComponent
       return;
     }
 
-    const request$ = this.gs.update(SERV.PRETASKS, pretask.pretaskId, {
+    const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
       priority: val
     });
     this.subscriptions.push(
@@ -320,16 +269,13 @@ export class SuperTasksPretasksTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Changed priority to ${val} on PreTask #${pretask._id}!`,
-            'Close'
-          );
+          this.snackBar.open(`Changed priority to ${val} on PreTask #${pretask.id}!`, 'Close');
           this.reload();
         })
     );
   }
 
-  private changeMaxAgents(pretask: Pretask, max: string): void {
+  private changeMaxAgents(pretask: JPretask, max: string): void {
     let val = 0;
     try {
       val = parseInt(max);
@@ -342,7 +288,7 @@ export class SuperTasksPretasksTableComponent
       return;
     }
 
-    const request$ = this.gs.update(SERV.PRETASKS, pretask.pretaskId, {
+    const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
       maxAgents: val
     });
     this.subscriptions.push(
@@ -355,26 +301,25 @@ export class SuperTasksPretasksTableComponent
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Changed number of max agents to ${val} on PreTask #${pretask._id}!`,
-            'Close'
-          );
+          this.snackBar.open(`Changed number of max agents to ${val} on PreTask #${pretask.id}!`, 'Close');
           this.reload();
         })
     );
   }
 
-  private rowActionCopyToTask(pretask: Pretask): void {
-    this.router.navigate(['/tasks/new-tasks', pretask._id, 'copypretask']);
+  private rowActionCopyToTask(pretask: JPretask): void {
+    this.router.navigate(['/tasks/new-tasks', pretask.id, 'copypretask']);
   }
 
-  private rowActionCopyToPretask(pretask: Pretask): void {
-    this.router.navigate(['/tasks/preconfigured-tasks', pretask._id, 'copy']);
+  private rowActionCopyToPretask(pretask: JPretask): void {
+    this.router.navigate(['/tasks/preconfigured-tasks', pretask.id, 'copy']);
   }
 
-  private rowActionEdit(pretasks: Pretask): void {
-    this.renderPretaskLink(pretasks).then((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink);
-    });
+  private rowActionEdit(pretasks: JPretask): void {
+    this.renderPretaskLink(pretasks)
+      .subscribe((links: HTTableRouterLink[]) => {
+        this.router.navigate(links[0].routerLink).then(() => {});
+      })
+      .unsubscribe();
   }
 }

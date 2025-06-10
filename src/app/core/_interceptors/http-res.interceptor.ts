@@ -1,30 +1,17 @@
-import {
-  HttpErrorResponse,
-  HttpEvent,
-  HttpHandler,
-  HttpInterceptor,
-  HttpRequest
-} from '@angular/common/http';
-import {
-  BehaviorSubject,
-  Observable,
-  catchError,
-  finalize,
-  throwError
-} from 'rxjs';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { ErrorModalComponent } from '../../shared/alert/error/error.component';
-import { LoadingService } from '../_services/shared/loading.service';
+import { BehaviorSubject, Observable, catchError, finalize, throwError } from 'rxjs';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+
 import { AuthService } from '../_services/access/auth.service';
+import { ErrorModalComponent } from '../../shared/alert/error/error.component';
+import { Injectable } from '@angular/core';
+import { LoadingService } from '../_services/shared/loading.service';
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class HttpResInterceptor implements HttpInterceptor {
   private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
-    null
-  );
+  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   constructor(
     private authService: AuthService,
@@ -33,10 +20,7 @@ export class HttpResInterceptor implements HttpInterceptor {
     private router: Router
   ) {}
 
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => this.handleError(req, error)),
@@ -52,10 +36,7 @@ export class HttpResInterceptor implements HttpInterceptor {
    * @param {HttpErrorResponse} error - The HTTP error response received.
    * @returns {Observable<never>} - An observable that errors out with the error message.
    */
-  private handleError(
-    req: HttpRequest<any>,
-    error: HttpErrorResponse
-  ): Observable<never> {
+  private handleError(req: HttpRequest<any>, error: HttpErrorResponse): Observable<never> {
     let errmsg = '';
     const status = error?.status || 0;
 
@@ -70,8 +51,7 @@ export class HttpResInterceptor implements HttpInterceptor {
         req.url
       )}) and try again. Note: APIv2 HASHTOPOLIS_APIV2_ENABLE=1 needs to be enabled. `;
     } else {
-      errmsg =
-        error.error.exception?.[0]?.message || 'An unknown error occurred.';
+      errmsg = error.error?.title || 'An unknown error occurred.';
     }
 
     this.displayErrorModal(status, errmsg);
@@ -88,13 +68,8 @@ export class HttpResInterceptor implements HttpInterceptor {
   private handleUnauthorizedError(req: HttpRequest<any>): string {
     if (!req.url.includes('/auth')) {
       const token = this.authService.token;
-      const userData: { _expires: string } = JSON.parse(
-        localStorage.getItem('userData') || '{}'
-      );
-      if (
-        token !== 'notoken' &&
-        new Date(userData._expires) < new Date(Date.now() - 60000)
-      ) {
+      const userData: { _expires: string } = JSON.parse(localStorage.getItem('userData') || '{}');
+      if (token !== 'notoken' && new Date(userData._expires) < new Date(Date.now() - 60000)) {
         this.refreshToken(req);
         return 'Refreshing token...';
       } else {

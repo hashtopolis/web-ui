@@ -1,3 +1,4 @@
+import { LineChart, LineSeriesOption } from 'echarts/charts';
 import {
   DataZoomComponent,
   DataZoomComponentOption,
@@ -14,37 +15,51 @@ import {
   VisualMapComponent,
   VisualMapComponentOption
 } from 'echarts/components';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { LineChart, LineSeriesOption } from 'echarts/charts';
-import { FormControl, FormGroup } from '@angular/forms';
+import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import * as echarts from 'echarts/core';
-
-import { AgentsTableComponent } from 'src/app/core/_components/tables/agents-table/agents-table.component';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { FileSizePipe } from 'src/app/core/_pipes/file-size.pipe';
-import { SERV } from '../../core/_services/main.config';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { finalize } from 'rxjs';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgent } from '@models/agent.model';
+import { JChunk } from '@models/chunk.model';
+import { JCrackerBinary } from '@models/cracker-binary.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JHashtype } from '@models/hashtype.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+
+import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
+
+import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
-  providers: [FileSizePipe]
+  providers: [FileSizePipe],
+  standalone: false
 })
 export class EditTasksComponent implements OnInit {
   editMode = false;
   editedTaskIndex: number;
   taskWrapperId: number;
-  editedTask: any; // Change to Model
-  originalValue: any; // Change to Model
+  originalValue: JTask;
 
   updateForm: FormGroup;
   createForm: FormGroup; // Assign Agent
@@ -52,28 +67,26 @@ export class EditTasksComponent implements OnInit {
   isUpdatingLoading = false;
 
   color = '';
-  tusepreprocessor: any;
-  hashlistDescrip: any;
-  hashlistinform: any;
-  assigAgents: any;
-  availAgents = [];
-  crackerinfo: any;
-  tkeyspace: any;
+  tusepreprocessor: number;
+  hashlistDescrip: string;
+  hashlistinform: JHashlist;
+  availAgents: JAgent[] = [];
+  crackerinfo: JCrackerBinary;
+  tkeyspace: number;
 
-  @ViewChild('table') table: AgentsTableComponent;
+  @ViewChild('agentsTable') agentsTable: AgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
 
   //Time calculation
-  cprogress: any; // Keyspace searched
-  ctimespent: any; // Time Spent
+  cprogress: number; // Keyspace searched
+  ctimespent: number; // Time Spent
 
   // Chunk View
   chunkview: number;
   chunktitle: string;
   isactive = 0;
   currenspeed = 0;
-  chunkresults: Object;
-  activechunks: Object;
+  chunkresults: number;
 
   constructor(
     private titleService: AutoTitleService,
@@ -83,7 +96,8 @@ export class EditTasksComponent implements OnInit {
     private alert: AlertService,
     private gs: GlobalService,
     private fs: FileSizePipe,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.titleService.set(['Edit Task']);
   }
@@ -92,7 +106,7 @@ export class EditTasksComponent implements OnInit {
     this.onInitialize();
     this.buildForm();
     this.initForm();
-    this.assignChunksInit(this.editedTaskIndex);
+    this.assignChunksInit();
   }
 
   onInitialize() {
@@ -129,19 +143,10 @@ export class EditTasksComponent implements OnInit {
     });
   }
 
-  OnChangeValue(value) {
-    this.updateForm.patchValue({
-      updateData: { color: value }
-    });
-  }
-
   onSubmit() {
     if (this.updateForm.valid) {
       // Check if attackCmd has been modified
-      if (
-        this.updateForm.value['updateData'].attackCmd !==
-        this.originalValue.attackCmd
-      ) {
+      if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
         const warning =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
         this.alert.customConfirmation(warning).then((confirmed) => {
@@ -160,105 +165,76 @@ export class EditTasksComponent implements OnInit {
 
   private updateTask() {
     this.isUpdatingLoading = true;
-    this.gs
-      .update(
-        SERV.TASKS,
-        this.editedTaskIndex,
-        this.updateForm.value['updateData']
-      )
-      .subscribe(() => {
-        this.alert.okAlert('Task saved!', '');
-        this.isUpdatingLoading = false;
-        this.router.navigate(['tasks/show-tasks']).then(() => {
-          window.location.reload();
-        });
+    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
+      this.alert.okAlert('Task saved!', '');
+      this.isUpdatingLoading = false;
+      this.router.navigate(['tasks/show-tasks']).then(() => {
+        window.location.reload();
       });
+    });
   }
 
   private initForm() {
     if (this.editMode) {
-      this.gs
-        .get(SERV.TASKS, this.editedTaskIndex, {
-          expand: 'hashlist,speeds,crackerBinary,crackerBinaryType,files'
-        })
-        .subscribe((result) => {
-          this.originalValue = result;
-          this.color = result['color'];
-          this.crackerinfo = result.crackerBinary;
-          this.taskWrapperId - result.taskWrapperId;
-          // Graph Speed
-          this.initTaskSpeed(result.speeds);
-          // Assigned Agents init
-          this.assingAgentInit();
-          // Hashlist Description and Type
-          this.hashlistinform = '';
-          if (result.hashlist && result.hashlist.length > 0) {
-            this.hashlistinform = result.hashlist[0];
-            if (this.hashlistinform) {
-              this.gs
-                .getAll(SERV.HASHTYPES, {
-                  filter: 'hashTypeId=' + this.hashlistinform['hashTypeId'] + ''
-                })
-                .subscribe(
-                  (htypes: any) => {
-                    this.hashlistDescrip = htypes.values[0].description;
-                  },
-                  (error) => {
-                    console.error(
-                      'Error retrieving hashlist description:',
-                      error
-                    );
-                  }
-                );
-            } else {
-              console.error('hashlistinform is undefined.');
-            }
+      const params = new RequestParamBuilder()
+        .addInclude('hashlist')
+        .addInclude('speeds')
+        .addInclude('crackerBinary')
+        .addInclude('crackerBinaryType')
+        .addInclude('files')
+        .create();
+
+      this.gs.get(SERV.TASKS, this.editedTaskIndex, params).subscribe((response: ResponseWrapper) => {
+        const responseBody = { data: response.data, included: response.included };
+        const task = this.serializer.deserialize<JTask>(responseBody);
+
+        this.originalValue = task;
+        this.color = task.color;
+        this.crackerinfo = task.crackerBinary;
+        this.taskWrapperId = task.taskWrapperId;
+        // Graph Speed
+        this.initTaskSpeed(task.speeds);
+        // Assigned Agents init
+        this.assingAgentInit();
+        // Hashlist Description and Type
+        if (task.hashlist) {
+          this.hashlistinform = task.hashlist;
+          if (this.hashlistinform) {
+            this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
+              const responseBody = { data: response.data, included: response.included };
+              const hashtype = this.serializer.deserialize<JHashtype>(responseBody);
+              this.hashlistDescrip = hashtype.description;
+            });
           } else {
-            console.error('No hashlist found in the result.');
+            console.error('hashlistinform is undefined.');
           }
-          this.tkeyspace = result['keyspace'];
-          this.tusepreprocessor = result['preprocessorId'];
-          this.updateForm = new FormGroup({
-            taskId: new FormControl({
-              value: result['taskId'],
-              disabled: true
-            }),
-            forcePipe: new FormControl({
-              value: result['forcePipe'] == true ? 'Yes' : 'No',
-              disabled: true
-            }),
-            skipKeyspace: new FormControl({
-              value:
-                result['skipKeyspace'] > 0 ? result['skipKeyspace'] : 'N/A',
-              disabled: true
-            }),
-            keyspace: new FormControl({
-              value: result['keyspace'],
-              disabled: true
-            }),
-            keyspaceProgress: new FormControl({
-              value: result['keyspaceProgress'],
-              disabled: true
-            }),
-            crackerBinaryId: new FormControl(result['crackerBinaryId']),
-            chunkSize: new FormControl({
-              value: result['chunkSize'],
-              disabled: true
-            }),
-            updateData: new FormGroup({
-              taskName: new FormControl(result['taskName']),
-              attackCmd: new FormControl(result['attackCmd']),
-              notes: new FormControl(result['notes']),
-              color: new FormControl(result['color']),
-              chunkTime: new FormControl(Number(result['chunkTime'])),
-              statusTimer: new FormControl(result['statusTimer']),
-              priority: new FormControl(result['priority']),
-              maxAgents: new FormControl(result['maxAgents']),
-              isCpuTask: new FormControl(result['isCpuTask']),
-              isSmall: new FormControl(result['isSmall'])
-            })
-          });
+        } else {
+          console.error('No hashlist found in the result.');
+        }
+        this.tkeyspace = task.keyspace;
+        this.tusepreprocessor = task.preprocessorId;
+        this.updateForm.setValue({
+          taskId: task.id,
+          forcePipe: task.forcePipe === true ? 'Yes' : 'No',
+          skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
+          keyspace: task.keyspace,
+          keyspaceProgress: task.keyspaceProgress,
+          crackerBinaryId: task.crackerBinaryId,
+          chunkSize: task.chunkSize,
+          updateData: {
+            taskName: task.taskName,
+            attackCmd: task.attackCmd,
+            notes: task.notes,
+            color: task.color,
+            chunkTime: Number(task.chunkTime),
+            statusTimer: task.statusTimer,
+            priority: task.priority,
+            maxAgents: task.maxAgents,
+            isCpuTask: task.isCpuTask,
+            isSmall: task.isSmall
+          }
         });
+      });
     }
   }
 
@@ -267,23 +243,23 @@ export class EditTasksComponent implements OnInit {
    *
    **/
   assingAgentInit() {
-    this.gs.getAll(SERV.AGENT_ASSIGN).subscribe((res) => {
-      this.gs.getAll(SERV.AGENTS).subscribe((agents) => {
-        this.availAgents = this.getAvalAgents(res.values, agents.values);
-        this.assigAgents = res.values.map((mainObject) => {
-          const matchObject = agents.values.find(
-            (element) => element.agentId === mainObject.agentId
-          );
-          return { ...mainObject, ...matchObject };
-        });
+    const paramsAgentAssign = new RequestParamBuilder().create();
+    this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign).subscribe((responseAssignments: ResponseWrapper) => {
+      const responseBodyAssignments = { data: responseAssignments.data, included: responseAssignments.included };
+      const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
+
+      const agentAssignmentsAgentIds = agentAssignments.map((agentAssignment) => agentAssignment.agentId);
+
+      const params = new RequestParamBuilder();
+      if (agentAssignmentsAgentIds.length > 0) {
+        params.addFilter({ field: 'agentId', operator: FilterType.NOTIN, value: agentAssignmentsAgentIds });
+      }
+
+      this.gs.getAll(SERV.AGENTS, params.create()).subscribe((responseAgents: ResponseWrapper) => {
+        const responseBodyAgents = { data: responseAgents.data, included: responseAgents.included };
+        this.availAgents = this.serializer.deserialize<JAgent[]>(responseBodyAgents);
       });
     });
-  }
-
-  getAvalAgents(assing: any, agents: any) {
-    return agents.filter(
-      (u) => assing.findIndex((lu) => lu.agentId === u.agentId) === -1
-    );
   }
 
   assignAgent() {
@@ -297,7 +273,7 @@ export class EditTasksComponent implements OnInit {
         .pipe(
           finalize(() => {
             this.assingAgentInit();
-            this.table.reload();
+            this.agentsTable.reload();
           })
         )
         .subscribe(() => {
@@ -311,7 +287,7 @@ export class EditTasksComponent implements OnInit {
    * This function calculates Keyspace searched, Time Spent and Estimated Time
    *
    **/
-  timeCalc(chunks) {
+  timeCalc(chunks: JChunk[]) {
     const cprogress = [];
     const timespent = [];
     const current = 0;
@@ -323,77 +299,78 @@ export class EditTasksComponent implements OnInit {
         timespent.push(chunks[i].solveTime - current);
       }
     }
-    this.cprogress = cprogress.reduce((a, i) => a + i);
-    this.ctimespent = timespent.reduce((a, i) => a + i);
+    if (cprogress.length > 0) {
+      this.cprogress = cprogress.reduce((a, i) => a + i);
+    }
+    if (timespent.length > 0) {
+      this.ctimespent = timespent.reduce((a, i) => a + i);
+    }
   }
 
-  assignChunksInit(id: number) {
+  assignChunksInit() {
     this.route.data.subscribe((data) => {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
           this.chunktitle = 'Live Chunks';
           this.chunkresults = 60000;
-          this.slideToggle.checked = false;
+          // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
           this.chunktitle = 'All Chunks';
           this.chunkresults = 60000;
-          this.slideToggle.checked = true;
+          // this.slideToggle.checked = true;
           break;
       }
     });
 
     //TODO. It is repeting code to get the speed
-    const params = { maxResults: this.chunkresults };
-    this.gs
-      .getAll(SERV.CHUNKS, {
-        maxResults: this.chunkresults,
-        filter: 'taskId=' + this.editedTaskIndex + ''
-      })
-      .subscribe((result: any) => {
-        this.timeCalc(result.values);
-        // this.initVisualGraph(result.values, 150, 150); // Get data for visual graph
-        this.gs.getAll(SERV.AGENTS, params).subscribe((agents: any) => {
-          const getchunks = result.values.map((mainObject) => {
-            const matchObject = agents.values.find(
-              (element) => element.agentId === mainObject.agentId
-            );
-            return { ...mainObject, ...matchObject };
-          });
-          if (this.chunkview == 0) {
-            const chunktime = this.uiService.getUIsettings('chunktime').value;
-            const resultArray = [];
-            const cspeed = [];
-            for (let i = 0; i < getchunks.length; i++) {
-              if (
-                Date.now() / 1000 -
-                Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) <
-                chunktime &&
-                getchunks[i].progress < 10000
-              ) {
-                this.isactive = 1;
-                cspeed.push(getchunks[i].speed);
-                resultArray.push(getchunks[i]);
-              }
-            }
-            if (cspeed.length > 0) {
-              this.currenspeed = cspeed.reduce((a, i) => a + i);
+    const paramsChunks = new RequestParamBuilder()
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex })
+      .create();
+
+    this.gs.getAll(SERV.CHUNKS, paramsChunks).subscribe((response: ResponseWrapper) => {
+      const responseChunks = { data: response.data, included: response.included };
+      const chunks = this.serializer.deserialize<JChunk[]>(responseChunks);
+      this.timeCalc(chunks);
+
+      const paramsAgents = new RequestParamBuilder().create();
+
+      this.gs.getAll(SERV.AGENTS, paramsAgents).subscribe((respAgents: ResponseWrapper) => {
+        const responseAgents = { data: respAgents.data, included: respAgents.included };
+        const agents = this.serializer.deserialize<JAgent[]>(responseAgents);
+
+        const getchunks = chunks.map((mainObject) => {
+          const matchObject = agents.find((element) => element.id === mainObject.agentId);
+          return { ...mainObject, ...matchObject };
+        });
+
+        if (this.chunkview == 0) {
+          const chunktime = this.uiService.getUIsettings('chunktime').value;
+          const resultArray = [];
+          const cspeed = [];
+          for (let i = 0; i < getchunks.length; i++) {
+            if (
+              Date.now() / 1000 - Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) < chunktime &&
+              getchunks[i].progress < 10000
+            ) {
+              this.isactive = 1;
+              cspeed.push(getchunks[i].speed);
+              resultArray.push(getchunks[i]);
             }
           }
-        });
+          if (cspeed.length > 0) {
+            this.currenspeed = cspeed.reduce((a, i) => a + i);
+          }
+        }
       });
+    });
   }
 
-  toggleIsAll(event) {
+  toggleIsAll() {
     if (this.chunkview === 0) {
-      this.router.navigate([
-        '/tasks/show-tasks',
-        this.editedTaskIndex,
-        'edit',
-        'show-all-chunks'
-      ]);
+      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit', 'show-all-chunks']);
     } else {
       this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit']);
     }
@@ -414,7 +391,7 @@ export class EditTasksComponent implements OnInit {
     });
     Swal.fire({
       title: 'Are you sure?',
-      text: 'It\'ll purge the Task!',
+      text: "It'll purge the Task!",
       icon: 'warning',
       reverseButtons: true,
       showCancelButton: true,
@@ -474,7 +451,7 @@ export class EditTasksComponent implements OnInit {
     const max = [];
     const result = [];
 
-    data.reduce(function(res, value) {
+    data.reduce(function (res, value) {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -488,9 +465,7 @@ export class EditTasksComponent implements OnInit {
 
       arr.push([
         iso,
-        this.fs
-          .transform(result[i]['speed'], false, 1000)
-          .match(/\d+(\.\d+)?/)[0],
+        this.fs.transform(result[i]['speed'], false, 1000).match(/\d+(\.\d+)?/)[0],
         this.fs.transform(result[i]['speed'], false, 1000).slice(-2)
       ]);
       max.push(result[i]['time']);
@@ -503,17 +478,16 @@ export class EditTasksComponent implements OnInit {
 
     const chartDom = document.getElementById('tspeed');
     const myChart = echarts.init(chartDom);
-    let option: EChartsOption;
 
     const self = this;
 
-    option = {
+    const option: EChartsOption = {
       title: {
         subtext: 'Last record: ' + datelabel
       },
       tooltip: {
         position: 'top',
-        formatter: function(p) {
+        formatter: function (p) {
           return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
         }
       },
@@ -522,7 +496,7 @@ export class EditTasksComponent implements OnInit {
         right: '4%'
       },
       xAxis: {
-        data: xAxis.map(function(item: any[] | any) {
+        data: xAxis.map(function (item: any[] | any) {
           return self.transDate(item);
         })
       },

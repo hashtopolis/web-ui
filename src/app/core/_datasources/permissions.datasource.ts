@@ -1,33 +1,16 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { GlobalPermissionGroup } from '../_models/global-permission-group.model';
-import { ListResponseWrapper } from '../_models/response.model';
-import { RequestParams } from '../_models/request-params.model';
+import { JGlobalPermissionGroup } from '../_models/global-permission-group.model';
+import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
-export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup> {
+export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup> {
   loadAll(): void {
     this.loading = true;
-
-    const startAt = this.currentPage * this.pageSize;
-    const sorting = this.sortingColumn;
-
-    const params: RequestParams = {
-      maxResults: this.pageSize,
-      startsAt: startAt,
-      expand: 'user'
-    };
-
-    if (sorting.dataKey && sorting.isSortable) {
-      const order = this.buildSortingParams(sorting);
-      params.ordering = order;
-    }
-
-    const permissions$ = this.service.getAll(
-      SERV.ACCESS_PERMISSIONS_GROUPS,
-      params
-    );
+    const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').create();
+    const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params);
 
     this.subscriptions.push(
       permissions$
@@ -35,15 +18,21 @@ export class PermissionsDataSource extends BaseDataSource<GlobalPermissionGroup>
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe((response: ListResponseWrapper<GlobalPermissionGroup>) => {
-          const permissions: GlobalPermissionGroup[] = response.values;
+        .subscribe((response: ResponseWrapper) => {
+
+          const responseBody = { data: response.data, included: response.included };
+          const globalPermissionGroups = this.serializer.deserialize<JGlobalPermissionGroup[]>(responseBody);
+
+          const length = response.meta.page.total_elements;
 
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            response.total
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
-          this.setData(permissions);
+          this.setData(globalPermissionGroups);
         })
     );
   }

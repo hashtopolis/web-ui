@@ -1,10 +1,15 @@
+import { BaseModel } from '@models/base.model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { IconDefinition } from '@fortawesome/angular-fontawesome';
+import { Observable } from 'rxjs';
 import { SafeHtml } from '@angular/platform-browser';
+import { SortDirection } from '@angular/material/sort';
 
 export type DataType =
   | 'agents'
   | 'agents-status'
   | 'agents-assign'
+  | 'agents-view'
   | 'access-groups'
   | 'access-groups-users'
   | 'access-permission-groups-user'
@@ -43,9 +48,10 @@ export interface HTTableIcon {
 }
 
 export interface HTTableRouterLink {
-  label?: string;
-  routerLink: any[];
+  label?: string | number;
+  routerLink: Array<string | number>;
   tooltip?: string;
+  icon?: { faIcon: IconDefinition; tooltip?: string };
 }
 
 export interface HTTableEditable<T> {
@@ -72,17 +78,33 @@ export interface HTTableColumn {
   dataKey?: string;
   position?: 'right' | 'left';
   isSortable?: boolean;
-  icons?: (data: any) => Promise<HTTableIcon[]>;
+  isSearchable?: boolean;
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
-  routerLink?: (data: any) => Promise<HTTableRouterLink[]>;
   export?: (data: any) => Promise<string>;
   truncate?: boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
+  customCellColor?: customCellColorInput;
+  routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
+  icon?: (data: BaseModel) => HTTableIcon;
 }
 
 /** Column def for selectable checkbox */
 export const COL_SELECT = 100;
 /** Column def for row action */
 export const COL_ROW_ACTION = 200;
+export interface customCellColorInput {
+  value: (data: any) => number;
+  treshold1: number;
+  treshold2: number;
+  type: number;
+  isActive: (data: any) => boolean;
+  lastTime: (data: any) => number;
+}
+
+export interface SortingColumn {
+  id: string;
+  direction: SortDirection;
+  isSortable: boolean;
+}

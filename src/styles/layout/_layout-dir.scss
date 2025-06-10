@@ -2,8 +2,8 @@
           SECTION LAYOUT DIR
    ================================== */
 
-@import 'footer';
-@import 'header';
-@import 'grid';
-@import 'navigation';
-@import 'layout';
+@use 'footer';
+@use 'header';
+@use 'grid';
+@use 'navigation';
+@use 'layout';

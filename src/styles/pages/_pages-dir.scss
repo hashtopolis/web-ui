@@ -2,6 +2,6 @@
           SECTION PAGES DIR
    ================================== */
 
-   @import 'pagenotfound';
-   @import 'home';
-   @import 'files';
+   @use 'pagenotfound';
+   @use 'home';
+   @use 'files';

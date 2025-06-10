@@ -1,43 +1,18 @@
-import { Hashtype } from './hashtype.model';
+import { BaseModel } from '@models/base.model';
+import { JHashtype } from '@models/hashtype.model';
 
-export interface BaseHashlist {
-  accessGroupId: number;
-  brainFeatures: string;
-  format: string;
-  name: string;
-  hashTypeId: number;
-  isHexSalt: boolean;
-  isSecret: boolean;
-  isSalted: boolean;
-  separator: string;
-  useBrain: boolean;
-  hashCount: number;
-  cracked: number;
-  notes: string;
-  isArchived: boolean;
-  sourceType: string;
-  sourceData: string;
-}
-
-export type CreateHashlist = BaseHashlist;
-
-// export interface Hashlist extends BaseHashlist {
-//     id: number;
-//     hashCount: number;
-//     crackedCount: number;
-//     notes: string;
-// }
-
-export interface Hashlist {
-  _id: number;
-  _self: string;
+/**
+ * Interface definition for a Hashlist
+ * @extends BaseModel
+ */
+export interface JHashlist extends BaseModel {
   hashlistId?: number;
   accessGroupId: number;
   brainFeatures: string;
   format: number;
   name: string;
   hashTypeId: number;
-  hashType?: Hashtype;
+  hashType?: JHashtype;
   hashTypeDescription?: string;
   isHexSalt: boolean;
   isSecret: boolean;
@@ -50,5 +25,5 @@ export interface Hashlist {
   isArchived: boolean;
   sourceType: string;
   sourceData: string;
-  hashlists?: Hashlist[];
+  hashlists?: JHashlist[];
 }

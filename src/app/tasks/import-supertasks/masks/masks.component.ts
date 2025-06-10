@@ -1,30 +1,29 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { faLock } from '@fortawesome/free-solid-svg-icons';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { SERV } from '../../../core/_services/main.config';
-import { OnDestroy } from '@angular/core';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { ChangeDetectorRef } from '@angular/core';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
+import { ResponseWrapper } from '../../../core/_models/response.model';
+import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 /**
  * ImportSupertaskMaskComponent is a component responsible for importing SuperTasks with masks.
  *
  */
 @Component({
-  selector: 'app-import-supertasks',
-  templateUrl: './masks.component.html'
+    selector: 'app-import-supertasks',
+    templateUrl: './masks.component.html',
+    standalone: false
 })
 export class MasksComponent implements OnInit, OnDestroy {
   /**
@@ -71,7 +70,8 @@ export class MasksComponent implements OnInit, OnDestroy {
     private uiService: UIConfigService,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private serializer: JsonAPISerializer
   ) {
     this.buildForm();
     titleService.set(['Import SuperTask - Mask']);
@@ -102,7 +102,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       isSmall: new FormControl(false),
       isCpuTask: new FormControl(false),
       optFlag: new FormControl(false),
-      useNewBench: new FormControl(null || false),
+      useNewBench: new FormControl(false),
       crackerBinaryId: new FormControl(1),
       masks: new FormControl('')
     });
@@ -112,15 +112,12 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Loads data, specifically Cracker Type, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs
-      .getAll(SERV.CRACKERS_TYPES)
-      .subscribe((response: any) => {
-        const transformedOptions = transformSelectOptions(
-          response.values,
-          this.selectCrackertypeMap
-        );
-        this.selectCrackertype = transformedOptions;
-      });
+    const loadSubscription$ = this.gs.getAll(SERV.CRACKERS_TYPES).subscribe((response: ResponseWrapper) => {
+      const responseBody = { data: response.data, included: response.included };
+      const crackerBinaryTypes = this.serializer.deserialize<JCrackerBinaryType[]>(responseBody);
+
+      this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
+    });
     this.unsubscribeService.add(loadSubscription$);
   }
 
@@ -151,9 +148,7 @@ export class MasksComponent implements OnInit, OnDestroy {
           attackCmd: `#HL# -a 3 ${maskline} ${attackCmdSuffix}`,
           maxAgents: form.maxAgents,
           chunkTime: Number(this.uiService.getUIsettings('chunktime').value),
-          statusTimer: Number(
-            this.uiService.getUIsettings('statustimer').value
-          ),
+          statusTimer: Number(this.uiService.getUIsettings('statustimer').value),
           priority: index + 1,
           color: '',
           isCpuTask: form.isCpuTask,
@@ -166,12 +161,10 @@ export class MasksComponent implements OnInit, OnDestroy {
 
         // Create a subscription promise and push it to the array
         const subscriptionPromise = new Promise<void>((resolve, reject) => {
-          const onSubmitSubscription$ = this.gs
-            .create(SERV.PRETASKS, payload)
-            .subscribe((result) => {
-              preTasksIds.push(result._id);
-              resolve(); // Resolve the promise when subscription completes
-            }, reject); // Reject the promise if there's an error
+          const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
+            preTasksIds.push(result._id);
+            resolve(); // Resolve the promise when subscription completes
+          }, reject); // Reject the promise if there's an error
           this.unsubscribeService.add(onSubmitSubscription$);
         });
 
@@ -218,12 +211,10 @@ export class MasksComponent implements OnInit, OnDestroy {
    */
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
-    const createSubscription$ = this.gs
-      .create(SERV.SUPER_TASKS, payload)
-      .subscribe(() => {
-        this.alert.okAlert('New Supertask Mask created!', '');
-        this.router.navigate(['/tasks/supertasks']);
-      });
+    const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
+      this.alert.okAlert('New Supertask Mask created!', '');
+      this.router.navigate(['/tasks/supertasks']);
+    });
 
     this.unsubscribeService.add(createSubscription$);
     this.isLoading = false;
