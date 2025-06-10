@@ -1,47 +1,4 @@
-/* .color-picker-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 
-.color-input-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-input[type="color"] {
-  -webkit-appearance: none;
-  width: 50px;
-  height: 30px;
-  border: none;
-  border-radius: 4px;
-  padding: 0;
-  cursor: pointer;
-}
-
-input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-
-input[type="color"]::-webkit-color-swatch {
-  border: none;
-  border-radius: 4px;
-}
-
-.random-color-btn {
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  font-size: 16px;
-  height: 30px;
-}
-
-.random-color-btn:hover {
-  background-color: #f5f5f5;
-} */
 
 .color-input-container {
   position: relative;
