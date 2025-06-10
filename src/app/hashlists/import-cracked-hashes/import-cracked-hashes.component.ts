@@ -1,32 +1,32 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
 import { OnDestroy } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { ResponseWrapper } from '@models/response.model';
 import { JHashlist } from '@models/hashlist.model';
+import { ResponseWrapper } from '@models/response.model';
 
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { handleEncode } from '@src/app/shared/utils/forms';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
+import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import {
   ImportCrackedHashesForm,
   getImportCrackedHashesForm
 } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.form';
+import { handleEncode } from '@src/app/shared/utils/forms';
 
 /**
  * Component for import pre cracked hashes
  */
 @Component({
-    selector: 'app-import-cracked-hashes',
-    templateUrl: './import-cracked-hashes.component.html',
-    standalone: false
+  selector: 'app-import-cracked-hashes',
+  templateUrl: './import-cracked-hashes.component.html',
+  standalone: false
 })
 export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -114,7 +114,7 @@ export class ImportCrackedHashesComponent implements OnInit, OnDestroy {
         sourceData: handleEncode(this.form.get('hashes').value)
       };
       const createSubscription$ = this.gs.chelper(SERV.HELPER, 'importCrackedHashes', payload).subscribe(() => {
-        this.alert.okAlert('Imported Cracked Hashes!', '');
+        this.alert.showSuccessMessage('Imported Cracked Hashes');
         this.isCreatingLoading = false;
         const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
         this.router.navigate([path]);

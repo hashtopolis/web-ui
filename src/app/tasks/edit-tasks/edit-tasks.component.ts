@@ -153,8 +153,7 @@ export class EditTasksComponent implements OnInit {
           if (confirmed) {
             this.updateTask();
           } else {
-            // Handle cancellation
-            this.alert.okAlert(`Task Information has not been updated!`, '');
+            this.alert.showSuccessMessage('Task Information has not been updated');
           }
         });
       } else {
@@ -166,7 +165,7 @@ export class EditTasksComponent implements OnInit {
   private updateTask() {
     this.isUpdatingLoading = true;
     this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.alert.okAlert('Task saved!', '');
+      this.alert.showSuccessMessage('Task saved');
       this.isUpdatingLoading = false;
       this.router.navigate(['tasks/show-tasks']).then(() => {
         window.location.reload();
@@ -402,8 +401,7 @@ export class EditTasksComponent implements OnInit {
       if (result.isConfirmed) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
-          this.alert.okAlert('Purged task id' + this.editedTaskIndex + '', '');
-          this.ngOnInit();
+          this.alert.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
         });
       } else {
         swalWithBootstrapButtons.fire({

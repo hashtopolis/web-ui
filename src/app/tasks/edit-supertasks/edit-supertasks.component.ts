@@ -189,7 +189,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       const updateSubscription$ = this.gs
         .postRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
         .subscribe(() => {
-          this.alert.okAlert('SuperTask saved!', '');
+          this.alert.showSuccessMessage('SuperTask saved');
           this.refresh(); // Reload the Pretask-Select-Component
           this.superTasksPretasksTable.reload(); // reload SuperTasks table
         });
@@ -208,13 +208,10 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
         // Deletion
         const deleteSubscription$ = this.gs.delete(SERV.SUPER_TASKS, this.editedSTIndex).subscribe(() => {
           // Successful deletion
-          this.alert.okAlert(`Deleted Supertask`, '');
+          this.alert.showSuccessMessage('Deleted Supertask');
           this.router.navigate(['/tasks/supertasks']);
         });
         this.unsubscribeService.add(deleteSubscription$);
-      } else {
-        // Handle cancellation
-        this.alert.okAlert(`Supertask is safe!`, '');
       }
     });
   }

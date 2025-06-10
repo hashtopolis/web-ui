@@ -2,7 +2,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-//import { BulkService } from './bulk.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,19 +15,6 @@ export class AlertService {
   purgeText = 'Yes, purge task!';
   submitText = 'Submit';
   okText = 'Ok';
-
-  /**
-   * Handles notification confirmation.
-   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
-   *
-   * @param {string} title - Title to be displayed
-   * @param {string} text - Additional text
-   * @param {string} type - Type of warning, default success
-   */
-
-  okAlert(title: string, text: string, type: 'success' | 'error' | 'warning' = 'success') {
-    this.snackBar.open(title, 'Close');
-  }
 
   /**
    * Handles delete confirmation.

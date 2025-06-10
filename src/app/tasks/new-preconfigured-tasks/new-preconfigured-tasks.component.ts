@@ -173,7 +173,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
     if (this.createForm.valid) {
       this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, this.createForm.value).subscribe(() => {
-        this.alert.okAlert('New PreTask created!', '');
+        this.alert.showSuccessMessage('New PreTask created');
         this.router.navigate(['tasks/preconfigured-tasks']);
         this.isCreatingLoading = false;
       });

@@ -142,7 +142,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
       const createSubscription$ = this.gs
         .update(SERV.HASHLISTS, this.editedHashlistIndex, this.updateForm.value['updateData'])
         .subscribe(() => {
-          this.alert.okAlert('Hashlist saved!', '');
+          this.alert.showSuccessMessage('Hashlist saved');
           this.updateForm.reset(); // success, we reset form
           const path = this.type === 3 ? '/hashlists/superhashlist' : '/hashlists/hashlist';
           this.router.navigate([path]);
@@ -197,7 +197,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   exportLeftHashes() {
     const payload = { hashlistId: this.editedHashlistIndex };
     const helperExportedLeftSubscription$ = this.gs.chelper(SERV.HELPER, 'exportLeftHashes', payload).subscribe(() => {
-      this.alert.okAlert('Exported Left Hashes!', '');
+      this.alert.showSuccessMessage('Exported Left Hashes');
     });
 
     this.unsubscribeService.add(helperExportedLeftSubscription$);
@@ -208,7 +208,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     const helperExportedWordlistSubscription$ = this.gs
       .chelper(SERV.HELPER, 'exportWordlist', payload)
       .subscribe(() => {
-        this.alert.okAlert('Exported Wordlist!', '');
+        this.alert.showSuccessMessage('Exported Wordlist');
       });
 
     this.unsubscribeService.add(helperExportedWordlistSubscription$);

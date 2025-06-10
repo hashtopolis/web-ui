@@ -170,7 +170,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       const onSubmitSubscription$ = this.gs
         .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData)
         .subscribe(() => {
-          this.alert.okAlert('User saved!', '');
+          this.alert.showSuccessMessage('User saved');
           this.isUpdatingLoading = false;
           this.updateForm.reset(); // success, we reset form
           this.updatePassForm.reset();
@@ -191,13 +191,10 @@ export class EditUsersComponent implements OnInit, OnDestroy {
         // Deletion
         const onDeleteSubscription$ = this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
           // Successful deletion
-          this.alert.okAlert(`Deleted User`, '');
+          this.alert.showSuccessMessage('Deleted User');
           this.router.navigate(['/users/all-users']);
         });
         this.unsubscribeService.add(onDeleteSubscription$);
-      } else {
-        // Handle cancellation
-        this.alert.okAlert(`User is safe!`, '');
       }
     });
   }

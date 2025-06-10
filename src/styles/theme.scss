@@ -33,13 +33,19 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
   )
 );
 
-@include mat.all-component-themes($hashtopolis-light-theme);
-
+.light-theme {
+  @include mat.all-component-themes($hashtopolis-light-theme);
+  --background-success: #e4f8f0;
+  --color-success: #1ea97c;
+  --background-error: #ffe7e6;
+  --color-error: #ff5757;
+}
 
 .dark-theme {
   background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
   @include mat.all-component-colors($hashtopolis-dark-theme);
+  --background-success: rgb(15, 84, 63);
+  --color-success: #95a498;
+  --background-error: #772929;
+  --color-error: #fd7272;
 }
-
-
-
