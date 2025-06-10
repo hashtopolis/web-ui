@@ -106,7 +106,7 @@ export const formatFileSize = (
   }
 
   if (sizeInBytes < 1) {
-    return '0';
+    return '0 B';
   }
 
   const scale = sizeInBytes > threshold ? sizeInBytes / threshold : sizeInBytes;
@@ -143,4 +143,4 @@ export const convertCrackingSpeed = (speed: number): string => {
  */
 export const convertToLocale = (value: number) => {
   return (Math.round(value * 100) / 100).toLocaleString();
-}
+};
