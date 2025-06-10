@@ -6,14 +6,15 @@
         <input
           #selectInput
           matInput
-          [placeholder]="value"
+          [placeholder]="getDisplayColor()"
           type="color"
           [id]="inputId"
           [(ngModel)]="value"
           (ngModelChange)="onChange(value)"
-          [value]="defaultColor"
+          [value]="getDisplayColor()"
+          [style.background]="getDisplayColor()"
         />
-        <span class="color-value">{{ value }}</span>
+        <span class="color-value">{{ getDisplayColor() }}</span>
       </mat-form-field>
     </div>
 

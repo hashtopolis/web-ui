@@ -10,7 +10,7 @@ import { randomColor } from '@src/app/shared/utils/forms';
 @Component({
   selector: 'input-color',
   templateUrl: './color.component.html',
-   styleUrls: ['./color.component.scss'],
+  styleUrls: ['./color.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -21,7 +21,6 @@ import { randomColor } from '@src/app/shared/utils/forms';
   standalone: false
 })
 export class InputColorComponent extends AbstractInputComponent<string> {
-  @ViewChild('selectInput') colorInput: ElementRef;
   @Input() defaultColor = '#FFFFFF';
   @Input() randomColor = true;
 
@@ -32,5 +31,13 @@ export class InputColorComponent extends AbstractInputComponent<string> {
   generateRandomColor() {
     this.value = randomColor();
     this.onChange(this.value);
+  }
+
+  // Ensure we never return an empty color
+  getDisplayColor(): string {
+    if (!this.value) {
+      this.value = this.defaultColor;
+    }
+    return this.value;
   }
 }
