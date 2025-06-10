@@ -130,8 +130,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
-        render: (file: JFile) => file.lineCount.toLocaleString(),
-        export: async (file: JFile) => file.lineCount + ''
+        render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),
+        export: async (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0) + ''
       },
       {
         id: FilesTableCol.ACCESS_GROUP,
