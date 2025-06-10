@@ -10,7 +10,7 @@ import { randomColor } from '@src/app/shared/utils/forms';
 @Component({
   selector: 'input-color',
   templateUrl: './color.component.html',
-  /*  styleUrls: ['./color.component.scss'], */
+   styleUrls: ['./color.component.scss'],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -33,7 +33,4 @@ export class InputColorComponent extends AbstractInputComponent<string> {
     this.value = randomColor();
     this.onChange(this.value);
   }
-
-  // No need for separate onChangeValue method
-  // The native color picker handles the color display automatically
 }

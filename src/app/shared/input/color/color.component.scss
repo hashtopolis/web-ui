@@ -1,0 +1,75 @@
+/* .color-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input[type="color"] {
+  -webkit-appearance: none;
+  width: 50px;
+  height: 30px;
+  border: none;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.random-color-btn {
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 16px;
+  height: 30px;
+}
+
+.random-color-btn:hover {
+  background-color: #f5f5f5;
+} */
+
+.color-input-container {
+  position: relative;
+  display: inline-block;
+}
+
+.color-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+  font-size: 12px;
+  pointer-events: none; /* allows clicking through to the color picker */
+}
+
+/* Optional: Adjust text color based on background brightness for better visibility */
+:host ::ng-deep input[type="color"][value^="#f"],
+:host ::ng-deep input[type="color"][value^="#e"],
+:host ::ng-deep input[type="color"][value^="#d"],
+:host ::ng-deep input[type="color"][value^="#c"],
+:host ::ng-deep input[type="color"][value^="#b"],
+:host ::ng-deep input[type="color"][value^="#a"],
+:host ::ng-deep input[type="color"][value^="#0f"],
+:host ::ng-deep input[type="color"][value^="#ff"] {
+  & + .color-value {
+    color: black;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  }
+}

@@ -1,19 +1,31 @@
 <div class="custom-input-container">
-  <mat-form-field>
-    <mat-label>{{ title }}</mat-label>
-    <input
-      matInput
-      #selectInput
-      type="color"
-      [id]="inputId"
-      [(ngModel)]="value"
-      (ngModelChange)="onChange(value)"
-      [value]="defaultColor"
-    />
-  </mat-form-field>
+  <div class="color-input-wrapper">
+    <div class="color-input-container">
+      <mat-form-field>
+        <mat-label>{{ title }}</mat-label>
+        <input
+          #selectInput
+          matInput
+          [placeholder]="value"
+          type="color"
+          [id]="inputId"
+          [(ngModel)]="value"
+          (ngModelChange)="onChange(value)"
+          [value]="defaultColor"
+        />
+        <span class="color-value">{{ value }}</span>
+      </mat-form-field>
+    </div>
 
-  <div *ngIf="randomColor">
-    <button type="button" mat-icon-button matTooltip="Randomize Color" (click)="generateRandomColor()">
+    <button
+      *ngIf="randomColor"
+      mat-icon-button
+      matTooltip="Randomize Color"
+      type="button"
+      class="random-color-btn"
+      title="Randomize Color"
+      (click)="generateRandomColor()"
+    >
       <mat-icon>casino</mat-icon>
     </button>
   </div>
