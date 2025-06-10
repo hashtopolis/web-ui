@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
-import { AlertService } from '../_services/shared/alert.service';
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
 
 /**
  * Returns copied clipboard string
