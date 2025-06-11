@@ -1,4 +1,4 @@
-<mat-form-field>
+<mat-form-field [ngStyle]="{width: width}">
   <mat-label>
     <ng-container *ngIf="!isLoading; else loadingLabel">
       {{ title }}
@@ -22,6 +22,7 @@
   <mat-select
     #inputField
     [(ngModel)]="value"
+    #ngModel="ngModel"
     (selectionChange)="onChangeValue($event.value)"
     [required]="!isLoading && isRequired"
     [disabled]="isLoading"
@@ -36,5 +37,6 @@
   </mat-select>
 
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error *ngIf="!isLoading && isRequired">{{ title }} is required</mat-error>
+  <mat-error *ngIf="ngModel.invalid && ngModel.touched">{{ title }} is required</mat-error>
+
 </mat-form-field>

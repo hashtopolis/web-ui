@@ -1,20 +1,24 @@
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule } from '@angular/router';
-import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { ViewHealthChecksComponent } from './health-checks/view-health-check/view-health-checks.component';
-import { NewHealthChecksComponent } from './health-checks/new-health-check/new-health-checks.component';
-import { AgentBinariesComponent } from './engine/agent-binaries/agent-binaries.component';
-import { PreprocessorsComponent } from './engine/preprocessors/preprocessors.component';
-import { HealthChecksComponent } from './health-checks/health-checks.component';
-import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
-import { FormComponent } from '@components/forms/simple-forms/form.component';
-import { CrackersComponent } from './engine/crackers/crackers.component';
-import { HashtypesComponent } from './hashtypes/hashtypes.component';
 import { MyRoute } from '@models/routes.model';
+
 import { SERV } from '@services/main.config';
-import { LogComponent } from './log/log.component';
+
+import { FormComponent } from '@components/forms/simple-forms/form.component';
+import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
+
+import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
+import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
+import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
+import { PreprocessorsComponent } from '@src/app/config/engine/preprocessors/preprocessors.component';
+import { HashtypesComponent } from '@src/app/config/hashtypes/hashtypes.component';
+import { HealthChecksComponent } from '@src/app/config/health-checks/health-checks.component';
+import { NewHealthChecksComponent } from '@src/app/config/health-checks/new-health-check/new-health-checks.component';
+import { ViewHealthChecksComponent } from '@src/app/config/health-checks/view-health-check/view-health-checks.component';
+import { LogComponent } from '@src/app/config/log/log.component';
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 
 const routes: MyRoute[] = [
   {
@@ -201,7 +205,7 @@ const routes: MyRoute[] = [
       },
       {
         path: 'engine/crackers/new',
-        component: FormComponent,
+        component: NewCrackerComponent,
         data: {
           kind: 'newcracker',
           type: 'create',
