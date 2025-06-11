@@ -114,7 +114,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         .chelper(SERV.HELPER, 'createSuperHashlist', this.form.value)
         .subscribe(() => {
           this.alert.showSuccessMessage('New SuperHashList created');
-          this.form.reset();
           this.router.navigate(['hashlists/superhashlist']);
         });
 
