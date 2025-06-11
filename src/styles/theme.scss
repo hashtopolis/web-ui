@@ -34,22 +34,22 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
 );
 
 .light-theme {
-  @include mat.all-component-themes($hashtopolis-light-theme);
   --background-success: rgba(228, 248, 240, 0.75);
   --color-success: #1ea97c;
   --background-error: rgba(255, 209, 209, 0.75);
   --color-error: #ff5757;
   --background-info: rgba(240, 246, 255, 0.75);
   --color-info: #2563eb;
+  @include mat.all-component-themes($hashtopolis-light-theme);
 }
 
 .dark-theme {
-  background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
-  @include mat.all-component-colors($hashtopolis-dark-theme);
   --background-success: rgba(15, 84, 63, 0.75);
   --color-success: #95a498;
   --background-error: rgba(119, 41, 41, 0.75);
   --color-error: #fd7272;
   --background-info: rgba(28, 74, 182, 0.75);
   --color-info: #94949b;
+  background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
+  @include mat.all-component-colors($hashtopolis-dark-theme);
 }
