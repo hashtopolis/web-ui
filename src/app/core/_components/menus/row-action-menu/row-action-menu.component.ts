@@ -1,13 +1,13 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnInit } from '@angular/core';
-
-import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
-import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 import {
   RowActionMenuAction,
   RowActionMenuIcon,
   RowActionMenuLabel
 } from '@components/menus/row-action-menu/row-action-menu.constants';
+
+import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 
 /**
  * Component representing the row action menu for various data types.
@@ -132,17 +132,18 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
    * Sets the context menu items for an agent data row.
    */
   private setAgentMenu(): void {
+    console.log('RowActionMenuComponent: Setting agent menu items', this.data);
     this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)]);
     if (this.data['isActive']) {
       this.addActionMenuItem(0, this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT));
     } else {
       this.addActionMenuItem(0, this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT));
     }
-    if (this.data['assignmentId']) {
+/*     if (this.data['assignmentId']) {
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)]);
-    } else {
+    } else { */
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)]);
-    }
+    /* } */
   }
 
   /**
