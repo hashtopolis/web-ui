@@ -249,7 +249,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             splitLine: this.isDarkMode
               ? {
                   lineStyle: {
-                    color: '#FFFFFF',
+                    color: '#FFFFFF'
                   }
                 }
               : {},
