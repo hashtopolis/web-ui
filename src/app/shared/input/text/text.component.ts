@@ -1,4 +1,4 @@
-import { Component, Input, Output, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
