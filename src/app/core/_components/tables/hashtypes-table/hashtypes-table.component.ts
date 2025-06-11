@@ -1,4 +1,4 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError } from 'rxjs';
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
@@ -8,7 +8,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
@@ -30,7 +29,7 @@ import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -49,6 +48,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         id: HashtypesTableCol.HASHTYPE,
         dataKey: 'hashTypeId',
         isSortable: true,
+        isSearchable: true,
         render: (hashtype: JHashtype) => hashtype.id,
         export: async (hashtype: JHashtype) => hashtype.id + ''
       },
@@ -56,6 +56,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         id: HashtypesTableCol.DESCRIPTION,
         dataKey: 'description',
         isSortable: true,
+        isSearchable: true,
         render: (hashtype: JHashtype) => hashtype.description,
         export: async (hashtype: JHashtype) => hashtype.description
       },
@@ -77,11 +78,27 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   }
 
   filter(item: JHashtype, filterValue: string): boolean {
-    return (
-      item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'hashTypeId': {
+        return item.id.toString().toLowerCase().includes(filterValue);
+      }
+      case 'description': {
+        return item.description.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.id.toString().toLowerCase().includes(filterValue);
+    }
   }
-
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
@@ -139,29 +156,12 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   }
 
   exportActionClicked(event: ActionMenuEvent<JHashtype[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHashtype>(
-          'hashtopolis-hashtypes',
-          this.tableColumns,
-          event.data,
-          HashtypesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHashtype>(
-          'hashtopolis-hashtypes',
-          this.tableColumns,
-          event.data,
-          HashtypesTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHashtype>(this.tableColumns, event.data, HashtypesTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JHashtype>(
+      event,
+      this.tableColumns,
+      HashtypesTableColumnLabel,
+      'hashtopolis-hashtypes'
+    );
   }
 
   /**
@@ -169,15 +169,18 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
    */
   private bulkActionDelete(hashtypes: JHashtype[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHTYPES, hashtypes).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHTYPES, hashtypes)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted hashtypes!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashtypes!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -195,7 +198,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted hashtype!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted hashtype!');
           this.reload();
         })
     );

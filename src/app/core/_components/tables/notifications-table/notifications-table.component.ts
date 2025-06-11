@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -8,7 +8,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -31,6 +30,7 @@ import { ACTION } from '@src/app/core/_constants/notifications.config';
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);
@@ -47,7 +47,35 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JNotification, filterValue: string): boolean {
-    return item.notification.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.notification?.toLowerCase().includes(filterValue) ||
+          item.action?.toLowerCase().includes(filterValue) ||
+          item.receiver?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'action': {
+        return item.action?.toLowerCase().includes(filterValue);
+      }
+      case 'receiver': {
+        return item.receiver?.toLowerCase().includes(filterValue);
+      }
+      case 'notification': {
+        return item.notification?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.notification?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -56,6 +84,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         id: NotificationsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (notification: JNotification) => notification.id + ''
       },
       {
@@ -70,6 +99,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         id: NotificationsTableCol.ACTION,
         dataKey: 'action',
         isSortable: true,
+        isSearchable: true,
         render: (notification: JNotification) => notification.action,
         export: async (notification: JNotification) => notification.action
       },
@@ -84,12 +114,14 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         id: NotificationsTableCol.NOTIFICATION,
         dataKey: 'notification',
         isSortable: true,
+        isSearchable: true,
         render: (notification: JNotification) => notification.notification,
         export: async (notification: JNotification) => notification.notification
       },
       {
         id: NotificationsTableCol.RECEIVER,
         dataKey: 'receiver',
+        isSearchable: true,
         isSortable: true,
         render: (notification: JNotification) => notification.receiver,
         export: async (notification: JNotification) => notification.receiver
@@ -128,31 +160,12 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JNotification[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JNotification>(
-          'hashtopolis-notifications',
-          this.tableColumns,
-          event.data,
-          NotificationsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JNotification>(
-          'hashtopolis-notifications',
-          this.tableColumns,
-          event.data,
-          NotificationsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JNotification>(this.tableColumns, event.data, NotificationsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JNotification>(
+      event,
+      this.tableColumns,
+      NotificationsTableColumnLabel,
+      'hashtopolis-notifications'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JNotification>): void {
@@ -218,15 +231,18 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
    */
   private bulkActionDelete(notifications: JNotification[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.NOTIFICATIONS, notifications).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.NOTIFICATIONS, notifications)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted notifications!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted notifications!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -237,11 +253,11 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     const action = isActive ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-        this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, {isActive: isActive}).subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} notifications!`, 'Close');
-          this.dataSource.reload();
-        })
-      );
+      this.gs.bulkUpdate(SERV.NOTIFICATIONS, notifications, { isActive: isActive }).subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully ${action} notifications!`);
+        this.dataSource.reload();
+      })
+    );
   }
 
   /**
@@ -258,7 +274,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted notification!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted notification!');
           this.reload();
         })
     );

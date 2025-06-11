@@ -44,10 +44,14 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
             rows.push(superHashlist);
           });
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            superHashlists.length
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(rows);
         })

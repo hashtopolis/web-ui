@@ -1,7 +1,3 @@
-/**
- * Contains table component for files
- * @module
- */
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
@@ -13,7 +9,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
@@ -22,6 +17,11 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { FilesDataSource } from '@datasources/files.datasource';
+
+/**
+ * Contains table component for files
+ * @module
+ */
 
 import { formatFileSize } from '@src/app/shared/utils/util';
 
@@ -38,7 +38,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     const pathMap = {
       [FileType.WORDLIST]: 'wordlist-edit',
@@ -66,15 +66,38 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   /**
    * Filter function for files
-   * @param file File object
+   * @param item File object
    * @param filterValue String value to filter filename
    * @returns True, if filename contains filterValue
    *          False, if not
    */
-  filter(file: JFile, filterValue: string): boolean {
-    return file.filename.toLowerCase().includes(filterValue);
+  filter(item: JFile, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.filename?.toLowerCase().includes(filterValue) ||
+          item.accessGroup?.groupName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'filename': {
+        return item.filename?.toLowerCase().includes(filterValue);
+      }
+      case 'accessGroupName': {
+        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.filename?.toLowerCase().includes(filterValue);
+    }
   }
-
   /**
    * Get all table columns
    * @returns List of table columns
@@ -85,6 +108,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => file.id + ''
       },
       {
@@ -92,6 +116,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'filename',
         routerLink: (file: JFile) => this.renderFileLink(file),
         isSortable: true,
+        isSearchable: true,
         export: async (file: JFile) => file.filename
       },
       {
@@ -105,13 +130,14 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.LINE_COUNT,
         dataKey: 'lineCount',
         isSortable: true,
-        render: (file: JFile) => file.lineCount.toLocaleString(),
-        export: async (file: JFile) => file.lineCount + ''
+        render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),
+        export: async (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0) + ''
       },
       {
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
+        isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
       }
@@ -146,19 +172,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JFile[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JFile>('hashtopolis-files', this.tableColumns, event.data, FilesTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JFile>('hashtopolis-files', this.tableColumns, event.data, FilesTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JFile>(this.tableColumns, event.data, FilesTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JFile>(event, this.tableColumns, FilesTableColumnLabel, 'hashtopolis-files');
   }
 
   rowActionClicked(event: ActionMenuEvent<JFile>): void {
@@ -206,7 +220,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted files!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted files!`);
           this.dataSource.reload();
         })
     );
@@ -226,7 +240,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted file!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted file!');
           this.reload();
         })
     );

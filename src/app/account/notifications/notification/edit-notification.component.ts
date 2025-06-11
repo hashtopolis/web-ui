@@ -1,23 +1,25 @@
 import { Subscription } from 'rxjs';
 
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
-import { Filter } from '@models/request-params.model';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
-import { SERV } from '@services/main.config';
 import { JNotification } from '@models/notification.model';
+import { Filter } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+
+import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
 
 @Component({
-    selector: 'app-edit-notification',
-    templateUrl: './new-notification.component.html',
-    standalone: false
+  selector: 'app-edit-notification',
+  templateUrl: './new-notification.component.html',
+  standalone: false
 })
 export class EditNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Changes';
@@ -131,13 +133,9 @@ export class EditNotificationComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs
-          .update(
-            SERV.NOTIFICATIONS,
-            this.editedIndex,
-            { isActive: this.form.value['isActive'] },
-          )
+          .update(SERV.NOTIFICATIONS, this.editedIndex, { isActive: this.form.value['isActive'] })
           .subscribe(() => {
-            this.alert.okAlert('Notification saved!', '');
+            this.alert.showSuccessMessage('Notification saved');
             this.isCreatingLoading = false;
             this.router.navigate(['/account/notifications']);
           })

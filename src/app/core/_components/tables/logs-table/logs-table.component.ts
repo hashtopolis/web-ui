@@ -1,26 +1,24 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LogsTableCol, LogsTableColumnLabel } from './logs-table.constants';
-
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { ExportMenuAction } from '../../menus/export-menu/export-menu.constants';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { JLog } from 'src/app/core/_models/log.model';
 import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
+import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
+
 @Component({
-    selector: 'logs-table',
-    templateUrl: './logs-table.component.html',
-    standalone: false
+  selector: 'logs-table',
+  templateUrl: './logs-table.component.html',
+  standalone: false
 })
-export class LogsTableComponent
-  extends BaseTableComponent
-  implements OnInit, OnDestroy
-{
+export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);
@@ -37,23 +35,50 @@ export class LogsTableComponent
   }
 
   filter(item: JLog, filterValue: string): boolean {
-    if (
-      item.message.toLowerCase().includes(filterValue) ||
-      item.level.toLowerCase().includes(filterValue) ||
-      item.issuer.toLowerCase().includes(filterValue)
-    ) {
-      return true;
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.issuer.toLowerCase().includes(filterValue) ||
+          item.issuerId.toString().includes(filterValue) ||
+          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue) ||
+          item.level.toLowerCase().includes(filterValue) ||
+          item.message.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'issuer': {
+        return (
+          item.issuer.toLowerCase().includes(filterValue) ||
+          item.issuerId.toString().includes(filterValue) ||
+          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue)
+        );
+      }
+      case 'level': {
+        return item.level.toLowerCase().includes(filterValue);
+      }
+      case 'message': {
+        return item.message.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.message?.toLowerCase().includes(filterValue);
     }
-
-    return false;
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns = [
+    return [
       {
         id: LogsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (log: JLog) => log.id + ''
       },
       {
@@ -61,22 +86,21 @@ export class LogsTableComponent
         dataKey: 'time',
         isSortable: true,
         render: (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat),
-        export: async (log: JLog) =>
-          formatUnixTimestamp(log.time, this.dateFormat)
+        export: async (log: JLog) => formatUnixTimestamp(log.time, this.dateFormat)
       },
       {
         id: LogsTableCol.LEVEL,
         dataKey: 'level',
         isSortable: true,
-        render: (log: JLog) =>
-          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
-        export: async (log: JLog) =>
-          log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
+        isSearchable: true,
+        render: (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase(),
+        export: async (log: JLog) => log.level.charAt(0).toUpperCase() + log.level.slice(1).toLowerCase()
       },
       {
         id: LogsTableCol.ISSUER,
         dataKey: 'issuer',
         isSortable: true,
+        isSearchable: true,
         render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
         export: async (log: JLog) => `${log.issuer}-ID-${log.issuerId}`
       },
@@ -84,44 +108,16 @@ export class LogsTableComponent
         id: LogsTableCol.MESSAGE,
         dataKey: 'message',
         isSortable: true,
+        isSearchable: true,
         render: (log: JLog) => log.message,
         export: async (log: JLog) => log.message
       }
     ];
-
-    return tableColumns;
   }
 
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JLog[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JLog>(
-          'hashtopolis-logs',
-          this.tableColumns,
-          event.data,
-          LogsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JLog>(
-          'hashtopolis-logs',
-          this.tableColumns,
-          event.data,
-          LogsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JLog>(this.tableColumns, event.data, LogsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows are copied to the clipboard',
-              'Close'
-            );
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JLog>(event, this.tableColumns, LogsTableColumnLabel, 'hashtopolis-logs');
   }
 }

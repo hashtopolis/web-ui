@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, Output, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
@@ -34,7 +34,14 @@ export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() inputType: 'text' | 'password' = 'text';
   @Input() icon: string;
   @Input() width: string = '';
+  @Input() showPasswordToggle: boolean = false;
+  @Input() passwordIsVisible: boolean = true;
+  @Output() ShowPasswordEmit = new EventEmitter<boolean>();
 
+  emitShowPassword() {
+    this.passwordIsVisible = !this.passwordIsVisible;
+    this.ShowPasswordEmit.emit(this.passwordIsVisible);
+  }
   constructor() {
     super();
   }

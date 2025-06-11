@@ -1,0 +1,60 @@
+@use "../base/colors";
+
+.snackbar-error, .snackbar-success, .snackbar-info {
+  .mat-mdc-snack-bar-label {
+    font-size: 12pt !important;
+    font-weight: 500 !important;
+  }
+  .mdc-snackbar__surface{
+    margin-top: 0.25rem;
+    margin-left: 0;
+    backdrop-filter: blur(10px);
+  }
+  .mat-mdc-snack-bar-actions{
+    button{
+      font-size: 10pt !important;
+    }
+  }
+}
+
+.snackbar-error {
+  .mdc-snackbar__surface{
+    background-color: var(--background-error) !important;
+    color: var(--color-error)!important;
+    border-left: 5px solid var(--color-error);
+  }
+  .mat-mdc-snack-bar-actions{
+    button{
+      color: var(--color-error)!important;
+      border: 1px solid var(--color-error);
+    }
+  }
+}
+
+.snackbar-success{
+  .mdc-snackbar__surface{
+    background-color: var(--background-success) !important;
+    color: var(--color-success)!important;
+    border-left: 5px solid var(--color-success);
+  }
+  .mat-mdc-snack-bar-actions{
+    button{
+      color: var(--color-success)!important;
+      border: 1px solid var(--color-success);
+    }
+  }
+}
+
+.snackbar-info{
+  .mdc-snackbar__surface{
+    background-color: var(--background-info) !important;
+    color: var(--color-info)!important;
+    border-left: 5px solid var(--color-info);
+  }
+  .mat-mdc-snack-bar-actions{
+    button{
+      color: var(--color-info)!important;
+      border: 1px solid var(--color-info);
+    }
+  }
+}

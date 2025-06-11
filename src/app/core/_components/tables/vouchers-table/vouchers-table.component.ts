@@ -1,10 +1,9 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
 import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
@@ -100,29 +99,12 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JVoucher[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JVoucher>(
-          'hashtopolis-vouchers',
-          this.tableColumns,
-          event.data,
-          VouchersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JVoucher>(
-          'hashtopolis-vouchers',
-          this.tableColumns,
-          event.data,
-          VouchersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JVoucher>(this.tableColumns, event.data, VouchersTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JVoucher>(
+      event,
+      this.tableColumns,
+      VouchersTableColumnLabel,
+      'hashtopolis-vouchers'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JVoucher>): void {
@@ -164,15 +146,18 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
    */
   private bulkActionDelete(vouchers: JVoucher[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.VOUCHER, vouchers).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.VOUCHER, vouchers)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted vouchers!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted vouchers!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -190,7 +175,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted voucher!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted voucher!');
           this.reload();
         })
     );

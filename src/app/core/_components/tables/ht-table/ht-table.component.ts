@@ -11,17 +11,16 @@ import {
   ViewChild
 } from '@angular/core';
 import {
-  CheckboxChangeEvent,
-  CheckboxFiles,
   COL_ROW_ACTION,
   COL_SELECT,
+  CheckboxChangeEvent,
+  CheckboxFiles,
   DataType,
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Subscription, take, timer } from 'rxjs';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
 
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
 import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
@@ -31,6 +30,7 @@ import { LocalStorageService } from 'src/app/core/_services/storage/local-storag
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
@@ -86,7 +86,8 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-
+  selectedFilterColumn: string = 'all';
+  filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
 
@@ -158,7 +159,16 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() defaultPageSize = this.paginationSizes[1];
 
   /** Default start page. */
-  @Input() defaultStartPage = 0;
+  @Input() defaultStartPage = undefined;
+
+  /** Default start page. */
+  @Input() defaultBeforePage = undefined;
+
+  /** Default pagination index */
+  @Input() defaultIndex = 0;
+  
+  /** Default total items index */
+  @Input() defaultTotalItems = 0;
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
@@ -183,11 +193,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
-
+  @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
-
-  private sortingColumn;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
 
@@ -202,6 +210,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
     this.defaultPageSize = this.uiSettings['uiConfig']['tableSettings'][this.name]['page'];
     this.defaultStartPage = this.uiSettings['uiConfig']['tableSettings'][this.name]['start'];
+    this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
+    this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
+    this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
 
     if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
@@ -215,15 +226,31 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.loading = false;
       });
+    this.initFilterableColumns();
+  }
+  initFilterableColumns(): void {
+    this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
+  }
+  // Handle filter column change
+  onFilterColumnChange(): void {
+    this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
+    if (this.dataSource.filter) {
+      this.applyFilter();
+    }
   }
 
   ngAfterViewInit(): void {
     // Configure paginator and sorting
     this.dataSource.paginator = this.matPaginator;
-    // Get saved Pagesize from lcoal storage, otherwise use default value
+    // Get saved Pagesize from local storage, otherwise use default value
     this.dataSource.pageSize = this.defaultPageSize;
     // Get saved start page
-    this.dataSource.currentPage = this.defaultStartPage;
+    this.dataSource.pageAfter = this.defaultStartPage;
+    // Get saved before page
+    this.dataSource.pageBefore = this.defaultBeforePage;
+    this.dataSource.index = this.defaultIndex;
+    this.dataSource.totalItems = this.defaultTotalItems;
+
     // Search item
     this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
     // Sorted header arrow and sorting initialization
@@ -454,7 +481,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   // emit when Temperature Information is clicked
- temperatureInformationEmit() {
+  temperatureInformationEmit() {
     this.temperatureInformationClicked.emit();
   }
   /**
@@ -475,14 +502,36 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onPageChange(event: PageEvent): void {
     this.clearFilter();
+    let pageAfter = undefined;
+    let pageBefore = undefined;
+    let index = event.pageIndex;
+    if (event.pageSize !== this.dataSource.pageSize) {
+      // TODO This code happens when user changes the page size, now we will just reset and
+      // go to the first page, ideally you want to stay on the page you previously were
+      // and recalculate the page index. The problem is that, this is very hard to do,
+      // because we use cursor-based pagination.
+      index = 0;
+    }
+    else if (event.pageIndex !== 0) {
+      const originalData = this.dataSource.getOriginalData();
+      const ids = originalData.map(items => items.id);
+      if (event.pageIndex > event.previousPageIndex) {
+        pageAfter = Math.max(...ids);
+      } else {
+        pageBefore = Math.min(...ids);
+      }
+    }
 
     this.uiSettings.updateTableSettings(this.name, {
-      start: event.pageIndex, // Store the new page index
-      page: event.pageSize // Store the new page size
+      start: pageAfter, // Store the new page index
+      before: pageBefore, // Store the new page before
+      page: event.pageSize, // Store the new page size
+      index: index, //store the new table index
+      totalItems: this.dataSource.totalItems
     });
 
     // Update pagination configuration in the data source
-    this.dataSource.setPaginationConfig(event.pageSize, event.pageIndex, this.dataSource.totalItems);
+    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
 
     // Reload data with updated pagination settings
     this.dataSource.reload();

@@ -19,12 +19,10 @@ import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
 import { finalize } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
@@ -92,8 +90,7 @@ export class EditTasksComponent implements OnInit {
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private alert: AlertService,
+    private alertService: AlertService,
     private gs: GlobalService,
     private fs: FileSizePipe,
     private router: Router,
@@ -149,12 +146,11 @@ export class EditTasksComponent implements OnInit {
       if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
         const warning =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
-        this.alert.customConfirmation(warning).then((confirmed) => {
+        this.alertService.customConfirmation(warning).then((confirmed) => {
           if (confirmed) {
             this.updateTask();
           } else {
-            // Handle cancellation
-            this.alert.okAlert(`Task Information has not been updated!`, '');
+            this.alertService.showInfoMessage('Task Information has not been updated');
           }
         });
       } else {
@@ -166,7 +162,7 @@ export class EditTasksComponent implements OnInit {
   private updateTask() {
     this.isUpdatingLoading = true;
     this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.alert.okAlert('Task saved!', '');
+      this.alertService.showSuccessMessage('Task saved');
       this.isUpdatingLoading = false;
       this.router.navigate(['tasks/show-tasks']).then(() => {
         window.location.reload();
@@ -278,7 +274,7 @@ export class EditTasksComponent implements OnInit {
         )
         .subscribe(() => {
           this.createForm.reset();
-          this.snackBar.open('Agent assigned!', 'Close');
+          this.alertService.showSuccessMessage('Agent assigned!');
         });
     }
   }
@@ -382,37 +378,14 @@ export class EditTasksComponent implements OnInit {
    **/
 
   purgeTask() {
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    });
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "It'll purge the Task!",
-      icon: 'warning',
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.purgeText
-    }).then((result) => {
-      if (result.isConfirmed) {
+    this.alertService.customConfirmation('Do you really want to purge the task').then((result) => {
+      if (result) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
-          this.alert.okAlert('Purged task id' + this.editedTaskIndex + '', '');
-          this.ngOnInit();
+          this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: 'Cancelled',
-          text: 'Purge was cancelled!',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 1500
-        });
+        this.alertService.showInfoMessage('Purge was cancelled');
       }
     });
   }

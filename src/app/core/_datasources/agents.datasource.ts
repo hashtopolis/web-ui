@@ -75,7 +75,15 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
           });
         }
-        this.setPaginationConfig(this.pageSize, this.currentPage, agents.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
         this.setData(agents);
       });
   }
@@ -137,7 +145,15 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             this.setChunkParams(agent, chunks, assignments);
           });
 
-          this.setPaginationConfig(this.pageSize, this.currentPage, assignments.length);
+          const length = response.meta.page.total_elements;
+
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
+          );
           this.setData(agents);
         }
       });

@@ -9,7 +9,6 @@ import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
@@ -55,7 +54,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -74,15 +73,38 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   }
 
   filter(item: JPretask, filterValue: string): boolean {
-    return item.taskName.toLowerCase().includes(filterValue) || item.attackCmd.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.taskName.toLowerCase().includes(filterValue) ||
+          item.attackCmd.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName?.toLowerCase().includes(filterValue);
+      }
+      case 'attackCmd': {
+        return item.attackCmd?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.taskName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.id + ''
       },
       {
@@ -90,12 +112,14 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'taskName',
         routerLink: (pretask: JPretask) => this.renderPretaskLink(pretask),
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.taskName
       },
       {
         id: PretasksTableCol.ATTACK_COMMAND,
         dataKey: 'attackCmd',
         isSortable: true,
+        isSearchable: true,
         export: async (pretask: JPretask) => pretask.attackCmd
       },
       {
@@ -203,29 +227,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPretask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JPretask>(
-          'hashtopolis-pretasks',
-          this.tableColumns,
-          event.data,
-          PretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JPretask>(
-          'hashtopolis-pretasks',
-          this.tableColumns,
-          event.data,
-          PretasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JPretask>(this.tableColumns, event.data, PretasksTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JPretask>(
+      event,
+      this.tableColumns,
+      PretasksTableColumnLabel,
+      'hashtopolis-pretasks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JPretask>): void {
@@ -289,7 +296,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open(`Successfully deleted pretasks!`, 'Close');
+            this.alertService.showSuccessMessage(`Successfully deleted pretasks!`);
             this.dataSource.reload();
           })
       );
@@ -312,7 +319,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully unassigned pretask!', 'Close');
+            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
             this.reload();
           })
       );
@@ -370,7 +377,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
 
     if (!val || pretask.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -381,13 +388,13 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update prio!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update prio!`);
             console.error('Failed to update prio:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed prio to ${val} on Task #${pretask.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${pretask.id}!`);
           this.reload();
         })
     );
@@ -402,7 +409,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
 
     if (!val || pretask.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -413,13 +420,13 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update max agents!`);
             console.error('Failed to update max agents:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed number of max agents to ${val} on Task #${pretask.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${pretask.id}!`);
           this.reload();
         })
     );
@@ -440,7 +447,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.alertService.showSuccessMessage('Successfully deleted pretask!');
             this.reload();
           })
       );
@@ -457,7 +464,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully unassigned pretask!', 'Close');
+            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
             this.reload();
           })
       );

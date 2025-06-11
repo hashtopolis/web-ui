@@ -22,10 +22,14 @@ export class CrackersDataSource extends BaseDataSource<JCrackerBinaryType> {
           const responseData = { data: response.data, included: response.included };
           const crackers = this.serializer.deserialize<JCrackerBinaryType[]>(responseData);
 
+          const length = response.meta.page.total_elements;
+
           this.setPaginationConfig(
             this.pageSize,
-            this.currentPage,
-            crackers.length,
+            length,
+            this.pageAfter,
+            this.pageBefore,
+            this.index
           );
           this.setData(crackers);
         })

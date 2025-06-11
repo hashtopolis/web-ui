@@ -10,7 +10,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableEditable } from '@components/tables/ht-table/ht-table.models';
@@ -149,31 +148,12 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JTask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JTask>(
-          'hashtopolis-tasks-supertaks',
-          this.tableColumns,
-          event.data,
-          TasksSupertasksDataSourceTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JTask>(
-          'hashtopolis-tasks-supertaks',
-          this.tableColumns,
-          event.data,
-          TasksSupertasksDataSourceTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JTask>(this.tableColumns, event.data, TasksSupertasksDataSourceTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JTask>(
+      event,
+      this.tableColumns,
+      TasksSupertasksDataSourceTableColumnLabel,
+      'hashtopolis-tasks-supertaks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JTask>): void {
@@ -252,7 +232,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} tasks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} tasks!`);
           this.reload();
         })
     );
@@ -275,7 +255,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} tasks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted ${results.length} tasks!`);
           this.reload();
         })
     );
@@ -322,7 +302,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted tasks!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted tasks!');
           this.reload();
         })
     );
@@ -348,7 +328,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     }
 
     if (!val || task.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -359,13 +339,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update priority!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update priority!`);
             console.error('Failed to update priority:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed priority to ${val} on subtask #${task.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed priority to ${val} on subtask #${task.id}!`);
           this.reload();
         })
     );
@@ -380,7 +360,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     }
 
     if (!val || task.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -391,13 +371,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update max agents!`);
             console.error('Failed to update max agents:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed number of max agents to ${val} on subtask #${task.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on subtask #${task.id}!`);
           this.reload();
         })
     );
@@ -427,7 +407,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
-        this.snackBar.open(`Successfully ${strArchived} task!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${strArchived} task!`);
         this.reload();
       })
     );

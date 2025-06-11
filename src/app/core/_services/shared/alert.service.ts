@@ -1,17 +1,13 @@
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-//import { BulkService } from './bulk.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AlertService {
-  constructor(
-    //private bulk: BulkService,
-    private snackBar: MatSnackBar
-  ) {
-  }
+  constructor(private snackBar: MatSnackBar) {}
 
   cancelButtonColor = '#8A8584';
   confirmButtonColor = '#C53819';
@@ -19,23 +15,6 @@ export class AlertService {
   purgeText = 'Yes, purge task!';
   submitText = 'Submit';
   okText = 'Ok';
-
-  /**
-   * Handles notification confirmation.
-   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
-   *
-   * @param {string} title - Title to be displayed
-   * @param {string} text - Additional text
-   * @param {string} type - Type of warning, default success
-   */
-
-  okAlert(
-    title: string,
-    text: string,
-    type: 'success' | 'error' | 'warning' = 'success'
-  ) {
-    this.snackBar.open(title, 'Close');
-  }
 
   /**
    * Handles delete confirmation.
@@ -96,109 +75,43 @@ export class AlertService {
       return result.isConfirmed;
     });
   }
+
+  /**
+   * Shows a success message
+   * @param message - message to display
+   */
+  showSuccessMessage(message: string) {
+    this.showToast(message, 'snackbar-success');
+  }
+
+  /**
+   * Shows an error message
+   * @param message - error message to display
+   */
+  showErrorMessage(message: string) {
+    this.showToast(message, 'snackbar-error');
+  }
+
+  /**
+   * Shows an info message
+   * @param message - info message to display
+   */
+  showInfoMessage(message: string) {
+    this.showToast(message, 'snackbar-info', 5000);
+  }
+
+  /**
+   * Shows a toast like message for 10 seconds in the upper left corner using a material snackbar
+   * @param message - message to display
+   * @param panelClass - CSS class for the  snackbar component
+   * @param timeout - time in milliseconds to show the message
+   * @private
+   */
+  private showToast(message: string, panelClass: string, timeout: number = 10000): void {
+    this.snackBar.open(message, 'Close', {
+      duration: timeout,
+      panelClass: panelClass,
+      horizontalPosition: 'start'
+    });
+  }
 }
-
-// /**
-//  * Bulk delete modal with progress bar
-//  * Uses a bulk action service to delete on bulk
-//  *
-//  * @param {array} items - Array of ids to be deleted
-//  * @param {string} text - Text to use in the display i.e Hashtypes
-//  * @param {string} path - API path call to delete the items on the array
-//  */
-
-//   bulkDeleteAlert(items: any[], text: string, path: string) {
-//     this.bulk.setItems(items); // Items to be deleted
-//     this.bulk.setPath(path); //Path route
-//     Swal.fire({
-//       title: `Deleting ${items.length} ${text}`,
-//       html: '<div class="progress"><div class="progress-bar"></div></div>',
-//       showCancelButton: false,
-//       showConfirmButton: false,
-//       allowEscapeKey: false, //Dont let user escape modal until its finish
-//       allowOutsideClick: false, //Dont let user close modal until its finish
-//       didOpen: () => {
-//         const progressBar =
-//           Swal.getHtmlContainer().querySelector('.progress-bar');
-//         progressBar.style.width = '0%';
-//
-//         this.bulk
-//           .performBulkDelete((percentage) => {
-//             progressBar.style.width = percentage + '%';
-//           })
-//           .then((success) => {
-//             if (success) {
-//               this.okAlert(`${items.length} ${text} deleted`, '');
-//             } else {
-//               Swal.update({
-//                 icon: 'error',
-//                 title: 'Error Deleting Items',
-//                 showConfirmButton: true
-//               });
-//             }
-//           })
-//           .catch((error) => {
-//             Swal.update({
-//               icon: 'error',
-//               title: 'Error Deleting Items',
-//               text: error.message,
-//               showConfirmButton: true
-//             });
-//           });
-//       }
-//     });
-//   }
-//
-//   /**
-//    * Bulk update modal with progress bar
-//    * Uses a bulk action service to delete on bulk
-//    *
-//    * @param {array} items - Array of ids to be deleted
-//    * @param {any} value - Value to be updated
-//    * @param {string} text - Text to use in the display i.e Hashtypes
-//    * @param {string} path - API path call to delete the items on the array
-//    */
-//
-//   bulkUpdateAlert(items: any[], value: any, text: string, path: string) {
-//     this.bulk.setItems(items); // Items to be deleted
-//     this.bulk.setValue(value);
-//     this.bulk.setPath(path); //Path route
-//     Swal.fire({
-//       title: `Updating ${items.length} ${text}`,
-//       html: '<div class="progress"><div class="progress-bar"></div></div>',
-//       showCancelButton: false,
-//       showConfirmButton: false,
-//       allowEscapeKey: false, //Dont let user escape modal until its finish
-//       allowOutsideClick: false, //Dont let user close modal until its finish
-//       didOpen: () => {
-//         const progressBar =
-//           Swal.getHtmlContainer().querySelector('.progress-bar');
-//         progressBar.style.width = '0%';
-//
-//         this.bulk
-//           .performBulkUpdate((percentage) => {
-//             progressBar.style.width = percentage + '%';
-//           })
-//           .then((success) => {
-//             if (success) {
-//               this.okAlert(`${items.length} ${text} updated`, '');
-//             } else {
-//               Swal.update({
-//                 icon: 'error',
-//                 title: 'Error Updating Items',
-//                 showConfirmButton: true
-//               });
-//             }
-//           })
-//           .catch((error) => {
-//             Swal.update({
-//               icon: 'error',
-//               title: 'Error Updating Items',
-//               text: error.message,
-//               showConfirmButton: true
-//             });
-//           });
-//       }
-//     });
-//   }
-// }

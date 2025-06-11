@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -8,7 +8,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -29,6 +28,7 @@ import { PermissionsDataSource } from '@datasources/permissions.datasource';
 export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
@@ -45,15 +45,32 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   }
 
   filter(item: JGlobalPermissionGroup, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: PermissionsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (permission: JGlobalPermissionGroup) => permission.id + ''
       },
       {
@@ -61,6 +78,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
         dataKey: 'name',
         routerLink: (permission: JGlobalPermissionGroup) => this.renderPermissionLink(permission),
         isSortable: true,
+        isSearchable: true,
         export: async (permission: JGlobalPermissionGroup) => permission.name
       },
       {
@@ -98,31 +116,12 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JGlobalPermissionGroup>(
-          'hashtopolis-permissions',
-          this.tableColumns,
-          event.data,
-          PermissionsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JGlobalPermissionGroup>(
-          'hashtopolis-permissions',
-          this.tableColumns,
-          event.data,
-          PermissionsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JGlobalPermissionGroup>(this.tableColumns, event.data, PermissionsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JGlobalPermissionGroup>(
+      event,
+      this.tableColumns,
+      PermissionsTableColumnLabel,
+      'hashtopolis-permissions'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JGlobalPermissionGroup>): void {
@@ -164,15 +163,18 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
    */
   private bulkActionDelete(permissions: JGlobalPermissionGroup[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted permission groups!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted permission groups!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -190,7 +192,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted permission group!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted permission group!');
           this.reload();
         })
     );

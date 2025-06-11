@@ -1,4 +1,4 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -8,7 +8,6 @@ import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -29,7 +28,7 @@ import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -45,15 +44,32 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   }
 
   filter(item: JPreprocessor, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: PreprocessorsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (preprocessor: JPreprocessor) => preprocessor.id + ''
       },
       {
@@ -61,6 +77,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
         dataKey: 'name',
         routerLink: (preprocessor: JPreprocessor) => this.renderPreproLink(preprocessor),
         isSortable: true,
+        isSearchable: true,
         export: async (preprocessor: JPreprocessor) => preprocessor.name
       }
     ];
@@ -108,31 +125,12 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JPreprocessor[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JPreprocessor>(
-          'hashtopolis-preprocessors',
-          this.tableColumns,
-          event.data,
-          PreprocessorsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JPreprocessor>(
-          'hashtopolis-preprocessors',
-          this.tableColumns,
-          event.data,
-          PreprocessorsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JPreprocessor>(this.tableColumns, event.data, PreprocessorsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JPreprocessor>(
+      event,
+      this.tableColumns,
+      PreprocessorsTableColumnLabel,
+      'hashtopolis-preprocessors'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JPreprocessor>): void {
@@ -174,15 +172,18 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
    */
   private bulkActionDelete(preprocessors: JPreprocessor[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.PREPROCESSORS, preprocessors).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.PREPROCESSORS, preprocessors)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted preprocessors!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted preprocessors!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -200,7 +201,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted preprocessor!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted preprocessor!');
           this.reload();
         })
     );

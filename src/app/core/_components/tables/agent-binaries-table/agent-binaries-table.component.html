@@ -8,10 +8,11 @@
   [isSelectable]="isSelectable"
   [hasRowAction]="hasRowAction"
   [isFilterable]="isFilterable"
+  [filterFn]="filter.bind(this)"
   [hasBulkActions]="hasBulkActions"
-  [filterFn]="filter"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
 />

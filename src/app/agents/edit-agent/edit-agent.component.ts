@@ -1,19 +1,4 @@
-import * as echarts from 'echarts/core';
-
-import {
-  ACCESS_GROUP_FIELD_MAPPING,
-  DEFAULT_FIELD_MAPPING,
-  TASKS_FIELD_MAPPING
-} from '@src/app/core/_constants/select.config';
-import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  EditAgentForm,
-  UpdateAssignmentForm,
-  getEditAgentForm,
-  getUpdateAssignmentForm
-} from '@src/app/agents/edit-agent/edit-agent.form';
+import { LineChart } from 'echarts/charts';
 import {
   GridComponent,
   GridComponentOption,
@@ -28,29 +13,46 @@ import {
   TooltipComponent,
   TooltipComponentOption
 } from 'echarts/components';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
+import * as echarts from 'echarts/core';
+import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import { FilterType } from '@models/request-params.model';
+import { firstValueFrom } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { GlobalService } from '@services/main.service';
-import { JAgent } from '@models/agent.model';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgentStat } from '@models/agent-stats.model';
+import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
+
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { LineChart } from 'echarts/charts';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { ResponseWrapper } from '@models/response.model';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UniversalTransition } from 'echarts/features';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-import { firstValueFrom } from 'rxjs';
+
+import {
+  EditAgentForm,
+  UpdateAssignmentForm,
+  getEditAgentForm,
+  getUpdateAssignmentForm
+} from '@src/app/agents/edit-agent/edit-agent.form';
+import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
+import {
+  ACCESS_GROUP_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING,
+  TASKS_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-agent',
@@ -297,7 +299,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       const onSubmitSubscription$ = this.gs
         .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
         .subscribe(() => {
-          this.alert.okAlert('Agent saved!', '');
+          this.alert.showSuccessMessage('Agent saved');
           this.isUpdatingLoading = false;
           this.router.navigate(['agents/show-agents']);
         });
