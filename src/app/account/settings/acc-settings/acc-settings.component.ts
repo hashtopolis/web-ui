@@ -1,18 +1,20 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-
+import { Subscription } from 'rxjs';
+import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
+import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
+
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { SERV } from '../../../core/_services/main.config';
+
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { Router } from '@angular/router';
-import { SERV } from '../../../core/_services/main.config';
-import { Subscription } from 'rxjs';
-import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
-import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -138,7 +140,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
         this.gs.update(SERV.USERS, this.gs.userId, this.form.value).subscribe(() => {
-          this.alert.okAlert('User saved!', '');
+          this.alert.showSuccessMessage('User saved');
           this.isUpdatingLoading = false;
           this.router.navigate(['users/all-users']);
         })
@@ -159,7 +161,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
         next: (val) => {
-          this.alert.okAlert(val.meta['Change password'], '');
+          this.alert.showSuccessMessage(val.meta['Change password']);
           this.resetPasswordForm();
           this.isUpdatingPassLoading = false;
         },

@@ -180,7 +180,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted crackers!`, 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted crackers');
           this.dataSource.reload();
         })
     );
@@ -200,7 +200,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted cracker!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted cracker');
           this.reload();
         })
     );

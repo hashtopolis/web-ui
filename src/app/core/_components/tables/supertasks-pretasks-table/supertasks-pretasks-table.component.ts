@@ -192,7 +192,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     this.gs
       .deleteRelationships(SERV.SUPER_TASKS, this.supertaskId, RelationshipType.PRETASKS, responseBody)
       .subscribe(() => {
-        this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully deleted pretasks from supertask!`);
         this.dataSource.reload();
       });
   }
@@ -226,7 +226,7 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted pretasks from supertask!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted pretasks from supertask!`);
           this.dataSource.reload();
         })
     );
@@ -248,11 +248,11 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     try {
       val = parseInt(priority);
     } catch (error) {
-      // Do nothing
+      this.alertService.showErrorMessage(`Error while changing priority: ${error.message}`);
     }
 
     if (!val || pretask.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -263,13 +263,13 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update priority!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update priority!`);
             console.error('Failed to update priority:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed priority to ${val} on PreTask #${pretask.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed priority to ${val} on PreTask #${pretask.id}!`);
           this.reload();
         })
     );
@@ -280,11 +280,11 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
     try {
       val = parseInt(max);
     } catch (error) {
-      // Do nothing
+      this.alertService.showErrorMessage(`Error while changing max agents: ${error.message}`);
     }
 
     if (!val || pretask.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -295,13 +295,13 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update max agents!`);
             console.error('Failed to update max agents:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed number of max agents to ${val} on PreTask #${pretask.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on PreTask #${pretask.id}!`);
           this.reload();
         })
     );

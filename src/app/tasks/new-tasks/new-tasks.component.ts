@@ -417,7 +417,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs.create(SERV.TASKS, this.form.value).subscribe(() => {
-        this.alert.okAlert('New Task created!', '');
+        this.alert.showSuccessMessage('New Task created');
         this.router
           .navigate(['tasks/show-tasks'])
           .then((success) => {

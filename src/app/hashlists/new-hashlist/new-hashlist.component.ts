@@ -206,7 +206,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
     try {
       await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
-      this.alert.okAlert('New HashList created!', '');
+      this.alert.showSuccessMessage('New HashList created');
       this.router.navigate(['/hashlists/hashlist']);
     } catch (error) {
       console.error('Error creating Hashlist', error);

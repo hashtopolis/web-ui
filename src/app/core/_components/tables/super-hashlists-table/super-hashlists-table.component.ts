@@ -240,7 +240,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted hashlists!`);
           this.dataSource.reload();
         })
     );
@@ -260,7 +260,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted superHashlist!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted superHashlist!');
           this.reload();
         })
     );
@@ -288,7 +288,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Cracked hashes from Super-hashlist exported sucessfully!', 'Close');
+          this.alertService.showSuccessMessage('Cracked hashes from Super-hashlist exported sucessfully!');
           this.reload();
         })
     );

@@ -156,15 +156,14 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update permission!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update permission!`);
             console.error('Failed to update permission:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Changed permistion in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`,
-            'Close'
+          this.alertService.showSuccessMessage(
+            `Changed permistion in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
           );
           this.reload();
         })

@@ -1,19 +1,21 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-
 import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { ResponseWrapper } from '../../../core/_models/response.model';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { transformSelectOptions } from 'src/app/shared/utils/forms';
+
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
 import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
+import { ResponseWrapper } from '../../../core/_models/response.model';
+import { SERV } from '../../../core/_services/main.config';
+
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 /**
@@ -21,9 +23,9 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
  *
  */
 @Component({
-    selector: 'app-import-supertasks',
-    templateUrl: './masks.component.html',
-    standalone: false
+  selector: 'app-import-supertasks',
+  templateUrl: './masks.component.html',
+  standalone: false
 })
 export class MasksComponent implements OnInit, OnDestroy {
   /**
@@ -212,7 +214,7 @@ export class MasksComponent implements OnInit, OnDestroy {
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
     const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.okAlert('New Supertask Mask created!', '');
+      this.alert.showSuccessMessage('New Supertask Mask created');
       this.router.navigate(['/tasks/supertasks']);
     });
 

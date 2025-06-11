@@ -10,7 +10,6 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
@@ -30,7 +29,6 @@ export class BaseReportComponent {
     protected router: Router,
     protected settingsService: LocalStorageService<UIConfig>,
     protected sanitizer: DomSanitizer,
-    protected snackBar: MatSnackBar,
     protected uiService: UIConfigService,
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,

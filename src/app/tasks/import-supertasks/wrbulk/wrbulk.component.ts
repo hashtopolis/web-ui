@@ -277,7 +277,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   private superTask(name: string, ids: string[]) {
     const payload = { supertaskName: name, pretasks: ids };
     const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
+      this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
       this.router.navigate(['/tasks/supertasks']);
     });
 

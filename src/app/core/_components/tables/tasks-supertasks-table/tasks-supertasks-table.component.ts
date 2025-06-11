@@ -232,7 +232,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} tasks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} tasks!`);
           this.reload();
         })
     );
@@ -255,7 +255,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} tasks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted ${results.length} tasks!`);
           this.reload();
         })
     );
@@ -302,7 +302,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted tasks!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted tasks!');
           this.reload();
         })
     );
@@ -328,7 +328,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     }
 
     if (!val || task.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -339,13 +339,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update priority!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update priority!`);
             console.error('Failed to update priority:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed priority to ${val} on subtask #${task.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed priority to ${val} on subtask #${task.id}!`);
           this.reload();
         })
     );
@@ -360,7 +360,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     }
 
     if (!val || task.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -371,13 +371,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update max agents!`);
             console.error('Failed to update max agents:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed number of max agents to ${val} on subtask #${task.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on subtask #${task.id}!`);
           this.reload();
         })
     );
@@ -407,7 +407,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
-        this.snackBar.open(`Successfully ${strArchived} task!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${strArchived} task!`);
         this.reload();
       })
     );

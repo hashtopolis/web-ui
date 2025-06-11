@@ -586,7 +586,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.TASKS, tasks, { isArchived: isArchived }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} tasks!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} tasks!`);
         this.reload();
       })
     );
@@ -603,7 +603,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted task!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted task!`);
           this.dataSource.reload();
         })
     );
@@ -613,7 +613,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     console.log(wrapper);
     this.subscriptions.push(
       this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0].id).subscribe(() => {
-        this.snackBar.open('Successfully deleted task!', 'Close');
+        this.alertService.showSuccessMessage('Successfully deleted task!');
         this.reload();
       })
     );
@@ -639,7 +639,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const strArchived = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
-        this.snackBar.open(`Successfully ${strArchived} task!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${strArchived} task!`);
         this.reload();
       })
     );
@@ -655,7 +655,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
 
     if (!val || wrapper.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -666,13 +666,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update prio!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update prio!`);
             console.error('Failed to update prio:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed prio to ${val} on Task #${wrapper.tasks[0].id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${wrapper.tasks[0].id}!`);
           this.reload();
         })
     );
@@ -688,7 +688,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
 
     if (!val || wrapper.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -699,13 +699,15 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update max agents!`);
             console.error('Failed to update max agents:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed number of max agents to ${val} on Task #${wrapper.tasks[0].id}!`, 'Close');
+          this.alertService.showSuccessMessage(
+            `Changed number of max agents to ${val} on Task #${wrapper.tasks[0].id}!`
+          );
           this.reload();
         })
     );

@@ -1,23 +1,25 @@
-import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
+import { Subscription } from 'rxjs';
+import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { MetadataService } from 'src/app/core/_services/metadata.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV, ServiceConfig } from '@services/main.config';
-import { Subscription } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+
 import { ResponseWrapper } from '@models/response.model';
+
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV, ServiceConfig } from '@services/main.config';
 
 @Component({
-    selector: 'app-form',
-    templateUrl: 'formconfig.component.html',
-    standalone: false
+  selector: 'app-form',
+  templateUrl: 'formconfig.component.html',
+  standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
@@ -191,9 +193,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         const valueUpdate = changedFields[key];
         const arr = { item: key, value: String(valueUpdate) };
 
-        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe((result) => {
+        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe(() => {
           this.uicService.onUpdatingCheck(key);
-          this.alert.okAlert('Saved', key);
+          this.alert.showSuccessMessage(`Saved ${key}`);
 
           // Delay showing the next alert by 2000 milliseconds (2 seconds)
           setTimeout(() => {

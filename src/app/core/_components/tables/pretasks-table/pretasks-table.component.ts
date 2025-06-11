@@ -296,7 +296,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open(`Successfully deleted pretasks!`, 'Close');
+            this.alertService.showSuccessMessage(`Successfully deleted pretasks!`);
             this.dataSource.reload();
           })
       );
@@ -319,7 +319,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully unassigned pretask!', 'Close');
+            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
             this.reload();
           })
       );
@@ -377,7 +377,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
 
     if (!val || pretask.priority == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -388,13 +388,13 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update prio!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update prio!`);
             console.error('Failed to update prio:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed prio to ${val} on Task #${pretask.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${pretask.id}!`);
           this.reload();
         })
     );
@@ -409,7 +409,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
 
     if (!val || pretask.maxAgents == val) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showInfoMessage('Nothing changed');
       return;
     }
 
@@ -420,13 +420,13 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update max agents!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update max agents!`);
             console.error('Failed to update max agents:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed number of max agents to ${val} on Task #${pretask.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${pretask.id}!`);
           this.reload();
         })
     );
@@ -447,7 +447,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully deleted pretask!', 'Close');
+            this.alertService.showSuccessMessage('Successfully deleted pretask!');
             this.reload();
           })
       );
@@ -464,7 +464,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
             })
           )
           .subscribe(() => {
-            this.snackBar.open('Successfully unassigned pretask!', 'Close');
+            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
             this.reload();
           })
       );

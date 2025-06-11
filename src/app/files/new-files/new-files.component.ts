@@ -18,7 +18,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
-import { handleEncode, SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
 
 /**
@@ -181,7 +181,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
 
           // After successful creation, update form and show alert
           this.onBeforeSubmit(this.form.value, true);
-          this.alert.okAlert('New File created!', '');
+          this.alert.showSuccessMessage('New File created');
           this.isCreatingLoading = false;
           this.submitted = false;
 

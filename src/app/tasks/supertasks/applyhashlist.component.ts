@@ -247,7 +247,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         crackerVersionId: formValue.crackerBinaryTypeId
       };
       const onSubmitSubscription$ = this.gs.chelper(SERV.HELPER, 'createSupertask', adaptedFormValue).subscribe(() => {
-        this.alert.okAlert('New SuperTask created!', '');
+        this.alert.showSuccessMessage('New SuperTask created');
         this.router.navigate(['tasks/show-tasks']);
         this.isCreatingLoading = false;
       });

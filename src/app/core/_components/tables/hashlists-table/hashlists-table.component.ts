@@ -252,7 +252,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     const action = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} hashlists!`);
         this.reload();
       })
     );
@@ -272,7 +272,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted hashlists!`);
           this.dataSource.reload();
         })
     );
@@ -292,7 +292,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted hashlist!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted hashlist!');
           this.reload();
         })
     );
@@ -324,7 +324,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Cracked hashes from hashlist exported sucessfully!', 'Close');
+          this.alertService.showSuccessMessage('Cracked hashes from hashlist exported sucessfully!');
           this.reload();
         })
     );

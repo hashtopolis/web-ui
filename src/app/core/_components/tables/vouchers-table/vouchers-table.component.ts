@@ -155,7 +155,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted vouchers!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted vouchers!`);
           this.dataSource.reload();
         })
     );
@@ -175,7 +175,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted voucher!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted voucher!');
           this.reload();
         })
     );

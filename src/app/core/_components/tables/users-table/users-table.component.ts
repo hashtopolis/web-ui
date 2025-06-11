@@ -250,7 +250,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted users!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted users!`);
           this.dataSource.reload();
         })
     );
@@ -264,7 +264,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
 
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.USERS, users, { isValid: isValid }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} users!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} users!`);
         this.reload();
       })
     );
@@ -284,7 +284,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted user!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted user!');
           this.reload();
         })
     );

@@ -1,22 +1,21 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
-
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SERV } from '@src/app/core/_services/main.config';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
 
 @Component({
-    selector: 'app-edit-groups',
-    templateUrl: './edit-groups.component.html',
-    standalone: false
+  selector: 'app-edit-groups',
+  templateUrl: './edit-groups.component.html',
+  standalone: false
 })
 export class EditGroupsComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -114,7 +113,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
       const onSubmitSubscription$ = this.gs
         .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
         .subscribe(() => {
-          this.alert.okAlert('Access Group saved!', '');
+          this.alert.showSuccessMessage('Access Group saved');
           this.isUpdatingLoading = false;
           this.router.navigate(['/users/access-groups']);
         });
@@ -133,13 +132,10 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         // Deletion
         const onDeleteSubscription$ = this.gs.delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex).subscribe(() => {
           // Successful deletion
-          this.alert.okAlert(`Deleted Access Group`, '');
+          this.alert.showSuccessMessage('Deleted Access Group');
           this.router.navigate(['/users/access-groups']);
         });
         this.unsubscribeService.add(onDeleteSubscription$);
-      } else {
-        // Handle cancellation
-        this.alert.okAlert(`Access Group is safe!`, '');
       }
     });
   }

@@ -1,25 +1,28 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { JAgent } from '@models/agent.model';
+import { BaseModel } from '@models/base.model';
+import { JHashlist } from '@models/hashlist.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 
 import { ACTION, ACTIONARRAY, NOTIFARRAY } from '../../../core/_constants/notifications.config';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
 import { SERV } from '../../../core/_services/main.config';
 import { Filter } from '../notifications.component';
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { BaseModel } from '@models/base.model';
-import { JAgent } from '@models/agent.model';
-import { JTask } from '@models/task.model';
-import { JHashlist } from '@models/hashlist.model';
 
 @Component({
-    selector: 'app-new-notification',
-    templateUrl: './new-notification.component.html',
-    standalone: false
+  selector: 'app-new-notification',
+  templateUrl: './new-notification.component.html',
+  standalone: false
 })
 export class NewNotificationComponent implements OnInit, OnDestroy {
   static readonly SUBMITLABEL = 'Save Notification';
@@ -175,7 +178,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
       this.isCreatingLoading = true;
       this.subscriptions.push(
         this.gs.create(SERV.NOTIFICATIONS, this.form.value).subscribe(() => {
-          this.alert.okAlert('New Notification created!', '');
+          this.alert.showSuccessMessage('New Notification created');
           this.isCreatingLoading = false;
           this.router.navigate(['/account/notifications']);
         })

@@ -15,9 +15,9 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ServiceConfig } from '@services/main.config';
 
 @Component({
-    selector: 'app-form',
-    templateUrl: 'form.component.html',
-    standalone: false
+  selector: 'app-form',
+  templateUrl: 'form.component.html',
+  standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
@@ -203,7 +203,7 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.type === 'create') {
       // Create mode: Submit form data for creating a new item
       const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
-        this.alert.okAlert(this.globalMetadata['submitok'], ''); // Display success alert first
+        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
         this.router.navigate([this.globalMetadata['submitokredirect']]); // Navigate after alert
       });
 
@@ -211,7 +211,7 @@ export class FormComponent implements OnInit, OnDestroy {
     } else {
       // Update mode: Submit form data for updating an existing item
       const updateSubscription = this.gs.update(this.serviceConfig, this.editedIndex, formValues).subscribe(() => {
-        this.alert.okAlert(this.globalMetadata['submitok'], '');
+        this.alert.showSuccessMessage(this.globalMetadata['submitok']);
         this.router.navigate([this.globalMetadata['submitokredirect']]);
       });
       this.unsubscribeService.add(updateSubscription);
@@ -252,14 +252,14 @@ export class FormComponent implements OnInit, OnDestroy {
         // Deletion
         const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
           // Successful deletion
-          this.alert.okAlert(this.globalMetadata['delsubmitok'], '');
+          this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']);
           this.router.navigate([this.globalMetadata['delsubmitokredirect']]);
         });
 
         this.unsubscribeService.add(deleteSubscription);
       } else {
         // Handle cancellation
-        this.alert.okAlert(this.globalMetadata['delsubmitcancel'], '');
+        this.alert.showSuccessMessage(this.globalMetadata['delsubmitcancel']);
       }
     });
   }

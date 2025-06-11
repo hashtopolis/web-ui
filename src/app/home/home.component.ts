@@ -1,35 +1,32 @@
-import * as echarts from 'echarts/core';
-import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
 import { HeatmapChart } from 'echarts/charts';
-
+import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
+import * as echarts from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
 import { Subscription } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { SERV } from '@src/app/core/_services/main.config';
-
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JHash } from '@src/app/core/_models/hash.model';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { UIConfig } from '@src/app/core/_models/config-ui.model';
-
-import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { AlertService } from '@services/shared/alert.service';
 
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { UIConfig } from '@src/app/core/_models/config-ui.model';
+import { JHash } from '@src/app/core/_models/hash.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { SERV } from '@src/app/core/_services/main.config';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  standalone: false
 })
 @PageTitle(['Dashboard'])
 export class HomeComponent implements OnInit, OnDestroy {
@@ -60,7 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private gs: GlobalService,
     private service: LocalStorageService<UIConfig>,
-    private snackBar: MatSnackBar,
+    private alertService: AlertService,
     private breakpointObserver: BreakpointObserver
   ) {
     this.uiSettings = new UISettingsUtilityClass(this.service);
@@ -147,7 +144,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         message = 'Autoreload is paused';
         clearTimeout(this.pageReloadTimeout);
       }
-      this.snackBar.open(message, 'Close');
+      this.alertService.showSuccessMessage(message);
     }
     this.initData();
     this.onAutorefresh();

@@ -160,7 +160,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully unassigned ${agents.length} users!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully unassigned ${agents.length} users`);
           this.reload();
         })
     );
@@ -188,7 +188,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully unassigned agents!', 'Close');
+          this.alertService.showSuccessMessage('Successfully unassigned agents');
           this.reload();
         })
     );

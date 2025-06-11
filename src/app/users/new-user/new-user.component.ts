@@ -57,7 +57,7 @@ export class NewUserComponent implements OnInit {
       this.selectGlobalPermissionGroups = transformSelectOptions(permissionGroups, DEFAULT_FIELD_MAPPING);
     } catch (err) {
       console.error('Failed to fetch permission groups:', err);
-      this.alert.okAlert('Error fetching permission groups', '', 'error');
+      this.alert.showErrorMessage('Error fetching permission groups');
     } finally {
       this.loadingPermissionGroups = false;
     }
@@ -79,12 +79,12 @@ export class NewUserComponent implements OnInit {
       };
 
       await firstValueFrom(this.gs.create(SERV.USERS, payload));
-      this.alert.okAlert('User created!', '', 'success');
+      this.alert.showSuccessMessage('User created');
       void this.router.navigate(['users/all-users']);
     } catch (err) {
       const msg = 'Error creating user';
       console.error(msg, err);
-      this.alert.okAlert(msg, '', 'error');
+      this.alert.showErrorMessage(msg);
     } finally {
       this.loading = false;
     }

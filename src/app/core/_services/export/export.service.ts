@@ -149,7 +149,7 @@ export class ExportService {
             );
           })
           .catch((error) => {
-            this.alertService.showErrorMessage(`Could not save data to Excel save: ${error}`);
+            this.alertService.showErrorMessage(`Could not save data to Excel file: ${error}`);
           });
         break;
       case ExportMenuAction.CSV:
@@ -160,7 +160,7 @@ export class ExportService {
             );
           })
           .catch((error) => {
-            this.alertService.showErrorMessage(`Could not save data to CSV save: ${error}`);
+            this.alertService.showErrorMessage(`Could not save data to CSV file: ${error}`);
           });
         break;
       case ExportMenuAction.COPY:
@@ -169,7 +169,7 @@ export class ExportService {
             this.alertService.showSuccessMessage('The selected rows were copied to the clipboard');
           })
           .catch((error) => {
-            this.alertService.showErrorMessage(`Could not copy data to clipboard save: ${error}`);
+            this.alertService.showErrorMessage(`Could not copy data to clipboard: ${error}`);
           });
         break;
     }

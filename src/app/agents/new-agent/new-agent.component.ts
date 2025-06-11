@@ -1,22 +1,24 @@
+import { Subscription } from 'rxjs';
+import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { ConfigService } from 'src/app/core/_services/shared/config.service';
+
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { Clipboard } from '@angular/cdk/clipboard';
-import { ConfigService } from 'src/app/core/_services/shared/config.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SERV } from '../../core/_services/main.config';
-import { Subscription } from 'rxjs';
-import { VoucherForm } from './new-agent.form';
-import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
-import { environment } from './../../../environments/environment';
 import { Router } from '@angular/router';
 
+import { SERV } from '@services/main.config';
+import { AlertService } from '@services/shared/alert.service';
+
+import { VoucherForm } from '@src/app/agents/new-agent/new-agent.form';
+import { environment } from '@src/environments/environment';
+
 @Component({
-    selector: 'app-new-agent',
-    templateUrl: './new-agent.component.html',
-    standalone: false
+  selector: 'app-new-agent',
+  templateUrl: './new-agent.component.html',
+  standalone: false
 })
 export class NewAgentComponent implements OnInit, OnDestroy {
   form: FormGroup<VoucherForm>;
@@ -28,7 +30,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
   constructor(
     private titleService: AutoTitleService,
     private clipboard: Clipboard,
-    private snackBar: MatSnackBar,
+    private alertService: AlertService,
     private cs: ConfigService,
     private gs: GlobalService,
     private router: Router
@@ -61,10 +63,7 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   copyAgentURL(): void {
     this.clipboard.copy(this.agentURL);
-    this.snackBar.open(
-      'The agent register URL is copied to the clipboard',
-      'Close'
-    );
+    this.alertService.showSuccessMessage('The agent register URL is copied to the clipboard');
   }
 
   isValid(): boolean {
@@ -73,13 +72,11 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if (this.form.valid) {
-      this.newVoucherSubscription = this.gs
-        .create(SERV.VOUCHER, this.form.value)
-        .subscribe(() => {
-          this.updateVoucher();
-          this.snackBar.open('New voucher successfully created!', 'Close');
-          this.table.reload();
-        });
+      this.newVoucherSubscription = this.gs.create(SERV.VOUCHER, this.form.value).subscribe(() => {
+        this.updateVoucher();
+        this.alertService.showSuccessMessage('New voucher successfully created!');
+        this.table.reload();
+      });
     }
   }
 

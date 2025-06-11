@@ -318,7 +318,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} ${results.length} agents!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} agents!`);
           this.dataSource.reload();
         })
     );
@@ -338,7 +338,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted agents!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
           this.dataSource.reload();
         })
     );
@@ -350,7 +350,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   private rowActionDelete(agent: JAgent): void {
     this.subscriptions.push(
       this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
-        this.snackBar.open('Successfully deleted agent!', 'Close');
+        this.alertService.showSuccessMessage('Successfully deleted agent!');
         this.dataSource.reload();
       })
     );

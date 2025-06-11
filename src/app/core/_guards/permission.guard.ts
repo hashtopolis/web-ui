@@ -1,15 +1,13 @@
-import {
-  ActivatedRouteSnapshot,
-  CanActivateFn,
-  RouterStateSnapshot
-} from '@angular/router';
-import { Perm } from '../_constants/userpermissions.config';
-import { Injectable, inject } from '@angular/core';
 import { Observable, map, take } from 'rxjs';
-
 import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from '../_services/shared/alert.service';
-import { SERV } from '../_services/main.config';
+
+import { Injectable, inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from '@angular/router';
+
+import { SERV } from '@services/main.config';
+import { AlertService } from '@services/shared/alert.service';
+
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
@@ -26,33 +24,23 @@ export class PermissionGuard {
     private serializer: JsonAPISerializer
   ) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): Observable<boolean> {
-    return this.gs
-      .get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] })
-      .pipe(
-        take(1),
-        map((response: ResponseWrapper) => {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    return this.gs.get(SERV.USERS, this.gs.userId, { include: ['globalPermissionGroup'] }).pipe(
+      take(1),
+      map((response: ResponseWrapper) => {
+        const responseData = { data: response.data, included: response.included };
+        const user = this.serializer.deserialize<JUser>(responseData);
 
-          const responseData = { data: response.data, included: response.included };
-          const user = this.serializer.deserialize<JUser>(responseData);
-
-          const permissions = user.globalPermissionGroup.permissions; //Check all permissions
-          const permName = Perm[route.data['permission']].READ; //Get permission name
-          const hasAccess = permissions[permName]; //returns true or false
-          if (hasAccess || typeof hasAccess == 'undefined') {
-            return true;
-          }
-          this.alert.okAlert(
-            'ACCESS DENIED',
-            'Please contact your Administrator.',
-            'error'
-          );
-          return false;
-        })
-      );
+        const permissions = user.globalPermissionGroup.permissions; //Check all permissions
+        const permName = Perm[route.data['permission']].READ; //Get permission name
+        const hasAccess = permissions[permName]; //returns true or false
+        if (hasAccess || typeof hasAccess == 'undefined') {
+          return true;
+        }
+        this.alert.showErrorMessage('Access denied, please contact your Administrator.');
+        return false;
+      })
+    );
   }
 }
 

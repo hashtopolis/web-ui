@@ -2,26 +2,26 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnIni
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { JHashlist } from '@models/hashlist.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JHashlist } from '@models/hashlist.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { AlertService } from '@services/shared/alert.service';
-import { GlobalService } from '@services/main.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
 /**
  * Represents the NewSuperhashlistComponent responsible for creating a new SuperHashlist.
  */
 @Component({
-    selector: 'app-new-superhashlist',
-    templateUrl: './new-superhashlist.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+  selector: 'app-new-superhashlist',
+  templateUrl: './new-superhashlist.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false
 })
 export class NewSuperhashlistComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -113,7 +113,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
       const createSubscription$ = this.globalService
         .chelper(SERV.HELPER, 'createSuperHashlist', this.form.value)
         .subscribe(() => {
-          this.alert.okAlert('New SuperHashList created!', '');
+          this.alert.showSuccessMessage('New SuperHashList created');
           this.form.reset();
           this.router.navigate(['hashlists/superhashlist']);
         });
