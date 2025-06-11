@@ -1,26 +1,25 @@
-import { HeatmapChart } from 'echarts/charts';
-import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
-import { Subscription } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 import { AlertService } from '@services/shared/alert.service';
-
-import { PageTitle } from '@src/app/core/_decorators/autotitle';
-import { UIConfig } from '@src/app/core/_models/config-ui.model';
-import { JHash } from '@src/app/core/_models/hash.model';
+import { CanvasRenderer } from 'echarts/renderers';
 import { FilterType } from '@src/app/core/_models/request-params.model';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { HeatmapChart } from 'echarts/charts';
+import { JHash } from '@src/app/core/_models/hash.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { SERV } from '@src/app/core/_services/main.config';
+import { Subscription } from 'rxjs';
+import { UIConfig } from '@src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-home',
@@ -247,6 +246,13 @@ export class HomeComponent implements OnInit, OnDestroy {
             right: 30,
             cellSize: ['auto', 13],
             range: currentYear,
+            splitLine: this.isDarkMode
+              ? {
+                  lineStyle: {
+                    color: '#FFFFFF',
+                  }
+                }
+              : {},
             itemStyle: {
               borderWidth: 0.5
             },
