@@ -30,7 +30,7 @@
 
         <div>
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
-          <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+          <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
             <mat-icon>help</mat-icon>
           </button>
           <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
