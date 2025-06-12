@@ -139,11 +139,11 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
     } else {
       this.addActionMenuItem(0, this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT));
     }
-/*     if (this.data['assignmentId']) {
+    if (this.data['assignmentId']) {
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)]);
-    } else { */
+    } else {
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)]);
-    /* } */
+    }
   }
 
   /**
