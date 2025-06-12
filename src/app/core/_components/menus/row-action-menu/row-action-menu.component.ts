@@ -1,13 +1,13 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnInit } from '@angular/core';
-
-import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
-import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 import {
   RowActionMenuAction,
   RowActionMenuIcon,
   RowActionMenuLabel
 } from '@components/menus/row-action-menu/row-action-menu.constants';
+
+import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 
 /**
  * Component representing the row action menu for various data types.
