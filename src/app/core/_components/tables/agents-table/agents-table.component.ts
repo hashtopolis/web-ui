@@ -1,21 +1,9 @@
-import { Observable, catchError, of } from 'rxjs';
-
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JAgent } from '@models/agent.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
   AgentsTableCol,
   AgentsTableColumnLabel
 } from '@components/tables/agents-table/agents-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   DataType,
   HTTableColumn,
@@ -23,12 +11,19 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { AgentsDataSource } from '@datasources/agents.datasource';
-
+import { Observable, catchError, of } from 'rxjs';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { AgentsDataSource } from '@datasources/agents.datasource';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { JAgent } from '@models/agent.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
@@ -425,9 +420,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
+          title: `${event.data?.assignmentId ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} ${event.data.agentName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${event.data?.assignmentId ? 'unassign' : 'delete'} ${event.data.agentName}? ${event.data?.assignmentId ? '' : 'Note that this action cannot be undone.'}`,
           warn: true,
           action: event.menuItem.action
         });
@@ -524,17 +519,17 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: JAgent): void {
-    if (this.taskId === 0) {
+    if (agent[0].assignmentId) {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted agent!');
+        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully unassigned agent!');
+        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
       );

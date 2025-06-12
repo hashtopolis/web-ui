@@ -47,4 +47,3 @@ export const getNewHashlistForm = () => {
     isSecret: new FormControl(true)
   });
 };
-
