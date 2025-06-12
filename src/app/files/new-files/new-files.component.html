@@ -29,6 +29,8 @@
 
           <div *ngIf="uploadProgress === 100"><p><b>Upload completed!</b></p></div>
 
+          <input-check title="Secret Data" formControlName="isSecret"></input-check>
+
           <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px">
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
             <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
@@ -49,6 +51,8 @@
           <input-select title="Access group" formControlName="accessGroupId" [items]="selectAccessgroup"></input-select>
 
           <input-text title="URL path" formControlName="sourceData" pattern="^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$" [isRequired]="true"></input-text>
+
+          <input-check title="Secret Data" formControlName="isSecret"></input-check>
 
           <grid-buttons>
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
