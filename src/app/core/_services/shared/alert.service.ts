@@ -9,30 +9,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class AlertService {
   constructor(private snackBar: MatSnackBar) {}
 
-  cancelButtonColor = '#8A8584';
   confirmButtonColor = '#C53819';
-  submitText = 'Submit';
   okText = 'Ok';
-
-  /**
-   * Handles custom text confirmation.
-   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
-   *
-   * @param {string} name - Item name
-   * @param {string} title - Additional text
-   */
-  customConfirmation(text: string): Promise<boolean> {
-    return Swal.fire({
-      title: `${text}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      cancelButtonColor: this.cancelButtonColor,
-      confirmButtonColor: this.confirmButtonColor,
-      confirmButtonText: this.submitText
-    }).then((result) => {
-      return result.isConfirmed;
-    });
-  }
 
   /**
    * Handles custom text confirmation.

@@ -45,4 +45,21 @@ export class ConfirmDialogService {
 
     return this.openDialog(data);
   }
+
+  /**
+   * Opens a completely customized confirmation dialog
+   * @return Observable containing a boolean: true: confirm button clicked, false: cancel button clicked
+   * @param title
+   * @param message
+   */
+  confirmYesNo(title: string, message: string): Observable<boolean> {
+    const data: ConfirmDialogData = {
+      title: title,
+      message: message,
+      confirmText: 'Yes',
+      cancelText: 'No'
+    };
+
+    return this.openDialog(data);
+  }
 }
