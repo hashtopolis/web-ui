@@ -10,8 +10,10 @@
             appearance="legacy"
             name="fontStyle"
             aria-label="Font Style"
+            hideSingleSelectionIndicator=true
           >
             <ng-container *ngFor="let item of menuItems">
+
               <mat-button-toggle
                 [ngClass]="getButtonClass(item.routeName)"
                 (click)="navigateTo(item.routeName)"
