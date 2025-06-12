@@ -1,0 +1,12 @@
+<h1 mat-dialog-title><strong>{{ data.title || 'Confirm' }}</strong></h1>
+<div mat-dialog-content>
+  <p>{{ data.message }}</p>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-flat-button (click)="onCancel()">
+    {{ data.cancelText || 'Cancel' }}
+  </button>
+  <button mat-flat-button color="primary" (click)="onConfirm()">
+    {{ data.confirmText || 'OK' }}
+  </button>
+</div>
