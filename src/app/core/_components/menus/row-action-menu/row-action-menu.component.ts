@@ -132,7 +132,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
    * Sets the context menu items for an agent data row.
    */
   private setAgentMenu(): void {
-    console.log('RowActionMenuComponent: Setting agent menu items', this.data);
     this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)]);
     if (this.data['isActive']) {
       this.addActionMenuItem(0, this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT));
