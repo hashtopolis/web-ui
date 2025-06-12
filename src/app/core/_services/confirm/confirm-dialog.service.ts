@@ -38,7 +38,7 @@ export class ConfirmDialogService {
   confirmDeletion(title: string, name: string): Observable<boolean> {
     const data: ConfirmDialogData = {
       title: `Delete ${title}`,
-      message: `Are you sure you want to delete the ${title} ${name}?`,
+      message: `Are you sure you want to delete this ${title}: ${name}?`,
       confirmText: 'Delete',
       cancelText: 'Cancel'
     };

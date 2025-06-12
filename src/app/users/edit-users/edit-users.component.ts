@@ -194,7 +194,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
           this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
             this.router
               .navigate(['/users/all-users'])
-              .then(() => this.alert.showSuccessMessage(`User ${this.editedUserName} successfully deleted`));
+              .then(() => this.alert.showSuccessMessage(`Successfully deleted the user: ${this.editedUserName}`));
           })
         );
       }
