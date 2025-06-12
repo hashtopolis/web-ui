@@ -34,6 +34,7 @@ export class InputSelectComponent extends AbstractInputComponent<any> {
   @Input() isBlankOptionDisabled = false;
   @Input() blankOptionText: string;
   @Input() isLoading = false;
+  @Input() width: string = '';
 
   constructor() {
     super();

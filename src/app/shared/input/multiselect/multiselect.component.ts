@@ -93,9 +93,21 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
    */
   onChangeValue(value): void {
     if (!this.multiselectEnabled) {
-      this.value = Array.isArray(value) ? extractIds(value, 'id')[0] : extractIds(value, 'id')[0];
+      if (Array.isArray(value)) {
+        this.value = extractIds(value, 'id')[0];
+      } else if (value) {
+        this.value = extractIds([value], 'id')[0]; // wrap in array
+      } else {
+        this.value = null; // or handle empty case
+      }
     } else {
-      this.value = Array.isArray(value) ? extractIds(value, 'id') : extractIds(value, 'id');
+      if (Array.isArray(value)) {
+        this.value = extractIds(value, 'id');
+      } else if (value) {
+        this.value = extractIds([value], 'id');
+      } else {
+        this.value = [];
+      }
     }
 
     this.onChange(this.value);
@@ -217,7 +229,7 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
       if (index >= 0) {
         const highlightedValue =
           value.substring(0, index) +
-          `<span class="highlight-text">${value.substring(index, term.length)}</span>` +
+          `<span class="highlight-text">${value.substring(index, index + term.length)}</span>` +
           value.substring(index + term.length);
 
         return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);

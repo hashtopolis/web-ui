@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
-
-import { AbstractInputComponent } from '../abstract-input';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input Text Component.
@@ -34,6 +33,7 @@ export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() pattern: string | RegExp;
   @Input() inputType: 'text' | 'password' = 'text';
   @Input() icon: string;
+  @Input() width: string = '';
   @Input() showPasswordToggle: boolean = false;
   @Input() passwordIsVisible: boolean = true;
   @Output() ShowPasswordEmit = new EventEmitter<boolean>();
