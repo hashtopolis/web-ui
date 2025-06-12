@@ -407,7 +407,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   rowActionClicked(event: ActionMenuEvent<JAgent>): void {
-    console.log('Row action clicked for agent:', event.data); // Debugging log
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT:
         this.rowActionEdit(event.data);
@@ -456,7 +455,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           rows: event.data,
           title: `${this.assignAgents ? 'Unassigning' : 'Deleting'} ${event.data.length} agents ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} the above agents? ${this.assignAgents ? 'HELLO' : 'Note that this action cannot be undone.'} `,
+          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} the above agents? Note that this action cannot be undone.`,
           warn: true,
           listAttribute: 'agentName',
           action: event.menuItem.action
@@ -520,7 +519,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: JAgent): void {
-    console.log('Row action delete called for agent:', agent[0].assignmentId);
     if (agent[0].assignmentId) {
       this.subscriptions.push(
         this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
@@ -529,13 +527,12 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         })
       );
     } else {
-      console.log('Row action delete called for agent without assignmentId:', agent[0].id);
-      /*       this.subscriptions.push(
+      this.subscriptions.push(
         this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
-      ); */
+      );
     }
   }
 
