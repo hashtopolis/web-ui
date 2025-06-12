@@ -30,7 +30,7 @@ export interface PreparedFormData {
 export const getNewFilesForm = () => {
   return new FormGroup<NewFilesForm>({
     filename: new FormControl(''),
-    isSecret: new FormControl(false),
+    isSecret: new FormControl(true),
     fileType: new FormControl(null),
     accessGroupId: new FormControl(1),
     sourceType: new FormControl('import'),
