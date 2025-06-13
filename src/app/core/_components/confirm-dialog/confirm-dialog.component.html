@@ -1,4 +1,7 @@
-<h1 mat-dialog-title><strong>{{ data.title || 'Confirm' }}</strong></h1>
+<div class="dialog-title mat-elevation-z4 text-primary-300">
+  <mat-icon *ngIf="data.icon" class="dialog-icon">{{ data.icon }}</mat-icon>
+  <span class="dialog-title-text">{{ data.title || 'Confirm' }}</span>
+</div>
 <div mat-dialog-content>
   <p>{{ data.message }}</p>
 </div>

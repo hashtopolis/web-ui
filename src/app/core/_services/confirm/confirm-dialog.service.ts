@@ -22,7 +22,7 @@ export class ConfirmDialogService {
    */
   private openDialog(data: ConfirmDialogData): Observable<boolean> {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '300px',
+      width: '450px',
       data
     });
 
@@ -40,7 +40,8 @@ export class ConfirmDialogService {
       title: `Delete ${title}`,
       message: `Are you sure you want to delete this ${title}: ${name}?`,
       confirmText: 'Delete',
-      cancelText: 'Cancel'
+      cancelText: 'Cancel',
+      icon: 'warning'
     };
 
     return this.openDialog(data);
@@ -57,7 +58,8 @@ export class ConfirmDialogService {
       title: title,
       message: message,
       confirmText: 'Yes',
-      cancelText: 'No'
+      cancelText: 'No',
+      icon: 'info'
     };
 
     return this.openDialog(data);
