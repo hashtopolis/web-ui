@@ -20,8 +20,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
 
-import { formatPercentage } from '@src/app/shared/utils/util';
-
 @Component({
   selector: 'app-super-hashlists-table',
   templateUrl: './super-hashlists-table.component.html',
