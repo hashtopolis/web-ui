@@ -100,9 +100,8 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (superHashlist: JHashlist) => this.renderCrackedStatusIcon(superHashlist),
-        render: (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount),
-        isSortable: true,
-        export: async (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount)
+        render: (superHashlist: JHashlist) => this.renderCrackedHashes(superHashlist, false),
+        export: async (superHashlist: JHashlist) => this.renderCrackedHashes(superHashlist, true)
       },
       {
         id: SuperHashlistsTableCol.HASHTYPE,
