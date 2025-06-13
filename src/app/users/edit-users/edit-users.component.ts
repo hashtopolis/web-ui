@@ -1,3 +1,5 @@
+import { finalize } from 'rxjs';
+
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -7,12 +9,12 @@ import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING, USER_AGP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
@@ -50,10 +52,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
 
   // Edit Configuration
   editedUserIndex: number;
-  editedUser: JUser; // Change to Model
-
-  // Password validation
-  strongPassword = false;
+  editedUserName: string;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -63,7 +62,8 @@ export class EditUsersComponent implements OnInit, OnDestroy {
     private datePipe: uiDatePipe,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private confirmDialog: ConfirmDialogService
   ) {
     this.onInitialize();
     this.buildForm();
@@ -112,6 +112,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
         this.selectUserAgps = transformSelectOptions(user.accessGroups, USER_AGP_FIELD_MAPPING);
+        this.editedUserName = user.name;
       });
 
     this.unsubscribeService.add(loaduserAGPSubscription$);
@@ -169,12 +170,13 @@ export class EditUsersComponent implements OnInit, OnDestroy {
 
       const onSubmitSubscription$ = this.gs
         .update(SERV.USERS, this.editedUserIndex, this.updateForm.value.updateData)
+        .pipe(finalize(() => (this.isUpdatingLoading = false)))
         .subscribe(() => {
-          this.alert.showSuccessMessage('User saved');
-          this.isUpdatingLoading = false;
           this.updateForm.reset(); // success, we reset form
           this.updatePassForm.reset();
-          this.router.navigate(['users/all-users']);
+          this.router
+            .navigate(['users/all-users'])
+            .then(() => this.alert.showSuccessMessage(`User ${this.editedUserName} successfully updated`));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
@@ -186,15 +188,15 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    * If the deletion is successful, it navigates to the user list.
    */
   onDelete() {
-    this.alert.deleteConfirmation('', 'Users').then((confirmed) => {
+    this.confirmDialog.confirmDeletion('user', this.editedUserName).subscribe((confirmed) => {
       if (confirmed) {
-        // Deletion
-        const onDeleteSubscription$ = this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
-          // Successful deletion
-          this.alert.showSuccessMessage('Deleted User');
-          this.router.navigate(['/users/all-users']);
-        });
-        this.unsubscribeService.add(onDeleteSubscription$);
+        this.unsubscribeService.add(
+          this.gs.delete(SERV.USERS, this.editedUserIndex).subscribe(() => {
+            this.router
+              .navigate(['/users/all-users'])
+              .then(() => this.alert.showSuccessMessage(`Successfully deleted the user: ${this.editedUserName}`));
+          })
+        );
       }
     });
   }
@@ -207,7 +209,6 @@ export class EditUsersComponent implements OnInit, OnDestroy {
    * @param val - An object containing the new password information.
    */
   onUpdatePass(val: FormGroup<UpdatePassForm>['value']) {
-    const setpass = String(val['password']).length;
     if (val['password']) {
       const payload = {
         password: val['password'],
@@ -216,16 +217,5 @@ export class EditUsersComponent implements OnInit, OnDestroy {
       const onUpdatePasswordSubscription$ = this.gs.chelper(SERV.HELPER, 'setUserPassword', payload).subscribe();
       this.unsubscribeService.add(onUpdatePasswordSubscription$);
     }
-  }
-
-  /**
-   * Handles the change in password strength.
-   *
-   * @param event - A boolean indicating the strength of the password.
-   *   - `true`: Password is strong.
-   *   - `false`: Password is not strong.
-   */
-  onPasswordStrengthChanged(event: boolean) {
-    this.strongPassword = event;
   }
 }

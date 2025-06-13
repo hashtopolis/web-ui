@@ -7,6 +7,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -39,14 +40,10 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   /** List of PreTasks. */
   selectPretasks: any[];
 
-  /** Select Options Mapping */
-  selectSuperTaskMap = {
-    fieldMapping: SUPER_TASK_FIELD_MAPPING
-  };
-
   // Edit
   editedSTIndex: number;
   assignPretasks: any;
+  editName: string;
 
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
 
@@ -58,7 +55,8 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
     private alert: AlertService,
     private gs: GlobalService,
     private router: Router,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    private confirmDialog: ConfirmDialogService
   ) {
     this.onInitialize();
     this.buildForm();
@@ -122,7 +120,7 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const responseData = { data: response.data, included: response.included };
         const supertask = this.serializer.deserialize<JSuperTask>(responseData);
-
+        this.editName = supertask.supertaskName;
         this.assignPretasks = supertask.pretasks;
         this.viewForm = new FormGroup({
           supertaskId: new FormControl({
@@ -203,21 +201,17 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
    * Navigates to the super tasks page after successful deletion.
    */
   onDelete() {
-    this.alert.deleteConfirmation('', 'Supertasks').then((confirmed) => {
+    this.confirmDialog.confirmDeletion('Supertask', this.editName).subscribe((confirmed) => {
       if (confirmed) {
-        // Deletion
-        const deleteSubscription$ = this.gs.delete(SERV.SUPER_TASKS, this.editedSTIndex).subscribe(() => {
-          // Successful deletion
-          this.alert.showSuccessMessage('Deleted Supertask');
-          this.router.navigate(['/tasks/supertasks']);
-        });
-        this.unsubscribeService.add(deleteSubscription$);
+        this.unsubscribeService.add(
+          this.gs.delete(SERV.SUPER_TASKS, this.editedSTIndex).subscribe(() => {
+            this.router
+              .navigate(['/tasks/supertasks'])
+              .then(() => this.alert.showSuccessMessage(`Succesfully deleted Supertask: ${this.editedSTIndex}`));
+          })
+        );
       }
     });
-  }
-
-  onRefresh() {
-    window.location.reload();
   }
 
   /**

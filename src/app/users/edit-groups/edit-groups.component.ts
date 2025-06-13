@@ -1,6 +1,8 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
@@ -9,7 +11,6 @@ import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
 
 @Component({
@@ -29,16 +30,16 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
 
   // Edit Configuration
   editedAccessGroupIndex: number;
+  editName: string;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private titleService: AutoTitleService,
-    private uiService: UIConfigService,
+    readonly titleService: AutoTitleService,
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private confirmDialog: ConfirmDialogService
   ) {
     this.onInitialize();
     this.buildForm();
@@ -96,6 +97,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
           data: response.data,
           included: response.included
         });
+        this.editName = accessGroup.groupName;
         this.updateForm = new FormGroup({
           groupName: new FormControl(accessGroup.groupName)
         });
@@ -113,29 +115,31 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
       const onSubmitSubscription$ = this.gs
         .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
         .subscribe(() => {
-          this.alert.showSuccessMessage('Access Group saved');
           this.isUpdatingLoading = false;
-          this.router.navigate(['/users/access-groups']);
+          this.router
+            .navigate(['/users/access-groups'])
+            .then(() => this.alert.showSuccessMessage('Access Group saved'));
         });
       this.unsubscribeService.add(onSubmitSubscription$);
     }
   }
 
   /**
-   * Handles the deletion of a access group.
+   * Handles the deletion of an access group.
    * Displays a confirmation dialog and, if confirmed, triggers the deletion process.
    * If the deletion is successful, it navigates to the user list.
    */
   onDelete() {
-    this.alert.deleteConfirmation('', 'Access Groups').then((confirmed) => {
+    this.confirmDialog.confirmDeletion('Access Group', this.editName).subscribe((confirmed) => {
       if (confirmed) {
-        // Deletion
-        const onDeleteSubscription$ = this.gs.delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex).subscribe(() => {
-          // Successful deletion
-          this.alert.showSuccessMessage('Deleted Access Group');
-          this.router.navigate(['/users/access-groups']);
-        });
-        this.unsubscribeService.add(onDeleteSubscription$);
+        this.unsubscribeService.add(
+          this.gs.delete(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex).subscribe(() => {
+            // Successful deletion
+            this.router
+              .navigate(['/users/access-groups'])
+              .then(() => this.alert.showSuccessMessage(`Succesfully deleted access group: ${this.editName}`));
+          })
+        );
       }
     });
   }

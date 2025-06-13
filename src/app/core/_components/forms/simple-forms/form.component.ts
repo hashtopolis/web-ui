@@ -12,6 +12,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { ServiceConfig } from '@services/main.config';
 
 @Component({
@@ -103,6 +104,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
    * @param router - The Angular Router for navigation.
+   * @param confirmDialog
    */
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -111,7 +113,8 @@ export class FormComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router
+    private router: Router,
+    private confirmDialog: ConfirmDialogService
   ) {
     // Subscribe to route data to initialize component data
     this.routeParamsSubscription = this.route.data.subscribe(
@@ -119,7 +122,7 @@ export class FormComponent implements OnInit, OnDestroy {
         const formKind = data.kind;
         this.serviceConfig = data.serviceConfig; // Get the API path from route data
         this.type = data.type;
-        this.isCreate = this.type === 'create' ? true : false;
+        this.isCreate = this.type === 'create';
         // Load metadata and form information
         this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
         this.formMetadata = this.metadataService.getFormMetadata(formKind);
@@ -247,19 +250,17 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.globalMetadata['deltitle']) {
       this.getIndex();
     }
-    this.alert.deleteConfirmation('', this.globalMetadata['deltitle']).then((confirmed) => {
+    this.confirmDialog.confirmDeletion(this.globalMetadata['deltitle'], '').subscribe((confirmed) => {
       if (confirmed) {
         // Deletion
         const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
-          // Successful deletion
-          this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']);
-          this.router.navigate([this.globalMetadata['delsubmitokredirect']]);
+          this.router
+            .navigate([this.globalMetadata['delsubmitokredirect']])
+            .then(() => this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']));
         });
-
         this.unsubscribeService.add(deleteSubscription);
       } else {
-        // Handle cancellation
-        this.alert.showSuccessMessage(this.globalMetadata['delsubmitcancel']);
+        this.alert.showInfoMessage(this.globalMetadata['delsubmitcancel']);
       }
     });
   }
