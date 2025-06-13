@@ -1,37 +1,32 @@
-import { Observable, catchError, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { ChunkData } from '@models/chunk.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Observable, catchError, of } from 'rxjs';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-
-import { TasksDataSource } from '@datasources/tasks.datasource';
-
 import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ChunkData } from '@models/chunk.model';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { JTask } from '@models/task.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { TasksDataSource } from '@datasources/tasks.datasource';
 
 @Component({
   selector: 'app-tasks-table',
@@ -147,6 +142,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => {
+          console.log(wrapper);
           const status = this.getTaskStatus(wrapper);
           switch (status) {
             case TaskStatus.RUNNING:
@@ -416,28 +412,28 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     let icon: HTTableIcon = { name: '' };
     const status = this.getTaskStatus(wrapper);
     if (wrapper.taskType === 0) {
-      switch (status) {
-        case TaskStatus.RUNNING:
-          icon = {
-            name: 'radio_button_checked',
-            cls: 'pulsing-progress',
-            tooltip: 'In Progress'
-          };
-          break;
-        case TaskStatus.COMPLETED:
-          icon = {
-            name: 'check',
-            tooltip: 'Completed'
-          };
-          break;
-        case TaskStatus.IDLE:
-          icon = {
-            name: 'radio_button_checked',
-            tooltip: 'Idle',
-            cls: 'text-primary'
-          };
-          break;
-      }
+    switch (status) {
+      case TaskStatus.RUNNING:
+        icon = {
+          name: 'radio_button_checked',
+          cls: 'pulsing-progress',
+          tooltip: 'In Progress'
+        };
+        break;
+      case TaskStatus.COMPLETED:
+        icon = {
+          name: 'check',
+          tooltip: 'Completed'
+        };
+        break;
+      case TaskStatus.IDLE:
+        icon = {
+          name: 'radio_button_checked',
+          tooltip: 'Idle',
+          cls: 'text-primary'
+        };
+        break;
+    }
     } else {
       // Count the completed tasks in supertasks
       const countCompleted = wrapper.tasks.reduce((count) => {
@@ -511,7 +507,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private getTaskStatus(wrapper: JTaskWrapper): TaskStatus {
-    if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
+    if (wrapper.taskType === 0 &&  wrapper.tasks.length > 0) {
       const chunkData: ChunkData = wrapper.chunkData;
       if (chunkData) {
         const speed = chunkData.speed;
@@ -721,13 +717,26 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    if (wrapper.taskType === 0) {
-      links.push({
-        label: wrapper.cracked.toLocaleString(),
-        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
-      });
+    switch (wrapper.taskType) {
+      case 1: // Supertask
+        links.push({
+          label: wrapper.hashlist.cracked.toLocaleString(),
+          routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId],
+        });
+        break;
+      case 0: // Task
+        links.push({
+          label: wrapper.cracked.toLocaleString(),
+          routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id],
+        });
+        break;
+      default:
+        links.push({
+          label: 'Unknown Task Type',
+          routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id],
+        });
+        break;
     }
-
     return of(links);
   }
 
