@@ -412,29 +412,31 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     let icon: HTTableIcon = { name: '' };
     const status = this.getTaskStatus(wrapper);
     if (wrapper.taskType === 0) {
-    switch (status) {
-      case TaskStatus.RUNNING:
-        icon = {
-          name: 'radio_button_checked',
-          cls: 'pulsing-progress',
-          tooltip: 'In Progress'
-        };
-        break;
-      case TaskStatus.COMPLETED:
-        icon = {
-          name: 'check',
-          tooltip: 'Completed'
-        };
-        break;
-      case TaskStatus.IDLE:
-        icon = {
-          name: 'radio_button_checked',
-          tooltip: 'Idle',
-          cls: 'text-primary'
-        };
-        break;
-    }
+      console.log(wrapper ,' NORMAL TASK');
+      switch (status) {
+        case TaskStatus.RUNNING:
+          icon = {
+            name: 'radio_button_checked',
+            cls: 'pulsing-progress',
+            tooltip: 'In Progress'
+          };
+          break;
+        case TaskStatus.COMPLETED:
+          icon = {
+            name: 'check',
+            tooltip: 'Completed'
+          };
+          break;
+        case TaskStatus.IDLE:
+          icon = {
+            name: 'radio_button_checked',
+            tooltip: 'Idle',
+            cls: 'text-primary'
+          };
+          break;
+      }
     } else {
+            console.log(wrapper ,' SUPER TASK');
       // Count the completed tasks in supertasks
       const countCompleted = wrapper.tasks.reduce((count) => {
         return count;
@@ -507,7 +509,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private getTaskStatus(wrapper: JTaskWrapper): TaskStatus {
-    if (wrapper.taskType === 0 &&  wrapper.tasks.length > 0) {
+    if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
       const chunkData: ChunkData = wrapper.chunkData;
       if (chunkData) {
         const speed = chunkData.speed;
@@ -718,22 +720,23 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   private renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     switch (wrapper.taskType) {
-      case 1: // Supertask
-        links.push({
-          label: wrapper.hashlist.cracked.toLocaleString(),
-          routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId],
-        });
-        break;
       case 0: // Task
         links.push({
           label: wrapper.cracked.toLocaleString(),
-          routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id],
+          routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId]
+          // routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id], old
+        });
+        break;
+      case 1: // Supertask
+        links.push({
+          label: wrapper.hashlist.cracked.toLocaleString(),
+          routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId]
         });
         break;
       default:
         links.push({
           label: 'Unknown Task Type',
-          routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id],
+          routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
         });
         break;
     }
