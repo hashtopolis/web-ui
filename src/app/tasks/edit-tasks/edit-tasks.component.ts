@@ -36,6 +36,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -94,7 +95,8 @@ export class EditTasksComponent implements OnInit {
     private gs: GlobalService,
     private fs: FileSizePipe,
     private router: Router,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    private confirmDialog: ConfirmDialogService
   ) {
     this.titleService.set(['Edit Task']);
   }
@@ -144,9 +146,9 @@ export class EditTasksComponent implements OnInit {
     if (this.updateForm.valid) {
       // Check if attackCmd has been modified
       if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
-        const warning =
+        const message: string =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
-        this.alertService.customConfirmation(warning).then((confirmed) => {
+        this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
           if (confirmed) {
             this.updateTask();
           } else {
@@ -162,10 +164,9 @@ export class EditTasksComponent implements OnInit {
   private updateTask() {
     this.isUpdatingLoading = true;
     this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.alertService.showSuccessMessage('Task saved');
       this.isUpdatingLoading = false;
       this.router.navigate(['tasks/show-tasks']).then(() => {
-        window.location.reload();
+        this.alertService.showSuccessMessage('Task data has been updated successfully.');
       });
     });
   }
@@ -378,8 +379,8 @@ export class EditTasksComponent implements OnInit {
    **/
 
   purgeTask() {
-    this.alertService.customConfirmation('Do you really want to purge the task').then((result) => {
-      if (result) {
+    this.confirmDialog.confirmYesNo('Purge Task', 'Do you really want to purge the task').subscribe((confirmed) => {
+      if (confirmed) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);

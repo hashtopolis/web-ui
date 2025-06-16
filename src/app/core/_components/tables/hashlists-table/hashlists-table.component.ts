@@ -21,7 +21,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -114,9 +113,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
-        render: (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount),
+        render: (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, false),
         isSortable: true,
-        export: async (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount)
+        export: async (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, true)
       },
       {
         id: HashlistsTableCol.FORMAT,

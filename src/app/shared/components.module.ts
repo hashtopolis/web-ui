@@ -1,5 +1,4 @@
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ColorPickerModule } from 'ngx-color-picker';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -56,7 +55,6 @@ import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wo
     HorizontalNavModule,
     DynamicFormModule,
     SwitchThemeModule,
-    ColorPickerModule,
     PaginationModule,
     CoreFormsModule,
     PageTitleModule,
@@ -86,7 +84,6 @@ import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wo
     PassMatchComponent,
     SwitchThemeModule,
     DynamicFormModule,
-    ColorPickerModule,
     PaginationModule,
     TimeoutComponent,
     PageTitleModule,

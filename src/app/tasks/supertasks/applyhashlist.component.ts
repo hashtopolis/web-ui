@@ -165,7 +165,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
-          this.alert.errorConfirmation('Before proceeding, you need to create a Hashlist.');
+          this.alert.showErrorMessage('Before proceeding, you need to create a Hashlist.');
         }
         this.changeDetectorRef.detectChanges();
       });

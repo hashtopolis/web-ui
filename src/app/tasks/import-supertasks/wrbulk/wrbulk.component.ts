@@ -203,50 +203,35 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         // Check if crackerBinaryId is invalid or missing
         if (!crackerBinaryId) {
           const warning = 'Invalid cracker type ID!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if attackCmd contains the hashlist alias
         if (!attackCmd.includes(attackAlias)) {
           const warning = 'Command line must contain hashlist alias (' + attackAlias + ')!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if attackCmd contains FILE placeholder
         if (!attackCmd.includes('FILE')) {
           const warning = 'No placeholder (FILE) for the iteration!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if at least one base file is selected
         if (!baseFiles || baseFiles.length === 0) {
           const warning = 'You need to select at least one base file!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if at least one iter file is selected
         if (!iterFiles || iterFiles.length === 0) {
           const warning = 'You need to select at least one iteration file!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 

@@ -1,5 +1,3 @@
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -8,73 +6,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class AlertService {
   constructor(private snackBar: MatSnackBar) {}
-
-  cancelButtonColor = '#8A8584';
-  confirmButtonColor = '#C53819';
-  delconfirmText = 'Yes, delete it!';
-  purgeText = 'Yes, purge task!';
-  submitText = 'Submit';
-  okText = 'Ok';
-
-  /**
-   * Handles delete confirmation.
-   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
-   *
-   * @param {string} name - Item name
-   * @param {string} title - Additional text
-   */
-
-  deleteConfirmation(name: string, title: string): Promise<boolean> {
-    return Swal.fire({
-      title: `Remove ${name} from your ${title}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      cancelButtonColor: this.cancelButtonColor,
-      confirmButtonColor: this.confirmButtonColor,
-      confirmButtonText: this.delconfirmText
-    }).then((result) => {
-      return result.isConfirmed;
-    });
-  }
-
-  /**
-   * Handles custom text confirmation.
-   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
-   *
-   * @param {string} name - Item name
-   * @param {string} title - Additional text
-   */
-  customConfirmation(text: string): Promise<boolean> {
-    return Swal.fire({
-      title: `${text}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      cancelButtonColor: this.cancelButtonColor,
-      confirmButtonColor: this.confirmButtonColor,
-      confirmButtonText: this.submitText
-    }).then((result) => {
-      return result.isConfirmed;
-    });
-  }
-
-  /**
-   * Handles custom text confirmation.
-   * Displays a confirmation modal on the top end of the screen using library Sweet Alert
-   *
-   * @param {string} name - Item name
-   * @param {string} title - Additional text
-   */
-  errorConfirmation(text: string): Promise<boolean> {
-    return Swal.fire({
-      title: `${text}`,
-      icon: 'error',
-      showCancelButton: false,
-      confirmButtonColor: this.confirmButtonColor,
-      confirmButtonText: this.okText
-    }).then((result) => {
-      return result.isConfirmed;
-    });
-  }
 
   /**
    * Shows a success message
