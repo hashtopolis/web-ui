@@ -28,6 +28,7 @@ import { HTTableComponent } from '@components/tables/ht-table/ht-table.component
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-base-table',
@@ -270,6 +271,13 @@ export class BaseTableComponent {
       };
     }
     return { name: '' };
+  }
+
+  renderCrackedHashes(hashlist: JHashlist, isExport: boolean): string {
+    if (hashlist.cracked !== hashlist.hashCount || isExport) {
+      return `${hashlist.cracked} (${formatPercentage(hashlist.cracked, hashlist.hashCount)})`;
+    }
+    return '';
   }
 
   /**

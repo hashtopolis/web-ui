@@ -20,8 +20,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
 
-import { formatPercentage } from '@src/app/shared/utils/util';
-
 @Component({
   selector: 'app-super-hashlists-table',
   templateUrl: './super-hashlists-table.component.html',
@@ -100,9 +98,8 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (superHashlist: JHashlist) => this.renderCrackedStatusIcon(superHashlist),
-        render: (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount),
-        isSortable: true,
-        export: async (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount)
+        render: (superHashlist: JHashlist) => this.renderCrackedHashes(superHashlist, false),
+        export: async (superHashlist: JHashlist) => this.renderCrackedHashes(superHashlist, true)
       },
       {
         id: SuperHashlistsTableCol.HASHTYPE,
