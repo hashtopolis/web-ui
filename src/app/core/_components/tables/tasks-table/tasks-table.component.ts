@@ -716,27 +716,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    switch (wrapper.taskType) {
-      case 0: // Task
-        links.push({
-          label: wrapper.hashlist.cracked.toLocaleString(),
-          routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId]
-          // routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id], old
-        });
-        break;
-      case 1: // Supertask
-        links.push({
-          label: wrapper.hashlist.cracked.toLocaleString(),
-          routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId]
-        });
-        break;
-      default:
-        links.push({
-          label: 'Unknown Task Type',
-          routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
-        });
-        break;
+    if (wrapper.taskType === 0) {
+      links.push({
+        label: wrapper.cracked.toLocaleString(),
+        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
+      });
     }
+
     return of(links);
   }
 
