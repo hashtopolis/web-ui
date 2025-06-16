@@ -3,6 +3,7 @@ import * as echarts from 'echarts/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription, interval } from 'rxjs';
 import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -17,7 +18,6 @@ import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { SERV } from '@src/app/core/_services/main.config';
-import { Subscription } from 'rxjs';
 import { UIConfig } from '@src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
@@ -234,7 +234,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           backgroundColor: backgroundColor,
           visualMap: {
             min: 0,
-            max: 300,
+            max: Math.ceil(hashes.length / 10) * 10,
             type: 'piecewise',
             orient: 'horizontal',
             left: 'center',
