@@ -1,37 +1,32 @@
-import { Observable, catchError, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { ChunkData } from '@models/chunk.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Observable, catchError, of } from 'rxjs';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-
-import { TasksDataSource } from '@datasources/tasks.datasource';
-
 import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { ChunkData } from '@models/chunk.model';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { JTask } from '@models/task.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { TasksDataSource } from '@datasources/tasks.datasource';
 
 @Component({
   selector: 'app-tasks-table',
@@ -415,41 +410,27 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   renderStatusIcons(wrapper: JTaskWrapper): HTTableIcon {
     let icon: HTTableIcon = { name: '' };
     const status = this.getTaskStatus(wrapper);
-    if (wrapper.taskType === 0) {
-      switch (status) {
-        case TaskStatus.RUNNING:
-          icon = {
-            name: 'radio_button_checked',
-            cls: 'pulsing-progress',
-            tooltip: 'In Progress'
-          };
-          break;
-        case TaskStatus.COMPLETED:
-          icon = {
-            name: 'check',
-            tooltip: 'Completed'
-          };
-          break;
-        case TaskStatus.IDLE:
-          icon = {
-            name: 'radio_button_checked',
-            tooltip: 'Idle',
-            cls: 'text-primary'
-          };
-          break;
-      }
-    } else {
-      // Count the completed tasks in supertasks
-      const countCompleted = wrapper.tasks.reduce((count) => {
-        return count;
-      }, 0);
-
-      if (wrapper.tasks.length === countCompleted) {
+    switch (status) {
+      case TaskStatus.RUNNING:
+        icon = {
+          name: 'radio_button_checked',
+          cls: 'pulsing-progress',
+          tooltip: 'In Progress'
+        };
+        break;
+      case TaskStatus.COMPLETED:
         icon = {
           name: 'check',
           tooltip: 'Completed'
         };
-      }
+        break;
+      case TaskStatus.IDLE:
+        icon = {
+          name: 'radio_button_checked',
+          tooltip: 'Idle',
+          cls: 'text-primary'
+        };
+        break;
     }
 
     return icon;
@@ -528,10 +509,23 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         }
       }
     }
+    const chunkData: ChunkData = wrapper.chunkData;
+    if (chunkData) {
+      const speed = chunkData.speed;
 
+      if (speed > 0) {
+        return TaskStatus.RUNNING;
+      } else if (
+        (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace && wrapper.tasks[0].keyspaceProgress > 0) ||
+        wrapper.tasks.find((task: JTask) => task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0)
+      ) {
+        return TaskStatus.COMPLETED;
+      } else {
+        return TaskStatus.IDLE;
+      }
+    }
     return TaskStatus.INVALID;
   }
-
   // --- Action functions ---
 
   private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
@@ -610,7 +604,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private rowActionDelete(wrapper: JTaskWrapper): void {
-    console.log(wrapper);
     this.subscriptions.push(
       this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');
