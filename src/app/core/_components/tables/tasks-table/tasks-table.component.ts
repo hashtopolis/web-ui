@@ -142,7 +142,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapper) => this.renderStatusIcons(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => {
-          console.log(wrapper);
           const status = this.getTaskStatus(wrapper);
           switch (status) {
             case TaskStatus.RUNNING:
@@ -605,7 +604,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private rowActionDelete(wrapper: JTaskWrapper): void {
-    console.log(wrapper);
     this.subscriptions.push(
       this.gs.delete(SERV.TASKS_WRAPPER, wrapper[0].id).subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');
