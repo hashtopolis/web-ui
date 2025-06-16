@@ -411,43 +411,27 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   renderStatusIcons(wrapper: JTaskWrapper): HTTableIcon {
     let icon: HTTableIcon = { name: '' };
     const status = this.getTaskStatus(wrapper);
-    if (wrapper.taskType === 0) {
-      console.log(wrapper ,' NORMAL TASK');
-      switch (status) {
-        case TaskStatus.RUNNING:
-          icon = {
-            name: 'radio_button_checked',
-            cls: 'pulsing-progress',
-            tooltip: 'In Progress'
-          };
-          break;
-        case TaskStatus.COMPLETED:
-          icon = {
-            name: 'check',
-            tooltip: 'Completed'
-          };
-          break;
-        case TaskStatus.IDLE:
-          icon = {
-            name: 'radio_button_checked',
-            tooltip: 'Idle',
-            cls: 'text-primary'
-          };
-          break;
-      }
-    } else {
-            console.log(wrapper ,' SUPER TASK');
-      // Count the completed tasks in supertasks
-      const countCompleted = wrapper.tasks.reduce((count) => {
-        return count;
-      }, 0);
-
-      if (wrapper.tasks.length === countCompleted) {
+    switch (status) {
+      case TaskStatus.RUNNING:
+        icon = {
+          name: 'radio_button_checked',
+          cls: 'pulsing-progress',
+          tooltip: 'In Progress'
+        };
+        break;
+      case TaskStatus.COMPLETED:
         icon = {
           name: 'check',
           tooltip: 'Completed'
         };
-      }
+        break;
+      case TaskStatus.IDLE:
+        icon = {
+          name: 'radio_button_checked',
+          tooltip: 'Idle',
+          cls: 'text-primary'
+        };
+        break;
     }
 
     return icon;
@@ -526,10 +510,23 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         }
       }
     }
+    const chunkData: ChunkData = wrapper.chunkData;
+    if (chunkData) {
+      const speed = chunkData.speed;
 
+      if (speed > 0) {
+        return TaskStatus.RUNNING;
+      } else if (
+        (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace && wrapper.tasks[0].keyspaceProgress > 0) ||
+        wrapper.tasks.find((task: JTask) => task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0)
+      ) {
+        return TaskStatus.COMPLETED;
+      } else {
+        return TaskStatus.IDLE;
+      }
+    }
     return TaskStatus.INVALID;
   }
-
   // --- Action functions ---
 
   private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
@@ -722,7 +719,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     switch (wrapper.taskType) {
       case 0: // Task
         links.push({
-          label: wrapper.cracked.toLocaleString(),
+          label: wrapper.hashlist.cracked.toLocaleString(),
           routerLink: ['/hashlists', 'hashes', 'hashlists', wrapper.hashlistId]
           // routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id], old
         });
