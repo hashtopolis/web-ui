@@ -234,7 +234,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           backgroundColor: backgroundColor,
           visualMap: {
             min: 0,
-            max: 300,
+            max: Math.ceil(hashes.length / 10) * 10,
             type: 'piecewise',
             orient: 'horizontal',
             left: 'center',
