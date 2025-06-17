@@ -1,17 +1,14 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-
-import { JHash } from '@models/hash.model';
-import { JHashlist } from '@models/hashlist.model';
+import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-
 import { HashesDataSource } from '@datasources/hashes.datasource';
-
+import { JHash } from '@models/hash.model';
+import { JHashlist } from '@models/hashlist.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -25,6 +22,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HashesDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(HashesTableColColumnLabel);
@@ -52,7 +50,31 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
    *          false:  else
    */
   filter(item: JHash, filterValue: string): boolean {
-    return item.hash.toLowerCase().includes(filterValue) || item.isCracked.toString().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.hash.toLowerCase().includes(filterValue) ||
+          item.plaintext?.toLowerCase().includes(filterValue) ||
+          item.isCracked?.toString().includes(filterValue)
+        );
+      }
+      case 'hash': {
+        return item.hash.toString().includes(filterValue);
+      }
+      case 'plaintext': {
+        return item.plaintext?.toLowerCase().includes(filterValue);
+      }
+      case 'isCracked': {
+        return item.isCracked?.toString().includes(filterValue);
+      }
+      default:
+        // Default fallback to hash
+        return item.hash?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -61,12 +83,14 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.HASHES,
         dataKey: 'hash',
         isSortable: true,
+        isSearchable: true,
         export: async (hash: JHash) => hash.hash + ''
       },
       {
         id: HashesTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
+        isSearchable: true,
         export: async (hash: JHash) => hash.plaintext + ''
       },
       {
@@ -85,6 +109,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.ISCRACKED,
         dataKey: 'isCracked',
         isSortable: true,
+        isSearchable: true,
         export: async (hash: JHash) => hash.isCracked + ''
       },
       {
