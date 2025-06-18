@@ -1,3 +1,4 @@
+import { BaseTableComponent } from '../base-table/base-table.component';
 import { Component } from '@angular/core';
 
 @Component({
@@ -6,4 +7,4 @@ import { Component } from '@angular/core';
   styleUrl: './agent-error-table.component.scss',
   standalone: false
 })
-export class AgentErrorTableComponent {}
+export class AgentErrorTableComponent extends BaseTableComponent {}
