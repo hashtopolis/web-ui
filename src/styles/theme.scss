@@ -51,6 +51,5 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
   --background-info: rgba(28, 74, 182, 0.75);
   --color-info: #94949b;
   background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
-  @include mat.all-component-typographies();
-  @include mat.all-component-colors($hashtopolis-dark-theme);
+  @include mat.all-component-themes($hashtopolis-dark-theme);
 }
