@@ -18,90 +18,15 @@ import { ResponseWrapper } from '@models/response.model';
 import { SERV } from '@services/main.config';
 
 export class AgentErrorDatasource extends BaseDataSource<JAgent> {
-  private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
-  /**
-   * Load user data from backend given an array of user IDs
-   * @param userIds - array of user ids
-   * @return promise containing an array of user objects matching the fiven IDs
-   * @private
-   */
-  private async loadUserData(userIds: Array<number>): Promise<JUser[]> {
-    let users: Array<JUser> = [];
-    if (userIds.length > 0) {
-      const userParams = new RequestParamBuilder().addFilter({
-        field: 'id',
-        operator: FilterType.IN,
-        value: userIds
-      });
-      const response = await firstValueFrom(this.service.getAll(SERV.USERS, userParams.create()));
-      const responseBody = { data: response.data, included: response.included };
-      users = this.serializer.deserialize<JUser[]>(responseBody);
-    }
-    return users;
-  }
-  /**
-   * Load related running chunks for all agents and convert them to ChunkData objects
-   * @param requestParams
-   * @private
-   */
-  private async loadChunkData(requestParams: IParamBuilder): Promise<JChunk[]> {
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.CHUNKS, requestParams.create()));
-    const responseBody = { data: response.data, included: response.included };
-    return this.serializer.deserialize<JChunk[]>(responseBody);
-  }
-  /**
-   * Get current agent cracking speed from all asssigned chunks
-   * @param agent - agent instance to get cracking speed for
-   * @param chunks - collection of all available chunks
-   * @return current agent's cracking speed
-   * @private
-   */
-  private getAgentSpeed(agent: JAgent, chunks: JChunk[]): number {
-    let chunkSpeed: number = 0;
-    for (const chunk of chunks.filter((element) => element.agentId === agent.id)) {
-      if (
-        Date.now() / 1000 - Math.max(chunk.solveTime, chunk.dispatchTime) < this.chunktime &&
-        chunk.progress < 10000
-      ) {
-        chunkSpeed += chunk.speed;
-      }
-    }
-    return chunkSpeed;
-  }
-  /**
-   * Set agent chunk parameters and convert to ch8unkdata
-   * @param agent - current agent instance
-   * @param chunks - current chunk collectioz
-   * @param assignments - current agent assignments
-   * @private
-   */
-  private setChunkParams(agent: JAgent, chunks: JChunk[], assignments: JAgentAssignment[]): void {
-    agent.chunk = chunks
-      .filter((chunk) => chunk.state == chunkStates.indexOf(ChunkState.RUNNING))
-      .find((chunk) => chunk.agentId === agent.id);
-
-    agent.assignmentId = assignments.find((assignment) => assignment.agentId === agent.id)?.id;
-    if (agent.chunk) {
-      agent.chunkId = agent.chunk.id;
-      if (chunks) {
-        agent.agentSpeed = this.getAgentSpeed(agent, chunks);
-      }
-    }
-    agent.chunkData = this.convertChunks(agent.id, chunks, true, agent.task.keyspace);
-  }
   loadAll(): void {
     this.loading = true;
     const agentParams = new RequestParamBuilder()
       .addInitial(this)
-/*       .addInclude('accessGroups')
-      .addInclude('tasks')
-      .addInclude('assignments')
-      .addInclude('agentStats') */
       .addInclude('agentErrors')
       .create();
 
@@ -112,7 +37,6 @@ export class AgentErrorDatasource extends BaseDataSource<JAgent> {
         finalize(() => (this.loading = false))
       )
       .subscribe(async (response: ResponseWrapper) => {
-        console.log('AgentsDataSource: loadAll', response);
         const serializer = new JsonAPISerializer();
         const responseBody = { data: response.data, included: response.included };
         const agents = serializer.deserialize<JAgent[]>({
@@ -120,32 +44,6 @@ export class AgentErrorDatasource extends BaseDataSource<JAgent> {
           included: responseBody.included
         });
         console.log('AgentsDataSource: loadAll deserialized', agents);
-        if (agents && agents.length > 0) {
-          const chunkParams = new RequestParamBuilder()
-            .addFilter({
-              field: 'agentId',
-              operator: FilterType.IN,
-              value: agents.map((agent) => agent.id)
-            })
-            .addFilter({
-              field: 'state',
-              operator: FilterType.EQUAL,
-              value: chunkStates.indexOf(ChunkState.RUNNING)
-            });
-
-          const userIds: Array<number> = agents.map((agent) => agent.userId).filter((userId) => userId !== null);
-          const [users, chunks] = await Promise.all([this.loadUserData(userIds), this.loadChunkData(chunkParams)]);
-
-          agents.forEach((agent: JAgent) => {
-            agent.user = users.find((user: JUser) => user.id === agent.userId);
-            if (agent.tasks && agent.tasks.length > 0) {
-              agent.taskId = agent.tasks[0].id;
-              agent.task = agent.tasks[0];
-              agent.taskName = agent.task.taskName;
-              this.setChunkParams(agent, chunks, agent.assignments);
-            }
-          });
-        }
         const length = response.meta.page.total_elements;
 
         this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
