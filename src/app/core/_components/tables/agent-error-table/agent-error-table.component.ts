@@ -1,5 +1,8 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
+import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
-import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-agent-error-table',
@@ -7,4 +10,13 @@ import { Component } from '@angular/core';
   styleUrl: './agent-error-table.component.scss',
   standalone: false
 })
-export class AgentErrorTableComponent extends BaseTableComponent {}
+export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  dataSource: AgentErrorDatasource;
+  ngOnDestroy(): void {
+    throw new Error('Method not implemented.');
+  }
+  ngOnInit(): void {
+    this.dataSource = new AgentErrorDatasource(this.cdr, this.gs, this.uiService);
+    this.dataSource.reload();
+  }
+}
