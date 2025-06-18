@@ -63,15 +63,9 @@ export class HashesDataSource extends BaseDataSource<JHash> {
                     included: responseHash.included
                   });
 
-                  const length = response.meta.page.total_elements;
+                  const length = responseHash.meta.page.total_elements;
 
-                  this.setPaginationConfig(
-                    this.pageSize,
-                    length,
-                    this.pageAfter,
-                    this.pageBefore,
-                    this.index
-                  );
+                  this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
                   this.setData(hashes);
                 })
             );
@@ -102,13 +96,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
 
             const length = response.meta.page.total_elements;
 
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              this.pageAfter,
-              this.pageBefore,
-              this.index
-            );
+            this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
             this.setData(hashes);
           })
       );

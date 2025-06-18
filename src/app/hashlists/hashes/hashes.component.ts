@@ -1,23 +1,19 @@
+import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
 
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { DataTableDirective } from 'angular-datatables';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { Filter, FilterType } from '@models/request-params.model';
 import { JChunk } from '@models/chunk.model';
-import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
-import { JTask } from '@models/task.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
 
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { GlobalService } from '@services/main.service';
-import { IParamBuilder } from '@services/params/builder-types.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { displays, filters } from '@src/app/core/_constants/hashes.config';
@@ -26,9 +22,9 @@ import { displays, filters } from '@src/app/core/_constants/hashes.config';
  * The `HashesComponent` is for managing and displaying a list of hashes
  */
 @Component({
-    selector: 'app-hashes',
-    templateUrl: './hashes.component.html',
-    standalone: false
+  selector: 'app-hashes',
+  templateUrl: './hashes.component.html',
+  standalone: false
 })
 export class HashesComponent implements OnInit, OnDestroy {
   /** Form group for the Hashes View. */
@@ -156,7 +152,6 @@ export class HashesComponent implements OnInit, OnDestroy {
             });
             this.titleName = chunk.id;
           });
-          this.initChashes();
           break;
 
         case 'taskhas':
@@ -168,7 +163,6 @@ export class HashesComponent implements OnInit, OnDestroy {
             });
             this.titleName = task.taskName;
           });
-          this.initThashes();
           break;
 
         case 'hashlisthash':
@@ -180,67 +174,9 @@ export class HashesComponent implements OnInit, OnDestroy {
             });
             this.titleName = hashlist.name;
           });
-          this.initHhashes();
           break;
       }
       this.buildForm();
-    });
-  }
-
-  /**
-   * Initialize based on Chunk hashes
-   */
-  private initChashes() {
-    const filter: Filter = { field: 'chunkId', operator: FilterType.EQUAL, value: this.editedIndex };
-    const param = new RequestParamBuilder().addFilter(filter);
-    this.getHashes(param);
-  }
-
-  /**
-   * Initialize based on Tasks hashes
-   */
-  private initThashes() {
-    // This should enough to filter by id
-    // let param = {'filter': 'taskId='+this.editedIndex+''};
-    this.getHashes();
-  }
-
-  /**
-   * Initialize based on Hashlists hashes
-   */
-  private initHhashes() {
-    const paramBuilder = new RequestParamBuilder().addFilter({
-      field: 'hashlistId',
-      operator: FilterType.EQUAL,
-      value: this.editedIndex
-    });
-    this.getHashes(paramBuilder);
-  }
-
-  /**
-   * Fetch hashes from the server
-   */
-  async getHashes(paramBuilder?: IParamBuilder) {
-    if (!paramBuilder) {
-      paramBuilder = new RequestParamBuilder();
-    }
-    const requestParams = paramBuilder.addInclude('hashlist').addInclude('chunk').create();
-
-    this.gs.getAll(SERV.HASHES, requestParams).subscribe((response: ResponseWrapper) => {
-      const hashes = new JsonAPISerializer().deserialize<JHash[]>({ data: response.data, included: response.included });
-      let res = hashes;
-      if (this.whichView === 'tasks') {
-        res = res.filter((u) => u.chunk?.taskId == this.editedIndex);
-      }
-      if (this.filtering === 'cracked') {
-        this.matchHashes = res.filter((u) => u.isCracked == true);
-      }
-      if (this.filtering === 'uncracked') {
-        this.matchHashes = res.filter((u) => u.isCracked == false);
-      } else {
-        this.matchHashes = res;
-      }
-      this.dtTrigger.next(null);
     });
   }
 
