@@ -100,7 +100,7 @@
 <!-- ToDO API Errors table -->
 <app-table>
   <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
-  <app-agent-error-table></app-agent-error-table>
+  <app-agent-error-table [agentId]="this.editedAgentIndex"></app-agent-error-table>
 </app-table>
 <!-- Dispatched Chunks -->
 <app-table>
