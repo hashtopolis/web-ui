@@ -39,7 +39,6 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
       .subscribe(async (response: ResponseWrapper) => {
         const serializer = new JsonAPISerializer();
         const responseBody = { data: response.data, included: response.included };
-        console.log('AgentsDataSource: loadAll responseBody', responseBody);
         const agents = serializer.deserialize<JAgentErrors[]>({
           data: responseBody.data,
           included: responseBody.included

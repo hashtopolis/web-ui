@@ -21,7 +21,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
   ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
   }
   ngOnInit(): void {
     this.setColumnLabels(AgentErrorTableColumnLabel);
@@ -32,7 +31,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
-    console.log('AgentErrorTableComponent: ngOnInit', this.dataSource);
     this.dataSource.loadAll();
   }
   getColumns(): HTTableColumn[] {
@@ -47,6 +45,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       },
       {
         id: AgentErrorTableCol.TASK,
+        routerLink: (chunk: JAgentErrors) => this.renderTaskLink(chunk),
         render: (agentError: JAgentErrors) => agentError.taskId.toString()
       },
       {
