@@ -1,8 +1,7 @@
+import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
-
-import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
@@ -35,7 +34,9 @@ export class BaseMenuComponent {
   protected isAgent(): boolean {
     return this.checkType('agent') && this.hasKeys('agentName');
   }
-
+  protected isAgentError(): boolean {
+    return this.checkType('agentError') && this.hasKeys('error');
+  }
   protected isNotification(): boolean {
     return this.checkType('notificationSetting');
   }

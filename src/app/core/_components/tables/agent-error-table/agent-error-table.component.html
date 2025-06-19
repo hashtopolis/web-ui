@@ -1,4 +1,3 @@
-<p>agent-error-table works!</p>
 <ht-table
   #table
   name="agentErrorTable"
@@ -8,7 +7,10 @@
   [tableColumns]="tableColumns"
   [hasBulkActions]="hasBulkActions"
   [hasRowAction]="hasRowAction"
+  [isSelectable]="isSelectable"
   [isPageable]="true"
   [isFilterable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
 />

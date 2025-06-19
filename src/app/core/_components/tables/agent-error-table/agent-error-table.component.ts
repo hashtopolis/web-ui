@@ -75,6 +75,12 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   rowActionClicked(event: ActionMenuEvent<JAgentErrors>): void {
     console.log('Row action clicked:', event);
   }
+  bulkActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
+    console.log('Bulk action clicked:', event);
+  }
+  exportActionClicked(event: ActionMenuEvent<JAgentErrors>): void {
+    console.log('Export action clicked:', event);
+  }
   renderDispatchTime(chunk: JAgentErrors): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.time, this.dateFormat);
 
