@@ -1,4 +1,5 @@
 import { BaseModel } from './base.model';
+import { JTask } from './task.model';
 import { NumberSymbol } from '@angular/common';
 
 export interface JAgentErrors extends BaseModel {
@@ -10,4 +11,5 @@ export interface JAgentErrors extends BaseModel {
   time: NumberSymbol;
   type: string;
   taskName?: string;
+  task?: JTask;
 }

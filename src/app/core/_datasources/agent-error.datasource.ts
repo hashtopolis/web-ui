@@ -26,7 +26,7 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
   }
   loadAll(): void {
     this.loading = true;
-    const agentParams = new RequestParamBuilder().addInitial(this);
+    const agentParams = new RequestParamBuilder().addInitial(this).addInclude('task');
     if (this._agentId) {
       agentParams.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
@@ -44,6 +44,11 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
           included: responseBody.included
         });
         console.log('AgentsDataSource: loadAll deserialized', agents);
+        agents.map((agent: JAgentErrors) => {
+          if (agent.task !== undefined) {
+            agent.taskName = agent.taskId.toString() + ' - ' + agent.task.taskName;
+          }
+        });
         const length = response.meta.page.total_elements;
 
         this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
