@@ -238,19 +238,19 @@ export class BaseTableComponent {
   /**
    * Render edit link for task
    * @param model - agent or chunk to render tasl link for
+   * @param idLink - if true, the task ID will be used as label, otherwise the task name
    * @return observable object containing a router link array
    */
-  renderTaskLink(model: JAgent | JChunk | JAgentErrors): Observable<HTTableRouterLink[]> {
+  renderTaskLink(model: JAgent | JChunk | JAgentErrors, idLink: boolean = false): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (model) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: model.taskName,
+        label: idLink ? model?.taskId.toString() : model.taskName
       });
     }
     return of(links);
   }
-
   /**
    * Render a valid or invalid icon for the given user
    * @param user - user th get icon for

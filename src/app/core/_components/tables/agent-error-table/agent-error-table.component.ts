@@ -1,8 +1,9 @@
 import { AgentErrorTableCol, AgentErrorTableColumnLabel } from './agent-error-table.constants';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
-import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
 import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
@@ -20,8 +21,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
   ngOnInit(): void {
     this.setColumnLabels(AgentErrorTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -44,9 +44,12 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         render: (agentError: JAgentErrors) => this.renderDispatchTime(agentError)
       },
       {
+        id: AgentErrorTableCol.TASK_ID,
+        routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError, true)
+      },
+      {
         id: AgentErrorTableCol.TASK,
-        routerLink: (chunk: JAgentErrors) => this.renderTaskLink(chunk),
-        render: (agentError: JAgentErrors) => agentError.taskId.toString()
+        routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError)
       },
       {
         id: AgentErrorTableCol.CHUNK,
@@ -67,6 +70,10 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         }
       }
     ];
+  }
+
+  rowActionClicked(event: ActionMenuEvent<JAgentErrors>): void {
+    console.log('Row action clicked:', event);
   }
   renderDispatchTime(chunk: JAgentErrors): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.time, this.dateFormat);

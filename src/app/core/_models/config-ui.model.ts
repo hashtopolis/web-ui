@@ -184,6 +184,7 @@ export const uiConfigDefault: UIConfig = {
       columns: [
         AgentErrorTableCol.ID,
         AgentErrorTableCol.TIME,
+        AgentErrorTableCol.TASK_ID,
         AgentErrorTableCol.TASK,
         AgentErrorTableCol.CHUNK, 
         AgentErrorTableCol.MESSAGE
