@@ -186,6 +186,7 @@ export const uiConfigDefault: UIConfig = {
         AgentErrorTableCol.TIME,
         AgentErrorTableCol.TASK,
         AgentErrorTableCol.CHUNK, 
+        AgentErrorTableCol.MESSAGE
       ],
       order: {
         id: AgentErrorTableCol.ID,

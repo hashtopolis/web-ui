@@ -57,6 +57,15 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
           }
           return 'N/A';
         }
+      },
+      {
+        id: AgentErrorTableCol.MESSAGE,
+        render: (agentError: JAgentErrors) => {
+          if (agentError.error) {
+            return this.sanitize(agentError.error);
+          }
+          return 'N/A';
+        }
       }
     ];
   }
