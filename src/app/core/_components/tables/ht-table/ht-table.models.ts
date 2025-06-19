@@ -7,6 +7,7 @@ import { SortDirection } from '@angular/material/sort';
 
 export type DataType =
   | 'agents'
+  | 'agents-errors'
   | 'agents-status'
   | 'agents-assign'
   | 'agents-view'
