@@ -53,11 +53,19 @@
 </grid-main>
 <app-table *ngIf="editedAccessGroupIndex">
   <app-page-subtitle subtitle="User Members"></app-page-subtitle>
-  <access-groups-users-table #userTable [accessgroupId]="editedAccessGroupIndex"></access-groups-users-table>
+  <access-groups-users-table
+    #userTable
+    [accessgroupId]="editedAccessGroupIndex"
+    (usersRemoved)="onUsersRemoved()"
+  ></access-groups-users-table>
 </app-table>
 <app-table *ngIf="editedAccessGroupIndex">
   <app-page-subtitle subtitle="Agent Members"></app-page-subtitle>
-  <app-access-groups-agents-table #agentTable [accessgroupId]="editedAccessGroupIndex"></app-access-groups-agents-table>
+  <app-access-groups-agents-table
+    #agentTable
+    [accessgroupId]="editedAccessGroupIndex"
+    (agentsRemoved)="onAgentsRemoved()"
+  ></app-access-groups-agents-table>
 </app-table>
 
 

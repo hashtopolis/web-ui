@@ -233,6 +233,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    */
   async onAddUsers() {
     if (this.addUsersForm.valid) {
+      this.isUpdatingLoading = true;
       const users = this.addUsersForm.get('userIds').value.map((id) => {
         return {
           type: RelationshipType.USERMEMBERS,
@@ -245,15 +246,15 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             data: users
           })
         );
-        this.alert.showSuccessMessage('Users added');
+        this.alert.showSuccessMessage(`Successfully added ${users.length} user${users.length > 1 ? 's' : ''}`);
         this.refresh(); // Reload the select component
         this.userTable.reload();
       } catch (error) {
-        const msg = 'Failed to add users to access group';
+        const msg = `Failed to add user${users.length > 1 ? 's' : ''} to access group`;
         console.error(msg, error);
         this.alert.showErrorMessage(msg);
       } finally {
-        this.isLoading = false;
+        this.isUpdatingLoading = false;
       }
     }
   }
@@ -262,7 +263,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
    * Handles the form submission for adding new agents to the access group.
    */
   async onAddAgents() {
-    this.isLoading = true;
+    this.isUpdatingLoading = true;
     if (this.addAgentsForm.valid) {
       const agents = this.addAgentsForm.get('agentIds').value.map((id) => {
         return {
@@ -276,15 +277,15 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
             data: agents
           })
         );
-        this.alert.showSuccessMessage('Agents added');
+        this.alert.showSuccessMessage(`Successfully added ${agents.length} user${agents.length > 1 ? 's' : ''}`);
         this.refresh(); // Reload the select component
         this.agentTable.reload();
       } catch (error) {
-        const msg = 'Failed to add agents to access group';
+        const msg = `Failed to add user${agents.length > 1 ? 's' : ''} to access group`;
         console.error(msg, error);
         this.alert.showErrorMessage(msg);
       } finally {
-        this.isLoading = false;
+        this.isUpdatingLoading = false;
       }
     }
   }
@@ -307,5 +308,19 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         );
       }
     });
+  }
+
+  /**
+   * Reload component if agents have been removed from access group
+   */
+  onAgentsRemoved(): void {
+    this.refresh();
+  }
+
+  /**
+   * Reload component if users have been removed from access group
+   */
+  onUsersRemoved(): void {
+    this.refresh();
   }
 }
