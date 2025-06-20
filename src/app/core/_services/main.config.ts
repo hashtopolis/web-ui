@@ -89,5 +89,5 @@ export enum RelationshipType {
   TASK = 'task',
   TASKS = 'tasks',
   USER = 'user',
-  USERMEMERS = 'userMembers'
+  USERMEMBERS = 'userMembers'
 }

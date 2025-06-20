@@ -13,14 +13,51 @@
       </grid-buttons>
 
   </form>
+  <h5>Add Users</h5>
+  <form [formGroup]="addUsersForm">
+    <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isUsersLoading; else loadingUsersTemplate">
+      <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Users...'" [items]="selectUsers"
+                         [label]="'Select or search Users *'" [mergeIdAndName]="true" formControlName="userIds"
+                         style="flex: 1;"></input-multiselect>
+      <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
+        <button-submit [name]="'Add'" (click)="onAddUsers()"></button-submit>
+      </div>
+    </div>
+    <ng-template #loadingUsersTemplate>
+      <div class="loading-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading Users...</span>
+      </div>
+    </ng-template>
+  </form>
+  <h5>Add Agents</h5>
+  <form [formGroup]="addAgentsForm">
+    <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isAgentsLoading; else loadingAgentsTemplate">
+      <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Agents...'" [items]="selectAgents"
+                         [label]="'Select or search Agents *'" [mergeIdAndName]="true" formControlName="agentIds"
+                         style="flex: 1;"></input-multiselect>
+      <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
+        <button-submit [name]="'Add'" (click)="onAddAgents()"></button-submit>
+      </div>
+      <button style="margin-top: 10px;" mat-icon-button (click)="refresh()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+    <ng-template #loadingAgentsTemplate>
+      <div class="loading-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading Agents...</span>
+      </div>
+    </ng-template>
+  </form>
 </grid-main>
 <app-table *ngIf="editedAccessGroupIndex">
   <app-page-subtitle subtitle="User Members"></app-page-subtitle>
-  <access-groups-users-table [accessgroupId]="editedAccessGroupIndex"></access-groups-users-table>
+  <access-groups-users-table #userTable [accessgroupId]="editedAccessGroupIndex"></access-groups-users-table>
 </app-table>
 <app-table *ngIf="editedAccessGroupIndex">
   <app-page-subtitle subtitle="Agent Members"></app-page-subtitle>
-  <app-access-groups-agents-table [accessgroupId]="editedAccessGroupIndex"></app-access-groups-agents-table>
+  <app-access-groups-agents-table #agentTable [accessgroupId]="editedAccessGroupIndex"></app-access-groups-agents-table>
 </app-table>
 
 
