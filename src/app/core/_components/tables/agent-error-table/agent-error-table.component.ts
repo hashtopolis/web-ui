@@ -1,24 +1,26 @@
-import { AgentErrorTableCol, AgentErrorTableColumnLabel } from './agent-error-table.constants';
+import { catchError } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '../table-dialog/table-dialog.model';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@src/app/core/_services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { catchError } from 'rxjs';
+
+import { AgentErrorTableCol, AgentErrorTableColumnLabel } from './agent-error-table.constants';
+import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '../base-table/base-table.component';
+import { HTTableColumn } from '../ht-table/ht-table.models';
+import { DialogData } from '../table-dialog/table-dialog.model';
+
+import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
+import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
+import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-agent-error-table',
   templateUrl: './agent-error-table.component.html',
-  styleUrl: './agent-error-table.component.scss',
   standalone: false
 })
 export class AgentErrorTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
