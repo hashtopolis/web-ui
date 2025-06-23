@@ -1,20 +1,19 @@
 import { AgentErrorTableCol, AgentErrorTableColumnLabel } from './agent-error-table.constants';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, of } from 'rxjs';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
-import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
 import { BaseTableComponent } from '../base-table/base-table.component';
 import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '../table-dialog/table-dialog.model';
 import { HTTableColumn } from '../ht-table/ht-table.models';
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
+import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@src/app/core/_services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError } from 'rxjs';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-agent-error-table',
@@ -95,13 +94,29 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
             case BulkActionMenuAction.DELETE:
               this.bulkActionDelete(result.data);
               break;
+            case RowActionMenuAction.DELETE:
+              console.log('Row action delete clicked:', result.data);
+              this.rowActionDelete(result.data);
+              break;
           }
         }
       })
     );
   }
+
   rowActionClicked(event: ActionMenuEvent<JAgentErrors>): void {
-    console.log('Row action clicked:', event);
+    switch (event.menuItem.action) {
+      case RowActionMenuAction.DELETE:
+        this.openDialog({
+          rows: [event.data],
+          title: `'Deleting'  ${event.data.error} ...`,
+          icon: 'warning',
+          body: `Are you sure you want to delete'} ${event.data.error} ${event.data?.id}'Note that this action cannot be undone.'`,
+          warn: true,
+          action: event.menuItem.action
+        });
+        break;
+    }
   }
   bulkActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
     switch (event.menuItem.action) {
@@ -142,7 +157,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
           })
         )
         .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
+          this.alertService.showSuccessMessage(`Successfully deleted errors!`);
           this.dataSource.reload();
         })
     );
@@ -151,22 +166,13 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   /**
    * @todo Implement error handling.
    */
-  private rowActionDelete(agent: JAgentErrors): void {
-    /*     if (agent[0].assignmentId) {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully unassigned agent!');
-          this.dataSource.reload();
-        })
-      );
-    } else {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted agent!');
-          this.dataSource.reload();
-        })
-      );
-    } */
+  private rowActionDelete(error: JAgentErrors): void {
+    this.subscriptions.push(
+      this.gs.delete(SERV.AGENT_ERRORS, error[0].id).subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted error!');
+        this.dataSource.reload();
+      })
+    );
   }
   renderDispatchTime(chunk: JAgentErrors): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.time, this.dateFormat);
