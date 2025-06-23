@@ -34,6 +34,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   @Input() fileType: FileType = 0;
   @Input() editIndex?: number;
   @Input() editType?: number; //0 Task 1 Pretask
+  @Input() showExport = true;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;

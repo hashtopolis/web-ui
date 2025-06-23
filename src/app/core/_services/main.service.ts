@@ -190,24 +190,10 @@ export class GlobalService {
     return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000))
   }
 
-  /**
-   * Update a Relationship
-   * @param serviceConfig - Serviceconfig
-   * @param id - element id
-   * @param relType - type of the Relationship
-   * @param data  - fields to be updated
-   * @returns Object
-   **/
-  updateRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
-    return this.http
-      .patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-      .pipe(debounceTime(2000));
-  }
-
   postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
     return this.http
-    .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-    .pipe(debounceTime(2000));
+      .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .pipe(debounceTime(2000));
   }
 
   deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {

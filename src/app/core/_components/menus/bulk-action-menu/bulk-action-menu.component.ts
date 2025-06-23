@@ -1,10 +1,14 @@
-import { BulkActionMenuAction, BulkActionMenuIcon, BulkActionMenuLabel } from './bulk-action-menu.constants';
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
-import { ActionMenuItem } from '../action-menu/action-menu.model';
-import { BaseMenuComponent } from '../base-menu/base-menu.component';
-import { DataType } from '../../tables/ht-table/ht-table.models';
+import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
+import {
+  BulkActionMenuAction,
+  BulkActionMenuIcon,
+  BulkActionMenuLabel
+} from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DataType } from '@components/tables/ht-table/ht-table.models';
 
 /**
  * Component representing the bulk action menu for various data types.
@@ -74,8 +78,10 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERTASKS);
     } else if (this.dataType === 'access-groups') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_ACCESSGROUPS);
+    } else if (this.dataType === 'access-groups-agents') {
+      this.setDeleteMenu(BulkActionMenuLabel.REMOVE_ACCESSGROUP_AGENTS);
     } else if (this.dataType === 'access-groups-users') {
-      this.setDeleteMenu(BulkActionMenuLabel.UNASSIGN_ACCESSGROUP_USERS);
+      this.setDeleteMenu(BulkActionMenuLabel.REMOVE_ACCESSGROUP_USERS);
     } else if (this.dataType === 'permissions') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PERMISSIONS);
     } else if (this.dataType === 'hashtypes') {

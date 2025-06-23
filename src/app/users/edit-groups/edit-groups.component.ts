@@ -1,17 +1,34 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
+import { JAgent } from '@models/agent.model';
+import { FilterType } from '@models/request-params.model';
 
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { AccessGroupsAgentsTableComponent } from '@components/tables/access-groups-agents-table/access-groups-agents-table.component';
+import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
+
+import { AGENT_MAPPING, DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { SERV } from '@src/app/core/_services/main.config';
+import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import {
+  AddAgentsForm,
+  AddUserForm,
+  getAddAgentsForm,
+  getAddUsersForm
+} from '@src/app/users/edit-groups/edit-groups.form';
 
 @Component({
   selector: 'app-edit-groups',
@@ -19,27 +36,35 @@ import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service'
   standalone: false
 })
 export class EditGroupsComponent implements OnInit, OnDestroy {
-  /** Flag indicating whether data is still loading. */
-  isLoading = true;
+  accessGroup: JAccessGroup; // The access group currently being edited
 
-  /** Form group for edit Access group. */
-  updateForm: FormGroup;
+  addAgentsForm: FormGroup<AddAgentsForm>; // Form group for adding agents to group
+  addUsersForm: FormGroup<AddUserForm>; // Form group for adding users to group
 
-  /** On form update show a spinner loading */
-  isUpdatingLoading = false;
+  editName: string; // Name of the access group being edited
+  editedAccessGroupIndex: number; // Index of the access group being edited
 
-  // Edit Configuration
-  editedAccessGroupIndex: number;
-  editName: string;
+  isAgentsLoading: boolean = true; // Show a spinner while loading agents for multiselect
+  isLoading: boolean = true; // Flag indicating whether data is still loading
+  isUpdatingLoading: boolean = false; // Show a spinner loading when form is being updated
+  isUsersLoading: boolean = true; // Show a spinner while loading users for multiselect
+
+  selectAgents: SelectOption[]; // Selectable agents to be added to the access group
+  selectUsers: SelectOption[]; // Selectable users to be added to the access group
+
+  updateForm: FormGroup; // Form group for editing access group
+
+  @ViewChild('userTable') userTable: AccessGroupsUserTableComponent;
+  @ViewChild('agentTable') agentTable: AccessGroupsAgentsTableComponent;
 
   constructor(
-    private unsubscribeService: UnsubscribeService,
-    readonly titleService: AutoTitleService,
-    private route: ActivatedRoute,
     private alert: AlertService,
+    private confirmDialog: ConfirmDialogService,
     private gs: GlobalService,
+    private route: ActivatedRoute,
     private router: Router,
-    private confirmDialog: ConfirmDialogService
+    readonly titleService: AutoTitleService,
+    private unsubscribeService: UnsubscribeService
   ) {
     this.onInitialize();
     this.buildForm();
@@ -77,32 +102,111 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     this.updateForm = new FormGroup({
       groupName: new FormControl()
     });
+    this.addUsersForm = getAddUsersForm();
+    this.addAgentsForm = getAddAgentsForm();
   }
 
   /**
    * Loads data, access group data and select options for the component.
    */
   loadData(): void {
-    this.initForm();
+    void this.initForm();
+  }
+
+  /**
+   * Loads access group including its current userMembers and agentMembers by ID from server
+   */
+  async loadAccessGroup() {
+    const requestParams = new RequestParamBuilder().addInclude('userMembers').addInclude('agentMembers').create();
+    try {
+      const response: ResponseWrapper = await firstValueFrom(
+        this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
+      );
+
+      this.accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
+        data: response.data,
+        included: response.included
+      });
+    } catch (error) {
+      console.error('Failed to load access group data:', error);
+    }
+  }
+
+  /**
+   * Load all users currently not part of the accessGroup as options for select input
+   */
+  async loadSelectUsers() {
+    this.isUsersLoading = true;
+    const ids = this.accessGroup.userMembers.map((user) => user.id);
+
+    // Only include filter, if there are userMembers
+    const requestParamBuilder = new RequestParamBuilder();
+    if (ids.length > 0) {
+      requestParamBuilder.addFilter({ field: '_id', operator: FilterType.NOTIN, value: ids });
+    }
+    const requestParams = requestParamBuilder.create();
+
+    try {
+      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.USERS, requestParams));
+      const users = new JsonAPISerializer().deserialize<JAccessGroup[]>({
+        data: response.data,
+        included: response.included
+      });
+      this.selectUsers = transformSelectOptions(users, DEFAULT_FIELD_MAPPING);
+    } catch (error) {
+      console.error('Failed to load user data: ', error);
+    } finally {
+      this.isUsersLoading = false;
+    }
+  }
+
+  /**
+   * Load all agents currently not part of the accessGroup as options for select input
+   */
+  async loadSelectAgents() {
+    this.isAgentsLoading = true;
+    const ids = this.accessGroup.agentMembers.map((agent) => agent.id);
+
+    // Only include filter, if there are agentMembers
+    const requestParamBuilder = new RequestParamBuilder();
+    if (ids.length > 0) {
+      requestParamBuilder.addFilter({ field: '_id', operator: FilterType.NOTIN, value: ids });
+    }
+    const requestParams = requestParamBuilder.create();
+    try {
+      const response: ResponseWrapper = await firstValueFrom(this.gs.getAll(SERV.AGENTS, requestParams));
+      const agents = new JsonAPISerializer().deserialize<JAgent[]>({
+        data: response.data,
+        included: response.included
+      });
+      this.selectAgents = transformSelectOptions(agents, AGENT_MAPPING);
+    } catch (error) {
+      console.error('Failed to load user data: ', error);
+    } finally {
+      this.isAgentsLoading = false;
+    }
   }
 
   /**
    * Initializes the form with user data retrieved from the server.
    */
-  initForm() {
-    const loadSubscription$ = this.gs
-      .get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex)
-      .subscribe((response: ResponseWrapper) => {
-        const accessGroup = new JsonAPISerializer().deserialize<JAccessGroup>({
-          data: response.data,
-          included: response.included
-        });
-        this.editName = accessGroup.groupName;
-        this.updateForm = new FormGroup({
-          groupName: new FormControl(accessGroup.groupName)
-        });
-      });
-    this.unsubscribeService.add(loadSubscription$);
+  async initForm() {
+    await this.loadAccessGroup();
+    this.editName = this.accessGroup.groupName;
+    this.updateForm = new FormGroup({
+      groupName: new FormControl(this.accessGroup.groupName)
+    });
+    void this.loadSelectUsers();
+    void this.loadSelectAgents();
+  }
+
+  /**
+   * Reload data
+   */
+  refresh() {
+    this.isLoading = true;
+    this.onInitialize();
+    this.loadData();
   }
 
   /**
@@ -125,6 +229,68 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handles the form submission for adding new users to the access group.
+   */
+  async onAddUsers() {
+    if (this.addUsersForm.valid) {
+      this.isUpdatingLoading = true;
+      const users = this.addUsersForm.get('userIds').value.map((id) => {
+        return {
+          type: RelationshipType.USERMEMBERS,
+          id: id
+        };
+      });
+      try {
+        await firstValueFrom(
+          this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.USERMEMBERS, {
+            data: users
+          })
+        );
+        this.alert.showSuccessMessage(`Successfully added ${users.length} user${users.length > 1 ? 's' : ''}`);
+        this.refresh(); // Reload the select component
+        this.userTable.reload();
+      } catch (error) {
+        const msg = `Failed to add user${users.length > 1 ? 's' : ''} to access group`;
+        console.error(msg, error);
+        this.alert.showErrorMessage(msg);
+      } finally {
+        this.isUpdatingLoading = false;
+      }
+    }
+  }
+
+  /**
+   * Handles the form submission for adding new agents to the access group.
+   */
+  async onAddAgents() {
+    this.isUpdatingLoading = true;
+    if (this.addAgentsForm.valid) {
+      const agents = this.addAgentsForm.get('agentIds').value.map((id) => {
+        return {
+          type: RelationshipType.AGENTMEMBER,
+          id: id
+        };
+      });
+      try {
+        await firstValueFrom(
+          this.gs.postRelationships(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, RelationshipType.AGENTMEMBER, {
+            data: agents
+          })
+        );
+        this.alert.showSuccessMessage(`Successfully added ${agents.length} user${agents.length > 1 ? 's' : ''}`);
+        this.refresh(); // Reload the select component
+        this.agentTable.reload();
+      } catch (error) {
+        const msg = `Failed to add user${agents.length > 1 ? 's' : ''} to access group`;
+        console.error(msg, error);
+        this.alert.showErrorMessage(msg);
+      } finally {
+        this.isUpdatingLoading = false;
+      }
+    }
+  }
+
+  /**
    * Handles the deletion of an access group.
    * Displays a confirmation dialog and, if confirmed, triggers the deletion process.
    * If the deletion is successful, it navigates to the user list.
@@ -142,5 +308,19 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
         );
       }
     });
+  }
+
+  /**
+   * Reload component if agents have been removed from access group
+   */
+  onAgentsRemoved(): void {
+    this.refresh();
+  }
+
+  /**
+   * Reload component if users have been removed from access group
+   */
+  onUsersRemoved(): void {
+    this.refresh();
   }
 }

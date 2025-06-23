@@ -1,24 +1,17 @@
 import { ActionMenuEvent, ActionMenuItem } from './action-menu.model';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { faPaperPlane, faGlobe } from '@fortawesome/free-solid-svg-icons';
-import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @angular-eslint/component-selector */
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { Subscription } from 'rxjs';
-import { UISettingsUtilityClass } from '../../../../shared/utils/config';
 import { UIConfig } from '../../../_models/config-ui.model';
+import { UISettingsUtilityClass } from '../../../../shared/utils/config';
+import { faBook } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * Component representing an action menu with a list of menu items.
@@ -43,9 +36,9 @@ import { UIConfig } from '../../../_models/config-ui.model';
  * ></action-menu>
  */
 @Component({
-    selector: 'action-menu',
-    templateUrl: './action-menu.component.html',
-    standalone: false
+  selector: 'action-menu',
+  templateUrl: './action-menu.component.html',
+  standalone: false
 })
 export class ActionMenuComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
@@ -70,8 +63,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   @Input() openOnMouseEnter = false;
 
-  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> =
-    new EventEmitter<ActionMenuEvent<any>>();
+  @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
   timedOutCloser: NodeJS.Timeout;
   timedOutOpener: NodeJS.Timeout;
@@ -82,9 +74,10 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   faGithub = faGithub;
   faPaperplane = faPaperPlane;
   faGlobe = faGlobe;
+  faBook = faBook;
 
   isDarkMode = false;
-  faIconColor = "white";
+  faIconColor = 'white';
 
   constructor(
     private router: Router,
@@ -94,9 +87,9 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
     if (this.isDarkMode) {
-      this.faIconColor = "white";
+      this.faIconColor = 'white';
     } else {
-      this.faIconColor = "black";
+      this.faIconColor = 'black';
     }
   }
 
@@ -112,7 +105,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   }
 
   /**
-    *  Display fontawesome icons according to the icon name
+   *  Display fontawesome icons according to the icon name
    **/
   iconContainsDiscord(name: string): boolean {
     if (name != undefined) {
@@ -146,6 +139,14 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
     }
   }
 
+  iconContainsBook(name: string): boolean {
+    if (name != undefined) {
+      return name.toLowerCase() === 'fabook';
+    } else {
+      return false;
+    }
+  }
+
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -170,10 +171,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
       for (const item of section) {
         if (item.routerLink) {
           const partial = this.currentUrl.slice(0, item.routerLink.length);
-          if (
-            item.routerLink &&
-            partial.every((value, index) => value === item.routerLink[index])
-          ) {
+          if (item.routerLink && partial.every((value, index) => value === item.routerLink[index])) {
             this.isActive = true;
             break;
           }
@@ -271,9 +269,7 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
     if (panelId && event.relatedTarget instanceof Element) {
       const relatedTargetInPanel = event.relatedTarget.closest(`#${panelId}`);
-      const isAnotherMenuContent = event.relatedTarget.classList.contains(
-        'mat-mdc-menu-content'
-      );
+      const isAnotherMenuContent = event.relatedTarget.classList.contains('mat-mdc-menu-content');
 
       return relatedTargetInPanel && !isAnotherMenuContent;
     }

@@ -28,7 +28,7 @@
       </ng-template>
     </div>
     <!-- export -->
-    <div class="table-action-wrapper" *ngIf="isSelectable">
+    <div class="table-action-wrapper" *ngIf="isSelectable && showExport">
       <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
         <button mat-button [disabled]="true">
           <mat-icon>file_download</mat-icon>
