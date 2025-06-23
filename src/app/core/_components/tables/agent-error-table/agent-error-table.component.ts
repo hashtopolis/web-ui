@@ -37,19 +37,23 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: AgentErrorTableCol.ID,
-        render: (agentError: JAgentErrors) => agentError.id.toString()
+        render: (agentError: JAgentErrors) => agentError.id.toString(),
+        export: async (agentError: JAgentErrors) => agentError.id.toString()
       },
       {
         id: AgentErrorTableCol.TIME,
-        render: (agentError: JAgentErrors) => this.renderDispatchTime(agentError)
+        render: (agentError: JAgentErrors) => this.renderDispatchTime(agentError),
+        export: async (agentError: JAgentErrors) => formatUnixTimestamp(agentError.time, this.dateFormat)
       },
       {
         id: AgentErrorTableCol.TASK_ID,
-        routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError, true)
+        routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError, true),
+        export: async (agentError: JAgentErrors) => (agentError.taskId ? agentError.taskId.toString() : 'N/A')
       },
       {
         id: AgentErrorTableCol.TASK,
-        routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError)
+        routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError),
+        export: async (agentError: JAgentErrors) => agentError.task.taskName || 'N/A'
       },
       {
         id: AgentErrorTableCol.CHUNK,
@@ -58,7 +62,8 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
             return agentError.chunkId.toString();
           }
           return 'N/A';
-        }
+        },
+        export: async (agentError: JAgentErrors) => (agentError.chunkId ? agentError.chunkId.toString() : 'N/A')
       },
       {
         id: AgentErrorTableCol.MESSAGE,
@@ -67,7 +72,8 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
             return this.sanitize(agentError.error);
           }
           return 'N/A';
-        }
+        },
+        export: async (agentError: JAgentErrors) => agentError.error || 'N/A'
       }
     ];
   }
@@ -78,8 +84,13 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   bulkActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
     console.log('Bulk action clicked:', event);
   }
-  exportActionClicked(event: ActionMenuEvent<JAgentErrors>): void {
-    console.log('Export action clicked:', event);
+  exportActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
+    this.exportService.handleExportAction<JAgentErrors>(
+      event,
+      this.tableColumns,
+      AgentErrorTableColumnLabel,
+      'hashtopolis-task-errors'
+    );
   }
   renderDispatchTime(chunk: JAgentErrors): SafeHtml {
     const formattedDate = formatUnixTimestamp(chunk.time, this.dateFormat);
