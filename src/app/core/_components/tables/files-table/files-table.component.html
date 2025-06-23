@@ -11,6 +11,7 @@
   [isFilterable]="true"
   [filterFn]="filter.bind(this)"
   [isPageable]="true"
+  [showExport]="showExport"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"

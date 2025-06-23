@@ -28,7 +28,7 @@
       </ng-template>
     </div>
     <!-- export -->
-    <div class="table-action-wrapper" *ngIf="isSelectable">
+    <div class="table-action-wrapper" *ngIf="isSelectable && showExport">
       <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
         <button mat-button [disabled]="true">
           <mat-icon>file_download</mat-icon>
@@ -210,13 +210,13 @@
               [element]="element"
             ></ht-table-default>
             <ht-table-editable
-              [tableColumn]="tableColumn"
+              [tableColumn]="tableColumn"1369-bug-new-task-wordlisttab-export-button-does-not-work
               [element]="element"
               (editableInputSaved)="editableInputSaved($event)"
             ></ht-table-editable>
             <ht-table-editable-checkbox
               [tableColumn]="tableColumn"
-              [element]="element"
+              [element]="element"1369-bug-new-task-wordlisttab-export-button-does-not-work
               (editableCheckboxSaved)="editableCheckboxSaved($event)"
             ></ht-table-editable-checkbox>
           </ng-container>

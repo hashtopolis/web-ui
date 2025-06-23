@@ -1,3 +1,9 @@
+import { Subscription, take, timer } from 'rxjs';
+import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -10,6 +16,11 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -19,19 +30,9 @@ import {
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { Subscription, take, timer } from 'rxjs';
-
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
 import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
 import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -140,6 +141,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
 
+  /** Flag to show the export button. */
+  @Input() showExport = true;
+
   /** Flag show archived data. */
   @Input() isArchived = false;
 
@@ -166,7 +170,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
-  
+
   /** Default total items index */
   @Input() defaultTotalItems = 0;
 
@@ -511,10 +515,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // and recalculate the page index. The problem is that, this is very hard to do,
       // because we use cursor-based pagination.
       index = 0;
-    }
-    else if (event.pageIndex !== 0) {
+    } else if (event.pageIndex !== 0) {
       const originalData = this.dataSource.getOriginalData();
-      const ids = originalData.map(items => items.id);
+      const ids = originalData.map((items) => items.id);
       if (event.pageIndex > event.previousPageIndex) {
         pageAfter = Math.max(...ids);
       } else {
