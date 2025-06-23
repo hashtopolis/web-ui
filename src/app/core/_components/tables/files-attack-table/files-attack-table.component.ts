@@ -24,6 +24,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   @Input() cmdPrepro = false;
   @Input() customLabel: string;
   @Input() bulkWordlistRule = false;
+  @Input() showExport = false;
   @Input() checkboxChangedData: CheckboxChangeEvent;
   @Input() formData: {
     attackCmd: string;
