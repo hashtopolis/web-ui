@@ -8,7 +8,7 @@
   [hasBulkActions]="false"
   [hasRowAction]="false"
   [isFilterable]="true"
-  [filterFn]="filter"
+  [filterFn]="filter.bind(this)"
   [isPageable]="true"
   [isCmdTask]="cmdTask"
   [isCmdLabel]="customLabel"
@@ -17,4 +17,5 @@
   [isSelectable]="true"
   [showExport]="false"
   (checkboxChanged)="onCheckboxChanged($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
 />
