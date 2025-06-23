@@ -60,10 +60,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isSupertask, action: this.setSupertaskMenu },
       { condition: this.isHashlist, action: this.setHashlistMenu },
       { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },
-      {
-        condition: this.isAgentError,
-        action: () => this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_HASHTYPE, RowActionMenuLabel.DELETE_HASHTYPE)
-      }
+      { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
     ];
 
     for (const item of actionMap) {

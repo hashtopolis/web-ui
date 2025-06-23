@@ -93,7 +93,7 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
     } else if (this.dataType === 'vouchers') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_VOUCHERS);
     } else if (this.dataType === 'agents-errors') {
-      this.setHashlistMenu();
+      this.setDeleteMenu(BulkActionMenuLabel.DELETE_ERRORS);
     }
   }
 
