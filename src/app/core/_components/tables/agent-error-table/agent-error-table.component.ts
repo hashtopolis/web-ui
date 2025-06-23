@@ -25,7 +25,10 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
-  ngOnDestroy(): void {}
+  selectedFilterColumn: string = 'all';
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+  }
   ngOnInit(): void {
     this.setColumnLabels(AgentErrorTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -41,6 +44,8 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: AgentErrorTableCol.ID,
+        dataKey: 'id',
+        isSearchable: true,
         render: (agentError: JAgentErrors) => agentError.id.toString(),
         export: async (agentError: JAgentErrors) => agentError.id.toString()
       },
@@ -51,11 +56,15 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       },
       {
         id: AgentErrorTableCol.TASK_ID,
+        dataKey: 'taskId',
+        isSearchable: true,
         routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError, true),
         export: async (agentError: JAgentErrors) => (agentError.taskId ? agentError.taskId.toString() : 'N/A')
       },
       {
         id: AgentErrorTableCol.TASK,
+        dataKey: 'taskName',
+        isSearchable: true,
         routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError),
         export: async (agentError: JAgentErrors) => agentError.task.taskName || 'N/A'
       },
@@ -71,6 +80,8 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       },
       {
         id: AgentErrorTableCol.MESSAGE,
+        isSearchable: true,
+        dataKey: 'error',
         render: (agentError: JAgentErrors) => {
           if (agentError.error) {
             return this.sanitize(agentError.error);
@@ -80,6 +91,32 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         export: async (agentError: JAgentErrors) => agentError.error || 'N/A'
       }
     ];
+  }
+  filter(item: JAgentErrors, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.error.toString().toLocaleLowerCase().includes(filterValue) ||
+          item.task?.taskName?.toLowerCase().includes(filterValue) ||
+          item.taskId.toString().includes(filterValue)
+        );
+      }
+      case 'id':
+        return item.id.toString().includes(filterValue);
+      case 'error':
+        return item.error?.toLowerCase().includes(filterValue);
+      case 'taskName':
+        return item.task?.taskName?.toLowerCase().includes(filterValue);
+      case 'taskId':
+        return item.taskId.toString().includes(filterValue);
+      default:
+        return item.task?.taskName?.toLowerCase().includes(filterValue);
+    }
   }
   openDialog(data: DialogData<JAgentErrors>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
