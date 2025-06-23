@@ -1,0 +1,18 @@
+<ht-table
+  #table
+  name="agentErrorTable"
+  [columnLabels]="columnLabels"
+  dataType="agents-errors"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [hasBulkActions]="hasBulkActions"
+  [hasRowAction]="hasRowAction"
+  [isSelectable]="isSelectable"
+  [isPageable]="true"
+  [isFilterable]="true"
+  [filterFn]="filter.bind(this)"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+/>

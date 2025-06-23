@@ -21,6 +21,7 @@ export class SERV {
   public static ACCESS_PERMISSIONS_GROUPS = { URL: '/ui/globalpermissiongroups', RESOURCE: 'GlobalPermissionGroups' };
   // AGENTS
   public static AGENTS = { URL: '/ui/agents', RESOURCE: 'Agents' };
+  public static AGENT_ERRORS = { URL: '/ui/agenterrors', RESOURCE: 'AgentErrors' };
   public static AGENTS_STATS = { URL: '/ui/agentstats', RESOURCE: 'AgentStats' };
   public static AGENT_ASSIGN = { URL: '/ui/agentassignments', RESOURCE: 'AgentAssignments' };
   public static AGENTS_COUNT = { URL: '/ui/agents/count', RESOURCE: 'AgentsCount' };

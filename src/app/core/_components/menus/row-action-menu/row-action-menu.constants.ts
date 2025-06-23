@@ -39,6 +39,7 @@ export const RowActionMenuLabel = {
   DELETE_ACCESSGROUP: 'Delete Access Group',
   DELETE_PERMISSION: 'Delete Permission Group',
   DELETE_VOUCHER: 'Delete Voucher',
+  DELETE_ERROR: 'Delete Error',
   COPY_TO_TASK: 'Copy to Task',
   COPY_TO_PRETASK: 'Copy to Pretask',
   ARCHIVE_TASK: 'Archive Task',

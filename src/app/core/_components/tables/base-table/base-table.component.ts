@@ -1,32 +1,29 @@
-import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
-import { Observable, Subscription, of } from 'rxjs';
-
-import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, Subscription, of } from 'rxjs';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 
+import { AlertService } from '@services/shared/alert.service';
+import { BaseModel } from '@models/base.model';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { ConfigService } from '@services/shared/config.service';
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
-import { BaseModel } from '@models/base.model';
+import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { JChunk } from '@models/chunk.model';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
-
-import { ExportService } from '@services/export/export.service';
-import { GlobalService } from '@services/main.service';
-import { AlertService } from '@services/shared/alert.service';
-import { ConfigService } from '@services/shared/config.service';
-import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-
-import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
-import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-
+import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { UIConfigService } from '@services/shared/storage.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
@@ -241,19 +238,19 @@ export class BaseTableComponent {
   /**
    * Render edit link for task
    * @param model - agent or chunk to render tasl link for
+   * @param idLink - if true, the task ID will be used as label, otherwise the task name
    * @return observable object containing a router link array
    */
-  renderTaskLink(model: JAgent | JChunk): Observable<HTTableRouterLink[]> {
+  renderTaskLink(model: JAgent | JChunk | JAgentErrors, idLink: boolean = false): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (model) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: model.taskName
+        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString(),
       });
     }
     return of(links);
   }
-
   /**
    * Render a valid or invalid icon for the given user
    * @param user - user th get icon for

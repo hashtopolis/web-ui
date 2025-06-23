@@ -3,6 +3,7 @@ import { ChunkData, JChunk } from '@models/chunk.model';
 import { BaseModel } from '@models/base.model';
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgentErrors } from './agent-errors.model';
 import { JAgentStat } from '@models/agent-stats.model';
 import { JTask } from '@models/task.model';
 import { JUser } from '@models/user.model';
@@ -29,6 +30,7 @@ export interface JAgent extends BaseModel {
   cpuOnly: number;
   clientSignature: string;
   agentStats?: JAgentStat[];
+  agentErrors?: JAgentErrors[];
   accessGroups?: JAccessGroup[];
   accessGroup?: string;
   task?: JTask;
