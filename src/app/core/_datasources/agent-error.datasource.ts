@@ -45,9 +45,6 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
         });
         console.log('AgentsDataSource: loadAll deserialized', agents);
         agents.map((agent: JAgentErrors) => {
-          if (agent.task !== undefined) {
-            agent.taskName = agent.task.taskName;
-          }
         });
         const length = response.meta.page.total_elements;
 

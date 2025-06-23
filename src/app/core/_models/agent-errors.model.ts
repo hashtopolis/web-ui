@@ -10,6 +10,5 @@ export interface JAgentErrors extends BaseModel {
   taskId: number;
   time: NumberSymbol;
   type: string;
-  taskName?: string;
   task?: JTask;
 }

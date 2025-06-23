@@ -246,7 +246,7 @@ export class BaseTableComponent {
     if (model) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: idLink ? model?.taskId.toString() : model.taskName
+        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString(),
       });
     }
     return of(links);
