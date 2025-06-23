@@ -95,7 +95,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
               this.bulkActionDelete(result.data);
               break;
             case RowActionMenuAction.DELETE:
-              console.log('Row action delete clicked:', result.data);
               this.rowActionDelete(result.data);
               break;
           }
@@ -111,7 +110,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
           rows: [event.data],
           title: `'Deleting'  ${event.data.error} ...`,
           icon: 'warning',
-          body: `Are you sure you want to delete'} ${event.data.error} ${event.data?.id}'Note that this action cannot be undone.'`,
+          body: `Are you sure you want to delete ${event.data.error} Note that this action cannot be undone.`,
           warn: true,
           action: event.menuItem.action
         });
@@ -121,7 +120,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   bulkActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
-        console.log('Bulk delete action clicked:', event);
         this.openDialog({
           rows: event.data,
           title: `Deleting ${event.data.length} errors ...`,
@@ -133,7 +131,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
         });
         break;
     }
-    console.log('Bulk action clicked:', event);
   }
   exportActionClicked(event: ActionMenuEvent<JAgentErrors[]>): void {
     this.exportService.handleExportAction<JAgentErrors>(
