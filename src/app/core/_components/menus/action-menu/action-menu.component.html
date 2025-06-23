@@ -41,6 +41,9 @@
           <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
             <fa-icon [icon]="faGlobe" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
           </div>
+          <div *ngIf="iconContainsBook(item.icon)" style="display: inline; padding-right: 10px">
+            <fa-icon [icon]="faBook" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
+          </div>
           {{ item.label }}
         </button>
 

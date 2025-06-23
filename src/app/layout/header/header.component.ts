@@ -3,18 +3,18 @@ import { HeaderMenuAction, HeaderMenuLabel } from './header.constants';
 
 import { ActionMenuEvent } from 'src/app/core/_components/menus/action-menu/action-menu.model';
 import { AuthService } from '../../core/_services/access/auth.service';
+import { AuthUser } from 'src/app/core/_models/auth-user.model';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MainMenuItem } from './header.model';
 import { Subscription } from 'rxjs';
 import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { AuthUser } from 'src/app/core/_models/auth-user.model';
 import { environment } from './../../../environments/environment';
 
 @Component({
-    selector: 'app-header',
-    templateUrl: './header.component.html',
-    standalone: false
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  standalone: false
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
@@ -334,10 +334,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions: [
         [
           {
+            label: 'Documentation',
+            icon: 'faBook',
+            routerLink: ['https://docs.hashtopolis.org/'],
+            external: true
+          },
+          {
+            label: 'Hashtopolis Website',
+            icon: 'faGlobe',
+            routerLink: ['https://hashtopolis.org/'],
+            external: true
+          },
+          {
             label: 'Bug Report / Enhancement',
-            routerLink: [
-              'https://github.com/hashtopolis/server/issues/new/choose'
-            ],
+            routerLink: ['https://github.com/h1ashtopolis/server/issues/new/choose'],
             icon: 'faGithub',
             external: true
           },
@@ -351,12 +361,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
             label: 'Support',
             icon: 'faDiscord',
             routerLink: ['https://discord.com/invite/S2NTxbz'],
-            external: true
-          },
-          {
-            label: 'Hashtopolis Website',
-            icon: 'faGlobe',
-            routerLink: ['https://hashtopolis.org/'],
             external: true
           }
         ]
