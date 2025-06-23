@@ -43,9 +43,6 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
           data: responseBody.data,
           included: responseBody.included
         });
-        console.log('AgentsDataSource: loadAll deserialized', agents);
-        agents.map((agent: JAgentErrors) => {
-        });
         const length = response.meta.page.total_elements;
 
         this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
