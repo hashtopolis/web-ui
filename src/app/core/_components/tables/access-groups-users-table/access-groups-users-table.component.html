@@ -6,10 +6,11 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-  [hasBulkActions]="false"
+  [hasBulkActions]="true"
   [hasRowAction]="false"
   [isFilterable]="true"
   [filterFn]="filter"
   [isPageable]="true"
   (exportActionClicked)="exportActionClicked($event)"
+  (bulkActionClicked)="bulkActionClicked($event)"
 />

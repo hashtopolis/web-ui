@@ -1,21 +1,20 @@
 import { catchError } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsAgentsTableCol,
   AccessGroupsAgentsTableColumnLabel
 } from '@src/app/core/_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-groups-expand.datasource';
 import { JAgent } from '@src/app/core/_models/agent.model';
-import { SERV } from '@src/app/core/_services/main.config';
+import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
 
 @Component({
   selector: 'app-access-groups-agents-table',
@@ -24,6 +23,7 @@ import { SERV } from '@src/app/core/_services/main.config';
 })
 export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accessgroupId = 0;
+  @Output() agentsRemoved = new EventEmitter<void>(); // Event to notify parent about removed agent(s)
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
@@ -80,9 +80,6 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
       dialogRef.afterClosed().subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
-              break;
             case BulkActionMenuAction.DELETE:
               this.bulkActionUnassign(result.data);
               break;
@@ -93,7 +90,6 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
     this.exportService.handleExportAction<JAgent>(
       event,
@@ -103,100 +99,59 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     );
   }
 
-  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
-    switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
-      case RowActionMenuAction.DELETE:
-        this.openDialog({
-          rows: [event.data],
-          title: `Deleting Agent Access Group ${event.data.agentName} ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
-          warn: true,
-          action: event.menuItem.action
-        });
-        break;
-    }
-  }
-
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    switch (event.menuItem.action) {
-      case BulkActionMenuAction.DELETE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} access group agent ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete the above pretasks? Note that this action cannot be undone.`,
-          warn: true,
-          listAttribute: 'agentName',
-          action: event.menuItem.action
-        });
-        break;
-    }
+    // Prepare dialog data
+    const dialogData: DialogData<JAgent> = {
+      rows: event.data,
+      title: `Remove ${event.data.length} access group agent${event.data.length > 1 ? 's' : ''} ...`,
+      icon: 'warning',
+      body: `Are you sure you want to remove the above agent${event.data.length > 1 ? 's' : ''} from the access group?`,
+      warn: true,
+      listAttribute: 'agentName',
+      action: BulkActionMenuAction.DELETE
+    };
+
+    // Open confirmation dialog
+    this.openDialog(dialogData);
   }
 
   /**
-   * Unasssign Users
+   * Remove agents from access group
    */
   private bulkActionUnassign(agents: JAgent[]): void {
     //Get the IDs of agents
     const agentIdsToDelete = agents.map((agents) => agents.id);
-    //Remove the selected agents from the list
-    const updatedPretasks = this.dataSource.getData().filter((agents) => !agentIdsToDelete.includes(agents.id));
-    //Update the supertask with the modified list of pretasks
+
     const payload = {
-      userMembers: updatedPretasks.map((agents) => agents.id)
+      data: agentIdsToDelete.map((id) => {
+        return { type: RelationshipType.AGENTMEMBER, id: id };
+      })
     };
-    //Update the supertask with the new list of pretasks
-    const updateRequest = this.gs.update(SERV.ACCESS_GROUPS, this.accessgroupId, payload);
+
+    // Remove the agents from the access group
+    const removeRequest = this.gs.deleteRelationships(
+      SERV.ACCESS_GROUPS,
+      this.accessgroupId,
+      RelationshipType.AGENTMEMBER,
+      payload
+    );
     this.subscriptions.push(
-      updateRequest
+      removeRequest
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            const msg = 'Error while removing agents from access group';
+            console.error(`${msg}: `, error);
+            this.alertService.showErrorMessage(msg);
             return [];
           })
         )
         .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully unassigned ${agents.length} users`);
+          this.agentsRemoved.emit();
+          this.alertService.showSuccessMessage(
+            `Successfully removed ${agents.length} user${agents.length > 1 ? 's' : ''}`
+          );
           this.reload();
         })
     );
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(agents: JAgent[]): void {
-    //Get the IDs of agents to be deleted
-    const agentIdsToDelete = agents.map((agents) => agents.id);
-    //Remove the selected agents from access groups
-    const updatedAccessGroups = this.dataSource
-      .getData()
-      .filter((accessGroup) => !agentIdsToDelete.includes(accessGroup.id));
-    //Update the accessGroup with the updated list of agents
-    const payload = { agents: updatedAccessGroups.map((accessGroup) => accessGroup.id) };
-    this.subscriptions.push(
-      this.gs
-        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully unassigned agents');
-          this.reload();
-        })
-    );
-  }
-
-  private rowActionEdit(agent: JAgent): void {
-    this.renderUserLinkFromAgent(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
-    });
   }
 }

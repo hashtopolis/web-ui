@@ -18,6 +18,11 @@ export const ACCESS_GROUP_FIELD_MAPPING: FieldMapping = {
   id: 'id'
 };
 
+export const AGENT_MAPPING: FieldMapping = {
+  name: 'agentName',
+  id: 'id'
+};
+
 export const CRACKER_TYPE_FIELD_MAPPING: FieldMapping = {
   name: 'typeName',
   id: 'id'
@@ -53,4 +58,3 @@ export const USER_AGP_FIELD_MAPPING: FieldMapping = {
   name: 'groupName',
   id: 'id'
 };
-
