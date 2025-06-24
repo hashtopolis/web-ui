@@ -76,7 +76,7 @@ export class HttpResInterceptor implements HttpInterceptor {
         return `Check credentials.`;
       }
     } else {
-      return `Check credentials.`;
+      return `Token expired. Please log in again.`;
     }
   }
 
