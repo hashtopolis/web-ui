@@ -64,10 +64,12 @@ export class UISettingsUtilityClass {
           // Save columns
           existingTableSettings['columns'] = settings.columns;
           // Check if the value saved in order is visible; if not, remove it
-          const orderValue: number = existingTableSettings['order']['id'];
-          const numericColumns: number[] = existingTableSettings['columns'].map(Number);
-          if (!numericColumns.includes(orderValue)) {
-            existingTableSettings['order'] = undefined;
+          if (existingTableSettings['order'] !== undefined) {
+            const orderValue: number = existingTableSettings['order']['id'];
+            const numericColumns: number[] = existingTableSettings['columns'].map(Number);
+            if (!numericColumns.includes(orderValue)) {
+              existingTableSettings['order'] = undefined;
+            }
           }
         }
         if (settings.order !== undefined) {
