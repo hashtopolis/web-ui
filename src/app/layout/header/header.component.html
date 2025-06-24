@@ -24,4 +24,13 @@
       (menuItemClicked)="menuItemClicked($event)"
     ></action-menu>
   </ng-container>
+<button
+  mat-icon-button
+  (click)="toggleTheme()"
+  [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  <mat-icon>
+    {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
+  </mat-icon>
+</button>
 </mat-toolbar>

@@ -1,9 +1,7 @@
-import {
-  UIConfig,
-  uiConfigDefault
-} from 'src/app/core/_models/config-ui.model';
+import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
 
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { ThemeService } from '@src/app/core/_services/shared/theme.service';
 
 /**
  * Utility class for managing user interface settings and configurations.
@@ -20,10 +18,16 @@ export class UISettingsUtilityClass {
    *
    * @param storage - The LocalStorageService used for managing UI configuration storage.
    */
-  constructor(private storage: LocalStorageService<UIConfig>) {
+  constructor(
+    private storage: LocalStorageService<UIConfig>,
+    private themeService?: ThemeService
+  ) {
     this.uiConfig = storage.getItem(UISettingsUtilityClass.KEY);
     if (!this.uiConfig) {
       this.uiConfig = uiConfigDefault;
+    }
+    if (this.themeService && this.uiConfig.theme) {
+      this.themeService.theme = this.uiConfig.theme;
     }
   }
 
@@ -69,8 +73,7 @@ export class UISettingsUtilityClass {
           existingTableSettings['columns'] = settings.columns;
           // Check if the value saved in order is visible; if not, remove it
           const orderValue: number = existingTableSettings['order']['id'];
-          const numericColumns: number[] =
-            existingTableSettings['columns'].map(Number);
+          const numericColumns: number[] = existingTableSettings['columns'].map(Number);
           if (!numericColumns.includes(orderValue)) {
             existingTableSettings['order'] = undefined;
           }
@@ -142,11 +145,15 @@ export class UISettingsUtilityClass {
   updateSettings(settings: { [key: string]: any }): number {
     const keys = Object.keys(settings);
     let changedValues = 0;
+    let themeChanged = false;
 
     for (const key of keys) {
       if (key in this.uiConfig && this.uiConfig[key] !== settings[key]) {
         this.uiConfig[key] = settings[key];
         changedValues += 1;
+        if (key === 'theme') {
+          themeChanged = true;
+        }
       }
     }
 

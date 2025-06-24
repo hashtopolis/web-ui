@@ -7,6 +7,7 @@ import { AuthUser } from 'src/app/core/_models/auth-user.model';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { MainMenuItem } from './header.model';
 import { Subscription } from 'rxjs';
+import { ThemeService } from 'src/app/core/_services/shared/theme.service';
 import { UIConfig } from 'src/app/core/_models/config-ui.model';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { environment } from './../../../environments/environment';
@@ -20,6 +21,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
+  isDarkMode = false;
+  private themeSub: Subscription;
+
+  theme: any;
 
   // Before showing header check Authentification
   private userSub: Subscription;
@@ -27,17 +32,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
-  isDarkMode = false;
   timedOutCloser: any;
 
   constructor(
     private authService: AuthService,
-    private storage: LocalStorageService<UIConfig>
+    private storage: LocalStorageService<UIConfig>,
+    private themes: ThemeService
   ) {
     this.isAuth();
     this.rebuildMenu();
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
-    this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
+    this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
   }
 
   isAuth(): void {
@@ -55,6 +59,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.rebuildMenu();
       })
     );
+    this.themeSub = this.themes.theme$.subscribe((theme) => {
+      this.isDarkMode = theme === 'dark';
+    });
   }
 
   ngOnDestroy(): void {
@@ -62,6 +69,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
       sub.unsubscribe();
     }
     this.userSub.unsubscribe();
+    if (this.themeSub) {
+      this.themeSub.unsubscribe();
+    }
+  }
+
+  toggleTheme() {
+    const newTheme = this.isDarkMode ? 'light' : 'dark';
+    this.uiSettings.updateSettings({ theme: newTheme });
+    window.location.reload();
   }
 
   menuItemClicked(event: ActionMenuEvent<any>): void {
