@@ -1,9 +1,9 @@
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, switchMap, take } from 'rxjs';
+import { Observable, catchError, switchMap, take, throwError } from 'rxjs';
 
 import { AuthService } from '../_services/access/auth.service';
 import { AuthUser } from '../_models/auth-user.model';
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
@@ -17,10 +17,10 @@ export class AuthInterceptorService implements HttpInterceptor {
    * @param {HttpHandler} next - The HTTP handler to forward the request to.
    * @returns {Observable<HttpEvent<any>>} - An observable of the HTTP event stream.
    */
-  intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (req.url.includes('/auth/refresh')) {
+      return next.handle(req);
+    }
     return this.authService.user.pipe(
       take(1),
       switchMap((user: AuthUser) => {
@@ -31,6 +31,12 @@ export class AuthInterceptorService implements HttpInterceptor {
 
         const now = new Date().getTime();
         const exp = new Date(user._expires).getTime();
+        console.log(
+          'Current time:',
+          new Date().toLocaleTimeString(),
+          'Token expiration time:',
+          new Date(user._expires).toLocaleTimeString()
+        );
 
         if (now >= exp) {
           // If the token is expired, refresh it before proceeding with the request.
@@ -43,6 +49,11 @@ export class AuthInterceptorService implements HttpInterceptor {
                 }
               });
               return next.handle(updatedReq);
+            }),
+            catchError((error) => {
+              // If refresh fails, log out the user
+              this.authService.logOut();
+              return throwError(() => error);
             })
           );
         } else {
