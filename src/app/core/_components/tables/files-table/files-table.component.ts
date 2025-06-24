@@ -40,6 +40,8 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   dataSource: FilesDataSource;
   editPath = '';
   selectedFilterColumn: string = 'all';
+  showAccessGroups: boolean = true;
+
   ngOnInit(): void {
     const pathMap = {
       [FileType.WORDLIST]: 'wordlist-edit',
@@ -47,6 +49,11 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       [FileType.OTHER]: 'other-edit'
     };
     this.editPath = pathMap[this.fileType];
+
+    //AccessGroups should not be shown in files table in pre-tasks
+    if (this.name === 'filesTableInPreTasks') {
+      this.showAccessGroups = false;
+    }
 
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -104,7 +111,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
    * @returns List of table columns
    */
   getColumns(): HTTableColumn[] {
-    return [
+    const tableColumns: HTTableColumn[] = [
       {
         id: FilesTableCol.ID,
         dataKey: 'id',
@@ -133,16 +140,21 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         isSortable: true,
         render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),
         export: async (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0) + ''
-      },
-      {
+      }
+    ];
+
+    if (this.showAccessGroups) {
+      tableColumns.push({
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: true,
         isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
-      }
-    ];
+      });
+    }
+
+    return tableColumns;
   }
 
   /**
