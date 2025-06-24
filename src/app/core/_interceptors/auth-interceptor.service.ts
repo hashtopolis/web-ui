@@ -31,13 +31,6 @@ export class AuthInterceptorService implements HttpInterceptor {
 
         const now = new Date().getTime();
         const exp = new Date(user._expires).getTime();
-        console.log(
-          'Current time:',
-          new Date().toLocaleTimeString(),
-          'Token expiration time:',
-          new Date(user._expires).toLocaleTimeString()
-        );
-
         if (now >= exp) {
           // If the token is expired, refresh it before proceeding with the request.
           return this.authService.refreshToken().pipe(
