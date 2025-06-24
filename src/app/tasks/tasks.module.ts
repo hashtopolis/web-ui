@@ -26,6 +26,8 @@ import { SupertasksComponent } from './supertasks/supertasks.component';
 import { TasksRoutingModule } from './tasks-routing.module';
 import { WrbulkComponent } from './import-supertasks/wrbulk/wrbulk.component';
 import { CoreFormsModule } from '../shared/forms.module';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+
 
 @NgModule({
   declarations: [
@@ -57,7 +59,9 @@ import { CoreFormsModule } from '../shared/forms.module';
     RouterModule,
     PipesModule,
     FormsModule,
-    NgbModule
+    NgbModule,
+    MatButtonToggle,
+    MatButtonToggleGroup
   ],
   exports: [ModalPretasksComponent, ModalSubtasksComponent]
 })

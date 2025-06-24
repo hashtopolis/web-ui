@@ -22,6 +22,7 @@ import { finalize } from 'rxjs';
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -45,6 +46,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
+import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 
@@ -75,6 +77,7 @@ export class EditTasksComponent implements OnInit {
 
   @ViewChild('agentsTable') agentsTable: AgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
+  @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
   //Time calculation
   cprogress: number; // Keyspace searched
@@ -82,7 +85,6 @@ export class EditTasksComponent implements OnInit {
 
   // Chunk View
   chunkview: number;
-  chunktitle: string;
   isactive = 0;
   currenspeed = 0;
   chunkresults: number;
@@ -309,13 +311,11 @@ export class EditTasksComponent implements OnInit {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
-          this.chunktitle = 'Live Chunks';
           this.chunkresults = 60000;
           // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
-          this.chunktitle = 'All Chunks';
           this.chunkresults = 60000;
           // this.slideToggle.checked = true;
           break;
@@ -366,11 +366,12 @@ export class EditTasksComponent implements OnInit {
   }
 
   toggleIsAll() {
-    if (this.chunkview === 0) {
-      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit', 'show-all-chunks']);
-    } else {
-      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit']);
-    }
+    this.chunkview = this.chunkview === 1 ? 0 : 1;
+    this.chunkTable.reload();
+  }
+
+  onChunkViewChange(event: MatButtonToggleChange): void {
+    this.chunkview = event.value;
   }
 
   /**
