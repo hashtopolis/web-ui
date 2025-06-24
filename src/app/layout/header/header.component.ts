@@ -342,7 +342,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           {
             label: 'Hashtopolis Website',
             icon: 'faGlobe',
-            routerLink: ['https://hashtopolis.org/'],
+            routerLink: ['https://hashtopolis.eu/'],
             external: true
           },
           {
