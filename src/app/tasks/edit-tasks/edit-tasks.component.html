@@ -161,11 +161,22 @@
 </app-table>
 <!-- Dispatched Chunks -->
 <app-table>
-  <app-page-subtitle [subtitle]="'Dispatched chunks - ' + chunktitle + ''"></app-page-subtitle>
-  <mat-slide-toggle #slideToggle (change)="toggleIsAll()">
-    {{ chunkview === 1 ? 'Live Chunks' : 'Show All' }}
-  </mat-slide-toggle>
+  <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>
+  <mat-button-toggle-group
+    style="margin: 0;"
+    [(ngModel)]="chunkview"
+    (change)="onChunkViewChange($event)"
+    appearance="standard"
+    exclusive
+  >
+    <mat-button-toggle [value]="0">Live Chunks</mat-button-toggle>
+    <mat-button-toggle [value]="1">All Chunks</mat-button-toggle>
+  </mat-button-toggle-group>
   <br /><br />
-  <app-tasks-chunks-table [taskId]="editedTaskIndex" [isChunksLive]="chunkview"></app-tasks-chunks-table>
+  <app-tasks-chunks-table
+    [taskId]="editedTaskIndex"
+    [isChunksLive]="chunkview"
+  ></app-tasks-chunks-table>
+
 </app-table>
 
