@@ -1,8 +1,4 @@
-import {
-  UIConfig,
-  uiConfigDefault
-} from 'src/app/core/_models/config-ui.model';
-
+import { UIConfig, uiConfigDefault } from 'src/app/core/_models/config-ui.model';
 import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 
 /**
@@ -69,8 +65,7 @@ export class UISettingsUtilityClass {
           existingTableSettings['columns'] = settings.columns;
           // Check if the value saved in order is visible; if not, remove it
           const orderValue: number = existingTableSettings['order']['id'];
-          const numericColumns: number[] =
-            existingTableSettings['columns'].map(Number);
+          const numericColumns: number[] = existingTableSettings['columns'].map(Number);
           if (!numericColumns.includes(orderValue)) {
             existingTableSettings['order'] = undefined;
           }
