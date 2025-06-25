@@ -1,14 +1,16 @@
-import { AuthData, AuthUser } from '../../_models/auth-user.model';
+import { Buffer } from 'buffer';
+
 import { BehaviorSubject, Observable, ReplaySubject, Subject, throwError } from 'rxjs';
-import { EventEmitter, Injectable, Output } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 
-import { Buffer } from 'buffer';
-import { ConfigService } from '../shared/config.service';
-import { LocalStorageService } from '../storage/local-storage.service';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { EventEmitter, Injectable, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { environment } from '../../../../environments/environment';
+
+import { AuthData, AuthUser } from '@models/auth-user.model';
+
+import { ConfigService } from '@services/shared/config.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 export interface AuthResponseData {
   token: string;
@@ -37,7 +39,6 @@ export class AuthService {
     private cs: ConfigService,
     private storage: LocalStorageService<AuthData>
   ) {
-    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     this.userLoggedIn.next(false);
     if (this.logged) {
       this.userId = this.getUserId(this.token);
