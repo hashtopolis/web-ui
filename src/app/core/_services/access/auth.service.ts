@@ -1,19 +1,14 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import {
-  BehaviorSubject,
-  Observable,
-  ReplaySubject,
-  Subject,
-  throwError
-} from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { AuthData, AuthUser } from '../../_models/auth-user.model';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, throwError } from 'rxjs';
 import { EventEmitter, Injectable, Output } from '@angular/core';
-import { AuthUser, AuthData } from '../../_models/auth-user.model';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
-import { Router } from '@angular/router';
+
 import { Buffer } from 'buffer';
 import { ConfigService } from '../shared/config.service';
 import { LocalStorageService } from '../storage/local-storage.service';
+import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 export interface AuthResponseData {
   token: string;
@@ -55,15 +50,10 @@ export class AuthService {
       return;
     }
 
-    const loadedUser = new AuthUser(
-      userData._token,
-      new Date(userData._expires),
-      userData._username
-    );
+    const loadedUser = new AuthUser(userData._token, new Date(userData._expires), userData._username);
     if (loadedUser.token) {
       this.user.next(loadedUser);
-      const tokenExpiration =
-        new Date(userData._expires).getTime() - new Date().getTime();
+      const tokenExpiration = new Date(userData._expires).getTime() - new Date().getTime();
       // this.autologOut(tokenExpiration);
       this.getRefreshToken(tokenExpiration);
     }
@@ -123,14 +113,11 @@ export class AuthService {
     this.tokenExpiration = setTimeout(() => {
       const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
       return this.http
-        .post<AuthResponseData>(
-          this.cs.getEndpoint() + this.endpoint + '/refresh',
-          {
-            headers: new HttpHeaders({
-              Authorization: `Bearer ${userData._token}`
-            })
-          }
-        )
+        .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${userData._token}`
+          })
+        })
         .pipe(
           tap((response: any) => {
             if (response && response.token) {
@@ -149,7 +136,7 @@ export class AuthService {
   refreshToken(): Observable<any> {
     const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     return this.http
-      .post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh ', {
+      .post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh', {
         headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })
       })
       .pipe(
