@@ -6,7 +6,7 @@ import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -42,14 +42,12 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   // Edit Options
   editedPretaskIndex: number;
-  editedPretask: any; // Change to Model
 
   pretask: any = [];
   files: any; //Add Model
 
   constructor(
     private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
     private titleService: AutoTitleService,
     private route: ActivatedRoute,
     private alert: AlertService,
@@ -59,7 +57,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   ) {
     this.getInitialization();
     this.buildForm();
-    titleService.set(['Edit Preconfigured Tasks']);
+    this.titleService.set(['Edit Preconfigured Tasks']);
   }
 
   /**

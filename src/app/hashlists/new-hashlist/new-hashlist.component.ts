@@ -198,20 +198,26 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Create Hashlist in case without file upload
    */
   async onSubmit() {
-    // Encode Paste hashes
-    this.form.patchValue({
-      sourceData: handleEncode(this.form.get('sourceData').value)
-    });
-    this.isCreatingLoading = true;
+    if (this.form.valid) {
+      if (this.form.get('sourceType').value === 'paste') {
+        // Encode Paste hashes
+        this.form.patchValue({
+          sourceData: handleEncode(this.form.get('sourceData').value)
+        });
+        this.isCreatingLoading = true;
 
-    try {
-      await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
-      this.alert.showSuccessMessage('New HashList created');
-      this.router.navigate(['/hashlists/hashlist']);
-    } catch (error) {
-      console.error('Error creating Hashlist', error);
-    } finally {
-      this.isCreatingLoading = false;
+        try {
+          await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
+          this.alert.showSuccessMessage('New HashList created');
+          this.router.navigate(['/hashlists/hashlist']);
+        } catch (error) {
+          console.error('Error creating Hashlist', error);
+        } finally {
+          this.isCreatingLoading = false;
+        }
+      } else {
+        this.onuploadFile(this.selectedFiles);
+      }
     }
   }
 

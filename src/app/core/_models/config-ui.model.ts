@@ -4,7 +4,6 @@ import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-user
 import { AccessPermissionGroupsUserTableCol } from '@components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
 import { AccessPermissionGroupsUsersTableCol } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { AgentErrorTableCol } from '../_components/tables/agent-error-table/agent-error-table.constants';
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
@@ -26,11 +25,13 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
+
+import { AgentErrorTableCol } from '../_components/tables/agent-error-table/agent-error-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -180,13 +181,13 @@ export const uiConfigDefault: UIConfig = {
     },
     agentErrorTable: {
       start: 0,
-      page:25,
+      page: 25,
       columns: [
         AgentErrorTableCol.ID,
         AgentErrorTableCol.TIME,
         AgentErrorTableCol.TASK_ID,
         AgentErrorTableCol.TASK,
-        AgentErrorTableCol.CHUNK, 
+        AgentErrorTableCol.CHUNK,
         AgentErrorTableCol.MESSAGE
       ],
       order: {
@@ -346,6 +347,18 @@ export const uiConfigDefault: UIConfig = {
         FilesTableCol.LINE_COUNT,
         FilesTableCol.ACCESS_GROUP
       ],
+      order: {
+        id: FilesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    filesTableInPreTasks: {
+      start: 0,
+      page: 25,
+      columns: [FilesTableCol.ID, FilesTableCol.NAME, FilesTableCol.SIZE, FilesTableCol.LINE_COUNT],
       order: {
         id: FilesTableCol.ID,
         dataKey: '',
