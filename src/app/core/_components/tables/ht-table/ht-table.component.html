@@ -198,7 +198,12 @@
           </ng-container>
           @if (tableColumn.isCopy) {
             <ng-container>
-              <button mat-icon-button color="primary" aria-label="Example icon button with a home icon">
+              <button
+                (click)="copyRowDataEmit(element)"
+                mat-icon-button
+                color="primary"
+                aria-label="Example icon button with a home icon"
+              >
                 <mat-icon>delete</mat-icon>
               </button>
             </ng-container>

@@ -118,7 +118,9 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
       }
     ];
   }
-
+  reciveCopyData(event: JHash) {
+    console.log(event.hash);
+  }
   openDialog(data: DialogData<JHash>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
