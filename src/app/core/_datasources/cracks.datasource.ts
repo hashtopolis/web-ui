@@ -21,24 +21,8 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     try {
       const crackedHashes = await this.loadCrackedHashes();
 
-      const rows: JHash[] = await Promise.all(
-        crackedHashes
-          .filter((element) => element.chunk)
-          .map(async (crackedHash) => {
-            const task = await this.loadTask(crackedHash.chunk.taskId);
-            crackedHash.chunk.taskName = task.taskName;
-            return crackedHash;
-          })
-      );
-
-      this.setPaginationConfig(
-        this.pageSize,
-        this.length,
-        this.pageAfter,
-        this.pageBefore,
-        this.index
-      );
-      this.setData(rows);
+      this.setPaginationConfig(this.pageSize, this.length, this.pageAfter, this.pageBefore, this.index);
+      this.setData(crackedHashes);
     } catch (error) {
       console.error('Error loading data', error);
     } finally {
