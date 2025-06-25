@@ -89,6 +89,7 @@ export interface HTTableColumn {
   customCellColor?: customCellColorInput;
   routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
   icon?: (data: BaseModel) => HTTableIcon;
+  isCopy?: boolean;
 }
 
 /** Column def for selectable checkbox */
