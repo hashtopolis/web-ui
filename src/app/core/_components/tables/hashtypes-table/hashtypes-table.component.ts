@@ -76,7 +76,6 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   test(): void {
     console.log(this.tableColumns);
   }
-
   filter2(input: string) {
     console.log(this.tableColumns);
     const selectedColumn = this.selectedFilterColumn;
@@ -84,8 +83,8 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     switch (selectedColumn) {
       case 'all': {
         console.log('Filtering across all columns');
-        this.dataSource.querySearch(input, 'description');
-
+        this.dataSource.loadAll(input)
+        
         // Search across multiple relevant fields
         break;
       }

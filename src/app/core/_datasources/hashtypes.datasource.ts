@@ -14,10 +14,14 @@ export interface EditAgentForm {
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
   private search: EditAgentForm;
 
-  loadAll(): void {
+  loadAll(query?: string, field?: string): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
-    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
+    const params = new RequestParamBuilder().addInitial(this);
+    if (query) {
+      params.addFilter({ field: 'description', operator: FilterType.CONTAINS, value: query });
+      console.log('add search');
+    }
+    const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create());
     this.subscriptions.push(
       hashtypes$
         .pipe(
@@ -34,7 +38,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
         })
     );
   }
-  querySearch(query: string, field: string): void {
+/*   querySearch(query: string, field: string): void {
     const params = new RequestParamBuilder()
       .addInitial(this)
       .addFilter({ field: field, operator: FilterType.CONTAINS, value: query })
@@ -55,7 +59,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
           this.setData(hashtypes);
         })
     );
-  }
+  } */
   setSearch(query: string, field: string): void {
     this.search = {
       query: query,
