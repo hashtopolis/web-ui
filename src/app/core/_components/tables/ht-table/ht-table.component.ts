@@ -21,6 +21,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
+import { ContextMenuService } from '@services/context-menu/context-menu.service';
+
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -176,6 +178,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
+
+  /** Add context menu service */
+  @Input() contextMenuService: ContextMenuService;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();

@@ -1,13 +1,15 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { ContextMenuService } from '@services/context-menu/context-menu.service';
+
+import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 import {
   RowActionMenuAction,
   RowActionMenuIcon,
   RowActionMenuLabel
 } from '@components/menus/row-action-menu/row-action-menu.constants';
-
-import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
-import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 
 /**
  * Component representing the row action menu for various data types.
@@ -18,7 +20,10 @@ import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.compone
   standalone: false
 })
 export class RowActionMenuComponent extends BaseMenuComponent implements OnInit {
+  @Input() contextMenuService: ContextMenuService;
+
   ngOnInit(): void {
+    /*
     const actionMap: { condition: () => boolean; action: () => void }[] = [
       { condition: this.isAgent, action: this.setAgentMenu },
       {
@@ -69,6 +74,11 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         break;
       }
     }
+     */
+
+    this.contextMenuService.getMenuItems().forEach((item) => {
+      this.conditionallyAddMenuItem(item, this.data);
+    });
   }
 
   /**

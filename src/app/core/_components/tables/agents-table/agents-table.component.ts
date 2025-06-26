@@ -1,9 +1,21 @@
+import { Observable, catchError, of } from 'rxjs';
+
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JAgent } from '@models/agent.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
   AgentsTableCol,
   AgentsTableColumnLabel
 } from '@components/tables/agents-table/agents-table.constants';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   DataType,
   HTTableColumn,
@@ -11,19 +23,12 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, of } from 'rxjs';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AgentsDataSource } from '@datasources/agents.datasource';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { JAgent } from '@models/agent.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AgentsDataSource } from '@datasources/agents.datasource';
+
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
@@ -54,6 +59,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
+    this.createContextMenu();
     this.dataSource.reload();
   }
 
@@ -565,5 +571,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           this.reload();
         })
     );
+  }
+
+  private createContextMenu() {
+    this.contextMenuService.addEditItem(RowActionMenuLabel.EDIT_AGENT);
+    this.contextMenuService.addDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT, 'isActive', true);
+    this.contextMenuService.addActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT, 'isActive', false);
+    this.contextMenuService.addDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, 'assignmentId', true);
+    this.contextMenuService.addDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT, 'assignmentId', false);
   }
 }

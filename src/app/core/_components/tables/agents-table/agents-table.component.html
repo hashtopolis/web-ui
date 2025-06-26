@@ -7,7 +7,7 @@
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [isFilterable]="isFilterable"
-  [hasRowAction]="hasRowAction"
+  [hasRowAction]="contextMenuService.hasContextMenu()"
   [hasBulkActions]="hasBulkActions"
   [filterFn]="filter.bind(this)"
   (editableSaved)="editableSaved($event)"
@@ -16,4 +16,5 @@
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  [contextMenuService]="this.contextMenuService"
 />

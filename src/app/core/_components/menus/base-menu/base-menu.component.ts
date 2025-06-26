@@ -1,7 +1,10 @@
-import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
+
+import { ContextMenuType } from '@services/context-menu/context-menu.service';
+
+import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
@@ -120,7 +123,25 @@ export class BaseMenuComponent {
   }
 
   protected addActionMenuItem(index: number, item: ActionMenuItem): void {
-    this.actionMenuItems[index].push(item);
+    if (this.actionMenuItems.length <= index) {
+      this.actionMenuItems[index] = [item];
+    } else {
+      this.actionMenuItems[index].push(item);
+    }
+  }
+
+  protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
+    const condition = item.condition;
+
+    if (condition.key && condition.key.length > 0) {
+      if (condition.key in data && Boolean(data[condition.key]) === condition.value) {
+        this.addActionMenuItem(item.index, item.menuItem);
+      } else if (data[condition.key] === undefined && condition.value === false) {
+        this.addActionMenuItem(item.index, item.menuItem);
+      }
+    } else {
+      this.addActionMenuItem(item.index, item.menuItem);
+    }
   }
 
   onMenuItemClick(event: ActionMenuEvent<any>): void {
