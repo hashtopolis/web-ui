@@ -21,8 +21,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { ContextMenuService } from '@services/context-menu/context-menu.service';
-
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -31,10 +32,7 @@ import {
   DataType,
   HTTableColumn,
   HTTableEditable
-} from './ht-table.models';
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
+} from '@components/tables/ht-table/ht-table.models';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -208,8 +206,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
-    private storage: LocalStorageService<UIConfig>,
-    protected contextMenuService: ContextMenuService
+    private storage: LocalStorageService<UIConfig>
   ) {}
 
   ngOnInit(): void {

@@ -10,7 +10,6 @@ export type ContextMenuType = { index: number; menuItem: ActionMenuItem; conditi
 })
 export class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
-  private hasContextMenu = false;
 
   constructor() {}
 

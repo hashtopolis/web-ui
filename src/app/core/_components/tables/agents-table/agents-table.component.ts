@@ -5,12 +5,11 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
 
-import { AgentContextMenuService } from '@services/context-menu/agent-context-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
   AgentsTableCol,
