@@ -196,18 +196,28 @@
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
-          @if (tableColumn.isCopy) {
-            <ng-container>
-              <button
-                (click)="copyRowDataEmit(element)"
-                mat-icon-button
-                color="primary"
-                aria-label="Example icon button with a home icon"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </ng-container>
+          <span class="icon-actions">
+          @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+                <button
+                  mat-icon-button
+                  color="primary"
+                  aria-label="Show full hash"
+                  (click)="showFullHashModalEmit(element)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
           }
+          @if (tableColumn.isCopy) {
+                <button
+                  (click)="copyRowDataEmit(element)"
+                  mat-icon-button
+                  color="primary"
+                  aria-label="Copy button"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+          }
+          </span>
           <ng-container *ngIf="!tableColumn.truncate">
             <app-ht-table-link [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
             <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>

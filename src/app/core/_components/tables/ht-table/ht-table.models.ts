@@ -83,7 +83,7 @@ export interface HTTableColumn {
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
   export?: (data: any) => Promise<string>;
-  truncate?: boolean;
+  truncate?: (data: any) => boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
   customCellColor?: customCellColorInput;

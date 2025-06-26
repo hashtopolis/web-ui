@@ -12,6 +12,7 @@ import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
 import { JHash } from '@models/hash.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -84,7 +85,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         isSortable: true,
         isSearchable: true,
         isCopy: true,
-        truncate: true,
+        truncate: (crack: JHash) => crack.hash.length > 40,
         render: (crack: JHash) => crack.hash,
         export: async (crack: JHash) => crack.hash
       },
@@ -118,15 +119,19 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
       }
     ];
   }
+
   reciveCopyData(event: JHash) {
-    navigator.clipboard.writeText(event.hash).then(
-    );
-    /*     const dialogRef = this.dialog.open(TableDialogComponent, {
-      data: event,
-      width: '450px'
-    }) */
-    console.log(event.hash);
+    navigator.clipboard.writeText(event.hash).then();
   }
+
+  showTruncatedData(event: JHash) {
+    const dialogRef = this.dialog.open(ShowTruncatedDataDialogComponent, {
+      data: {
+        agentData: event
+      }
+    });
+  }
+
   openDialog(data: DialogData<JHash>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,

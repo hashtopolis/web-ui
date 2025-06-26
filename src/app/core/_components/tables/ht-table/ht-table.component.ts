@@ -199,6 +199,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   @Output() emitCopyRowData: EventEmitter<JHash> = new EventEmitter();
+  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
@@ -281,6 +282,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   copyRowDataEmit(event: JHash) {
     this.emitCopyRowData.emit(event);
   }
+
+  showFullHashModalEmit(event: JHash): void {
+    this.emitFullHashModal.emit(event);
+  }
+
   /**
    * Opens a dialog for selecting table columns to display.
    */

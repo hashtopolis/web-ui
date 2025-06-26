@@ -303,7 +303,30 @@ table.hashtopolis-table {
     .flex-container {
       display: flex;
       justify-content: flex-start;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      position: relative;
+
+      
+      button[mat-icon-button], .mat-mdc-icon-button {
+       display: inline-flex;
+       align-items: center;
+       justify-content: center;
+       width: 40px;
+       height: 40px;
+       padding: 0;
+       margin: 0 2px;
+       vertical-align: middle;
+       box-sizing: border-box;
+      }
+
+      button[mat-icon-button] .mat-icon,
+      .mat-mdc-icon-button .mat-icon {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1;
+        display: block;
+      }
 
       .mat-icon {
         margin-top: -3px;
@@ -339,6 +362,13 @@ table.hashtopolis-table {
       text-align: right;
     }
   }
+}
+
+.icon-actions {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .filter-container{
   display: flex; 
