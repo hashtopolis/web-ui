@@ -1,9 +1,3 @@
-import { Subscription, take, timer } from 'rxjs';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -16,11 +10,6 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -30,9 +19,20 @@ import {
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { Subscription, take, timer } from 'rxjs';
+
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
 import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
 import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSort } from '@angular/material/sort';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -176,7 +176,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
-
+  /* Flag to enable new filter */
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
@@ -199,10 +199,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   /** Fetches user customizations */
+  @Output() newFilter: EventEmitter<string> = new EventEmitter();
+
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
-
+  formGroup = new FormGroup(
+    {
+      textFilter: new FormControl('')
+    },
+    { updateOn: 'submit' }
+  );
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
@@ -233,6 +240,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initFilterableColumns();
   }
   initFilterableColumns(): void {
+    console.log(this.tableColumns);
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
   }
   // Handle filter column change
@@ -399,7 +407,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-
+  emitFilterValue(): void {
+    console.log('Applying filter with value:', this.formGroup.get('textFilter').value);
+    this.formGroup.get('textFilter').value;
+    this.newFilter.emit(this.formGroup.get('textFilter').value);
+  }
   /**
    * Clears a filter to the table based on user input.
    */
@@ -505,6 +517,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
+    console.log('Page change event:', event);
     this.clearFilter();
     let pageAfter = undefined;
     let pageBefore = undefined;

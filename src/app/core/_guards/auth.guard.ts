@@ -1,7 +1,6 @@
-import { Observable, map, take } from 'rxjs';
-
-import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map, take } from 'rxjs';
 
 import { AuthService } from '@services/access/auth.service';
 
@@ -20,6 +19,7 @@ class AuthGuard {
     return this.authService.user.pipe(
       take(1),
       map((user) => {
+        console.log(user);
         const isAuth = !!user;
         if (isAuth) {
           return true;

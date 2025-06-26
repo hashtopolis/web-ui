@@ -12,7 +12,8 @@ export enum FilterType {
   NOTEQUAL = 'neq',
   GREATER = 'gt',
   IN = 'in',
-  NOTIN = 'nin'
+  NOTIN = 'nin',
+  CONTAINS = 'contains'
 }
 
 /**

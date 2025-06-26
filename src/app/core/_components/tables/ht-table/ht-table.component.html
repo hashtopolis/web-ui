@@ -74,7 +74,13 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- Filter input -->
+        <!-- Filter input done in the backend-->
+        <form [formGroup]="formGroup">
+          <mat-form-field style="min-width: 200px">
+            <input matInput formControlName="textFilter" (keyup.enter)="emitFilterValue()" matInput placeholder="Filter" />
+          </mat-form-field>
+        </form>
+        <!-- THE OLD FILTERING DONE IN THE FRONTEND KEEP FOR NOW UNTIL ALL IS IN PLACE -->
         <mat-form-field style="min-width: 200px">
           <input matInput (keyup.enter)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
           <button mat-icon-button matSuffix (click)="clearFilter()">

@@ -1,24 +1,20 @@
-import { catchError } from 'rxjs';
-
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-
-import { JHashtype } from '@models/hashtype.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import {
   HashtypesTableCol,
   HashtypesTableColumnLabel
 } from '@components/tables/hashtypes-table/hashtypes-table.constants';
-import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
+import { JHashtype } from '@models/hashtype.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'app-hashtypes-table',
@@ -40,6 +36,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
+    console.log(this.dataSource);
   }
 
   getColumns(): HTTableColumn[] {
@@ -76,13 +73,22 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
       }
     ];
   }
+  test(): void {
+    // Expose columns via a public getter in HashtypesDataSource if needed
+    console.log(this.tableColumns);
+  }
 
+  filter2(input: string) {
+    this.dataSource.search(input, 'description');
+  }
   filter(item: JHashtype, filterValue: string): boolean {
+    console.log(this.tableColumns);
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
+        console.log('Filtering across all columns');
         // Search across multiple relevant fields
         return (
           item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
