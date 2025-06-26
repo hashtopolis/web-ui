@@ -179,9 +179,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
 
-  /** Add context menu service */
-  @Input() contextMenuService: ContextMenuService;
-
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
@@ -211,7 +208,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
-    private storage: LocalStorageService<UIConfig>
+    private storage: LocalStorageService<UIConfig>,
+    protected contextMenuService: ContextMenuService
   ) {}
 
   ngOnInit(): void {

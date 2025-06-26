@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 
-import { ContextMenuType } from '@services/context-menu/context-menu.service';
+import { ContextMenuService, ContextMenuType } from '@services/context-menu/context-menu.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
@@ -20,6 +20,8 @@ export class BaseMenuComponent {
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<BaseModel>> = new EventEmitter<ActionMenuEvent<BaseModel>>();
 
   actionMenuItems: ActionMenuItem[][] = [];
+
+  constructor(protected contextMenuService: ContextMenuService) {}
 
   // 🔧 Utility: Safe key check
   private hasKeys(...keys: string[]): boolean {

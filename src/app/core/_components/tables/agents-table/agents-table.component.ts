@@ -5,6 +5,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
 
+import { AgentContextMenuService } from '@services/context-menu/agent-context-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -59,7 +60,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.createContextMenu();
+    this.agentContextMenuService.addAgentContextMenu();
     this.dataSource.reload();
   }
 
@@ -571,13 +572,5 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           this.reload();
         })
     );
-  }
-
-  private createContextMenu() {
-    this.contextMenuService.addEditItem(RowActionMenuLabel.EDIT_AGENT);
-    this.contextMenuService.addDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT, 'isActive', true);
-    this.contextMenuService.addActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT, 'isActive', false);
-    this.contextMenuService.addDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, 'assignmentId', true);
-    this.contextMenuService.addDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT, 'assignmentId', false);
   }
 }

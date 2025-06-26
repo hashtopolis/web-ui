@@ -20,12 +20,8 @@ import {
   standalone: false
 })
 export class RowActionMenuComponent extends BaseMenuComponent implements OnInit {
-  @Input() contextMenuService: ContextMenuService;
-
   ngOnInit(): void {
-    /*
     const actionMap: { condition: () => boolean; action: () => void }[] = [
-      { condition: this.isAgent, action: this.setAgentMenu },
       {
         condition: this.isAccessGroup,
         action: () =>
@@ -74,7 +70,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         break;
       }
     }
-     */
 
     this.contextMenuService.getMenuItems().forEach((item) => {
       this.conditionallyAddMenuItem(item, this.data);
@@ -137,23 +132,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
     ]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)]);
-  }
-
-  /**
-   * Sets the context menu items for an agent data row.
-   */
-  private setAgentMenu(): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)]);
-    if (this.data['isActive']) {
-      this.addActionMenuItem(0, this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT));
-    } else {
-      this.addActionMenuItem(0, this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT));
-    }
-    if (this.data['assignmentId']) {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)]);
-    } else {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)]);
-    }
   }
 
   /**

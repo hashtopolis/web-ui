@@ -51,6 +51,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.agentContextMenuService.addAgentContextMenu();
     this.dataSource.reload();
   }
 

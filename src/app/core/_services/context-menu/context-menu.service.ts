@@ -10,6 +10,7 @@ export type ContextMenuType = { index: number; menuItem: ActionMenuItem; conditi
 })
 export class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
+  private hasContextMenu = false;
 
   constructor() {}
 
@@ -24,7 +25,7 @@ export class ContextMenuService {
    * Check, if we have to render a context menu
    * @return true: context menu entries added, false: no context menu entries
    */
-  hasContextMenu(): boolean {
+  getHasContextMenu(): boolean {
     return this.contextMenuItems.length > 0;
   }
 

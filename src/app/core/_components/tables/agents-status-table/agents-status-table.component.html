@@ -7,7 +7,7 @@
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [isFilterable]="isFilterable"
-  [hasRowAction]="hasRowAction"
+  [hasRowAction]="contextMenuService.getHasContextMenu()"
   [hasBulkActions]="hasBulkActions"
   [hasTemperatureInformation]="hasTemperatureInformation"
   [isPageable]="true"

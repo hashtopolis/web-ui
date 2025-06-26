@@ -17,6 +17,7 @@ import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
+import { AgentContextMenuService } from '@services/context-menu/agent-context-menu.service';
 import { ContextMenuService } from '@services/context-menu/context-menu.service';
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
@@ -70,7 +71,8 @@ export class BaseTableComponent {
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,
     public dialog: MatDialog,
-    protected contextMenuService: ContextMenuService
+    protected contextMenuService: ContextMenuService,
+    protected agentContextMenuService: AgentContextMenuService
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();
