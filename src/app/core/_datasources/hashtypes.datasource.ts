@@ -8,12 +8,12 @@ import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
 export interface EditAgentForm {
-  query: string,
-  field: string
+  query: string;
+  field: string;
 }
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-    private search: EditAgentForm;
-    
+  private search: EditAgentForm;
+
   loadAll(): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this).create();
@@ -34,8 +34,9 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
         })
     );
   }
-    querySearch(query: string, field: string): void {
+  querySearch(query: string, field: string): void {
     const params = new RequestParamBuilder()
+      .addInitial(this)
       .addFilter({ field: field, operator: FilterType.CONTAINS, value: query })
       .create();
     const test = this.service.getAll(SERV.HASHTYPES, params);
@@ -59,9 +60,9 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
     this.search = {
       query: query,
       field: field
-    }
-      //this.search = query;
-      console.log(this.search);
+    };
+    //this.search = query;
+    console.log(this.search);
   }
   reload(): void {
     this.clearSelection();

@@ -409,7 +409,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   emitFilterValue(): void {
     console.log('Applying filter with value:', this.formGroup.get('textFilter').value);
-    this.formGroup.get('textFilter').value;
     this.newFilter.emit(this.formGroup.get('textFilter').value);
   }
   /**
@@ -425,7 +424,10 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       search: ''
     });
   }
-
+  clearAndReload() {
+    this.formGroup.get('textFilter').reset();
+    this.reload();
+  }
   /**
    * Checks if a row is selected.
    *
