@@ -74,7 +74,6 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     ];
   }
   test(): void {
-    // Expose columns via a public getter in HashtypesDataSource if needed
     console.log(this.tableColumns);
   }
 
@@ -85,7 +84,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     switch (selectedColumn) {
       case 'all': {
         console.log('Filtering across all columns');
-        this.dataSource.search(input, selectedColumn);
+        this.dataSource.setSearch(input, 'description');
 
         // Search across multiple relevant fields
         break;
@@ -94,13 +93,13 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         break;
       }
       case 'description': {
-        this.dataSource.search(input, selectedColumn);
+        this.dataSource.setSearch(input, selectedColumn);
         break;
       }
       default:
         // Default fallback to task name
         break;
-        this.dataSource.search(input, 'description');
+        this.dataSource.setSearch(input, 'description');
     }
   }
   filter(item: JHashtype, filterValue: string): boolean {

@@ -7,27 +7,17 @@ import { RequestParamBuilder } from '@src/app/core/_services/params/builder-impl
 import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
+export interface EditAgentForm {
+  query: string,
+  field: string
+}
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
+    private search: EditAgentForm;
+    
   loadAll(): void {
     this.loading = true;
-    //const params = new RequestParamBuilder().addInitial(this).create();
-    const params = new RequestParamBuilder()
-      .addFilter({ field: 'description', operator: FilterType.CONTAINS, value: 'RIPE' })
-      .create();
+    const params = new RequestParamBuilder().addInitial(this).create();
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params);
-    //const test = this.service.getAll(SERV.HASHTYPES, params2);
-    /*     this.subscriptions.push(
-      test
-        .pipe(
-          catchError(() => of([])),
-          finalize(() => (this.loading = false))
-        )
-        .subscribe((response: ResponseWrapper) => {
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(response);
-          console.log('Test response:', response);
-          this.setData(hashtypes);
-        })
-    ); */
     this.subscriptions.push(
       hashtypes$
         .pipe(
@@ -44,7 +34,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
         })
     );
   }
-  search(query: string, field: string): void {
+    querySearch(query: string, field: string): void {
     const params = new RequestParamBuilder()
       .addFilter({ field: field, operator: FilterType.CONTAINS, value: query })
       .create();
@@ -56,11 +46,22 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response: ResponseWrapper) => {
-          const hashtypes = this.serializer.deserialize<JHashtype[]>(response);
+          const responseBody = { data: response.data, included: response.included };
+          const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
+          const length = response.meta.page.total_elements;
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           console.log('Test response:', hashtypes);
-          // this.setData(hashtypes);
+          this.setData(hashtypes);
         })
     );
+  }
+  setSearch(query: string, field: string): void {
+    this.search = {
+      query: query,
+      field: field
+    }
+      //this.search = query;
+      console.log(this.search);
   }
   reload(): void {
     this.clearSelection();

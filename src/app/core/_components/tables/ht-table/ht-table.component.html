@@ -59,8 +59,39 @@
         </button>
       </div>
     }
+    <!-- Filter section BACKEND BEGIN-->
+    <div class="table-action-wrapper right-aligned" *ngIf="!isFilterable">
+      <div class="filter-container">
+        <!-- Column selector dropdown -->
+        <mat-form-field>
+          <mat-label>Filter by column</mat-label>
+          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+            <mat-option value="all">All filterable columns</mat-option>
+            @for (column of filterableColumns; track column) {
+              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
 
-    <!-- Filter section -->
+        <!-- Filter input -->
+        <form [formGroup]="formGroup">
+          <mat-form-field style="min-width: 200px">
+            <input
+              matInput
+              formControlName="textFilter"
+              (keyup.enter)="emitFilterValue()"
+              matInput
+              placeholder="Filter"
+            />
+            <button mat-icon-button matSuffix>
+              <mat-icon>clear</mat-icon>
+            </button>
+          </mat-form-field>
+        </form>
+      </div>
+    </div>
+    <!-- Filter section BACKEND END-->
+    <!-- Filter section FRONTEND BEGIN-->
     <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
       <div class="filter-container">
         <!-- Column selector dropdown -->
@@ -74,12 +105,6 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- Filter input done in the backend-->
-        <form [formGroup]="formGroup">
-          <mat-form-field style="min-width: 200px">
-            <input matInput formControlName="textFilter" (keyup.enter)="emitFilterValue()" matInput placeholder="Filter" />
-          </mat-form-field>
-        </form>
         <!-- THE OLD FILTERING DONE IN THE FRONTEND KEEP FOR NOW UNTIL ALL IS IN PLACE -->
         <mat-form-field style="min-width: 200px">
           <input matInput (keyup.enter)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
@@ -89,6 +114,7 @@
         </mat-form-field>
       </div>
     </div>
+    <!-- Filter section FRONTEND END-->
   </div>
   <!-- Table -->
   <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
