@@ -64,9 +64,8 @@
       <div class="filter-container">
         <!-- Column selector dropdown -->
         <mat-form-field>
-          <mat-label>Filter by column</mat-label>
+          <mat-label style="margin-bottom: 15px; display: block;">Filter by column</mat-label>
           <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
-            <mat-option value="all">All filterable columns</mat-option>
             @for (column of filterableColumns; track column) {
               <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
             }
