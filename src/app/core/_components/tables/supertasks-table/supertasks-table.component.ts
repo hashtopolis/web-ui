@@ -1,26 +1,22 @@
-import { catchError } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JSuperTask } from '@models/supertask.model';
-
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   SupertasksTableCol,
   SupertasksTableColumnLabel
 } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
-
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JSuperTask } from '@models/supertask.model';
 import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'app-supertasks-table',
@@ -45,34 +41,19 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       sub.unsubscribe();
     }
   }
-
-  filter(item: JSuperTask, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.supertaskName.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'supertaskName': {
-        return item.supertaskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.supertaskName?.toLowerCase().includes(filterValue);
-    }
+    this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: SupertasksTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'supertaskId',
         isSortable: true,
         isSearchable: true,
+        render: (supertask: JSuperTask) => supertask.id,
         export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {
