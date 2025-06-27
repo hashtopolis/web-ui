@@ -453,17 +453,4 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       icon: RowActionMenuIcon.DEACTIVATE
     };
   }
-
-  /**
-   * Creates an ActionMenuItem with edit action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with edit action.
-   */
-  private getResetMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.RESET,
-      icon: RowActionMenuIcon.RESET
-    };
-  }
 }

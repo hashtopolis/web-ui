@@ -97,18 +97,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
     }
   }
 
-  /**
-   * Sets the context menu items for a hashlist data type.
-   */
-  private setHashlistMenu(): void {
-    if (this.isArchived) {
-      this.setActionMenuItems(0, [this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)]);
-    } else {
-      this.setActionMenuItems(0, [this.getArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_HASHLISTS)]);
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS)]);
-    }
-  }
-
   private setArchiveDeleteMenu(deleteLabel: string, archiveLabel: string): void {
     if (this.isArchived) {
       this.setActionMenuItems(0, [this.getDeleteMenuItem(deleteLabel)]);
