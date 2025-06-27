@@ -1,27 +1,26 @@
-import { catchError, forkJoin } from 'rxjs';
-
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { AgentsDataSource } from '@datasources/agents.datasource';
-
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentsStatusTableCol,
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { catchError, forkJoin } from 'rxjs';
+
 import { ASC } from '@src/app/core/_constants/agentsc.config';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { SERV } from '@src/app/core/_services/main.config';
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { AgentsDataSource } from '@datasources/agents.datasource';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@src/app/core/_services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
  * Provides static constants for different types of statistical calculations.
@@ -52,6 +51,23 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.reload();
+  }
+  filter2(input: string) {
+    console.log(this.tableColumns);
+    const selectedColumn = this.selectedFilterColumn;
+    switch (selectedColumn) {
+      case 'all': {
+        console.log('Filtering across all columns');
+        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+        // Search across multiple relevant fields
+        break;
+      }
+      default: {
+        console.log(`Filtering by column: ${selectedColumn}`);
+        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+        break;
+      }
+    }
   }
 
   filter(item: JAgent, filterValue: string): boolean {
@@ -85,7 +101,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return [
       {
         id: AgentsStatusTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'agentId',
         isSortable: true,
         isSearchable: true,
         render: (agent: JAgent) => agent.id,
@@ -125,7 +141,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         id: AgentsStatusTableCol.ASSIGNED,
         dataKey: 'taskName',
         isSortable: true,
-        isSearchable: true,
         render: (agent: JAgent) => agent.taskName,
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         export: async (agent: JAgent) => agent.taskName

@@ -6,7 +6,7 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
-  [isFilterable]="isFilterable"
+  [isFilterable]="!isFilterable"
   [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
   [hasTemperatureInformation]="hasTemperatureInformation"
@@ -17,4 +17,5 @@
   (exportActionClicked)="exportActionClicked($event)"
   (temperatureInformationClicked)="openStatDialog()"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter2($event)"
 />
