@@ -73,30 +73,23 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
       }
     ];
   }
-  test(): void {
-    console.log(this.tableColumns);
-  }
+
   filter2(input: string) {
     console.log(this.tableColumns);
     const selectedColumn = this.selectedFilterColumn;
-    this.dataSource.loadAll(input, selectedColumn);
-    // this.data
-    // Filter based on selected column
     switch (selectedColumn) {
       case 'all': {
         console.log('Filtering across all columns');
-        this.dataSource.loadAll(input, selectedColumn);
+        this.dataSource.loadAll({ query: input, field: 'all' });
         // Search across multiple relevant fields
         break;
       }
-      default:
-        {
-          console.log(`Filtering by column: ${selectedColumn}`);
-          this.dataSource.loadAll(input, selectedColumn);
-          // Default fallback to task name
-          break;
-        }
-        this.dataSource.setSearch(input, 'description');
+      default: {
+        console.log(`Filtering by column: ${selectedColumn}`);
+        this.dataSource.loadAll({ query: input, field: selectedColumn });
+        // Default fallback to task name
+        break;
+      }
     }
   }
   filter(item: JHashtype, filterValue: string): boolean {
