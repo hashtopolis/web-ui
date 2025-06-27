@@ -73,9 +73,11 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       }
     }
 
-    this.contextMenuService.getMenuItems().forEach((item) => {
-      this.conditionallyAddMenuItem(item, this.data);
-    });
+    if (this.contextMenuService) {
+      this.contextMenuService.getMenuItems().forEach((item) => {
+        this.conditionallyAddMenuItem(item, this.data);
+      });
+    }
   }
 
   /**
