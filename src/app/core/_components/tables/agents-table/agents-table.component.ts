@@ -121,7 +121,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     const tableColumns: HTTableColumn[] = [
       {
         id: AgentsTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'agentId',
         isSortable: true,
         isSearchable: true,
         render: (agent: JAgent) => agent.id,
@@ -149,7 +149,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         render: (agent: JAgent) => this.renderOwner(agent),
         routerLink: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
         isSortable: true,
-        isSearchable: true,
         export: async (agent: JAgent) => (agent.user ? agent.user.name : '')
       },
       {
@@ -180,7 +179,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'devices',
         render: (agent: JAgent) => this.renderDevices(agent),
         isSortable: true,
-        isSearchable: true,
+        isSearchable:true,
         export: async (agent: JAgent) => agent.devices
       },
       {
@@ -198,8 +197,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         id: AgentsTableCol.CURRENT_TASK,
         dataKey: 'taskName',
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
-        isSortable: true,
-        isSearchable: true,
+        isSortable: true, 
         export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
       });
       tableColumns.push({
@@ -207,7 +205,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'accessGroupId',
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: true,
-        isSearchable: true,
         export: async (agent: JAgent) => agent.accessGroup
       });
     } else {
@@ -374,6 +371,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderOwner(agent: JAgent): SafeHtml {
+    console.log(agent)
     if (agent.user) {
       return this.sanitize(agent.user.name);
     }
