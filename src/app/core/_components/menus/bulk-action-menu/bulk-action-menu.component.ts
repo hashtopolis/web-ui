@@ -1,7 +1,7 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
-import { ContextMenuService } from '@services/context-menu/context-menu.service';
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';

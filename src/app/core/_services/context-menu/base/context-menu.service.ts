@@ -3,7 +3,7 @@ import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-ac
 
 export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition?: { key: string; value: boolean } };
 
-export class ContextMenuService {
+export abstract class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
   private bulkMenuItems: Array<ContextMenuType> = [];
 
@@ -21,6 +21,22 @@ export class ContextMenuService {
    */
   getHasBulkMenu(): boolean {
     return this.bulkMenuItems.length > 0;
+  }
+
+  /**
+   * Get all context menu entries
+   * @return list of context menu entries
+   */
+  getMenuItems() {
+    return this.contextMenuItems;
+  }
+
+  /**
+   * Get all bulk menu entries
+   * @return list of bulk menu entries
+   */
+  getBulkMenuItems() {
+    return this.bulkMenuItems;
   }
 
   /**
@@ -66,20 +82,9 @@ export class ContextMenuService {
   /**
    * Add a new edit entry to context menu
    * @param label - label of the entry
-   * @param conditionKey - condition key for entry to display
-   * @param conditionValue - condition value for entry to display
    */
-  addCtxEditItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.createMenuItem(
-      label,
-      0,
-      RowActionMenuAction.EDIT,
-      RowActionMenuIcon.EDIT,
-      false,
-      true,
-      conditionKey,
-      conditionValue
-    );
+  addCtxEditItem(label: string) {
+    this.createMenuItem(label, 0, RowActionMenuAction.EDIT, RowActionMenuIcon.EDIT, false, true);
   }
 
   /**
@@ -163,23 +168,11 @@ export class ContextMenuService {
     this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, false);
   }
 
+  /**
+   * Add a new reset entry to context menu
+   * @param label - label of the entry
+   */
   addCtxResetMenuItem(label: string): void {
     this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, false, true);
-  }
-
-  /**
-   * Get all context menu entries
-   * @return list of context menu entries
-   */
-  getMenuItems() {
-    return this.contextMenuItems;
-  }
-
-  /**
-   * Get all bulk menu entries
-   * @return list of bulk menu entries
-   */
-  getBulkMenuItems() {
-    return this.bulkMenuItems;
   }
 }

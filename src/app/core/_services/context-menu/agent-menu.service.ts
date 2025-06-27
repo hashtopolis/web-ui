@@ -1,4 +1,4 @@
-import { ContextMenuService } from '@services/context-menu/context-menu.service';
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';

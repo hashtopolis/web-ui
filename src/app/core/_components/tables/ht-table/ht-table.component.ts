@@ -21,7 +21,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { ContextMenuService } from '@services/context-menu/context-menu.service';
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
