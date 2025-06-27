@@ -1,16 +1,14 @@
+import { Filter, FilterType } from '@models/request-params.model';
 import { catchError, of } from 'rxjs';
-import { finalize } from 'rxjs/operators';
-
-import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
-
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
+import { JChunk } from '@models/chunk.model';
+import { JTask } from '@models/task.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
+import { finalize } from 'rxjs/operators';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
@@ -19,7 +17,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
     this._isArchived = isArchived;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
     const params = new RequestParamBuilder()
       .addInitial(this)
@@ -32,7 +30,9 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
         operator: FilterType.EQUAL,
         value: this._isArchived
       });
-
+    if (query) {
+      params.addFilter(query);
+    }
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
 
     this.subscriptions.push(
@@ -48,20 +48,13 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           });
           const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           if (taskWrappers.length > 0) {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',
               operator: FilterType.IN,
               value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
             });
-
             this.subscriptions.push(
               this.service
                 .getAll(SERV.CHUNKS, chunkParams.create())
