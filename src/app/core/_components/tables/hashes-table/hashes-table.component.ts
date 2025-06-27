@@ -9,6 +9,7 @@ import { HashesDataSource } from '@datasources/hashes.datasource';
 import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -84,6 +85,9 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'hash',
         isSortable: true,
         isSearchable: true,
+        isCopy: true,
+        truncate: (hash: JHash) => hash.hash.length > 40,
+        render: (hash: JHash) => hash.hash,
         export: async (hash: JHash) => hash.hash + ''
       },
       {
@@ -139,5 +143,18 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         // this.rowActionEdit(event.data);
         break;
     }
+  }
+
+  reciveCopyData(event: JHash) {
+    navigator.clipboard.writeText(event.hash).then();
+  }
+
+  showTruncatedData(event: JHash) {
+    const dialogRef = this.dialog.open(ShowTruncatedDataDialogComponent, {
+      data: {
+        hashlistName: event.hashlist?.name,
+        unTruncatedText: event.hash
+      }
+    });
   }
 }

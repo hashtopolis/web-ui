@@ -14,7 +14,6 @@ export class ShowTruncatedDataDialogComponent {
   data = inject(MAT_DIALOG_DATA);
   private dialogRef = inject(MatDialogRef<ShowTruncatedDataDialogComponent>);
 
-  @Input() agentData: JHash;
   closeDialog(): void {
     this.dialogRef.close();
   }

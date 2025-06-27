@@ -127,7 +127,8 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   showTruncatedData(event: JHash) {
     const dialogRef = this.dialog.open(ShowTruncatedDataDialogComponent, {
       data: {
-        agentData: event
+        hashlistName: event.hashlist?.name,
+        unTruncatedText: event.hash
       }
     });
   }

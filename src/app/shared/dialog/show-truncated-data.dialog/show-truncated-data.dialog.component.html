@@ -5,9 +5,13 @@
   class="moveable-cursor"
   style="word-break: break-all; white-space: pre-wrap;"
 >
-<h2 mat-dialog-title>Full Hash for: {{ data.agentData.hashlist.name }}</h2>
+
+  <h2 mat-dialog-title>
+    Full Hash for: {{ data.hashlistName }}
+  </h2>
+
   <h3>Full Hash</h3>
-      <p>{{ data.agentData.hash }}</p>
+      <p>{{ data.unTruncatedText }}</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button (click)="closeDialog()">Close</button>
