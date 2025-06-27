@@ -29,6 +29,7 @@ import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource'
 
 import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
 import { formatFileSize } from '@src/app/shared/utils/util';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 export interface AttackOptions {
   attackType: number;
@@ -54,7 +55,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = 'pretaskId';
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -71,40 +72,19 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       sub.unsubscribe();
     }
   }
-
-  filter(item: JPretask, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.taskName.toLowerCase().includes(filterValue) ||
-          item.attackCmd.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'taskName': {
-        return item.taskName?.toLowerCase().includes(filterValue);
-      }
-      case 'attackCmd': {
-        return item.attackCmd?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.taskName?.toLowerCase().includes(filterValue);
-    }
+    this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
   }
+
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
         id: PretasksTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'pretaskId',
         isSortable: true,
         isSearchable: true,
+        render: (pretask: JPretask) => pretask.id,
         export: async (pretask: JPretask) => pretask.id + ''
       },
       {

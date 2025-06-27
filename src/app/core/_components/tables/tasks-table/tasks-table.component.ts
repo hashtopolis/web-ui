@@ -54,70 +54,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
   filter(input: string) {
-    console.log(this.tableColumns);
     const selectedColumn = this.selectedFilterColumn;
-    console.log(`Filtering by column: ${selectedColumn}`);
     this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
   }
-  /*  filter(item: JTaskWrapper, filterValue: string): boolean {
-    // Get lowercase filter value for case-insensitive comparison
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
 
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all':
-        // Search across multiple relevant fields
-        return (
-          item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue)) ||
-          item.id?.toString().toLowerCase().includes(filterValue) ||
-          item.accessGroup?.groupName?.toLowerCase().includes(filterValue) ||
-          (item.hashType &&
-            (item.hashType.id?.toString().includes(filterValue) ||
-              item.hashType.description?.toLowerCase().includes(filterValue) ||
-              (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
-                filterValue
-              ))) ||
-          item.hashlist?.name?.toLowerCase().includes(filterValue)
-        );
-
-      case 'id':
-        return item.id?.toString().toLowerCase().includes(filterValue);
-
-      case 'taskName':
-        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
-
-      case 'taskType': {
-        const typeText = item.taskType === 0 ? 'task' : 'supertask';
-        return typeText.includes(filterValue);
-      }
-
-      case 'hashtype':
-        if (item.hashType) {
-          return (
-            item.hashType.description?.toLowerCase().includes(filterValue) ||
-            item.hashType.id?.toString().toLowerCase().includes(filterValue) ||
-            (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
-              filterValue
-            )
-          );
-        }
-        return false;
-      case 'hashlistId': {
-        return (
-          item.hashlist?.name?.toLowerCase().includes(filterValue) ||
-          item.hashlistId?.toString().toLowerCase().includes(filterValue)
-        );
-      }
-      case 'accessGroupName': {
-        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
-      }
-
-      default:
-        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
-    }
-  }
- */
   getColumns(): HTTableColumn[] {
     return [
       {
