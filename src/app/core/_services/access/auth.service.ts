@@ -1,14 +1,15 @@
 import { Buffer } from 'buffer';
 
-import { BehaviorSubject, Observable, ReplaySubject, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, switchMap, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { EventEmitter, Injectable, Output } from '@angular/core';
+import { EventEmitter, Injectable, Injector, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthData, AuthUser } from '@models/auth-user.model';
 
+import { PermissionService } from '@services/permission/permission.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
@@ -37,7 +38,8 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private cs: ConfigService,
-    private storage: LocalStorageService<AuthData>
+    private storage: LocalStorageService<AuthData>,
+    private injector: Injector // Use injector to delay injection of PermissionService to avoid circular dependency
   ) {
     this.userLoggedIn.next(false);
     if (this.logged) {
@@ -73,10 +75,12 @@ export class AuthService {
       )
       .pipe(
         catchError(this.handleError),
-        tap((resData) => {
+        switchMap((resData) => {
           this.handleAuthentication(resData.token, +resData.expires, username);
           this.isAuthenticated = true;
           this.userAuthChanged(true);
+          const permissionService = this.injector.get(PermissionService);
+          return permissionService.loadPermissions();
         })
       );
   }

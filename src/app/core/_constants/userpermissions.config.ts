@@ -194,3 +194,6 @@ export class Perm {
   static readonly GroupAccess = GroupAccess;
   static readonly Notif = Notif;
 }
+
+export type PermissionResource = keyof typeof Perm;
+export type PermissionType = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
