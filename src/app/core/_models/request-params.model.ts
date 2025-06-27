@@ -5,6 +5,8 @@
  * - `GREATER`  Fetch all resources greater than value
  * - `IN`       Fetch all resources contained in list of values
  * - `NOTIN`    Fetch all resources not contained in list of values
+ * - `CONTAINS`  Fetch all resources containing value
+ * - `ICONTAINS` Fetch all resources containing value (case insensitive)
  * @enum
  */
 export enum FilterType {
@@ -13,7 +15,8 @@ export enum FilterType {
   GREATER = 'gt',
   IN = 'in',
   NOTIN = 'nin',
-  CONTAINS = 'contains'
+  CONTAINS = 'contains', 
+  ICONTAINS = 'icontains'
 }
 
 /**

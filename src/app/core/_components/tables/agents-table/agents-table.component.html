@@ -6,7 +6,7 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
-  [isFilterable]="isFilterable"
+  [isFilterable]="!isFilterable"
   [hasRowAction]="hasRowAction"
   [hasBulkActions]="hasBulkActions"
   [filterFn]="filter.bind(this)"
@@ -16,4 +16,5 @@
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter2($event)"
 />

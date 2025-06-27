@@ -19,6 +19,7 @@ import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JAgent } from '@models/agent.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
@@ -56,7 +57,23 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     }
     this.dataSource.reload();
   }
-
+  filter2(input: string) {
+    console.log(this.tableColumns);
+    const selectedColumn = this.selectedFilterColumn;
+    switch (selectedColumn) {
+      case 'all': {
+        console.log('Filtering across all columns');
+        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+        // Search across multiple relevant fields
+        break;
+      }
+      default: {
+        console.log(`Filtering by column: ${selectedColumn}`);
+        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+        break;
+      }
+    }
+  }
   filter(item: JAgent, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;

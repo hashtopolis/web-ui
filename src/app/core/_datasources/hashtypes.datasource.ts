@@ -1,19 +1,18 @@
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { FilterQuery } from '../_models/filter-query.model';
-import { FilterType } from '../_models/request-params.model';
 import { JHashtype } from '../_models/hashtype.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-  loadAll(query?: FilterQuery): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this);
     if (query) {
-      params.addFilter({ field: query.field, operator: FilterType.CONTAINS, value: query.query });
+      params.addFilter(query);
       console.log('add search');
     }
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create());

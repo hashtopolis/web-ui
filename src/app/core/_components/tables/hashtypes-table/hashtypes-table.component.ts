@@ -9,6 +9,7 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 import { JHashtype } from '@models/hashtype.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -80,13 +81,13 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     switch (selectedColumn) {
       case 'all': {
         console.log('Filtering across all columns');
-        this.dataSource.loadAll({ query: input, field: 'all' });
+        this.dataSource.loadAll({ value: input, field: 'all', operator: FilterType.ICONTAINS });
         // Search across multiple relevant fields
         break;
       }
       default: {
         console.log(`Filtering by column: ${selectedColumn}`);
-        this.dataSource.loadAll({ query: input, field: selectedColumn });
+        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
         break;
       }
     }
