@@ -203,6 +203,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           action: event.menuItem.action
         });
         break;
+      case RowActionMenuAction.DOWNLOAD:
+        this.rowActionDownload(event.data);
+        break;
     }
   }
 
@@ -283,5 +286,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     this.renderFileLink(file).subscribe((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink).then(() => {});
     });
+  }
+
+  private rowActionDownload(file: JFile): void {
+    this.gs.getFile(SERV.GET_FILES, file.id, file.filename);
   }
 }

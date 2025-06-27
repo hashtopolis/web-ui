@@ -38,6 +38,7 @@ export class SERV {
   public static PREPROCESSORS = { URL: '/ui/preprocessors', RESOURCE: 'Preprocessors' };
   // FILES
   public static FILES = { URL: '/ui/files', RESOURCE: 'Files' };
+  public static GET_FILES = { URL: '/helper/getFile', RESOURCE: 'Files' };
   // HASHLISTS
   public static HASHES = { URL: '/ui/hashes', RESOURCE: 'Hashes' };
   public static HASHLISTS = { URL: '/ui/hashlists', RESOURCE: 'HashLists' };

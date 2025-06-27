@@ -1,13 +1,13 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, OnInit } from '@angular/core';
+
+import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 import {
   RowActionMenuAction,
   RowActionMenuIcon,
   RowActionMenuLabel
 } from '@components/menus/row-action-menu/row-action-menu.constants';
-
-import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
-import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 
 /**
  * Component representing the row action menu for various data types.
@@ -29,7 +29,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isSuperHashlist, action: this.setSuperHashlistMenu },
       {
         condition: this.isFile,
-        action: () => this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_FILE, RowActionMenuLabel.DELETE_FILE)
+        action: this.setFileMenu
       },
       {
         condition: this.isPreprocessor,
@@ -127,6 +127,17 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
     ]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)]);
+  }
+
+  /**
+   * Sets the context menu items for an file data row.
+   */
+  private setFileMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_FILE),
+      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_FILE),
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_FILE)
+    ]);
   }
 
   /**
