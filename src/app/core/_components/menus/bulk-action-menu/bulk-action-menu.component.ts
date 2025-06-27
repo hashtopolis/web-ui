@@ -25,20 +25,19 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   @Input() isArchived: boolean;
 
   ngOnInit(): void {
+    // TODO: delete, if all menus are added to context menu service
     this.loadMenu();
+
+    this.contextMenuService.getBulkMenuItems().forEach((item) => {
+      this.conditionallyAddMenuItem(item, this.data);
+    });
   }
 
   /**
    * Loads the appropriate menu based on the data type.
    */
   private loadMenu(): void {
-    if (this.dataType === 'agents') {
-      this.setActivateDeleteMenu(
-        BulkActionMenuLabel.ACTIVATE_AGENTS,
-        BulkActionMenuLabel.DEACTIVATE_AGENTS,
-        BulkActionMenuLabel.DELETE_AGENTS
-      );
-    } else if (this.dataType === 'agents-assign') {
+    if (this.dataType === 'agents-assign') {
       this.setActivateDeleteMenu(
         BulkActionMenuLabel.ACTIVATE_AGENTS,
         BulkActionMenuLabel.DEACTIVATE_AGENTS,
@@ -58,12 +57,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       );
     } else if (this.dataType === 'hashlists') {
       this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_HASHLISTS, BulkActionMenuLabel.ARCHIVE_HASHLISTS);
-    } else if (this.dataType === 'agents-status') {
-      this.setActivateDeleteMenu(
-        BulkActionMenuLabel.ACTIVATE_AGENTS,
-        BulkActionMenuLabel.DEACTIVATE_AGENTS,
-        BulkActionMenuLabel.DELETE_AGENTS
-      );
     } else if (this.dataType === 'superhashlists') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {

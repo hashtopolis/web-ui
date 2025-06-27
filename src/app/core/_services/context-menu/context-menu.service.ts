@@ -3,21 +3,23 @@ import { Injectable } from '@angular/core';
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-action-menu/row-action-menu.constants';
 
-export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition: { key: string; value: boolean } };
+export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition?: { key: string; value: boolean } };
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
+  private bulkMenuItems: Array<ContextMenuType> = [];
 
   constructor() {}
 
   /**
-   * Reset the current context menu items
+   * Reset the current context menu amd bulk menu items
    */
   reset() {
     this.contextMenuItems = [];
+    this.bulkMenuItems = [];
   }
 
   /**
@@ -29,21 +31,70 @@ export class ContextMenuService {
   }
 
   /**
+   * Check, if we have to render a bulk menu
+   * @return true: bulk menu entries added, false: no bulk menu entries
+   */
+  getHasBulkMenu(): boolean {
+    return this.bulkMenuItems.length > 0;
+  }
+
+  /**
+   * Create a new menu item for the context or bulk menu
+   * @param label - label of the menu item
+   * @param groupIndex - group index of the item
+   * @param action - item action
+   * @param icon - item icon
+   * @param warning - true: add red color, false: standard color
+   * @param toContextMenu - true: add to contect menu, false: add to bulk menu
+   * @param conditionKey - key in data model to check for display conditiob
+   * @param conditionValue - value of condition to check
+   * @private
+   */
+  private createMenuItem(
+    label: string,
+    groupIndex: number,
+    action: string,
+    icon: string,
+    warning: boolean,
+    toContextMenu: boolean,
+    conditionKey: string = '',
+    conditionValue: boolean = false
+  ) {
+    const menuItem: ContextMenuType = {
+      index: groupIndex,
+      menuItem: {
+        label: label,
+        action: action,
+        icon: icon,
+        red: warning
+      },
+      condition: { key: conditionKey, value: conditionValue }
+    };
+
+    if (toContextMenu) {
+      this.contextMenuItems.push(menuItem);
+    } else {
+      this.bulkMenuItems.push(menuItem);
+    }
+  }
+
+  /**
    * Add a new edit entry to context menu
    * @param label - label of the entry
    * @param conditionKey - condition key for entry to display
    * @param conditionValue - condition value for entry to display
    */
-  addEditItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.contextMenuItems.push({
-      index: 0,
-      menuItem: {
-        label: label,
-        action: RowActionMenuAction.EDIT,
-        icon: RowActionMenuIcon.EDIT
-      },
-      condition: { key: conditionKey, value: conditionValue }
-    });
+  addCtxEditItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.EDIT,
+      RowActionMenuIcon.EDIT,
+      false,
+      true,
+      conditionKey,
+      conditionValue
+    );
   }
 
   /**
@@ -52,16 +103,25 @@ export class ContextMenuService {
    * @param conditionKey - condition key for entry to display
    * @param conditionValue - condition value for entry to display
    */
-  addDeactivateMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.contextMenuItems.push({
-      index: 0,
-      menuItem: {
-        label: label,
-        action: RowActionMenuAction.DEACTIVATE,
-        icon: RowActionMenuIcon.DEACTIVATE
-      },
-      condition: { key: conditionKey, value: conditionValue }
-    });
+  addCtxDeactivateMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.DEACTIVATE,
+      RowActionMenuIcon.DEACTIVATE,
+      false,
+      true,
+      conditionKey,
+      conditionValue
+    );
+  }
+
+  /**
+   * Add a new entry to the bulk menu
+   * @param label - label of the entry
+   */
+  addBulkDeactivateMenuItem(label: string) {
+    this.createMenuItem(label, 0, RowActionMenuAction.DEACTIVATE, RowActionMenuIcon.DEACTIVATE, false, false);
   }
 
   /**
@@ -70,16 +130,25 @@ export class ContextMenuService {
    * @param conditionKey - condition key for entry to display
    * @param conditionValue - condition value for entry to display
    */
-  addActivateMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.contextMenuItems.push({
-      index: 0,
-      menuItem: {
-        label: label,
-        action: RowActionMenuAction.ACTIVATE,
-        icon: RowActionMenuIcon.ACTIVATE
-      },
-      condition: { key: conditionKey, value: conditionValue }
-    });
+  addCtxActivateMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.ACTIVATE,
+      RowActionMenuIcon.ACTIVATE,
+      false,
+      true,
+      conditionKey,
+      conditionValue
+    );
+  }
+
+  /**
+   * Add a new activate entry to bulk menu
+   * @param label - label of the entry
+   */
+  addBulkActivateMenuItem(label: string) {
+    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, false, false);
   }
 
   /**
@@ -88,24 +157,40 @@ export class ContextMenuService {
    * @param conditionKey - condition key for entry to display
    * @param conditionValue - condition value for entry to display
    */
-  addDeleteMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.contextMenuItems.push({
-      index: 1,
-      menuItem: {
-        label: label,
-        action: RowActionMenuAction.DELETE,
-        icon: RowActionMenuIcon.DELETE,
-        red: true
-      },
-      condition: { key: conditionKey, value: conditionValue }
-    });
+  addCtxDeleteMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
+    this.createMenuItem(
+      label,
+      1,
+      RowActionMenuAction.DELETE,
+      RowActionMenuIcon.DELETE,
+      true,
+      true,
+      conditionKey,
+      conditionValue
+    );
   }
 
   /**
-   * Get all menu entries
-   * @return list of amenu entries
+   * Add a new delete entry to bulk menu
+   * @param label - label of the entry
+   */
+  addBulkDeleteMenuItem(label: string) {
+    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, false);
+  }
+
+  /**
+   * Get all context menu entries
+   * @return list of context menu entries
    */
   getMenuItems() {
     return this.contextMenuItems;
+  }
+
+  /**
+   * Get all bulk menu entries
+   * @return list of bulk menu entries
+   */
+  getBulkMenuItems() {
+    return this.bulkMenuItems;
   }
 }

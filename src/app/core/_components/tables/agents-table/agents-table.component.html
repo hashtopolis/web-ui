@@ -8,7 +8,7 @@
   [isSelectable]="isSelectable"
   [isFilterable]="isFilterable"
   [hasRowAction]="contextMenuService.getHasContextMenu()"
-  [hasBulkActions]="hasBulkActions"
+  [hasBulkActions]="contextMenuService.getHasBulkMenu()"
   [filterFn]="filter.bind(this)"
   (editableSaved)="editableSaved($event)"
   [isPageable]="true"
