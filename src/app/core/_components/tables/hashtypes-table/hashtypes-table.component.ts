@@ -79,8 +79,10 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   filter2(input: string) {
     console.log(this.tableColumns);
     const selectedColumn = this.selectedFilterColumn;
+    this.dataSource.loadAll(input, selectedColumn);
+    // this.data
     // Filter based on selected column
-    switch (selectedColumn) {
+/*     switch (selectedColumn) {
       case 'all': {
         console.log('Filtering across all columns');
         this.dataSource.loadAll(input)
@@ -99,7 +101,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
         // Default fallback to task name
         break;
         this.dataSource.setSearch(input, 'description');
-    }
+    } */
   }
   filter(item: JHashtype, filterValue: string): boolean {
     console.log(this.tableColumns);

@@ -18,7 +18,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this);
     if (query) {
-      params.addFilter({ field: 'description', operator: FilterType.CONTAINS, value: query });
+      params.addFilter({ field: field, operator: FilterType.CONTAINS, value: query });
       console.log('add search');
     }
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create());
