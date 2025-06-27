@@ -7,16 +7,6 @@ export class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
   private bulkMenuItems: Array<ContextMenuType> = [];
 
-  constructor() {}
-
-  /**
-   * Reset the current context menu amd bulk menu items
-   */
-  reset() {
-    this.contextMenuItems = [];
-    this.bulkMenuItems = [];
-  }
-
   /**
    * Check, if we have to render a context menu
    * @return true: context menu entries added, false: no context menu entries

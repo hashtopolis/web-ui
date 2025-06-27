@@ -5,11 +5,11 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
 
-import { ContextMenuService } from '@services/context-menu/context-menu.service';
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import {
@@ -38,7 +38,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: ContextMenuService;
+  protected contextMenuService: ChunkContextMenuService;
 
   // Track initialization
   private isInitialized = false;
@@ -48,10 +48,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     this.tableColumns = this.getColumns();
     this.dataSource = new TasksChunksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
-
-    this.contextMenuService = new ContextMenuService();
-    this.contextMenuService.addCtxResetMenuItem(RowActionMenuLabel.RESET_CHUNK);
-
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addChunkContextMenu();
     // Do NOT load yet
     this.isInitialized = true;
     this.tryLoadData(); // Now safe to load

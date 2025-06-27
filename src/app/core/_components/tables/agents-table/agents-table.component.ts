@@ -5,7 +5,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
 
-import { AgentContextMenuService } from '@services/context-menu/agent-context-menu.service';
+import { AgentMenuService } from '@services/context-menu/agent-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -46,7 +46,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: AgentContextMenuService;
+  protected contextMenuService: AgentMenuService;
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -61,8 +61,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.contextMenuService = new AgentContextMenuService(this.permissionService);
-    this.contextMenuService.addAgentContextMenu();
+    this.contextMenuService = new AgentMenuService(this.permissionService).addAgentContextMenu();
     this.dataSource.reload();
   }
 

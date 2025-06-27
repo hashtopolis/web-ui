@@ -27,24 +27,20 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
 
   ngOnInit(): void {
     // TODO: delete, if all menus are added to context menu service
-    //this.loadMenu();
+    this.loadMenu();
 
-    this.contextMenuService.getBulkMenuItems().forEach((item) => {
-      this.conditionallyAddMenuItem(item, this.data);
-    });
+    if (this.contextMenuService) {
+      this.contextMenuService.getBulkMenuItems().forEach((item) => {
+        this.conditionallyAddMenuItem(item, this.data);
+      });
+    }
   }
 
   /**
    * Loads the appropriate menu based on the data type.
    */
   private loadMenu(): void {
-    if (this.dataType === 'agents-assign') {
-      this.setActivateDeleteMenu(
-        BulkActionMenuLabel.ACTIVATE_AGENTS,
-        BulkActionMenuLabel.DEACTIVATE_AGENTS,
-        BulkActionMenuLabel.UNASSIGN_AGENTS
-      );
-    } else if (this.dataType === 'users') {
+    if (this.dataType === 'users') {
       this.setActivateDeleteMenu(
         BulkActionMenuLabel.ACTIVATE_USERS,
         BulkActionMenuLabel.DEACTIVATE_USERS,

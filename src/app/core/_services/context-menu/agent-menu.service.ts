@@ -4,15 +4,16 @@ import { PermissionService } from '@services/permission/permission.service';
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
 
-export class AgentContextMenuService extends ContextMenuService {
+export class AgentMenuService extends ContextMenuService {
   constructor(private permissionService: PermissionService) {
     super();
   }
 
   /**
    * Add context menu for all agent based tables
+   * @return class instance for fluid API calls
    */
-  addAgentContextMenu(): void {
+  addAgentContextMenu(): AgentMenuService {
     this.permissionService.hasPermission('Agent', 'UPDATE').subscribe((response) => {
       if (response) {
         this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT);
@@ -31,10 +32,14 @@ export class AgentContextMenuService extends ContextMenuService {
         this.addBulkDeleteMenuItem(BulkActionMenuLabel.DELETE_AGENTS);
       }
     });
+
+    return this;
   }
 
-  addAgentAccessGroupMenu(): void {
+  addAgentAccessGroupMenu(): AgentMenuService {
     this.addCtxDeleteMenuItem(RowActionMenuLabel.REMOVE_ACCESSGROUP_AGENT);
     this.addBulkDeleteMenuItem(BulkActionMenuLabel.REMOVE_ACCESSGROUP_AGENTS);
+
+    return this;
   }
 }
