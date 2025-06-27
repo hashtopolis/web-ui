@@ -74,7 +74,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     ];
   }
 
-  filter2(input: string) {
+  filter(input: string) {
     console.log(this.tableColumns);
     const selectedColumn = this.selectedFilterColumn;
     switch (selectedColumn) {
@@ -87,35 +87,11 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
       default: {
         console.log(`Filtering by column: ${selectedColumn}`);
         this.dataSource.loadAll({ query: input, field: selectedColumn });
-        // Default fallback to task name
         break;
       }
     }
   }
-  filter(item: JHashtype, filterValue: string): boolean {
-    console.log(this.tableColumns);
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        console.log('Filtering across all columns');
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'hashTypeId': {
-        return item.id.toString().toLowerCase().includes(filterValue);
-      }
-      case 'description': {
-        return item.description.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.id.toString().toLowerCase().includes(filterValue);
-    }
-  }
+
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,

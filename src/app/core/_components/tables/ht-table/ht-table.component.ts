@@ -199,7 +199,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   /** Fetches user customizations */
-  @Output() newFilter: EventEmitter<string> = new EventEmitter();
+  @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
   private uiSettings: UISettingsUtilityClass;
 
@@ -408,8 +408,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   emitFilterValue(): void {
-    console.log('Applying filter with value:', this.formGroup.get('textFilter').value);
-    this.newFilter.emit(this.formGroup.get('textFilter').value);
+    this.backendSqlFilter.emit(this.formGroup.get('textFilter').value);
   }
   /**
    * Clears a filter to the table based on user input.
