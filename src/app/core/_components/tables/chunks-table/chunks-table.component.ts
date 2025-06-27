@@ -4,6 +4,7 @@ import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/dateti
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ChunksDataSource } from '@datasources/chunks.datasource';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { JChunk } from '@models/chunk.model';
 import { SafeHtml } from '@angular/platform-browser';
@@ -33,39 +34,17 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     }
     this.dataSource.loadAll();
   }
-  filter(item: JChunk, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.taskName.toLowerCase().includes(filterValue) ||
-          item.agentName.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'taskName': {
-        return item.taskName.toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.agentName.toLowerCase().includes(filterValue);
-    }
+    this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: ChunksTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'chunkId',
+        render: (chunk: JChunk) => chunk.id,
         isSearchable: true,
         isSortable: true
       },
@@ -97,15 +76,13 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
-        isSortable: true,
-        isSearchable: true
+        isSortable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true,
-        isSearchable: true
+        isSortable: true
       },
       {
         id: ChunksTableCol.DISPATCH_TIME,

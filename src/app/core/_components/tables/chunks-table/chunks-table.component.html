@@ -7,8 +7,8 @@
   [tableColumns]="tableColumns"
   [hasBulkActions]="hasBulkActions"
   [hasRowAction]="hasRowAction"
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!true"
   [isPageable]="true"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />

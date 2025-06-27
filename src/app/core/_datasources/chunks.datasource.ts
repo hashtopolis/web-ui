@@ -1,13 +1,11 @@
+import { Filter, FilterType } from '@models/request-params.model';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
-import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
 import { BaseDataSource } from '@datasources/base.datasource';
+import { JChunk } from '@models/chunk.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
@@ -16,14 +14,17 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     this._agentId = agentId;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     const params = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent');
     if (this._agentId) {
       params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
-
+    if (query) {
+      params.addFilter(query);
+      console.log('add search');
+    }
     const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());
 
     forkJoin([chunks$])
@@ -43,7 +44,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
             chunk.agentName = chunk.agent.agentName;
           }
         });
-
+        console.log(assignedChunks)
         this.setData(assignedChunks);
       });
   }
