@@ -204,7 +204,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
-  formGroup = new FormGroup(
+  filterQueryFormGroup = new FormGroup(
     {
       textFilter: new FormControl('')
     },
@@ -408,7 +408,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   emitFilterValue(): void {
-    this.backendSqlFilter.emit(this.formGroup.get('textFilter').value);
+    this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
   }
   /**
    * Clears a filter to the table based on user input.
@@ -423,10 +423,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       search: ''
     });
   }
-  clearAndReload() {
-    this.formGroup.get('textFilter').reset();
-    this.reload();
-  }
+
   /**
    * Checks if a row is selected.
    *
