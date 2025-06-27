@@ -1,6 +1,8 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnInit } from '@angular/core';
 
+import { ContextMenuService } from '@services/context-menu/context-menu.service';
+
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
 import {
@@ -19,14 +21,13 @@ import { DataType } from '@components/tables/ht-table/ht-table.models';
   standalone: false
 })
 export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit {
-  /** The type of data for which the bulk action menu is displayed. */
   @Input() dataType: DataType;
-  /** Flag indicating whether the data is archived. */
   @Input() isArchived: boolean;
+  @Input() contextMenuService: ContextMenuService;
 
   ngOnInit(): void {
     // TODO: delete, if all menus are added to context menu service
-    this.loadMenu();
+    //this.loadMenu();
 
     this.contextMenuService.getBulkMenuItems().forEach((item) => {
       this.conditionallyAddMenuItem(item, this.data);

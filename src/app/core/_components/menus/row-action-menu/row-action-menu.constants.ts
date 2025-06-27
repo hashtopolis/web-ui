@@ -54,7 +54,8 @@ export const RowActionMenuLabel = {
   UNASSIGN_AGENT: 'Unassign Agent',
   UNASSIGN_USER: 'Unassign User',
   UNASSIGN_PRETASK: 'Unassign Pretask',
-  RESET_CHUNK: 'Reset Task Chunk'
+  RESET_CHUNK: 'Reset Task Chunk',
+  REMOVE_ACCESSGROUP_AGENT: 'Remove Agent'
 };
 
 export const RowActionMenuAction = {

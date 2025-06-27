@@ -21,7 +21,7 @@ export class BaseMenuComponent {
 
   actionMenuItems: ActionMenuItem[][] = [];
 
-  constructor(protected contextMenuService: ContextMenuService) {}
+  constructor() {}
 
   // 🔧 Utility: Safe key check
   private hasKeys(...keys: string[]): boolean {

@@ -1,13 +1,8 @@
-import { Injectable } from '@angular/core';
-
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-action-menu/row-action-menu.constants';
 
 export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition?: { key: string; value: boolean } };
 
-@Injectable({
-  providedIn: 'root'
-})
 export class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
   private bulkMenuItems: Array<ContextMenuType> = [];
@@ -176,6 +171,10 @@ export class ContextMenuService {
    */
   addBulkDeleteMenuItem(label: string) {
     this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, false);
+  }
+
+  addCtxResetMenuItem(label: string): void {
+    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, false, true);
   }
 
   /**

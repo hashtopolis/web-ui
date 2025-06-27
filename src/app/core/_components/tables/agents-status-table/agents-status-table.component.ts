@@ -3,6 +3,8 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { AgentContextMenuService } from '@services/context-menu/agent-context-menu.service';
+
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
@@ -40,6 +42,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string = 'all';
+  protected contextMenuService: AgentContextMenuService;
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -51,7 +54,8 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
-    this.agentContextMenuService.addAgentContextMenu();
+    this.contextMenuService = new AgentContextMenuService(this.permissionService);
+    this.contextMenuService.addAgentContextMenu();
     this.dataSource.reload();
   }
 
