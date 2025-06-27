@@ -81,7 +81,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     switch (selectedColumn) {
       case 'all': {
         console.log('Filtering across all columns');
-        this.dataSource.loadAll({ value: input, field: 'all', operator: FilterType.ICONTAINS });
+        this.dataSource.loadAll({ value: input, field: 'description', operator: FilterType.ICONTAINS });
         // Search across multiple relevant fields
         break;
       }
