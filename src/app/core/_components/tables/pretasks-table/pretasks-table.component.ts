@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
@@ -51,6 +51,8 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   // Estimate runtime attack
   @Input() benchmarkA0 = 0;
   @Input() benchmarkA3 = 0;
+
+  @Output() pretasksChanged = new EventEmitter<void>();
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
@@ -466,6 +468,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           .subscribe(() => {
             this.alertService.showSuccessMessage('Successfully unassigned pretask!');
             this.reload();
+            this.pretasksChanged.emit(); // Signals change that the Pretask ComboBox is being updated
           })
       );
     }
