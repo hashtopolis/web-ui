@@ -65,7 +65,9 @@ export enum Hashlist {
 // // SUPER-HASHLIST
 export enum SuperHashlist {
   CREATE = 'permHashlistHashlistCreate',
-  READ = 'permHashlistHashlistRead'
+  READ = 'permHashlistHashlistRead',
+  UPDATE = 'permHashlistHashlistUpdate',
+  DELETE = 'permHashlistHashlistDelete'
 }
 // // HASH
 export enum Hash {
@@ -195,5 +197,8 @@ export class Perm {
   static readonly Notif = Notif;
 }
 
-export type PermissionResource = keyof typeof Perm;
-export type PermissionType = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
+type NestedEnumValues<T> = T extends Record<string, string> ? T[keyof T] : never;
+
+export type PermissionValues = {
+  [K in keyof typeof Perm]: NestedEnumValues<(typeof Perm)[K]>;
+}[keyof typeof Perm];
