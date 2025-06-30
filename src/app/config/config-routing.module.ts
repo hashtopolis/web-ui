@@ -17,6 +17,7 @@ import { HealthChecksComponent } from '@src/app/config/health-checks/health-chec
 import { NewHealthChecksComponent } from '@src/app/config/health-checks/new-health-check/new-health-checks.component';
 import { ViewHealthChecksComponent } from '@src/app/config/health-checks/view-health-check/view-health-checks.component';
 import { LogComponent } from '@src/app/config/log/log.component';
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 
@@ -33,7 +34,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Agent Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -45,7 +46,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Task Chunk Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -57,7 +58,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Hashes/Cracks/Hashlist Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -69,7 +70,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.CONFIGS,
           breadcrumb: 'Notifications',
-          permission: 'Notif'
+          permission: Perm.Notif.READ
         },
         canActivate: [CheckPerm]
       },
@@ -81,7 +82,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.CONFIGS,
           breadcrumb: 'General Settings',
-          permission: 'Config'
+          permission: Perm.Config.READ
         },
         canActivate: [CheckPerm]
       },
@@ -91,7 +92,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'hashtypes',
           breadcrumb: 'Hashtypes',
-          permission: 'Hashtype'
+          permission: Perm.Hashtype.READ
         },
         canActivate: [CheckPerm]
       },
@@ -103,7 +104,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.HASHTYPES,
           breadcrumb: 'New Hashtype',
-          permission: 'Hashtype'
+          permission: Perm.Hashtype.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -115,7 +116,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.HASHTYPES,
           breadcrumb: 'Edit Hashtype',
-          permission: 'Hashtype'
+          permission: Perm.Hashtype.READ
         },
         canActivate: [CheckPerm]
       },
@@ -125,7 +126,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'log',
           breadcrumb: 'Logs',
-          permission: 'Logs'
+          permission: Perm.Logs.READ
         },
         canActivate: [CheckPerm]
       },
@@ -135,7 +136,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'health-checks',
           breadcrumb: 'Health Checks',
-          permission: 'HealthCheck'
+          permission: Perm.HealthCheck.READ
         },
         canActivate: [CheckPerm]
       },
@@ -145,7 +146,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-health-checks',
           breadcrumb: 'New Health Checks',
-          permission: 'HealthCheck'
+          permission: Perm.HealthCheck.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -155,7 +156,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'view-health-checks',
           breadcrumb: 'View Health Checks',
-          permission: 'HealthCheck'
+          permission: Perm.HealthCheck.READ
         },
         canActivate: [CheckPerm]
       },
@@ -165,7 +166,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'agent-binaries',
           breadcrumb: 'Engine > Agent-binaries',
-          permission: 'AgentBinary'
+          permission: Perm.AgentBinary.READ
         },
         canActivate: [CheckPerm]
       },
@@ -177,7 +178,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.AGENT_BINARY,
           breadcrumb: 'Engine > New Agent binary',
-          permission: 'AgentBinary'
+          permission: Perm.HealthCheck.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -189,7 +190,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.AGENT_BINARY,
           breadcrumb: 'Engine > Edit Agent binary',
-          permission: 'AgentBinary'
+          permission: Perm.AgentBinary.READ
         },
         canActivate: [CheckPerm]
       },
@@ -199,7 +200,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'crackers',
           breadcrumb: 'Engine > Crackers',
-          permission: 'CrackerBinary'
+          permission: Perm.CrackerBinary.READ
         },
         canActivate: [CheckPerm]
       },
@@ -211,7 +212,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.CRACKERS_TYPES,
           breadcrumb: 'Engine > New Cracker',
-          permission: 'CrackerBinary'
+          permission: Perm.CrackerBinary.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -223,7 +224,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.CRACKERS,
           breadcrumb: 'Engine > New Cracker Version/Binary',
-          permission: 'CrackerBinary'
+          permission: Perm.CrackerBinaryType.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -235,7 +236,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.CRACKERS,
           breadcrumb: 'Engine > Edit Cracker Version/Binary',
-          permission: 'CrackerBinaryType'
+          permission: Perm.CrackerBinaryType.READ
         },
         canActivate: [CheckPerm]
       },
@@ -245,7 +246,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'preprocessors',
           breadcrumb: 'Engine > Preprocessors',
-          permission: 'Prepro'
+          permission: Perm.Prepro.READ
         },
         canActivate: [CheckPerm]
       },
@@ -257,7 +258,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.PREPROCESSORS,
           breadcrumb: 'Engine > New Preprocessor',
-          permission: 'Prepro'
+          permission: Perm.Prepro.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -269,7 +270,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.PREPROCESSORS,
           breadcrumb: 'Engine > Edit Preprocessor',
-          permission: 'Prepro'
+          permission: Perm.Prepro.READ
         },
         canActivate: [CheckPerm]
       }

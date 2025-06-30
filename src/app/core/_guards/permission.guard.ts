@@ -1,12 +1,10 @@
-import { Observable, map } from 'rxjs';
-
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn } from '@angular/router';
 
 import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
 
-import { PermissionResource } from '@src/app/core/_constants/userpermissions.config';
+import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 @Injectable({
   providedIn: 'root'
@@ -17,22 +15,18 @@ export class PermissionGuard {
     private permissionService: PermissionService
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    const group = route.data['permission'] as PermissionResource;
+  canActivate(route: ActivatedRouteSnapshot): boolean {
+    const group = route.data['permission'] as PermissionValues;
 
-    return this.permissionService.hasPermission(group, 'READ').pipe(
-      map((hasAccess) => {
-        if (hasAccess) {
-          return true;
-        }
+    if (this.permissionService.hasPermissionSync(group)) {
+      return true;
+    }
 
-        this.alert.showErrorMessage('Access denied, please contact your Administrator.');
-        return false;
-      })
-    );
+    this.alert.showErrorMessage('Access denied, please contact your Administrator.');
+    return false;
   }
 }
 
-export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): Observable<boolean> => {
+export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): boolean => {
   return inject(PermissionGuard).canActivate(route);
 };

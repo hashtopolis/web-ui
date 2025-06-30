@@ -1,18 +1,21 @@
-import { CheckPerm } from '../core/_guards/permission.guard';
-import { RouterModule } from '@angular/router';
-import { IsAuth } from '../core/_guards/auth.guard';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
-import { NewSuperhashlistComponent } from '../core/_components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
-import { SuperhashlistComponent } from './superhashlist/superhashlist.component';
-import { EditHashlistComponent } from './edit-hashlist/edit-hashlist.component';
-import { NewHashlistComponent } from './new-hashlist/new-hashlist.component';
-import { SearchHashComponent } from './search-hash/search-hash.component';
-import { ShowCracksComponent } from './show-cracks/show-cracks.component';
-import { MyRoute } from '../core/_models/routes.model';
-import { HashlistComponent } from './hashlist/hashlist.component';
-import { HashesComponent } from './hashes/hashes.component';
-import { ImportCrackedHashesComponent } from './import-cracked-hashes/import-cracked-hashes.component';
+import { MyRoute } from '@models/routes.model';
+
+import { NewSuperhashlistComponent } from '@components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
+
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { CheckPerm } from '@src/app/core/_guards/permission.guard';
+import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
+import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
+import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.component';
+import { ImportCrackedHashesComponent } from '@src/app/hashlists/import-cracked-hashes/import-cracked-hashes.component';
+import { NewHashlistComponent } from '@src/app/hashlists/new-hashlist/new-hashlist.component';
+import { SearchHashComponent } from '@src/app/hashlists/search-hash/search-hash.component';
+import { ShowCracksComponent } from '@src/app/hashlists/show-cracks/show-cracks.component';
+import { SuperhashlistComponent } from '@src/app/hashlists/superhashlist/superhashlist.component';
 
 const routes: MyRoute[] = [
   {
@@ -25,7 +28,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'hashlist',
           breadcrumb: 'Hashlist',
-          permission: 'Hashlist'
+          permission: Perm.Hashlist.READ
         },
         canActivate: [CheckPerm]
       },
@@ -35,7 +38,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'archived',
           breadcrumb: 'Hashlist Archived',
-          permission: 'Hashlist'
+          permission: Perm.Hashlist.READ
         },
         canActivate: [CheckPerm]
       },
@@ -45,7 +48,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-hashlist',
           breadcrumb: 'Edit Hashlist',
-          permission: 'Hashlist'
+          permission: Perm.Hashlist.READ
         },
         canActivate: [CheckPerm]
         // canDeactivate: [PendingChangesGuard]
@@ -56,7 +59,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'import-cracked-hashes',
           breadcrumb: 'Import Cracked Hashes',
-          permission: 'Hashlist'
+          permission: Perm.Hashlist.UPDATE
         },
         canActivate: [CheckPerm]
       },
@@ -66,7 +69,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-hashlist',
           breadcrumb: 'New Hashlist',
-          permission: 'SuperHashlist'
+          permission: Perm.SuperHashlist.CREATE
         },
         canActivate: [CheckPerm]
         // canDeactivate: [PendingChangesGuard]
@@ -77,7 +80,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'super-hashlist',
           breadcrumb: 'Super Hashlist',
-          permission: 'SuperHashlist'
+          permission: Perm.SuperHashlist.READ
         },
         canActivate: [CheckPerm]
       },
@@ -87,7 +90,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-super-hashlist',
           breadcrumb: 'Edit Super Hashlist',
-          permission: 'SuperHashlist'
+          permission: Perm.SuperHashlist.READ
         },
         canActivate: [CheckPerm]
       },
@@ -97,7 +100,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-superhashlist',
           breadcrumb: 'New Super Hashlist',
-          permission: 'SuperHashlist'
+          permission: Perm.SuperHashlist.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -107,7 +110,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'taskhas',
           breadcrumb: 'Task Hashes',
-          permission: 'Hash'
+          permission: Perm.Hash.READ
         },
         canActivate: [CheckPerm]
       },
@@ -117,7 +120,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'hashlisthash',
           breadcrumb: 'Hashlist Hashes',
-          permission: 'Hash'
+          permission: Perm.Hash.READ
         },
         canActivate: [CheckPerm]
       },
@@ -127,7 +130,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'chunkshash',
           breadcrumb: 'Chunks Hashes',
-          permission: 'Hash'
+          permission: Perm.Hash.READ
         },
         canActivate: [CheckPerm]
       },
@@ -137,7 +140,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'search-hash',
           breadcrumb: 'Search-hash',
-          permission: 'Hash'
+          permission: Perm.Hash.READ
         },
         canActivate: [CheckPerm]
       },
@@ -147,7 +150,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-cracks',
           breadcrumb: 'Show Cracks',
-          permission: 'Hash'
+          permission: Perm.Hash.READ
         },
         canActivate: [CheckPerm]
       }
