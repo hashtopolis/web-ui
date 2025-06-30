@@ -55,7 +55,7 @@
       <div class="table-action-wrapper">
         <button mat-button (click)="temperatureInformationEmit()">
           <mat-icon>info</mat-icon>
-         Temperature Information
+          Temperature Information
         </button>
       </div>
     }
@@ -76,7 +76,7 @@
 
         <!-- Filter input -->
         <mat-form-field style="min-width: 200px">
-          <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data"/>
+          <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
           <button mat-icon-button matSuffix (click)="clearFilter()">
             <mat-icon>clear</mat-icon>
           </button>
@@ -96,7 +96,7 @@
         <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
           <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{
             isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
-            }}</span>
+          }}</span>
         </ng-container>
         <!-- Check if only isCmdTask is true -->
         <ng-template #checkCmdAttack>
@@ -192,23 +192,35 @@
         }"
         [class.text-right]="tableColumn.position === 'right'"
       >
-        <div
-          class="flex-container"
-          [class.links]="tableColumn.routerLink"
-          [class.icons]="tableColumn.icon"
-        >
+        <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
+          <span class="icon-actions">
+          @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+                <button
+                  mat-icon-button
+                  color="primary"
+                  aria-label="Show full hash"
+                  (click)="showFullHashModalEmit(element)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+          }
+          @if (tableColumn.isCopy) {
+                <button
+                  (click)="copyRowDataEmit(element)"
+                  mat-icon-button
+                  color="primary"
+                  aria-label="Copy button"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+          }
+          </span>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link
-              [tableColumn]="tableColumn"
-              [element]="element"
-            ></app-ht-table-link>
-            <ht-table-default
-              [tableColumn]="tableColumn"
-              [element]="element"
-            ></ht-table-default>
+            <app-ht-table-link [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
+            <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable
               [tableColumn]="tableColumn"
               [element]="element"
@@ -227,12 +239,12 @@
               *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
               [matTooltip]="tableColumn.icon(element).tooltip"
               [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''"
-            >{{ tableColumn.icon(element).name }}</mat-icon
+              >{{ tableColumn.icon(element).name }}</mat-icon
             >
             <ng-template #iconTmpl>
               <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-                  tableColumn.icon(element).name
-                }}</mat-icon>
+                tableColumn.icon(element).name
+              }}</mat-icon>
             </ng-template>
           </ng-container>
         </div>
@@ -253,7 +265,12 @@
   <!-- Pagination -->
   <ng-container *ngIf="isPageable">
     <hr />
-    <mat-paginator [length]="dataSource.totalItems" [pageSize]="dataSource.pageSize" [pageSizeOptions]="paginationSizes"
-      [pageIndex]="dataSource.index" (page)="onPageChange($event)"></mat-paginator>
+    <mat-paginator
+      [length]="dataSource.totalItems"
+      [pageSize]="dataSource.pageSize"
+      [pageSizeOptions]="paginationSizes"
+      [pageIndex]="dataSource.index"
+      (page)="onPageChange($event)"
+    ></mat-paginator>
   </ng-container>
 </ng-container>

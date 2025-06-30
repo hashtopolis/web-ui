@@ -1,9 +1,3 @@
-import { Subscription, take, timer } from 'rxjs';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -16,11 +10,6 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -30,9 +19,20 @@ import {
   HTTableColumn,
   HTTableEditable
 } from './ht-table.models';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { Subscription, take, timer } from 'rxjs';
+
 import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
 import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
 import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
+import { JHash } from '@src/app/core/_models/hash.model';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSort } from '@angular/material/sort';
+import { UIConfig } from 'src/app/core/_models/config-ui.model';
+import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -198,6 +198,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
+  @Output() emitCopyRowData: EventEmitter<JHash> = new EventEmitter();
+  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
@@ -276,6 +278,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.loadingTimeoutSubscription) {
       this.loadingTimeoutSubscription.unsubscribe();
     }
+  }
+  copyRowDataEmit(event: JHash) {
+    this.emitCopyRowData.emit(event);
+  }
+
+  showFullHashModalEmit(event: JHash): void {
+    this.emitFullHashModal.emit(event);
   }
 
   /**
