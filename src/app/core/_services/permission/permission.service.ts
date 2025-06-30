@@ -25,6 +25,7 @@ export interface PermissionCheck {
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
   private permissions$ = new BehaviorSubject<Permission>({});
+  private currentPermissions: Permission = {}; // Cached static access
 
   constructor(
     private gs: GlobalService,
@@ -41,6 +42,7 @@ export class PermissionService {
         const responseData = { data: response.data, included: response.included };
         const globalPermissionGroup = this.serializer.deserialize<JGlobalPermissionGroup>(responseData);
         const permissions = globalPermissionGroup.permissions;
+        this.currentPermissions = permissions;
         this.permissions$.next(permissions);
         return permissions;
       })
@@ -128,5 +130,57 @@ export class PermissionService {
    */
   hasAllPermissions(checks: PermissionCheck[]): Observable<boolean> {
     return this.hasPermissions(checks).pipe(map((results) => results.every((granted) => granted)));
+  }
+
+  // ----------- Synchronous Permission Methods -----------
+  /**
+   * Checks synchronously whether the user has a specific permission.
+   *
+   * @param resource - Permission resource key (e.g., 'Agent')
+   * @param type - CRUD type (e.g., 'READ')
+   * @returns `true` if permission is granted
+   *
+   * @example
+   * if (permissionService.hasPermissionSync('Agent', 'DELETE')) {
+   *   this.initAgentDeleteFeature();
+   * }
+   */
+  hasPermissionSync(resource: PermissionResource, type: PermissionType): boolean {
+    const key = Perm[resource]?.[type];
+    return !!this.currentPermissions?.[key];
+  }
+
+  /**
+   * Checks a list of permissions synchronously and returns individual results.
+   *
+   * @param checks - Array of {resource, type} objects
+   * @returns Array of booleans corresponding to each check
+   *
+   * @example
+   * const results = permissionService.hasPermissionsSync([
+   *   { resource: 'Chunk', type: 'READ' },
+   *   { resource: 'Agent', type: 'DELETE' }
+   * ]);
+   * console.log(results); // e.g., [true, false]
+   */
+  hasPermissionsSync(checks: PermissionCheck[]): boolean[] {
+    return checks.map((c) => this.hasPermissionSync(c.resource, c.type));
+  }
+
+  /**
+   * Checks if all listed permissions are granted synchronously.
+   *
+   * @param checks - Array of {resource, type} objects
+   * @returns `true` if all permissions are granted
+   *
+   * @example
+   * const allowed = permissionService.hasAllPermissionsSync([
+   *   { resource: 'Agent', type: 'READ' },
+   *   { resource: 'User', type: 'UPDATE' }
+   * ]);
+   * if (allowed) this.initTable();
+   */
+  hasAllPermissionsSync(checks: PermissionCheck[]): boolean {
+    return checks.every((c) => this.hasPermissionSync(c.resource, c.type));
   }
 }
