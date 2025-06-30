@@ -1,13 +1,13 @@
-import { Component, ViewChild } from '@angular/core';
-
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { TasksTableComponent } from 'src/app/core/_components/tables/tasks-table/tasks-table.component';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+
+import { Component, ViewChild } from '@angular/core';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
-    selector: 'app-show-tasks',
-    templateUrl: './show-tasks.component.html',
-    standalone: false
+  selector: 'app-show-tasks',
+  templateUrl: './show-tasks.component.html',
+  standalone: false
 })
 export class ShowTasksComponent {
   @ViewChild('table') table: TasksTableComponent;
