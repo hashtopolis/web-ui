@@ -7,7 +7,6 @@ import { ChunkData } from '@models/chunk.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
 import { JTask } from '@models/task.model';
 
-import { AgentMenuService } from '@services/context-menu/agent-menu.service';
 import { TaskContextMenuService } from '@services/context-menu/task-menu.service';
 import { SERV } from '@services/main.config';
 

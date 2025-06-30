@@ -389,19 +389,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Creates an ActionMenuItem with archive action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with archive action.
-   */
-  private getUnarchiveMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.UNARCHIVE,
-      icon: RowActionMenuIcon.UNARCHIVE
-    };
-  }
-
-  /**
    * Creates an ActionMenuItem with activate action.
    * @param label The label for the menu item.
    * @returns The ActionMenuItem with activate action.
