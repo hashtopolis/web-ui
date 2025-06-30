@@ -151,23 +151,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Sets the context menu items for an agent data row.
-   */
-  private setAgentMenu(): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)]);
-    if (this.data['isActive']) {
-      this.addActionMenuItem(0, this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT));
-    } else {
-      this.addActionMenuItem(0, this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT));
-    }
-    if (this.data['assignmentId']) {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)]);
-    } else {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)]);
-    }
-  }
-
-  /**
    * Sets the context menu items for an hashlist data row.
    */
   private setHashlistMenu(): void {
@@ -247,47 +230,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)]);
     } else {
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)]);
-    }
-  }
-
-  /**
-   * Sets the context menu items for a task data row.
-   */
-  private setTaskWrapperMenu(): void {
-    // this.setActionMenuItems(0, [
-    //   this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)
-    // ]);
-
-    this.setActionMenuItems(0, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)]);
-
-    if (this.data.taskType === 0) {
-      this.addActionMenuItem(0, {
-        label: RowActionMenuLabel.EDIT_TASK,
-        action: RowActionMenuAction.EDIT_TASKS,
-        icon: RowActionMenuIcon.EDIT
-      });
-      this.addActionMenuItem(0, {
-        label: RowActionMenuLabel.COPY_TO_TASK,
-        action: RowActionMenuAction.COPY_TO_TASK,
-        icon: RowActionMenuIcon.COPY
-      });
-      this.addActionMenuItem(0, {
-        label: RowActionMenuLabel.COPY_TO_PRETASK,
-        action: RowActionMenuAction.COPY_TO_PRETASK,
-        icon: RowActionMenuIcon.COPY
-      });
-    } else if (this.data.taskType === 1) {
-      this.addActionMenuItem(0, {
-        label: RowActionMenuLabel.EDIT_SUBTASKS,
-        action: RowActionMenuAction.EDIT_SUBTASKS,
-        icon: RowActionMenuIcon.EDIT
-      });
-    }
-
-    if (this.data.isArchived) {
-      this.addActionMenuItem(0, this.getUnarchiveMenuItem(RowActionMenuLabel.UNARCHIVE_TASK));
-    } else {
-      this.addActionMenuItem(0, this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK));
     }
   }
 

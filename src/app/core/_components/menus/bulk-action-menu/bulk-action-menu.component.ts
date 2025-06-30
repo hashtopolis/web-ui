@@ -58,8 +58,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PRETASKS);
-    } else if (this.dataType === 'tasks') {
-      this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
     } else if (this.dataType === 'tasks-chunks') {
       this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
     } else if (this.dataType === 'tasks-supertasks') {

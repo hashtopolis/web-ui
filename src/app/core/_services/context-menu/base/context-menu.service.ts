@@ -222,6 +222,12 @@ export abstract class ContextMenuService {
     this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, false, true);
   }
 
+  /**
+   * Add a new copy entry to context menu
+   * @param label - label of the entry
+   * @param condition - condition to check for display state of menu entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   */
   addCtxCopyMenuItem(
     label: string,
     permissions: PermissionCheck[],
@@ -239,6 +245,12 @@ export abstract class ContextMenuService {
     );
   }
 
+  /**
+   * Add a new archive entry to context menu
+   * @param label - label of the entry
+   * @param condition - condition to check for display state of menu entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   */
   addCtxArchiveMenuItem(
     label: string,
     permissions: PermissionCheck[],
@@ -256,6 +268,12 @@ export abstract class ContextMenuService {
     );
   }
 
+  /**
+   * Add a new unarchive entry to context menu
+   * @param label - label of the entry
+   * @param condition - condition to check for display state of menu entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   */
   addCtxUnArchiveMenuItem(
     label: string,
     permissions: PermissionCheck[],
@@ -271,5 +289,14 @@ export abstract class ContextMenuService {
       true,
       condition
     );
+  }
+
+  /**
+   * Add a new archive entry to bulks menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   */
+  addBulkArchiveMenuItem(label: string, permissions: PermissionCheck[]): void {
+    this.createMenuItem(label, 1, RowActionMenuAction.ARCHIVE, RowActionMenuIcon.ARCHIVE, permissions, false, false);
   }
 }
