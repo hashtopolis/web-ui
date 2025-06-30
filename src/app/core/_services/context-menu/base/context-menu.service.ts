@@ -58,7 +58,7 @@ export abstract class ContextMenuService {
     icon: string,
     warning: boolean,
     toContextMenu: boolean,
-    condition: ContextMenuCondition = undefined
+    condition: ContextMenuCondition = { key: '', value: false }
   ) {
     const menuItem: ContextMenuType = {
       index: groupIndex,
@@ -91,7 +91,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxDeactivateMenuItem(label: string, condition: ContextMenuCondition) {
+  addCtxDeactivateMenuItem(label: string, condition: ContextMenuCondition = { key: '', value: false }) {
     this.createMenuItem(label, 0, RowActionMenuAction.DEACTIVATE, RowActionMenuIcon.DEACTIVATE, false, true, condition);
   }
 
@@ -108,7 +108,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxActivateMenuItem(label: string, condition: ContextMenuCondition) {
+  addCtxActivateMenuItem(label: string, condition: ContextMenuCondition = { key: '', value: false }) {
     this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, false, true, condition);
   }
 
@@ -125,7 +125,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxDeleteMenuItem(label: string, condition: ContextMenuCondition = undefined) {
+  addCtxDeleteMenuItem(label: string, condition: ContextMenuCondition = { key: '', value: false }) {
     this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, true, condition);
   }
 

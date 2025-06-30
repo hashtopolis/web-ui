@@ -25,11 +25,11 @@ export class AgentMenuService extends ContextMenuService {
       }
     });
 
-    //this.permissionService.hasPermission('AgentAssignment', 'CREATE').subscribe((response) => {
-    //  if (response) {
-    this.addCtxDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, { key: 'assignmentId', value: true });
-    //  }
-    //});
+    this.permissionService.hasPermission('AgentAssignment', 'CREATE').subscribe((response) => {
+      if (response) {
+        this.addCtxDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, { key: 'assignmentId', value: true });
+      }
+    });
 
     this.permissionService.hasPermission('Agent', 'DELETE').subscribe((response) => {
       if (response == true) {
