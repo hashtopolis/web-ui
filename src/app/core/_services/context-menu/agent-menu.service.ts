@@ -19,13 +19,19 @@ export class AgentMenuService extends ContextMenuService {
         this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT);
         this.addCtxDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT, 'isActive', true);
         this.addCtxActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT, 'isActive', false);
-        this.addCtxDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, 'assignmentId', true);
 
         this.addBulkActivateMenuItem(BulkActionMenuLabel.ACTIVATE_AGENTS);
         this.addBulkDeactivateMenuItem(BulkActionMenuLabel.DEACTIVATE_AGENTS);
       }
     });
 
+    /**
+    this.permissionService.hasPermission('AgentAssignment', 'CREATE').subscribe((response) => {
+      if (response) {
+        this.addCtxDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, 'assignmentId', true);
+      }
+    });
+    */
     this.permissionService.hasPermission('Agent', 'DELETE').subscribe((response) => {
       if (response) {
         this.addCtxDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT, 'assignmentId', false);

@@ -61,7 +61,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
-    this.contextMenuService = new AgentMenuService(this.permissionService).addAgentContextMenu();
+    //this.contextMenuService = new AgentMenuService(this.permissionService).addAgentContextMenu();
     this.dataSource.reload();
   }
 

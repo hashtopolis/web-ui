@@ -61,7 +61,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isPretask, action: this.setPretaskMenu },
       { condition: this.isTaskWrapper, action: this.setTaskWrapperMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
-      { condition: this.isTaskChunks, action: this.setTaskChunksMenu },
       { condition: this.isSupertask, action: this.setSupertaskMenu },
       { condition: this.isHashlist, action: this.setHashlistMenu },
       { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },

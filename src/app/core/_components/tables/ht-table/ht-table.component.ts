@@ -1,8 +1,4 @@
 import { Subscription, take, timer } from 'rxjs';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 import {
   AfterViewInit,
@@ -21,6 +17,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
+import { UIConfig } from '@models/config-ui.model';
+import { JHash } from '@models/hash.model';
+
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -29,10 +34,11 @@ import {
   DataType,
   HTTableColumn,
   HTTableEditable
-} from './ht-table.models';
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
+} from '@components/tables/ht-table/ht-table.models';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
