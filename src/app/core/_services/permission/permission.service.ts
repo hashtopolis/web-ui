@@ -17,7 +17,7 @@ import { Perm, PermissionResource, PermissionType } from '@src/app/core/_constan
  * @property resource - The resource for which the permission is checked (e.g., "Agent").
  * @property type - The type of permission being checked (e.g., "CREATE", "READ", "UPDATE", "DELETE").
  */
-interface PermissionCheck {
+export interface PermissionCheck {
   resource: PermissionResource;
   type: PermissionType;
 }

@@ -1,7 +1,8 @@
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-action-menu/row-action-menu.constants';
 
-export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition?: { key: string; value: boolean } };
+export type ContextMenuCondition = { key: string; value: boolean };
+export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition?: ContextMenuCondition };
 
 export abstract class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
@@ -47,8 +48,7 @@ export abstract class ContextMenuService {
    * @param icon - item icon
    * @param warning - true: add red color, false: standard color
    * @param toContextMenu - true: add to contect menu, false: add to bulk menu
-   * @param conditionKey - key in data model to check for display conditiob
-   * @param conditionValue - value of condition to check
+   * @param condition - Context menu condition to check in data object for each table row
    * @private
    */
   private createMenuItem(
@@ -58,8 +58,7 @@ export abstract class ContextMenuService {
     icon: string,
     warning: boolean,
     toContextMenu: boolean,
-    conditionKey: string = '',
-    conditionValue: boolean = false
+    condition: ContextMenuCondition = undefined
   ) {
     const menuItem: ContextMenuType = {
       index: groupIndex,
@@ -69,7 +68,7 @@ export abstract class ContextMenuService {
         icon: icon,
         red: warning
       },
-      condition: { key: conditionKey, value: conditionValue }
+      condition: condition
     };
 
     if (toContextMenu) {
@@ -90,20 +89,10 @@ export abstract class ContextMenuService {
   /**
    * Add a new deactiva entry to context menu
    * @param label - label of the entry
-   * @param conditionKey - condition key for entry to display
-   * @param conditionValue - condition value for entry to display
+   * @param condition - condition to check for display state of menu entry
    */
-  addCtxDeactivateMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.createMenuItem(
-      label,
-      0,
-      RowActionMenuAction.DEACTIVATE,
-      RowActionMenuIcon.DEACTIVATE,
-      false,
-      true,
-      conditionKey,
-      conditionValue
-    );
+  addCtxDeactivateMenuItem(label: string, condition: ContextMenuCondition) {
+    this.createMenuItem(label, 0, RowActionMenuAction.DEACTIVATE, RowActionMenuIcon.DEACTIVATE, false, true, condition);
   }
 
   /**
@@ -117,20 +106,10 @@ export abstract class ContextMenuService {
   /**
    * Add a new activate entry to context menu
    * @param label - label of the entry
-   * @param conditionKey - condition key for entry to display
-   * @param conditionValue - condition value for entry to display
+   * @param condition - condition to check for display state of menu entry
    */
-  addCtxActivateMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.createMenuItem(
-      label,
-      0,
-      RowActionMenuAction.ACTIVATE,
-      RowActionMenuIcon.ACTIVATE,
-      false,
-      true,
-      conditionKey,
-      conditionValue
-    );
+  addCtxActivateMenuItem(label: string, condition: ContextMenuCondition) {
+    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, false, true, condition);
   }
 
   /**
@@ -144,20 +123,10 @@ export abstract class ContextMenuService {
   /**
    * Add a new delete entry to context menu
    * @param label - label of the entry
-   * @param conditionKey - condition key for entry to display
-   * @param conditionValue - condition value for entry to display
+   * @param condition - condition to check for display state of menu entry
    */
-  addCtxDeleteMenuItem(label: string, conditionKey: string = '', conditionValue: boolean = false) {
-    this.createMenuItem(
-      label,
-      1,
-      RowActionMenuAction.DELETE,
-      RowActionMenuIcon.DELETE,
-      true,
-      true,
-      conditionKey,
-      conditionValue
-    );
+  addCtxDeleteMenuItem(label: string, condition: ContextMenuCondition = undefined) {
+    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, true, condition);
   }
 
   /**
