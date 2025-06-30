@@ -1,32 +1,37 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { ChunkData } from '@models/chunk.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JTask } from '@models/task.model';
+
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, of } from 'rxjs';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ChunkData } from '@models/chunk.model';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { JTask } from '@models/task.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { TasksDataSource } from '@datasources/tasks.datasource';
+
+import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
   selector: 'app-tasks-table',
@@ -392,7 +397,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.dataSource.reset(true);
     this.dataSource.setIsArchived(isArchived);
+    this.dataSource.loadAll();
   }
 
   getDispatchedSearchedString(wrapper: JTaskWrapper): string {
