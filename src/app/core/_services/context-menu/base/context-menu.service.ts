@@ -295,8 +295,22 @@ export abstract class ContextMenuService {
    * Add a new archive entry to bulks menu
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition - condition to check for display state of menu entry
    */
-  addBulkArchiveMenuItem(label: string, permissions: PermissionCheck[]): void {
-    this.createMenuItem(label, 1, RowActionMenuAction.ARCHIVE, RowActionMenuIcon.ARCHIVE, permissions, false, false);
+  addBulkArchiveMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ): void {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.ARCHIVE,
+      RowActionMenuIcon.ARCHIVE,
+      permissions,
+      false,
+      false,
+      condition
+    );
   }
 }

@@ -11,9 +11,8 @@ export class TaskContextMenuService extends ContextMenuService {
 
   /**
    * Add context- and bulk menu fot task table
-   * @param isArchived - true: show archived tasks, false: show unarchived tasks
    */
-  addTaskContextMenu(isArchived: boolean): TaskContextMenuService {
+  addTaskContextMenu(): TaskContextMenuService {
     const permTaskUpdate: Array<PermissionCheck> = [{ resource: 'Task', type: 'UPDATE' }];
     const permTaskDelete: Array<PermissionCheck> = [{ resource: 'Task', type: 'DELETE' }];
     const permTaskCreate: Array<PermissionCheck> = [{ resource: 'Task', type: 'CREATE' }];
@@ -35,9 +34,7 @@ export class TaskContextMenuService extends ContextMenuService {
 
     this.addCtxDeleteMenuItem(RowActionMenuLabel.DELETE_TASK, permTaskDelete);
 
-    if (!isArchived) {
-      this.addBulkArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_TASKS, permTaskUpdate);
-    }
+    this.addBulkArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_TASKS, permTaskUpdate, isArchiveCondition);
     this.addBulkDeleteMenuItem(BulkActionMenuLabel.DELETE_TASKS, permTaskDelete);
 
     return this;

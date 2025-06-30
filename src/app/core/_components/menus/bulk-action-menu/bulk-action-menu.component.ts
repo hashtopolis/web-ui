@@ -28,7 +28,7 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   ngOnInit(): void {
     // TODO: delete, if all menus are added to context menu service
     this.loadMenu();
-
+    this.data = { isArchived: this.isArchived };
     if (this.contextMenuService) {
       this.contextMenuService.getBulkMenuItems().forEach((item) => {
         this.conditionallyAddMenuItem(item, this.data);
