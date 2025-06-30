@@ -7,6 +7,8 @@ import { ChunkData } from '@models/chunk.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
 import { JTask } from '@models/task.model';
 
+import { AgentMenuService } from '@services/context-menu/agent-menu.service';
+import { TaskContextMenuService } from '@services/context-menu/task-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -43,12 +45,15 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   dataSource: TasksDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
+  protected contextMenuService: TaskContextMenuService;
+
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new TasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new TaskContextMenuService(this.permissionService).addTaskContextMenu();
     this.dataSource.loadAll();
   }
 
