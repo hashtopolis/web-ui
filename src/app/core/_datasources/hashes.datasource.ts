@@ -1,15 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { JHash } from '@models/hash.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
 import { BaseDataSource } from '@datasources/base.datasource';
+import { FilterType } from '@models/request-params.model';
+import { JHash } from '@models/hash.model';
+import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
@@ -47,6 +45,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
 
             const paramsHashlist = new RequestParamBuilder()
               .addInitial(this)
+              .addInclude('hashlist')
               .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId });
 
             const hashlistService = this.service.getAll(SERV.HASHES, paramsHashlist.create());

@@ -34,7 +34,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isSuperHashlist, action: this.setSuperHashlistMenu },
       {
         condition: this.isFile,
-        action: () => this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_FILE, RowActionMenuLabel.DELETE_FILE)
+        action: this.setFileMenu
       },
       {
         condition: this.isPreprocessor,
@@ -61,11 +61,13 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isPretask, action: this.setPretaskMenu },
       { condition: this.isTaskWrapper, action: this.setTaskWrapperMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
+      { condition: this.isTaskChunks, action: this.setTaskChunksMenu },
       { condition: this.isSupertask, action: this.setSupertaskMenu },
       { condition: this.isHashlist, action: this.setHashlistMenu },
       { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },
       { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
     ];
+
     for (const item of actionMap) {
       if (item.condition.call(this)) {
         item.action.call(this);
@@ -136,6 +138,34 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
     ]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)]);
+  }
+
+  /**
+   * Sets the context menu items for an file data row.
+   */
+  private setFileMenu(): void {
+    this.setActionMenuItems(0, [
+      this.getEditMenuItem(RowActionMenuLabel.EDIT_FILE),
+      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_FILE),
+      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_FILE)
+    ]);
+  }
+
+  /**
+   * Sets the context menu items for an agent data row.
+   */
+  private setAgentMenu(): void {
+    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENT)]);
+    if (this.data['isActive']) {
+      this.addActionMenuItem(0, this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT));
+    } else {
+      this.addActionMenuItem(0, this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT));
+    }
+    if (this.data['assignmentId']) {
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT)]);
+    } else {
+      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT)]);
+    }
   }
 
   /**

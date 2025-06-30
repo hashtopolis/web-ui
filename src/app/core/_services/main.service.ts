@@ -118,6 +118,34 @@ export class GlobalService {
   }
 
   /**
+   * Download a file from the backend
+   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
+   * @param id            ID of file to get
+   * @param filename      Filname to use for the downloaded file
+   */
+  getFile(serviceConfig: ServiceConfig, id: number, filename: string): void {
+    this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, { responseType: 'blob' }).subscribe({
+      next: (response: Blob) => {
+        // Generate Blob-URL
+        const blob = new Blob([response], { type: response.type });
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary ‘a’ element for download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+
+        // Release the URL of the blob again
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Fehler beim Download der Datei:', error);
+      }
+    });
+  }
+
+  /**
    * Create an object
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param item          Data of item to create

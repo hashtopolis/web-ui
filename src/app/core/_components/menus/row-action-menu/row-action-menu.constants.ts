@@ -16,6 +16,7 @@ export const RowActionMenuLabel = {
   EDIT_HASHTYPE: 'Edit Hashtype',
   EDIT_SUPERHASHLIST: 'Edit Superhashlist',
   EDIT_FILE: 'Edit File',
+  DOWNLOAD_FILE: 'Download File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
   EDIT_AGENTBINARY: 'Edit Agent Binary',
   VIEW_HEALTHCHECK: 'View Health Check',

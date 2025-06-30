@@ -21,11 +21,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -34,7 +29,10 @@ import {
   DataType,
   HTTableColumn,
   HTTableEditable
-} from '@components/tables/ht-table/ht-table.models';
+} from './ht-table.models';
+import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
+import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -202,6 +200,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
+  @Output() emitCopyRowData: EventEmitter<JHash> = new EventEmitter();
+  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
 
@@ -280,6 +280,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.loadingTimeoutSubscription) {
       this.loadingTimeoutSubscription.unsubscribe();
     }
+  }
+  copyRowDataEmit(event: JHash) {
+    this.emitCopyRowData.emit(event);
+  }
+
+  showFullHashModalEmit(event: JHash): void {
+    this.emitFullHashModal.emit(event);
   }
 
   /**
