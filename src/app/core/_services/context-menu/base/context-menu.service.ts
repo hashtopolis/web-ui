@@ -90,9 +90,23 @@ export abstract class ContextMenuService {
    * Add a new edit entry to context menu
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition
    */
-  addCtxEditItem(label: string, permissions: PermissionCheck[]) {
-    this.createMenuItem(label, 0, RowActionMenuAction.EDIT, RowActionMenuIcon.EDIT, permissions, false, true);
+  addCtxEditItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.EDIT,
+      RowActionMenuIcon.EDIT,
+      permissions,
+      false,
+      true,
+      condition
+    );
   }
 
   /**
@@ -206,5 +220,56 @@ export abstract class ContextMenuService {
    */
   addCtxResetMenuItem(label: string, permissions: PermissionCheck[]): void {
     this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, false, true);
+  }
+
+  addCtxCopyMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ): void {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.COPY_TO_TASK,
+      RowActionMenuIcon.COPY,
+      permissions,
+      false,
+      true,
+      condition
+    );
+  }
+
+  addCtxArchiveMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ): void {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.ARCHIVE,
+      RowActionMenuIcon.ARCHIVE,
+      permissions,
+      false,
+      true,
+      condition
+    );
+  }
+
+  addCtxUnArchiveMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ): void {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.UNARCHIVE,
+      RowActionMenuIcon.UNARCHIVE,
+      permissions,
+      false,
+      true,
+      condition
+    );
   }
 }

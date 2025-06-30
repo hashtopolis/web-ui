@@ -26,6 +26,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
     const actionMap: { condition: () => boolean; action: () => void }[] = [
       { condition: this.isAgent, action: () => {} },
       { condition: this.isTaskChunks, action: () => {} },
+      { condition: this.isTaskWrapper, action: () => {} },
       {
         condition: this.isAccessGroup,
         action: () =>
@@ -59,7 +60,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isAgentBinary, action: this.setAgentBinaryMenu },
       { condition: this.isNotification, action: this.setNotificationMenu },
       { condition: this.isPretask, action: this.setPretaskMenu },
-      { condition: this.isTaskWrapper, action: this.setTaskWrapperMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
       { condition: this.isSupertask, action: this.setSupertaskMenu },
       { condition: this.isHashlist, action: this.setHashlistMenu },
