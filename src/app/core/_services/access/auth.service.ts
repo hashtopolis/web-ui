@@ -47,6 +47,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Auto-login user, if there is a token in localStorage
+   */
   autoLogin() {
     const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
@@ -59,6 +62,15 @@ export class AuthService {
       const tokenExpiration = new Date(userData._expires).getTime() - new Date().getTime();
       // this.autologOut(tokenExpiration);
       this.getRefreshToken(tokenExpiration);
+
+      // Load permissions after restoring user
+      const permissionService = this.injector.get(PermissionService);
+      permissionService.loadPermissions().subscribe({
+        next: () => {},
+        error: (err) => {
+          console.error('Failed to load permissions on autoLogin:', err);
+        }
+      });
     }
   }
 
