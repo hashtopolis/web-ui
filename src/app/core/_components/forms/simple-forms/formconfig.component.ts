@@ -138,9 +138,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         const configValues = this.serializer.deserialize(responseBody) as any[];
 
         this.formValues = configValues.reduce((configValues, item) => {
-          if (item.value === 1) {
+          if (item.value === '1') {
             item.value = true;
-          } else if (item.value === 0) {
+          } else if (item.value === '0') {
             item.value = false;
           }
           configValues[item.item] = item.value;
