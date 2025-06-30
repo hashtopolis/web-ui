@@ -1,3 +1,5 @@
+import { PermissionCheck, PermissionService } from '@services/permission/permission.service';
+
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-action-menu/row-action-menu.constants';
 
@@ -7,6 +9,8 @@ export type ContextMenuType = { index: number; menuItem: ActionMenuItem; conditi
 export abstract class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
   private bulkMenuItems: Array<ContextMenuType> = [];
+
+  protected constructor(private permissionServce: PermissionService) {}
 
   /**
    * Check, if we have to render a context menu
@@ -18,7 +22,7 @@ export abstract class ContextMenuService {
 
   /**
    * Check, if we have to render a bulk menu
-   * @return true: bulk menu entries added, false: no bulk menu entries
+   * @return true: bulk menu entries added, false: no bulk menu entries®
    */
   getHasBulkMenu(): boolean {
     return this.bulkMenuItems.length > 0;
@@ -46,6 +50,7 @@ export abstract class ContextMenuService {
    * @param groupIndex - group index of the item
    * @param action - item action
    * @param icon - item icon
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param warning - true: add red color, false: standard color
    * @param toContextMenu - true: add to contect menu, false: add to bulk menu
    * @param condition - Context menu condition to check in data object for each table row
@@ -56,92 +61,150 @@ export abstract class ContextMenuService {
     groupIndex: number,
     action: string,
     icon: string,
+    permissions: Array<PermissionCheck>,
     warning: boolean,
     toContextMenu: boolean,
     condition: ContextMenuCondition = { key: '', value: false }
   ) {
-    const menuItem: ContextMenuType = {
-      index: groupIndex,
-      menuItem: {
-        label: label,
-        action: action,
-        icon: icon,
-        red: warning
-      },
-      condition: condition
-    };
+    if (this.permissionServce.hasAllPermissionsSync(permissions)) {
+      const menuItem: ContextMenuType = {
+        index: groupIndex,
+        menuItem: {
+          label: label,
+          action: action,
+          icon: icon,
+          red: warning
+        },
+        condition: condition
+      };
 
-    if (toContextMenu) {
-      this.contextMenuItems.push(menuItem);
-    } else {
-      this.bulkMenuItems.push(menuItem);
+      if (toContextMenu) {
+        this.contextMenuItems.push(menuItem);
+      } else {
+        this.bulkMenuItems.push(menuItem);
+      }
     }
   }
 
   /**
    * Add a new edit entry to context menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxEditItem(label: string) {
-    this.createMenuItem(label, 0, RowActionMenuAction.EDIT, RowActionMenuIcon.EDIT, false, true);
+  addCtxEditItem(label: string, permissions: PermissionCheck[]) {
+    this.createMenuItem(label, 0, RowActionMenuAction.EDIT, RowActionMenuIcon.EDIT, permissions, false, true);
   }
 
   /**
    * Add a new deactiva entry to context menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxDeactivateMenuItem(label: string, condition: ContextMenuCondition = { key: '', value: false }) {
-    this.createMenuItem(label, 0, RowActionMenuAction.DEACTIVATE, RowActionMenuIcon.DEACTIVATE, false, true, condition);
+  addCtxDeactivateMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.DEACTIVATE,
+      RowActionMenuIcon.DEACTIVATE,
+      permissions,
+      false,
+      true,
+      condition
+    );
   }
 
   /**
    * Add a new entry to the bulk menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkDeactivateMenuItem(label: string) {
-    this.createMenuItem(label, 0, RowActionMenuAction.DEACTIVATE, RowActionMenuIcon.DEACTIVATE, false, false);
+  addBulkDeactivateMenuItem(label: string, permissions: PermissionCheck[]) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.DEACTIVATE,
+      RowActionMenuIcon.DEACTIVATE,
+      permissions,
+      false,
+      false
+    );
   }
 
   /**
    * Add a new activate entry to context menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxActivateMenuItem(label: string, condition: ContextMenuCondition = { key: '', value: false }) {
-    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, false, true, condition);
+  addCtxActivateMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    this.createMenuItem(
+      label,
+      0,
+      RowActionMenuAction.ACTIVATE,
+      RowActionMenuIcon.ACTIVATE,
+      permissions,
+      false,
+      true,
+      condition
+    );
   }
 
   /**
    * Add a new activate entry to bulk menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkActivateMenuItem(label: string) {
-    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, false, false);
+  addBulkActivateMenuItem(label: string, permissions: PermissionCheck[]) {
+    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, permissions, false, false);
   }
 
   /**
    * Add a new delete entry to context menu
    * @param label - label of the entry
    * @param condition - condition to check for display state of menu entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxDeleteMenuItem(label: string, condition: ContextMenuCondition = { key: '', value: false }) {
-    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, true, condition);
+  addCtxDeleteMenuItem(
+    label: string,
+    permissions: PermissionCheck[],
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    this.createMenuItem(
+      label,
+      1,
+      RowActionMenuAction.DELETE,
+      RowActionMenuIcon.DELETE,
+      permissions,
+      true,
+      true,
+      condition
+    );
   }
 
   /**
    * Add a new delete entry to bulk menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkDeleteMenuItem(label: string) {
-    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, true, false);
+  addBulkDeleteMenuItem(label: string, permissions: PermissionCheck[]) {
+    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, permissions, true, false);
   }
 
   /**
    * Add a new reset entry to context menu
    * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxResetMenuItem(label: string): void {
-    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, false, true);
+  addCtxResetMenuItem(label: string, permissions: PermissionCheck[]): void {
+    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, false, true);
   }
 }

@@ -5,7 +5,7 @@ import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action
 
 export class ChunkContextMenuService extends ContextMenuService {
   constructor(private permissionService: PermissionService) {
-    super();
+    super(permissionService);
   }
 
   addChunkContextMenu(): ChunkContextMenuService {
@@ -14,11 +14,7 @@ export class ChunkContextMenuService extends ContextMenuService {
       { resource: 'Task', type: 'UPDATE' }
     ];
 
-    this.permissionService.hasAllPermissions(permissions).subscribe((response) => {
-      if (response == true) {
-        this.addCtxResetMenuItem(RowActionMenuLabel.RESET_CHUNK);
-      }
-    });
+    this.addCtxResetMenuItem(RowActionMenuLabel.RESET_CHUNK, permissions);
 
     return this;
   }
