@@ -24,9 +24,18 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
 
   ngOnInit(): void {
     const actionMap: { condition: () => boolean; action: () => void }[] = [
-      { condition: this.isAgent, action: () => {} },
-      { condition: this.isTaskChunks, action: () => {} },
-      { condition: this.isTaskWrapper, action: () => {} },
+      {
+        condition: this.isAgent, action: () => {
+        }
+      },
+      {
+        condition: this.isTaskChunks, action: () => {
+        }
+      },
+      {
+        condition: this.isTaskWrapper, action: () => {
+        }
+      },
       {
         condition: this.isAccessGroup,
         action: () =>
@@ -62,7 +71,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isPretask, action: this.setPretaskMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
       { condition: this.isSupertask, action: this.setSupertaskMenu },
-      { condition: this.isHashlist, action: this.setHashlistMenu },
       { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },
       { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
     ];

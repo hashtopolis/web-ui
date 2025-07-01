@@ -5,7 +5,7 @@ import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class ChunkContextMenuService extends ContextMenuService {
-  constructor(private permissionService: PermissionService) {
+  constructor(override permissionService: PermissionService) {
     super(permissionService);
   }
 

@@ -11,7 +11,7 @@ export abstract class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
   private bulkMenuItems: Array<ContextMenuType> = [];
 
-  protected constructor(private permissionService: PermissionService) {
+  protected constructor(protected permissionService: PermissionService) {
   }
 
   /**
@@ -63,8 +63,6 @@ export abstract class ContextMenuService {
       RowActionMenuAction.EDIT,
       RowActionMenuIcon.EDIT,
       permissions,
-      false,
-      true,
       condition
     );
   }
@@ -86,8 +84,6 @@ export abstract class ContextMenuService {
       RowActionMenuAction.DEACTIVATE,
       RowActionMenuIcon.DEACTIVATE,
       permissions,
-      false,
-      true,
       condition
     );
   }
@@ -104,6 +100,7 @@ export abstract class ContextMenuService {
       RowActionMenuAction.DEACTIVATE,
       RowActionMenuIcon.DEACTIVATE,
       permissions,
+      { key: '', value: false },
       false,
       false
     );
@@ -126,8 +123,6 @@ export abstract class ContextMenuService {
       RowActionMenuAction.ACTIVATE,
       RowActionMenuIcon.ACTIVATE,
       permissions,
-      false,
-      true,
       condition
     );
   }
@@ -138,7 +133,10 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
   addBulkActivateMenuItem(label: string, permissions: Array<PermissionValues>) {
-    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, permissions, false, false);
+    this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, permissions, {
+      key: '',
+      value: false
+    }, false, false);
   }
 
   /**
@@ -158,9 +156,9 @@ export abstract class ContextMenuService {
       RowActionMenuAction.DELETE,
       RowActionMenuIcon.DELETE,
       permissions,
+      condition,
       true,
-      true,
-      condition
+      true
     );
   }
 
@@ -170,7 +168,10 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
   addBulkDeleteMenuItem(label: string, permissions: Array<PermissionValues>) {
-    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, permissions, true, false);
+    this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, permissions, {
+      key: '',
+      value: false
+    }, false, true);
   }
 
   /**
@@ -179,7 +180,7 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
   addCtxResetMenuItem(label: string, permissions: Array<PermissionValues>): void {
-    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, false, true);
+    this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions);
   }
 
   /**
@@ -199,8 +200,6 @@ export abstract class ContextMenuService {
       RowActionMenuAction.COPY_TO_TASK,
       RowActionMenuIcon.COPY,
       permissions,
-      false,
-      true,
       condition
     );
   }
@@ -222,8 +221,6 @@ export abstract class ContextMenuService {
       RowActionMenuAction.ARCHIVE,
       RowActionMenuIcon.ARCHIVE,
       permissions,
-      false,
-      true,
       condition
     );
   }
@@ -245,8 +242,6 @@ export abstract class ContextMenuService {
       RowActionMenuAction.UNARCHIVE,
       RowActionMenuIcon.UNARCHIVE,
       permissions,
-      false,
-      true,
       condition
     );
   }
@@ -268,10 +263,18 @@ export abstract class ContextMenuService {
       RowActionMenuAction.ARCHIVE,
       RowActionMenuIcon.ARCHIVE,
       permissions,
+      condition,
       false,
-      false,
-      condition
+      false
     );
+  }
+
+  addCtxImportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition) {
+    this.createMenuItem(label, 0, RowActionMenuAction.IMPORT, RowActionMenuIcon.IMPORT, permissions, condition);
+  }
+
+  addCtxExportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition) {
+    this.createMenuItem(label, 0, RowActionMenuAction.EXPORT, RowActionMenuIcon.EXPORT, permissions, condition);
   }
 
   /**
@@ -281,9 +284,9 @@ export abstract class ContextMenuService {
    * @param action - item action
    * @param icon - item icon
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
-   * @param warning - true: add red color, false: standard color
-   * @param toContextMenu - true: add to context menu, false: add to bulk menu
    * @param condition - Context menu condition to check in data object for each table row
+   * @param toContextMenu - true: add to context menu, false: add to bulk menu
+   * @param warning - true: add red color, false: standard color
    * @private
    */
   private createMenuItem(
@@ -292,9 +295,9 @@ export abstract class ContextMenuService {
     action: string,
     icon: string,
     permissions: Array<PermissionValues>,
-    warning: boolean,
-    toContextMenu: boolean,
-    condition: ContextMenuCondition = { key: '', value: false }
+    condition: ContextMenuCondition = { key: '', value: false },
+    toContextMenu: boolean = true,
+    warning: boolean = false
   ) {
     if (this.permissionService.hasAllPermissionsSync(permissions)) {
       const menuItem: ContextMenuType = {

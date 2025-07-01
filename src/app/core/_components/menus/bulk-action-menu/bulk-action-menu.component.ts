@@ -36,6 +36,10 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
     }
   }
 
+  reload(): void {
+    this.loadMenu();
+  }
+
   /**
    * Loads the appropriate menu based on the data type.
    */
@@ -52,8 +56,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
         BulkActionMenuLabel.DEACTIVATE_NOTIFICATIONS,
         BulkActionMenuLabel.DELETE_NOTIFICATIONS
       );
-    } else if (this.dataType === 'hashlists') {
-      this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_HASHLISTS, BulkActionMenuLabel.ARCHIVE_HASHLISTS);
     } else if (this.dataType === 'superhashlists') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {
@@ -192,9 +194,5 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       icon: BulkActionMenuIcon.RESET,
       red: true
     };
-  }
-
-  reload(): void {
-    this.loadMenu();
   }
 }
