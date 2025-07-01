@@ -9,23 +9,16 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 
-import { Perm, PermissionResource, PermissionType } from '@src/app/core/_constants/userpermissions.config';
+import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 /**
- * Represents a single CRUD permission for a single resource
- *
- * @property resource - The resource for which the permission is checked (e.g., "Agent").
- * @property type - The type of permission being checked (e.g., "CREATE", "READ", "UPDATE", "DELETE").
+ * Service for checking and managing user permissions.
  */
-export interface PermissionCheck {
-  resource: PermissionResource;
-  type: PermissionType;
-}
 
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
   private permissions$ = new BehaviorSubject<Permission>({});
-  private currentPermissions: Permission = {}; // Cached static access
+  private currentPermissions: Permission = {}; // Cached for static access
 
   constructor(
     private gs: GlobalService,
@@ -33,7 +26,7 @@ export class PermissionService {
   ) {}
 
   /**
-   * Loads the permissions once and stores them in BehaviorSubject
+   * Loads the current user's permissions and stores them internally.
    */
   loadPermissions(): Observable<Permission> {
     return this.gs.ghelper(SERV.HELPER, 'getUserPermission').pipe(
@@ -50,137 +43,104 @@ export class PermissionService {
   }
 
   /**
-   * Get permissions as Observable from the BehaviourSubject
+   * Returns the loaded permissions as an observable.
    */
   getPermissions(): Observable<Permission> {
     return this.permissions$.asObservable();
   }
 
   /**
-   * Checks if a specific permission is granted for a given resource and permission type.
+   * Asynchronously checks whether a specific permission is granted.
    *
-   * @param resource Permission resource (e.g. "Agent")
-   * @param type Type of CRUD permission (e.g. "CREATE", "READ", "UPDATE", "DELETE")
-   * @returns Observable that emits `true` if permission is granted, `false` otherwise
+   * @param key A permission value (e.g. Perm.Agent.CREATE)
+   * @returns Observable emitting true if permission is granted
    *
    * @example
-   * this.hasPermission('Agent', 'CREATE').subscribe(hasAccess => {
-   *   if (hasAccess) {
-   *     console.log('User can create agents');
-   *   } else {
-   *     console.log('Access denied');
+   * this.hasPermission(Perm.Agent.READ).subscribe(granted => {
+   *   if (granted) {
+   *     console.log('User can read agents');
    *   }
    * });
    */
-  hasPermission(resource: PermissionResource, type: PermissionType): Observable<boolean> {
-    const perm = (Perm[resource] as Record<string, string>)[type];
-    return this.getPermissions().pipe(
-      map((permissions) => {
-        return permissions[perm];
-      })
-    );
+  hasPermission(key: PermissionValues): Observable<boolean> {
+    return this.getPermissions().pipe(map((permissions) => !!permissions[key]));
   }
 
   /**
-   * Checks if a set of permissions are granted.
+   * Asynchronously checks multiple permissions.
    *
-   * Each permission is defined by a resource and a permission type (CRUD).
-   * Returns an array of booleans indicating whether each permission is granted.
-   *
-   * @param checks Array with resource and type
-   * @returns Observable emitting an array of booleans corresponding to each permission check
+   * @param keys Array of permission values (e.g. [Perm.User.UPDATE, Perm.Task.DELETE])
+   * @returns Observable of an array of booleans for each permission check
    *
    * @example
-   * const checks = [
-   *   { resource: 'Agent', type: 'CREATE' },
-   *   { resource: 'User', type: 'READ' },
-   *   { resource: 'Task', type: 'DELETE' }
-   * ];
-   *
-   * this.hasPermissions(checks).subscribe(results => {
-   *   console.log(results); // Example output: [true, false, true]
+   * this.hasPermissions([Perm.User.UPDATE, Perm.Task.DELETE]).subscribe(results => {
+   *   console.log(results); // [true, false]
    * });
    */
-  hasPermissions(checks: PermissionCheck[]): Observable<boolean[]> {
-    const observables = checks.map((check) => this.hasPermission(check.resource, check.type));
+  hasPermissions(keys: PermissionValues[]): Observable<boolean[]> {
+    const observables = keys.map((key) => this.hasPermission(key));
     return forkJoin(observables);
   }
 
   /**
-   * Checks if all specified permissions are granted.
+   * Asynchronously checks whether all specified permissions are granted.
    *
-   * Emits `true` if every permission in the input array is granted; otherwise emits `false`.
-   *
-   * @param checks Array with resource and type permission checks
-   * @returns Observable emitting a single boolean indicating if all permissions are granted
+   * @param keys Array of permission values
+   * @returns Observable emitting true if all permissions are granted
    *
    * @example
-   * const checks = [
-   *   { resource: 'Agent', type: 'CREATE' },
-   *   { resource: 'User', type: 'READ' }
-   * ];
-   *
-   * this.hasAllPermissions(checks).subscribe(allGranted => {
-   *   if (allGranted) {
-   *     console.log('User has all requested permissions');
-   *   } else {
-   *     console.log('User is missing one or more permissions');
-   *   }
+   * this.hasAllPermissions([Perm.User.READ, Perm.Config.READ]).subscribe(granted => {
+   *   if (granted) this.initView();
    * });
    */
-  hasAllPermissions(checks: PermissionCheck[]): Observable<boolean> {
-    return this.hasPermissions(checks).pipe(map((results) => results.every((granted) => granted)));
+  hasAllPermissions(keys: PermissionValues[]): Observable<boolean> {
+    return this.hasPermissions(keys).pipe(map((results) => results.every(Boolean)));
   }
 
-  // ----------- Synchronous Permission Methods -----------
+  // ----------- Synchronous Methods -----------
+
   /**
-   * Checks synchronously whether the user has a specific permission.
+   * Synchronously checks if a specific permission is granted.
    *
-   * @param resource - Permission resource key (e.g., 'Agent')
-   * @param type - CRUD type (e.g., 'READ')
-   * @returns `true` if permission is granted
+   * @param key A permission value (e.g. Perm.Agent.CREATE)
+   * @returns True if the permission is granted
    *
    * @example
-   * if (permissionService.hasPermissionSync('Agent', 'DELETE')) {
-   *   this.initAgentDeleteFeature();
+   * if (this.permissionService.hasPermissionSync(Perm.Agent.CREATE)) {
+   *   this.showAgentCreateButton = true;
    * }
    */
-  hasPermissionSync(resource: PermissionResource, type: PermissionType): boolean {
-    const key = Perm[resource]?.[type];
+  hasPermissionSync(key: PermissionValues): boolean {
     return !!this.currentPermissions?.[key];
   }
 
   /**
-   * Checks a list of permissions synchronously and returns individual results.
+   * Synchronously checks multiple permissions.
    *
-   * @param checks - Array of {resource, type} objects
-   * @returns Array of booleans corresponding to each check
+   * @param keys Array of permission values
+   * @returns Array of booleans for each permission check
    *
    * @example
-   * const results = permissionService.hasPermissionsSync([
-   *   { resource: 'Chunk', type: 'READ' },
-   *   { resource: 'Agent', type: 'DELETE' }
-   * ]);
-   * console.log(results); // e.g., [true, false]
+   * const checks = [Perm.Task.READ, Perm.User.DELETE];
+   * const results = this.permissionService.hasPermissionsSync(checks);
+   * console.log(results); // [true, false]
    */
-  hasPermissionsSync(checks: PermissionCheck[]): boolean[] {
-    return checks.map((c) => this.hasPermissionSync(c.resource, c.type));
+  hasPermissionsSync(keys: PermissionValues[]): boolean[] {
+    return keys.map((key) => this.hasPermissionSync(key));
   }
 
   /**
-   * Checks if all listed permissions are granted synchronously.
+   * Synchronously checks whether all specified permissions are granted.
    *
-   * @param checks - Array of {resource, type} objects
-   * @returns `true` if all permissions are granted
+   * @param keys Array of permission values
+   * @returns True if all permissions are granted
    *
    * @example
-   * const allowed = permissionService.hasAllPermissionsSync([
-   *   { resource: 'Agent', type: 'READ' },
-   *   { resource: 'User', type: 'UPDATE' }
-   * ]);
-   * if (allowed) this.initTable();
+   * if (this.permissionService.hasAllPermissionsSync([Perm.Task.READ, Perm.File.UPDATE])) {
+   *   this.initTaskFileView();
+   * }
    */
-  hasAllPermissionsSync(checks: PermissionCheck[]): boolean {
-    return checks.every((c) => this.hasPermissionSync(c.resource, c.type));
+  hasAllPermissionsSync(keys: PermissionValues[]): boolean {
+    return keys.every((key) => this.hasPermissionSync(key));
   }
 }
