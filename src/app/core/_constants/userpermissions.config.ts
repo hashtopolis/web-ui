@@ -46,8 +46,9 @@ export enum SuperTask {
 }
 // // TASK WRAPPER  (Running supertask)
 export enum TaskWrapper {
-  CREATE = 'permTaskWrapperRead',
-  UPDATE = 'permTaskWrapperUpdate'
+  CREATE = 'permTaskWrapperCreate',
+  UPDATE = 'permTaskWrapperUpdate',
+  READ = 'permTaskWrapperRead'
 }
 // // CHUNK
 export enum Chunk {

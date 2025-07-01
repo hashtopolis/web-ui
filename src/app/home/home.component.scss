@@ -73,3 +73,19 @@
     }
   }
 }
+
+.no-permission {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #666666;
+  font-style: italic;
+}
+
+#pcard.no-permission-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 250px;
+}
+
+
