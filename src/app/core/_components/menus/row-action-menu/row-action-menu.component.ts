@@ -312,32 +312,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Creates an ActionMenuItem with import action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with import action.
-   */
-  private getImportMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.IMPORT,
-      icon: RowActionMenuIcon.IMPORT
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with export action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with export action.
-   */
-  private getExportMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.EXPORT,
-      icon: RowActionMenuIcon.EXPORT
-    };
-  }
-
-  /**
    * Creates an ActionMenuItem with new action.
    * @param label The label for the menu item.
    * @returns The ActionMenuItem with new action.

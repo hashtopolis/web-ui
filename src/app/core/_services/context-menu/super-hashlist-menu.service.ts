@@ -1,4 +1,4 @@
-import { ContextMenuCondition, ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { PermissionService } from '@services/permission/permission.service';
 
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';

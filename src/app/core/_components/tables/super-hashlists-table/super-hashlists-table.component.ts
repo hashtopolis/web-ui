@@ -19,7 +19,6 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
-import { HashListContextMenuService } from '@services/context-menu/hashlist-menu.service';
 import { SuperHashListContextMenuService } from '@services/context-menu/super-hashlist-menu.service';
 
 @Component({
