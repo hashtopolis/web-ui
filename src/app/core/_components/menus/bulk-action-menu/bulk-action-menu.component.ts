@@ -56,8 +56,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
         BulkActionMenuLabel.DEACTIVATE_NOTIFICATIONS,
         BulkActionMenuLabel.DELETE_NOTIFICATIONS
       );
-    } else if (this.dataType === 'superhashlists') {
-      this.setDeleteMenu(BulkActionMenuLabel.DELETE_SUPERHASHLIST);
     } else if (this.dataType === 'pretasks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_PRETASKS);
     } else if (this.dataType === 'tasks-chunks') {

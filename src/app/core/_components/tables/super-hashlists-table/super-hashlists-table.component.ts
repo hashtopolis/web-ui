@@ -19,6 +19,8 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
+import { HashListContextMenuService } from '@services/context-menu/hashlist-menu.service';
+import { SuperHashListContextMenuService } from '@services/context-menu/super-hashlist-menu.service';
 
 @Component({
   selector: 'app-super-hashlists-table',
@@ -30,12 +32,15 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
+  protected contextMenuService: SuperHashListContextMenuService;
+
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new SuperHashlistsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -76,6 +81,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         return item.name?.toLowerCase().includes(filterValue);
     }
   }
+
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -142,38 +148,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     );
   }
 
-  /**
-   * Render hashlist links contained in a super hashlist
-   * @param superHashlist - superhashlist object to render links for
-   * @return observable object containing a router link array
-   */
-  private renderHashlistLinks(superHashlist: JHashlist): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (superHashlist && superHashlist.hashlists && superHashlist.hashlists.length) {
-      superHashlist.hashlists.forEach((entry) => {
-        links.push({
-          label: entry.name,
-          routerLink: ['/hashlists', 'hashlist', entry.id, 'edit']
-        });
-      });
-    }
-    return of(links);
-  }
-
-  private renderCrackedStatusIcon(superHashlist: JHashlist): HTTableIcon {
-    if (superHashlist.hashCount === superHashlist.cracked) {
-      return {
-        name: 'check_circle',
-        tooltip: 'Cracked',
-        cls: 'text-ok'
-      };
-    }
-
-    return { name: '' };
-  }
-
-  // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     this.exportService.handleExportAction<JHashlist>(
       event,
@@ -207,6 +181,8 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     }
   }
 
+  // --- Action functions ---
+
   bulkActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
@@ -221,6 +197,36 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         });
         break;
     }
+  }
+
+  /**
+   * Render hashlist links contained in a super hashlist
+   * @param superHashlist - superhashlist object to render links for
+   * @return observable object containing a router link array
+   */
+  private renderHashlistLinks(superHashlist: JHashlist): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (superHashlist && superHashlist.hashlists && superHashlist.hashlists.length) {
+      superHashlist.hashlists.forEach((entry) => {
+        links.push({
+          label: entry.name,
+          routerLink: ['/hashlists', 'hashlist', entry.id, 'edit']
+        });
+      });
+    }
+    return of(links);
+  }
+
+  private renderCrackedStatusIcon(superHashlist: JHashlist): HTTableIcon {
+    if (superHashlist.hashCount === superHashlist.cracked) {
+      return {
+        name: 'check_circle',
+        tooltip: 'Cracked',
+        cls: 'text-ok'
+      };
+    }
+
+    return { name: '' };
   }
 
   /**

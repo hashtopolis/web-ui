@@ -41,7 +41,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         action: () =>
           this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_ACCESSGROUP, RowActionMenuLabel.DELETE_ACCESSGROUP)
       },
-      { condition: this.isSuperHashlist, action: this.setSuperHashlistMenu },
       {
         condition: this.isFile,
         action: this.setFileMenu
@@ -156,20 +155,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_FILE),
       this.getDeleteMenuItem(RowActionMenuLabel.DELETE_FILE)
     ]);
-  }
-
-  /**
-   * Sets the context menu items for an Super-hashlist data row.
-   */
-  private setSuperHashlistMenu(): void {
-    this.setActionMenuItems(0, []);
-
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERHASHLIST),
-      this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLISTS),
-      this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLISTS)
-    ]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERHASHLIST)]);
   }
 
   /**

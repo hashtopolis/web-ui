@@ -275,7 +275,10 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxImportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition) {
+  addCtxImportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition = {
+    key: '',
+    value: false
+  }) {
     this.createMenuItem(label, 0, RowActionMenuAction.IMPORT, RowActionMenuIcon.IMPORT, permissions, condition);
   }
 
@@ -285,7 +288,10 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxExportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition) {
+  addCtxExportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition = {
+    key: '',
+    value: false
+  }) {
     this.createMenuItem(label, 0, RowActionMenuAction.EXPORT, RowActionMenuIcon.EXPORT, permissions, condition);
   }
 
