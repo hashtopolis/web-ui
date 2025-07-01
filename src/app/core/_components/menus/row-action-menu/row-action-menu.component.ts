@@ -159,24 +159,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Sets the context menu items for an hashlist data row.
-   */
-  private setHashlistMenu(): void {
-    this.setActionMenuItems(0, []);
-
-    if (this.data['isArchived']) {
-      this.setActionMenuItems(0, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)]);
-    } else {
-      this.setActionMenuItems(0, [
-        this.getEditMenuItem(RowActionMenuLabel.EDIT_HASHLIST),
-        this.getImportMenuItem(RowActionMenuLabel.IMPORT_HASHLIST),
-        this.getExportMenuItem(RowActionMenuLabel.EXPORT_HASHLIST)
-      ]);
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST)]);
-    }
-  }
-
-  /**
    * Sets the context menu items for an Super-hashlist data row.
    */
   private setSuperHashlistMenu(): void {

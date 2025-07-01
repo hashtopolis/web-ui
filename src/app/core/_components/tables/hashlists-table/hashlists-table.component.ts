@@ -1,4 +1,4 @@
-import { Observable, catchError, of } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -21,7 +21,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { TaskContextMenuService } from '@services/context-menu/task-menu.service';
 import { HashListContextMenuService } from '@services/context-menu/hashlist-menu.service';
 
 @Component({
