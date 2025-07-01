@@ -73,7 +73,7 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxDeactivateMenuItem(
+  addCtxDeactivateItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -93,7 +93,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkDeactivateMenuItem(label: string, permissions: Array<PermissionValues>) {
+  addBulkDeactivateItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(
       label,
       0,
@@ -112,7 +112,7 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addCtxActivateMenuItem(
+  addCtxActivateItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -132,7 +132,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkActivateMenuItem(label: string, permissions: Array<PermissionValues>) {
+  addBulkActivateItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, permissions, {
       key: '',
       value: false
@@ -145,7 +145,7 @@ export abstract class ContextMenuService {
    * @param condition - condition to check for display state of menu entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxDeleteMenuItem(
+  addCtxDeleteItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -167,7 +167,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkDeleteMenuItem(label: string, permissions: Array<PermissionValues>) {
+  addBulkDeleteItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, permissions, {
       key: '',
       value: false
@@ -179,7 +179,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxResetMenuItem(label: string, permissions: Array<PermissionValues>): void {
+  addCtxResetItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions);
   }
 
@@ -189,7 +189,7 @@ export abstract class ContextMenuService {
    * @param condition - condition to check for display state of menu entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxCopyMenuItem(
+  addCtxCopyItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -210,7 +210,7 @@ export abstract class ContextMenuService {
    * @param condition - condition to check for display state of menu entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxArchiveMenuItem(
+  addCtxArchiveItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -231,7 +231,7 @@ export abstract class ContextMenuService {
    * @param condition - condition to check for display state of menu entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxUnArchiveMenuItem(
+  addCtxUnArchiveItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -252,7 +252,7 @@ export abstract class ContextMenuService {
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
-  addBulkArchiveMenuItem(
+  addBulkArchiveItem(
     label: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
@@ -269,10 +269,22 @@ export abstract class ContextMenuService {
     );
   }
 
+  /**
+   * Add new import entry to the context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition - condition to check for display state of menu entry
+   */
   addCtxImportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition) {
     this.createMenuItem(label, 0, RowActionMenuAction.IMPORT, RowActionMenuIcon.IMPORT, permissions, condition);
   }
 
+  /**
+   * Add new export entry to the context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param condition - condition to check for display state of menu entry
+   */
   addCtxExportItem(label: string, permissions: Array<PermissionValues>, condition: ContextMenuCondition) {
     this.createMenuItem(label, 0, RowActionMenuAction.EXPORT, RowActionMenuIcon.EXPORT, permissions, condition);
   }

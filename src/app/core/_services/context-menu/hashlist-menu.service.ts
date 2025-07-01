@@ -21,10 +21,10 @@ export class HashListContextMenuService extends ContextMenuService {
     this.addCtxEditItem(RowActionMenuLabel.EDIT_HASHLIST, permHashListUpdate, isArchiveCondition);
     this.addCtxImportItem(RowActionMenuLabel.IMPORT_HASHLIST, permHashListCreate, isArchiveCondition);
     this.addCtxExportItem(RowActionMenuLabel.EXPORT_HASHLIST, permHashListRead, isArchiveCondition);
-    this.addCtxDeleteMenuItem(RowActionMenuLabel.DELETE_HASHLIST, permHashListDelete);
+    this.addCtxDeleteItem(RowActionMenuLabel.DELETE_HASHLIST, permHashListDelete);
 
-    this.addBulkArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_HASHLISTS, permHashListUpdate, isArchiveCondition);
-    this.addBulkDeleteMenuItem(BulkActionMenuLabel.DELETE_HASHLISTS, permHashListDelete);
+    this.addBulkArchiveItem(BulkActionMenuLabel.ARCHIVE_HASHLISTS, permHashListUpdate, isArchiveCondition);
+    this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_HASHLISTS, permHashListDelete);
 
     return this;
   }

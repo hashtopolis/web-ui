@@ -20,22 +20,22 @@ export class AgentMenuService extends ContextMenuService {
     const permAgentAssignmentCreate: Array<PermissionValues> = [Perm.AgentAssignment.CREATE];
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT, permAgentUpdate);
-    this.addCtxDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT, permAgentUpdate, {
+    this.addCtxDeactivateItem(RowActionMenuLabel.DEACTIVATE_AGENT, permAgentUpdate, {
       key: 'isActive',
       value: true
     });
-    this.addCtxActivateMenuItem(RowActionMenuLabel.ACTIVATE_AGENT, permAgentUpdate, { key: 'isActive', value: false });
+    this.addCtxActivateItem(RowActionMenuLabel.ACTIVATE_AGENT, permAgentUpdate, { key: 'isActive', value: false });
 
-    this.addBulkActivateMenuItem(BulkActionMenuLabel.ACTIVATE_AGENTS, permAgentUpdate);
-    this.addBulkDeactivateMenuItem(BulkActionMenuLabel.DEACTIVATE_AGENTS, permAgentUpdate);
+    this.addBulkActivateItem(BulkActionMenuLabel.ACTIVATE_AGENTS, permAgentUpdate);
+    this.addBulkDeactivateItem(BulkActionMenuLabel.DEACTIVATE_AGENTS, permAgentUpdate);
 
-    this.addCtxDeleteMenuItem(RowActionMenuLabel.UNASSIGN_AGENT, permAgentAssignmentCreate, {
+    this.addCtxDeleteItem(RowActionMenuLabel.UNASSIGN_AGENT, permAgentAssignmentCreate, {
       key: 'assignmentId',
       value: true
     });
 
-    this.addCtxDeleteMenuItem(RowActionMenuLabel.DELETE_AGENT, permAgentDelete, { key: 'assignmentId', value: false });
-    this.addBulkDeleteMenuItem(BulkActionMenuLabel.DELETE_AGENTS, permAgentDelete);
+    this.addCtxDeleteItem(RowActionMenuLabel.DELETE_AGENT, permAgentDelete, { key: 'assignmentId', value: false });
+    this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_AGENTS, permAgentDelete);
 
     return this;
   }

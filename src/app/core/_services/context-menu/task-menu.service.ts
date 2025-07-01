@@ -28,16 +28,16 @@ export class TaskContextMenuService extends ContextMenuService {
     this.addCtxEditItem(RowActionMenuLabel.EDIT_TASK, permTaskUpdate, isTaskCondition);
     this.addCtxEditItem(RowActionMenuLabel.EDIT_SUBTASKS, permTaskUpdate, isSuperTaskCondition);
 
-    this.addCtxCopyMenuItem(RowActionMenuLabel.COPY_TO_TASK, permTaskCreate, isTaskCondition);
-    this.addCtxCopyMenuItem(RowActionMenuLabel.COPY_TO_PRETASK, permPreTaskCreate, isTaskCondition);
+    this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_TASK, permTaskCreate, isTaskCondition);
+    this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_PRETASK, permPreTaskCreate, isTaskCondition);
 
-    this.addCtxArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK, permTaskUpdate, isArchiveCondition);
-    this.addCtxUnArchiveMenuItem(RowActionMenuLabel.UNARCHIVE_TASK, permTaskUpdate, isUnArchiveCondition);
+    this.addCtxArchiveItem(RowActionMenuLabel.ARCHIVE_TASK, permTaskUpdate, isArchiveCondition);
+    this.addCtxUnArchiveItem(RowActionMenuLabel.UNARCHIVE_TASK, permTaskUpdate, isUnArchiveCondition);
 
-    this.addCtxDeleteMenuItem(RowActionMenuLabel.DELETE_TASK, permTaskDelete);
+    this.addCtxDeleteItem(RowActionMenuLabel.DELETE_TASK, permTaskDelete);
 
-    this.addBulkArchiveMenuItem(BulkActionMenuLabel.ARCHIVE_TASKS, permTaskUpdate, isArchiveCondition);
-    this.addBulkDeleteMenuItem(BulkActionMenuLabel.DELETE_TASKS, permTaskDelete);
+    this.addBulkArchiveItem(BulkActionMenuLabel.ARCHIVE_TASKS, permTaskUpdate, isArchiveCondition);
+    this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_TASKS, permTaskDelete);
 
     return this;
   }
