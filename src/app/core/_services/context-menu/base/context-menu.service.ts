@@ -1,7 +1,8 @@
-import { PermissionCheck, PermissionService } from '@services/permission/permission.service';
+import { PermissionService } from '@services/permission/permission.service';
 
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export type ContextMenuCondition = { key: string; value: boolean };
 export type ContextMenuType = { index: number; menuItem: ActionMenuItem; condition?: ContextMenuCondition };
@@ -10,7 +11,8 @@ export abstract class ContextMenuService {
   private contextMenuItems: Array<ContextMenuType> = [];
   private bulkMenuItems: Array<ContextMenuType> = [];
 
-  protected constructor(private permissionServce: PermissionService) {}
+  protected constructor(private permissionService: PermissionService) {
+  }
 
   /**
    * Check, if we have to render a context menu
@@ -45,48 +47,6 @@ export abstract class ContextMenuService {
   }
 
   /**
-   * Create a new menu item for the context or bulk menu
-   * @param label - label of the menu item
-   * @param groupIndex - group index of the item
-   * @param action - item action
-   * @param icon - item icon
-   * @param permissions - list of permissions which must be granted to the user to display the menu entry
-   * @param warning - true: add red color, false: standard color
-   * @param toContextMenu - true: add to contect menu, false: add to bulk menu
-   * @param condition - Context menu condition to check in data object for each table row
-   * @private
-   */
-  private createMenuItem(
-    label: string,
-    groupIndex: number,
-    action: string,
-    icon: string,
-    permissions: Array<PermissionCheck>,
-    warning: boolean,
-    toContextMenu: boolean,
-    condition: ContextMenuCondition = { key: '', value: false }
-  ) {
-    if (this.permissionServce.hasAllPermissionsSync(permissions)) {
-      const menuItem: ContextMenuType = {
-        index: groupIndex,
-        menuItem: {
-          label: label,
-          action: action,
-          icon: icon,
-          red: warning
-        },
-        condition: condition
-      };
-
-      if (toContextMenu) {
-        this.contextMenuItems.push(menuItem);
-      } else {
-        this.bulkMenuItems.push(menuItem);
-      }
-    }
-  }
-
-  /**
    * Add a new edit entry to context menu
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
@@ -94,7 +54,7 @@ export abstract class ContextMenuService {
    */
   addCtxEditItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ) {
     this.createMenuItem(
@@ -110,14 +70,14 @@ export abstract class ContextMenuService {
   }
 
   /**
-   * Add a new deactiva entry to context menu
+   * Add a new deactivation entry to context menu
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition - condition to check for display state of menu entry
    */
   addCtxDeactivateMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ) {
     this.createMenuItem(
@@ -137,7 +97,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkDeactivateMenuItem(label: string, permissions: PermissionCheck[]) {
+  addBulkDeactivateMenuItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(
       label,
       0,
@@ -157,7 +117,7 @@ export abstract class ContextMenuService {
    */
   addCtxActivateMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ) {
     this.createMenuItem(
@@ -177,7 +137,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkActivateMenuItem(label: string, permissions: PermissionCheck[]) {
+  addBulkActivateMenuItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(label, 0, RowActionMenuAction.ACTIVATE, RowActionMenuIcon.ACTIVATE, permissions, false, false);
   }
 
@@ -189,7 +149,7 @@ export abstract class ContextMenuService {
    */
   addCtxDeleteMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ) {
     this.createMenuItem(
@@ -209,7 +169,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addBulkDeleteMenuItem(label: string, permissions: PermissionCheck[]) {
+  addBulkDeleteMenuItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(label, 1, RowActionMenuAction.DELETE, RowActionMenuIcon.DELETE, permissions, true, false);
   }
 
@@ -218,7 +178,7 @@ export abstract class ContextMenuService {
    * @param label - label of the entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
-  addCtxResetMenuItem(label: string, permissions: PermissionCheck[]): void {
+  addCtxResetMenuItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.RESET, RowActionMenuIcon.RESET, permissions, false, true);
   }
 
@@ -230,7 +190,7 @@ export abstract class ContextMenuService {
    */
   addCtxCopyMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ): void {
     this.createMenuItem(
@@ -253,7 +213,7 @@ export abstract class ContextMenuService {
    */
   addCtxArchiveMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ): void {
     this.createMenuItem(
@@ -276,7 +236,7 @@ export abstract class ContextMenuService {
    */
   addCtxUnArchiveMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ): void {
     this.createMenuItem(
@@ -299,7 +259,7 @@ export abstract class ContextMenuService {
    */
   addBulkArchiveMenuItem(
     label: string,
-    permissions: PermissionCheck[],
+    permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ): void {
     this.createMenuItem(
@@ -312,5 +272,47 @@ export abstract class ContextMenuService {
       false,
       condition
     );
+  }
+
+  /**
+   * Create a new menu item for the context or bulk menu
+   * @param label - label of the menu item
+   * @param groupIndex - group index of the item
+   * @param action - item action
+   * @param icon - item icon
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @param warning - true: add red color, false: standard color
+   * @param toContextMenu - true: add to context menu, false: add to bulk menu
+   * @param condition - Context menu condition to check in data object for each table row
+   * @private
+   */
+  private createMenuItem(
+    label: string,
+    groupIndex: number,
+    action: string,
+    icon: string,
+    permissions: Array<PermissionValues>,
+    warning: boolean,
+    toContextMenu: boolean,
+    condition: ContextMenuCondition = { key: '', value: false }
+  ) {
+    if (this.permissionService.hasAllPermissionsSync(permissions)) {
+      const menuItem: ContextMenuType = {
+        index: groupIndex,
+        menuItem: {
+          label: label,
+          action: action,
+          icon: icon,
+          red: warning
+        },
+        condition: condition
+      };
+
+      if (toContextMenu) {
+        this.contextMenuItems.push(menuItem);
+      } else {
+        this.bulkMenuItems.push(menuItem);
+      }
+    }
   }
 }

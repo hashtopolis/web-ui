@@ -1,8 +1,9 @@
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
-import { PermissionCheck, PermissionService } from '@services/permission/permission.service';
+import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class AgentMenuService extends ContextMenuService {
   constructor(readonly permissionService: PermissionService) {
@@ -14,9 +15,9 @@ export class AgentMenuService extends ContextMenuService {
    * @return class instance for fluid API calls‚
    */
   addAgentContextMenu(): AgentMenuService {
-    const permAgentUpdate: Array<PermissionCheck> = [{ resource: 'Agent', type: 'UPDATE' }];
-    const permAgentDelete: Array<PermissionCheck> = [{ resource: 'Agent', type: 'DELETE' }];
-    const permAgentAssignmentCreate: Array<PermissionCheck> = [{ resource: 'AgentAssignment', type: 'CREATE' }];
+    const permAgentUpdate: Array<PermissionValues> = [Perm.Agent.UPDATE];
+    const permAgentDelete: Array<PermissionValues> = [Perm.Agent.DELETE];
+    const permAgentAssignmentCreate: Array<PermissionValues> = [Perm.AgentAssignment.CREATE];
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT, permAgentUpdate);
     this.addCtxDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_AGENT, permAgentUpdate, {
@@ -38,6 +39,7 @@ export class AgentMenuService extends ContextMenuService {
 
     return this;
   }
+
   /*
   addAgentAccessGroupMenu(): AgentMenuService {
     this.addCtxDeleteMenuItem(RowActionMenuLabel.REMOVE_ACCESSGROUP_AGENT,);

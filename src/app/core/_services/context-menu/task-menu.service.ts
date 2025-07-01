@@ -1,8 +1,9 @@
 import { ContextMenuCondition, ContextMenuService } from '@services/context-menu/base/context-menu.service';
-import { PermissionCheck, PermissionService } from '@services/permission/permission.service';
+import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class TaskContextMenuService extends ContextMenuService {
   constructor(private permissionService: PermissionService) {
@@ -13,10 +14,10 @@ export class TaskContextMenuService extends ContextMenuService {
    * Add context- and bulk menu fot task table
    */
   addTaskContextMenu(): TaskContextMenuService {
-    const permTaskUpdate: Array<PermissionCheck> = [{ resource: 'Task', type: 'UPDATE' }];
-    const permTaskDelete: Array<PermissionCheck> = [{ resource: 'Task', type: 'DELETE' }];
-    const permTaskCreate: Array<PermissionCheck> = [{ resource: 'Task', type: 'CREATE' }];
-    const permPreTaskCreate: Array<PermissionCheck> = [{ resource: 'Pretask', type: 'CREATE' }];
+    const permTaskUpdate: Array<PermissionValues> = [Perm.Task.UPDATE];
+    const permTaskDelete: Array<PermissionValues> = [Perm.Task.DELETE];
+    const permTaskCreate: Array<PermissionValues> = [Perm.Task.CREATE];
+    const permPreTaskCreate: Array<PermissionValues> = [Perm.Pretask.CREATE];
 
     const isTaskCondition: ContextMenuCondition = { key: 'taskType', value: false };
     const isSuperTaskCondition: ContextMenuCondition = { key: 'taskType', value: true };
