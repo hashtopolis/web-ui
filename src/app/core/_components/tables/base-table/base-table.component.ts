@@ -1,29 +1,33 @@
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { Observable, Subscription, of } from 'rxjs';
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
+import { Observable, Subscription, of } from 'rxjs';
 
-import { AlertService } from '@services/shared/alert.service';
-import { BaseModel } from '@models/base.model';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ConfigService } from '@services/shared/config.service';
-import { ExportService } from '@services/export/export.service';
-import { GlobalService } from '@services/main.service';
-import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+
 import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
-import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
+import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
+import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+
+import { ExportService } from '@services/export/export.service';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
@@ -34,7 +38,6 @@ import { formatPercentage } from '@src/app/shared/utils/util';
 })
 export class BaseTableComponent {
   @ViewChild('table') table: HTTableComponent;
-  @Input() hashlistId: number;
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
@@ -246,7 +249,7 @@ export class BaseTableComponent {
     if (model) {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
-        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString(),
+        label: idLink ? model?.taskId.toString() : model.task?.taskName.toString()
       });
     }
     return of(links);

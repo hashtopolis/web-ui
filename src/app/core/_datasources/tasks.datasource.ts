@@ -14,9 +14,14 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
+  private _hashlistID = 0;
 
   setIsArchived(isArchived: boolean): void {
     this._isArchived = isArchived;
+  }
+
+  setHashlistID(hashlistID: number): void {
+    this._hashlistID = hashlistID;
   }
 
   loadAll(): void {
@@ -32,6 +37,14 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
         operator: FilterType.EQUAL,
         value: this._isArchived
       });
+
+    if (this._hashlistID && this._hashlistID > 0) {
+      params.addFilter({
+        field: 'hashlistId',
+        operator: FilterType.EQUAL,
+        value: this._hashlistID
+      });
+    }
 
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
 
