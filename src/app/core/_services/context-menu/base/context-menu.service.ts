@@ -299,6 +299,10 @@ export abstract class ContextMenuService {
     this.createMenuItem(label, 0, RowActionMenuAction.NEW, RowActionMenuIcon.NEW, permissions);
   }
 
+  protected addCtxViewItem(label: string, permissions: Array<PermissionValues>): void {
+    this.createMenuItem(label, 0, RowActionMenuAction.VIEW, RowActionMenuIcon.VIEW, permissions);
+  }
+
   /**
    * Create a new menu item for the context or bulk menu
    * @param label - label of the menu item

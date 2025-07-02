@@ -29,11 +29,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         action: () =>
           this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_ACCESSGROUP, RowActionMenuLabel.DELETE_ACCESSGROUP)
       },
-      {
-        condition: this.isHealthCheck,
-        action: () =>
-          this.setViewDeleteMenuItems(RowActionMenuLabel.VIEW_HEALTHCHECK, RowActionMenuLabel.DELETE_HEALTHCHECK)
-      },
       { condition: this.isPermission, action: this.setPermissionMenu },
       {
         condition: this.isVoucher,
