@@ -3,10 +3,10 @@ import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class TaskContextMenuService extends ContextMenuService {
-
   constructor(override permissionService: PermissionService) {
     super(permissionService);
   }
@@ -14,7 +14,7 @@ export class TaskContextMenuService extends ContextMenuService {
   /**
    * Add context- and bulk menu fot task table
    */
-  addTaskContextMenu(): TaskContextMenuService {
+  addContextMenu(): TaskContextMenuService {
     const permTaskUpdate: Array<PermissionValues> = [Perm.Task.UPDATE];
     const permTaskDelete: Array<PermissionValues> = [Perm.Task.DELETE];
     const permTaskCreate: Array<PermissionValues> = [Perm.Task.CREATE];

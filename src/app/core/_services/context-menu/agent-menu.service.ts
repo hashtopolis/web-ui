@@ -3,6 +3,7 @@ import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class AgentMenuService extends ContextMenuService {
@@ -14,7 +15,7 @@ export class AgentMenuService extends ContextMenuService {
    * Add context menu for all agent based tables
    * @return class instance for fluid API calls‚
    */
-  addAgentContextMenu(): AgentMenuService {
+  addContextMenu(): AgentMenuService {
     const permAgentUpdate: Array<PermissionValues> = [Perm.Agent.UPDATE];
     const permAgentDelete: Array<PermissionValues> = [Perm.Agent.DELETE];
     const permAgentAssignmentCreate: Array<PermissionValues> = [Perm.AgentAssignment.CREATE];

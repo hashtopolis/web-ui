@@ -37,7 +37,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
-    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addChunkContextMenu();
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
   filter(item: JChunk, filterValue: string): boolean {

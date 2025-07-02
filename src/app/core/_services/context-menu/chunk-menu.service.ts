@@ -2,6 +2,7 @@ import { ContextMenuService } from '@services/context-menu/base/context-menu.ser
 import { PermissionService } from '@services/permission/permission.service';
 
 import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class ChunkContextMenuService extends ContextMenuService {
@@ -9,7 +10,7 @@ export class ChunkContextMenuService extends ContextMenuService {
     super(permissionService);
   }
 
-  addChunkContextMenu(): ChunkContextMenuService {
+  addContextMenu(): ChunkContextMenuService {
     const permissions: Array<PermissionValues> = [Perm.Chunk.UPDATE, Perm.Task.UPDATE];
     this.addCtxResetItem(RowActionMenuLabel.RESET_CHUNK, permissions);
     return this;
