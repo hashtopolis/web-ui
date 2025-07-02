@@ -130,19 +130,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Creates an ActionMenuItem with view action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with view action.
-   */
-  private getViewMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.VIEW,
-      icon: RowActionMenuIcon.VIEW
-    };
-  }
-
-  /**
    * Creates an ActionMenuItem with edit action.
    * @param label The label for the menu item.
    * @returns The ActionMenuItem with edit action.
