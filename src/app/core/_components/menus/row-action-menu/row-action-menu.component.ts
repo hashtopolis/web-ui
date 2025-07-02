@@ -75,16 +75,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Sets context menu with view and delete action.
-   * @param viewLabel The label for the view action.
-   * @param deleteLabel The label for the delete action.
-   */
-  private setViewDeleteMenuItems(viewLabel: string, deleteLabel: string): void {
-    this.setActionMenuItems(0, [this.getViewMenuItem(viewLabel)]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
-  }
-
-  /**
    * Sets context menu with delete action.
    * @param label The label for the delete action.
    */
