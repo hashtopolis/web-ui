@@ -286,6 +286,16 @@ export abstract class ContextMenuService {
   }
 
   /**
+   * Add new download entry to the context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @protected
+   */
+  protected addCtxDownloadItem(label: string, permissions: Array<PermissionValues>): void {
+    this.createMenuItem(label, 0, RowActionMenuAction.DOWNLOAD, RowActionMenuIcon.DOWNLOAD, permissions);
+  }
+
+  /**
    * Create a new menu item for the context or bulk menu
    * @param label - label of the menu item
    * @param groupIndex - group index of the item

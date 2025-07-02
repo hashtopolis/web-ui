@@ -25,25 +25,9 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   ngOnInit(): void {
     const actionMap: { condition: () => boolean; action: () => void }[] = [
       {
-        condition: this.isAgent,
-        action: () => {}
-      },
-      {
-        condition: this.isTaskChunks,
-        action: () => {}
-      },
-      {
-        condition: this.isTaskWrapper,
-        action: () => {}
-      },
-      {
         condition: this.isAccessGroup,
         action: () =>
           this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_ACCESSGROUP, RowActionMenuLabel.DELETE_ACCESSGROUP)
-      },
-      {
-        condition: this.isFile,
-        action: this.setFileMenu
       },
       {
         condition: this.isPreprocessor,
@@ -142,17 +126,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
     ]);
     this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)]);
-  }
-
-  /**
-   * Sets the context menu items for an file data row.
-   */
-  private setFileMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_FILE),
-      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_FILE),
-      this.getDeleteMenuItem(RowActionMenuLabel.DELETE_FILE)
-    ]);
   }
 
   /**
