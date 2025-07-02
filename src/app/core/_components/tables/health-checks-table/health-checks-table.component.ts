@@ -5,7 +5,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheck } from '@models/health-check.model';
 
-import { HealthCheckContextMenuService } from '@services/context-menu/health-check-menu.service';
+import { HealthCheckContextMenuService } from '@services/context-menu/config/health-check-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';

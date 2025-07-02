@@ -4,7 +4,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angu
 
 import { JHashtype } from '@models/hashtype.model';
 
-import { HashTypesContextMenuService } from '@services/context-menu/hashes/hashtypes-menu.service';
+import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
