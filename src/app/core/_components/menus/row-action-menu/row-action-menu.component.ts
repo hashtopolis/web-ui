@@ -44,7 +44,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER)
       },
       { condition: this.isUser, action: this.setUserMenu },
-      { condition: this.isAgentBinary, action: this.setAgentBinaryMenu },
       { condition: this.isNotification, action: this.setNotificationMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
       { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
