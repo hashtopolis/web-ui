@@ -162,7 +162,7 @@ export abstract class ContextMenuService {
   protected addBulkDeleteItem(label: string, permissions: Array<PermissionValues>) {
     this.createMenuItem(
       label,
-      1,
+      0,
       RowActionMenuAction.DELETE,
       RowActionMenuIcon.DELETE,
       permissions,
@@ -293,6 +293,10 @@ export abstract class ContextMenuService {
    */
   protected addCtxDownloadItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.DOWNLOAD, RowActionMenuIcon.DOWNLOAD, permissions);
+  }
+
+  protected addCtxNewItem(label: string, permissions: Array<PermissionValues>): void {
+    this.createMenuItem(label, 0, RowActionMenuAction.NEW, RowActionMenuIcon.NEW, permissions);
   }
 
   /**

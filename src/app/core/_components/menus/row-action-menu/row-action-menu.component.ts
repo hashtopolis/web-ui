@@ -52,7 +52,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isAgentBinary, action: this.setAgentBinaryMenu },
       { condition: this.isNotification, action: this.setNotificationMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
-      { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },
       { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
     ];
 
@@ -78,14 +77,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
     if (!this.data.user || this.data.user.length === 0) {
       this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PERMISSION)]);
     }
-  }
-
-  /**
-   * Sets the context menu items for a cracker data row.
-   */
-  private setCrackerBinaryTypeMenu(): void {
-    this.setActionMenuItems(0, [this.getNewMenuItem(RowActionMenuLabel.NEW_VERSION)]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_CRACKER)]);
   }
 
   /**
