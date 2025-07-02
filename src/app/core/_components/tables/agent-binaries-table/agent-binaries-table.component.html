@@ -9,7 +9,7 @@
   [contextMenuService]="contextMenuService"
   [hasRowAction]="contextMenuService.getHasContextMenu()"
   [hasBulkActions]="contextMenuService.getHasBulkMenu()"
-  ‚[isFilterable]="isFilterable"
+  [isFilterable]="isFilterable"
   [filterFn]="filter.bind(this)"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"

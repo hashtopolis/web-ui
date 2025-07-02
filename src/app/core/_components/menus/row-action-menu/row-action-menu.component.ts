@@ -160,32 +160,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Creates an ActionMenuItem with download action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with download action.
-   */
-  private getDownloadMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.DOWNLOAD,
-      icon: RowActionMenuIcon.DOWNLOAD
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with copy action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with download action.
-   */
-  private getCopyMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.COPY_LINK,
-      icon: RowActionMenuIcon.COPY
-    };
-  }
-
-  /**
    * Creates an ActionMenuItem with view action.
    * @param label The label for the menu item.
    * @returns The ActionMenuItem with view action.
