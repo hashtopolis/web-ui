@@ -1,25 +1,28 @@
+import { HeatmapChart } from 'echarts/charts';
+import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
 import * as echarts from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { Subscription } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { CalendarComponent, TitleComponent, TooltipComponent, VisualMapComponent } from 'echarts/components';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
+import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 
+import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
-import { CanvasRenderer } from 'echarts/renderers';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { HeatmapChart } from 'echarts/charts';
-import { JHash } from '@src/app/core/_models/hash.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
+
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { ResponseWrapper } from '@src/app/core/_models/response.model';
-import { SERV } from '@src/app/core/_services/main.config';
-import { Subscription } from 'rxjs';
 import { UIConfig } from '@src/app/core/_models/config-ui.model';
+import { JHash } from '@src/app/core/_models/hash.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { SERV } from '@src/app/core/_services/main.config';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatDate, formatUnixTimestamp, unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-home',
@@ -28,7 +31,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   standalone: false
 })
 @PageTitle(['Dashboard'])
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   util: UISettingsUtilityClass;
 
   /** Flags for responsive design */
@@ -47,6 +50,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   completedSupertasks = 0;
   totalSupertasks = 0;
   lastUpdated: string;
+
+  /** User permissions */
+  canReadAgents = false;
+  canReadTasks = false;
+  canReadCracks = false;
+
   /** DarkMode */
   protected uiSettings: UISettingsUtilityClass;
   private subscriptions: Subscription[] = [];
@@ -57,7 +66,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private service: LocalStorageService<UIConfig>,
     private alertService: AlertService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private permissionService: PermissionService
   ) {
     this.uiSettings = new UISettingsUtilityClass(this.service);
     this.isDarkMode = this.uiSettings.getSetting('theme') === 'dark';
@@ -102,10 +112,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.canReadAgents = this.permissionService.hasPermissionSync(Perm.Agent.READ);
+    this.canReadTasks = this.permissionService.hasPermissionSync(Perm.Task.READ);
+    this.canReadCracks = this.permissionService.hasPermissionSync(Perm.Hash.READ);
     this.util = new UISettingsUtilityClass(this.service);
-    this.initChart();
     this.initData();
     this.onAutorefresh();
+  }
+
+  ngAfterViewInit() {
+    if (this.canReadCracks) {
+      this.initChart();
+    }
   }
 
   ngOnDestroy(): void {
@@ -150,13 +168,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initialize dashboard data.
+   * Initialize dashboard data conditionally on user's permission.
    */
   initData(): void {
-    this.getAgents();
-    this.getTasks();
-    this.getSuperTasks();
-    this.getCracks();
+    if (this.canReadAgents) {
+      this.getAgents();
+    }
+
+    if (this.canReadTasks) {
+      this.getTasks();
+      this.getSuperTasks();
+    }
+
+    if (this.canReadCracks) {
+      this.getCracks();
+    }
   }
 
   /**
