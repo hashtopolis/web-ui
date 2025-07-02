@@ -25,16 +25,16 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   ngOnInit(): void {
     const actionMap: { condition: () => boolean; action: () => void }[] = [
       {
-        condition: this.isAgent, action: () => {
-        }
+        condition: this.isAgent,
+        action: () => {}
       },
       {
-        condition: this.isTaskChunks, action: () => {
-        }
+        condition: this.isTaskChunks,
+        action: () => {}
       },
       {
-        condition: this.isTaskWrapper, action: () => {
-        }
+        condition: this.isTaskWrapper,
+        action: () => {}
       },
       {
         condition: this.isAccessGroup,
@@ -67,7 +67,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isUser, action: this.setUserMenu },
       { condition: this.isAgentBinary, action: this.setAgentBinaryMenu },
       { condition: this.isNotification, action: this.setNotificationMenu },
-      { condition: this.isPretask, action: this.setPretaskMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
       { condition: this.isSupertask, action: this.setSupertaskMenu },
       { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },
@@ -184,28 +183,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
     this.addActionMenuItem(0, this.getEditMenuItem(RowActionMenuLabel.EDIT_NOTIFICATION));
 
     this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)]);
-  }
-
-  /**
-   * Sets the context menu items for a pretask data row.
-   */
-  private setPretaskMenu(): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_PRETASK)]);
-    this.addActionMenuItem(0, {
-      label: RowActionMenuLabel.COPY_TO_TASK,
-      action: RowActionMenuAction.COPY_TO_TASK,
-      icon: RowActionMenuIcon.COPY
-    });
-    this.addActionMenuItem(0, {
-      label: RowActionMenuLabel.COPY_TO_PRETASK,
-      action: RowActionMenuAction.COPY_TO_PRETASK,
-      icon: RowActionMenuIcon.COPY
-    });
-    if (!this.data.editst) {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PRETASK)]);
-    } else {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.UNASSIGN_PRETASK)]);
-    }
   }
 
   /**
