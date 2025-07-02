@@ -25,11 +25,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   ngOnInit(): void {
     const actionMap: { condition: () => boolean; action: () => void }[] = [
       {
-        condition: this.isAccessGroup,
-        action: () =>
-          this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_ACCESSGROUP, RowActionMenuLabel.DELETE_ACCESSGROUP)
-      },
-      {
         condition: this.isVoucher,
         action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER)
       },
@@ -50,16 +45,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         this.conditionallyAddMenuItem(item, this.data);
       });
     }
-  }
-
-  /**
-   * Sets context menu with edit and delete action.
-   * @param editLabel The label for the edit action.
-   * @param deleteLabel The label for the delete action.
-   */
-  private setEditDeleteMenuItems(editLabel: string, deleteLabel: string): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(editLabel)]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
   }
 
   /**
