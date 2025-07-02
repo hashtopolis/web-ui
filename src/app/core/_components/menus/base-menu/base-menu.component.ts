@@ -5,7 +5,6 @@ import { BaseModel } from '@models/base.model';
 import { ContextMenuType } from '@services/context-menu/base/context-menu.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -67,6 +66,15 @@ export class BaseMenuComponent {
     }
   }
 
+  /**
+   * Add a menu item and check the condition before adding it
+   *
+   * The condition contains a key, which should be checked in the data object and a boolean value
+   *
+   * @param item
+   * @param data
+   * @protected
+   */
   protected conditionallyAddMenuItem(item: ContextMenuType, data: BaseModel): void {
     const condition = item.condition;
 
