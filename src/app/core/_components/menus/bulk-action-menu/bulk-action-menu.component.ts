@@ -72,8 +72,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_HASHTYPES);
     } else if (this.dataType === 'agent-binaries') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_AGENTBINARIES);
-    } else if (this.dataType === 'preprocessors') {
-      this.setDeleteMenu(BulkActionMenuLabel.DELETE_PREPROCESSORS);
     } else if (this.dataType === 'health-checks') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_HEALTHCHECKS);
     } else if (this.dataType === 'vouchers') {

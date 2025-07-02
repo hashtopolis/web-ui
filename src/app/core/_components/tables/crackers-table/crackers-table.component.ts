@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 
-import { CrackersContextMenuService } from '@services/context-menu/crackers-menu.service';
+import { CrackersContextMenuService } from '@services/context-menu/crackers/crackers-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
