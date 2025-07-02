@@ -36,9 +36,6 @@ export class BaseMenuComponent {
     return this.data?.type === attribute;
   }
 
-  protected isAgent(): boolean {
-    return this.checkType('agent') && this.hasKeys('agentName');
-  }
   protected isAgentError(): boolean {
     return this.checkType('agentError') && this.hasKeys('error');
   }
@@ -50,70 +47,12 @@ export class BaseMenuComponent {
     return this.checkType('accessGroup') && this.hasKeys('groupName');
   }
 
-  protected isAgentBinary(): boolean {
-    return this.checkType('agentBinary') && this.hasKeys('filename');
-  }
-
-  protected isPreprocessor(): boolean {
-    return this.checkType('preprocessor') && this.hasKeys('binaryName');
-  }
-
-  protected isCrackerBinaryType(): boolean {
-    return this.checkType('crackerBinaryType') && this.hasKeys('typeName');
-  }
-
-  protected isPretask(): boolean {
-    return this.checkType('preTask') && this.hasKeys('priority');
-  }
-
-  protected isTaskWrapper(): boolean {
-    return this.checkType('taskWrapper') && this.hasKeys('priority');
-  }
-
   protected isTaskWrapperModal(): boolean {
     return this.checkId('taskId') && !this.checkType('chunk') && this.hasKeys('taskName');
   }
 
-  protected isTaskChunks(): boolean {
-    return this.checkType('chunk') && this.hasKeys('skip');
-  }
-
-  protected isSupertask(): boolean {
-    return this.checkType('supertask');
-  }
-
   protected isVoucher(): boolean {
     return this.checkId('id') && this.hasKeys('voucher');
-  }
-
-  protected isUser(): boolean {
-    return this.checkType('user') && this.hasKeys('email');
-  }
-
-  protected isPermission(): boolean {
-    return this.checkType('globalPermissionGroup') && this.hasKeys('permissions');
-  }
-
-  protected isHealthCheck(): boolean {
-    return this.checkType('healthCheck');
-  }
-
-  protected isFile(): boolean {
-    return this.checkType('file');
-  }
-
-  protected isHashlist(): boolean {
-    return (
-      this.checkType('hashlist') && this.hasKeys('brainFeatures') && this.data.format !== HashListFormat.SUPERHASHLIST
-    );
-  }
-
-  protected isSuperHashlist(): boolean {
-    return this.checkType('hashlist') && this.data?.format === HashListFormat.SUPERHASHLIST;
-  }
-
-  protected isHashtype(): boolean {
-    return this.checkType('hashType') && this.hasKeys('description');
   }
 
   protected setActionMenuItems(index: number, items: ActionMenuItem[]): void {
@@ -136,6 +75,13 @@ export class BaseMenuComponent {
         this.addActionMenuItem(item.index, item.menuItem);
       } else if (data[condition.key] === undefined && condition.value === false) {
         this.addActionMenuItem(item.index, item.menuItem);
+      } else if (data[condition.key] !== undefined && Array.isArray(data[condition.key])) {
+        if (
+          (data[condition.key].length > 0 && condition.value === true) ||
+          (data[condition.key].length === 0 && condition.value === false)
+        ) {
+          this.addActionMenuItem(item.index, item.menuItem);
+        }
       }
     } else {
       this.addActionMenuItem(item.index, item.menuItem);

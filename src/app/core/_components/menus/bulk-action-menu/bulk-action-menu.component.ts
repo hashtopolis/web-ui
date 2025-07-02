@@ -60,8 +60,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       this.setDeleteMenu(BulkActionMenuLabel.REMOVE_ACCESSGROUP_AGENTS);
     } else if (this.dataType === 'access-groups-users') {
       this.setDeleteMenu(BulkActionMenuLabel.REMOVE_ACCESSGROUP_USERS);
-    } else if (this.dataType === 'permissions') {
-      this.setDeleteMenu(BulkActionMenuLabel.DELETE_PERMISSIONS);
     } else if (this.dataType === 'vouchers') {
       this.setDeleteMenu(BulkActionMenuLabel.DELETE_VOUCHERS);
     } else if (this.dataType === 'agents-errors') {

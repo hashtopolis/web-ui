@@ -29,7 +29,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         action: () =>
           this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_ACCESSGROUP, RowActionMenuLabel.DELETE_ACCESSGROUP)
       },
-      { condition: this.isPermission, action: this.setPermissionMenu },
       {
         condition: this.isVoucher,
         action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER)
@@ -50,16 +49,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       this.contextMenuService.getMenuItems().forEach((item) => {
         this.conditionallyAddMenuItem(item, this.data);
       });
-    }
-  }
-
-  /**
-   * Sets the context menu items for a permission data row.
-   */
-  private setPermissionMenu(): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_PERMISSION)]);
-    if (!this.data.user || this.data.user.length === 0) {
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_PERMISSION)]);
     }
   }
 
