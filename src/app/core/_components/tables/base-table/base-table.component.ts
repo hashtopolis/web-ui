@@ -17,6 +17,7 @@ import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
 import { PermissionService } from '@services/permission/permission.service';
@@ -58,6 +59,8 @@ export class BaseTableComponent {
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
   protected columnLabels: { [key: string]: string } = {};
+  protected contextMenuService: ContextMenuService;
+
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,

@@ -1,9 +1,10 @@
-import { catchError, Observable, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
+import { HashListContextMenuService } from '@services/context-menu/hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -21,7 +22,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { HashListContextMenuService } from '@services/context-menu/hashlist-menu.service';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -33,7 +33,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   dataSource: HashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: HashListContextMenuService;
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
@@ -310,8 +309,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   private rowActionEdit(hashlist: JHashlist): void {
     this.renderHashlistLink(hashlist)
       .subscribe((links: HTTableRouterLink[]) => {
-        this.router.navigate(links[0].routerLink).then(() => {
-        });
+        this.router.navigate(links[0].routerLink).then(() => {});
       })
       .unsubscribe();
   }

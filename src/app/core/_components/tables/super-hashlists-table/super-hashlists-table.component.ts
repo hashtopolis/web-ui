@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
+import { SuperHashListContextMenuService } from '@services/context-menu/super-hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -19,7 +20,6 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
-import { SuperHashListContextMenuService } from '@services/context-menu/super-hashlist-menu.service';
 
 @Component({
   selector: 'app-super-hashlists-table',
@@ -31,7 +31,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: SuperHashListContextMenuService;
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);

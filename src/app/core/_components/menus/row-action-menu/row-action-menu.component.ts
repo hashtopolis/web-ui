@@ -68,7 +68,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       { condition: this.isAgentBinary, action: this.setAgentBinaryMenu },
       { condition: this.isNotification, action: this.setNotificationMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
-      { condition: this.isSupertask, action: this.setSupertaskMenu },
       { condition: this.isCrackerBinaryType, action: this.setCrackerBinaryTypeMenu },
       { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
     ];
@@ -202,24 +201,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       icon: RowActionMenuIcon.COPY
     });
     this.addActionMenuItem(0, this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK));
-  }
-
-  /**
-   * Sets the context menu items for a pretask data row.
-   */
-  private setSupertaskMenu(): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_SUPERTASK)]);
-    this.addActionMenuItem(0, {
-      label: RowActionMenuLabel.APPLY_HASHLIST,
-      action: RowActionMenuAction.APPLY_TO_HASHLIST,
-      icon: RowActionMenuIcon.COPY
-    });
-    this.addActionMenuItem(0, {
-      label: RowActionMenuLabel.EDIT_SUBTASKS,
-      action: RowActionMenuAction.EDIT_SUBTASKS,
-      icon: RowActionMenuIcon.EDIT
-    });
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_SUPERTASK)]);
   }
 
   /**

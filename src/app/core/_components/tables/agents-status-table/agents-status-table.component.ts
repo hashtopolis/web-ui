@@ -42,7 +42,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: AgentMenuService;
+
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();

@@ -38,7 +38,6 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: ChunkContextMenuService;
 
   // Track initialization
   private isInitialized = false;

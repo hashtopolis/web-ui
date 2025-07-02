@@ -44,7 +44,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   dataSource: TasksDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: TaskContextMenuService;
 
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);

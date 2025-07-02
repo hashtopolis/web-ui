@@ -28,7 +28,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
   selectedFilterColumn: string = 'all';
-  protected contextMenuService: ChunkContextMenuService;
+
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
