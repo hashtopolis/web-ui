@@ -43,14 +43,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Sets context menu with delete action.
-   * @param label The label for the delete action.
-   */
-  private setDeleteMenuItem(label: string): void {
-    this.setActionMenuItems(0, [this.getDeleteMenuItem(label)]);
-  }
-
-  /**
    * Sets the context menu items for a user data row.
    */
   private setNotificationMenu(): void {
