@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { ChunkData } from '@models/chunk.model';
@@ -40,6 +40,22 @@ import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks
   standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  private _hashlistId: number;
+
+  @Input()
+  set hashlistId(value: number) {
+    if (value !== this._hashlistId) {
+      this._hashlistId = value;
+      this.ngOnInit();
+    }
+  }
+  get hashlistId(): number {
+    if (this._hashlistId === undefined) {
+      return 0;
+    } else {
+      return this._hashlistId;
+    }
+  }
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
@@ -51,7 +67,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource = new TasksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
-    this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

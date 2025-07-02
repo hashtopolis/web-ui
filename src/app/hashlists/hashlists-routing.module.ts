@@ -69,7 +69,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-hashlist',
           breadcrumb: 'New Hashlist',
-          permission: Perm.SuperHashlist.CREATE
+          permission: Perm.Hashlist.CREATE
         },
         canActivate: [CheckPerm]
         // canDeactivate: [PendingChangesGuard]
