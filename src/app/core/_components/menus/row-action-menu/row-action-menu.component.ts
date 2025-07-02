@@ -34,7 +34,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         condition: this.isVoucher,
         action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER)
       },
-      { condition: this.isUser, action: this.setUserMenu },
       { condition: this.isNotification, action: this.setNotificationMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
       { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
@@ -80,20 +79,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
    */
   private setDeleteMenuItem(label: string): void {
     this.setActionMenuItems(0, [this.getDeleteMenuItem(label)]);
-  }
-
-  /**
-   * Sets the context menu items for a user data row.
-   */
-  private setUserMenu(): void {
-    if (this.data['isValid']) {
-      this.setActionMenuItems(0, [this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_USER)]);
-    } else {
-      this.setActionMenuItems(0, [this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_USER)]);
-    }
-
-    this.addActionMenuItem(0, this.getEditMenuItem(RowActionMenuLabel.EDIT_USER));
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_USER)]);
   }
 
   /**
