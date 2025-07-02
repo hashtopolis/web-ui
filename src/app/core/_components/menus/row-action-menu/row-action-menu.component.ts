@@ -23,80 +23,10 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   @Input() contextMenuService: ContextMenuService;
 
   ngOnInit(): void {
-    const actionMap: { condition: () => boolean; action: () => void }[] = [
-      { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu }
-    ];
-
-    for (const item of actionMap) {
-      if (item.condition.call(this)) {
-        item.action.call(this);
-        break;
-      }
-    }
-
     if (this.contextMenuService) {
       this.contextMenuService.getMenuItems().forEach((item) => {
         this.conditionallyAddMenuItem(item, this.data);
       });
     }
-  }
-
-  /**
-   * Sets the context menu items for a task data row.
-   */
-  private setTaskWrapperModalMenu(): void {
-    this.setActionMenuItems(0, [this.getEditMenuItem(RowActionMenuLabel.EDIT_TASK)]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_TASK)]);
-    this.addActionMenuItem(0, {
-      label: RowActionMenuLabel.COPY_TO_TASK,
-      action: RowActionMenuAction.COPY_TO_TASK,
-      icon: RowActionMenuIcon.COPY
-    });
-    this.addActionMenuItem(0, {
-      label: RowActionMenuLabel.COPY_TO_PRETASK,
-      action: RowActionMenuAction.COPY_TO_PRETASK,
-      icon: RowActionMenuIcon.COPY
-    });
-    this.addActionMenuItem(0, this.getArchiveMenuItem(RowActionMenuLabel.ARCHIVE_TASK));
-  }
-
-  /**
-   * Creates an ActionMenuItem with delete action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with delete action.
-   */
-  private getDeleteMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.DELETE,
-      icon: RowActionMenuIcon.DELETE,
-      red: true
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with edit action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with edit action.
-   */
-  private getEditMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.EDIT,
-      icon: RowActionMenuIcon.EDIT
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with archive action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with archive action.
-   */
-  private getArchiveMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.ARCHIVE,
-      icon: RowActionMenuIcon.ARCHIVE
-    };
   }
 }

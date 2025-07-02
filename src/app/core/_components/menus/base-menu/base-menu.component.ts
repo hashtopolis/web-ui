@@ -35,23 +35,8 @@ export class BaseMenuComponent {
     return this.data?.type === attribute;
   }
 
-  protected isAgentError(): boolean {
-    return this.checkType('agentError') && this.hasKeys('error');
-  }
-  protected isNotification(): boolean {
-    return this.checkType('notificationSetting');
-  }
-
-  protected isAccessGroup(): boolean {
-    return this.checkType('accessGroup') && this.hasKeys('groupName');
-  }
-
   protected isTaskWrapperModal(): boolean {
     return this.checkId('taskId') && !this.checkType('chunk') && this.hasKeys('taskName');
-  }
-
-  protected isVoucher(): boolean {
-    return this.checkId('id') && this.hasKeys('voucher');
   }
 
   protected setActionMenuItems(index: number, items: ActionMenuItem[]): void {
