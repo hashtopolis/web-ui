@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 
-import { PermissionsContextMenuService } from '@services/context-menu/permissions-menu.service';
+import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';

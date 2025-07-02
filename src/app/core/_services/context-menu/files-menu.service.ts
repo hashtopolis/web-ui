@@ -12,9 +12,9 @@ export class FilesContextMenuService extends ContextMenuService {
   }
 
   addContextMenu(): FilesContextMenuService {
-    const permUpdate: Array<PermissionValues> = [Perm.Chunk.UPDATE, Perm.Task.UPDATE];
-    const permRead: Array<PermissionValues> = [Perm.Chunk.UPDATE, Perm.Task.READ];
-    const permDelete: Array<PermissionValues> = [Perm.Chunk.UPDATE, Perm.Task.DELETE];
+    const permUpdate: Array<PermissionValues> = [Perm.File.UPDATE];
+    const permRead: Array<PermissionValues> = [Perm.File.READ];
+    const permDelete: Array<PermissionValues> = [Perm.File.DELETE];
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_FILE, RowActionMenuAction.EDIT, permUpdate);
     this.addCtxDownloadItem(RowActionMenuLabel.DOWNLOAD_FILE, permRead);

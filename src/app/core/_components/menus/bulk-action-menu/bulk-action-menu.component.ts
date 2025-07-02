@@ -44,13 +44,7 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
    * Loads the appropriate menu based on the data type.
    */
   private loadMenu(): void {
-    if (this.dataType === 'notifications') {
-      this.setActivateDeleteMenu(
-        BulkActionMenuLabel.ACTIVATE_NOTIFICATION,
-        BulkActionMenuLabel.DEACTIVATE_NOTIFICATIONS,
-        BulkActionMenuLabel.DELETE_NOTIFICATIONS
-      );
-    } else if (this.dataType === 'tasks-chunks') {
+    if (this.dataType === 'tasks-chunks') {
       this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
     } else if (this.dataType === 'tasks-supertasks') {
       this.setResetMenu(BulkActionMenuLabel.RESET_CHUNKS);
@@ -74,17 +68,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
    */
   private setDeleteMenu(label: string): void {
     this.setActionMenuItems(0, [this.getDeleteMenuItem(label)]);
-  }
-
-  /**
-   * Sets the bulk menu items for a data type with activate, deactivate and delete options.
-   * @param activateLabel Activate action label.
-   * @param deactivateLabel Deactiviate action label.
-   * @param deleteLabel Delete action label.
-   */
-  private setActivateDeleteMenu(activateLabel: string, deactivateLabel: string, deleteLabel: string): void {
-    this.setActionMenuItems(0, [this.getActivateMenuItem(activateLabel), this.getDeactivateMenuItem(deactivateLabel)]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
   }
 
   /**
@@ -119,32 +102,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       label: label,
       action: BulkActionMenuAction.ARCHIVE,
       icon: BulkActionMenuIcon.ARCHIVE
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with bulk activate action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with bulk activate action.
-   */
-  private getActivateMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: BulkActionMenuAction.ACTIVATE,
-      icon: BulkActionMenuIcon.ACTIVATE
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with bulk deactivate action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with bulk deactivate action.
-   */
-  private getDeactivateMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: BulkActionMenuAction.DEACTIVATE,
-      icon: BulkActionMenuIcon.DEACTIVATE
     };
   }
 

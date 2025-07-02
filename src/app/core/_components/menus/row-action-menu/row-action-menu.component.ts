@@ -24,7 +24,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
 
   ngOnInit(): void {
     const actionMap: { condition: () => boolean; action: () => void }[] = [
-      { condition: this.isNotification, action: this.setNotificationMenu },
       { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu }
     ];
 
@@ -40,21 +39,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
         this.conditionallyAddMenuItem(item, this.data);
       });
     }
-  }
-
-  /**
-   * Sets the context menu items for a user data row.
-   */
-  private setNotificationMenu(): void {
-    if (this.data['isActive']) {
-      this.setActionMenuItems(0, [this.getDeactivateMenuItem(RowActionMenuLabel.DEACTIVATE_NOTIFICATION)]);
-    } else {
-      this.setActionMenuItems(0, [this.getActivateMenuItem(RowActionMenuLabel.ACTIVATE_NOTIFICATION)]);
-    }
-
-    this.addActionMenuItem(0, this.getEditMenuItem(RowActionMenuLabel.EDIT_NOTIFICATION));
-
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_NOTIFICATION)]);
   }
 
   /**
@@ -113,32 +97,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       label: label,
       action: RowActionMenuAction.ARCHIVE,
       icon: RowActionMenuIcon.ARCHIVE
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with activate action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with activate action.
-   */
-  private getActivateMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.ACTIVATE,
-      icon: RowActionMenuIcon.ACTIVATE
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with deactivate action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with deactivate action.
-   */
-  private getDeactivateMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: RowActionMenuAction.DEACTIVATE,
-      icon: RowActionMenuIcon.DEACTIVATE
     };
   }
 }
