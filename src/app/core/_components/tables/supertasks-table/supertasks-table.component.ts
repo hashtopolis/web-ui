@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JSuperTask } from '@models/supertask.model';
 
-import { SuperTaskContextMenuService } from '@services/context-menu/supertask-menu.service';
+import { SuperTaskContextMenuService } from '@services/context-menu/tasks/supertask-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';

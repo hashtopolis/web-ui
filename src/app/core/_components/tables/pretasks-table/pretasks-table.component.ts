@@ -5,7 +5,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
 
-import { PreTaskContextMenuService } from '@services/context-menu/pretask-menu.service';
+import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
 import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';

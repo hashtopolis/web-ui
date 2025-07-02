@@ -4,7 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
-import { SuperHashListContextMenuService } from '@services/context-menu/super-hashlist-menu.service';
+import { SuperHashListContextMenuService } from '@services/context-menu/hahslists/super-hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
