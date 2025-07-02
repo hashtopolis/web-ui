@@ -102,18 +102,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   }
 
   /**
-   * Sets the context menu items for an agent binary data row.
-   */
-  private setAgentBinaryMenu(): void {
-    this.setActionMenuItems(0, [
-      this.getEditMenuItem(RowActionMenuLabel.EDIT_AGENTBINARY),
-      this.getDownloadMenuItem(RowActionMenuLabel.DOWNLOAD_AGENT),
-      this.getCopyMenuItem(RowActionMenuLabel.COPY_LINK_BINARY)
-    ]);
-    this.setActionMenuItems(1, [this.getDeleteMenuItem(RowActionMenuLabel.DELETE_AGENTBINARY)]);
-  }
-
-  /**
    * Sets the context menu items for a user data row.
    */
   private setUserMenu(): void {
