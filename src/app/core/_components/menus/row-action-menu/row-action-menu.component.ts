@@ -36,10 +36,6 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
       },
       { condition: this.isPermission, action: this.setPermissionMenu },
       {
-        condition: this.isHashtype,
-        action: () => this.setEditDeleteMenuItems(RowActionMenuLabel.EDIT_HASHTYPE, RowActionMenuLabel.DELETE_HASHTYPE)
-      },
-      {
         condition: this.isVoucher,
         action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_VOUCHER)
       },
