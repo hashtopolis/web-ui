@@ -271,35 +271,45 @@ export class HeaderComponent implements OnInit, OnDestroy {
    * @returns A MainMenuItem for the 'Admin' menu.
    */
   getAdminMenu(): MainMenuItem {
+    if (this.username === '') {
+      return { display: false, label: this.username, actions: [] };
+    }
+
+    const actions = [
+      {
+        label: 'Account Settings',
+        routerLink: ['account', 'acc-settings']
+      },
+      {
+        label: 'UI Settings',
+        routerLink: ['account', 'ui-settings']
+      }
+    ];
+
+    const canReadNotifications = this.permissionService.hasPermissionSync(Perm.Notif.READ);
+    if (canReadNotifications) {
+      actions.push({
+        label: 'Notifications',
+        routerLink: ['account', 'notifications']
+      });
+    }
+
+    const logoutActions = [
+      {
+        label: 'Logout',
+        action: HeaderMenuAction.LOGOUT,
+        red: true
+      }
+    ];
+
     return {
-      display: this.username !== '',
+      display: true,
       icon: 'person',
       label: this.username,
-      actions: [
-        [
-          {
-            label: 'Account Settings',
-            routerLink: ['account', 'acc-settings']
-          },
-          {
-            label: 'UI Settings',
-            routerLink: ['account', 'ui-settings']
-          },
-          {
-            label: 'Notifications',
-            routerLink: ['account', 'notifications']
-          }
-        ],
-        [
-          {
-            label: 'Logout',
-            action: HeaderMenuAction.LOGOUT,
-            red: true
-          }
-        ]
-      ]
+      actions: [actions, logoutActions]
     };
   }
+
 
   /**
    * Retrieves the 'Users' menu item.
