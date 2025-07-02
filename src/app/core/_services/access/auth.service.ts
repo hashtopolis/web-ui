@@ -183,6 +183,10 @@ export class AuthService {
       clearTimeout(this.tokenExpiration);
     }
     this.tokenExpiration = null;
+
+    // Delete cached permissions from storage
+    const permissionService = this.injector.get(PermissionService);
+    permissionService.clearPermissionCache();
   }
 
   checkStatus() {
