@@ -3,7 +3,7 @@ import { catchError, forkJoin } from 'rxjs';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
-import { AgentMenuService } from '@services/context-menu/agent-menu.service';
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 

@@ -1,6 +1,7 @@
 import { PermissionService } from '@services/permission/permission.service';
 
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction, RowActionMenuIcon } from '@components/menus/row-action-menu/row-action-menu.constants';
 
 import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
@@ -87,7 +88,7 @@ export abstract class ContextMenuService {
     this.createMenuItem(
       label,
       0,
-      RowActionMenuAction.DEACTIVATE,
+      BulkActionMenuAction.DEACTIVATE,
       RowActionMenuIcon.DEACTIVATE,
       permissions,
       { key: '', value: false },
@@ -119,7 +120,7 @@ export abstract class ContextMenuService {
     this.createMenuItem(
       label,
       0,
-      RowActionMenuAction.ACTIVATE,
+      BulkActionMenuAction.ACTIVATE,
       RowActionMenuIcon.ACTIVATE,
       permissions,
       {
@@ -163,7 +164,7 @@ export abstract class ContextMenuService {
     this.createMenuItem(
       label,
       0,
-      RowActionMenuAction.DELETE,
+      BulkActionMenuAction.DELETE,
       RowActionMenuIcon.DELETE,
       permissions,
       {
@@ -242,7 +243,7 @@ export abstract class ContextMenuService {
     this.createMenuItem(
       label,
       0,
-      RowActionMenuAction.ARCHIVE,
+      BulkActionMenuAction.ARCHIVE,
       RowActionMenuIcon.ARCHIVE,
       permissions,
       condition,

@@ -1,20 +1,23 @@
+import { catchError } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
+
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import {
   VouchersTableCol,
   VouchersTableColumnLabel
 } from '@src/app/core/_components/tables/vouchers-table/vouchers-table.constants';
-
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { JVoucher } from '@src/app/core/_models/voucher.model';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@src/app/core/_services/main.config';
-import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
-import { catchError } from 'rxjs';
+import { JVoucher } from '@src/app/core/_models/voucher.model';
+import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -31,6 +34,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
     this.tableColumns = this.getColumns();
     this.dataSource = new VouchersDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new VoucherContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

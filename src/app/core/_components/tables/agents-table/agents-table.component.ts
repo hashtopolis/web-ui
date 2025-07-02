@@ -5,7 +5,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
 
-import { AgentMenuService } from '@services/context-menu/agent-menu.service';
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
