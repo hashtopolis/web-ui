@@ -25,8 +25,7 @@ export class RowActionMenuComponent extends BaseMenuComponent implements OnInit 
   ngOnInit(): void {
     const actionMap: { condition: () => boolean; action: () => void }[] = [
       { condition: this.isNotification, action: this.setNotificationMenu },
-      { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu },
-      { condition: this.isAgentError, action: () => this.setDeleteMenuItem(RowActionMenuLabel.DELETE_ERROR) }
+      { condition: this.isTaskWrapperModal, action: this.setTaskWrapperModalMenu }
     ];
 
     for (const item of actionMap) {

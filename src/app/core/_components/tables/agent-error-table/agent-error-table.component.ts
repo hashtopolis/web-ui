@@ -3,6 +3,8 @@ import { catchError } from 'rxjs';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { AgentErrorContextMenuService } from '@services/context-menu/agents/agent-error-menu.service';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
@@ -40,6 +42,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
+    this.contextMenuService = new AgentErrorContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
   getColumns(): HTTableColumn[] {
