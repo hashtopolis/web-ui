@@ -46,7 +46,6 @@ export class PermissionGuard {
   }
 }
 
-
 export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): boolean => {
   return inject(PermissionGuard).canActivate(route);
 };
