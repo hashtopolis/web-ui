@@ -2,7 +2,7 @@ import { ContextMenuCondition, ContextMenuService } from '@services/context-menu
 import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
 
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
@@ -20,9 +20,9 @@ export class PreTaskContextMenuService extends ContextMenuService {
     const deleteCondition: ContextMenuCondition = { key: 'editst', value: false };
     const unassignCondition: ContextMenuCondition = { key: 'editst', value: true };
 
-    this.addCtxEditItem(RowActionMenuLabel.EDIT_PRETASK, permUpdate);
-    this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_TASK, permCopyTask);
-    this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_PRETASK, permCopyPreTask);
+    this.addCtxEditItem(RowActionMenuLabel.EDIT_PRETASK, RowActionMenuAction.EDIT, permUpdate);
+    this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_TASK, RowActionMenuAction.COPY_TO_TASK, permCopyTask);
+    this.addCtxCopyItem(RowActionMenuLabel.COPY_TO_PRETASK, RowActionMenuAction.COPY_TO_PRETASK, permCopyPreTask);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_PRETASK, permDelete, deleteCondition);
     this.addCtxDeleteItem(RowActionMenuLabel.UNASSIGN_PRETASK, permDelete, unassignCondition);
 

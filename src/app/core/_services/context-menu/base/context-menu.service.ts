@@ -51,15 +51,17 @@ export abstract class ContextMenuService {
   /**
    * Add a new edit entry to context menu
    * @param label - label of the entry
+   * @param action - edit action event to emit on click
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    * @param condition
    */
   protected addCtxEditItem(
     label: string,
+    action: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ) {
-    this.createMenuItem(label, 0, RowActionMenuAction.EDIT, RowActionMenuIcon.EDIT, permissions, condition);
+    this.createMenuItem(label, 0, action, RowActionMenuAction.EDIT, permissions, condition);
   }
 
   /**
@@ -185,15 +187,17 @@ export abstract class ContextMenuService {
   /**
    * Add a new copy entry to context menu
    * @param label - label of the entry
+   * @param action - copy action event to emit on click
    * @param condition - condition to check for display state of menu entry
    * @param permissions - list of permissions which must be granted to the user to display the menu entry
    */
   protected addCtxCopyItem(
     label: string,
+    action: string,
     permissions: Array<PermissionValues>,
     condition: ContextMenuCondition = { key: '', value: false }
   ): void {
-    this.createMenuItem(label, 0, RowActionMenuAction.COPY_TO_TASK, RowActionMenuIcon.COPY, permissions, condition);
+    this.createMenuItem(label, 0, action, RowActionMenuIcon.COPY, permissions, condition);
   }
 
   /**

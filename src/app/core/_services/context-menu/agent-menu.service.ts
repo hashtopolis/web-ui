@@ -2,7 +2,7 @@ import { ContextMenuService } from '@services/context-menu/base/context-menu.ser
 import { PermissionService } from '@services/permission/permission.service';
 
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
 
 import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
@@ -20,7 +20,7 @@ export class AgentMenuService extends ContextMenuService {
     const permAgentDelete: Array<PermissionValues> = [Perm.Agent.DELETE];
     const permAgentAssignmentCreate: Array<PermissionValues> = [Perm.AgentAssignment.CREATE];
 
-    this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT, permAgentUpdate);
+    this.addCtxEditItem(RowActionMenuLabel.EDIT_AGENT, RowActionMenuAction.EDIT, permAgentUpdate);
     this.addCtxDeactivateItem(RowActionMenuLabel.DEACTIVATE_AGENT, permAgentUpdate, {
       key: 'isActive',
       value: true

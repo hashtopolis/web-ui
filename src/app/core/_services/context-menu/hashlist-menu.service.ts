@@ -1,9 +1,10 @@
 import { ContextMenuCondition, ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { PermissionService } from '@services/permission/permission.service';
 
-import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 import { BulkActionMenuLabel } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction, RowActionMenuLabel } from '@components/menus/row-action-menu/row-action-menu.constants';
+
+import { Perm, PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 export class HashListContextMenuService extends ContextMenuService {
   constructor(override permissionService: PermissionService) {
@@ -18,7 +19,12 @@ export class HashListContextMenuService extends ContextMenuService {
 
     const isArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: false };
 
-    this.addCtxEditItem(RowActionMenuLabel.EDIT_HASHLIST, permHashListUpdate, isArchiveCondition);
+    this.addCtxEditItem(
+      RowActionMenuLabel.EDIT_HASHLIST,
+      RowActionMenuAction.EDIT,
+      permHashListUpdate,
+      isArchiveCondition
+    );
     this.addCtxImportItem(RowActionMenuLabel.IMPORT_HASHLIST, permHashListCreate, isArchiveCondition);
     this.addCtxExportItem(RowActionMenuLabel.EXPORT_HASHLIST, permHashListRead, isArchiveCondition);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_HASHLIST, permHashListDelete);
