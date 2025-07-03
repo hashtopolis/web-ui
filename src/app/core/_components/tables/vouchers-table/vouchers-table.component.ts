@@ -34,7 +34,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   ngOnInit(): void {
     this.setColumnLabels(VouchersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new VouchersDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new VouchersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new VoucherContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

@@ -29,7 +29,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SearchHashDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SearchHashDataSource(this.injector);
     if (this.search) {
       this.dataSource.setSearch(this.search);
     }

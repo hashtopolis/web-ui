@@ -35,7 +35,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperHashlistsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperHashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();

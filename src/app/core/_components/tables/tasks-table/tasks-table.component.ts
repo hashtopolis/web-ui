@@ -64,7 +64,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new TasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();

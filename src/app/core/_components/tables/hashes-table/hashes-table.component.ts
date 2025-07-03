@@ -32,7 +32,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   ngOnInit(): void {
     this.setColumnLabels(HashesTableColColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HashesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.id) {
       this.dataSource.setId(this.id);

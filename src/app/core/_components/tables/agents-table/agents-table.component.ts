@@ -56,7 +56,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   ngOnInit(): void {
     this.setColumnLabels(AgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);

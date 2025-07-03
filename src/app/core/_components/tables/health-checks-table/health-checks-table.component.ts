@@ -38,7 +38,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HealthChecksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HealthChecksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

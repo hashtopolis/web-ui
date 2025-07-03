@@ -33,7 +33,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PreprocessorsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new PreprocessorsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new PreProContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

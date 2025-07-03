@@ -34,7 +34,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AccessGroupsContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

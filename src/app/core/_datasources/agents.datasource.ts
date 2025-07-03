@@ -1,21 +1,24 @@
-import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
 /**
  * Contains data source for agents resource
  * @module
  */
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
-import { BaseDataSource } from '@datasources/base.datasource';
-import { FilterType } from '@models/request-params.model';
-import { IParamBuilder } from '@services/params/builder-types.service';
-import { JAgent } from '@models/agent.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
-import { JUser } from '@models/user.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JUser } from '@models/user.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { IParamBuilder } from '@services/params/builder-types.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
 
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
@@ -75,15 +78,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
           });
         }
-          const length = response.meta.page.total_elements;
+        const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+        this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
         this.setData(agents);
       });
   }
@@ -147,13 +144,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
           const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           this.setData(agents);
         }
       });
