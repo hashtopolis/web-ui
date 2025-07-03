@@ -57,7 +57,9 @@ export const RowActionMenuLabel = {
   UNASSIGN_PRETASK: 'Unassign Pretask',
   RESET_CHUNK: 'Reset Task Chunk',
   REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
-  REMOVE_ACCESSGROUP_USER: 'Remove User'
+  REMOVE_ACCESSGROUP_USER: 'Remove User',
+  ARCHIVE_PRETASK: 'Archive PreTask',
+  UNARCHIVE_PRETASK: 'Unarchive PreTask'
 };
 
 export const RowActionMenuAction = {
