@@ -40,7 +40,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   ngOnInit(): void {
     this.setColumnLabels(AgentErrorTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentErrorDatasource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentErrorDatasource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
 
     if (this.agentId) {

@@ -40,7 +40,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   ngOnInit(): void {
     this.setColumnLabels(TasksSupertasksDataSourceTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksSupertasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new TasksSupertasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.supertaskId) {
       this.dataSource.setSuperTaskId(this.supertaskId);

@@ -37,7 +37,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashlistsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
     this.contextMenuService = new HashListContextMenuService(this.permissionService).addContextMenu();

@@ -36,7 +36,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperTasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new SuperTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

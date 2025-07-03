@@ -62,7 +62,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PreTasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new PreTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.supertTaskId) {
       this.dataSource.setSuperTaskId(this.supertTaskId);

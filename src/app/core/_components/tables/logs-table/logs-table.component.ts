@@ -23,7 +23,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new LogsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new LogsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll();
   }

@@ -34,7 +34,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashtypesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HashtypesDataSource(this.injector);
     this.contextMenuService = new HashTypesContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.setColumns(this.tableColumns);
   }

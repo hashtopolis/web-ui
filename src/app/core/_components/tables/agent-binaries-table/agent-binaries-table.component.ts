@@ -37,7 +37,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   ngOnInit(): void {
     this.setColumnLabels(AgentBinariesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentBinariesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentBinariesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AgentBinariesMenuServiceContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

@@ -34,7 +34,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PermissionsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new PermissionsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new PermissionsContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

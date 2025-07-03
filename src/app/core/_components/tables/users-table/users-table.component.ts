@@ -37,7 +37,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
   ngOnInit(): void {
     this.setColumnLabels(UsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new UsersDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new UsersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new UsersContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();

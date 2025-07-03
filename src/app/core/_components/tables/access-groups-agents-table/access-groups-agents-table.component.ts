@@ -36,7 +36,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsAgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accessgroupId) {
       this.dataSource.setAccessGroupId(this.accessgroupId);

@@ -45,7 +45,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   ngOnInit(): void {
     this.setColumnLabels(TasksChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksChunksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new TasksChunksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
     // Do NOT load yet

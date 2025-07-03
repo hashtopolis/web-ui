@@ -2,7 +2,7 @@ import { faKey, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subscription, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Injector, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -57,6 +57,7 @@ export class BaseTableComponent {
   protected contextMenuService: ContextMenuService;
 
   constructor(
+    protected injector: Injector,
     protected gs: GlobalService,
     protected cs: ConfigService,
     public clipboard: Clipboard,
