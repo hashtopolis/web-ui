@@ -6,6 +6,7 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
+  [contextMenuService]="contextMenuService"
   [hasBulkActions]="true"
 
   [isFilterable]="true"
@@ -13,4 +14,5 @@
   [isPageable]="true"
   (exportActionClicked)="exportActionClicked($event)"
   (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
 />

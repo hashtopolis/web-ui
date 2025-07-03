@@ -7,10 +7,11 @@
   [tableColumns]="tableColumns"
   [isSelectable]="true"
   [hasBulkActions]="true"
-
+  [contextMenuService]="contextMenuService"
   [isFilterable]="true"
   [filterFn]="filter"
   [isPageable]="true"
   (exportActionClicked)="exportActionClicked($event)"
   (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
 />

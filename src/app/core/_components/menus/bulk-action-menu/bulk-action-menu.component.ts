@@ -48,8 +48,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
       this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
     } else if (this.dataType === 'tasks-supertasks') {
       this.setResetMenu(BulkActionMenuLabel.RESET_CHUNKS);
-    } else if (this.dataType === 'access-groups-agents') {
-      this.setDeleteMenu(BulkActionMenuLabel.REMOVE_ACCESSGROUP_AGENTS);
     }
   }
 
