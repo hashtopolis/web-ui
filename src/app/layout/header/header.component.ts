@@ -30,7 +30,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isDarkMode = false;
   private themeSub: Subscription;
 
-  theme: any;
+  isHovering = false;
+  hoverTimeout: ReturnType<typeof setTimeout>;
 
   // Before showing header check Authentification
   private userSub: Subscription;
@@ -309,7 +310,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       actions: [actions, logoutActions]
     };
   }
-
 
   /**
    * Retrieves the 'Users' menu item.

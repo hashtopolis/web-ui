@@ -1,12 +1,13 @@
 <ng-container *ngIf="openOnMouseEnter">
   <button
-    #menuTrigger="matMenuTrigger"
     mat-button
+    #menuTrigger="matMenuTrigger"
+    #menuTriggerButton
     [ngClass]="cls"
     [matMenuTriggerFor]="actionMenu"
     (click)="navigateToFirst($event)"
-    (mouseenter)="menuEnter(menuTrigger)"
-    (mouseleave)="menuLeave(menuTrigger)"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave($event)"
     (focus)="preventFocus($event)"
     [disabled]="disabled"
     [class.active]="isActive"
@@ -16,42 +17,37 @@
       {{ label }}
     </ng-container>
   </button>
+
   <mat-menu #actionMenu="matMenu" [hasBackdrop]="false">
-    <div (mouseenter)="subMenuEnter(menuTrigger)" (mouseleave)="subMenuLeave()">
-      <ng-container *ngFor="let section of actionMenuItems; let last = last">
-        <button
-          mat-menu-item
-          *ngFor="let item of section"
-          (click)="onMenuItemClick(item)"
-          [class.text-critical]="item.red"
-        >
-<!--          <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{-->
-<!--            item.icon-->
-<!--          }}</mat-icon>-->
-
-          <div *ngIf="iconContainsDiscord(item.icon)" style="display: inline; padding-right: 6px">
-            <fa-icon [icon]="faDiscord" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
-          </div>
-          <div *ngIf="iconContainsGithub(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faGithub" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
-          </div>
-          <div *ngIf="iconContainsPaperplane(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faPaperplane" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
-          </div>
-          <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faGlobe" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
-          </div>
-          <div *ngIf="iconContainsBook(item.icon)" style="display: inline; padding-right: 10px">
-            <fa-icon [icon]="faBook" style="color: {{ faIconColor }}" aria-hidden="true"></fa-icon>
-          </div>
-          {{ item.label }}
-        </button>
-
-        <mat-divider *ngIf="!last" />
-      </ng-container>
-    </div>
+    <ng-container *ngFor="let section of actionMenuItems; let last = last">
+      <button
+        mat-menu-item
+        *ngFor="let item of section"
+        (click)="onMenuItemClick(item)"
+        [class.text-critical]="item.red"
+      >
+        <div *ngIf="iconContainsDiscord(item.icon)" style="display: inline; padding-right: 6px">
+          <fa-icon [icon]="faDiscord" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+        </div>
+        <div *ngIf="iconContainsGithub(item.icon)" style="display: inline; padding-right: 10px">
+          <fa-icon [icon]="faGithub" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+        </div>
+        <div *ngIf="iconContainsPaperplane(item.icon)" style="display: inline; padding-right: 10px">
+          <fa-icon [icon]="faPaperplane" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+        </div>
+        <div *ngIf="iconContainsGlobe(item.icon)" style="display: inline; padding-right: 10px">
+          <fa-icon [icon]="faGlobe" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+        </div>
+        <div *ngIf="iconContainsBook(item.icon)" style="display: inline; padding-right: 10px">
+          <fa-icon [icon]="faBook" [style.color]="faIconColor" aria-hidden="true"></fa-icon>
+        </div>
+        {{ item.label }}
+      </button>
+      <mat-divider *ngIf="!last"></mat-divider>
+    </ng-container>
   </mat-menu>
 </ng-container>
+
 <ng-container *ngIf="!openOnMouseEnter">
   <button
     mat-button
@@ -75,12 +71,10 @@
         (click)="onMenuItemClick(item)"
         [class.text-critical]="item.red"
       >
-        <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{
-          item.icon
-        }}</mat-icon>
+        <mat-icon *ngIf="item.icon" [color]="item.red ? 'warn' : 'primary'">{{ item.icon }}</mat-icon>
         {{ item.label }}
       </button>
-      <mat-divider *ngIf="!last" />
+      <mat-divider *ngIf="!last"></mat-divider>
     </ng-container>
   </mat-menu>
 </ng-container>
