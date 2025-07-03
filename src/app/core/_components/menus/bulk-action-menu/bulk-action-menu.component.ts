@@ -3,13 +3,7 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 
-import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
-import {
-  BulkActionMenuAction,
-  BulkActionMenuIcon,
-  BulkActionMenuLabel
-} from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DataType } from '@components/tables/ht-table/ht-table.models';
 
 /**
