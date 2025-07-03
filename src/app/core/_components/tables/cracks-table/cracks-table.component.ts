@@ -1,19 +1,25 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/cracks-table/cracks-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { CracksDataSource } from '@datasources/cracks.datasource';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+
 import { SERV } from '@services/main.config';
-import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/cracks-table/cracks-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { CracksDataSource } from '@datasources/cracks.datasource';
+
+import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -120,12 +126,16 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     ];
   }
 
-  reciveCopyData(event: JHash) {
-    navigator.clipboard.writeText(event.hash).then();
+  protected receiveCopyData(event: BaseModel) {
+    if (this.clipboard.copy((event as JHash).hash)) {
+      this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy hash value clipboard.');
+    }
   }
 
   showTruncatedData(event: JHash) {
-    const dialogRef = this.dialog.open(ShowTruncatedDataDialogComponent, {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
       data: {
         hashlistName: event.hashlist?.name,
         unTruncatedText: event.hash

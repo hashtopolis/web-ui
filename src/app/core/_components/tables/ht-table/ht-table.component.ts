@@ -17,6 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
+import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
@@ -55,7 +56,6 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
  *   [isSelectable]="true"
  *   [isFilterable]="true"
  *   [tableColumns]="myTableColumns"
- *   [hasRowAction]="true"
  *   [paginationSizes]="[5, 10, 15]"
  *   [defaultPageSize]="10"
  *   [filterFn]="customFilterFunction"
@@ -72,7 +72,6 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
  * - `[isSelectable]`: Set to `true` to enable row selection with checkboxes.
  * - `[isFilterable]`: Set to `true` to enable filtering.
  * - `[tableColumns]`: An array of `HTTableColumn` configurations for defining columns.
- * - `[hasRowAction]`: Set to `true` to enable custom row actions.
  * - `[paginationSizes]`: An array of available page sizes.
  * - `[defaultPageSize]`: The default page size for pagination.
  * - `[filterFn]`: A custom filter function for advanced filtering.
@@ -200,7 +199,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
-  @Output() emitCopyRowData: EventEmitter<JHash> = new EventEmitter();
+  @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
   @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
