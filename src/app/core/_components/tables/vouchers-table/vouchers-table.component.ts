@@ -2,6 +2,8 @@ import { catchError } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
 import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
@@ -111,8 +113,12 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
     );
   }
 
-  reciveCopyData(event: any) {
-    navigator.clipboard.writeText(event.voucher).then();
+  protected receiveCopyData(event: BaseModel): void {
+    if (this.clipboard.copy((event as JVoucher).voucher)) {
+      this.alertService.showSuccessMessage('Voucher key successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy Voucher key clipboard.');
+    }
   }
 
   rowActionClicked(event: ActionMenuEvent<JVoucher>): void {

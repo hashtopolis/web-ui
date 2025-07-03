@@ -59,7 +59,7 @@ export class BaseTableComponent {
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
-    public clipboard: Clipboard,
+    protected clipboard: Clipboard,
     protected router: Router,
     protected settingsService: LocalStorageService<UIConfig>,
     protected sanitizer: DomSanitizer,
