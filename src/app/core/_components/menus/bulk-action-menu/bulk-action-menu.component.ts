@@ -26,86 +26,19 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   @Input() contextMenuService: ContextMenuService;
 
   ngOnInit(): void {
-    // TODO: delete, if all menus are added to context menu service
-    this.loadMenu();
     this.data = { isArchived: this.isArchived };
-    if (this.contextMenuService) {
-      this.contextMenuService.getBulkMenuItems().forEach((item) => {
-        this.conditionallyAddMenuItem(item, this.data);
-      });
-    }
+    this.loadMenu();
   }
 
   reload(): void {
     this.loadMenu();
   }
 
-  /**
-   * Loads the appropriate menu based on the data type.
-   */
   private loadMenu(): void {
-    if (this.dataType === 'tasks-chunks') {
-      this.setArchiveDeleteMenu(BulkActionMenuLabel.DELETE_TASKS, BulkActionMenuLabel.ARCHIVE_TASKS);
-    } else if (this.dataType === 'tasks-supertasks') {
-      this.setResetMenu(BulkActionMenuLabel.RESET_CHUNKS);
+    if (this.contextMenuService) {
+      this.contextMenuService.getBulkMenuItems().forEach((item) => {
+        this.conditionallyAddMenuItem(item, this.data);
+      });
     }
-  }
-
-  private setArchiveDeleteMenu(deleteLabel: string, archiveLabel: string): void {
-    if (this.isArchived) {
-      this.setActionMenuItems(0, [this.getDeleteMenuItem(deleteLabel)]);
-    } else {
-      this.setActionMenuItems(0, [this.getArchiveMenuItem(archiveLabel)]);
-      this.setActionMenuItems(1, [this.getDeleteMenuItem(deleteLabel)]);
-    }
-  }
-
-  /**
-   * Sets the bulk menu items for a data type with only a reset option.
-   * @param label Reset action label.
-   */
-  private setResetMenu(label: string): void {
-    this.setActionMenuItems(0, [this.getResetMenuItem(label)]);
-  }
-
-  /**
-   * Creates an ActionMenuItem with bulk delete action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with bulk delete action.
-   */
-  private getDeleteMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: BulkActionMenuAction.DELETE,
-      icon: BulkActionMenuIcon.DELETE,
-      red: true
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with bulk archive action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with bulk archive action.
-   */
-  private getArchiveMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: BulkActionMenuAction.ARCHIVE,
-      icon: BulkActionMenuIcon.ARCHIVE
-    };
-  }
-
-  /**
-   * Creates an ActionMenuItem with bulk reset action.
-   * @param label The label for the menu item.
-   * @returns The ActionMenuItem with bulk reset action.
-   */
-  private getResetMenuItem(label: string): ActionMenuItem {
-    return {
-      label: label,
-      action: BulkActionMenuAction.RESET,
-      icon: BulkActionMenuIcon.RESET,
-      red: true
-    };
   }
 }

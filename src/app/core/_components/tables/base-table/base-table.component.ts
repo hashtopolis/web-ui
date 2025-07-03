@@ -43,8 +43,6 @@ export class BaseTableComponent {
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
-  /** Flag to enable bulk action menu */
-  @Input() hasBulkActions = true;
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */

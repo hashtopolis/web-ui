@@ -156,9 +156,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
 
-  /** Flag to enable bulk action menu */
-  @Input() hasBulkActions = true;
-
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [5, 25, 50, 100, 250, 500, 1000, 5000];
 
