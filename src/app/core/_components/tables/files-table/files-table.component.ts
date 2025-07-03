@@ -58,7 +58,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.contextMenuService = new FilesContextMenuService(this.permissionService).addContextMenu();
+    if (this.name !== 'filesTableInPreTasks') {
+      this.contextMenuService = new FilesContextMenuService(this.permissionService).addContextMenu();
+    }
     this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
