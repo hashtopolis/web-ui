@@ -6,6 +6,7 @@ import { SafeHtml } from '@angular/platform-browser';
 import { ChunkData } from '@models/chunk.model';
 import { JTask } from '@models/task.model';
 
+import { TaskSuperTaskContextMenuService } from '@services/context-menu/tasks/task-supertask-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -44,6 +45,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     if (this.supertaskId) {
       this.dataSource.setSuperTaskId(this.supertaskId);
     }
+    this.contextMenuService = new TaskSuperTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
