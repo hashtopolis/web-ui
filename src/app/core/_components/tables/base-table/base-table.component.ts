@@ -45,8 +45,6 @@ export class BaseTableComponent {
   @Input() name: string;
   /** Flag to enable bulk action menu */
   @Input() hasBulkActions = true;
-  /** Flag to enable row action menu */
-  @Input() hasRowAction = true;
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
