@@ -2,7 +2,6 @@ import { catchError } from 'rxjs/operators';
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
-import { JAgent } from '@models/agent.model';
 import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
 

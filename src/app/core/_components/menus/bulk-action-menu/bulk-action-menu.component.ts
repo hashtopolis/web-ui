@@ -61,14 +61,6 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   }
 
   /**
-   * Sets the bulk menu items for a data type with only a delete option.
-   * @param label Delete action label.
-   */
-  private setDeleteMenu(label: string): void {
-    this.setActionMenuItems(0, [this.getDeleteMenuItem(label)]);
-  }
-
-  /**
    * Sets the bulk menu items for a data type with only a reset option.
    * @param label Reset action label.
    */
