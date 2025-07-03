@@ -156,9 +156,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
 
-  /** Flag to enable row action menu */
-  @Input() hasRowAction = false;
-
   /** Flag to enable bulk action menu */
   @Input() hasBulkActions = true;
 
@@ -380,7 +377,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (this.hasRowAction) {
+    if (this.contextMenuService !== undefined && this.contextMenuService.getHasContextMenu()) {
       // Add action menu if enabled
       this.displayedColumns.push(COL_ROW_ACTION + '');
     }
