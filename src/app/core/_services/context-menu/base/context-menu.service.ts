@@ -1,3 +1,14 @@
+/**
+ * Context menu service base class
+ * This class handles adding context menu entries and bulk menu entries to ht-table components.
+ * It checks required permissions and display options for each entry
+ *
+ * Usage:
+ * - Create a new subclass passing the permission service in the constructor
+ * - Init this subclass in the ngOnInit of the table component before laoding all data from the datasource
+ * - add the following input to the table components html file: [contextMenuService]="contextMenuService"
+ *
+ */
 import { PermissionService } from '@services/permission/permission.service';
 
 import { ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
@@ -296,10 +307,22 @@ export abstract class ContextMenuService {
     this.createMenuItem(label, 0, RowActionMenuAction.DOWNLOAD, RowActionMenuIcon.DOWNLOAD, permissions);
   }
 
+  /**
+   * Add new item entry to the context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @protected
+   */
   protected addCtxNewItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.NEW, RowActionMenuIcon.NEW, permissions);
   }
 
+  /**
+   * Add new view entry to the context menu
+   * @param label - label of the entry
+   * @param permissions - list of permissions which must be granted to the user to display the menu entry
+   * @protected
+   */
   protected addCtxViewItem(label: string, permissions: Array<PermissionValues>): void {
     this.createMenuItem(label, 0, RowActionMenuAction.VIEW, RowActionMenuIcon.VIEW, permissions);
   }
