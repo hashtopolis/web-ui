@@ -4,7 +4,6 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
-import { JVoucher } from '@models/voucher.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -159,7 +158,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   showTruncatedData(event: JHash) {
-    const dialogRef = this.dialog.open(ShowTruncatedDataDialogComponent, {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
       data: {
         hashlistName: event.hashlist?.name,
         unTruncatedText: event.hash

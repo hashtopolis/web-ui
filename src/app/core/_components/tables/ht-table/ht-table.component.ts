@@ -20,7 +20,6 @@ import { MatSort } from '@angular/material/sort';
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
-import { JVoucher } from '@models/voucher.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';

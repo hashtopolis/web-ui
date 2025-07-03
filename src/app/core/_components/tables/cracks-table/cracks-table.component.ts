@@ -4,7 +4,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
-import { JVoucher } from '@models/voucher.model';
 
 import { SERV } from '@services/main.config';
 
@@ -136,7 +135,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   showTruncatedData(event: JHash) {
-    const dialogRef = this.dialog.open(ShowTruncatedDataDialogComponent, {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
       data: {
         hashlistName: event.hashlist?.name,
         unTruncatedText: event.hash
