@@ -5,6 +5,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheck } from '@models/health-check.model';
 
+import { HealthCheckContextMenuService } from '@services/context-menu/config/health-check-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -39,6 +40,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     this.tableColumns = this.getColumns();
     this.dataSource = new HealthChecksDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

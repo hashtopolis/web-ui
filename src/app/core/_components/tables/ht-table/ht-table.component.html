@@ -9,7 +9,7 @@
       </button>
     </div>
     <!-- bulk actions -->
-    <div class="table-action-wrapper" *ngIf="isSelectable && hasBulkActions">
+    <div class="table-action-wrapper" *ngIf="isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()">
       <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
         <button mat-button [disabled]="true">
           <mat-icon>adjust</mat-icon>
@@ -23,6 +23,7 @@
           [isArchived]="isArchived"
           [data]="dataSource.selection.selected"
           [disabled]="!hasSelected()"
+          [contextMenuService]="contextMenuService"
           (menuItemClicked)="bulkAction($event)"
         />
       </ng-template>
@@ -150,10 +151,10 @@
     </ng-container>
 
     <!-- action column -->
-    <ng-container *ngIf="hasRowAction" matColumnDef="{{ colRowAction }}">
+    <ng-container *ngIf="contextMenuService && contextMenuService.getHasContextMenu()" matColumnDef="{{ colRowAction }}">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" [class.text-right]="true">
-        <row-action-menu [data]="element" (menuItemClicked)="rowAction($event)"></row-action-menu>
+        <row-action-menu [data]="element" [contextMenuService]="contextMenuService" (menuItemClicked)="rowAction($event)"></row-action-menu>
       </td>
     </ng-container>
 

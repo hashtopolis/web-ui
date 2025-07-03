@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 
+import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -35,6 +36,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
     this.tableColumns = this.getColumns();
     this.dataSource = new PermissionsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new PermissionsContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

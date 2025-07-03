@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
+import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -32,12 +33,14 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   dataSource: HashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
+
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HashlistsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new HashListContextMenuService(this.permissionService).addContextMenu();
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
@@ -85,6 +88,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         return item.name?.toLowerCase().includes(filterValue);
     }
   }
+
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
@@ -165,20 +169,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     );
   }
 
-  private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
-    if (hashlist.hashCount === hashlist.cracked) {
-      return {
-        name: 'check_circle',
-        tooltip: 'Cracked',
-        cls: 'text-ok'
-      };
-    }
-
-    return { name: '' };
-  }
-
-  // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     this.exportService.handleExportAction<JHashlist>(
       event,
@@ -187,6 +177,8 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       'hashtopolis-hashlists'
     );
   }
+
+  // --- Action functions ---
 
   rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
     switch (event.menuItem.action) {
@@ -242,6 +234,23 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         });
         break;
     }
+  }
+
+  setIsArchived(isArchived: boolean): void {
+    this.isArchived = isArchived;
+    this.dataSource.setIsArchived(isArchived);
+  }
+
+  private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
+    if (hashlist.hashCount === hashlist.cracked) {
+      return {
+        name: 'check_circle',
+        tooltip: 'Cracked',
+        cls: 'text-ok'
+      };
+    }
+
+    return { name: '' };
   }
 
   /**
@@ -331,11 +340,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   private rowActionImport(hashlist: JHashlist): void {
     this.router.navigate(['/hashlists/hashlist/' + hashlist.id + '/import-cracked-hashes']);
-  }
-
-  setIsArchived(isArchived: boolean): void {
-    this.isArchived = isArchived;
-    this.dataSource.setIsArchived(isArchived);
   }
 
   /**

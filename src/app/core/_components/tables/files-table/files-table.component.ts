@@ -5,6 +5,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
+import { FilesContextMenuService } from '@services/context-menu/files-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -57,6 +58,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
+    if (this.name !== 'filesTableInPreTasks') {
+      this.contextMenuService = new FilesContextMenuService(this.permissionService).addContextMenu();
+    }
     this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);

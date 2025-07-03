@@ -1,3 +1,5 @@
+import { Subscription, take, timer } from 'rxjs';
+
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -10,6 +12,20 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+
+import { UIConfig } from '@models/config-ui.model';
+import { JHash } from '@models/hash.model';
+
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -18,21 +34,11 @@ import {
   DataType,
   HTTableColumn,
   HTTableEditable
-} from './ht-table.models';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { Subscription, take, timer } from 'rxjs';
+} from '@components/tables/ht-table/ht-table.models';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
-import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
-import { JHash } from '@src/app/core/_models/hash.model';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -150,12 +156,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
 
-  /** Flag to enable row action menu */
-  @Input() hasRowAction = false;
-
-  /** Flag to enable bulk action menu */
-  @Input() hasBulkActions = true;
-
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [5, 25, 50, 100, 250, 500, 1000, 5000];
 
@@ -176,6 +176,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
+
+  @Input() contextMenuService: ContextMenuService;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
@@ -372,7 +374,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (this.hasRowAction) {
+    if (this.contextMenuService !== undefined && this.contextMenuService.getHasContextMenu()) {
       // Add action menu if enabled
       this.displayedColumns.push(COL_ROW_ACTION + '');
     }

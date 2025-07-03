@@ -16,6 +16,14 @@ export enum AgentStat {
   READ = 'permAgentStatRead',
   UPDATE = 'permAgentStatUpdate'
 }
+
+export enum AgentAssignment {
+  CREATE = 'permAgentAssignmentCreate',
+  DELETE = 'permAgentAssignmentDelete',
+  READ = 'permAgentAssignmentRead',
+  UPDATE = 'permAgentAssignmentUpdate'
+}
+
 // // VOUCHER
 export enum Voucher {
   CREATE = 'permRegVoucherCreate',
@@ -173,6 +181,7 @@ export enum Notif {
 export class Perm {
   static readonly Agent = Agent;
   static readonly AgentStat = AgentStat;
+  static readonly AgentAssignment = AgentAssignment;
   static readonly Voucher = Voucher;
   static readonly Task = Task;
   static readonly Pretask = Pretask;

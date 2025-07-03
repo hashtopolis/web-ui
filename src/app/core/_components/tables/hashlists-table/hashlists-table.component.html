@@ -1,19 +1,20 @@
 <ht-table
   #table
-  [name]="name"
-  dataType="hashlists"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [hasBulkActions]="hasBulkActions"
-  [hasRowAction]="hasRowAction"
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
-  [isArchived]="isArchived"
-  [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
-  (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  [columnLabels]="columnLabels"
+  [contextMenuService]="contextMenuService"
+  [dataSource]="dataSource"
+  [filterFn]="filter.bind(this)"
+
+
+  [isArchived]="isArchived"
+  [isFilterable]="true"
+  [isPageable]="true"
+  [isSelectable]="true"
+  [name]="name"
+  [tableColumns]="tableColumns"
+  dataType="hashlists"
 />

@@ -1,9 +1,22 @@
+import { Observable, catchError, of } from 'rxjs';
+
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JAgent } from '@models/agent.model';
+
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
   AgentsTableCol,
   AgentsTableColumnLabel
 } from '@components/tables/agents-table/agents-table.constants';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   DataType,
   HTTableColumn,
@@ -11,19 +24,12 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { Observable, catchError, of } from 'rxjs';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AgentsDataSource } from '@datasources/agents.datasource';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { JAgent } from '@models/agent.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AgentsDataSource } from '@datasources/agents.datasource';
+
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
@@ -40,6 +46,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string = 'all';
+
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -54,6 +61,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
+    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
   }
 

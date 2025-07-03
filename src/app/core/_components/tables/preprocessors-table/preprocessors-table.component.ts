@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JPreprocessor } from '@models/preprocessor.model';
 
+import { PreProContextMenuService } from '@services/context-menu/crackers/preprocessor-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -34,6 +35,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     this.tableColumns = this.getColumns();
     this.dataSource = new PreprocessorsDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new PreProContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

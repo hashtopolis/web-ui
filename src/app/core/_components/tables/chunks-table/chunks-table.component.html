@@ -5,8 +5,9 @@
   dataType="chunks"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
-  [hasBulkActions]="hasBulkActions"
-  [hasRowAction]="hasRowAction"
+  [contextMenuService]="contextMenuService"
+
+
   [isFilterable]="true"
   [filterFn]="filter.bind(this)"
   [isPageable]="true"

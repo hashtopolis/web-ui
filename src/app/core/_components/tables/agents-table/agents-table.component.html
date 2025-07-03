@@ -7,8 +7,8 @@
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [isFilterable]="isFilterable"
-  [hasRowAction]="hasRowAction"
-  [hasBulkActions]="hasBulkActions"
+  [contextMenuService]="contextMenuService"
+
   [filterFn]="filter.bind(this)"
   (editableSaved)="editableSaved($event)"
   [isPageable]="true"

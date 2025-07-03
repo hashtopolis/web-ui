@@ -1,13 +1,18 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JChunk } from '@models/chunk.model';
+
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ChunksDataSource } from '@datasources/chunks.datasource';
+import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JChunk } from '@models/chunk.model';
-import { SafeHtml } from '@angular/platform-browser';
+
+import { ChunksDataSource } from '@datasources/chunks.datasource';
+
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
@@ -23,6 +28,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
   selectedFilterColumn: string = 'all';
+
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -31,6 +37,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
   filter(item: JChunk, filterValue: string): boolean {

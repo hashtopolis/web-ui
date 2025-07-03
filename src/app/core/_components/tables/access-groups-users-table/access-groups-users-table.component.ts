@@ -5,7 +5,10 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
 
+import { AccessGroupsUserContextMenuService } from '@services/context-menu/users/access-groups-user-menu.service';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsUsersTableCol,
   AccessGroupsUsersTableColumnLabel
@@ -43,6 +46,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       this.dataSource.setAccessGroupId(this.accessgroupId);
       this.dataSource.setAccessGroupExpand(this.include);
     }
+    this.contextMenuService = new AccessGroupsUserContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -106,7 +110,7 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
 
     this.subscriptions.push(
       dialogRef.afterClosed().subscribe((result) => {
-        if (result && result.action === BulkActionMenuAction.DELETE) {
+        if (result && result.action) {
           this.bulkActionUnassign(result.data);
         }
       })
@@ -151,6 +155,19 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
           this.reload();
         })
     );
+  }
+
+  rowActionClicked(event: ActionMenuEvent<JUser>): void {
+    if (event.menuItem.action === RowActionMenuAction.DELETE) {
+      this.openDialog({
+        rows: [event.data],
+        title: `Remove user from access group`,
+        icon: 'warning',
+        body: `Are you sure you want to remove "${event.data.name}" from this access group?`,
+        warn: true,
+        action: event.menuItem.action
+      });
+    }
   }
 
   // --- Existing export action ---

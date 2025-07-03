@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JUser } from '@models/user.model';
 
+import { UsersContextMenuService } from '@services/context-menu/users/users-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -38,6 +39,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     this.tableColumns = this.getColumns();
     this.dataSource = new UsersDataSource(this.cdr, this.gs, this.uiService);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new UsersContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

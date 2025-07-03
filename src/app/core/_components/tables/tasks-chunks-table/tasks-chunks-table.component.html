@@ -5,9 +5,10 @@
   dataType="tasks-chunks"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
-  [hasBulkActions]="false"
+
   [showExport]="false"
-  [hasRowAction]="hasRowAction"
+  [contextMenuService]="contextMenuService"
+
   [isPageable]="true"
   [isSelectable]="true"
   (rowActionClicked)="rowActionClicked($event)"

@@ -17,8 +17,10 @@ import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
 import { JUser } from '@models/user.model';
 
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -41,10 +43,6 @@ export class BaseTableComponent {
   @Input() shashlistId: number;
   /** Name of the table, used when storing user customizations */
   @Input() name: string;
-  /** Flag to enable bulk action menu */
-  @Input() hasBulkActions = true;
-  /** Flag to enable row action menu */
-  @Input() hasRowAction = true;
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = true;
   /** Flag to enable or disable filtering. */
@@ -56,6 +54,8 @@ export class BaseTableComponent {
   protected dateFormat: string;
   protected subscriptions: Subscription[] = [];
   protected columnLabels: { [key: string]: string } = {};
+  protected contextMenuService: ContextMenuService;
+
   constructor(
     protected gs: GlobalService,
     protected cs: ConfigService,
@@ -67,7 +67,8 @@ export class BaseTableComponent {
     protected uiService: UIConfigService,
     protected exportService: ExportService,
     protected cdr: ChangeDetectorRef,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    protected permissionService: PermissionService
   ) {
     this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateFormat = this.getDateFormat();

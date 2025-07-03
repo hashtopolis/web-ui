@@ -5,6 +5,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
 
+import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
 import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -57,6 +58,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
   selectedFilterColumn: string = 'all';
+
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -65,6 +67,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     if (this.supertTaskId) {
       this.dataSource.setSuperTaskId(this.supertTaskId);
     }
+    this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

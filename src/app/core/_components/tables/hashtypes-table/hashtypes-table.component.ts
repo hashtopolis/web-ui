@@ -4,6 +4,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angu
 
 import { JHashtype } from '@models/hashtype.model';
 
+import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -34,6 +35,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HashtypesDataSource(this.cdr, this.gs, this.uiService);
+    this.contextMenuService = new HashTypesContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.setColumns(this.tableColumns);
   }
 

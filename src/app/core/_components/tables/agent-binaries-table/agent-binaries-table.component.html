@@ -6,10 +6,11 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
-  [hasRowAction]="hasRowAction"
+  [contextMenuService]="contextMenuService"
+
+
   [isFilterable]="isFilterable"
   [filterFn]="filter.bind(this)"
-  [hasBulkActions]="hasBulkActions"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
