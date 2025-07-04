@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BaseStorageService, StorageWrapper } from './base-storage.service';
+
+import { BaseStorageService, StorageWrapper } from '@services/storage/base-storage.service';
 
 /**
  * A storage service implementation that uses browser's local storage to store and retrieve data

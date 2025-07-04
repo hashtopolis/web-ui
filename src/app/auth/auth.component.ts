@@ -1,28 +1,27 @@
-import {
-  AuthResponseData,
-  AuthService
-} from '../core/_services/access/auth.service';
-import { environment } from './../../environments/environment';
-import { Component, Inject, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgForm } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-import { LocalStorageService } from '../core/_services/storage/local-storage.service';
-import { UnsubscribeService } from '../core/_services/unsubscribe.service';
-import { ConfigService } from '../core/_services/shared/config.service';
-import { UISettingsUtilityClass } from '../shared/utils/config';
-import { UIConfig } from '../core/_models/config-ui.model';
+import { Component, OnInit } from '@angular/core';
+import { OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
 import { Validators } from '@angular/forms';
-import { OnDestroy } from '@angular/core';
-import { NgZone } from '@angular/core';
+
+import { UIConfig } from '@models/config-ui.model';
+
+import { AuthResponseData, AuthService } from '@services/access/auth.service';
+import { AlertService } from '@services/shared/alert.service';
+import { ConfigService } from '@services/shared/config.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { environment } from '@src/environments/environment';
+import { HeaderConfig } from '@src/config/default/app/config.model';
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './auth.component.html',
-    standalone: false
+  selector: 'app-login',
+  templateUrl: './auth.component.html',
+  standalone: false
 })
 export class AuthComponent implements OnInit, OnDestroy {
   /** Form group for the new SuperHashlist. */
@@ -32,7 +31,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   protected uiSettings: UISettingsUtilityClass;
   public isVisible = true;
-  headerConfig: any;
+  headerConfig: HeaderConfig;
   isDarkMode = false;
 
   /** on loggin loading */
@@ -43,8 +42,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     private storage: LocalStorageService<UIConfig>,
     private configService: ConfigService,
     private authService: AuthService,
-    private ngZone: NgZone,
-    private router: Router
+    private alertService: AlertService
   ) {
     this.headerConfig = environment.config.header;
     this.uiSettings = new UISettingsUtilityClass(this.storage);
@@ -77,17 +75,14 @@ export class AuthComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.loginForm = new FormGroup({
-      username: new FormControl(null, [
-        Validators.required,
-        Validators.minLength(2)
-      ]),
-      password: new FormControl(null, [
-        Validators.required,
-        Validators.minLength(3)
-      ])
+      username: new FormControl(null, [Validators.required, Validators.minLength(2)]),
+      password: new FormControl(null, [Validators.required, Validators.minLength(3)])
     });
   }
 
+  /**
+   * Handle login, when user submits the login form.
+   */
   onSubmit() {
     if (this.loginForm.invalid) {
       return;
@@ -97,43 +92,32 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     this.isLoading = true; // Show spinner
 
-    let authObs: Observable<AuthResponseData>;
-    authObs = this.authService.logIn(username, password);
+    const authObs: Observable<AuthResponseData> = this.authService.logIn(username, password);
 
-    const authSubscription$ = authObs.subscribe(
-      (resData) => {
-        this.handleSuccessfulLogin(resData);
+    const authSubscription$ = authObs.subscribe({
+      next: () => {
         this.loginForm.reset();
       },
-      (error) => {
+      error: () => {
         this.isLoading = false;
         this.handleError('An error occurred. Please try again later.');
       },
-      () => {
+      complete: () => {
         this.isLoading = false; // Hide spinner after attempting to log in
       }
-    );
+    });
 
     this.unsubscribeService.add(authSubscription$);
   }
 
-  private handleSuccessfulLogin(resData: AuthResponseData): void {
-    if (this.authService.redirectUrl) {
-      const redirectUrl = this.authService.redirectUrl;
-      this.authService.redirectUrl = '';
-      this.authService.setUserLoggedIn(true);
-      this.router.navigate([redirectUrl]);
-    } else {
-      this.router.navigate(['/']);
-    }
-  }
-
+  /**
+   * Show and log specified error message
+   * @param errorMessage Message to log/display
+   * @private
+   */
   private handleError(errorMessage: string): void {
     this.errorRes = errorMessage;
     console.log(this.errorRes);
-  }
-
-  onHandleError() {
-    this.errorRes = null;
+    this.alertService.showErrorMessage(errorMessage);
   }
 }
