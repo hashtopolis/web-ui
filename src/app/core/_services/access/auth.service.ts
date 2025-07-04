@@ -12,6 +12,7 @@ import { AuthData, AuthUser } from '@models/auth-user.model';
 import { PermissionService } from '@services/permission/permission.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
+import { LoginRedirectService } from '@services/access/login-redirect.service';
 
 export interface AuthResponseData {
   token: string;
@@ -93,6 +94,12 @@ export class AuthService {
           this.userAuthChanged(true);
           const permissionService = this.injector.get(PermissionService);
           return permissionService.loadPermissions();
+        }),
+        tap(() => {
+          const redirectService = this.injector.get(LoginRedirectService);
+          const redirectUrl = this.redirectUrl;
+          redirectService.handlePostLoginRedirect(this.userId, redirectUrl);
+          this.redirectUrl = '';
         })
       );
   }
