@@ -8,13 +8,13 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { PermissionValues } from '@src/app/core/_constants/userpermissions.config';
 
 /**
  * Service for checking and managing user permissions.
  */
-
 @Injectable({ providedIn: 'root' })
 export class PermissionService {
   private permissions$ = new BehaviorSubject<Permission>({});
@@ -25,7 +25,8 @@ export class PermissionService {
 
   constructor(
     private gs: GlobalService,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    private storage: LocalStorageService<Permission>
   ) {}
 
   /**
@@ -33,8 +34,7 @@ export class PermissionService {
    * Uses localStorage cache valid for 15 minutes.
    */
   loadPermissions(): Observable<Permission> {
-    const cached = this.getPermissionsFromCache();
-
+    const cached = this.storage.getItem(this.STORAGE_KEY);
     if (cached) {
       this.currentPermissions = cached;
       this.permissions$.next(cached);
@@ -50,7 +50,7 @@ export class PermissionService {
 
         this.currentPermissions = permissions;
         this.permissions$.next(permissions);
-        this.savePermissionsToCache(permissions);
+        this.storage.setItem(this.STORAGE_KEY, permissions, this.CACHE_DURATION_MS);
 
         return permissions;
       })
@@ -66,6 +66,9 @@ export class PermissionService {
 
   /**
    * Asynchronously checks whether a specific permission is granted.
+   *
+   * @param key - The permission key to check.
+   * @returns An observable that emits `true` if the permission is granted.
    */
   hasPermission(key: PermissionValues): Observable<boolean> {
     return this.getPermissions().pipe(map((permissions) => !!permissions[key]));
@@ -73,6 +76,9 @@ export class PermissionService {
 
   /**
    * Asynchronously checks multiple permissions.
+   *
+   * @param keys - Array of permission keys.
+   * @returns An observable that emits an array of booleans.
    */
   hasPermissions(keys: PermissionValues[]): Observable<boolean[]> {
     const observables = keys.map((key) => this.hasPermission(key));
@@ -81,6 +87,9 @@ export class PermissionService {
 
   /**
    * Asynchronously checks whether all specified permissions are granted.
+   *
+   * @param keys - Array of permission keys.
+   * @returns An observable that emits `true` if all permissions are granted.
    */
   hasAllPermissions(keys: PermissionValues[]): Observable<boolean> {
     return this.hasPermissions(keys).pipe(map((results) => results.every(Boolean)));
@@ -90,6 +99,9 @@ export class PermissionService {
 
   /**
    * Synchronously checks if a specific permission is granted.
+   *
+   * @param key - The permission key to check.
+   * @returns `true` if granted, otherwise `false`.
    */
   hasPermissionSync(key: PermissionValues): boolean {
     return !!this.currentPermissions?.[key];
@@ -97,6 +109,9 @@ export class PermissionService {
 
   /**
    * Synchronously checks multiple permissions.
+   *
+   * @param keys - Array of permission keys.
+   * @returns Array of booleans indicating whether each permission is granted.
    */
   hasPermissionsSync(keys: PermissionValues[]): boolean[] {
     return keys.map((key) => this.hasPermissionSync(key));
@@ -104,6 +119,9 @@ export class PermissionService {
 
   /**
    * Synchronously checks whether all specified permissions are granted.
+   *
+   * @param keys - Array of permission keys.
+   * @returns `true` if all permissions are granted.
    */
   hasAllPermissionsSync(keys: PermissionValues[]): boolean {
     return keys.every((key) => this.hasPermissionSync(key));
@@ -112,36 +130,9 @@ export class PermissionService {
   // ----------- Caching Methods -----------
 
   /**
-   * Retrieves permissions from localStorage if not expired.
-   */
-  private getPermissionsFromCache(): Permission | null {
-    const item = localStorage.getItem(this.STORAGE_KEY);
-    if (!item) return null;
-
-    try {
-      const { timestamp, permissions } = JSON.parse(item);
-      const isExpired = Date.now() - timestamp > this.CACHE_DURATION_MS;
-      return isExpired ? null : permissions;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Saves permissions to localStorage with a timestamp.
-   */
-  private savePermissionsToCache(permissions: Permission): void {
-    const payload = {
-      permissions,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(payload));
-  }
-
-  /**
    * Clears the permission cache manually (e.g. on logout).
    */
   clearPermissionCache(): void {
-    localStorage.removeItem(this.STORAGE_KEY);
+    this.storage.removeItem(this.STORAGE_KEY);
   }
 }
