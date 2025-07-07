@@ -39,9 +39,25 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  private _taskId: number;
+
   @Input() datatype: DataType = 'agents';
-  @Input() taskId = 0;
   @Input() assignAgents? = false;
+
+  @Input()
+  set taskId(value: number) {
+    if (value !== this._taskId) {
+      this._taskId = value;
+      this.ngOnInit();
+    }
+  }
+  get taskId(): number {
+    if (this._taskId === undefined) {
+      return 0;
+    } else {
+      return this._taskId;
+    }
+  }
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;

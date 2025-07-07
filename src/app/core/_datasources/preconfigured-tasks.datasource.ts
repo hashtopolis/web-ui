@@ -19,7 +19,6 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
   async loadAll(): Promise<void> {
     this.loading = true;
-    this.sortingColumn.isSortable = false;
 
     try {
       if (this._superTaskId === 0) {

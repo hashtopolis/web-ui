@@ -47,8 +47,24 @@ declare let defaultOptions: AttackOptions;
   standalone: false
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  private _supertTaskId: number;
+
   // Input property to specify a supertask ID for filtering pretasks.
-  @Input() supertTaskId = 0;
+  @Input()
+  set supertTaskId(value: number) {
+    if (value !== this._supertTaskId) {
+      this._supertTaskId = value;
+      this.ngOnInit();
+    }
+  }
+  get supertTaskId(): number {
+    if (this._supertTaskId === undefined) {
+      return 0;
+    } else {
+      return this._supertTaskId;
+    }
+  }
+
   // Estimate runtime attack
   @Input() benchmarkA0 = 0;
   @Input() benchmarkA3 = 0;
