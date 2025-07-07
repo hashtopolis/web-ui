@@ -5,7 +5,9 @@ import { CanvasRenderer } from 'echarts/renderers';
 import { Subscription } from 'rxjs';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+
+import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -363,7 +365,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private getSuperTasks(): void {
     const paramsTotalTasks = new RequestParamBuilder()
-      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 1 })
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
       .create();
 
     this.subscriptions.push(
@@ -375,7 +377,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     const paramsCompletedTasks = new RequestParamBuilder()
       .addFilter({ field: 'keyspace', operator: FilterType.EQUAL, value: 'keyspaceProgress' })
       .addFilter({ field: 'keyspace', operator: FilterType.GREATER, value: 0 })
-      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: 1 })
+      .addFilter({ field: 'taskType', operator: FilterType.EQUAL, value: TaskType.SUPERTASK })
       .addInclude('tasks')
       .create();
 
