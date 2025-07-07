@@ -23,7 +23,6 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     }
     if (query) {
       params.addFilter(query);
-      console.log('add search');
     }
     const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());
 
@@ -44,7 +43,6 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
             chunk.agentName = chunk.agent.agentName;
           }
         });
-        console.log(assignedChunks)
         this.setData(assignedChunks);
       });
   }
