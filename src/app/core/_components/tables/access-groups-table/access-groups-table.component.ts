@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAccessGroup } from '@models/access-group.model';
 
+import { AccessGroupsContextMenuService } from '@services/context-menu/users/access-groups-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -33,8 +34,9 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new AccessGroupsContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

@@ -5,6 +5,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
+import { FilesContextMenuService } from '@services/context-menu/files-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -57,7 +58,10 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
     this.setColumnLabels(FilesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
+    if (this.name !== 'filesTableInPreTasks') {
+      this.contextMenuService = new FilesContextMenuService(this.permissionService).addContextMenu();
+    }
+    this.dataSource = new FilesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
     if (this.editIndex) {
@@ -203,6 +207,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
           action: event.menuItem.action
         });
         break;
+      case RowActionMenuAction.DOWNLOAD:
+        this.rowActionDownload(event.data);
+        break;
     }
   }
 
@@ -283,5 +290,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     this.renderFileLink(file).subscribe((links: HTTableRouterLink[]) => {
       this.router.navigate(links[0].routerLink).then(() => {});
     });
+  }
+
+  private rowActionDownload(file: JFile): void {
+    this.gs.getFile(SERV.GET_FILES, file.id, file.filename);
   }
 }

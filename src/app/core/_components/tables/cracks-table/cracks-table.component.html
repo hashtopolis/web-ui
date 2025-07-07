@@ -6,8 +6,8 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-  [hasBulkActions]="hasBulkActions"
-  [hasRowAction]="hasRowAction"
+
+
   [isFilterable]="true"
   [filterFn]="filter.bind(this)"
   [isPageable]="true"
@@ -15,4 +15,6 @@
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (emitCopyRowData)="receiveCopyData($event)"
+  (emitFullHashModal)="showTruncatedData($event)"
 />

@@ -1,6 +1,6 @@
 export const HeaderMenuAction = {
   LOGOUT: 'logout'
-}
+};
 
 export const HeaderMenuLabel = {
   AGENTS: 'Agents',
@@ -10,7 +10,7 @@ export const HeaderMenuLabel = {
   SHOW_TASKS: 'Show Tasks',
   PRECONFIGURED_TASKS: 'Preconfigured Tasks',
   SUPERTASKS: 'Supertasks',
-  IMPORT_SUPERTASK: 'Import Supertask',
+  IMPORT_SUPERTASK: 'Supertask Builder',
   CHUNK_ACTIVITY: 'Chunk activity',
   HASHLISTS: 'Hashlists',
   SHOW_HASHLISTS: 'Hashlists',
@@ -34,5 +34,5 @@ export const HeaderMenuLabel = {
   CRACKERS: 'Crackers',
   PREPROCESSORS: 'Preprocessors',
   AGENT_BINARIES: 'Agent Binaries',
-  HELP_CONTACT: 'Help / Contact',
-}
+  HELP_CONTACT: 'Help / Contact'
+};

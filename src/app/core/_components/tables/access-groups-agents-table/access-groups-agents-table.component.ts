@@ -2,6 +2,10 @@ import { catchError } from 'rxjs';
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
+import { AccessGroupsAgentContextMenuService } from '@services/context-menu/users/access-groups-agent-menu.service';
+
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
 import {
@@ -32,12 +36,13 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsAgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accessgroupId) {
       this.dataSource.setAccessGroupId(this.accessgroupId);
       this.dataSource.setAccessGroupExpand(this.include);
     }
+    this.contextMenuService = new AccessGroupsAgentContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -79,11 +84,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     this.subscriptions.push(
       dialogRef.afterClosed().subscribe((result) => {
         if (result && result.action) {
-          switch (result.action) {
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionUnassign(result.data);
-              break;
-          }
+          this.bulkActionUnassign(result.data);
         }
       })
     );
@@ -113,6 +114,19 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
 
     // Open confirmation dialog
     this.openDialog(dialogData);
+  }
+
+  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
+    if (event.menuItem.action === RowActionMenuAction.DELETE) {
+      this.openDialog({
+        rows: [event.data],
+        title: `Remove agent from access group`,
+        icon: 'warning',
+        body: `Are you sure you want to remove "${event.data.agentName}" from this access group?`,
+        warn: true,
+        action: event.menuItem.action
+      });
+    }
   }
 
   /**
@@ -148,7 +162,7 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
         .subscribe(() => {
           this.agentsRemoved.emit();
           this.alertService.showSuccessMessage(
-            `Successfully removed ${agents.length} user${agents.length > 1 ? 's' : ''}`
+            `Successfully removed ${agents.length} agent${agents.length > 1 ? 's' : ''} from this group`
           );
           this.reload();
         })

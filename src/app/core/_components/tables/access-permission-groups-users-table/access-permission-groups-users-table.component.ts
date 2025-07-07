@@ -32,7 +32,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);

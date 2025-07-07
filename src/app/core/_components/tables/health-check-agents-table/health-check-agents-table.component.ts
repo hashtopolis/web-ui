@@ -31,7 +31,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   ngOnInit(): void {
     this.setColumnLabels(HealthCheckAgentsTableColColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HealthCheckAgentsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HealthCheckAgentsDataSource(this.injector);
     if (this.healthCheckId) {
       this.dataSource.setHealthCheckId(this.healthCheckId);
     }

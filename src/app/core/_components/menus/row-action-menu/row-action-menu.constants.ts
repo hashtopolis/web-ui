@@ -16,6 +16,7 @@ export const RowActionMenuLabel = {
   EDIT_HASHTYPE: 'Edit Hashtype',
   EDIT_SUPERHASHLIST: 'Edit Superhashlist',
   EDIT_FILE: 'Edit File',
+  DOWNLOAD_FILE: 'Download File',
   EDIT_PREPROCESSOR: 'Edit Preprocessor',
   EDIT_AGENTBINARY: 'Edit Agent Binary',
   VIEW_HEALTHCHECK: 'View Health Check',
@@ -54,7 +55,11 @@ export const RowActionMenuLabel = {
   UNASSIGN_AGENT: 'Unassign Agent',
   UNASSIGN_USER: 'Unassign User',
   UNASSIGN_PRETASK: 'Unassign Pretask',
-  RESET_CHUNK: 'Reset Task Chunk'
+  RESET_CHUNK: 'Reset Task Chunk',
+  REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
+  REMOVE_ACCESSGROUP_USER: 'Remove User',
+  ARCHIVE_PRETASK: 'Archive PreTask',
+  UNARCHIVE_PRETASK: 'Unarchive PreTask'
 };
 
 export const RowActionMenuAction = {

@@ -3,19 +3,25 @@ import { catchError } from 'rxjs';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { JAgentErrors } from '@models/agent-errors.model';
+
+import { AgentErrorContextMenuService } from '@services/context-menu/agents/agent-error-menu.service';
+import { SERV } from '@services/main.config';
+
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import {
+  AgentErrorTableCol,
+  AgentErrorTableColumnLabel
+} from '@components/tables/agent-error-table/agent-error-table.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
-import { AgentErrorTableCol, AgentErrorTableColumnLabel } from './agent-error-table.constants';
-import { BulkActionMenuAction } from '../../menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '../../menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '../base-table/base-table.component';
-import { HTTableColumn } from '../ht-table/ht-table.models';
-import { DialogData } from '../table-dialog/table-dialog.model';
+import { AgentErrorDatasource } from '@datasources/agent-error.datasource';
 
-import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
-import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
-import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -34,12 +40,13 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   ngOnInit(): void {
     this.setColumnLabels(AgentErrorTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentErrorDatasource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentErrorDatasource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
 
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
+    this.contextMenuService = new AgentErrorContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
   getColumns(): HTTableColumn[] {

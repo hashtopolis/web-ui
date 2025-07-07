@@ -28,7 +28,8 @@ export const BulkActionMenuLabel = {
   RESET_CHUNKS: 'Reset chunks',
   UNASSIGN_AGENTS: 'Unassign agents',
   REMOVE_ACCESSGROUP_AGENTS: 'Remove agents',
-  REMOVE_ACCESSGROUP_USERS: 'Remove users'
+  REMOVE_ACCESSGROUP_USERS: 'Remove users',
+  ARCHIVE_PRETASKS: 'Archive PreTasks'
 };
 
 export const BulkActionMenuAction = {

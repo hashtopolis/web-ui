@@ -7,6 +7,7 @@ import { SERV } from '@services/main.config';
 
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 import { FilesComponent } from '@src/app/files/files.component';
@@ -23,7 +24,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'wordlist',
           breadcrumb: 'Wordlist',
-          permission: 'File'
+          permission: Perm.File.READ
         },
         canActivate: [CheckPerm]
       },
@@ -33,7 +34,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'wordlist-new',
           breadcrumb: 'Wordlist New',
-          permission: 'File'
+          permission: Perm.File.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -45,7 +46,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.FILES,
           breadcrumb: 'Wordlist Edit',
-          permission: 'File'
+          permission: Perm.File.READ
         },
         canActivate: [CheckPerm]
       },
@@ -55,7 +56,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'rules',
           breadcrumb: 'Rules',
-          permission: 'File'
+          permission: Perm.File.READ
         },
         canActivate: [CheckPerm]
       },
@@ -65,7 +66,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'rule-new',
           breadcrumb: 'Rule New',
-          permission: 'File'
+          permission: Perm.File.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -77,7 +78,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.FILES,
           breadcrumb: 'Rules Edit',
-          permission: 'File'
+          permission: Perm.File.READ
         },
         canActivate: [CheckPerm]
       },
@@ -87,7 +88,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'other',
           breadcrumb: 'Other',
-          permission: 'File'
+          permission: Perm.File.READ
         },
         canActivate: [CheckPerm]
       },
@@ -97,7 +98,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'other-new',
           breadcrumb: 'Other New',
-          permission: 'File'
+          permission: Perm.File.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -109,7 +110,7 @@ const routes: MyRoute[] = [
           type: 'edit',
           serviceConfig: SERV.FILES,
           breadcrumb: 'Other Edit',
-          permission: 'File'
+          permission: Perm.File.READ
         },
         canActivate: [CheckPerm]
       }

@@ -15,6 +15,7 @@ import { Observable, catchError, of } from 'rxjs';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -41,6 +42,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string = 'all';
+
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -50,11 +52,12 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   ngOnInit(): void {
     this.setColumnLabels(AgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
+    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
   }
   filter2(input: string) {
@@ -179,7 +182,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'devices',
         render: (agent: JAgent) => this.renderDevices(agent),
         isSortable: true,
-        isSearchable:true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.devices
       },
       {
@@ -197,7 +200,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         id: AgentsTableCol.CURRENT_TASK,
         dataKey: 'taskName',
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
-        isSortable: true, 
+        isSortable: true,
         export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
       });
       tableColumns.push({
@@ -371,7 +374,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderOwner(agent: JAgent): SafeHtml {
-    console.log(agent)
+    console.log(agent);
     if (agent.user) {
       return this.sanitize(agent.user.name);
     }

@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAgentBinary } from '@models/agent-binary.model';
 
+import { AgentBinariesMenuServiceContextMenuService } from '@services/context-menu/crackers/agent-binaries-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -36,8 +37,9 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
   ngOnInit(): void {
     this.setColumnLabels(AgentBinariesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentBinariesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentBinariesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new AgentBinariesMenuServiceContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
 
     const path = this.cs.getEndpoint().replace('/api/v2', '');

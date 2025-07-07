@@ -4,6 +4,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { JPretask } from '@models/pretask.model';
 
+import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
 import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -35,11 +36,12 @@ export class SuperTasksPretasksTableComponent extends BaseTableComponent impleme
   ngOnInit(): void {
     this.setColumnLabels(SupertasksPretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperTasksPretasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperTasksPretasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.supertaskId) {
       this.dataSource.setSuperTaskId(this.supertaskId);
     }
+    this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

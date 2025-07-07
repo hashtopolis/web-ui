@@ -2,6 +2,10 @@ import { catchError } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
+
+import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
+
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
@@ -30,8 +34,9 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
   ngOnInit(): void {
     this.setColumnLabels(VouchersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new VouchersDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new VouchersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new VoucherContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -62,6 +67,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
         id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,
+        isCopy: true,
         export: async (voucher: JVoucher) => voucher.voucher
       },
       {
@@ -105,6 +111,14 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
       VouchersTableColumnLabel,
       'hashtopolis-vouchers'
     );
+  }
+
+  protected receiveCopyData(event: BaseModel): void {
+    if (this.clipboard.copy((event as JVoucher).voucher)) {
+      this.alertService.showSuccessMessage('Voucher key successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy Voucher key clipboard.');
+    }
   }
 
   rowActionClicked(event: ActionMenuEvent<JVoucher>): void {

@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JNotification } from '@models/notification.model';
 
+import { NotificationsContextMenuService } from '@services/context-menu/notifications-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -35,8 +36,9 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new NotificationsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new NotificationsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new NotificationsContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

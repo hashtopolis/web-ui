@@ -10,6 +10,7 @@ import { BaseTableComponent } from '@components/tables/base-table/base-table.com
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 import { JHashtype } from '@models/hashtype.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -30,7 +31,8 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashtypesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HashtypesDataSource(this.injector);
+    this.contextMenuService = new HashTypesContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.setColumns(this.tableColumns);
   }
 

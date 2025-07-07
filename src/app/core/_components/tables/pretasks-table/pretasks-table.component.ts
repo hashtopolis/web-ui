@@ -1,10 +1,11 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
 
+import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
 import { RelationshipType, SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -53,17 +54,20 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   @Input() benchmarkA0 = 0;
   @Input() benchmarkA3 = 0;
 
+  @Output() pretasksChanged = new EventEmitter<void>();
+
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
   selectedFilterColumn: string = 'pretaskId';
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new PreTasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new PreTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.supertTaskId) {
       this.dataSource.setSuperTaskId(this.supertTaskId);
     }
+    this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -446,6 +450,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
           .subscribe(() => {
             this.alertService.showSuccessMessage('Successfully unassigned pretask!');
             this.reload();
+            this.pretasksChanged.emit(); // Signals change that the Pretask ComboBox is being updated
           })
       );
     }

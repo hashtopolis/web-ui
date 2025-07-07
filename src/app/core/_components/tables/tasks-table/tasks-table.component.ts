@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   HTTableColumn,
   HTTableEditable,
@@ -27,6 +27,7 @@ import { RowActionMenuAction } from '@components/menus/row-action-menu/row-actio
 import { SERV } from '@services/main.config';
 import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
 @Component({
@@ -35,6 +36,22 @@ import { TasksDataSource } from '@datasources/tasks.datasource';
   standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  private _hashlistId: number;
+
+  @Input()
+  set hashlistId(value: number) {
+    if (value !== this._hashlistId) {
+      this._hashlistId = value;
+      this.ngOnInit();
+    }
+  }
+  get hashlistId(): number {
+    if (this._hashlistId === undefined) {
+      return 0;
+    } else {
+      return this._hashlistId;
+    }
+  }
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
@@ -42,9 +59,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new TasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -335,7 +353,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.dataSource.reset(true);
     this.dataSource.setIsArchived(isArchived);
+    this.dataSource.loadAll();
   }
 
   getDispatchedSearchedString(wrapper: JTaskWrapper): string {

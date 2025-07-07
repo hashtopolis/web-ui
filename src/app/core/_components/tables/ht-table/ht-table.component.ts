@@ -18,21 +18,24 @@ import {
   DataType,
   HTTableColumn,
   HTTableEditable
-} from './ht-table.models';
+} from '@components/tables/ht-table/ht-table.models';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Subscription, take, timer } from 'rxjs';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
-import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseDataSource } from '@datasources/base.datasource';
+import { BaseModel } from '@models/base.model';
+import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { JHash } from '@models/hash.model';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { UIConfig } from '@models/config-ui.model';
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -49,7 +52,6 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
  *   [isSelectable]="true"
  *   [isFilterable]="true"
  *   [tableColumns]="myTableColumns"
- *   [hasRowAction]="true"
  *   [paginationSizes]="[5, 10, 15]"
  *   [defaultPageSize]="10"
  *   [filterFn]="customFilterFunction"
@@ -66,7 +68,6 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
  * - `[isSelectable]`: Set to `true` to enable row selection with checkboxes.
  * - `[isFilterable]`: Set to `true` to enable filtering.
  * - `[tableColumns]`: An array of `HTTableColumn` configurations for defining columns.
- * - `[hasRowAction]`: Set to `true` to enable custom row actions.
  * - `[paginationSizes]`: An array of available page sizes.
  * - `[defaultPageSize]`: The default page size for pagination.
  * - `[filterFn]`: A custom filter function for advanced filtering.
@@ -150,12 +151,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
 
-  /** Flag to enable row action menu */
-  @Input() hasRowAction = false;
-
-  /** Flag to enable bulk action menu */
-  @Input() hasBulkActions = true;
-
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [5, 25, 50, 100, 250, 500, 1000, 5000];
 
@@ -176,7 +171,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
-  /* Flag to enable new filter */
+
+  @Input() contextMenuService: ContextMenuService;
+
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
@@ -198,6 +195,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
+  @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
+  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   /** Fetches user customizations */
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
@@ -285,6 +284,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadingTimeoutSubscription.unsubscribe();
     }
   }
+  copyRowDataEmit(event: JHash) {
+    this.emitCopyRowData.emit(event);
+  }
+
+  showFullHashModalEmit(event: JHash): void {
+    this.emitFullHashModal.emit(event);
+  }
 
   /**
    * Opens a dialog for selecting table columns to display.
@@ -371,7 +377,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (this.hasRowAction) {
+    if (this.contextMenuService !== undefined && this.contextMenuService.getHasContextMenu()) {
       // Add action menu if enabled
       this.displayedColumns.push(COL_ROW_ACTION + '');
     }

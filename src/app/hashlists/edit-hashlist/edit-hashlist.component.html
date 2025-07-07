@@ -54,6 +54,7 @@
       </mat-accordion>
 
      </grid-main>
+  </div>
 </div>
 <div class="col-md-5">
   <app-table *ngIf="type === 3">
@@ -62,8 +63,6 @@
   </app-table>
   <app-table>
     <app-page-subtitle [subtitle]="'Tasks Cracking this hashlist'"></app-page-subtitle>
-    <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" [hasBulkActions]="false"></app-tasks-table>
+    <app-tasks-table name="hashlistTasksTable" [hashlistId]="editedHashlistIndex" ></app-tasks-table>
   </app-table>
 </div>
-
-

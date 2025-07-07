@@ -14,6 +14,7 @@ import { JSuperTask } from '@models/supertask.model';
 import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
+import { SuperTaskContextMenuService } from '@services/context-menu/tasks/supertask-menu.service';
 import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { catchError } from 'rxjs';
@@ -31,8 +32,9 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperTasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new SuperTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 

@@ -36,7 +36,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   ngOnInit(): void {
     this.setColumnLabels(FilesAttackTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new FilesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new FilesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
     this.dataSource.loadAll();

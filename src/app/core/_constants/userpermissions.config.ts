@@ -16,6 +16,14 @@ export enum AgentStat {
   READ = 'permAgentStatRead',
   UPDATE = 'permAgentStatUpdate'
 }
+
+export enum AgentAssignment {
+  CREATE = 'permAgentAssignmentCreate',
+  DELETE = 'permAgentAssignmentDelete',
+  READ = 'permAgentAssignmentRead',
+  UPDATE = 'permAgentAssignmentUpdate'
+}
+
 // // VOUCHER
 export enum Voucher {
   CREATE = 'permRegVoucherCreate',
@@ -46,8 +54,9 @@ export enum SuperTask {
 }
 // // TASK WRAPPER  (Running supertask)
 export enum TaskWrapper {
-  CREATE = 'permTaskWrapperRead',
-  UPDATE = 'permTaskWrapperUpdate'
+  CREATE = 'permTaskWrapperCreate',
+  UPDATE = 'permTaskWrapperUpdate',
+  READ = 'permTaskWrapperRead'
 }
 // // CHUNK
 export enum Chunk {
@@ -65,7 +74,9 @@ export enum Hashlist {
 // // SUPER-HASHLIST
 export enum SuperHashlist {
   CREATE = 'permHashlistHashlistCreate',
-  READ = 'permHashlistHashlistRead'
+  READ = 'permHashlistHashlistRead',
+  UPDATE = 'permHashlistHashlistUpdate',
+  DELETE = 'permHashlistHashlistDelete'
 }
 // // HASH
 export enum Hash {
@@ -170,6 +181,7 @@ export enum Notif {
 export class Perm {
   static readonly Agent = Agent;
   static readonly AgentStat = AgentStat;
+  static readonly AgentAssignment = AgentAssignment;
   static readonly Voucher = Voucher;
   static readonly Task = Task;
   static readonly Pretask = Pretask;
@@ -195,5 +207,8 @@ export class Perm {
   static readonly Notif = Notif;
 }
 
-export type PermissionResource = keyof typeof Perm;
-export type PermissionType = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
+type NestedEnumValues<T> = T extends Record<string, string> ? T[keyof T] : never;
+
+export type PermissionValues = {
+  [K in keyof typeof Perm]: NestedEnumValues<(typeof Perm)[K]>;
+}[keyof typeof Perm];

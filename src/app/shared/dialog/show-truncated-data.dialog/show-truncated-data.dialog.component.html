@@ -1,0 +1,18 @@
+<mat-dialog-content 
+  cdkDrag 
+  cdkDragRootElement=".cdk-overlay-pane" 
+  cdkDragHandle 
+  class="moveable-cursor"
+  style="word-break: break-all; white-space: pre-wrap;"
+>
+
+  <h2 mat-dialog-title>
+    Full Hash for: {{ data.hashlistName }}
+  </h2>
+
+  <h3>Full Hash</h3>
+      <p>{{ data.unTruncatedText }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="closeDialog()">Close</button>
+</mat-dialog-actions>

@@ -8,6 +8,7 @@ import { catchError, forkJoin } from 'rxjs';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
 import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
@@ -39,6 +40,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string = 'all';
+
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
@@ -48,8 +50,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
   }
   filter2(input: string) {

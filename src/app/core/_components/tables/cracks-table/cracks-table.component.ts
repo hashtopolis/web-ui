@@ -2,6 +2,7 @@ import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 
 import { SERV } from '@services/main.config';
@@ -18,6 +19,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -32,7 +34,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
   ngOnInit(): void {
     this.setColumnLabels(CracksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new CracksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new CracksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll().then(() => {});
   }
@@ -88,7 +90,8 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'hash',
         isSortable: true,
         isSearchable: true,
-        truncate: true,
+        isCopy: true,
+        truncate: (crack: JHash) => crack.hash.length > 40,
         render: (crack: JHash) => crack.hash,
         export: async (crack: JHash) => crack.hash
       },
@@ -121,6 +124,23 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         export: async (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '')
       }
     ];
+  }
+
+  protected receiveCopyData(event: BaseModel) {
+    if (this.clipboard.copy((event as JHash).hash)) {
+      this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy hash value clipboard.');
+    }
+  }
+
+  showTruncatedData(event: JHash) {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
+      data: {
+        hashlistName: event.hashlist?.name,
+        unTruncatedText: event.hash
+      }
+    });
   }
 
   openDialog(data: DialogData<JHash>) {

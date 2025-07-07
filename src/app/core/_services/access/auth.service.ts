@@ -12,6 +12,7 @@ import { AuthData, AuthUser } from '@models/auth-user.model';
 import { PermissionService } from '@services/permission/permission.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
+import { LoginRedirectService } from '@services/access/login-redirect.service';
 
 export interface AuthResponseData {
   token: string;
@@ -47,6 +48,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Auto-login user, if there is a token in localStorage
+   */
   autoLogin() {
     const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
@@ -59,6 +63,15 @@ export class AuthService {
       const tokenExpiration = new Date(userData._expires).getTime() - new Date().getTime();
       // this.autologOut(tokenExpiration);
       this.getRefreshToken(tokenExpiration);
+
+      // Load permissions after restoring user
+      const permissionService = this.injector.get(PermissionService);
+      permissionService.loadPermissions().subscribe({
+        next: () => {},
+        error: (err) => {
+          console.error('Failed to load permissions on autoLogin:', err);
+        }
+      });
     }
   }
 
@@ -81,6 +94,12 @@ export class AuthService {
           this.userAuthChanged(true);
           const permissionService = this.injector.get(PermissionService);
           return permissionService.loadPermissions();
+        }),
+        tap(() => {
+          const redirectService = this.injector.get(LoginRedirectService);
+          const redirectUrl = this.redirectUrl;
+          redirectService.handlePostLoginRedirect(this.userId, redirectUrl);
+          this.redirectUrl = '';
         })
       );
   }
@@ -171,6 +190,10 @@ export class AuthService {
       clearTimeout(this.tokenExpiration);
     }
     this.tokenExpiration = null;
+
+    // Delete cached permissions from storage
+    const permissionService = this.injector.get(PermissionService);
+    permissionService.clearPermissionCache();
   }
 
   checkStatus() {

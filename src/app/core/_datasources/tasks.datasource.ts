@@ -12,9 +12,14 @@ import { finalize } from 'rxjs/operators';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
+  private _hashlistID = 0;
 
   setIsArchived(isArchived: boolean): void {
     this._isArchived = isArchived;
+  }
+
+  setHashlistID(hashlistID: number): void {
+    this._hashlistID = hashlistID;
   }
 
   loadAll(query?: Filter): void {
@@ -33,6 +38,15 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
     if (query) {
       params.addFilter(query);
     }
+
+    if (this._hashlistID && this._hashlistID > 0) {
+      params.addFilter({
+        field: 'hashlistId',
+        operator: FilterType.EQUAL,
+        value: this._hashlistID
+      });
+    }
+
     const wrappers$ = this.service.getAll(SERV.TASKS_WRAPPER, params.create());
 
     this.subscriptions.push(
@@ -70,6 +84,8 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
                   });
                 })
             );
+          } else {
+            this.setData(taskWrappers);
           }
         })
     );

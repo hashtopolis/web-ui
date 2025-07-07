@@ -3,6 +3,7 @@ import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunk
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 import { ChunksDataSource } from '@datasources/chunks.datasource';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -24,14 +25,16 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
   selectedFilterColumn: string = 'all';
+
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new ChunksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new ChunksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
   filter(input: string) {

@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
+import { SuperHashListContextMenuService } from '@services/context-menu/hashlists/super-hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -30,12 +31,14 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: string = 'all';
+
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperHashlistsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperHashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -76,6 +79,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         return item.name?.toLowerCase().includes(filterValue);
     }
   }
+
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -142,38 +146,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     );
   }
 
-  /**
-   * Render hashlist links contained in a super hashlist
-   * @param superHashlist - superhashlist object to render links for
-   * @return observable object containing a router link array
-   */
-  private renderHashlistLinks(superHashlist: JHashlist): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (superHashlist && superHashlist.hashlists && superHashlist.hashlists.length) {
-      superHashlist.hashlists.forEach((entry) => {
-        links.push({
-          label: entry.name,
-          routerLink: ['/hashlists', 'hashlist', entry.id, 'edit']
-        });
-      });
-    }
-    return of(links);
-  }
-
-  private renderCrackedStatusIcon(superHashlist: JHashlist): HTTableIcon {
-    if (superHashlist.hashCount === superHashlist.cracked) {
-      return {
-        name: 'check_circle',
-        tooltip: 'Cracked',
-        cls: 'text-ok'
-      };
-    }
-
-    return { name: '' };
-  }
-
-  // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     this.exportService.handleExportAction<JHashlist>(
       event,
@@ -207,6 +179,8 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     }
   }
 
+  // --- Action functions ---
+
   bulkActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
     switch (event.menuItem.action) {
       case BulkActionMenuAction.DELETE:
@@ -221,6 +195,36 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         });
         break;
     }
+  }
+
+  /**
+   * Render hashlist links contained in a super hashlist
+   * @param superHashlist - superhashlist object to render links for
+   * @return observable object containing a router link array
+   */
+  private renderHashlistLinks(superHashlist: JHashlist): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (superHashlist && superHashlist.hashlists && superHashlist.hashlists.length) {
+      superHashlist.hashlists.forEach((entry) => {
+        links.push({
+          label: entry.name,
+          routerLink: ['/hashlists', 'hashlist', entry.id, 'edit']
+        });
+      });
+    }
+    return of(links);
+  }
+
+  private renderCrackedStatusIcon(superHashlist: JHashlist): HTTableIcon {
+    if (superHashlist.hashCount === superHashlist.cracked) {
+      return {
+        name: 'check_circle',
+        tooltip: 'Cracked',
+        cls: 'text-ok'
+      };
+    }
+
+    return { name: '' };
   }
 
   /**

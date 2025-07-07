@@ -5,6 +5,7 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
 
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -44,9 +45,9 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   ngOnInit(): void {
     this.setColumnLabels(TasksChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksChunksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new TasksChunksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
-
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
     // Do NOT load yet
     this.isInitialized = true;
     this.tryLoadData(); // Now safe to load

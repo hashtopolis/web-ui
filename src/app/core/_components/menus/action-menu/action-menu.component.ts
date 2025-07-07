@@ -1,17 +1,30 @@
-import { ActionMenuEvent, ActionMenuItem } from './action-menu.model';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { MatMenuTrigger } from '@angular/material/menu';
-import { Subscription } from 'rxjs';
-import { UIConfig } from '../../../_models/config-ui.model';
-import { UISettingsUtilityClass } from '../../../../shared/utils/config';
 import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { Subscription } from 'rxjs';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { NavigationEnd, Router } from '@angular/router';
+
+import { UIConfig } from '@models/config-ui.model';
+
+import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * Component representing an action menu with a list of menu items.
@@ -40,8 +53,15 @@ import { faBook } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './action-menu.component.html',
   standalone: false
 })
-export class ActionMenuComponent implements OnInit, OnDestroy {
+export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
   private subscriptions: Subscription[] = [];
+
+  hovering = false;
+  hoverTimeout: ReturnType<typeof setTimeout>;
+  menuPanelId: string | undefined;
+
+  @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  @ViewChild('menuTriggerButton', { read: ElementRef }) triggerButton!: ElementRef<HTMLButtonElement>;
 
   currentUrl: any[];
   isActive = false;
@@ -65,9 +85,6 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
 
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
-  timedOutCloser: NodeJS.Timeout;
-  timedOutOpener: NodeJS.Timeout;
-
   openSubmenus: MatMenuTrigger[] = [];
 
   faDiscord = faDiscord;
@@ -79,9 +96,10 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
   isDarkMode = false;
   faIconColor = 'white';
 
+  private static openMenuTrigger: MatMenuTrigger | null = null;
+
   constructor(
     private router: Router,
-    private route: ActivatedRoute,
     private storage: LocalStorageService<UIConfig>
   ) {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
@@ -99,6 +117,26 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
         if (event instanceof NavigationEnd) {
           this.currentUrl = event.url.split('/').slice(1);
           this.checkIsActive();
+        }
+      })
+    );
+  }
+
+  /**
+   * After view init, gets the menu panel ID for hover checks and subscribes to the
+   * `menuClosed` event. The subscription cleans up the static `openMenuTrigger`
+   * reference to ensure only one menu can be open at a time.
+   */
+  ngAfterViewInit(): void {
+    this.menuPanelId = this.trigger.menu?.panelId;
+
+    // Add this subscription to handle cleanup
+    this.subscriptions.push(
+      this.trigger.menuClosed.subscribe(() => {
+        // When this menu closes, check if it was the one being tracked.
+        // If so, clear the static reference.
+        if (ActionMenuComponent.openMenuTrigger === this.trigger) {
+          ActionMenuComponent.openMenuTrigger = null;
         }
       })
     );
@@ -198,83 +236,41 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Handle mouse enter event for the menu.
-   * @param trigger - The MatMenuTrigger associated with the menu.
-   */
-  menuEnter(trigger: MatMenuTrigger): void {
-    if (this.timedOutCloser) {
-      clearTimeout(this.timedOutCloser);
+  onMouseEnter(): void {
+    // If a different menu is open, close it.
+    if (ActionMenuComponent.openMenuTrigger && ActionMenuComponent.openMenuTrigger !== this.trigger) {
+      ActionMenuComponent.openMenuTrigger.closeMenu();
     }
 
-    if (!trigger.menuOpen) {
-      this.timedOutOpener = setTimeout(() => {
-        this.openSubmenus.push(trigger);
-        trigger.openMenu();
-      }, 50);
+    this.hovering = true;
+    clearTimeout(this.hoverTimeout);
+    if (!this.trigger.menuOpen) {
+      this.trigger.openMenu();
+      // Set the current trigger as the globally open one.
+      ActionMenuComponent.openMenuTrigger = this.trigger;
     }
   }
 
-  /**
-   * Handle mouse leave event for the menu.
-   * @param trigger - The MatMenuTrigger associated with the menu.
-   */
-  menuLeave(trigger: MatMenuTrigger): void {
-    if (this.timedOutOpener) {
-      clearTimeout(this.timedOutOpener);
-    }
-
-    if (trigger.menuOpen) {
-      this.timedOutCloser = setTimeout(() => {
-        this.closeAllSubmenus();
-      }, 100);
-    }
+  onMouseLeave(event: MouseEvent): void {
+    this.hoverTimeout = setTimeout(() => {
+      this.checkMouseOutside(event);
+    }, 150);
   }
 
-  /**
-   * Handle mouse enter event for a submenu.
-   */
-  subMenuEnter(trigger: MatMenuTrigger): void {
-    if (this.timedOutCloser) {
-      clearTimeout(this.timedOutCloser);
+  checkMouseOutside(event: MouseEvent): void {
+    const x = event.clientX;
+    const y = event.clientY;
+
+    const hoveredElement = document.elementFromPoint(x, y);
+
+    // Check if element is inside trigger or menu
+    const insideTrigger = this.triggerButton.nativeElement.contains(hoveredElement);
+    const insideMenu = hoveredElement?.closest(`#${this.menuPanelId ?? ''}`);
+
+    if (!insideTrigger && !insideMenu) {
+      this.trigger.closeMenu();
+      this.hovering = false;
     }
-
-    this.timedOutOpener = setTimeout(() => {
-      this.openSubmenus.push(trigger);
-      trigger.openMenu();
-    }, 50);
-  }
-
-  /**
-   * Handle mouse leave event for a submenu.
-   */
-  subMenuLeave(): void {
-    if (this.timedOutOpener) {
-      clearTimeout(this.timedOutOpener);
-    }
-
-    this.timedOutCloser = setTimeout(() => {
-      this.closeAllSubmenus();
-    }, 100);
-  }
-
-  /**
-   * Check if the related target is inside the menu panel.
-   * @param event - The mouse event.
-   * @param trigger - The MatMenuTrigger associated with the menu.
-   * @returns True if the related target is inside the menu panel, false otherwise.
-   */
-  isRelatedTargetInPanel(event: MouseEvent, trigger: MatMenuTrigger): boolean {
-    const panelId = trigger.menu?.panelId;
-
-    if (panelId && event.relatedTarget instanceof Element) {
-      const relatedTargetInPanel = event.relatedTarget.closest(`#${panelId}`);
-      const isAnotherMenuContent = event.relatedTarget.classList.contains('mat-mdc-menu-content');
-
-      return relatedTargetInPanel && !isAnotherMenuContent;
-    }
-
-    return false;
   }
 
   /**
@@ -285,14 +281,6 @@ export class ActionMenuComponent implements OnInit, OnDestroy {
     // Prevent the focus and blur the button immediately
     event.preventDefault();
     (event.target as HTMLElement).blur();
-  }
-
-  /**
-   * Close all open submenus.
-   */
-  closeAllSubmenus(): void {
-    this.openSubmenus.forEach((trigger) => trigger.closeMenu());
-    this.openSubmenus = [];
   }
 
   /**
