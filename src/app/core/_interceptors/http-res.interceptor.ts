@@ -43,7 +43,11 @@ export class HttpResInterceptor implements HttpInterceptor {
     if (error.status === 401) {
       errmsg = this.handleUnauthorizedError(req);
     } else if (error.status === 403) {
-      errmsg = `You don't have permissions. Please contact your Administrator.`;
+      if (error.error?.title) {
+        errmsg = error.error.title;
+      } else {
+        errmsg = `You don't have permissions. Please contact your Administrator.`;
+      }
     } else if (error.status === 404 && !req.url.includes('config.json')) {
       errmsg = `The requested URL was not found.`;
     } else if (error.status === 0) {
