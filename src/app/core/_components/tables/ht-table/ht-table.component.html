@@ -235,16 +235,16 @@
           </ng-container>
 
           <!-- Check if icon function is defined -->
-          <ng-container *ngIf="tableColumn.icon">
+          <ng-container *ngIf="tableColumn.icon && tableColumn.icon(element) as icon">
             <mat-icon
-              *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
-              [matTooltip]="tableColumn.icon(element).tooltip"
-              [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''"
-              >{{ tableColumn.icon(element).name }}</mat-icon
+              *ngIf="icon.tooltip; else iconTmpl"
+              [matTooltip]="icon.tooltip"
+              [ngClass]="icon.cls ? icon.cls : ''"
+              >{{ icon.name }}</mat-icon
             >
             <ng-template #iconTmpl>
-              <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-                tableColumn.icon(element).name
+              <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
+                icon.name
               }}</mat-icon>
             </ng-template>
           </ng-container>
