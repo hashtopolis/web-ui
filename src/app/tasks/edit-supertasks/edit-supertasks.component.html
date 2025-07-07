@@ -2,11 +2,11 @@
   <app-page-title [title]="'Supertask Details'"></app-page-title>
   <form [formGroup]="viewForm">
     <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-      <input-text title="ID" formControlName="supertaskId" [disabled]="true"></input-text>
-      <input-text title="Name" formControlName="supertaskName" [disabled]="true"></input-text>
+      <input-text title="ID" formControlName="supertaskId" ></input-text>
+      <input-text title="Name" formControlName="supertaskName" ></input-text>
     </div>
     <div fxLayout="row">
-      <button-submit name="Delete" (click)="onDelete()" [disabled]="false" type="delete"></button-submit>
+      <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
       <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/',editedSTIndex,'applyhashlist']"
         (click)="onSubmit()"></button-submit>
     </div>
@@ -81,5 +81,5 @@
 <app-table>
   <app-page-title [title]="'Preconfigured Tasks'"></app-page-title>
   <app-pretasks-table #superTasksPretasksTable name="superTasksPretasksEditTable" [supertTaskId]="editedSTIndex"
-      (pretasksChanged)="refresh()">></app-pretasks-table>
+      (pretasksChanged)="refresh()"></app-pretasks-table>
 </app-table>

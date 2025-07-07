@@ -76,6 +76,7 @@ export class EditUsersComponent implements OnInit, OnDestroy {
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedUserIndex = +params['id'];
+      this.loadData();
     });
   }
 

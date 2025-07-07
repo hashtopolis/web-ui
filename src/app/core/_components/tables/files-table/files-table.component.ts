@@ -32,8 +32,24 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  private _editIndex: number;
+
   @Input() fileType: FileType = 0;
-  @Input() editIndex?: number;
+  @Input()
+  set editIndex(value: number) {
+    if (value !== this._editIndex) {
+      this._editIndex = value;
+      this.ngOnInit();
+    }
+  }
+  get editIndex(): number {
+    if (this._editIndex === undefined) {
+      return 0;
+    } else {
+      return this._editIndex;
+    }
+  }
+
   @Input() editType?: number; //0 Task 1 Pretask
   @Input() showExport = true;
 
