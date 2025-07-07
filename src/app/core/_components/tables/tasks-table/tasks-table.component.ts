@@ -4,6 +4,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { ChunkData } from '@models/chunk.model';
+import { JHashlist } from '@models/hashlist.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
 import { JTask } from '@models/task.model';
 
@@ -31,6 +32,7 @@ import {
 
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
+import { TaskWrapper } from '@src/app/core/_constants/userpermissions.config';
 import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
@@ -198,6 +200,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
+        icon: (wrapper: JTaskWrapper) => this.renderHashlistIcon(wrapper.hashlist),
         isSortable: false,
         isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
@@ -787,5 +790,22 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       });
     }
     return of(links);
+  }
+
+  /**
+   * Renders checkmark icon, if all hashes of hashlist are cracked
+   * @param hashlist Hashlist object
+   * @private
+   */
+  private renderHashlistIcon(hashlist: JHashlist): HTTableIcon | undefined {
+    const allHashesCracked = hashlist.hashCount === hashlist.cracked;
+
+    if (allHashesCracked) {
+      return {
+        name: 'check',
+        tooltip: 'All hashes cracked'
+      };
+    }
+    return undefined;
   }
 }
