@@ -1,4 +1,4 @@
-import { catchError, Observable, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';

@@ -79,17 +79,17 @@ export class TaskVisualComponent implements AfterViewInit {
         const taskWrappers = new JsonAPISerializer().deserialize<JTaskWrapper[]>(responseBody);
         if (taskWrappers[0].taskType === TaskType.SUPERTASK && this.view === 'supertask') {
           for (let i = 0; i < taskWrappers.length; i++) {
-            this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((res: ResponseWrapper) => {
+            this.gs.getAll(SERV.CHUNKS, paramsTasks).subscribe((response: ResponseWrapper) => {
               const responseBody = { data: response.data, included: response.included };
               const chunks = new JsonAPISerializer().deserialize<JChunk[]>(responseBody);
 
-              let progress = [];
+              const progress = [];
               let cracked = [];
               for (let i = 0; i < chunks.length; i++) {
                 progress.push(chunks[i].progress);
                 cracked.push(chunks[i].cracked);
               }
-              progress = progress.reduce((a, i) => a + i, 0);
+              progress.reduce((a, i) => a + i, 0);
               cracked = cracked.reduce((a, i) => a + i, 0);
 
               if (cracked.length > 0) {
