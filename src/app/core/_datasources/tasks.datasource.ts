@@ -4,8 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
+import { JTask, JTaskWrapper } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
