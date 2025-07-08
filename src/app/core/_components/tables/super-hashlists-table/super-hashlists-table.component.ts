@@ -1,25 +1,22 @@
-import { Observable, catchError, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JHashlist } from '@models/hashlist.model';
-
-import { SuperHashListContextMenuService } from '@services/context-menu/hashlists/super-hashlist-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, of } from 'rxjs';
 import {
   SuperHashlistsTableCol,
   SuperHashlistsTableColumnLabel
 } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JHashlist } from '@models/hashlist.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SuperHashListContextMenuService } from '@services/context-menu/hashlists/super-hashlist-menu.service';
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-super-hashlists-table',
@@ -47,8 +44,16 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       sub.unsubscribe();
     }
   }
-
-  filter(item: JHashlist, filterValue: string): boolean {
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  /*   filter(item: JHashlist, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
@@ -78,15 +83,16 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         // Default fallback to task name
         return item.name?.toLowerCase().includes(filterValue);
     }
-  }
+  } */
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: SuperHashlistsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
+        render: (superHashlist: JHashlist) => superHashlist.id,
         export: async (superHashlist: JHashlist) => superHashlist.id + ''
       },
       {
