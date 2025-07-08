@@ -7,14 +7,12 @@
   [columnLabels]="columnLabels"
   [contextMenuService]="contextMenuService"
   [dataSource]="dataSource"
-  [filterFn]="filter.bind(this)"
-
-
   [isArchived]="isArchived"
-  [isFilterable]="true"
+  [isFilterable]="!true"
   [isPageable]="true"
   [isSelectable]="true"
   [name]="name"
   [tableColumns]="tableColumns"
+  (backendSqlFilter)="filter($event)"
   dataType="hashlists"
 />

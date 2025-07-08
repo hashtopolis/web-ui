@@ -1,27 +1,23 @@
-import { Observable, catchError, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JHashlist } from '@models/hashlist.model';
-
-import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   HashlistsTableCol,
   HashlistsTableColumnLabel
 } from '@components/tables/hashlists-table/hashlists-table.constants';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { Observable, catchError, of } from 'rxjs';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-
-import { HashlistsDataSource } from '@datasources/hashlists.datasource';
-
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { HashlistsDataSource } from '@datasources/hashlists.datasource';
+import { JHashlist } from '@models/hashlist.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -32,7 +28,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = 'hashlistId';
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
@@ -52,40 +48,14 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       sub.unsubscribe();
     }
   }
-
-  filter(item: JHashlist, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.name?.toLowerCase().includes(filterValue) ||
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'hashTypeDescription': {
-        return (
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
 
@@ -93,9 +63,10 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
+        render: (hashlist: JHashlist) => hashlist.id,
         export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
@@ -134,7 +105,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       tableColumns.push({
         id: HashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
-        isSearchable: true,
         isSortable: true,
         render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
         export: async (hashlist: JHashlist) => hashlist.hashTypeDescription

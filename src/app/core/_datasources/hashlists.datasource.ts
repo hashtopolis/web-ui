@@ -1,15 +1,12 @@
+import { Filter, FilterType } from '@models/request-params.model';
 import { catchError, finalize, of } from 'rxjs';
 
-import { JHashlist } from '@models/hashlist.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
 import { BaseDataSource } from '@datasources/base.datasource';
-
 import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
+import { JHashlist } from '@models/hashlist.model';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
@@ -23,14 +20,17 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
     this.superHashListID = superHashListID;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     if (this.superHashListID) {
-      const params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType').create();
+      const params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType');
+      if (query) {
+        params.addFilter(query);
+      }
       this.subscriptions.push(
         this.service
-          .get(SERV.HASHLISTS, this.superHashListID, params)
+          .get(SERV.HASHLISTS, this.superHashListID, params.create())
           .pipe(
             catchError(() => of([])),
             finalize(() => (this.loading = false))
@@ -56,12 +56,14 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
           operator: FilterType.EQUAL,
           value: this.isArchived
         })
-        .addFilter({ field: 'format', operator: FilterType.NOTIN, value: [HashListFormat.SUPERHASHLIST] })
-        .create();
+        .addFilter({ field: 'format', operator: FilterType.NOTIN, value: [HashListFormat.SUPERHASHLIST] });
+      if (query) {
+        params.addFilter(query);
+      }
 
       this.subscriptions.push(
         this.service
-          .getAll(SERV.HASHLISTS, params)
+          .getAll(SERV.HASHLISTS, params.create())
           .pipe(
             catchError(() => of([])),
             finalize(() => (this.loading = false))
