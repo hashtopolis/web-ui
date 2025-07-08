@@ -27,8 +27,8 @@ export class TaskContextMenuService extends ContextMenuService {
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_TASK, RowActionMenuAction.EDIT_TASKS, permTaskUpdate, isTaskCondition);
     this.addCtxEditItem(
-      RowActionMenuLabel.EDIT_SUBTASKS,
-      RowActionMenuAction.EDIT_SUBTASKS,
+      RowActionMenuLabel.SHOW_SUBTASK,
+      RowActionMenuAction.SHOW_SUBTASKS,
       permTaskUpdate,
       isSuperTaskCondition
     );

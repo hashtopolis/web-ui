@@ -59,7 +59,8 @@ export const RowActionMenuLabel = {
   REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
   REMOVE_ACCESSGROUP_USER: 'Remove User',
   ARCHIVE_PRETASK: 'Archive PreTask',
-  UNARCHIVE_PRETASK: 'Unarchive PreTask'
+  UNARCHIVE_PRETASK: 'Unarchive PreTask',
+  SHOW_SUBTASK: 'Show Subtasks'
 };
 
 export const RowActionMenuAction = {
@@ -72,6 +73,7 @@ export const RowActionMenuAction = {
   COPY_TO_PRETASK: 'copy-to-pretask',
   EDIT_TASKS: 'edit-tasks',
   EDIT_SUBTASKS: 'edit-subtasks',
+  SHOW_SUBTASKS: 'show-subtasks',
   NEW: 'new',
   IMPORT: 'import',
   EXPORT: 'export',

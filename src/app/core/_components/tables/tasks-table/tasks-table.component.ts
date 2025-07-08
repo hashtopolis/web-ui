@@ -295,7 +295,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
         break;
-      case RowActionMenuAction.EDIT_SUBTASKS:
+      case RowActionMenuAction.SHOW_SUBTASKS:
         // eslint-disable-next-line no-case-declarations
         this.rowActionEditSubtasks(event.data);
         break;
@@ -735,24 +735,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           this.reload();
         })
     );
-  }
-
-  /**
-   * Render router link to show cracked hashes for a task if any.
-   * For supertasks only the cracked number as text is shown
-   * @param wrapper - the task wrapper object to render the link for
-   * @return observable containing an array of router links to be rendered in HTML
-   * @private
-   */
-  private renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    if (wrapper.cracked === 0) {
-      return of([{ label: null, routerLink: null }]);
-    }
-    const link: HTTableRouterLink = {
-      label: wrapper.cracked.toLocaleString(),
-      routerLink: wrapper.taskType === TaskType.TASK ? ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id] : null
-    };
-    return of([link]);
   }
 
   /**

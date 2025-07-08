@@ -20,7 +20,7 @@ export class TaskSuperTaskContextMenuService extends PreTaskContextMenuService {
     const isArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: false };
     const isUnArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: true };
 
-    this.addCtxArchiveItem(RowActionMenuLabel.ARCHIVE_PRETASK, permUpdate, isArchiveCondition);
+    this.addCtxArchiveItem(RowActionMenuLabel.ARCHIVE_TASK, permUpdate, isArchiveCondition);
     this.addCtxUnArchiveItem(RowActionMenuLabel.UNARCHIVE_PRETASK, permUpdate, isUnArchiveCondition);
 
     this.addBulkArchiveItem(BulkActionMenuLabel.ARCHIVE_PRETASKS, permUpdate);

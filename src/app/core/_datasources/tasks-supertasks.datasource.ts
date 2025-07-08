@@ -42,13 +42,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           });
           const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           const subtasks = taskWrappers[0].tasks;
 
           const chunkParams = new RequestParamBuilder().addFilter({

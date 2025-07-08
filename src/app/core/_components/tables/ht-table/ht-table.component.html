@@ -220,7 +220,7 @@
           }
           </span>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
+            <app-ht-table-link (linkClicked)="onLinkClicked();" [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
             <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable
               [tableColumn]="tableColumn"
