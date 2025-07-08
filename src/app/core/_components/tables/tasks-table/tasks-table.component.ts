@@ -100,8 +100,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         );
 
       case 'id':
-        return item.id?.toString().toLowerCase().includes(filterValue);
-
+        return item.tasks?.some((task: JTask) => task.id?.toString().toLowerCase().includes(filterValue));
       case 'taskName':
         return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
 
@@ -143,7 +142,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.id + ''
+        export: async (wrapper: JTaskWrapper) => {
+          return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
+        },
+        render: (wrapper: JTaskWrapper) => {
+          return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
+        }
       },
       {
         id: TaskTableCol.TASK_TYPE,
@@ -156,7 +160,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
         isSearchable: true,
-
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
@@ -735,21 +738,21 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   /**
-   * Render router link to show cracked hashes for a task
+   * Render router link to show cracked hashes for a task if any.
+   * For supertasks only the cracked number as text is shown
    * @param wrapper - the task wrapper object to render the link for
    * @return observable containing an array of router links to be rendered in HTML
    * @private
    */
   private renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (wrapper.taskType === TaskType.TASK) {
-      links.push({
-        label: wrapper.cracked.toLocaleString(),
-        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
-      });
+    if (wrapper.cracked === 0) {
+      return of([{ label: null, routerLink: null }]);
     }
-
-    return of(links);
+    const link: HTTableRouterLink = {
+      label: wrapper.cracked.toLocaleString(),
+      routerLink: wrapper.taskType === TaskType.TASK ? ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id] : null
+    };
+    return of([link]);
   }
 
   /**
@@ -759,18 +762,27 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    * @private
    */
   private renderTaskWrapperLink(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    for (const task of wrapper.tasks) {
-      const taskName = task.taskName?.length > 40 ? `${task.taskName.substring(40)}...` : task.taskName;
+    if (wrapper.taskType === TaskType.TASK) {
+      const task = wrapper.tasks?.[0];
+      const taskName = task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task?.taskName;
 
-      links.push({
-        label: taskName,
-        routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
-        tooltip: task.attackCmd
-      });
+      return of([
+        {
+          label: taskName,
+          routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
+          tooltip: task?.attackCmd ?? ''
+        }
+      ]);
+    } else {
+      // Supertask: No link
+      return of([
+        {
+          label: wrapper.taskWrapperName,
+          routerLink: null,
+          tooltip: ''
+        }
+      ]);
     }
-
-    return of(links);
   }
 
   /**
