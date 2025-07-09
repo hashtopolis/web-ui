@@ -1,20 +1,17 @@
-import { Subscription } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { AuthUser } from '@models/auth-user.model';
-import { UIConfig } from '@models/config-ui.model';
-
-import { AuthService } from '@services/access/auth.service';
-import { PermissionService } from '@services/permission/permission.service';
-import { ThemeService } from '@services/shared/theme.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
-import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
+import { AuthService } from '@services/access/auth.service';
+import { AuthUser } from '@models/auth-user.model';
+import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 import { MainMenuItem } from '@src/app/layout/header/header.model';
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { PermissionService } from '@services/permission/permission.service';
+import { ThemeService } from '@services/shared/theme.service';
+import { UIConfig } from '@models/config-ui.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
 
@@ -39,12 +36,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
-
+  private destroy$ = new Subject<void>();
   constructor(
     private authService: AuthService,
     private storage: LocalStorageService<UIConfig>,
     private themes: ThemeService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private easterEggService: EasterEggService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -73,6 +71,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.themeSub = this.themes.theme$.subscribe((theme) => {
       this.isDarkMode = theme === 'dark';
     });
+    // Listen for Konami code
+    this.easterEggService
+      .onKonamiCodeDetected()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        console.log('🎮 Konami code detected!');
+        this.activateSecretFeature();
+      });
   }
 
   ngOnDestroy(): void {
@@ -83,6 +89,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.themeSub) {
       this.themeSub.unsubscribe();
     }
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  easterEggFlag: boolean = false;
+  private activateSecretFeature(): void {
+    // Add your secret feature here
+    if (this.easterEggFlag) {
+      alert('#️⃣2️⃣🚓 and blue eyes activated!');
+    } else {
+      alert('#️⃣2️⃣😻 and red eyes activated!');
+    }
+    // Example: Enable a hidden feature, change theme, etc.
+    this.easterEggFlag = !this.easterEggFlag;
   }
 
   toggleTheme() {
