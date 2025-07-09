@@ -96,9 +96,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private activateSecretFeature(): void {
     // Add your secret feature here
     if (this.easterEggFlag) {
-      alert('#️⃣2️⃣🚓 and blue eyes activated!');
+      alert('Blue eyes activated! #️⃣2️⃣💅');
     } else {
-      alert('#️⃣2️⃣😻 and red eyes activated!');
+      alert('Red eyes activated! #️⃣2️⃣😻');
     }
     // Example: Enable a hidden feature, change theme, etc.
     this.easterEggFlag = !this.easterEggFlag;

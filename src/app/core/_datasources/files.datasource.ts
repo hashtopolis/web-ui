@@ -3,16 +3,17 @@
  * @module
  */
 
-import { catchError, finalize, of } from 'rxjs';
 import { FileType, JFile } from '../_models/file.model';
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { catchError, finalize, of } from 'rxjs';
+
 import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JTask } from '@models/task.model';
 import { JPretask } from '@models/pretask.model';
+import { JTask } from '@models/task.model';
+import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { ResponseWrapper } from '../_models/response.model';
+import { SERV } from '../_services/main.config';
 
 /**
  * Data source class definition for files
@@ -47,7 +48,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   /**
    * Load all files from server
    */
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     let files$;
@@ -64,10 +65,12 @@ export class FilesDataSource extends BaseDataSource<JFile> {
       const params = paramsBuilder
         .addInitial(this)
         .addInclude('accessGroup')
-        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType })
-        .create();
+        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType });
+      if (query) {
+        params.addFilter(query);
+      }
 
-      files$ = this.service.getAll(SERV.FILES, params);
+      files$ = this.service.getAll(SERV.FILES, params.create());
     }
 
     this.subscriptions.push(
@@ -84,14 +87,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const length = response.meta.page.total_elements;
 
             if (!this.editType) {
-
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                this.pageAfter,
-                this.pageBefore,
-                this.index
-              );
+              this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
             }
 
             this.setData(tasks.files);
@@ -101,13 +97,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const pretask = serializer.deserialize<JPretask>(responseData);
 
             if (!this.editType) {
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                this.pageAfter,
-                this.pageBefore,
-                this.index
-              );
+              this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
             }
 
             this.setData(pretask.pretaskFiles);
@@ -116,13 +106,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const responseData = { data: response.data, included: response.included };
             const files = serializer.deserialize<JFile[]>(responseData);
 
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                this.pageAfter,
-                this.pageBefore,
-                this.index
-              );
+            this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
             this.setData(files);
           }
         })
