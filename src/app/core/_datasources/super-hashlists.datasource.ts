@@ -18,19 +18,14 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
 
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder()
-      .addInitial(this)
-      .addInclude('hashType')
-      .addInclude('hashlists')
-      .addFilter({
-        field: 'format',
-        operator: FilterType.EQUAL,
-        value: HashListFormat.SUPERHASHLIST
-      })
-          if (query) {
+    const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').addInclude('hashlists').addFilter({
+      field: 'format',
+      operator: FilterType.EQUAL,
+      value: HashListFormat.SUPERHASHLIST
+    });
+    if (query) {
       params.addFilter(query);
     }
-     
 
     const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create());
 

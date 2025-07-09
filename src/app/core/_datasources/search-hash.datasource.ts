@@ -1,14 +1,11 @@
+import { Filter, FilterType } from '@models/request-params.model';
+import { JHash, SearchHashModel } from '@models/hash.model';
 import { catchError, finalize, of } from 'rxjs';
 
-import { JHash, SearchHashModel } from '@models/hash.model';
-import { FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-
-import { SERV } from '@services/main.config';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
 import { BaseDataSource } from '@datasources/base.datasource';
-
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
@@ -36,7 +33,7 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
   /**
    * Perform API request and create response data from API response
    */
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     const params = new RequestParamBuilder().addInclude('hashlist').addFilter({
@@ -44,7 +41,9 @@ export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {
       operator: FilterType.IN,
       value: this.search
     });
-
+    if (query) {
+      params.addFilter(query);
+    }
     this.subscriptions.push(
       this.service
         .getAll(SERV.HASHES, params.create())
