@@ -6,14 +6,12 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [contextMenuService]="contextMenuService"
-
-
   [isSelectable]="isSelectable"
   [isPageable]="true"
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />

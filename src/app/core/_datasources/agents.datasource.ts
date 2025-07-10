@@ -35,7 +35,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('agentStats');
     if (query) {
       agentParams.addFilter(query);
-      console.log('add search');
     }
 
     this.service

@@ -1,27 +1,23 @@
-import { catchError } from 'rxjs';
-
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JAgentErrors } from '@models/agent-errors.model';
-
-import { AgentErrorContextMenuService } from '@services/context-menu/agents/agent-error-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentErrorTableCol,
   AgentErrorTableColumnLabel
 } from '@components/tables/agent-error-table/agent-error-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { AgentErrorContextMenuService } from '@services/context-menu/agents/agent-error-menu.service';
 import { AgentErrorDatasource } from '@datasources/agent-error.datasource';
-
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JAgentErrors } from '@models/agent-errors.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError } from 'rxjs';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -33,7 +29,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '_id';
   ngOnDestroy(): void {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
@@ -53,7 +49,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: AgentErrorTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSearchable: true,
         render: (agentError: JAgentErrors) => agentError.id.toString(),
         export: async (agentError: JAgentErrors) => agentError.id.toString()
@@ -101,30 +97,13 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       }
     ];
   }
-  filter(item: JAgentErrors, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.error.toString().toLocaleLowerCase().includes(filterValue) ||
-          item.task?.taskName?.toLowerCase().includes(filterValue) ||
-          item.taskId.toString().includes(filterValue)
-        );
-      }
-      case 'id':
-        return item.id.toString().includes(filterValue);
-      case 'error':
-        return item.error?.toLowerCase().includes(filterValue);
-      case 'taskName':
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
-      case 'taskId':
-        return item.taskId.toString().includes(filterValue);
-      default:
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   openDialog(data: DialogData<JAgentErrors>) {

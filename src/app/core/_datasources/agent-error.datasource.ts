@@ -1,4 +1,5 @@
 import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
+import { Filter, FilterType } from '@models/request-params.model';
 /**
  * Contains data source for agents resource
  * @module
@@ -6,7 +7,6 @@ import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config'
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { BaseDataSource } from './base.datasource';
-import { FilterType } from '@models/request-params.model';
 import { IParamBuilder } from '@services/params/builder-types.service';
 import { JAgent } from '../_models/agent.model';
 import { JAgentAssignment } from '@models/agent-assignment.model';
@@ -24,11 +24,14 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
   setAgentId(agentId: number): void {
     this._agentId = agentId;
   }
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
     const agentParams = new RequestParamBuilder().addInitial(this).addInclude('task');
     if (this._agentId) {
       agentParams.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
+    }
+    if (query) {
+      agentParams.addFilter(query);
     }
     this.service
       .getAll(SERV.AGENT_ERRORS, agentParams.create())
