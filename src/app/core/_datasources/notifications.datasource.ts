@@ -1,18 +1,20 @@
 import { catchError, finalize, of } from 'rxjs';
 
+import { BaseDataSource } from '@datasources/base.datasource';
+import { Filter } from '@models/request-params.model';
 import { JNotification } from '@models/notification.model';
-import { ResponseWrapper } from '@models/response.model';
-
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
 import { SERV } from '@services/main.config';
 
-import { BaseDataSource } from '@datasources/base.datasource';
-
 export class NotificationsDataSource extends BaseDataSource<JNotification> {
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
-    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params);
+    const params = new RequestParamBuilder().addInitial(this);
+    if (query) {
+      params.addFilter(query);
+    }
+    const notifications$ = this.service.getAll(SERV.NOTIFICATIONS, params.create());
 
     this.subscriptions.push(
       notifications$
@@ -26,13 +28,7 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
 
           const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           this.setData(notifications);
         })
     );
