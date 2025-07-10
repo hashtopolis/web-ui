@@ -531,28 +531,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         if (speed > 0) {
           return TaskStatus.RUNNING;
         } else if (
-          wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
-          wrapper.tasks[0].keyspaceProgress > 0
+          (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
+            wrapper.tasks[0].keyspaceProgress > 0 &&
+            Number(wrapper.tasks[0].searched) === 100) ||
+          wrapper.tasks.find(
+            (task: JTask) =>
+              task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100
+          )
         ) {
           return TaskStatus.COMPLETED;
         } else {
           return TaskStatus.IDLE;
         }
-      }
-    }
-    const chunkData: ChunkData = wrapper.chunkData;
-    if (chunkData) {
-      const speed = chunkData.speed;
-
-      if (speed > 0) {
-        return TaskStatus.RUNNING;
-      } else if (
-        (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace && wrapper.tasks[0].keyspaceProgress > 0) ||
-        wrapper.tasks.find((task: JTask) => task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0)
-      ) {
-        return TaskStatus.COMPLETED;
-      } else {
-        return TaskStatus.IDLE;
       }
     }
     return TaskStatus.INVALID;
