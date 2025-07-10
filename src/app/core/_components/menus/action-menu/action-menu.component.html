@@ -18,8 +18,14 @@
     </ng-container>
   </button>
 
-  <mat-menu #actionMenu="matMenu" [hasBackdrop]="false">
-    <ng-container *ngFor="let section of actionMenuItems; let last = last">
+  <mat-menu
+    #actionMenu="matMenu"
+    [hasBackdrop]="false"
+    (mouseenter)="onMenuMouseEnter()"
+    (mouseleave)="onMenuMouseLeave($event)"
+  >
+
+  <ng-container *ngFor="let section of actionMenuItems; let last = last">
       <button
         mat-menu-item
         *ngFor="let item of section"
