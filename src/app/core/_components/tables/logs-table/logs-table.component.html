@@ -6,11 +6,9 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-
-
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!true"
   [isPageable]="true"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />

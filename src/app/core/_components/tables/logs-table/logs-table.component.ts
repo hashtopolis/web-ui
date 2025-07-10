@@ -1,14 +1,14 @@
-/* eslint-disable @angular-eslint/component-selector */
-import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
-import { JLog } from 'src/app/core/_models/log.model';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
+import { JLog } from 'src/app/core/_models/log.model';
+/* eslint-disable @angular-eslint/component-selector */
+import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
+import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
   selector: 'logs-table',
@@ -33,8 +33,16 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
       sub.unsubscribe();
     }
   }
-
-  filter(item: JLog, filterValue: string): boolean {
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  /*   filter(item: JLog, filterValue: string): boolean {
     filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
     // Filter based on selected column
@@ -70,15 +78,16 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         // Default fallback to task name
         return item.message?.toLowerCase().includes(filterValue);
     }
-  }
+  } */
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: LogsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
+        render: (log: JLog) => log.id,
         export: async (log: JLog) => log.id + ''
       },
       {
@@ -98,7 +107,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
       },
       {
         id: LogsTableCol.ISSUER,
-        dataKey: 'issuer',
+        dataKey: 'issuerId',
         isSortable: true,
         isSearchable: true,
         render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,
