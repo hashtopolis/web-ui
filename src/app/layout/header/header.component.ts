@@ -76,7 +76,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .onKonamiCodeDetected()
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        console.log('🎮 Konami code detected!');
         this.activateSecretFeature();
       });
   }
