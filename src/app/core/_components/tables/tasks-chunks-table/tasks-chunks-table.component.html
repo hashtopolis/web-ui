@@ -5,14 +5,12 @@
   dataType="tasks-chunks"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
-
   [showExport]="false"
   [contextMenuService]="contextMenuService"
-
   [isPageable]="true"
   [isSelectable]="true"
   (rowActionClicked)="rowActionClicked($event)"
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!true"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />

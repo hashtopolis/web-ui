@@ -1,26 +1,22 @@
-import { catchError } from 'rxjs';
-
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
-
-import { JChunk } from '@models/chunk.model';
-
-import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import {
   TasksChunksTableCol,
   TasksChunksTableColumnLabel
 } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
-
-import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
-
-import { chunkStates } from '@src/app/core/_constants/chunks.config';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JChunk } from '@models/chunk.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { SafeHtml } from '@angular/platform-browser';
+import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
+import { catchError } from 'rxjs';
+import { chunkStates } from '@src/app/core/_constants/chunks.config';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
@@ -37,7 +33,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '_id';
 
   // Track initialization
   private isInitialized = false;
@@ -73,9 +69,10 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return [
       {
         id: TasksChunksTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
-        isSearchable: true
+        isSearchable: true,
+        render: (chunk: JChunk) => chunk.id
       },
       {
         id: TasksChunksTableCol.START,
@@ -103,8 +100,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true,
-        isSearchable: true
+        isSortable: true
       },
       {
         id: TasksChunksTableCol.DISPATCH_TIME,
@@ -139,33 +135,13 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     ];
   }
 
-  /**
-   * Filter function for chunks
-   * @param item Chunk object
-   * @param filterValue String value to filter filename
-   * @returns True, if filename contains filterValue
-   *          False, if not
-   */
-  filter(item: JChunk, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-
-    switch (selectedColumn) {
-      case 'all': {
-        return (
-          item.id?.toString().toLowerCase().includes(filterValue) || item.agentName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id?.toString().toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-
-      default: {
-        return item.id?.toString().toLowerCase().includes(filterValue);
-      }
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
 
