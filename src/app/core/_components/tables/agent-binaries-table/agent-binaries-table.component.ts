@@ -1,26 +1,22 @@
-import { catchError } from 'rxjs';
-
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JAgentBinary } from '@models/agent-binary.model';
-
-import { AgentBinariesMenuServiceContextMenuService } from '@services/context-menu/crackers/agent-binaries-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentBinariesTableCol,
   AgentBinariesTableColumnLabel
 } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
-
+import { AgentBinariesMenuServiceContextMenuService } from '@services/context-menu/crackers/agent-binaries-menu.service';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { JAgentBinary } from '@models/agent-binary.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError } from 'rxjs';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -51,51 +47,21 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
       sub.unsubscribe();
     }
   }
-
-  filter(item: JAgentBinary, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.filename?.toLowerCase().includes(filterValue) ||
-          item.operatingSystems?.toLowerCase().includes(filterValue) ||
-          item.agentbinaryType?.toLowerCase().includes(filterValue) ||
-          item.updateTrack?.toLowerCase().includes(filterValue) ||
-          item.version?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'filename': {
-        return item.filename?.toLowerCase().includes(filterValue);
-      }
-      case 'operatingSystems': {
-        return item.operatingSystems?.toLowerCase().includes(filterValue);
-      }
-      case 'type': {
-        return item.agentbinaryType?.toLowerCase().includes(filterValue);
-      }
-      case 'updateTrack': {
-        return item.updateTrack?.toLowerCase().includes(filterValue);
-      }
-      case 'version': {
-        return item.version?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.filename?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AgentBinariesTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
         export: async (agentBinary: JAgentBinary) => agentBinary.id + ''

@@ -8,10 +8,10 @@
   [isSelectable]="true"
   [contextMenuService]="contextMenuService"
   [isFilterable]="!true"
-  (backendSqlFilter)="filter($event)"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />

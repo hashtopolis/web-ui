@@ -7,13 +7,11 @@
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [contextMenuService]="contextMenuService"
-
-
-  [isFilterable]="isFilterable"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!isFilterable"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />
