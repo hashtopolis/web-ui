@@ -5,10 +5,7 @@
   [columnLabels]="columnLabels"
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
-
-
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!true"
   [isPageable]="true"
   [isCmdTask]="cmdTask"
   [isCmdLabel]="customLabel"
@@ -18,4 +15,5 @@
   [showExport]="false"
   (checkboxChanged)="onCheckboxChanged($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="filter($event)"
 />
