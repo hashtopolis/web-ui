@@ -1,25 +1,22 @@
-import { catchError } from 'rxjs';
-
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JAccessGroup } from '@models/access-group.model';
-
-import { AccessGroupsContextMenuService } from '@services/context-menu/users/access-groups-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsTableCol,
   AccessGroupsTableColumnLabel
 } from '@components/tables/access-groups-table/access-groups-table.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
+import { AccessGroupsContextMenuService } from '@services/context-menu/users/access-groups-menu.service';
 import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JAccessGroup } from '@models/access-group.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { catchError } from 'rxjs';
 
 @Component({
   selector: 'app-access-groups-table',
@@ -29,7 +26,7 @@ import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '_id';
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
@@ -46,33 +43,23 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     }
   }
 
-  filter(item: JAccessGroup, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.groupName?.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'groupName': {
-        return item.groupName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.groupName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
+        render: (accessGroup: JAccessGroup) => accessGroup.id,
         export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {
