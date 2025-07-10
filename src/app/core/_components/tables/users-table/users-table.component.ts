@@ -1,27 +1,23 @@
-import { catchError } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JUser } from '@models/user.model';
-
-import { UsersContextMenuService } from '@services/context-menu/users/users-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   UsersTableCol,
   UsersTableColumnLabel,
   UsersTableStatus
 } from '@components/tables/users-table/users-table.constants';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JUser } from '@models/user.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { UsersContextMenuService } from '@services/context-menu/users/users-menu.service';
 import { UsersDataSource } from '@datasources/users.datasource';
-
+import { catchError } from 'rxjs';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -49,44 +45,23 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
-  filter(item: JUser, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.name.toLowerCase().includes(filterValue) ||
-          item.email.toLowerCase().includes(filterValue) ||
-          item.globalPermissionGroup.name.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name.toLowerCase().includes(filterValue);
-      }
-      case 'email': {
-        return item.email.toLowerCase().includes(filterValue);
-      }
-      case 'globalPermissionGroupName': {
-        return item.globalPermissionGroup.name.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.name.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: UsersTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
+        render: (user: JUser) => user.id,
         export: async (user: JUser) => user.id + ''
       },
       {
@@ -140,7 +115,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: true,
-        isSearchable: true,
         render: (user: JUser) => user.globalPermissionGroup.name,
         export: async (user: JUser) => user.globalPermissionGroup.name
       }

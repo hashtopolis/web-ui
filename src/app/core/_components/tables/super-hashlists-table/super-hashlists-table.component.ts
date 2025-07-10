@@ -53,37 +53,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-  /*   filter(item: JHashlist, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id?.toString().includes(filterValue) ||
-          item.name?.toLowerCase().includes(filterValue) ||
-          item.hashTypeDescription?.toLowerCase().includes(filterValue) ||
-          item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue))
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'hashTypeDescription': {
-        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
-      }
-      case 'hashlists': {
-        return item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue));
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
-    }
-  } */
 
   getColumns(): HTTableColumn[] {
     return [
