@@ -1,7 +1,7 @@
+import { Filter, FilterType } from '@models/request-params.model';
 import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-import { FilterType } from '@models/request-params.model';
 import { JHash } from '@models/hash.model';
 import { JTaskWrapper } from '@models/task-wrapper.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -21,12 +21,14 @@ export class HashesDataSource extends BaseDataSource<JHash> {
     this._dataType = type;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     if (this._dataType === 'tasks') {
       const paramsTaskwrapper = new RequestParamBuilder().addInitial(this).addInclude('tasks');
-
+      if (query) {
+        paramsTaskwrapper.addFilter(query);
+      }
       const taskwrapperService = this.service.get(SERV.TASKS_WRAPPER, this._id, paramsTaskwrapper.create());
 
       this.subscriptions.push(
@@ -47,7 +49,9 @@ export class HashesDataSource extends BaseDataSource<JHash> {
               .addInitial(this)
               .addInclude('hashlist')
               .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId });
-
+            if (query) {
+              paramsHashlist.addFilter(query);
+            }
             const hashlistService = this.service.getAll(SERV.HASHES, paramsHashlist.create());
 
             this.subscriptions.push(
@@ -72,7 +76,9 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       );
     } else {
       const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk');
-
+      if (query) {
+        params.addFilter(query);
+      }
       if (this._dataType === 'chunks') {
         params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
       } else if (this._dataType === 'hashlists') {
