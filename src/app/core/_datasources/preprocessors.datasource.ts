@@ -3,19 +3,22 @@
  */
 import { catchError, finalize, of } from 'rxjs';
 
-import { ResponseWrapper } from '@models/response.model';
+import { BaseDataSource } from '@datasources/base.datasource';
+import { Filter } from '@models/request-params.model';
 import { JPreprocessor } from '@models/preprocessor.model';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
+import { ResponseWrapper } from '@models/response.model';
 import { SERV } from '@services/main.config';
 
-import { BaseDataSource } from '@datasources/base.datasource';
-
 export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).create();
-    const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params);
+    const params = new RequestParamBuilder().addInitial(this);
+    if (query) {
+      params.addFilter(query);
+    }
+
+    const preprocessors$ = this.service.getAll(SERV.PREPROCESSORS, params.create());
 
     this.subscriptions.push(
       preprocessors$
@@ -29,13 +32,7 @@ export class PreprocessorsDataSource extends BaseDataSource<JPreprocessor> {
 
           const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           this.setData(preprocessors);
         })
     );
