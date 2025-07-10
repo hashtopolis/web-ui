@@ -1,25 +1,22 @@
-import { Observable, catchError, of } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
-
-import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
-import { SERV } from '@services/main.config';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { Observable, catchError, of } from 'rxjs';
 import {
   PermissionsTableCol,
   PermissionsTableColumnLabel
 } from '@components/tables/permissions-table/permissions-table.constants';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
 import { PermissionsDataSource } from '@datasources/permissions.datasource';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { SERV } from '@services/main.config';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-permissions-table',
@@ -29,7 +26,7 @@ import { PermissionsDataSource } from '@datasources/permissions.datasource';
 export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '_id';
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
@@ -45,25 +42,13 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
       sub.unsubscribe();
     }
   }
-
-  filter(item: JGlobalPermissionGroup, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   getColumns(): HTTableColumn[] {

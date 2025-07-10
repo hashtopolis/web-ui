@@ -42,43 +42,6 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-  /*   filter(item: JLog, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.issuer.toLowerCase().includes(filterValue) ||
-          item.issuerId.toString().includes(filterValue) ||
-          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue) ||
-          item.level.toLowerCase().includes(filterValue) ||
-          item.message.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'issuer': {
-        return (
-          item.issuer.toLowerCase().includes(filterValue) ||
-          item.issuerId.toString().includes(filterValue) ||
-          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue)
-        );
-      }
-      case 'level': {
-        return item.level.toLowerCase().includes(filterValue);
-      }
-      case 'message': {
-        return item.message.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.message?.toLowerCase().includes(filterValue);
-    }
-  } */
 
   getColumns(): HTTableColumn[] {
     return [
