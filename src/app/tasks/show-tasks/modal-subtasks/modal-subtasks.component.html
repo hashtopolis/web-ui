@@ -1,4 +1,4 @@
 <app-table>
   <app-page-title [title]="supertaskName"></app-page-title>
-  <app-tasks-supertasks-table [supertaskId]="supertaskId"></app-tasks-supertasks-table>
+  <app-tasks-supertasks-table (linkClicked)="close()" [supertaskId]="supertaskId"></app-tasks-supertasks-table>
 </app-table>

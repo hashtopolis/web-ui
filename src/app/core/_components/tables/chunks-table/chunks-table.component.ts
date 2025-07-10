@@ -141,7 +141,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderCrackedLinkFromChunk(chunk),
         isSortable: true
       }
     ];

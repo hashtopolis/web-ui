@@ -15,6 +15,7 @@ import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
+import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -111,7 +112,7 @@ export class BaseTableComponent {
    * @param chunk - chunk object to render router link for
    * @return observable object containing a router link array
    */
-  renderCrackedLink(chunk: JChunk): Observable<HTTableRouterLink[]> {
+  renderCrackedLinkFromChunk(chunk: JChunk): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (chunk) {
       links.push({
@@ -120,6 +121,44 @@ export class BaseTableComponent {
       });
     }
     return of(links);
+  }
+
+  /**
+   * Render cracked link from task object to be displayed in HTML code
+   * @return observable object containing a router link array
+   * @param task
+   */
+  renderCrackedLinkFromTask(task: JTask): Observable<HTTableRouterLink[]> {
+    const links: HTTableRouterLink[] = [];
+    if (task.chunkData.cracked) {
+      links.push({
+        routerLink: ['/hashlists', 'hashes', 'tasks', task.id],
+        label: task.chunkData.cracked.toLocaleString()
+      });
+    }
+    return of(links);
+  }
+
+  /**
+   * Render router link to show cracked hashes for a task if any.
+   * For supertasks only the cracked number as text is shown
+   * @param wrapper - the task wrapper object to render the link for
+   * @return observable containing an array of router links to be rendered in HTML
+   */
+  protected renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
+    if (wrapper.cracked === 0) {
+      return of([{ label: null, routerLink: null }]);
+    }
+
+    const isSupertask = wrapper.taskType === TaskType.SUPERTASK;
+
+    const link: HTTableRouterLink = {
+      label: wrapper.cracked.toLocaleString(),
+      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id],
+      tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
+    };
+
+    return of([link]);
   }
 
   /**
