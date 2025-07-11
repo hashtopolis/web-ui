@@ -76,63 +76,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
   }
-  filter2(input: string) {
-    console.log(this.tableColumns);
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    switch (selectedColumn) {
-      case 'all': {
-        console.log('Filtering across all columns');
-        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
-        // Search across multiple relevant fields
-        break;
-      }
-      default: {
-        console.log(`Filtering by column: ${selectedColumn}`);
-        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
-        break;
-      }
-    }
-  }
-  filter(item: JAgent, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.agentName?.toLowerCase().includes(filterValue) ||
-          item.user.name?.toLowerCase().includes(filterValue) ||
-          item.clientSignature?.toLowerCase().includes(filterValue) ||
-          item.devices?.toLowerCase().includes(filterValue) ||
-          item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue)) ||
-          item.task?.taskName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return String(item.id).toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-      case 'userId': {
-        return item.user?.name?.toLowerCase().includes(filterValue);
-      }
-      case 'clientSignature': {
-        return item.clientSignature?.toLowerCase().includes(filterValue);
-      }
-      case 'devices': {
-        return item.devices?.toLowerCase().includes(filterValue);
-      }
-      case 'accessGroupId': {
-        return item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue));
-      }
-      case 'taskName': {
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
 
