@@ -26,7 +26,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(CracksTableColumnLabel);
     this.tableColumns = this.getColumns();

@@ -27,7 +27,7 @@ import { environment } from '@src/environments/environment';
 export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   agentdownloadURL: string;
 
   ngOnInit(): void {

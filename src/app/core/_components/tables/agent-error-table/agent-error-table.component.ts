@@ -29,7 +29,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
   ngOnDestroy(): void {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }

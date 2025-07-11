@@ -26,7 +26,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();

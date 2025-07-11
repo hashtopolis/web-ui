@@ -33,7 +33,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   @Output() updateFormEvent = new EventEmitter<any>();
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(FilesAttackTableColumnLabel);
     this.tableColumns = this.getColumns();

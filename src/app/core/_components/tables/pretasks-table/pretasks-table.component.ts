@@ -74,7 +74,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
 
   tableColumns: HTTableColumn[] = [];
   dataSource: PreTasksDataSource;
-  selectedFilterColumn: string = 'pretaskId';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(PretasksTableColumnLabel);
     this.tableColumns = this.getColumns();

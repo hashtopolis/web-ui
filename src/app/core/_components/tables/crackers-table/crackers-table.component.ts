@@ -23,7 +23,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);

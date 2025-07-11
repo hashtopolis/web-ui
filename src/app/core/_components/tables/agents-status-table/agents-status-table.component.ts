@@ -39,7 +39,7 @@ export class STATCALCULATION {
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {

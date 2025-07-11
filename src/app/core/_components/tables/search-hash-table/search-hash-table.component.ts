@@ -22,7 +22,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   @Input() search: string[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
-  selectedFilterColumn: string = 'plaintext';
+  selectedFilterColumn: string;
   private initDone: boolean = false;
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);

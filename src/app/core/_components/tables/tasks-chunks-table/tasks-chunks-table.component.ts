@@ -33,7 +33,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
 
   // Track initialization
   private isInitialized = false;

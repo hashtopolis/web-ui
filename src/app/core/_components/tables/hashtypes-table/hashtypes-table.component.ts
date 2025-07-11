@@ -27,7 +27,7 @@ import { catchError } from 'rxjs';
 export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();

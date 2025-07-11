@@ -25,7 +25,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HashesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(HashesTableColColumnLabel);

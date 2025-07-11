@@ -28,7 +28,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'hashlistId';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);

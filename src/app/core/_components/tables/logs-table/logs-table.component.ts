@@ -18,7 +18,7 @@ import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);

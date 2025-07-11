@@ -52,7 +52,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   showAccessGroups: boolean = true;
 
   ngOnInit(): void {

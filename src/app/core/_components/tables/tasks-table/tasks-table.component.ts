@@ -55,7 +55,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();

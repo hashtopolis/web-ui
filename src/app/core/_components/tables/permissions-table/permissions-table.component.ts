@@ -26,7 +26,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);

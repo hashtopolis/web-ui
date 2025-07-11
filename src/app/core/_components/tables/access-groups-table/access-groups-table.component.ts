@@ -26,7 +26,7 @@ import { catchError } from 'rxjs';
 export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);

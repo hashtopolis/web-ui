@@ -29,7 +29,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);

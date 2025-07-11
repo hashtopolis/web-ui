@@ -27,7 +27,7 @@ import { TableDialogComponent } from '@components/tables/table-dialog/table-dial
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
-  selectedFilterColumn: string = '_id';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);

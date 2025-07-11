@@ -27,7 +27,7 @@ import { catchError } from 'rxjs';
 export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);

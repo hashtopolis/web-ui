@@ -27,7 +27,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);

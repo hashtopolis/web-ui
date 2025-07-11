@@ -57,7 +57,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
