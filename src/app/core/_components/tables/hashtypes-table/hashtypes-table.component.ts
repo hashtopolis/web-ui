@@ -78,20 +78,12 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   }
 
   filter(input: string) {
-    console.log(this.tableColumns);
     const selectedColumn = this.selectedFilterColumn;
-    switch (selectedColumn) {
-      case 'all': {
-        console.log('Filtering across all columns');
-        this.dataSource.loadAll({ value: input, field: 'description', operator: FilterType.ICONTAINS });
-        // Search across multiple relevant fields
-        break;
-      }
-      default: {
-        console.log(`Filtering by column: ${selectedColumn}`);
-        this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
-        break;
-      }
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
 

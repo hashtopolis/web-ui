@@ -74,7 +74,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
   }
 
   getColumns(): HTTableColumn[] {
