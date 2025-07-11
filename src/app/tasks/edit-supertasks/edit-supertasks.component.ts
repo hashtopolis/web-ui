@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -41,7 +41,22 @@ export class EditSupertasksComponent implements OnInit, OnDestroy {
   selectPretasks: any[];
 
   // Edit
-  editedSTIndex: number;
+  private _editedSTIndex: number;
+  @Input()
+  set editedSTIndex(value: number) {
+    if (value !== this._editedSTIndex) {
+      this._editedSTIndex = value;
+      this.refresh(); // Reload the Pretask-Select-Component
+    }
+  }
+  get editedSTIndex(): number {
+    if (this._editedSTIndex === undefined) {
+      return 0;
+    } else {
+      return this._editedSTIndex;
+    }
+  }
+
   assignPretasks: any;
   editName: string;
 

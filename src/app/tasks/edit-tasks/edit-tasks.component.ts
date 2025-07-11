@@ -18,9 +18,9 @@ import {
 import * as echarts from 'echarts/core';
 import { UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
-import { finalize } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
@@ -56,7 +56,7 @@ import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
   providers: [FileSizePipe],
   standalone: false
 })
-export class EditTasksComponent implements OnInit {
+export class EditTasksComponent implements OnInit, OnDestroy {
   editMode = false;
   editedTaskIndex: number;
   taskWrapperId: number;
@@ -89,6 +89,8 @@ export class EditTasksComponent implements OnInit {
   currenspeed = 0;
   chunkresults: number;
 
+  private routeSub: Subscription;
+
   constructor(
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
@@ -101,19 +103,25 @@ export class EditTasksComponent implements OnInit {
     private confirmDialog: ConfirmDialogService
   ) {
     this.titleService.set(['Edit Task']);
+    this.onInitialize();
   }
 
   ngOnInit() {
-    this.onInitialize();
     this.buildForm();
     this.initForm();
     this.assignChunksInit();
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedTaskIndex = +params['id'];
       this.editMode = params['id'] != null;
+
+      this.ngOnInit();
     });
   }
 
@@ -451,6 +459,14 @@ export class EditTasksComponent implements OnInit {
     const datelabel = this.transDate(enddate);
     const xAxis = this.generateIntervalsOf(1, +startdate, +enddate);
 
+    const newDiv = document.createElement('div');
+    newDiv.id = 'tspeed';
+    newDiv.style.height = '310px';
+
+    // Replace the old chart container with the new one,
+    // otherwise the same chart container is always used when the URL is changed and never recreated
+    const chartDomDelete = document.getElementById('tspeed');
+    chartDomDelete.replaceWith(newDiv);
     const chartDom = document.getElementById('tspeed');
     const myChart = echarts.init(chartDom);
 

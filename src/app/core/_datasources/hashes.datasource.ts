@@ -3,7 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 import { JHash } from '@models/hash.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JTask } from '@models/task.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { ResponseWrapper } from '@models/response.model';
@@ -25,25 +25,25 @@ export class HashesDataSource extends BaseDataSource<JHash> {
     this.loading = true;
 
     if (this._dataType === 'tasks') {
-      const paramsTaskwrapper = new RequestParamBuilder().addInitial(this).addInclude('tasks');
+      const paramsTasks = new RequestParamBuilder().addInitial(this).addInclude('hashlist');
       if (query) {
-        paramsTaskwrapper.addFilter(query);
+        paramsTasks.addFilter(query);
       }
-      const taskwrapperService = this.service.get(SERV.TASKS_WRAPPER, this._id, paramsTaskwrapper.create());
+      const taskService = this.service.get(SERV.TASKS, this._id, paramsTasks.create());
 
       this.subscriptions.push(
-        taskwrapperService
+        taskService
           .pipe(
             catchError(() => of([])),
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
-            const taskwrapper = new JsonAPISerializer().deserialize<JTaskWrapper>({
+            const task = new JsonAPISerializer().deserialize<JTask>({
               data: response.data,
               included: response.included
             });
 
-            const hashlistId = taskwrapper.hashlistId;
+            const hashlistId = task.hashlist.id;
 
             const paramsHashlist = new RequestParamBuilder()
               .addInitial(this)

@@ -5,6 +5,7 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
+import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
 import { Observable, catchError, of } from 'rxjs';
 import {
   TaskStatus,
@@ -20,8 +21,7 @@ import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-ac
 import { ChunkData } from '@models/chunk.model';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JTask } from '@models/task.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
+import { JHashlist } from '@models/hashlist.model';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
@@ -62,6 +62,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource = new TasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
@@ -83,19 +84,24 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'taskWrapperId',
         isSortable: true,
         isSearchable: true,
-        render: (wrapper: JTaskWrapper) => wrapper.id,
-        export: async (wrapper: JTaskWrapper) => wrapper.id + ''
+        export: async (wrapper: JTaskWrapper) => {
+          return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
+        },
+        render: (wrapper: JTaskWrapper) => {
+          return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
+        }
       },
       {
         id: TaskTableCol.TASK_TYPE,
         dataKey: 'taskType',
-        render: (wrapper: JTaskWrapper) => (wrapper.taskType === 0 ? 'Task' : '<b>SuperTask</b>'),
-        export: async (wrapper: JTaskWrapper) => (wrapper.taskType === 0 ? 'Task' : 'Supertask' + '')
+        render: (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? 'Task' : '<b>SuperTask</b>'),
+        export: async (wrapper: JTaskWrapper) => (wrapper.taskType === TaskType.TASK ? 'Task' : 'Supertask' + '')
       },
       {
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
+        isSearchable: true,
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
@@ -136,6 +142,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistId',
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
+        icon: (wrapper: JTaskWrapper) => this.renderHashlistIcon(wrapper.hashlist),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
       },
@@ -198,10 +205,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.PREPROCESSOR,
         dataKey: 'preprocessorId',
         render: (wrapper: JTaskWrapper) =>
-          wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1 ? 'Prince' : '',
+          wrapper.taskType === TaskType.TASK && wrapper.tasks[0].preprocessorId === 1 ? 'Prince' : '',
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
-          wrapper.taskType === 0 && wrapper.tasks[0].preprocessorId === 1 ? 'Prince' : ''
+          wrapper.taskType === TaskType.TASK && wrapper.tasks[0].preprocessorId === 1 ? 'Prince' : ''
       },
       {
         id: TaskTableCol.IS_SMALL,
@@ -209,7 +216,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapper) => this.renderIsSmallIcon(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
-          wrapper.taskType === 0 ? (wrapper.tasks[0].isSmall ? 'Yes' : 'No') : ''
+          wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isSmall ? 'Yes' : 'No') : ''
       },
       {
         id: TaskTableCol.IS_CPU_TASK,
@@ -217,7 +224,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         icon: (wrapper: JTaskWrapper) => this.renderIsCpuTaskIcon(wrapper),
         isSortable: false,
         export: async (wrapper: JTaskWrapper) =>
-          wrapper.taskType === 0 ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
+          wrapper.taskType === TaskType.TASK ? (wrapper.tasks[0].isCpuTask ? 'Yes' : 'No') : ''
       }
     ];
   }
@@ -227,7 +234,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
         break;
-      case RowActionMenuAction.EDIT_SUBTASKS:
+      case RowActionMenuAction.SHOW_SUBTASKS:
         // eslint-disable-next-line no-case-declarations
         this.rowActionEditSubtasks(event.data);
         break;
@@ -261,7 +268,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   getRowDeleteLabel(data: JTaskWrapper): JTaskWrapper {
     return {
       ...data,
-      taskName: data.taskType === 1 ? data.taskWrapperName : data.tasks[0].taskName
+      taskName: data.taskType === TaskType.SUPERTASK ? data.taskWrapperName : data.tasks[0].taskName
     };
   }
 
@@ -271,7 +278,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
     // Preprocess the data and count the occurrences of each type
     const updatedData: JTaskWrapper[] = event.data.map((taskWrapper: JTaskWrapper) => {
-      if (taskWrapper.taskType === 1) {
+      if (taskWrapper.taskType === TaskType.SUPERTASK) {
         superTasksCount++;
         return { ...taskWrapper, taskName: taskWrapper.taskWrapperName };
       } else {
@@ -359,7 +366,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   getDispatchedSearchedString(wrapper: JTaskWrapper): string {
-    if (wrapper.taskType === 0) {
+    if (wrapper.taskType === TaskType.TASK) {
       const task: JTask = wrapper.tasks[0];
       if (task.keyspace > 0) {
         return `${convertToLocale(Number(task.dispatched))}% / ${convertToLocale(Number(task.searched))}%`;
@@ -413,7 +420,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   getNumAgents(wrapper: JTaskWrapper): number {
-    return wrapper.taskType === 0 && wrapper.chunkData ? wrapper.chunkData.agents.length : 0;
+    return wrapper.taskType === TaskType.TASK && wrapper.chunkData ? wrapper.chunkData.agents.length : 0;
   }
 
   renderAgents(wrapper: JTaskWrapper): SafeHtml {
@@ -423,7 +430,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   renderSpeed(wrapper: JTaskWrapper): SafeHtml {
     let html = '';
-    if (wrapper.taskType === 0) {
+    if (wrapper.taskType === TaskType.TASK) {
       const chunkData: ChunkData = wrapper.chunkData;
       if (chunkData && 'speed' in chunkData && chunkData.speed > 0) {
         html = `${convertCrackingSpeed(chunkData.speed)}`;
@@ -455,7 +462,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private getTaskStatus(wrapper: JTaskWrapper): TaskStatus {
-    if (wrapper.taskType === 0 && wrapper.tasks.length > 0) {
+    if (wrapper.taskType === TaskType.TASK && wrapper.tasks.length > 0) {
       const chunkData: ChunkData = wrapper.chunkData;
       if (chunkData) {
         const speed = chunkData.speed;
@@ -463,28 +470,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         if (speed > 0) {
           return TaskStatus.RUNNING;
         } else if (
-          wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
-          wrapper.tasks[0].keyspaceProgress > 0
+          (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace &&
+            wrapper.tasks[0].keyspaceProgress > 0 &&
+            Number(wrapper.tasks[0].searched) === 100) ||
+          wrapper.tasks.find(
+            (task: JTask) =>
+              task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0 && Number(task.searched) === 100
+          )
         ) {
           return TaskStatus.COMPLETED;
         } else {
           return TaskStatus.IDLE;
         }
-      }
-    }
-    const chunkData: ChunkData = wrapper.chunkData;
-    if (chunkData) {
-      const speed = chunkData.speed;
-
-      if (speed > 0) {
-        return TaskStatus.RUNNING;
-      } else if (
-        (wrapper.tasks[0].keyspaceProgress >= wrapper.tasks[0].keyspace && wrapper.tasks[0].keyspaceProgress > 0) ||
-        wrapper.tasks.find((task: JTask) => task.keyspaceProgress >= task.keyspace && task.keyspaceProgress > 0)
-      ) {
-        return TaskStatus.COMPLETED;
-      } else {
-        return TaskStatus.IDLE;
       }
     }
     return TaskStatus.INVALID;
@@ -493,7 +490,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private renderBoolIcon(wrapper: JTaskWrapper, key: string, equals: string = ''): HTTableIcon {
     let icon: HTTableIcon = { name: '' };
-    if (wrapper.taskType === 0) {
+    if (wrapper.taskType === TaskType.TASK) {
       const task: JTask = wrapper.tasks[0];
       if (equals === '') {
         if (task[key] === true) {
@@ -670,42 +667,33 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   /**
-   * Render router link to show cracked hashes for a task
-   * @param wrapper - the task wrapper object to render the link for
-   * @return observable containing an array of router links to be rendered in HTML
-   * @private
-   */
-  private renderCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (wrapper.taskType === 0) {
-      links.push({
-        label: wrapper.cracked.toLocaleString(),
-        routerLink: ['/hashlists', 'hashes', 'tasks', wrapper.id]
-      });
-    }
-
-    return of(links);
-  }
-
-  /**
    * Render router links for any type of tasks for a task wrapper object
    * @param wrapper - the task wrapper object to render the link for
    * @return observable containing an array of router links to be rendered in HTML
    * @private
    */
   private renderTaskWrapperLink(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    for (const task of wrapper.tasks) {
-      const taskName = task.taskName?.length > 40 ? `${task.taskName.substring(40)}...` : task.taskName;
+    if (wrapper.taskType === TaskType.TASK) {
+      const task = wrapper.tasks?.[0];
+      const taskName = task?.taskName?.length > 40 ? `${task.taskName.substring(0, 40)}...` : task?.taskName;
 
-      links.push({
-        label: taskName,
-        routerLink: ['/tasks', 'show-tasks', task.id, 'edit'],
-        tooltip: task.attackCmd
-      });
+      return of([
+        {
+          label: taskName,
+          routerLink: ['/tasks', 'show-tasks', task?.id, 'edit'],
+          tooltip: task?.attackCmd ?? ''
+        }
+      ]);
+    } else {
+      // Supertask: No link
+      return of([
+        {
+          label: wrapper.taskWrapperName,
+          routerLink: null,
+          tooltip: ''
+        }
+      ]);
     }
-
-    return of(links);
   }
 
   /**
@@ -723,5 +711,22 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       });
     }
     return of(links);
+  }
+
+  /**
+   * Renders checkmark icon, if all hashes of hashlist are cracked
+   * @param hashlist Hashlist object
+   * @private
+   */
+  private renderHashlistIcon(hashlist: JHashlist): HTTableIcon | undefined {
+    const allHashesCracked = hashlist.hashCount === hashlist.cracked;
+
+    if (allHashesCracked) {
+      return {
+        name: 'check',
+        tooltip: 'All hashes cracked'
+      };
+    }
+    return undefined;
   }
 }

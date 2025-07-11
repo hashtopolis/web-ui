@@ -1,16 +1,16 @@
-import { TaskVisualomponent } from "./task-visual/task-visual.component";
+import { TaskVisualComponent } from "./task-visual/task-visual.component";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
 @NgModule({
   declarations:[
-    TaskVisualomponent,
+    TaskVisualComponent,
   ],
   imports:[
     CommonModule
   ],
   exports:[
-    TaskVisualomponent
+    TaskVisualComponent
   ]
 })
 export class GraphsModule {}

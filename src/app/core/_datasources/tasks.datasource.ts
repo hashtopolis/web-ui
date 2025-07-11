@@ -1,10 +1,9 @@
 import { Filter, FilterType } from '@models/request-params.model';
+import { JTask, JTaskWrapper } from '@models/task.model';
 import { catchError, of } from 'rxjs';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 import { JChunk } from '@models/chunk.model';
-import { JTask } from '@models/task.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { ResponseWrapper } from '@models/response.model';
 import { SERV } from '@services/main.config';

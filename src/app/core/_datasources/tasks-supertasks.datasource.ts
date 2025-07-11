@@ -3,8 +3,7 @@ import { catchError, finalize, of } from 'rxjs';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTaskWrapper } from '@models/task-wrapper.model';
-import { JTask } from '@models/task.model';
+import { JTask, JTaskWrapper } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -43,13 +42,7 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           });
           const length = response.meta.page.total_elements;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            this.pageAfter,
-            this.pageBefore,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
           const subtasks = taskWrappers[0].tasks;
 
           const chunkParams = new RequestParamBuilder().addFilter({

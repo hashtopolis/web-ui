@@ -197,6 +197,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
   @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
   @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
+  @Output() linkClicked = new EventEmitter();
+
   /** Fetches user customizations */
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
@@ -283,6 +285,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadingTimeoutSubscription.unsubscribe();
     }
   }
+
+  onLinkClicked() {
+    this.linkClicked.emit();
+  }
+
   copyRowDataEmit(event: JHash) {
     this.emitCopyRowData.emit(event);
   }

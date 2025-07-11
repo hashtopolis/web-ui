@@ -1,6 +1,6 @@
 import { catchError, forkJoin } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { ChunkData } from '@models/chunk.model';
@@ -33,6 +33,7 @@ import { convertToLocale } from '@src/app/shared/utils/util';
 })
 export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() supertaskId = 0;
+  @Output() linkClicked = new EventEmitter<void>();
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksSupertasksDataSource;
@@ -53,6 +54,10 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+  }
+
+  onLinkClick(): void {
+    this.linkClicked.emit();
   }
 
   filter(item: JTask, filterValue: string): boolean {
@@ -83,7 +88,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       {
         id: TasksSupertasksDataSourceTableCol.CRACKED,
         dataKey: 'cracked',
-        //routerLink: (wrapper: JTask) => this.renderCrackedLink(wrapper),
+        routerLink: (task: JTask) => this.renderCrackedLinkFromTask(task),
         isSortable: true
       },
       {
@@ -325,7 +330,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     let val = 0;
     try {
       val = parseInt(priority);
-    } catch (error) {
+    } catch {
       // Do nothing
     }
 
@@ -357,7 +362,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     let val = 0;
     try {
       val = parseInt(max);
-    } catch (error) {
+    } catch {
       // Do nothing
     }
 

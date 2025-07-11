@@ -1,27 +1,41 @@
 <ng-container *ngIf="tableColumn.routerLink">
-  <span *ngFor="let link of tableColumn.routerLink(element) | async">
-    <ng-container *ngIf="link.tooltip; else linkTmpl">
-      <a [routerLink]="link.routerLink" title="{{ link.tooltip }}">
-        <ng-container *ngIf="link.label">
-          {{ link.label }}
-        </ng-container>
-        <ng-container *ngIf="!link.label">
-          {{ element[tableColumn.dataKey] }}
-        </ng-container>
-      </a>
+  <ng-container *ngFor="let link of tableColumn.routerLink(element) | async trackBy: trackByFn">
+    <ng-container *ngIf="link.label || link.routerLink">
+
+      <!-- If routerLink is set, render as link <a> -->
+      <ng-container *ngIf="link.routerLink; else plainText">
+        <a (click)="onLinkClicked();" [routerLink]="link.routerLink" [title]="link.tooltip ?? ''" class="link">
+          <ng-container *ngIf="link.label; else fallbackLabel">
+            {{ link.label }}
+          </ng-container>
+          <ng-template #fallbackLabel>
+            {{ element[tableColumn.dataKey] }}
+          </ng-template>
+          <ng-container *ngIf="link.icon?.faIcon">
+            <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
+          </ng-container>
+        </a>
+      </ng-container>
+
+      <!-- If no routerLink, render as plain text <span> -->
+      <ng-template #plainText>
+        <div [matTooltip]="link.tooltip ?? ''">
+    <span>
+      <ng-container *ngIf="link.label; else fallbackPlain">
+        {{ link.label }}
+      </ng-container>
+      <ng-template #fallbackPlain>
+        {{ element[tableColumn.dataKey] }}
+      </ng-template>
+      <ng-container *ngIf="link.icon?.faIcon">
+        <fa-icon [icon]="link.icon.faIcon" [title]="link.icon.tooltip ?? ''"></fa-icon>
+      </ng-container>
+    </span>
+        </div>
+      </ng-template>
+
     </ng-container>
-    <ng-template #linkTmpl>
-      <a [routerLink]="link.routerLink">
-        <ng-container *ngIf="link.label">
-          {{ link.label }}
-        </ng-container>
-        <ng-container *ngIf="!link.label">
-          {{ element[tableColumn.dataKey] }}
-        </ng-container>
-        <ng-container *ngIf="link.icon && link.icon.faIcon">
-          <fa-icon [icon]="link.icon.faIcon" title="{{ link.icon.tooltip }}"></fa-icon>
-        </ng-container>
-      </a>
-    </ng-template>
-  </span>
+  </ng-container>
 </ng-container>
+
+
