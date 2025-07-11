@@ -105,19 +105,19 @@
     }"
   >
     <div class="co co-100">
-      <div
-        id="pcard"
-        class="app-echarts"
-        style="height: 250px; display: flex; align-items: center; justify-content: center;"
-      >
+      <div class="app-echarts" style="height: 250px;">
         <ng-container *ngIf="canReadCracks; else noPermChart">
-          <!-- Chart will render here -->
+          <app-heatmap-chart
+            *ngIf="heatmapData?.length"
+            [data]="heatmapData"
+            [isDarkMode]="isDarkMode"
+          ></app-heatmap-chart>
+
         </ng-container>
         <ng-template #noPermChart>
           <span class="no-permission">No permission to view chart data</span>
         </ng-template>
       </div>
-
       <div class="chart-controls">
         <span *ngIf="lastUpdated">Last updated: {{ lastUpdated }}</span>
         <ng-container *ngIf="!refreshPage">

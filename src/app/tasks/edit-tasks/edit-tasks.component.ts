@@ -1,23 +1,3 @@
-import { LineChart, LineSeriesOption } from 'echarts/charts';
-import {
-  DataZoomComponent,
-  DataZoomComponentOption,
-  GridComponent,
-  GridComponentOption,
-  MarkLineComponent,
-  MarkLineComponentOption,
-  TitleComponent,
-  TitleComponentOption,
-  ToolboxComponent,
-  ToolboxComponentOption,
-  TooltipComponent,
-  TooltipComponentOption,
-  VisualMapComponent,
-  VisualMapComponentOption
-} from 'echarts/components';
-import * as echarts from 'echarts/core';
-import { UniversalTransition } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
 import { Subscription, finalize } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
@@ -199,8 +179,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.color = task.color;
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
-        // Graph Speed
-        this.initTaskSpeed(task.speeds);
         // Assigned Agents init
         this.assingAgentInit();
         // Hashlist Description and Type
@@ -373,11 +351,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleIsAll() {
-    this.chunkview = this.chunkview === 1 ? 0 : 1;
-    this.chunkTable.reload();
-  }
-
   onChunkViewChange(event: MatButtonToggleChange): void {
     this.chunkview = event.value;
   }
@@ -398,189 +371,5 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         this.alertService.showInfoMessage('Purge was cancelled');
       }
     });
-  }
-
-  /**
-   * Task Speed Grap
-   *
-   **/
-  initTaskSpeed(obj: object) {
-    echarts.use([
-      TitleComponent,
-      ToolboxComponent,
-      TooltipComponent,
-      GridComponent,
-      VisualMapComponent,
-      DataZoomComponent,
-      MarkLineComponent,
-      LineChart,
-      CanvasRenderer,
-      UniversalTransition
-    ]);
-
-    type EChartsOption = echarts.ComposeOption<
-      | TitleComponentOption
-      | ToolboxComponentOption
-      | TooltipComponentOption
-      | GridComponentOption
-      | VisualMapComponentOption
-      | DataZoomComponentOption
-      | MarkLineComponentOption
-      | LineSeriesOption
-    >;
-
-    const data: any = obj;
-    const arr = [];
-    const max = [];
-    const result = [];
-
-    data.reduce(function (res, value) {
-      if (!res[value.time]) {
-        res[value.time] = { time: value.time, speed: 0 };
-        result.push(res[value.time]);
-      }
-      res[value.time].speed += value.speed;
-      return res;
-    }, {});
-
-    for (let i = 0; i < result.length; i++) {
-      const iso = this.transDate(result[i]['time']);
-
-      arr.push([
-        iso,
-        this.fs.transform(result[i]['speed'], false, 1000).match(/\d+(\.\d+)?/)[0],
-        this.fs.transform(result[i]['speed'], false, 1000).slice(-2)
-      ]);
-      max.push(result[i]['time']);
-    }
-
-    const startdate = max.slice(0)[0];
-    const enddate = max.slice(-1)[0];
-    const datelabel = this.transDate(enddate);
-    const xAxis = this.generateIntervalsOf(1, +startdate, +enddate);
-
-    const newDiv = document.createElement('div');
-    newDiv.id = 'tspeed';
-    newDiv.style.height = '310px';
-
-    // Replace the old chart container with the new one,
-    // otherwise the same chart container is always used when the URL is changed and never recreated
-    const chartDomDelete = document.getElementById('tspeed');
-    chartDomDelete.replaceWith(newDiv);
-    const chartDom = document.getElementById('tspeed');
-    const myChart = echarts.init(chartDom);
-
-    const self = this;
-
-    const option: EChartsOption = {
-      title: {
-        subtext: 'Last record: ' + datelabel
-      },
-      tooltip: {
-        position: 'top',
-        formatter: function (p) {
-          return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
-        }
-      },
-      grid: {
-        left: '5%',
-        right: '4%'
-      },
-      xAxis: {
-        data: xAxis.map(function (item: any[] | any) {
-          return self.transDate(item);
-        })
-      },
-      yAxis: {
-        type: 'value',
-        name: 'H/s',
-        position: 'left',
-        alignTicks: true
-      },
-      useUTC: true,
-      toolbox: {
-        itemGap: 10,
-        show: true,
-        left: '85%',
-        feature: {
-          dataZoom: {
-            yAxisIndex: 'none'
-          },
-          restore: {},
-          saveAsImage: {
-            name: 'Task Speed'
-          }
-        }
-      },
-      dataZoom: [
-        {
-          type: 'slider',
-          show: true,
-          start: 94,
-          end: 100,
-          handleSize: 8
-        },
-        {
-          type: 'inside',
-          start: 70,
-          end: 100
-        }
-      ],
-      series: {
-        name: '',
-        type: 'line',
-        data: arr,
-        connectNulls: true,
-        markPoint: {
-          data: [
-            { type: 'max', name: 'Max' },
-            { type: 'min', name: 'Min' }
-          ]
-        },
-        markLine: {
-          lineStyle: {
-            color: '#333'
-          }
-        }
-      }
-    };
-    if (data.length > 0) {
-      option && myChart.setOption(option);
-    }
-  }
-
-  leading_zeros(dt) {
-    return (dt < 10 ? '0' : '') + dt;
-  }
-
-  transDate(dt) {
-    const date: any = new Date(dt * 1000);
-    // American Format
-    // return date.getUTCFullYear()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCDate()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
-    return (
-      date.getUTCDate() +
-      '-' +
-      this.leading_zeros(date.getUTCMonth() + 1) +
-      '-' +
-      date.getUTCFullYear() +
-      ',' +
-      this.leading_zeros(date.getUTCHours()) +
-      ':' +
-      this.leading_zeros(date.getUTCMinutes()) +
-      ':' +
-      this.leading_zeros(date.getUTCSeconds())
-    );
-  }
-
-  generateIntervalsOf(interval, start, end) {
-    const result = [];
-    let current = start;
-
-    while (current < end) {
-      result.push(current);
-      current += interval;
-    }
-
-    return result;
   }
 }
