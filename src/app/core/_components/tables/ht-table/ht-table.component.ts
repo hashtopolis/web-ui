@@ -520,6 +520,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
+    this.filterQueryFormGroup.get('textFilter').setValue('');
   }
 
   /**
