@@ -7,10 +7,8 @@
   [tableColumns]="tableColumns"
   [isSelectable]="isSelectable"
   [contextMenuService]="contextMenuService"
-
-
   [isArchived]="isArchived"
-  [isFilterable]="!true"
+  [isFilterable]="isFilterable"
   (rowActionClicked)="rowActionClicked($event)"
   (bulkActionClicked)="bulkActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"

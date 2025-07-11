@@ -10,7 +10,7 @@
   [isPageable]="true"
   [isSelectable]="true"
   (rowActionClicked)="rowActionClicked($event)"
-  [isFilterable]="!true"
+  [isFilterable]="isFilterable"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
   (backendSqlFilter)="filter($event)"
 />

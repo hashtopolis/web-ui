@@ -55,7 +55,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'taskWrapperId';
+  selectedFilterColumn: string = '_id';
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -88,6 +88,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
         },
         render: (wrapper: JTaskWrapper) => {
+          console.log('Rendering task wrapper ID:', wrapper);
           return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
         }
       },
@@ -101,7 +102,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
-        isSearchable: true,
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },

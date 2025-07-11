@@ -61,40 +61,42 @@
       </div>
     }
     <!-- Filter section BACKEND BEGIN-->
-    <div class="table-action-wrapper right-aligned" *ngIf="!isFilterable">
-      <div class="filter-container">
-        <!-- Column selector dropdown -->
-        <mat-form-field>
-          <mat-label class="filter-input-lable">Filter by column</mat-label>
-          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
-            @for (column of filterableColumns; track column) {
-              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <!-- Filter input -->
-        <form [formGroup]="filterQueryFormGroup">
-          <mat-form-field style="min-width: 200px">
-            <input
-              matInput
-              formControlName="textFilter"
-              (keyup.enter)="emitFilterValue()"
-              matInput
-              placeholder="Filter"
-            />
-            <button mat-icon-button matSuffix (click)="reload()">
-              <mat-icon>clear</mat-icon>
-            </button>
+    <div class="table-action-wrapper right-aligned">
+      @if (isFilterable) {
+        <div class="filter-container">
+          <!-- Column selector dropdown -->
+          <mat-form-field>
+            <mat-label class="filter-input-lable">Filter by column</mat-label>
+            <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+              @for (column of filterableColumns; track column) {
+                <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
+              }
+            </mat-select>
           </mat-form-field>
-        </form>
-      </div>
+
+          <!-- Filter input -->
+          <form [formGroup]="filterQueryFormGroup">
+            <mat-form-field style="min-width: 200px">
+              <input
+                matInput
+                formControlName="textFilter"
+                (keyup.enter)="emitFilterValue()"
+                matInput
+                placeholder="Filter"
+              />
+              <button mat-icon-button matSuffix (click)="reload()">
+                <mat-icon>clear</mat-icon>
+              </button>
+            </mat-form-field>
+          </form>
+        </div>
+      }
     </div>
     <!-- Filter section BACKEND END-->
     <!-- Filter section FRONTEND BEGIN-->
-    <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
+    <!-- THE OLD FILTERING DONE IN THE FRONTEND KEEP FOR NOW UNTIL ALL IS IN PLACE -->
+    <!--     <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
       <div class="filter-container">
-        <!-- Column selector dropdown -->
         <mat-form-field>
           <mat-label>Filter by column</mat-label>
           <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
@@ -105,7 +107,6 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- THE OLD FILTERING DONE IN THE FRONTEND KEEP FOR NOW UNTIL ALL IS IN PLACE -->
         <mat-form-field style="min-width: 200px">
           <input matInput (keyup.enter)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
           <button mat-icon-button matSuffix (click)="clearFilter()">
@@ -113,7 +114,7 @@
           </button>
         </mat-form-field>
       </div>
-    </div>
+    </div> -->
     <!-- Filter section FRONTEND END-->
   </div>
   <!-- Table -->
@@ -182,10 +183,17 @@
     </ng-container>
 
     <!-- action column -->
-    <ng-container *ngIf="contextMenuService && contextMenuService.getHasContextMenu()" matColumnDef="{{ colRowAction }}">
+    <ng-container
+      *ngIf="contextMenuService && contextMenuService.getHasContextMenu()"
+      matColumnDef="{{ colRowAction }}"
+    >
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" [class.text-right]="true">
-        <row-action-menu [data]="element" [contextMenuService]="contextMenuService" (menuItemClicked)="rowAction($event)"></row-action-menu>
+        <row-action-menu
+          [data]="element"
+          [contextMenuService]="contextMenuService"
+          (menuItemClicked)="rowAction($event)"
+        ></row-action-menu>
       </td>
     </ng-container>
 
@@ -229,29 +237,28 @@
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
           <span class="icon-actions">
-          @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
-                <button
-                  mat-icon-button
-                  color="primary"
-                  aria-label="Show full hash"
-                  (click)="showFullHashModalEmit(element)"
-                >
-                  <mat-icon>visibility</mat-icon>
-                </button>
-          }
-          @if (tableColumn.isCopy) {
-                <button
-                  (click)="copyRowDataEmit(element)"
-                  mat-icon-button
-                  color="primary"
-                  aria-label="Copy button"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-          }
+            @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+              <button
+                mat-icon-button
+                color="primary"
+                aria-label="Show full hash"
+                (click)="showFullHashModalEmit(element)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+            }
+            @if (tableColumn.isCopy) {
+              <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            }
           </span>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link (linkClicked)="onLinkClicked();" [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
+            <app-ht-table-link
+              (linkClicked)="onLinkClicked()"
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></app-ht-table-link>
             <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable
               [tableColumn]="tableColumn"
@@ -274,9 +281,7 @@
               >{{ icon.name }}</mat-icon
             >
             <ng-template #iconTmpl>
-              <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
-                icon.name
-              }}</mat-icon>
+              <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
             </ng-template>
           </ng-container>
         </div>
