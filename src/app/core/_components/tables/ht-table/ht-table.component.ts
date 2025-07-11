@@ -88,7 +88,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '';
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
@@ -242,13 +242,16 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
+    if (this.filterableColumns.length > 0) {
+      this.selectedFilterColumn = this.filterableColumns[0]?.dataKey;
+    }
   }
   // Handle filter column change
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
-    if (this.dataSource.filter) {
+    /*     if (this.dataSource.filter) {
       this.applyFilter();
-    }
+    } */
   }
 
   ngAfterViewInit(): void {
