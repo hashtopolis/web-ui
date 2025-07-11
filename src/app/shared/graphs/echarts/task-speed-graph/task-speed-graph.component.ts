@@ -17,10 +17,19 @@ import { ComposeOption, EChartsType, init } from 'echarts/core';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 
 import { HashRatePipe } from '@src/app/core/_pipes/hashrate-pipe';
 
+// Compose ECharts option type
 type EChartsOption = ComposeOption<
   | TitleComponentOption
   | ToolboxComponentOption
@@ -56,29 +65,39 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
   constructor(private hashratePipe: HashRatePipe) {}
 
-  ngAfterViewInit() {
+  /**
+   * Initializes the chart after view is ready.
+   */
+  ngAfterViewInit(): void {
     if (this.speeds?.length) {
       this.drawChart();
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  /**
+   * Redraw chart on input changes.
+   */
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['speeds'] && !changes['speeds'].firstChange) {
       this.drawChart();
     }
   }
 
-  private drawChart() {
+  /**
+   * Renders the line chart from speed data.
+   */
+  private drawChart(): void {
     if (!this.chart) {
       this.chart = init(this.chartRef.nativeElement);
     }
 
-    const data = this.speeds;
-    const arr = [];
-    const max = [];
-    const result = [];
+    if (!this.speeds || !this.speeds.length) {
+      this.chart.clear();
+      return;
+    }
 
-    data.reduce((res, value) => {
+    const result = [];
+    const reducer = this.speeds.reduce((res, value) => {
       if (!res[value.time]) {
         res[value.time] = { time: value.time, speed: 0 };
         result.push(res[value.time]);
@@ -87,31 +106,42 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
       return res;
     }, {});
 
-    for (let i = 0; i < result.length; i++) {
-      const iso = this.transDate(result[i]['time']);
-      const { value: speed, unit } = this.hashratePipe.transform(result[i]['speed'], 2, true) as {
+    const arr = [];
+    const timestamps = [];
+
+    for (const item of result) {
+      const iso = this.transDate(item.time);
+      const transformed = this.hashratePipe.transform(item.speed, 2, true) as {
         value: number;
         unit: string;
       };
 
+      if (!transformed) continue;
+
       arr.push({
         name: iso,
-        value: [iso, speed],
-        unit: unit
+        value: [iso, transformed.value],
+        unit: transformed.unit
       });
 
-      max.push(result[i]['time']);
+      timestamps.push(item.time);
     }
 
-    const displayUnit = arr.length ? arr[arr.length - 1].unit : 'H/s';
-    const startdate = max[0];
-    const enddate = max[max.length - 1];
-    const datelabel = this.transDate(enddate);
+    if (!arr.length) {
+      this.chart.clear();
+      return;
+    }
+
     const speedsOnly = arr.map((item) => item.value[1]);
     const maxSpeed = Math.max(...speedsOnly);
     const minSpeed = Math.min(...speedsOnly);
     const maxIndex = speedsOnly.indexOf(maxSpeed);
     const minIndex = speedsOnly.indexOf(minSpeed);
+
+    const displayUnit = arr[maxIndex]?.unit || 'H/s';
+    const startdate = timestamps[0];
+    const enddate = timestamps[timestamps.length - 1];
+    const datelabel = this.transDate(enddate);
 
     const xAxis = this.generateIntervalsOf(1, +startdate, +enddate);
     const xAxisData = xAxis.map((ts) => this.transDate(ts));
@@ -126,12 +156,10 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
           if (params.componentType === 'markPoint') {
             return `${params.name}: <strong>${params.data.value}</strong>`;
           }
-
           const data = params.data;
-          if (data && Array.isArray(data.value)) {
+          if (data?.value?.[1]) {
             return `${params.name}: <strong>${data.value[1]} ${data.unit ?? ''}</strong>`;
           }
-
           return '';
         }
       },
@@ -157,7 +185,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         itemGap: 10,
         feature: {
           dataZoom: {
-            yAxisIndex: 'none', // disables zoom on y-axis
+            yAxisIndex: 'none',
             title: {
               zoom: 'Zoom in',
               back: 'Zoom reset'
@@ -168,18 +196,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         }
       },
       dataZoom: [
-        {
-          type: 'slider',
-          xAxisIndex: 0,
-          start: 0,
-          end: 100
-        },
-        {
-          type: 'inside',
-          xAxisIndex: 0,
-          start: 0,
-          end: 100
-        }
+        { type: 'slider', xAxisIndex: 0, start: 0, end: 100 },
+        { type: 'inside', xAxisIndex: 0, start: 0, end: 100 }
       ],
       series: {
         name: '',
@@ -190,13 +208,13 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
           data: [
             {
               name: 'Max',
-              coord: arr[maxIndex].value,
-              value: `${arr[maxIndex].value[1]} ${arr[maxIndex].unit}`
+              coord: arr[maxIndex]?.value ?? [],
+              value: `${arr[maxIndex]?.value?.[1]} ${arr[maxIndex]?.unit}`
             },
             {
               name: 'Min',
-              coord: arr[minIndex].value,
-              value: `${arr[minIndex].value[1]} ${arr[minIndex].unit}`
+              coord: arr[minIndex]?.value ?? [],
+              value: `${arr[minIndex]?.value?.[1]} ${arr[minIndex]?.unit}`
             }
           ]
         },
@@ -209,10 +227,16 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     this.chart.setOption(option);
   }
 
+  /**
+   * Returns a date string with leading zeros for formatting.
+   */
   private leadingZeros(dt: number): string {
-    return dt < 10 ? '0' + dt : '' + dt;
+    return dt < 10 ? '0' + dt : dt.toString();
   }
 
+  /**
+   * Converts a UNIX timestamp to formatted date string (UTC).
+   */
   private transDate(dt: number): string {
     const date = new Date(dt * 1000);
     return (
@@ -230,6 +254,9 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     );
   }
 
+  /**
+   * Generates an array of timestamps from `start` to `end` with a fixed `interval`.
+   */
   private generateIntervalsOf(interval: number, start: number, end: number): number[] {
     const result = [];
     let current = start;

@@ -1,7 +1,7 @@
 // echarts-config.ts
 import { HeatmapChart, LineChart } from 'echarts/charts';
 import {
-  CalendarComponent,
+  CalendarComponent, DataZoomComponent,
   GridComponent,
   LegendComponent,
   MarkLineComponent,
@@ -29,6 +29,7 @@ export function registerEChartsModules() {
     LineChart,
     HeatmapChart,
     CanvasRenderer,
-    UniversalTransition
+    UniversalTransition,
+    DataZoomComponent
   ]);
 }
