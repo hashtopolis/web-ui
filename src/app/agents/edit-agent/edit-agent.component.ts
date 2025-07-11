@@ -1,21 +1,3 @@
-import { LineChart } from 'echarts/charts';
-import {
-  GridComponent,
-  GridComponentOption,
-  LegendComponent,
-  MarkLineComponent,
-  MarkLineComponentOption,
-  MarkPointComponent,
-  TitleComponent,
-  TitleComponentOption,
-  ToolboxComponent,
-  ToolboxComponentOption,
-  TooltipComponent,
-  TooltipComponentOption
-} from 'echarts/components';
-import * as echarts from 'echarts/core';
-import { UniversalTransition } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
 import { firstValueFrom } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -23,7 +5,6 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentStat } from '@models/agent-stats.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
@@ -89,6 +70,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   getchunks: JChunk[];
 
   currentAssignment: JAgentAssignment;
+  public ASC = ASC;
 
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -125,9 +107,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     this.loadSelectUsers();
     this.assignChunksInit(this.editedAgentIndex);
     this.initForm();
-    this.drawGraphs(this.showagent.agentStats);
   }
-
   /**
    * Lifecycle hook called before the component is destroyed.
    * Unsubscribes from all subscriptions to prevent memory leaks.
@@ -190,7 +170,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         this.serializer.deserialize<JUser[]>(responseBody),
         DEFAULT_FIELD_MAPPING
       );
-      console.log(this.selectUsers);
     });
     this.unsubscribeService.add(loadUsersSubscription$);
   }
@@ -350,198 +329,5 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     return Object.keys(deviceCountMap)
       .map((device) => `${deviceCountMap[device]} x ${device}`)
       .join('<br>');
-  }
-
-  // //
-  //  GRAPHS SECTION
-  // //
-  /**
-   * Draw all graphs for GPU temperature and utilisation and CPU utilisation
-   * @param agentStatList List of agentStats objects
-   */
-  drawGraphs(agentStatList: JAgentStat[]) {
-    this.drawGraph(
-      agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_TEMP),
-      ASC.GPU_TEMP,
-      'tempgraph'
-    ); // filter Device Temperature
-    this.drawGraph(
-      agentStatList.filter((agentStat) => agentStat.statType == ASC.GPU_UTIL),
-      ASC.GPU_UTIL,
-      'devicegraph'
-    ); // filter Device Utilisation
-    this.drawGraph(
-      agentStatList.filter((agentStat) => agentStat.statType == ASC.CPU_UTIL),
-      ASC.CPU_UTIL,
-      'cpugraph'
-    ); // filter CPU Utilisation
-  }
-
-  /**
-   * Draw single Graph from AgentStats
-   * @param agentStatList List of AgentStats objects
-   * @param status Number to determine device and displayed stats (GPU_TEMP: 1, GPU_UTIL: 2, CPU_UTIL: 3)
-   * @param name Name of Graph
-   */
-  drawGraph(agentStatList: JAgentStat[], status: number, name: string) {
-    echarts.use([
-      TitleComponent,
-      ToolboxComponent,
-      TooltipComponent,
-      GridComponent,
-      LegendComponent,
-      MarkLineComponent,
-      MarkPointComponent,
-      LineChart,
-      CanvasRenderer,
-      UniversalTransition
-    ]);
-
-    type EChartsOption = echarts.ComposeOption<
-      | TitleComponentOption
-      | ToolboxComponentOption
-      | TooltipComponentOption
-      | GridComponentOption
-      | MarkLineComponentOption
-    >;
-
-    let templabel = '';
-
-    if (ASC.GPU_TEMP === status) {
-      if (this.getTemp2() > 100) {
-        templabel = '°F';
-      } else {
-        templabel = '°C';
-      }
-    }
-    if (ASC.GPU_UTIL === status) {
-      templabel = '%';
-    }
-    if (ASC.CPU_UTIL === status) {
-      templabel = '%';
-    }
-
-    const arr = [];
-    const max = [];
-    const devlabels = [];
-    const result = agentStatList;
-
-    for (let i = 0; i < result.length; i++) {
-      const val = result[i].value;
-      for (let i = 0; i < val.length; i++) {
-        const iso = this.transDate(result[i].time);
-        arr.push({ time: iso, value: val[i], device: i });
-        max.push(result[i].time);
-        devlabels.push('Device ' + i + '');
-      }
-    }
-
-    const grouped = [];
-    arr.forEach(function (a) {
-      grouped[a.device] = grouped[a.device] || [];
-      grouped[a.device].push({ time: a.time, value: a.value });
-    });
-
-    const labels = [...new Set(devlabels)];
-
-    const startdate = Math.max(...max);
-    const xAxis = this.generateIntervalsOf(1, +startdate - 500, +startdate);
-
-    const chartDom = document.getElementById(name);
-    const myChart = echarts.init(chartDom);
-    let option: EChartsOption;
-
-    const seriesData = [];
-    for (let i = 0; i < grouped.length; i++) {
-      seriesData.push({
-        name: 'Device ' + i + '',
-        type: 'line',
-        data: grouped[i],
-        markLine: {
-          data: [{ type: 'average', name: 'Avg' }],
-          symbol: ['none', 'none']
-        }
-      });
-    }
-
-    const self = this;
-    option = {
-      tooltip: {
-        position: 'top'
-      },
-      legend: {
-        data: labels
-      },
-      toolbox: {
-        show: true,
-        feature: {
-          dataZoom: {
-            yAxisIndex: 'none'
-          },
-          dataView: { readOnly: false },
-          restore: {},
-          saveAsImage: {
-            name: 'Device Temperature'
-          }
-        }
-      },
-      useUTC: true,
-      xAxis: {
-        data: xAxis.map(function (item: any[] | any) {
-          return self.transDate(item);
-        })
-      },
-      yAxis: {
-        type: 'value',
-        axisLabel: {
-          formatter: '{value} ' + templabel + ''
-        }
-      },
-      series: seriesData
-    };
-    option && myChart.setOption(option);
-  }
-
-  getTemp1() {
-    // Temperature Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold1').value;
-  }
-
-  getTemp2() {
-    // Temperature 2 Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold2').value;
-  }
-
-  transDate(dt: number) {
-    const date = new Date(dt * 1000);
-    return (
-      date.getUTCDate() +
-      '-' +
-      this.leading_zeros(date.getUTCMonth() + 1) +
-      '-' +
-      date.getUTCFullYear() +
-      ',' +
-      this.leading_zeros(date.getUTCHours()) +
-      ':' +
-      this.leading_zeros(date.getUTCMinutes()) +
-      ':' +
-      this.leading_zeros(date.getUTCSeconds())
-    );
-  }
-
-  leading_zeros(dt) {
-    return (dt < 10 ? '0' : '') + dt;
-  }
-
-  generateIntervalsOf(interval: number, start: number, end: number) {
-    const result = [];
-    let current = start;
-
-    while (current < end) {
-      result.push(current);
-      current += interval;
-    }
-
-    return result;
   }
 }
