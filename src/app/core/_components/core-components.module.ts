@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '@components/confirm-dialog/confirm-dialog.component';
 import { CrackersTableComponent } from '@components/tables/crackers-table/crackers-table.component';
 import { CracksTableComponent } from '@components/tables/cracks-table/cracks-table.component';
+import { DebounceDirective } from '@src/app/core/_directives/debounce.directive';
 import { ExportMenuComponent } from '@components/menus/export-menu/export-menu.component';
 import { FilesAttackTableComponent } from '@components/tables/files-attack-table/files-attack-table.component';
 import { FilesTableComponent } from '@components/tables/files-table/files-table.component';
@@ -147,7 +148,8 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     RouterModule,
     FormsModule,
     FontAwesomeModule,
-    PipesModule
+    PipesModule,
+    DebounceDirective
   ],
   exports: [
     BaseTableComponent,

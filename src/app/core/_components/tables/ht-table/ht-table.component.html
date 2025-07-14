@@ -79,9 +79,10 @@
             <mat-form-field style="min-width: 200px">
               <input
                 matInput
+                debounce
                 formControlName="textFilter"
-                (keyup.enter)="emitFilterValue()"
-                matInput
+                [debounceTime]="500"
+                (debounceInput)="emitFilterValue()"
                 placeholder="Filter"
               />
               <button mat-icon-button matSuffix type="button" (click)="reload()">

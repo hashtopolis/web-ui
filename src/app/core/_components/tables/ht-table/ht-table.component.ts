@@ -205,12 +205,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
-  filterQueryFormGroup = new FormGroup(
-    {
-      textFilter: new FormControl('')
-    },
-    { updateOn: 'submit' }
-  );
+  filterQueryFormGroup = new FormGroup({
+    textFilter: new FormControl('')
+  });
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
@@ -421,6 +418,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   emitFilterValue(): void {
+    console.log(this.filterQueryFormGroup.get('textFilter').value);
     this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
   }
   /**
