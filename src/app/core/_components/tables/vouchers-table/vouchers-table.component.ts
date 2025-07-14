@@ -1,25 +1,23 @@
-import { catchError } from 'rxjs';
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { BaseModel } from '@models/base.model';
-
-import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
-
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
-import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import {
   VouchersTableCol,
   VouchersTableColumnLabel
 } from '@src/app/core/_components/tables/vouchers-table/vouchers-table.constants';
-import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
+
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BaseModel } from '@models/base.model';
+import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { JVoucher } from '@src/app/core/_models/voucher.model';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@src/app/core/_services/main.config';
+import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
+import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
+import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
+import { catchError } from 'rxjs';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -30,7 +28,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class VouchersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: VouchersDataSource;
-
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(VouchersTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -52,22 +50,31 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
    * @param filterValue
    * @returns true, if voucher contains filterValue, else false
    */
-  filter(item: JVoucher, filterValue: string): boolean {
-    return item.voucher.toLowerCase().includes(filterValue);
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: VouchersTableCol.ID,
-        dataKey: 'id',
-        isSortable: true
+        dataKey: '_id',
+        render: (voucher: JVoucher) => voucher.id,
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,
         isCopy: true,
+        isSearchable: true,
         export: async (voucher: JVoucher) => voucher.voucher
       },
       {
