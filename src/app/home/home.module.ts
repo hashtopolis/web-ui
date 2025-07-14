@@ -17,6 +17,7 @@ import { ComponentsModule } from '@src/app/shared/components.module';
 import { HomeComponent } from '@src/app/home/home.component';
 import { HomeRoutingModule } from '@src/app/home/home-routing.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
+import { HeatmapChartComponent } from '@src/app/shared/graphs/echarts/heatmap-chart/heatmap-chart.component';
 
 @NgModule({
   declarations: [HomeComponent],
@@ -35,7 +36,8 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     MatCardModule,
     MatButtonModule,
     MatTooltipModule,
-    NgbModule
+    NgbModule,
+    HeatmapChartComponent
   ]
 })
 export class HomeModule {}

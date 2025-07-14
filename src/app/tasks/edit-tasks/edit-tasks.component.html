@@ -157,8 +157,9 @@
 <!-- Task speed -->
 <app-table>
   <app-page-subtitle [subtitle]="'Task Speed'"></app-page-subtitle>
-  <div id="tspeed" style="height: 310px"></div>
+  <app-task-speed-graph [speeds]="originalValue?.speeds"></app-task-speed-graph>
 </app-table>
+
 <!-- Dispatched Chunks -->
 <app-table>
   <app-page-subtitle [subtitle]="'Dispatched chunks'"></app-page-subtitle>

@@ -76,27 +76,31 @@
     </grid-buttons>
   </form>
 </grid-main>
-<!-- Graphs -->
 <app-table>
-  <app-page-subtitle [subtitle]="' GPU Device(s) Temperature'"></app-page-subtitle>
+  <app-page-subtitle [subtitle]="'GPU Device(s) Temperature'"></app-page-subtitle>
+  <ng-container *ngIf="showagent">
   <div class="row">
     <div class="col col-12">
-      <div id="tempgraph" style="height: 250px"></div>
+      <app-agent-stat-graph [statType]="ASC.GPU_TEMP" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
     </div>
   </div>
+
   <app-page-subtitle [subtitle]="'GPU Device(s) Utilisation'"></app-page-subtitle>
   <div class="row">
     <div class="col col-12">
-      <div id="devicegraph" style="height: 250px"></div>
+      <app-agent-stat-graph [statType]="ASC.GPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
     </div>
   </div>
+
   <app-page-subtitle [subtitle]="'CPU Device(s) Utilisation'"></app-page-subtitle>
   <div class="row">
     <div class="col col-12">
-      <div id="cpugraph" style="height: 250px"></div>
+      <app-agent-stat-graph [statType]="ASC.CPU_UTIL" [agentStats]="showagent.agentStats"></app-agent-stat-graph>
     </div>
   </div>
+  </ng-container>
 </app-table>
+
 <!-- ToDO API Errors table -->
 <app-table>
   <app-page-subtitle subtitle="Error messages"></app-page-subtitle>
