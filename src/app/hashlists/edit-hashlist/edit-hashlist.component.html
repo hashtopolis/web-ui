@@ -16,8 +16,8 @@
             </div>
           </div>
           <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <simulate-form-field label="Hash Type"  message="{{ hashtype.id }} - {{ hashtype.description }}"></simulate-form-field>
-            <simulate-form-field label="Using hashcat brain" [message]="editedHashlist.useBrain ? 'Yes' : 'No'">
+            <simulate-form-field label="Hash Type"  message="{{ hashtype?.id }} - {{ hashtype?.description }}"></simulate-form-field>
+            <simulate-form-field label="Using hashcat brain" [message]="editedHashlist?.useBrain ? 'Yes' : 'No'">
             </simulate-form-field>
             <input-text title="Format" formControlName="format"></input-text>
             <input-text title="Hashes" formControlName="hashCount"></input-text>
@@ -36,13 +36,13 @@
       <div fxLayout="row" fxLayoutGap="5px">
         <grid-buttons>
           <button-submit [name]="'Import pre-cracked hashes'" (click)="importCrackedHashes()"></button-submit>
-          <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Generate Wordlist'" (click)="exportWordlist()"></button-submit>
-          <button-submit *ngIf="editedHashlist.cracked > 0" [name]="'Export Left Hashes'" (click)="exportLeftHashes()"></button-submit>
+          <button-submit *ngIf="editedHashlist?.cracked > 0" [name]="'Generate Wordlist'" (click)="exportWordlist()"></button-submit>
+          <button-submit *ngIf="editedHashlist?.cracked > 0" [name]="'Export Left Hashes'" (click)="exportLeftHashes()"></button-submit>
         </grid-buttons>
       </div>
-      <br *ngIf="editedHashlist.cracked > 0">
+      <br *ngIf="editedHashlist?.cracked > 0">
 
-      <mat-accordion *ngIf="editedHashlist.cracked > 0">
+      <mat-accordion *ngIf="editedHashlist?.cracked > 0">
         <mat-expansion-panel>
           <mat-expansion-panel-header>
             <mat-panel-title>

@@ -1,8 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
+import { SERV } from 'src/app/core/_services/main.config';
+import { Hashlist } from 'src/app/hashlists/hashlist.model';
+
+import { JHashlist } from '@models/hashlist.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 
 import { ReportBaseDataSource } from './base.datasource';
-import { Hashlist } from 'src/app/hashlists/hashlist.model';
-import { SERV } from 'src/app/core/_services/main.config';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;
@@ -25,7 +30,10 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
           finalize(() => (this.loading = false))
         )
         .subscribe((response) => {
-          const res = this.getReport(response);
+          const responseBody = { data: response.data, included: response.included };
+          const hashlist = new JsonAPISerializer().deserialize<JHashlist>(responseBody);
+
+          const res = this.getReport(hashlist);
           this.setData(res);
         })
     );
@@ -40,7 +48,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     const workflow = [];
     let preCommand;
     const files = [];
-    data['tasks'].forEach((item) => {
+    data.tasks.forEach((item: JTask) => {
       if (item.keyspace && typeof item.keyspace === 'number') {
         sum += item.keyspace;
       }
@@ -66,10 +74,9 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
         ...preCommand,
         ul: [
           {
-            text: `Keyspace: ${item.keyspace} (Progress: ${(
-              (item.keyspaceProgress / item.keyspace) *
-              100
-            ).toFixed(2)}%)`,
+            text: `Keyspace: ${item.keyspace} (Progress: ${((item.keyspaceProgress / item.keyspace) * 100).toFixed(
+              2
+            )}%)`,
             margin: [0, 0, 0, 5]
           },
           // TODO implement Cracked entries for each task
@@ -86,22 +93,8 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
       {
         title: 'Input Fields',
         table: {
-          tableColumns: [
-            'Name',
-            'Notes',
-            'Hash Mode',
-            'Hash Count',
-            'Retrieved',
-            'Total Keyspace explored'
-          ],
-          tableValues: [
-            data.name,
-            data.notes,
-            data.hashType.hashTypeId,
-            data.hashCount,
-            data.cracked,
-            sum
-          ]
+          tableColumns: ['Name', 'Notes', 'Hash Mode', 'Hash Count', 'Retrieved', 'Total Keyspace explored'],
+          tableValues: [data.name, data.notes, data.hashTypeId, data.hashCount, data.cracked, sum]
         }
       },
       { break: 1 },
