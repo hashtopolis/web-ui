@@ -458,7 +458,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           },
           {
             label: 'Bug Report / Enhancement',
-            routerLink: ['https://github.com/h1ashtopolis/server/issues/new/choose'],
+            routerLink: ['https://github.com/hashtopolis/server/issues/new/choose'],
             icon: 'faGithub',
             external: true
           },
