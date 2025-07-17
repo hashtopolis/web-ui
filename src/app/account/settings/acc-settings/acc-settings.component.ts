@@ -3,13 +3,12 @@ import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { AlertService } from 'src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { passwordMatchValidator } from 'src/app/core/_validators/password.validator';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { SERV } from '../../../core/_services/main.config';
+import { SERV } from '@services/main.config';
 
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JUser } from '@src/app/core/_models/user.model';
@@ -36,7 +35,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
 
   /** Form group for main form. */
   form: FormGroup;
-  passform: FormGroup;
   changepasswordFormGroup: FormGroup;
 
   /** On form update show a spinner loading */
@@ -53,6 +51,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   showConfirmNewPassword: boolean = false;
   strongPassword = false;
   subscriptions: Subscription[] = [];
+
+  emailControl: FormControl;
 
   constructor(
     private titleService: AutoTitleService,
@@ -99,6 +99,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       }),
       email: new FormControl(email, [Validators.required, Validators.email])
     });
+    //this.emailControl = this.form.get('email') as FormControl;
   }
 
   createUpdatePassForm() {
@@ -171,15 +172,12 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       })
     );
   }
-  onPasswordStrengthChanged(event: boolean) {
-    this.strongPassword = event;
-  }
 
   /**
    * Loads user settings from the server and populates the form with initial data.
    */
   private loadUserSettings() {
-    const params = new RequestParamBuilder().addInclude('globalPermissionGroup').create();
+    const params = new RequestParamBuilder().create();
     this.subscriptions.push(
       this.gs.get(SERV.USERS, this.gs.userId, params).subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
@@ -187,4 +185,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       })
     );
   }
+
+  protected readonly FormControl = FormControl;
 }
