@@ -85,11 +85,16 @@ export class FilesDataSource extends BaseDataSource<JFile> {
 
             if (!this.editType) {
 
+              const nextLink = response.links.next;
+              const prevLink = response.links.prev;
+              const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
+              const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+
               this.setPaginationConfig(
                 this.pageSize,
                 length,
-                this.pageAfter,
-                this.pageBefore,
+                after,
+                before,
                 this.index
               );
             }
@@ -101,11 +106,16 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const pretask = serializer.deserialize<JPretask>(responseData);
 
             if (!this.editType) {
+              const nextLink = response.links.next;
+              const prevLink = response.links.prev;
+              const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
+              const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+
               this.setPaginationConfig(
                 this.pageSize,
                 length,
-                this.pageAfter,
-                this.pageBefore,
+                after,
+                before,
                 this.index
               );
             }

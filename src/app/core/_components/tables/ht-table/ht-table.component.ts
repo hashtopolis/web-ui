@@ -254,7 +254,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.dataSource.sort = this.matSort;
     this.matSort.sortChange.subscribe(() => {
-      this.dataSource.sortData();
+      this.uiSettings.updateTableSettings(this.name, {
+        start: undefined,
+        before: undefined,
+        page: this.dataSource.pageSize, // Store the new page size
+        index: this.dataSource.index, //store the new table index
+        totalItems: this.dataSource.totalItems
+      });
+
+      // Update pagination configuration in the data source
+      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, undefined, undefined, 0);
+      // this.dataSource.sortData();
     });
   }
 
@@ -306,6 +316,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.uiSettings.updateTableSettings(this.name, {
       order: sorting
     });
+    this.dataSource.reload();
   }
 
   private filterKeys(original: { [key: string]: string }, include: string[]): any {
@@ -492,29 +503,40 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onPageChange(event: PageEvent): void {
     this.clearFilter();
-    let pageAfter = undefined;
-    let pageBefore = undefined;
+    let pageAfter = this.dataSource.pageAfter;
+    let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
+    if (index > this.dataSource.index) {
+      pageBefore = undefined;
+    } else if (index < this.dataSource.index) {
+      pageAfter = undefined;
+    }
     if (event.pageSize !== this.dataSource.pageSize) {
       // TODO This code happens when user changes the page size, now we will just reset and
       // go to the first page, ideally you want to stay on the page you previously were
       // and recalculate the page index. The problem is that, this is very hard to do,
       // because we use cursor-based pagination.
       index = 0;
+      pageAfter = undefined;
+      pageBefore = undefined;
+
     }
     else if (event.pageIndex !== 0) {
-      const originalData = this.dataSource.getOriginalData();
-      const ids = originalData.map(items => items.id);
-      if (event.pageIndex > event.previousPageIndex) {
-        pageAfter = Math.max(...ids);
-      } else {
-        pageBefore = Math.min(...ids);
-      }
+      // const originalData = this.dataSource.getOriginalData();
+      // const ids = originalData.map(items => items.id);
+      // if (event.pageIndex > event.previousPageIndex) {
+      //   pageAfter = Math.max(...ids);
+      // } else {
+      //   pageBefore = Math.min(...ids);
+      // }
+      
     }
 
     this.uiSettings.updateTableSettings(this.name, {
-      start: pageAfter, // Store the new page index
-      before: pageBefore, // Store the new page before
+      // start: pageAfter, // Store the new page index
+      // before: pageBefore, // Store the new page before
+      start: pageAfter,
+      before: pageBefore,
       page: event.pageSize, // Store the new page size
       index: index, //store the new table index
       totalItems: this.dataSource.totalItems

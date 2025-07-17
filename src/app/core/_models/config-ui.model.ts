@@ -95,7 +95,7 @@ export const uiConfigDefault: UIConfig = {
   timefmt: 'dd/MM/yyyy h:mm:ss',
   tableSettings: {
     notificationsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         NotificationsTableCol.ID,
@@ -114,7 +114,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     vouchersTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [VouchersTableCol.ID, VouchersTableCol.KEY, VouchersTableCol.CREATED],
       order: {
@@ -126,7 +126,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     permissionsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [PermissionsTableCol.ID, PermissionsTableCol.NAME, PermissionsTableCol.MEMBERS],
       order: {
@@ -138,7 +138,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     cracksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         CracksTableCol.FOUND,
@@ -158,7 +158,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     agentsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         AgentsTableCol.ID,
@@ -178,7 +178,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     agentStatusTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         AgentsStatusTableCol.ID,
@@ -201,7 +201,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     assignedAgentsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         AgentsTableCol.ID,
@@ -223,7 +223,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     chunksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         ChunksTableCol.ID,
@@ -245,7 +245,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     hashlistsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         HashlistsTableCol.ID,
@@ -264,7 +264,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     hashlistsInShTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         HashlistsTableCol.ID,
@@ -282,7 +282,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     superHashlistsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         SuperHashlistsTableCol.ID,
@@ -317,7 +317,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     filesTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         FilesTableCol.ID,
@@ -335,7 +335,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     filesAttackTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [FilesAttackTableCol.ID, FilesAttackTableCol.NAME, FilesAttackTableCol.SIZE],
       order: {
@@ -347,7 +347,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     crackersTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [CrackersTableCol.ID, CrackersTableCol.NAME, CrackersTableCol.VERSIONS],
       order: {
@@ -359,7 +359,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     preprocessorsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
       order: {
@@ -371,7 +371,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     agentBinariesTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         AgentBinariesTableCol.ID,
@@ -390,7 +390,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     healthChecksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         HealthChecksTableCol.ID,
@@ -407,7 +407,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     healthCheckAgentsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         HealthCheckAgentsTableCol.AGENT_ID,
@@ -426,7 +426,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     pretasksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         PretasksTableCol.ID,
@@ -446,7 +446,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     tasksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         TaskTableCol.ID,
@@ -470,7 +470,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     tasksChunksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         TasksChunksTableCol.ID,
@@ -491,7 +491,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     tasksSupertasksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         TasksSupertasksDataSourceTableCol.ID,
@@ -511,7 +511,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     supertasksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
       order: {
@@ -523,7 +523,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     supertasksPretasksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         SupertasksPretasksTableCol.ID,
@@ -540,7 +540,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     superTasksPretasksEditTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         PretasksTableCol.ID,
@@ -562,7 +562,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     hashlistTasksTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [TaskTableCol.ID, TaskTableCol.NAME, TaskTableCol.DISPATCHED_SEARCHED, TaskTableCol.CRACKED],
       order: {
@@ -574,7 +574,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     hashesTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         HashesTableCol.HASHES,
@@ -593,7 +593,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     searchHashTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT, SearchHashTableCol.INFO],
       order: {
@@ -605,7 +605,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     usersTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         UsersTableCol.ID,
@@ -626,7 +626,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     logsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [LogsTableCol.ID, LogsTableCol.ISSUER, LogsTableCol.LEVEL, LogsTableCol.MESSAGE, LogsTableCol.TIME],
       order: {
@@ -638,7 +638,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     accessGroupsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         AccessGroupsTableCol.ID,
@@ -655,7 +655,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     accessGroupsUsersTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [AccessGroupsUsersTableCol.ID, AccessGroupsUsersTableCol.NAME, AccessGroupsUsersTableCol.STATUS],
       order: {
@@ -667,7 +667,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     accessPermissionGroupsUserTable: {
-      start: 0,
+      start: undefined,
       page: 50,
       columns: [
         AccessPermissionGroupsUserTableCol.NAME,
@@ -685,7 +685,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     accessPermissionGroupsUsersTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [
         AccessPermissionGroupsUsersTableCol.ID,
@@ -702,7 +702,7 @@ export const uiConfigDefault: UIConfig = {
       search: ''
     },
     accessGroupsAgentsTable: {
-      start: 0,
+      start: undefined,
       page: 25,
       columns: [AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME],
       order: {
