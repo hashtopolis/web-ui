@@ -2,33 +2,47 @@
 <!-- Body -->
 <div fxLayout="row" fxLayoutAlign="start stretch" fxLayout.lt-md="column">
   <div fxFlex="70" fxFlex.lt-md="100">
-      <grid-main>
-        <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
-        <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+    <grid-main>
+      <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
+      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+        <input-text title="Name" formControlName="name"></input-text>
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <input-number title="maxAgents" formControlName="maxAgents"></input-number>
+        </div>
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <input-select
+            title="Benchmark Type"
+            formControlName="useNewBench"
+            [items]="selectBenchmarktype"
+          ></input-select>
+          <input-select
+            title="Binary type to run task"
+            formControlName="crackerBinaryId"
+            [items]="selectCrackertype"
+          ></input-select>
+        </div>
+        <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
+          <input-check title="Small Tasks" formControlName="isSmall"></input-check>
+          <input-check title="CPU" formControlName="isCpuTask"></input-check>
+          <button
+            mat-icon-button
+            matTooltip="For every file selected in the iteration column it will create a subtask with having 'FILE' replaced with the actual file"
+            type="button"
+          >
+            <mat-icon color="primary">warning</mat-icon>
+          </button>
+        </div>
+        <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
+        <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
 
-          <input-text title="Name" formControlName="name"></input-text>
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <input-number title="maxAgents" formControlName="maxAgents"></input-number>
+        <grid-buttons>
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          <button-submit [name]="'Create'"></button-submit>
+          <div *ngIf="isLoading">
+            <mat-spinner diameter="24" color="accent"></mat-spinner>
           </div>
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-select title="Benchmark Type" formControlName="useNewBench" [items]="selectBenchmarktype"></input-select>
-              <input-select title="Binary type to run task" formControlName="crackerBinaryId" [items]="selectCrackertype"></input-select>
-          </div>
-          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-              <input-check title="Small Tasks" formControlName="isSmall"></input-check>
-              <input-check title="CPU" formControlName="isCpuTask"></input-check>
-          </div>
-          <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
-          <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
-
-          <grid-buttons>
-            <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'"></button-submit>
-            <div *ngIf="isLoading">
-              <mat-spinner diameter="24" color="accent"></mat-spinner>
-            </div>
-          </grid-buttons>
-
+        </grid-buttons>
+        <fixed-alert message="For every file selected in the iteration column it will create a subtask with having 'FILE' replaced with the actual file"></fixed-alert>
       </form>
     </grid-main>
   </div>
@@ -38,21 +52,42 @@
         <mat-expansion-panel-header>
           <span><b>Wordlists</b></span>
         </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="0" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></app-files-attack-table>
+        <app-files-attack-table
+          [fileType]="0"
+          [bulkWordlistRule]="true"
+          [formData]="getFormData()"
+          (updateFormEvent)="onUpdateForm($event)"
+          [cmdPrepro]="true"
+          [customLabel]="customLabel"
+        ></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Rules</b></span>
         </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="1" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></app-files-attack-table>
+        <app-files-attack-table
+          [fileType]="1"
+          [bulkWordlistRule]="true"
+          [formData]="getFormData()"
+          (updateFormEvent)="onUpdateForm($event)"
+          [cmdPrepro]="true"
+          [customLabel]="customLabel"
+        ></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Other</b></span>
         </mat-expansion-panel-header>
-        <app-files-attack-table [fileType]="2" [bulkWordlistRule]="true" [formData]="getFormData()" (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true" [customLabel]="customLabel"></app-files-attack-table>
+        <app-files-attack-table
+          [fileType]="2"
+          [bulkWordlistRule]="true"
+          [formData]="getFormData()"
+          (updateFormEvent)="onUpdateForm($event)"
+          [cmdPrepro]="true"
+          [customLabel]="customLabel"
+        ></app-files-attack-table>
       </mat-expansion-panel>
     </mat-accordion>
   </div>
