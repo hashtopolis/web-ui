@@ -1,72 +1,63 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
 // eslint-disable-next-line sort-imports
-import { AccountSettingsComponent } from './acc-settings.component';
-import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataTablesModule } from 'angular-datatables';
+import { Observable, of } from 'rxjs';
+import { SERV } from 'src/app/core/_services/main.config';
+import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
 import { PipesModule } from 'src/app/shared/pipes.module';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { Params } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { findEl } from 'src/app/spec-helpers/element.spec-helper';
-import { DebugElement } from '@angular/core';
-import { SERV } from 'src/app/core/_services/main.config';
+
+import { CommonModule } from '@angular/common';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { Params, provideRouter } from '@angular/router';
+
+import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
-  const userSettingsResponse = {
-    _expandable: 'accessGroups',
-    _id: 1,
-    _self: '/api/v2/ui/users/1',
-    email: 'user@test.com',
-    globalPermissionGroup: {
-      _id: 1,
-      _self: '/api/v2/ui/globalpermissiongroups/1',
-      id: 1,
-      name: 'Administrator',
-      permissions: {}
-    },
-    globalPermissionGroupId: 1,
+  const userResponse = {
+    type: 'user',
     id: 1,
-    isComputedPassword: true,
-    isValid: true,
-    lastLoginDate: 1695811400,
-    name: 'admin',
-    otp1: '',
-    otp2: '',
-    otp3: '',
-    otp4: '',
-    registeredSince: 1695810913,
-    sessionLifetime: 3600,
-    yubikey: '0'
+    attributes: {
+      name: 'admin',
+      email: 'admin@localhost',
+      isValid: true,
+      isComputedPassword: true,
+      lastLoginDate: 1752647017,
+      registeredSince: 1744086356,
+      sessionLifetime: 3600,
+      globalPermissionGroupId: 1,
+      yubikey: '0',
+      otp1: '',
+      otp2: '',
+      otp3: '',
+      otp4: ''
+    }
   };
 
   // Define a partial mock service to simulate service calls.
   const mockService: Partial<GlobalService> = {
     // Simulate the 'get' method to return an empty observable.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    get(
-      _methodUrl: string,
-      _id: number,
-      _routerParams?: Params
-    ): Observable<any> {
-      if (_methodUrl === SERV.USERS) {
-        return of(userSettingsResponse);
+    get(_serviceConfig, _id: number, _routerParams?: Params): Observable<any> {
+      if (_serviceConfig.URL === SERV.USERS.URL) {
+        return of({
+          data: userResponse
+        });
       }
       return of([]);
     },
     // Simulate the 'create' method to return an empty observable.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    create(_methodUrl: string, _object: any): Observable<any> {
+    create(serviceConfig, _object: any): Observable<any> {
       return of({});
     },
 
@@ -74,8 +65,9 @@ describe('AccountSettingsComponent', () => {
   };
   beforeEach(() => {
     TestBed.configureTestingModule({
-    declarations: [AccountSettingsComponent],
-    imports: [CommonModule,
+      declarations: [AccountSettingsComponent],
+      imports: [
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
         FontAwesomeModule,
@@ -83,17 +75,18 @@ describe('AccountSettingsComponent', () => {
         ComponentsModule,
         PipesModule,
         NgbModule,
-        RouterTestingModule,
-        MatSnackBarModule],
-    providers: [
+        MatSnackBarModule
+      ],
+      providers: [
         provideAnimations(),
         {
-            provide: GlobalService,
-            useValue: mockService
+          provide: GlobalService,
+          useValue: mockService
         },
-        provideHttpClient(withInterceptorsFromDi())
-    ]
-}).compileComponents();
+        provideHttpClient(withInterceptorsFromDi()),
+        provideRouter([])
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AccountSettingsComponent);
     component = fixture.componentInstance;
@@ -106,16 +99,14 @@ describe('AccountSettingsComponent', () => {
 
   it('initializes the form with default values', () => {
     const formValue = component.form.getRawValue();
+    expect(formValue.name).toBe(userResponse.attributes.name);
+    expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
+    expect(formValue.email).toBe(userResponse.attributes.email);
 
-    // Ensure that the initial form values are as expected
-    expect(formValue.name).toBe(
-      userSettingsResponse.globalPermissionGroup.name
-    );
-    expect(formValue.registeredSince).toBe('27/09/2023 12:35:13');
-    expect(formValue.email).toBe(userSettingsResponse.email);
-    expect(formValue.oldpassword).toBe('');
-    expect(formValue.newpassword).toBe('');
-    expect(formValue.confirmpass).toBe('');
+    const passFormValue = component.changepasswordFormGroup.getRawValue();
+    expect(passFormValue.oldPassword).toBe('');
+    expect(passFormValue.newPassword).toBe('');
+    expect(passFormValue.confirmNewPassword).toBe('');
   });
 
   it('validates email as required', async () => {
@@ -166,47 +157,43 @@ describe('AccountSettingsComponent', () => {
   });
 
   it('validates password match', () => {
-    const newPasswordControl = component.form.get('newpassword');
-    const confirmPasswordControl = component.form.get('confirmpass');
+    const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
+    const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
     // Set different passwords
     newPasswordControl.patchValue('password123');
     confirmPasswordControl.patchValue('password1234');
-    expect(component.form.hasError('mismatch')).toBe(true);
+    expect(component.changepasswordFormGroup.hasError('mismatch')).toBe(true);
 
     // Set matching passwords
     newPasswordControl.patchValue('password123');
     confirmPasswordControl.patchValue('password123');
     fixture.detectChanges();
-    expect(component.form.hasError('mismatch')).toBe(false);
+    expect(component.changepasswordFormGroup.hasError('mismatch')).toBe(false);
   });
 
   it('enables form submission when form is valid', () => {
-    const btn: DebugElement = findEl(fixture, 'button-submit');
-    const NameControl = component.form.get('name');
-    const RegisteredSinceControl = component.form.get('registered-since');
     const EmailControl = component.form.get('email');
-    const PasswordControl = component.form.get('password');
-    const NewPasswordControl = component.form.get('newpassword');
-    const ConfirmPasswordControl = component.form.get('confirmpass');
-
-    // Initially, the form should be invalid, and the submit button should be disabled
-    expect(component.form.valid).toBe(false);
-    expect(
-      btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled').value
-    ).toEqual('true');
-
-    // Set valid values for the form
-    NameControl.patchValue('admin');
-    RegisteredSinceControl.patchValue('27/09/2023 12:35:13');
     EmailControl.patchValue('test@example.com');
-    PasswordControl.patchValue('summer123');
-    NewPasswordControl.patchValue('password123');
-    ConfirmPasswordControl.patchValue('password123');
-
     // The form should now be valid, and the submit button should be enabled
     expect(component.form.valid).toBe(true);
-    expect(
-      btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled').value
-    ).toEqual('false');
+    // Find all button-submit elements
+    const btns = fixture.debugElement.queryAll(By.css('[data-testid="button-submit"]'));
+    // Select the correct button (e.g., first for account update)
+    const btn = btns[0];
+    const disabledAttr = btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled');
+    expect(disabledAttr ? disabledAttr.value : null).toEqual('false');
+  });
+
+  it('disables form submission when form is invalid', () => {
+    const EmailControl = component.form.get('email');
+    EmailControl.patchValue('invalid-email');
+    // The form should now be invalid, and the submit button should be disabled
+    expect(component.form.valid).toBe(false);
+    // Find all button-submit elements
+    const btns = fixture.debugElement.queryAll(By.css('[data-testid="button-submit"]'));
+    // Select the correct button (e.g., first for account update)
+    const btn = btns[0];
+    const disabledAttr = btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled');
+    expect(disabledAttr ? disabledAttr.value : null).toEqual('true');
   });
 });
