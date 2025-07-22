@@ -1,5 +1,6 @@
-import { Directive,HostListener,Output,Input,EventEmitter } from '@angular/core';
-import { AlertService } from '../_services/shared/alert.service';
+import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
+
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
 
 /**
  * Returns copied clipboard string
@@ -8,19 +9,16 @@ import { AlertService } from '../_services/shared/alert.service';
  * Example:
  *     copyButton
  * @returns Copied String
-**/
+ **/
 
 @Directive({
-    selector: '[copyButton]',
-    standalone: false
+  selector: '[copyButton]',
+  standalone: false
 })
 export class CopyButtonDirective {
+  constructor(private alert: AlertService) {}
 
-  constructor(
-    private alert: AlertService
-  ) { }
-
-  @Input("copyButton")
+  @Input('copyButton')
   public payload: string;
 
   @Input()
@@ -29,23 +27,21 @@ export class CopyButtonDirective {
   @Output()
   public copied: EventEmitter<string> = new EventEmitter<string>();
 
-  @HostListener("click", ["$event"])
+  @HostListener('click', ['$event'])
   public onClick(event: MouseEvent): void {
     event.preventDefault();
-    if (!this.payload)
-      return;
+    if (!this.payload) return;
 
     const listener = (e: ClipboardEvent) => {
-      const clipboard = e.clipboardData || window["clipboardData"];
-      clipboard.setData("text", this.payload.toString());
+      const clipboard = e.clipboardData || window['clipboardData'];
+      clipboard.setData('text', this.payload.toString());
       e.preventDefault();
       this.copied.emit(this.payload);
     };
 
-    document.addEventListener("copy", listener, false);
-    document.execCommand("copy");
-    document.removeEventListener("copy", listener, false);
-    this.alert.okAlert('Copied','');
+    document.addEventListener('copy', listener, false);
+    document.execCommand('copy');
+    document.removeEventListener('copy', listener, false);
+    this.alert.showSuccessMessage('Copied');
   }
-
 }

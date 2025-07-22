@@ -1,20 +1,17 @@
 import { catchError } from 'rxjs';
 
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
 
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   TasksChunksTableCol,
   TasksChunksTableColumnLabel
@@ -32,7 +29,7 @@ import { convertToLocale } from '@src/app/shared/utils/util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class TasksChunksTableComponent extends BaseTableComponent implements OnInit {
+export class TasksChunksTableComponent extends BaseTableComponent implements OnInit, OnChanges {
   // Input property to specify a task ID for filtering chunks.
   @Input() taskId: number;
   // Input property to specify to filter all chunks or only live. Live = 0, All = 1
@@ -40,17 +37,36 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
+  selectedFilterColumn: string = 'all';
+
+  // Track initialization
+  private isInitialized = false;
 
   ngOnInit(): void {
     this.setColumnLabels(TasksChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new TasksChunksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new TasksChunksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
-    if (this.taskId) {
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
+    // Do NOT load yet
+    this.isInitialized = true;
+    this.tryLoadData(); // Now safe to load
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.isInitialized) return; // Wait until ngOnInit ran
+
+    if (changes['taskId'] || changes['isChunksLive']) {
+      this.tryLoadData();
+    }
+  }
+
+  private tryLoadData(): void {
+    if (this.taskId != null) {
       this.dataSource.setTaskId(this.taskId);
       this.dataSource.setIsChunksLive(this.isChunksLive);
+      this.dataSource.loadAll();
     }
-    this.dataSource.loadAll();
   }
 
   getColumns(): HTTableColumn[] {
@@ -58,7 +74,8 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       {
         id: TasksChunksTableCol.ID,
         dataKey: 'id',
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: TasksChunksTableCol.START,
@@ -86,7 +103,8 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: TasksChunksTableCol.DISPATCH_TIME,
@@ -115,10 +133,40 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       {
         id: TasksChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderCrackedLinkFromChunk(chunk),
         isSortable: true
       }
     ];
+  }
+
+  /**
+   * Filter function for chunks
+   * @param item Chunk object
+   * @param filterValue String value to filter filename
+   * @returns True, if filename contains filterValue
+   *          False, if not
+   */
+  filter(item: JChunk, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+
+    switch (selectedColumn) {
+      case 'all': {
+        return (
+          item.id?.toString().toLowerCase().includes(filterValue) || item.agentName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName?.toLowerCase().includes(filterValue);
+      }
+
+      default: {
+        return item.id?.toString().toLowerCase().includes(filterValue);
+      }
+    }
   }
 
   // --- Render functions ---
@@ -174,74 +222,12 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   }
 
   // --- Action functions ---
-
-  exportActionClicked(event: ActionMenuEvent<JChunk[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JChunk>(
-          'hashtopolis-tasks-chunks',
-          this.tableColumns,
-          event.data,
-          TasksChunksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JChunk>(
-          'hashtopolis-tasks-chunks',
-          this.tableColumns,
-          event.data,
-          TasksChunksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JChunk>(this.tableColumns, event.data, TasksChunksTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
-  }
-
   rowActionClicked(event: ActionMenuEvent<JChunk>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.RESET:
         this.rowActionReset(event.data);
         break;
     }
-  }
-
-  bulkActionClicked(event: ActionMenuEvent<JChunk[]>): void {
-    switch (event.menuItem.action) {
-      case BulkActionMenuAction.RESET:
-        this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} users ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete the above users? Note that this action cannot be undone.`,
-          warn: true,
-          listAttribute: 'name',
-          action: event.menuItem.action
-        });
-        break;
-    }
-  }
-
-  openDialog(data: DialogData<JChunk>) {
-    const dialogRef = this.dialog.open(TableDialogComponent, {
-      data: data,
-      width: '450px'
-    });
-
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result && result.action) {
-          switch (result.action) {
-            case RowActionMenuAction.RESET:
-              this.rowActionReset(result.data);
-              break;
-          }
-        }
-      })
-    );
   }
 
   /**
@@ -255,12 +241,14 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         .chelper(SERV.HELPER, path, payload)
         .pipe(
           catchError((error) => {
-            console.error('Error during resetting:', error);
+            const errorMessage = 'Error during resetting';
+            console.error(errorMessage, error);
+            this.alertService.showErrorMessage(errorMessage);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully reseted chunk!', 'Close');
+          this.alertService.showSuccessMessage('Successfully reseted chunk!');
           this.reload();
         })
     );

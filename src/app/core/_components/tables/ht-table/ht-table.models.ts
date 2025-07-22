@@ -1,14 +1,13 @@
+import { BaseModel } from '@models/base.model';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
-
-import { SortDirection } from '@angular/material/sort';
 import { SafeHtml } from '@angular/platform-browser';
-
-import { BaseModel } from '@models/base.model';
+import { SortDirection } from '@angular/material/sort';
 
 export type DataType =
   | 'agents'
+  | 'agents-errors'
   | 'agents-status'
   | 'agents-assign'
   | 'agents-view'
@@ -80,15 +79,17 @@ export interface HTTableColumn {
   dataKey?: string;
   position?: 'right' | 'left';
   isSortable?: boolean;
+  isSearchable?: boolean;
   render?: (data: any) => SafeHtml;
   async?: (data: any) => Promise<SafeHtml>;
   export?: (data: any) => Promise<string>;
-  truncate?: boolean;
+  truncate?: (data: any) => boolean;
   editable?: (data: any) => HTTableEditable<any>;
   checkbox?: (data: any) => HTTableEditable<any>;
   customCellColor?: customCellColorInput;
   routerLink?: (data: BaseModel) => Observable<HTTableRouterLink[]>;
   icon?: (data: BaseModel) => HTTableIcon;
+  isCopy?: boolean;
 }
 
 /** Column def for selectable checkbox */

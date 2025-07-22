@@ -33,6 +33,8 @@ export function calculateKeyspace(
       arr.push(Number(value[i][name]));
     }
     mpow = arr.reduce((a, i) => a * i);
+  } else {
+    return '';
   }
 
   // Reset options to default values
@@ -71,10 +73,7 @@ export function calculateKeyspace(
     // Add single characters that are part of the custom charset
     // we assume no duplicate single characters are present in the custom charset!
     //       i.e. -1 abbc is considered to be a charset of 4 different characters in the calculation
-    charsetOptions =
-      charsetOptions +
-      mask.length -
-      2 * (numA + numD + numL + numU + numS + numLH + numUH + numB);
+    charsetOptions = charsetOptions + mask.length - 2 * (numA + numD + numL + numU + numS + numLH + numUH + numB);
     return charsetOptions;
   }
 
@@ -86,54 +85,35 @@ export function calculateKeyspace(
     if (options.customCharset1 !== '') {
       keyspaceCustomMask =
         keyspaceCustomMask *
-        Math.pow(
-          customCharsetToOptions(options.customCharset1),
-          (mask.match(/\?1/g) || []).length
-        );
+        Math.pow(customCharsetToOptions(options.customCharset1), (mask.match(/\?1/g) || []).length);
     }
     if (options.customCharset2 !== '') {
       keyspaceCustomMask =
         keyspaceCustomMask *
-        Math.pow(
-          customCharsetToOptions(options.customCharset2),
-          (mask.match(/\?2/g) || []).length
-        );
+        Math.pow(customCharsetToOptions(options.customCharset2), (mask.match(/\?2/g) || []).length);
     }
     if (options.customCharset3 !== '') {
       keyspaceCustomMask =
         keyspaceCustomMask *
-        Math.pow(
-          customCharsetToOptions(options.customCharset3),
-          (mask.match(/\?3/g) || []).length
-        );
+        Math.pow(customCharsetToOptions(options.customCharset3), (mask.match(/\?3/g) || []).length);
     }
     if (options.customCharset4 !== '') {
       keyspaceCustomMask =
         keyspaceCustomMask *
-        Math.pow(
-          customCharsetToOptions(options.customCharset4),
-          (mask.match(/\?4/g) || []).length
-        );
+        Math.pow(customCharsetToOptions(options.customCharset4), (mask.match(/\?4/g) || []).length);
     }
 
     let keyspaceRegularMask = 1;
 
     // compute the keyspace size for the custom charsets separately, and multiply with the keyspace size formed by the regular mask part
     keyspaceRegularMask = Math.pow(95, (mask.match(/\?a/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(10, (mask.match(/\?d/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(26, (mask.match(/\?l/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(26, (mask.match(/\?u/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(33, (mask.match(/\?s/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(16, (mask.match(/\?h/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(16, (mask.match(/\?H/g) || []).length);
-    keyspaceRegularMask =
-      keyspaceRegularMask * Math.pow(256, (mask.match(/\?b/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(10, (mask.match(/\?d/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(26, (mask.match(/\?l/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(26, (mask.match(/\?u/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(33, (mask.match(/\?s/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(16, (mask.match(/\?h/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(16, (mask.match(/\?H/g) || []).length);
+    keyspaceRegularMask = keyspaceRegularMask * Math.pow(256, (mask.match(/\?b/g) || []).length);
 
     return keyspaceRegularMask * keyspaceCustomMask;
   }

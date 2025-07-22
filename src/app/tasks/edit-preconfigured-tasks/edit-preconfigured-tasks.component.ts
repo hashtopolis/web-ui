@@ -1,28 +1,31 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
-
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { FilterType } from 'src/app/core/_models/request-params.model';
 import { GlobalService } from 'src/app/core/_services/main.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
 import { yesNo } from '../../core/_constants/general.config';
 import { SERV } from '../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { FilterType } from 'src/app/core/_models/request-params.model';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { ResponseWrapper } from '@models/response.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { JPretask } from '@models/pretask.model';
 
 /**
  * Represents the EditPreconfiguredTasksComponent responsible for editing a Pretask.
  */
 @Component({
-    selector: 'app-edit-preconfigured-tasks',
-    templateUrl: './edit-preconfigured-tasks.component.html',
-    standalone: false
+  selector: 'app-edit-preconfigured-tasks',
+  templateUrl: './edit-preconfigured-tasks.component.html',
+  standalone: false
 })
 export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   /** Flag indicating whether data is still loading. */
@@ -39,14 +42,12 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
 
   // Edit Options
   editedPretaskIndex: number;
-  editedPretask: any; // Change to Model
 
   pretask: any = [];
   files: any; //Add Model
 
   constructor(
     private unsubscribeService: UnsubscribeService,
-    private changeDetectorRef: ChangeDetectorRef,
     private titleService: AutoTitleService,
     private route: ActivatedRoute,
     private alert: AlertService,
@@ -56,7 +57,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
   ) {
     this.getInitialization();
     this.buildForm();
-    titleService.set(['Edit Preconfigured Tasks']);
+    this.titleService.set(['Edit Preconfigured Tasks']);
   }
 
   /**
@@ -148,7 +149,7 @@ export class EditPreconfiguredTasksComponent implements OnInit, OnDestroy {
       const updateSubscription$ = this.gs
         .update(SERV.PRETASKS, this.editedPretaskIndex, this.updateForm.value['updateData'])
         .subscribe(() => {
-          this.alert.okAlert('PreTask saved!', '');
+          this.alert.showSuccessMessage('PreTask saved');
           this.isUpdatingLoading = false;
           this.router.navigate(['tasks/preconfigured-tasks']);
         });

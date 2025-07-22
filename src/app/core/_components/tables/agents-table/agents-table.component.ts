@@ -5,11 +5,11 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
 
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
@@ -39,12 +39,29 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+  private _taskId: number;
+
   @Input() datatype: DataType = 'agents';
-  @Input() taskId = 0;
   @Input() assignAgents? = false;
+
+  @Input()
+  set taskId(value: number) {
+    if (value !== this._taskId) {
+      this._taskId = value;
+      this.ngOnInit();
+    }
+  }
+  get taskId(): number {
+    if (this._taskId === undefined) {
+      return 0;
+    } else {
+      return this._taskId;
+    }
+  }
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -55,20 +72,56 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   ngOnInit(): void {
     this.setColumnLabels(AgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AgentsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
+    this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
   }
 
   filter(item: JAgent, filterValue: string): boolean {
-    return (
-      item.agentName.toLowerCase().includes(filterValue) ||
-      item.clientSignature.toLowerCase().includes(filterValue) ||
-      item.devices.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.agentName?.toLowerCase().includes(filterValue) ||
+          item.user.name?.toLowerCase().includes(filterValue) ||
+          item.clientSignature?.toLowerCase().includes(filterValue) ||
+          item.devices?.toLowerCase().includes(filterValue) ||
+          item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue)) ||
+          item.task?.taskName?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return String(item.id).toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName?.toLowerCase().includes(filterValue);
+      }
+      case 'userId': {
+        return item.user?.name?.toLowerCase().includes(filterValue);
+      }
+      case 'clientSignature': {
+        return item.clientSignature?.toLowerCase().includes(filterValue);
+      }
+      case 'devices': {
+        return item.devices?.toLowerCase().includes(filterValue);
+      }
+      case 'accessGroupId': {
+        return item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue));
+      }
+      case 'taskName': {
+        return item.task?.taskName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.task?.taskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -77,6 +130,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         id: AgentsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         render: (agent: JAgent) => agent.id,
         export: async (agent: JAgent) => agent.id + ''
       },
@@ -85,6 +139,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.agentName
       },
       {
@@ -101,6 +156,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         render: (agent: JAgent) => this.renderOwner(agent),
         routerLink: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => (agent.user ? agent.user.name : '')
       },
       {
@@ -108,6 +164,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'clientSignature',
         render: (agent: JAgent) => this.renderClient(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => (agent.clientSignature ? agent.clientSignature : '')
       },
       {
@@ -130,6 +187,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'devices',
         render: (agent: JAgent) => this.renderDevices(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.devices
       },
       {
@@ -148,6 +206,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'taskName',
         routerLink: (agent: JAgent) => this.renderTaskLink(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
       });
       tableColumns.push({
@@ -155,6 +214,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'accessGroupId',
         routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
         isSortable: true,
+        isSearchable: true,
         export: async (agent: JAgent) => agent.accessGroup
       });
     } else {
@@ -362,19 +422,12 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JAgent>('hashtopolis-agents', this.tableColumns, event.data, AgentsTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JAgent>('hashtopolis-agents', this.tableColumns, event.data, AgentsTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JAgent>(this.tableColumns, event.data, AgentsTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JAgent>(
+      event,
+      this.tableColumns,
+      AgentsTableColumnLabel,
+      'hashtopolis-agents'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JAgent>): void {
@@ -391,9 +444,9 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
-          title: `${this.assignAgents ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
+          title: `${event.data?.assignmentId ? 'Unassigning' : 'Deleting'}  ${event.data.agentName} ...`,
           icon: 'warning',
-          body: `Are you sure you want to ${this.assignAgents ? 'unassign' : 'delete'} ${event.data.agentName}? Note that this action cannot be undone.`,
+          body: `Are you sure you want to ${event.data?.assignmentId ? 'unassign' : 'delete'} ${event.data.agentName}? ${event.data?.assignmentId ? '' : 'Note that this action cannot be undone.'}`,
           warn: true,
           action: event.menuItem.action
         });
@@ -460,7 +513,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.AGENTS, agents, { isActive: isActive }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} agents!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} agents!`);
         this.dataSource.reload();
       })
     );
@@ -480,7 +533,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted agents!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
           this.dataSource.reload();
         })
     );
@@ -490,17 +543,17 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: JAgent): void {
-    if (this.taskId === 0) {
+    if (agent[0].assignmentId) {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
-          this.snackBar.open('Successfully deleted agent!', 'Close');
+        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
         })
       );
     } else {
       this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
-          this.snackBar.open('Successfully unassigned agent!', 'Close');
+        this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
         })
       );
@@ -515,7 +568,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   private changeBenchmark(agent: JAgent, benchmark: string): void {
     if (!benchmark || agent.benchmark == benchmark) {
-      this.snackBar.open('Nothing changed!', 'Close');
+      this.alertService.showSuccessMessage('Nothing changed!');
       return;
     }
 
@@ -526,13 +579,13 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update benchmark!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update benchmark!`);
             console.error('Failed to update benchmark:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`, 'Close');
+          this.alertService.showSuccessMessage(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`);
           this.reload();
         })
     );

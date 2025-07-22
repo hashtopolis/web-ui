@@ -1,3 +1,5 @@
+import { Subscription, take, timer } from 'rxjs';
+
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -10,28 +12,34 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+
+import { BaseModel } from '@models/base.model';
+import { UIConfig } from '@models/config-ui.model';
+import { JHash } from '@models/hash.model';
+
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import {
-  CheckboxChangeEvent,
-  CheckboxFiles,
   COL_ROW_ACTION,
   COL_SELECT,
+  CheckboxChangeEvent,
+  CheckboxFiles,
   DataType,
   HTTableColumn,
   HTTableEditable
-} from './ht-table.models';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { Subscription, take, timer } from 'rxjs';
-import { UIConfig } from 'src/app/core/_models/config-ui.model';
+} from '@components/tables/ht-table/ht-table.models';
 
-import { ActionMenuEvent } from '../../menus/action-menu/action-menu.model';
-import { BaseDataSource } from 'src/app/core/_datasources/base.datasource';
-import { BulkActionMenuComponent } from '../../menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '../column-selection-dialog/column-selection-dialog.component';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -48,7 +56,6 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
  *   [isSelectable]="true"
  *   [isFilterable]="true"
  *   [tableColumns]="myTableColumns"
- *   [hasRowAction]="true"
  *   [paginationSizes]="[5, 10, 15]"
  *   [defaultPageSize]="10"
  *   [filterFn]="customFilterFunction"
@@ -65,7 +72,6 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
  * - `[isSelectable]`: Set to `true` to enable row selection with checkboxes.
  * - `[isFilterable]`: Set to `true` to enable filtering.
  * - `[tableColumns]`: An array of `HTTableColumn` configurations for defining columns.
- * - `[hasRowAction]`: Set to `true` to enable custom row actions.
  * - `[paginationSizes]`: An array of available page sizes.
  * - `[defaultPageSize]`: The default page size for pagination.
  * - `[filterFn]`: A custom filter function for advanced filtering.
@@ -86,7 +92,8 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-
+  selectedFilterColumn: string = 'all';
+  filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
 
@@ -139,17 +146,14 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable or disable filtering. */
   @Input() isFilterable = false;
 
+  /** Flag to show the export button. */
+  @Input() showExport = true;
+
   /** Flag show archived data. */
   @Input() isArchived = false;
 
   /** The list of table columns and their configurations. */
   @Input() tableColumns: HTTableColumn[] = [];
-
-  /** Flag to enable row action menu */
-  @Input() hasRowAction = false;
-
-  /** Flag to enable bulk action menu */
-  @Input() hasBulkActions = true;
 
   /** Pagination sizes to choose from. */
   @Input() paginationSizes: number[] = [5, 25, 50, 100, 250, 500, 1000, 5000];
@@ -172,6 +176,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable  temperature Information dialog */
   @Input() hasTemperatureInformation = false;
 
+  @Input() contextMenuService: ContextMenuService;
+
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 
@@ -192,11 +198,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<any> = new EventEmitter();
+  @Output() selectedFilterColumnChanged: EventEmitter<string> = new EventEmitter();
+  @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
+  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
+  @Output() linkClicked = new EventEmitter();
 
   /** Fetches user customizations */
   private uiSettings: UISettingsUtilityClass;
-
-  private sortingColumn;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
 
@@ -214,6 +222,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
     this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
     this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
+    this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
+    this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
+    this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
 
     if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
@@ -227,14 +238,32 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(() => {
         this.loading = false;
       });
+    this.initFilterableColumns();
+  }
+  initFilterableColumns(): void {
+    this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
+  }
+  // Handle filter column change
+  onFilterColumnChange(): void {
+    this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
+    if (this.dataSource.filter) {
+      this.applyFilter();
+    }
   }
 
   ngAfterViewInit(): void {
     // Configure paginator and sorting
     this.dataSource.paginator = this.matPaginator;
     // Get saved Pagesize from local storage, otherwise use default value
+    // Get saved Pagesize from local storage, otherwise use default value
     this.dataSource.pageSize = this.defaultPageSize;
     // Get saved start page
+    this.dataSource.pageAfter = this.defaultStartPage;
+    // Get saved before page
+    this.dataSource.pageBefore = this.defaultBeforePage;
+    this.dataSource.index = this.defaultIndex;
+    this.dataSource.totalItems = this.defaultTotalItems;
+
     this.dataSource.pageAfter = this.defaultStartPage;
     // Get saved before page
     this.dataSource.pageBefore = this.defaultBeforePage;
@@ -271,6 +300,18 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.loadingTimeoutSubscription) {
       this.loadingTimeoutSubscription.unsubscribe();
     }
+  }
+
+  onLinkClicked() {
+    this.linkClicked.emit();
+  }
+
+  copyRowDataEmit(event: JHash) {
+    this.emitCopyRowData.emit(event);
+  }
+
+  showFullHashModalEmit(event: JHash): void {
+    this.emitFullHashModal.emit(event);
   }
 
   /**
@@ -359,7 +400,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (this.hasRowAction) {
+    if (this.contextMenuService !== undefined && this.contextMenuService.getHasContextMenu()) {
       // Add action menu if enabled
       this.displayedColumns.push(COL_ROW_ACTION + '');
     }
@@ -481,7 +522,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
   // emit when Temperature Information is clicked
- temperatureInformationEmit() {
+  temperatureInformationEmit() {
     this.temperatureInformationClicked.emit();
   }
   /**
@@ -542,6 +583,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Update pagination configuration in the data source
+    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
 
     // Reload data with updated pagination settings

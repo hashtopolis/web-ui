@@ -1,19 +1,23 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-
 import { CRACKER_TYPE_FIELD_MAPPING } from 'src/app/core/_constants/select.config';
 import { benchmarkType } from 'src/app/core/_constants/tasks.config';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV } from '../../../core/_services/main.config';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { transformSelectOptions } from 'src/app/shared/utils/forms';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
+import { GlobalService } from 'src/app/core/_services/main.service';
+import { AlertService } from 'src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { ResponseWrapper } from '../../../core/_models/response.model';
+import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
+import { transformSelectOptions } from 'src/app/shared/utils/forms';
+
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+
+import { JPretask } from '@models/pretask.model';
+
 import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
+import { ResponseWrapper } from '../../../core/_models/response.model';
+import { SERV } from '../../../core/_services/main.config';
+
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 /**
@@ -21,9 +25,9 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
  *
  */
 @Component({
-    selector: 'app-import-supertasks',
-    templateUrl: './masks.component.html',
-    standalone: false
+  selector: 'app-import-supertasks',
+  templateUrl: './masks.component.html',
+  standalone: false
 })
 export class MasksComponent implements OnInit, OnDestroy {
   /**
@@ -127,9 +131,9 @@ export class MasksComponent implements OnInit, OnDestroy {
    * Attack: #HL# -a 3 {mask} {options}
    * Options: Flag -O (Optimize)
    */
-  private async preTasks(form): Promise<string[]> {
-    return new Promise<string[]>((resolve, reject) => {
-      const preTasksIds: string[] = [];
+  private async preTasks(form): Promise<number[]> {
+    return new Promise<number[]>((resolve, reject) => {
+      const preTasksIds: number[] = [];
 
       // Split masks from form.masks by line break and create an array to iterate
       const masksArray: string[] = form.masks.split('\n');
@@ -162,7 +166,10 @@ export class MasksComponent implements OnInit, OnDestroy {
         // Create a subscription promise and push it to the array
         const subscriptionPromise = new Promise<void>((resolve, reject) => {
           const onSubmitSubscription$ = this.gs.create(SERV.PRETASKS, payload).subscribe((result) => {
-            preTasksIds.push(result._id);
+            const pretask = new JsonAPISerializer().deserialize<JPretask>({
+              data: result.data
+            });
+            preTasksIds.push(pretask.id);
             resolve(); // Resolve the promise when subscription completes
           }, reject); // Reject the promise if there's an error
           this.unsubscribeService.add(onSubmitSubscription$);
@@ -209,10 +216,10 @@ export class MasksComponent implements OnInit, OnDestroy {
    * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
    * @returns {void}
    */
-  private superTask(name: string, ids: string[]) {
+  private superTask(name: string, ids: number[]) {
     const payload = { supertaskName: name, pretasks: ids };
     const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.okAlert('New Supertask Mask created!', '');
+      this.alert.showSuccessMessage('New Supertask Mask created');
       this.router.navigate(['/tasks/supertasks']);
     });
 

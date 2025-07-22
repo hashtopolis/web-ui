@@ -1,11 +1,11 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
@@ -13,6 +13,7 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { HashesDataSource } from '@datasources/hashes.datasource';
 
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -26,11 +27,12 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HashesDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(HashesTableColColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashesDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HashesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.id) {
       this.dataSource.setId(this.id);
@@ -53,7 +55,31 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
    *          false:  else
    */
   filter(item: JHash, filterValue: string): boolean {
-    return item.hash.toLowerCase().includes(filterValue) || item.isCracked.toString().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.hash.toLowerCase().includes(filterValue) ||
+          item.plaintext?.toLowerCase().includes(filterValue) ||
+          item.isCracked?.toString().includes(filterValue)
+        );
+      }
+      case 'hash': {
+        return item.hash.toString().includes(filterValue);
+      }
+      case 'plaintext': {
+        return item.plaintext?.toLowerCase().includes(filterValue);
+      }
+      case 'isCracked': {
+        return item.isCracked?.toString().includes(filterValue);
+      }
+      default:
+        // Default fallback to hash
+        return item.hash?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -62,12 +88,17 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.HASHES,
         dataKey: 'hash',
         isSortable: true,
+        isSearchable: true,
+        isCopy: true,
+        truncate: (hash: JHash) => hash.hash.length > 40,
+        render: (hash: JHash) => hash.hash,
         export: async (hash: JHash) => hash.hash + ''
       },
       {
         id: HashesTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
+        isSearchable: true,
         export: async (hash: JHash) => hash.plaintext + ''
       },
       {
@@ -86,6 +117,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.ISCRACKED,
         dataKey: 'isCracked',
         isSortable: true,
+        isSearchable: true,
         export: async (hash: JHash) => hash.isCracked + ''
       },
       {
@@ -101,29 +133,12 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashesTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashesTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, HashesTableColColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JHash>(
+      event,
+      this.tableColumns,
+      HashesTableColColumnLabel,
+      'hashtopolis-hashes'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
@@ -132,5 +147,22 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         // this.rowActionEdit(event.data);
         break;
     }
+  }
+
+  protected receiveCopyData(event: BaseModel) {
+    if (this.clipboard.copy((event as JHash).hash)) {
+      this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy hash value clipboard.');
+    }
+  }
+
+  showTruncatedData(event: JHash) {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
+      data: {
+        hashlistName: event.hashlist?.name,
+        unTruncatedText: event.hash
+      }
+    });
   }
 }

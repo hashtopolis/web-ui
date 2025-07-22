@@ -4,11 +4,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
+import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
@@ -22,7 +22,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -33,13 +32,15 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HashlistsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new HashListContextMenuService(this.permissionService).addContextMenu();
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
@@ -53,9 +54,39 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   }
 
   filter(item: JHashlist, filterValue: string): boolean {
-    return (
-      item.name.toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.name?.toLowerCase().includes(filterValue) ||
+          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
+          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
+            filterValue
+          )
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'hashTypeDescription': {
+        return (
+          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
+          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
+            filterValue
+          )
+        );
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -64,6 +95,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
@@ -71,6 +103,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'name',
         routerLink: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
+        isSearchable: true,
         export: async (hashlist: JHashlist) => hashlist.name
       },
       {
@@ -84,9 +117,9 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
-        render: (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount),
+        render: (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, false),
         isSortable: true,
-        export: async (hashlist: JHashlist) => formatPercentage(hashlist.cracked, hashlist.hashCount)
+        export: async (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, true)
       },
       {
         id: HashlistsTableCol.FORMAT,
@@ -101,6 +134,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       tableColumns.push({
         id: HashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
+        isSearchable: true,
         isSortable: true,
         render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
         export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
@@ -135,45 +169,16 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     );
   }
 
-  private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
-    if (hashlist.hashCount === hashlist.cracked) {
-      return {
-        name: 'check_circle',
-        tooltip: 'Cracked',
-        cls: 'text-ok'
-      };
-    }
-
-    return { name: '' };
+  exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
+    this.exportService.handleExportAction<JHashlist>(
+      event,
+      this.tableColumns,
+      HashlistsTableColumnLabel,
+      'hashtopolis-hashlists'
+    );
   }
 
   // --- Action functions ---
-
-  exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHashlist>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHashlist>(
-          'hashtopolis-hashlists',
-          this.tableColumns,
-          event.data,
-          HashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHashlist>(this.tableColumns, event.data, HashlistsTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
-  }
 
   rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
     switch (event.menuItem.action) {
@@ -231,6 +236,23 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     }
   }
 
+  setIsArchived(isArchived: boolean): void {
+    this.isArchived = isArchived;
+    this.dataSource.setIsArchived(isArchived);
+  }
+
+  private renderCrackedStatusIcon(hashlist: JHashlist): HTTableIcon {
+    if (hashlist.hashCount === hashlist.cracked) {
+      return {
+        name: 'check_circle',
+        tooltip: 'Cracked',
+        cls: 'text-ok'
+      };
+    }
+
+    return { name: '' };
+  }
+
   /**
    * @todo Implement error handling.
    */
@@ -238,7 +260,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     const action = isArchived ? 'archived' : 'unarchived';
     this.subscriptions.push(
       this.gs.bulkUpdate(SERV.HASHLISTS, hashlists, { isArchived: isArchived }).subscribe(() => {
-        this.snackBar.open(`Successfully ${action} hashlists!`, 'Close');
+        this.alertService.showSuccessMessage(`Successfully ${action} hashlists!`);
         this.reload();
       })
     );
@@ -258,7 +280,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted hashlists!`);
           this.dataSource.reload();
         })
     );
@@ -278,7 +300,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted hashlist!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted hashlist!');
           this.reload();
         })
     );
@@ -310,7 +332,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Cracked hashes from hashlist exported sucessfully!', 'Close');
+          this.alertService.showSuccessMessage('Cracked hashes from hashlist exported sucessfully!');
           this.reload();
         })
     );
@@ -318,11 +340,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   private rowActionImport(hashlist: JHashlist): void {
     this.router.navigate(['/hashlists/hashlist/' + hashlist.id + '/import-cracked-hashes']);
-  }
-
-  setIsArchived(isArchived: boolean): void {
-    this.isArchived = isArchived;
-    this.dataSource.setIsArchived(isArchived);
   }
 
   /**

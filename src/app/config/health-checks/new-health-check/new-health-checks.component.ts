@@ -138,7 +138,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       };
 
       const onSubmitSubscription$ = this.gs.create(SERV.HEALTH_CHECKS, payload).subscribe(() => {
-        this.alert.okAlert('New Health Check created!', '');
+        this.alert.showSuccessMessage('New Health Check created');
         this.router.navigate(['/config/health-checks']);
         this.isCreatingLoading = false;
       });

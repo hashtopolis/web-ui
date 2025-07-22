@@ -9,7 +9,7 @@
       </button>
     </div>
     <!-- bulk actions -->
-    <div class="table-action-wrapper" *ngIf="isSelectable && hasBulkActions">
+    <div class="table-action-wrapper" *ngIf="isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()">
       <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
         <button mat-button [disabled]="true">
           <mat-icon>adjust</mat-icon>
@@ -18,11 +18,12 @@
       </ng-container>
       <ng-template #bulkActionMenu>
         <bulk-action-menu #bulkMenu [dataType]="dataType" [isArchived]="isArchived"
-          [data]="dataSource.selection.selected" [disabled]="!hasSelected()" (menuItemClicked)="bulkAction($event)" />
+          [data]="dataSource.selection.selected" [disabled]="!hasSelected()" [contextMenuService]="contextMenuService"
+          (menuItemClicked)="bulkAction($event)" />
       </ng-template>
     </div>
     <!-- export -->
-    <div class="table-action-wrapper" *ngIf="isSelectable">
+    <div class="table-action-wrapper" *ngIf="isSelectable && showExport">
       <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
         <button mat-button [disabled]="true">
           <mat-icon>file_download</mat-icon>
@@ -50,18 +51,31 @@
       </button>
     </div>
     }
-    <!-- filter -->
-    <div class="table-action-wrapper right-aligned">
-      <mat-form-field *ngIf="isFilterable">
-        <mat-icon matPrefix>filter_list</mat-icon>
-        <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
-        <button mat-icon-button matSuffix (click)="clearFilter()">
-          <mat-icon>clear</mat-icon>
-        </button>
-      </mat-form-field>
+
+    <!-- Filter section -->
+    <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
+      <div class="filter-container">
+        <!-- Column selector dropdown -->
+        <mat-form-field>
+          <mat-label>Filter by column</mat-label>
+          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+            <mat-option value="all">All filterable columns</mat-option>
+            @for (column of filterableColumns; track column) {
+            <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Filter input -->
+        <mat-form-field style="min-width: 200px">
+          <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
+          <button mat-icon-button matSuffix (click)="clearFilter()">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
     </div>
   </div>
-
   <!-- Table -->
   <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
     <div class="spinner-container" *ngIf="dataSource.loading$ | async">
@@ -113,10 +127,12 @@
     </ng-container>
 
     <!-- action column -->
-    <ng-container *ngIf="hasRowAction" matColumnDef="{{ colRowAction }}">
+    <ng-container *ngIf="contextMenuService && contextMenuService.getHasContextMenu()"
+      matColumnDef="{{ colRowAction }}">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" [class.text-right]="true">
-        <row-action-menu [data]="element" (menuItemClicked)="rowAction($event)"></row-action-menu>
+        <row-action-menu [data]="element" [contextMenuService]="contextMenuService"
+          (menuItemClicked)="rowAction($event)"></row-action-menu>
       </td>
     </ng-container>
 
@@ -150,8 +166,22 @@
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
+          <span class="icon-actions">
+            @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+            <button mat-icon-button color="primary" aria-label="Show full hash"
+              (click)="showFullHashModalEmit(element)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            }
+            @if (tableColumn.isCopy) {
+            <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            }
+          </span>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
+            <app-ht-table-link (linkClicked)="onLinkClicked();" [tableColumn]="tableColumn"
+              [element]="element"></app-ht-table-link>
             <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable [tableColumn]="tableColumn" [element]="element"
               (editableInputSaved)="editableInputSaved($event)"></ht-table-editable>
@@ -160,14 +190,12 @@
           </ng-container>
 
           <!-- Check if icon function is defined -->
-          <ng-container *ngIf="tableColumn.icon">
-            <mat-icon *ngIf="tableColumn.icon(element).tooltip; else iconTmpl"
-              [matTooltip]="tableColumn.icon(element).tooltip"
-              [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-              tableColumn.icon(element).name }}</mat-icon>
+          <ng-container *ngIf="tableColumn.icon && tableColumn.icon(element) as icon">
+            <mat-icon *ngIf="icon.tooltip; else iconTmpl" [matTooltip]="icon.tooltip"
+              [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
             <ng-template #iconTmpl>
-              <mat-icon [ngClass]="tableColumn.icon(element).cls ? tableColumn.icon(element).cls : ''">{{
-                tableColumn.icon(element).name
+              <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
+                icon.name
                 }}</mat-icon>
             </ng-template>
           </ng-container>

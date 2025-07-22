@@ -2,13 +2,13 @@ import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
+import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/cracks-table/cracks-table.constants';
@@ -19,6 +19,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -29,11 +30,11 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class CracksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CracksDataSource;
-
+  selectedFilterColumn: string = 'all';
   ngOnInit(): void {
     this.setColumnLabels(CracksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new CracksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new CracksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.loadAll().then(() => {});
   }
@@ -44,10 +45,29 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
     }
   }
 
-  filter(item: JHash, filterValue: string): boolean {
+  /*   filter(item: JHash, filterValue: string): boolean {
     return item.plaintext.toLowerCase().includes(filterValue);
+  } */
+  filter(item: JHash, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.plaintext.toLowerCase().includes(filterValue) || item.hash.toLowerCase().includes(filterValue);
+      }
+      case 'plaintext': {
+        return item.plaintext?.toLowerCase().includes(filterValue);
+      }
+      case 'hash': {
+        return item.hash?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.plaintext?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -61,6 +81,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
+        isSearchable: true,
         render: (crack: JHash) => crack.plaintext,
         export: async (crack: JHash) => crack.plaintext
       },
@@ -68,7 +89,9 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         id: CracksTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
-        truncate: true,
+        isSearchable: true,
+        isCopy: true,
+        truncate: (crack: JHash) => crack.hash.length > 40,
         render: (crack: JHash) => crack.hash,
         export: async (crack: JHash) => crack.hash
       },
@@ -101,6 +124,23 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         export: async (crack: JHash) => (crack.hashlist ? HashListFormatLabel[crack.hashlist.format] : '')
       }
     ];
+  }
+
+  protected receiveCopyData(event: BaseModel) {
+    if (this.clipboard.copy((event as JHash).hash)) {
+      this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
+    } else {
+      this.alertService.showErrorMessage('Could not copy hash value clipboard.');
+    }
+  }
+
+  showTruncatedData(event: JHash) {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
+      data: {
+        hashlistName: event.hashlist?.name,
+        unTruncatedText: event.hash
+      }
+    });
   }
 
   openDialog(data: DialogData<JHash>) {
@@ -186,19 +226,12 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JHash[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHash>('hashtopolis-cracks', this.tableColumns, event.data, CracksTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHash>('hashtopolis-cracks', this.tableColumns, event.data, CracksTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JHash>(this.tableColumns, event.data, CracksTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JHash>(
+      event,
+      this.tableColumns,
+      CracksTableColumnLabel,
+      'hashtopolis-cracks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHash>): void {
@@ -252,7 +285,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
           })
         )
         .subscribe((results) => {
-          this.snackBar.open(`Successfully deleted ${results.length} cracks!`, 'Close');
+          this.alertService.showSuccessMessage(`Successfully deleted ${results.length} cracks!`);
           this.reload();
         })
     );
@@ -272,7 +305,7 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted crack!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted crack!');
           this.reload();
         })
     );

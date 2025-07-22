@@ -7,6 +7,7 @@ import { SERV } from '@services/main.config';
 
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 import { AllUsersComponent } from '@src/app/users/all-users/all-users.component';
@@ -30,7 +31,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.USERS,
           breadcrumb: 'New User',
-          permission: 'User'
+          permission: Perm.User.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -40,7 +41,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit',
           breadcrumb: 'Edit User',
-          permission: 'User'
+          permission: Perm.User.READ
         },
         canActivate: [CheckPerm]
       },
@@ -50,7 +51,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'all-users',
           breadcrumb: 'All Users',
-          permission: 'User'
+          permission: Perm.User.READ
         },
         canActivate: [CheckPerm]
       },
@@ -60,7 +61,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'globalpermissionsgp',
           breadcrumb: 'Global Permissions Groups',
-          permission: 'RightGroup'
+          permission: Perm.RightGroup.READ
         },
         canActivate: [CheckPerm]
       },
@@ -72,7 +73,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.ACCESS_PERMISSIONS_GROUPS,
           breadcrumb: 'New Global Permissions Groups',
-          permission: 'RightGroup'
+          permission: Perm.RightGroup.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -82,7 +83,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-gpg',
           breadcrumb: 'Edit Global Permissions Group',
-          permission: 'RightGroup'
+          permission: Perm.RightGroup.READ
         },
         canActivate: [CheckPerm]
       },
@@ -92,7 +93,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'access-groups',
           breadcrumb: 'Access Groups',
-          permission: 'GroupAccess'
+          permission: Perm.GroupAccess.READ
         },
         canActivate: [CheckPerm]
       },
@@ -104,7 +105,7 @@ const routes: MyRoute[] = [
           type: 'create',
           serviceConfig: SERV.ACCESS_GROUPS,
           breadcrumb: 'New Access Group',
-          permission: 'GroupAccess'
+          permission: Perm.GroupAccess.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -115,7 +116,7 @@ const routes: MyRoute[] = [
           kind: 'editaccessgroups',
           type: 'edit',
           breadcrumb: 'Edit Access Group',
-          permission: 'GroupAccess'
+          permission: Perm.GroupAccess.READ
         },
         canActivate: [CheckPerm]
       }

@@ -1,14 +1,14 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
+import { SuperHashListContextMenuService } from '@services/context-menu/hashlists/super-hashlist-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -21,8 +21,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperHashlistsDataSource } from '@datasources/super-hashlists.datasource';
 
-import { formatPercentage } from '@src/app/shared/utils/util';
-
 @Component({
   selector: 'app-super-hashlists-table',
   templateUrl: './super-hashlists-table.component.html',
@@ -32,13 +30,15 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperHashlistsDataSource;
   isArchived = false;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(SuperHashlistsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperHashlistsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperHashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -49,9 +49,35 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
   }
 
   filter(item: JHashlist, filterValue: string): boolean {
-    return (
-      item.name.toLowerCase().includes(filterValue) || item.hashTypeDescription.toLowerCase().includes(filterValue)
-    );
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id?.toString().includes(filterValue) ||
+          item.name?.toLowerCase().includes(filterValue) ||
+          item.hashTypeDescription?.toLowerCase().includes(filterValue) ||
+          item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue))
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'hashTypeDescription': {
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+      }
+      case 'hashlists': {
+        return item.hashlists?.some((hl) => hl.name.toLowerCase().includes(filterValue));
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -60,6 +86,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         id: SuperHashlistsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.id + ''
       },
       {
@@ -68,20 +95,21 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         icon: (superHashlist: JHashlist) => this.renderSecretIcon(superHashlist),
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLink(superHashlist),
         isSortable: true,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.name
       },
       {
         id: SuperHashlistsTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (superHashlist: JHashlist) => this.renderCrackedStatusIcon(superHashlist),
-        render: (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount),
-        isSortable: true,
-        export: async (superHashlist: JHashlist) => formatPercentage(superHashlist.cracked, superHashlist.hashCount)
+        render: (superHashlist: JHashlist) => this.renderCrackedHashes(superHashlist, false),
+        export: async (superHashlist: JHashlist) => this.renderCrackedHashes(superHashlist, true)
       },
       {
         id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSortable: true,
+        isSearchable: true,
         render: (hashlist: JHashlist) => hashlist.hashTypeDescription,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       },
@@ -90,6 +118,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         dataKey: 'hashlists',
         routerLink: (superHashlist: JHashlist) => this.renderHashlistLinks(superHashlist),
         isSortable: false,
+        isSearchable: true,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription
       }
     ];
@@ -115,6 +144,57 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
         }
       })
     );
+  }
+
+  exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
+    this.exportService.handleExportAction<JHashlist>(
+      event,
+      this.tableColumns,
+      SuperHashlistsTableColumnLabel,
+      'hashtopolis-super-hashlists'
+    );
+  }
+
+  rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
+    switch (event.menuItem.action) {
+      case RowActionMenuAction.EDIT:
+        this.rowActionEdit(event.data);
+        break;
+      case RowActionMenuAction.EXPORT:
+        this.rowActionExport(event.data);
+        break;
+      case RowActionMenuAction.IMPORT:
+        this.rowActionImport(event.data);
+        break;
+      case RowActionMenuAction.DELETE:
+        this.openDialog({
+          rows: [event.data],
+          title: `Deleting Super-hashlist with id ${event.data.id} (${event.data.hashType.description}) ...`,
+          icon: 'warning',
+          body: `Are you sure you want to delete it? Note: This action cannot be undone.`,
+          warn: true,
+          action: event.menuItem.action
+        });
+        break;
+    }
+  }
+
+  // --- Action functions ---
+
+  bulkActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
+    switch (event.menuItem.action) {
+      case BulkActionMenuAction.DELETE:
+        this.openDialog({
+          rows: event.data,
+          title: `Deleting ${event.data.length} Super-hashlists ...`,
+          icon: 'warning',
+          body: `Are you sure you want to delete the above Super-hashlist? Note: This action cannot be undone.`,
+          warn: true,
+          listAttribute: 'name',
+          action: event.menuItem.action
+        });
+        break;
+    }
   }
 
   /**
@@ -147,90 +227,23 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     return { name: '' };
   }
 
-  // --- Action functions ---
-
-  exportActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHashlist>(
-          'hashtopolis-super-hashlists',
-          this.tableColumns,
-          event.data,
-          SuperHashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHashlist>(
-          'hashtopolis-super-hashlists',
-          this.tableColumns,
-          event.data,
-          SuperHashlistsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHashlist>(this.tableColumns, event.data, SuperHashlistsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
-  }
-
-  rowActionClicked(event: ActionMenuEvent<JHashlist>): void {
-    switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
-      case RowActionMenuAction.EXPORT:
-        this.rowActionExport(event.data);
-        break;
-      case RowActionMenuAction.IMPORT:
-        this.rowActionImport(event.data);
-        break;
-      case RowActionMenuAction.DELETE:
-        this.openDialog({
-          rows: [event.data],
-          title: `Deleting Super-hashlist with id ${event.data.id} (${event.data.hashType.description}) ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete it? Note: This action cannot be undone.`,
-          warn: true,
-          action: event.menuItem.action
-        });
-        break;
-    }
-  }
-
-  bulkActionClicked(event: ActionMenuEvent<JHashlist[]>): void {
-    switch (event.menuItem.action) {
-      case BulkActionMenuAction.DELETE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} Super-hashlists ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete the above Super-hashlist? Note: This action cannot be undone.`,
-          warn: true,
-          listAttribute: 'name',
-          action: event.menuItem.action
-        });
-        break;
-    }
-  }
-
   /**
    * @todo Implement error handling.
    */
   private bulkActionDelete(superHashlists: JHashlist[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HASHLISTS, superHashlists).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HASHLISTS, superHashlists)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted hashlists!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted hashlists!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -248,7 +261,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted superHashlist!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted superHashlist!');
           this.reload();
         })
     );
@@ -260,7 +273,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
 
   /**
    * Executes a row action to export cracked hashes from a superhashlist.
-   * @param {Hashlist} hashlist - The Superhaslist containing the cracked hashes to export.
+   * @param {superhashlist} superhashlist - The Superhaslist containing the cracked hashes to export.
    * @private
    * @returns {void}
    */
@@ -276,7 +289,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Cracked hashes from Super-hashlist exported sucessfully!', 'Close');
+          this.alertService.showSuccessMessage('Cracked hashes from Super-hashlist exported sucessfully!');
           this.reload();
         })
     );

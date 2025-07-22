@@ -30,7 +30,7 @@
 
         <div>
           <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
-          <button mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
+          <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
             <mat-icon>help</mat-icon>
           </button>
           <blacklist-attack [value]="form.get('attackCmd').value"></blacklist-attack>
@@ -86,7 +86,7 @@
       </form>
     </grid-main>
   </div>
-  <div fxFlex="30" fxFlex.lt-md="100">
+  <div fxFlex="50" fxFlex.lt-md="100">
     <mat-accordion multi>
 
       <mat-expansion-panel #wordlistPanel>

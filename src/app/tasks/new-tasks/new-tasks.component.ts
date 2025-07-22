@@ -220,7 +220,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
         this.isLoading = false;
         if (!this.selectHashlists.length) {
-          this.alert.errorConfirmation('You need to create a Hashlist to continue creating a Task');
+          this.alert.showErrorMessage('You need to create a Hashlist to continue creating a Task');
         }
         if (this.copyMode) {
           this.checkHashlisId();
@@ -346,7 +346,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     const exists = this.selectHashlists.some((hashlist) => hashlist.id === this.isCopyHashlistId);
 
     if (!exists) {
-      this.alert.errorConfirmation('Hashlist ID not found!');
+      this.alert.showErrorMessage('Hashlist ID not found!');
     }
   }
 
@@ -417,7 +417,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       const onSubmitSubscription$ = this.gs.create(SERV.TASKS, this.form.value).subscribe(() => {
-        this.alert.okAlert('New Task created!', '');
+        this.alert.showSuccessMessage('New Task created');
         this.router
           .navigate(['tasks/show-tasks'])
           .then((success) => {

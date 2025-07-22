@@ -1,8 +1,8 @@
 <grid-main>
   <app-page-subtitle [subtitle]="'Health Check'"></app-page-subtitle>
   <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-    <simulate-form-field label="Created"  message="{{ formatUnixTimestamp(healthc.time, this.dateFormat) }}"></simulate-form-field>
-    <simulate-form-field label="Created"  message="{{ healthc.status | HCstatus | lowercase | titlecase }}"></simulate-form-field>
+    <simulate-form-field label="Created"  message="{{ formatUnixTimestamp(healthc?.time, this.dateFormat) }}"></simulate-form-field>
+    <simulate-form-field label="Created"  message="{{ healthc?.status | HCstatus | lowercase | titlecase }}"></simulate-form-field>
   </div>
 </grid-main>
 
@@ -11,5 +11,5 @@
     title="Checked Agents"
     [subbutton]="false"
   ></app-page-title>
-  <health-check-agents-table [hasBulkActions]="false" [healthCheckId]="viewedHealthCIndex"></health-check-agents-table>
+  <app-health-check-agents-table  [healthCheckId]="viewedHealthCIndex"></app-health-check-agents-table>
 </app-table>

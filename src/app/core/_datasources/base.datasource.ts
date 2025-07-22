@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
@@ -9,6 +9,7 @@ import { ChunkData, JChunk } from '@models/chunk.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -23,6 +24,7 @@ import { environment } from '@src/environments/environment';
  * @template T - The type of data that the data source holds.
  * @template P - The type of paginator, extending MatTableDataSourcePaginator.
  */
+@Injectable()
 export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> implements DataSource<T> {
   public pageSize = 10;
   public currentPage = 0;
@@ -75,11 +77,16 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
 
   private readonly chunkTime: number = 600;
 
-  constructor(
-    protected cdr: ChangeDetectorRef,
-    protected service: GlobalService,
-    protected uiService: UIConfigService
-  ) {
+  protected cdr: ChangeDetectorRef;
+  protected service: GlobalService;
+  protected uiService: UIConfigService;
+  protected permissionService: PermissionService;
+
+  constructor(protected injector: Injector) {
+    this.cdr = injector.get(ChangeDetectorRef);
+    this.service = injector.get(GlobalService);
+    this.uiService = injector.get(UIConfigService);
+    this.permissionService = injector.get(PermissionService);
     this.serializer = new JsonAPISerializer();
     const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
     if (chunktimeSetting) {

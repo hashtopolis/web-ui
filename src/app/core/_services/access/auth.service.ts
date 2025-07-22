@@ -1,19 +1,18 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import {
-  BehaviorSubject,
-  Observable,
-  ReplaySubject,
-  Subject,
-  throwError
-} from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { EventEmitter, Injectable, Output } from '@angular/core';
-import { AuthUser, AuthData } from '../../_models/auth-user.model';
-import { catchError, tap } from 'rxjs/operators';
-import { Router } from '@angular/router';
 import { Buffer } from 'buffer';
-import { ConfigService } from '../shared/config.service';
-import { LocalStorageService } from '../storage/local-storage.service';
+
+import { BehaviorSubject, Observable, ReplaySubject, Subject, switchMap, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { EventEmitter, Injectable, Injector, Output } from '@angular/core';
+import { Router } from '@angular/router';
+
+import { AuthData, AuthUser } from '@models/auth-user.model';
+
+import { PermissionService } from '@services/permission/permission.service';
+import { ConfigService } from '@services/shared/config.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+import { LoginRedirectService } from '@services/access/login-redirect.service';
 
 export interface AuthResponseData {
   token: string;
@@ -40,32 +39,39 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private cs: ConfigService,
-    private storage: LocalStorageService<AuthData>
+    private storage: LocalStorageService<AuthData>,
+    private injector: Injector // Use injector to delay injection of PermissionService to avoid circular dependency
   ) {
-    const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     this.userLoggedIn.next(false);
     if (this.logged) {
       this.userId = this.getUserId(this.token);
     }
   }
 
+  /**
+   * Auto-login user, if there is a token in localStorage
+   */
   autoLogin() {
     const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
       return;
     }
 
-    const loadedUser = new AuthUser(
-      userData._token,
-      new Date(userData._expires),
-      userData._username
-    );
+    const loadedUser = new AuthUser(userData._token, new Date(userData._expires), userData._username);
     if (loadedUser.token) {
       this.user.next(loadedUser);
-      const tokenExpiration =
-        new Date(userData._expires).getTime() - new Date().getTime();
+      const tokenExpiration = new Date(userData._expires).getTime() - new Date().getTime();
       // this.autologOut(tokenExpiration);
       this.getRefreshToken(tokenExpiration);
+
+      // Load permissions after restoring user
+      const permissionService = this.injector.get(PermissionService);
+      permissionService.loadPermissions().subscribe({
+        next: () => {},
+        error: (err) => {
+          console.error('Failed to load permissions on autoLogin:', err);
+        }
+      });
     }
   }
 
@@ -82,10 +88,18 @@ export class AuthService {
       )
       .pipe(
         catchError(this.handleError),
-        tap((resData) => {
+        switchMap((resData) => {
           this.handleAuthentication(resData.token, +resData.expires, username);
           this.isAuthenticated = true;
           this.userAuthChanged(true);
+          const permissionService = this.injector.get(PermissionService);
+          return permissionService.loadPermissions();
+        }),
+        tap(() => {
+          const redirectService = this.injector.get(LoginRedirectService);
+          const redirectUrl = this.redirectUrl;
+          redirectService.handlePostLoginRedirect(this.userId, redirectUrl);
+          this.redirectUrl = '';
         })
       );
   }
@@ -123,14 +137,11 @@ export class AuthService {
     this.tokenExpiration = setTimeout(() => {
       const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
       return this.http
-        .post<AuthResponseData>(
-          this.cs.getEndpoint() + this.endpoint + '/refresh',
-          {
-            headers: new HttpHeaders({
-              Authorization: `Bearer ${userData._token}`
-            })
-          }
-        )
+        .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${userData._token}`
+          })
+        })
         .pipe(
           tap((response: any) => {
             if (response && response.token) {
@@ -149,7 +160,7 @@ export class AuthService {
   refreshToken(): Observable<any> {
     const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
     return this.http
-      .post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh ', {
+      .post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh', {
         headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })
       })
       .pipe(
@@ -179,6 +190,10 @@ export class AuthService {
       clearTimeout(this.tokenExpiration);
     }
     this.tokenExpiration = null;
+
+    // Delete cached permissions from storage
+    const permissionService = this.injector.get(PermissionService);
+    permissionService.clearPermissionCache();
   }
 
   checkStatus() {

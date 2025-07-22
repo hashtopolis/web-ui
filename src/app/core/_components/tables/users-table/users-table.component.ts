@@ -1,14 +1,14 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JUser } from '@models/user.model';
 
+import { UsersContextMenuService } from '@services/context-menu/users/users-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -32,12 +32,14 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class UsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: UsersDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(UsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new UsersDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new UsersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new UsersContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -48,15 +50,43 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   filter(item: JUser, filterValue: string): boolean {
-    return item.name.toLowerCase().includes(filterValue) || item.email.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.name.toLowerCase().includes(filterValue) ||
+          item.email.toLowerCase().includes(filterValue) ||
+          item.globalPermissionGroup.name.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name.toLowerCase().includes(filterValue);
+      }
+      case 'email': {
+        return item.email.toLowerCase().includes(filterValue);
+      }
+      case 'globalPermissionGroupName': {
+        return item.globalPermissionGroup.name.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.name.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: UsersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (user: JUser) => user.id + ''
       },
       {
@@ -64,6 +94,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'name',
         routerLink: (user: JUser) => this.renderUserLink(user),
         isSortable: true,
+        isSearchable: true,
         export: async (user: JUser) => user.name
       },
       {
@@ -86,6 +117,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.EMAIL,
         dataKey: 'email',
         isSortable: true,
+        isSearchable: true,
         render: (user: JUser) => user.email,
         export: async (user: JUser) => user.email
       },
@@ -108,6 +140,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: true,
+        isSearchable: true,
         render: (user: JUser) => user.globalPermissionGroup.name,
         export: async (user: JUser) => user.globalPermissionGroup.name
       }
@@ -144,19 +177,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>('hashtopolis-users', this.tableColumns, event.data, UsersTableColumnLabel);
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>('hashtopolis-users', this.tableColumns, event.data, UsersTableColumnLabel);
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService.toClipboard<JUser>(this.tableColumns, event.data, UsersTableColumnLabel).then(() => {
-          this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JUser>(event, this.tableColumns, UsersTableColumnLabel, 'hashtopolis-users');
   }
 
   rowActionClicked(event: ActionMenuEvent<JUser>): void {
@@ -222,15 +243,18 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
    */
   private bulkActionDelete(users: JUser[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.USERS, users).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.USERS, users)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted users!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted users!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -241,9 +265,9 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     const action = isValid ? 'activated' : 'deactivated';
 
     this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.USERS, users, {isValid: isValid}).subscribe((results) => {
-          this.snackBar.open(`Successfully ${action} users!`, 'Close');
-          this.reload();
+      this.gs.bulkUpdate(SERV.USERS, users, { isValid: isValid }).subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully ${action} users!`);
+        this.reload();
       })
     );
   }
@@ -262,7 +286,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted user!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted user!');
           this.reload();
         })
     );

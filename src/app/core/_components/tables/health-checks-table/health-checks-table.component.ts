@@ -1,15 +1,15 @@
-import { Observable, catchError, forkJoin, of } from 'rxjs';
-
 /* eslint-disable @angular-eslint/component-selector */
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHealthCheck } from '@models/health-check.model';
 
+import { HealthCheckContextMenuService } from '@services/context-menu/config/health-check-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
@@ -33,12 +33,14 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HealthChecksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HealthChecksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -49,9 +51,27 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   }
 
   filter(item: JHealthCheck, filterValue: string): boolean {
-    return item.attackCmd.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) || item.hashTypeDescription?.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'hashtypeDescription': {
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -59,6 +79,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         dataKey: 'id',
         routerLink: (healthCheck: JHealthCheck) => this.renderHealthCheckLink(healthCheck),
         isSortable: true,
+        isSearchable: true,
         export: async (healthCheck: JHealthCheck) => healthCheck.id + ''
       },
       {
@@ -74,6 +95,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         render: (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
         isSortable: true,
+        isSearchable: true,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''
       },
@@ -128,31 +150,12 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHealthCheck[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHealthCheck>(
-          'hashtopolis-health-checks',
-          this.tableColumns,
-          event.data,
-          HealthChecksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHealthCheck>(
-          'hashtopolis-health-checks',
-          this.tableColumns,
-          event.data,
-          HealthChecksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHealthCheck>(this.tableColumns, event.data, HealthChecksTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JHealthCheck>(
+      event,
+      this.tableColumns,
+      HealthChecksTableColumnLabel,
+      'hashtopolis-health-checks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JHealthCheck>): void {
@@ -194,15 +197,18 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(healthChecks: JHealthCheck[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.HEALTH_CHECKS, healthChecks).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.HEALTH_CHECKS, healthChecks)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted healthchecks!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted healthchecks!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -220,7 +226,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted health check!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted health check!');
           this.reload();
         })
     );

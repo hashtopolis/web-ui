@@ -1,19 +1,19 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ColorPickerModule } from 'ngx-color-picker';
-import { CoreFormsModule } from '../forms.module';
-import { InputMultiSelectComponent } from './multiselect/multiselect.component';
-import { InputColorComponent } from './color/color.component';
-import { InputCheckComponent } from './check/check.component';
-import { InputTextComponent } from './text/text.component';
-import { InputDateComponent } from './date/date.component';
-import { InputNumberComponent } from './number/number.component';
-import { InputTextAreaComponent } from './text-area/text-area.component';
-import { InputSelectComponent } from './select/select.component';
-import { InputFileComponent } from './file/file.component';
+import { NgModule } from '@angular/core';
+
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { InputCheckComponent } from '@src/app/shared/input/check/check.component';
+import { InputColorComponent } from '@src/app/shared/input/color/color.component';
+import { InputDateComponent } from '@src/app/shared/input/date/date.component';
+import { InputFileComponent } from '@src/app/shared/input/file/file.component';
+import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
+import { InputNumberComponent } from '@src/app/shared/input/number/number.component';
+import { InputSelectComponent } from '@src/app/shared/input/select/select.component';
+import { InputTextComponent } from '@src/app/shared/input/text/text.component';
+import { InputTextAreaComponent } from '@src/app/shared/input/text-area/text-area.component';
 
 @NgModule({
-  imports: [CoreFormsModule, ColorPickerModule, CommonModule],
+  imports: [CoreFormsModule, CommonModule],
   exports: [
     InputCheckComponent,
     InputColorComponent,

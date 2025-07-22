@@ -1,30 +1,9 @@
-import { LineChart, LineSeriesOption } from 'echarts/charts';
-import {
-  DataZoomComponent,
-  DataZoomComponentOption,
-  GridComponent,
-  GridComponentOption,
-  MarkLineComponent,
-  MarkLineComponentOption,
-  TitleComponent,
-  TitleComponentOption,
-  ToolboxComponent,
-  ToolboxComponentOption,
-  TooltipComponent,
-  TooltipComponentOption,
-  VisualMapComponent,
-  VisualMapComponentOption
-} from 'echarts/components';
-import * as echarts from 'echarts/core';
-import { UniversalTransition } from 'echarts/features';
-import { CanvasRenderer } from 'echarts/renderers';
-import { finalize } from 'rxjs';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Subscription, finalize } from 'rxjs';
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
@@ -38,6 +17,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -46,6 +26,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
+import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 
@@ -55,7 +36,7 @@ import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
   providers: [FileSizePipe],
   standalone: false
 })
-export class EditTasksComponent implements OnInit {
+export class EditTasksComponent implements OnInit, OnDestroy {
   editMode = false;
   editedTaskIndex: number;
   taskWrapperId: number;
@@ -76,6 +57,7 @@ export class EditTasksComponent implements OnInit {
 
   @ViewChild('agentsTable') agentsTable: AgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
+  @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
   //Time calculation
   cprogress: number; // Keyspace searched
@@ -83,36 +65,43 @@ export class EditTasksComponent implements OnInit {
 
   // Chunk View
   chunkview: number;
-  chunktitle: string;
   isactive = 0;
   currenspeed = 0;
   chunkresults: number;
+
+  private routeSub: Subscription;
 
   constructor(
     private titleService: AutoTitleService,
     private uiService: UIConfigService,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private alert: AlertService,
+    private alertService: AlertService,
     private gs: GlobalService,
     private fs: FileSizePipe,
     private router: Router,
-    private serializer: JsonAPISerializer
+    private serializer: JsonAPISerializer,
+    private confirmDialog: ConfirmDialogService
   ) {
     this.titleService.set(['Edit Task']);
+    this.onInitialize();
   }
 
   ngOnInit() {
-    this.onInitialize();
     this.buildForm();
     this.initForm();
     this.assignChunksInit();
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   onInitialize() {
     this.route.params.subscribe((params: Params) => {
       this.editedTaskIndex = +params['id'];
       this.editMode = params['id'] != null;
+
+      this.ngOnInit();
     });
   }
 
@@ -147,14 +136,13 @@ export class EditTasksComponent implements OnInit {
     if (this.updateForm.valid) {
       // Check if attackCmd has been modified
       if (this.updateForm.value['updateData'].attackCmd !== this.originalValue.attackCmd) {
-        const warning =
+        const message: string =
           'Do you really want to change the attack command? If the task already was started, it will be completely purged before and reset to an initial state. (Note that you cannot change files)';
-        this.alert.customConfirmation(warning).then((confirmed) => {
+        this.confirmDialog.confirmYesNo('Update task data', message).subscribe((confirmed) => {
           if (confirmed) {
             this.updateTask();
           } else {
-            // Handle cancellation
-            this.alert.okAlert(`Task Information has not been updated!`, '');
+            this.alertService.showInfoMessage('Task Information has not been updated');
           }
         });
       } else {
@@ -166,10 +154,9 @@ export class EditTasksComponent implements OnInit {
   private updateTask() {
     this.isUpdatingLoading = true;
     this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe(() => {
-      this.alert.okAlert('Task saved!', '');
       this.isUpdatingLoading = false;
       this.router.navigate(['tasks/show-tasks']).then(() => {
-        window.location.reload();
+        this.alertService.showSuccessMessage('Task data has been updated successfully.');
       });
     });
   }
@@ -192,8 +179,6 @@ export class EditTasksComponent implements OnInit {
         this.color = task.color;
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
-        // Graph Speed
-        this.initTaskSpeed(task.speeds);
         // Assigned Agents init
         this.assingAgentInit();
         // Hashlist Description and Type
@@ -278,7 +263,7 @@ export class EditTasksComponent implements OnInit {
         )
         .subscribe(() => {
           this.createForm.reset();
-          this.snackBar.open('Agent assigned!', 'Close');
+          this.alertService.showSuccessMessage('Agent assigned!');
         });
     }
   }
@@ -312,13 +297,11 @@ export class EditTasksComponent implements OnInit {
       switch (data['kind']) {
         case 'edit-task':
           this.chunkview = 0;
-          this.chunktitle = 'Live Chunks';
           this.chunkresults = 60000;
           // this.slideToggle.checked = false;
           break;
         case 'edit-task-cAll':
           this.chunkview = 1;
-          this.chunktitle = 'All Chunks';
           this.chunkresults = 60000;
           // this.slideToggle.checked = true;
           break;
@@ -368,12 +351,8 @@ export class EditTasksComponent implements OnInit {
     });
   }
 
-  toggleIsAll() {
-    if (this.chunkview === 0) {
-      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit', 'show-all-chunks']);
-    } else {
-      this.router.navigate(['/tasks/show-tasks', this.editedTaskIndex, 'edit']);
-    }
+  onChunkViewChange(event: MatButtonToggleChange): void {
+    this.chunkview = event.value;
   }
 
   /**
@@ -382,214 +361,15 @@ export class EditTasksComponent implements OnInit {
    **/
 
   purgeTask() {
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: 'btn',
-        cancelButton: 'btn'
-      },
-      buttonsStyling: false
-    });
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "It'll purge the Task!",
-      icon: 'warning',
-      reverseButtons: true,
-      showCancelButton: true,
-      cancelButtonColor: this.alert.cancelButtonColor,
-      confirmButtonColor: this.alert.confirmButtonColor,
-      confirmButtonText: this.alert.purgeText
-    }).then((result) => {
-      if (result.isConfirmed) {
+    this.confirmDialog.confirmYesNo('Purge Task', 'Do you really want to purge the task').subscribe((confirmed) => {
+      if (confirmed) {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
-          this.alert.okAlert('Purged task id' + this.editedTaskIndex + '', '');
-          this.ngOnInit();
+          this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
         });
       } else {
-        swalWithBootstrapButtons.fire({
-          title: 'Cancelled',
-          text: 'Purge was cancelled!',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 1500
-        });
+        this.alertService.showInfoMessage('Purge was cancelled');
       }
     });
-  }
-
-  /**
-   * Task Speed Grap
-   *
-   **/
-  initTaskSpeed(obj: object) {
-    echarts.use([
-      TitleComponent,
-      ToolboxComponent,
-      TooltipComponent,
-      GridComponent,
-      VisualMapComponent,
-      DataZoomComponent,
-      MarkLineComponent,
-      LineChart,
-      CanvasRenderer,
-      UniversalTransition
-    ]);
-
-    type EChartsOption = echarts.ComposeOption<
-      | TitleComponentOption
-      | ToolboxComponentOption
-      | TooltipComponentOption
-      | GridComponentOption
-      | VisualMapComponentOption
-      | DataZoomComponentOption
-      | MarkLineComponentOption
-      | LineSeriesOption
-    >;
-
-    const data: any = obj;
-    const arr = [];
-    const max = [];
-    const result = [];
-
-    data.reduce(function (res, value) {
-      if (!res[value.time]) {
-        res[value.time] = { time: value.time, speed: 0 };
-        result.push(res[value.time]);
-      }
-      res[value.time].speed += value.speed;
-      return res;
-    }, {});
-
-    for (let i = 0; i < result.length; i++) {
-      const iso = this.transDate(result[i]['time']);
-
-      arr.push([
-        iso,
-        this.fs.transform(result[i]['speed'], false, 1000).match(/\d+(\.\d+)?/)[0],
-        this.fs.transform(result[i]['speed'], false, 1000).slice(-2)
-      ]);
-      max.push(result[i]['time']);
-    }
-
-    const startdate = max.slice(0)[0];
-    const enddate = max.slice(-1)[0];
-    const datelabel = this.transDate(enddate);
-    const xAxis = this.generateIntervalsOf(1, +startdate, +enddate);
-
-    const chartDom = document.getElementById('tspeed');
-    const myChart = echarts.init(chartDom);
-
-    const self = this;
-
-    const option: EChartsOption = {
-      title: {
-        subtext: 'Last record: ' + datelabel
-      },
-      tooltip: {
-        position: 'top',
-        formatter: function (p) {
-          return p.data[0] + ': ' + p.data[1] + ' ' + p.data[2] + ' H/s';
-        }
-      },
-      grid: {
-        left: '5%',
-        right: '4%'
-      },
-      xAxis: {
-        data: xAxis.map(function (item: any[] | any) {
-          return self.transDate(item);
-        })
-      },
-      yAxis: {
-        type: 'value',
-        name: 'H/s',
-        position: 'left',
-        alignTicks: true
-      },
-      useUTC: true,
-      toolbox: {
-        itemGap: 10,
-        show: true,
-        left: '85%',
-        feature: {
-          dataZoom: {
-            yAxisIndex: 'none'
-          },
-          restore: {},
-          saveAsImage: {
-            name: 'Task Speed'
-          }
-        }
-      },
-      dataZoom: [
-        {
-          type: 'slider',
-          show: true,
-          start: 94,
-          end: 100,
-          handleSize: 8
-        },
-        {
-          type: 'inside',
-          start: 70,
-          end: 100
-        }
-      ],
-      series: {
-        name: '',
-        type: 'line',
-        data: arr,
-        connectNulls: true,
-        markPoint: {
-          data: [
-            { type: 'max', name: 'Max' },
-            { type: 'min', name: 'Min' }
-          ]
-        },
-        markLine: {
-          lineStyle: {
-            color: '#333'
-          }
-        }
-      }
-    };
-    if (data.length > 0) {
-      option && myChart.setOption(option);
-    }
-  }
-
-  leading_zeros(dt) {
-    return (dt < 10 ? '0' : '') + dt;
-  }
-
-  transDate(dt) {
-    const date: any = new Date(dt * 1000);
-    // American Format
-    // return date.getUTCFullYear()+'-'+this.leading_zeros((date.getUTCMonth() + 1))+'-'+date.getUTCDate()+','+this.leading_zeros(date.getUTCHours())+':'+this.leading_zeros(date.getUTCMinutes())+':'+this.leading_zeros(date.getUTCSeconds());
-    return (
-      date.getUTCDate() +
-      '-' +
-      this.leading_zeros(date.getUTCMonth() + 1) +
-      '-' +
-      date.getUTCFullYear() +
-      ',' +
-      this.leading_zeros(date.getUTCHours()) +
-      ':' +
-      this.leading_zeros(date.getUTCMinutes()) +
-      ':' +
-      this.leading_zeros(date.getUTCSeconds())
-    );
-  }
-
-  generateIntervalsOf(interval, start, end) {
-    const result = [];
-    let current = start;
-
-    while (current < end) {
-      result.push(current);
-      current += interval;
-    }
-
-    return result;
   }
 }

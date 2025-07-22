@@ -124,10 +124,10 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Create pre-tasks asynchronously.
    *
    * @param {Object} form - The form data containing task configurations.
-   * @returns {Promise<string[]>} A Promise that resolves with an array of pre-task IDs.
+   * @returns {Promise<number[]>} A Promise that resolves with an array of pre-task IDs.
    */
-  private async preTasks(form): Promise<string[]> {
-    const preTasksIds: string[] = [];
+  private async preTasks(form): Promise<number[]> {
+    const preTasksIds: number[] = [];
     const iterFiles: number[] = form.iterFiles;
 
     try {
@@ -170,7 +170,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
         const result: ResponseWrapper = await firstValueFrom(this.gs.create(SERV.PRETASKS, payload));
         const pretask = new JsonAPISerializer().deserialize<JPretask>({ data: result.data, included: result.included });
-        preTasksIds.push(pretask.id.toString());
+        preTasksIds.push(pretask.id);
       });
 
       await Promise.all(promises);
@@ -203,50 +203,35 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         // Check if crackerBinaryId is invalid or missing
         if (!crackerBinaryId) {
           const warning = 'Invalid cracker type ID!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if attackCmd contains the hashlist alias
         if (!attackCmd.includes(attackAlias)) {
           const warning = 'Command line must contain hashlist alias (' + attackAlias + ')!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if attackCmd contains FILE placeholder
         if (!attackCmd.includes('FILE')) {
           const warning = 'No placeholder (FILE) for the iteration!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if at least one base file is selected
         if (!baseFiles || baseFiles.length === 0) {
           const warning = 'You need to select at least one base file!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
         // Check if at least one iter file is selected
         if (!iterFiles || iterFiles.length === 0) {
           const warning = 'You need to select at least one iteration file!';
-          const confirmed = await this.alert.errorConfirmation(warning);
-          if (!confirmed) {
-            return; // Stop further execution
-          }
+          this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
 
@@ -274,10 +259,10 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @param {string[]} ids - An array of preTasks IDs to be associated with the super task.
    * @returns {void}
    */
-  private superTask(name: string, ids: string[]) {
+  private superTask(name: string, ids: number[]) {
     const payload = { supertaskName: name, pretasks: ids };
     const createSubscription$ = this.gs.create(SERV.SUPER_TASKS, payload).subscribe(() => {
-      this.alert.okAlert('New Supertask Wordlist/Rules Bulk created!', '');
+      this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
       this.router.navigate(['/tasks/supertasks']);
     });
 

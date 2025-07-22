@@ -1,23 +1,25 @@
-import { FormGroup } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { SERV, ServiceConfig } from '@services/main.config';
 import { Subscription } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+
+import { HorizontalNav } from '@models/horizontalnav.model';
 import { ResponseWrapper } from '@models/response.model';
+
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV, ServiceConfig } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { MetadataService } from '@services/metadata.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
 @Component({
-    selector: 'app-form',
-    templateUrl: 'formconfig.component.html',
-    standalone: false
+  selector: 'app-form',
+  templateUrl: 'formconfig.component.html',
+  standalone: false
 })
 /**
  * Component for managing forms, supporting both create and edit modes.
@@ -75,10 +77,11 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * @param unsubscribeService - The UnsubscribeService for managing subscriptions.
    * @param metadataService - The MetadataService for accessing form metadata.
    * @param titleService - The AutoTitleService for setting titles.
+   * @param uicService
    * @param route - The ActivatedRoute for retrieving route data.
    * @param alert - The AlertService for displaying alerts.
    * @param gs - The GlobalService for handling global operations.
-   * @param router - The Angular Router for navigation.
+   * @param serializer - JsonAPISerializer to serialize/deserialize json:api objects
    */
   constructor(
     private unsubscribeService: UnsubscribeService,
@@ -88,7 +91,6 @@ export class FormConfigComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private alert: AlertService,
     private gs: GlobalService,
-    private router: Router,
     private serializer: JsonAPISerializer
   ) {
     // Subscribe to route data to initialize component data
@@ -99,7 +101,7 @@ export class FormConfigComponent implements OnInit, OnDestroy {
       this.globalMetadata = this.metadataService.getInfoMetadata(formKind + 'Info')[0];
       this.formMetadata = this.metadataService.getFormMetadata(formKind);
       this.title = this.globalMetadata['title'];
-      titleService.set([this.title]);
+      this.titleService.set([this.title]);
     });
     // Add this.mySubscription to UnsubscribeService
     this.unsubscribeService.add(this.mySubscription);
@@ -134,11 +136,11 @@ export class FormConfigComponent implements OnInit, OnDestroy {
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
         const configValues = this.serializer.deserialize(responseBody) as any[];
-        // Transform the retrieved array of objects into the desired structure for form rendering
+
         this.formValues = configValues.reduce((configValues, item) => {
-          if (item.value === 'true') {
+          if (item.value === '1') {
             item.value = true;
-          } else if (item.value === 'false') {
+          } else if (item.value === '0') {
             item.value = false;
           }
           configValues[item.item] = item.value;
@@ -169,14 +171,16 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   onFormSubmit(form: any) {
     const currentFormValues = form;
     const initialFormValues = this.formValues;
-    const changedFields = {};
+    const changedFields: Record<string, any> = {};
 
     for (const key in currentFormValues) {
       if (Object.prototype.hasOwnProperty.call(currentFormValues, key)) {
-        if (currentFormValues[key] !== initialFormValues[key]) {
+        const currentValue = currentFormValues[key];
+        const initialValue = initialFormValues[key];
+
+        if (currentValue !== initialValue) {
           // Convert boolean values to 1 (true) or 0 (false)
-          // const value = currentFormValues[key] === true ? 0 : (currentFormValues[key] === false ? 1 : currentFormValues[key]);
-          changedFields[key] = currentFormValues[key];
+          changedFields[key] = typeof currentValue === 'boolean' ? (currentValue ? 1 : 0) : currentValue;
         }
       }
     }
@@ -191,9 +195,9 @@ export class FormConfigComponent implements OnInit, OnDestroy {
         const valueUpdate = changedFields[key];
         const arr = { item: key, value: String(valueUpdate) };
 
-        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe((result) => {
+        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe(() => {
           this.uicService.onUpdatingCheck(key);
-          this.alert.okAlert('Saved', key);
+          this.alert.showSuccessMessage(`Saved ${key}`);
 
           // Delay showing the next alert by 2000 milliseconds (2 seconds)
           setTimeout(() => {

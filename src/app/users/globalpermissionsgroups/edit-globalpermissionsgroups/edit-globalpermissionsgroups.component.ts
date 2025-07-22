@@ -126,7 +126,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
       const onSubmitSubscription$ = this.gs
         .update(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, this.updateForm.value)
         .subscribe(() => {
-          this.alert.okAlert('Global Permission Group saved!', '');
+          this.alert.showSuccessMessage('Global Permission Group saved');
           this.processing = false;
         });
       this.unsubscribeService.add(onSubmitSubscription$);

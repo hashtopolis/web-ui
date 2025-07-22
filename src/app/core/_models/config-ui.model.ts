@@ -25,11 +25,13 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
-import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
+import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
+
+import { AgentErrorTableCol } from '../_components/tables/agent-error-table/agent-error-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -171,6 +173,25 @@ export const uiConfigDefault: UIConfig = {
       ],
       order: {
         id: AgentsTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    agentErrorTable: {
+      start: 0,
+      page: 25,
+      columns: [
+        AgentErrorTableCol.ID,
+        AgentErrorTableCol.TIME,
+        AgentErrorTableCol.TASK_ID,
+        AgentErrorTableCol.TASK,
+        AgentErrorTableCol.CHUNK,
+        AgentErrorTableCol.MESSAGE
+      ],
+      order: {
+        id: AgentErrorTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'
@@ -326,6 +347,18 @@ export const uiConfigDefault: UIConfig = {
         FilesTableCol.LINE_COUNT,
         FilesTableCol.ACCESS_GROUP
       ],
+      order: {
+        id: FilesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    filesTableInPreTasks: {
+      start: 0,
+      page: 25,
+      columns: [FilesTableCol.ID, FilesTableCol.NAME, FilesTableCol.SIZE, FilesTableCol.LINE_COUNT],
       order: {
         id: FilesTableCol.ID,
         dataKey: '',
@@ -595,7 +628,12 @@ export const uiConfigDefault: UIConfig = {
     searchHashTable: {
       start: undefined,
       page: 25,
-      columns: [SearchHashTableCol.HASH, SearchHashTableCol.PLAINTEXT, SearchHashTableCol.INFO],
+      columns: [
+        SearchHashTableCol.HASH,
+        SearchHashTableCol.PLAINTEXT,
+        SearchHashTableCol.HASHLIST,
+        SearchHashTableCol.INFO
+      ],
       order: {
         id: SearchHashTableCol.HASH,
         dataKey: '',

@@ -1,20 +1,17 @@
-import { FormControl, FormGroup } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
-import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
+import { Setting, dateFormats, layouts, themes } from 'src/app/core/_constants/settings.config';
 import { UIConfig } from 'src/app/core/_models/config-ui.model';
-import {
-  Setting,
-  dateFormats,
-  layouts,
-  themes
-} from 'src/app/core/_constants/settings.config';
+import { LocalStorageService } from 'src/app/core/_services/storage/local-storage.service';
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
-import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { AlertService } from '@services/shared/alert.service';
 
 @Component({
-    selector: 'app-ui-settings',
-    templateUrl: './ui-settings.component.html',
-    standalone: false
+  selector: 'app-ui-settings',
+  templateUrl: './ui-settings.component.html',
+  standalone: false
 })
 export class UiSettingsComponent implements OnInit {
   form!: FormGroup;
@@ -31,7 +28,7 @@ export class UiSettingsComponent implements OnInit {
 
   constructor(
     private service: LocalStorageService<UIConfig>,
-    private snackBar: MatSnackBar
+    private alertService: AlertService
   ) {
     this.initForm();
   }
@@ -64,10 +61,9 @@ export class UiSettingsComponent implements OnInit {
     }, 800);
 
     const changedValues = this.util.updateSettings(this.form.value);
-    const message =
-      changedValues > 0 ? 'Reloading settings ...' : 'No changes were saved';
+    const message = changedValues > 0 ? 'Reloading settings ...' : 'No changes were saved';
 
-    this.snackBar.open(message, 'Close');
+    this.alertService.showInfoMessage(message);
     this.isUpdatingLoading = false;
   }
 }

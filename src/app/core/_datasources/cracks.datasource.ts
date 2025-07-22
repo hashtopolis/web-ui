@@ -20,18 +20,7 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     this.loading = true;
     try {
       const crackedHashes = await this.loadCrackedHashes();
-
-      const rows: JHash[] = await Promise.all(
-        crackedHashes
-          .filter((element) => element.chunk)
-          .map(async (crackedHash) => {
-            const task = await this.loadTask(crackedHash.chunk.taskId);
-            crackedHash.chunk.taskName = task.taskName;
-            return crackedHash;
-          })
-      );
-
-      this.setData(rows);
+      this.setData(crackedHashes);
     } catch (error) {
       console.error('Error loading data', error);
     } finally {
@@ -59,8 +48,8 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     const length = response.meta.page.total_elements;
     const nextLink = response.links.next;
     const prevLink = response.links.prev;
-    const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-    const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+    const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
+    const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
 
     this.setPaginationConfig(
       this.pageSize,

@@ -6,10 +6,11 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-  [hasBulkActions]="false"
-  [hasRowAction]="false"
+
+
   [isFilterable]="true"
-  [filterFn]="filter"
-  [isPageable]="true"
+  [filterFn]="filter.bind(this)"
+  [isPageable]="false"
   (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
 />

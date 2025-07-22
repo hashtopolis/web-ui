@@ -1,14 +1,14 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JSuperTask } from '@models/supertask.model';
 
+import { SuperTaskContextMenuService } from '@services/context-menu/tasks/supertask-menu.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -31,12 +31,14 @@ import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks
 export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new SuperTasksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new SuperTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new SuperTaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -47,7 +49,23 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   }
 
   filter(item: JSuperTask, filterValue: string): boolean {
-    return item.supertaskName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.supertaskName.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'supertaskName': {
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        return item.supertaskName?.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -56,6 +74,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         id: SupertasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {
@@ -63,6 +82,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         dataKey: 'supertaskName',
         routerLink: (supertask: JSuperTask) => this.renderSupertaskLink(supertask),
         isSortable: true,
+        isSearchable: true,
         export: async (supertask: JSuperTask) => supertask.supertaskName
       },
       {
@@ -100,31 +120,12 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JSuperTask[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JSuperTask>(
-          'hashtopolis-supertasks',
-          this.tableColumns,
-          event.data,
-          SupertasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JSuperTask>(
-          'hashtopolis-supertasks',
-          this.tableColumns,
-          event.data,
-          SupertasksTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JSuperTask>(this.tableColumns, event.data, SupertasksTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JSuperTask>(
+      event,
+      this.tableColumns,
+      SupertasksTableColumnLabel,
+      'hashtopolis-supertasks'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JSuperTask>): void {
@@ -171,8 +172,8 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
    * @todo Implement error handling.
    */
   private bulkActionDelete(supertask: JSuperTask[]): void {
-    this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe((results) => {
-      this.snackBar.open(`Successfully deleted supertasks!`, 'Close');
+    this.gs.bulkDelete(SERV.SUPER_TASKS, supertask).subscribe(() => {
+      this.alertService.showSuccessMessage(`Successfully deleted supertasks!`);
       this.dataSource.reload();
     });
   }
@@ -191,7 +192,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted supertask!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted supertask!');
           this.reload();
         })
     );

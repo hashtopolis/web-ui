@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Observable, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -6,7 +5,6 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { JHealthCheckAgent } from '@models/health-check.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HealthCheckAgentsTableCol,
@@ -20,7 +18,7 @@ import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.da
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
-  selector: 'health-check-agents-table',
+  selector: 'app-health-check-agents-table',
   templateUrl: './health-check-agents-table.component.html',
   standalone: false
 })
@@ -33,7 +31,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   ngOnInit(): void {
     this.setColumnLabels(HealthCheckAgentsTableColColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new HealthCheckAgentsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new HealthCheckAgentsDataSource(this.injector);
     if (this.healthCheckId) {
       this.dataSource.setHealthCheckId(this.healthCheckId);
     }
@@ -99,31 +97,12 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JHealthCheckAgent[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JHealthCheckAgent>(
-          'hashtopolis-health-checks-view',
-          this.tableColumns,
-          event.data,
-          HealthCheckAgentsTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JHealthCheckAgent>(
-          'hashtopolis-health-checks-view',
-          this.tableColumns,
-          event.data,
-          HealthCheckAgentsTableColColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JHealthCheckAgent>(this.tableColumns, event.data, HealthCheckAgentsTableColColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JHealthCheckAgent>(
+      event,
+      this.tableColumns,
+      HealthCheckAgentsTableColColumnLabel,
+      'hashtopolis-health-checks-view'
+    );
   }
 
   /**

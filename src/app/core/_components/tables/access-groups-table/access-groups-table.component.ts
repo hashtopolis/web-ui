@@ -1,15 +1,14 @@
-import { catchError, forkJoin } from 'rxjs';
+import { catchError } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAccessGroup } from '@models/access-group.model';
 
+import { AccessGroupsContextMenuService } from '@services/context-menu/users/access-groups-menu.service';
 import { SERV } from '@services/main.config';
-import { LruCacheService } from '@services/shared/lru-cache.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsTableCol,
@@ -30,12 +29,14 @@ import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.contextMenuService = new AccessGroupsContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -43,19 +44,35 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-    LruCacheService.getInstance().clear();
   }
 
   filter(item: JAccessGroup, filterValue: string): boolean {
-    return item.groupName.toLowerCase().includes(filterValue);
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return item.id.toString().includes(filterValue) || item.groupName?.toLowerCase().includes(filterValue);
+      }
+      case 'id': {
+        return item.id.toString().includes(filterValue);
+      }
+      case 'groupName': {
+        return item.groupName?.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.groupName?.toLowerCase().includes(filterValue);
+    }
   }
-
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
+        isSearchable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {
@@ -63,6 +80,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'groupName',
         routerLink: (accessGroup: JAccessGroup) => this.renderAccessGroupLink(accessGroup),
         isSortable: true,
+        isSearchable: true,
         export: async (accessGroup: JAccessGroup) => accessGroup.groupName
       },
       {
@@ -111,40 +129,12 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   // --- Action functions ---
 
   exportActionClicked(event: ActionMenuEvent<JAccessGroup[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService
-          .toExcel<JAccessGroup>(
-            'hashtopolis-access-groups',
-            this.tableColumns,
-            event.data,
-            AccessGroupsTableColumnLabel
-          )
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows were saved as Excel file, please check the download folder of your browser',
-              'Close'
-            );
-          });
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService
-          .toCsv<JAccessGroup>('hashtopolis-access-groups', this.tableColumns, event.data, AccessGroupsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open(
-              'The selected rows were saved as CSV file, please check the download folder of your browser',
-              'Close'
-            );
-          });
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JAccessGroup>(this.tableColumns, event.data, AccessGroupsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JAccessGroup>(
+      event,
+      this.tableColumns,
+      AccessGroupsTableColumnLabel,
+      'hashtopolis-access-groups'
+    );
   }
 
   rowActionClicked(event: ActionMenuEvent<JAccessGroup>): void {
@@ -186,15 +176,18 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
    */
   private bulkActionDelete(accessGroups: JAccessGroup[]): void {
     this.subscriptions.push(
-      this.gs.bulkDelete(SERV.ACCESS_GROUPS, accessGroups).pipe(
-        catchError((error) => {
-          console.error('Error during deletion: ', error);
-          return [];
+      this.gs
+        .bulkDelete(SERV.ACCESS_GROUPS, accessGroups)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted accessgroups!`);
+          this.dataSource.reload();
         })
-      ).subscribe((results) => {
-        this.snackBar.open(`Successfully deleted accessgroups!`, 'Close');
-        this.dataSource.reload();
-      })
     );
   }
 
@@ -212,7 +205,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
           })
         )
         .subscribe(() => {
-          this.snackBar.open('Successfully deleted accessGroup!', 'Close');
+          this.alertService.showSuccessMessage('Successfully deleted accessGroup!');
           this.reload();
         })
     );

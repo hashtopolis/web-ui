@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { CoreComponentsModule } from '@components/core-components.module';
+import { AgentStatGraphComponent } from '@src/app/shared/graphs/echarts/agent-stat-graph/agent-stat-graph.component';
 
 import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
 import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.component';
@@ -42,7 +43,8 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     RouterModule,
     FormsModule,
     PipesModule,
-    NgbModule
+    NgbModule,
+    AgentStatGraphComponent
   ]
 })
 export class AgentsModule {}

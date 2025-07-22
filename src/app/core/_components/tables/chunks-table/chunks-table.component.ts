@@ -3,6 +3,8 @@ import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
 
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
+
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -25,16 +27,45 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
 
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new ChunksDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new ChunksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.agentId) {
       this.dataSource.setAgentId(this.agentId);
     }
+    this.contextMenuService = new ChunkContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+  }
+  filter(item: JChunk, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
+    const selectedColumn = this.selectedFilterColumn;
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.taskName.toLowerCase().includes(filterValue) ||
+          item.agentName.toLowerCase().includes(filterValue)
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'taskName': {
+        return item.taskName.toLowerCase().includes(filterValue);
+      }
+      case 'agentName': {
+        return item.agentName.toLowerCase().includes(filterValue);
+      }
+      default:
+        // Default fallback to task name
+        return item.agentName.toLowerCase().includes(filterValue);
+    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -42,6 +73,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.ID,
         dataKey: 'id',
+        isSearchable: true,
         isSortable: true
       },
       {
@@ -72,13 +104,15 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: ChunksTableCol.DISPATCH_TIME,
@@ -107,7 +141,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       {
         id: ChunksTableCol.CRACKED,
         dataKey: 'cracked',
-        routerLink: (chunk: JChunk) => this.renderCrackedLink(chunk),
+        routerLink: (chunk: JChunk) => this.renderCrackedLinkFromChunk(chunk),
         isSortable: true
       }
     ];

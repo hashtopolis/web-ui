@@ -8,6 +8,7 @@ import { AccessPermissionGroupsUserTableComponent } from '@components/tables/acc
 import { AccessPermissionGroupsUsersTableComponent } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.component';
 import { ActionMenuComponent } from '@components/menus/action-menu/action-menu.component';
 import { AgentBinariesTableComponent } from '@components/tables/agent-binaries-table/agent-binaries-table.component';
+import { AgentErrorTableComponent } from '@components/tables/agent-error-table/agent-error-table.component';
 import { AgentsStatusTableComponent } from '@components/tables/agents-status-table/agents-status-table.component';
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
@@ -16,6 +17,7 @@ import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk
 import { ChunksTableComponent } from '@components/tables/chunks-table/chunks-table.component';
 import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import { CommonModule } from '@angular/common';
+import { ConfirmDialogComponent } from '@components/confirm-dialog/confirm-dialog.component';
 import { CrackersTableComponent } from '@components/tables/crackers-table/crackers-table.component';
 import { CracksTableComponent } from '@components/tables/cracks-table/cracks-table.component';
 import { ExportMenuComponent } from '@components/menus/export-menu/export-menu.component';
@@ -87,6 +89,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     ColumnSelectionDialogComponent,
     AgentsTableComponent,
     AgentsStatusTableComponent,
+    AgentErrorTableComponent,
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
@@ -117,7 +120,8 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     TasksTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
-    CracksTableComponent
+    CracksTableComponent,
+    ConfirmDialogComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -161,6 +165,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     ExportMenuComponent,
     AgentsTableComponent,
     AgentsStatusTableComponent,
+    AgentErrorTableComponent,
     ChunksTableComponent,
     HashlistsTableComponent,
     HashesTableComponent,
@@ -191,7 +196,8 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     TasksTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
-    CracksTableComponent
+    CracksTableComponent,
+    ConfirmDialogComponent
   ],
   providers: [
     {

@@ -12,7 +12,6 @@ import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-servic
 import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
-import { faThumbTackSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Injectable({
   providedIn: 'root'
@@ -119,6 +118,34 @@ export class GlobalService {
   }
 
   /**
+   * Download a file from the backend
+   * @param serviceConfig Service config for the requested endpoint (URL and resource type)
+   * @param id            ID of file to get
+   * @param filename      Filname to use for the downloaded file
+   */
+  getFile(serviceConfig: ServiceConfig, id: number, filename: string): void {
+    this.http.get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, { responseType: 'blob' }).subscribe({
+      next: (response: Blob) => {
+        // Generate Blob-URL
+        const blob = new Blob([response], { type: response.type });
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a temporary ‘a’ element for download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+
+        // Release the URL of the blob again
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Fehler beim Download der Datei:', error);
+      }
+    });
+  }
+
+  /**
    * Create an object
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param item          Data of item to create
@@ -152,20 +179,20 @@ export class GlobalService {
   }
 
   bulkDelete(serviceConfig: ServiceConfig, objects: any): Observable<any> {
-    let objectdata = []
+    const objectdata = [];
 
-    for(var object of objects) {
-      objectdata.push({"id": object.id, "type": serviceConfig.RESOURCE});
+    for (const object of objects) {
+      objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
-    let data = {data: objectdata};
-    return this.http.delete<number>(this.cs.getEndpoint() + serviceConfig.URL, {body: data}).pipe(debounceTime(2000))
+    const data = { data: objectdata };
+    return this.http.delete<number>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
   }
 
   /**
    * Update element information
+   * @param serviceConfig
    * @param id - element id
    * @param arr - fields to be updated
-   * @param type resource type (json:api standard)
    * @returns Object
    **/
   update(serviceConfig: ServiceConfig, id: number, arr: any): Observable<any> {
@@ -181,45 +208,33 @@ export class GlobalService {
      * @param objects the objects that needs to be updated
      * @param attributes the attributes that needs to be changed
      */
-    let objectdata = []
+    const objectdata = [];
 
-    for(var object of objects) {
-      objectdata.push({"id": object.id, "type": serviceConfig.RESOURCE, "attributes": attributes});
+    for (const object of objects) {
+      objectdata.push({ id: object.id, type: serviceConfig.RESOURCE, attributes: attributes });
     }
-    let data = {data: objectdata};
-    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000))
-  }
-
-  /**
-   * Update a Relationship
-   * @param serviceConfig - Serviceconfig
-   * @param id - element id
-   * @param relType - type of the Relationship
-   * @param data  - fields to be updated
-   * @returns Object
-   **/
-  updateRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
-    return this.http
-      .patch<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-      .pipe(debounceTime(2000));
+    const data = { data: objectdata };
+    return this.http.patch<number>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
   }
 
   postRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
     return this.http
-    .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-    .pipe(debounceTime(2000));
+      .post<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .pipe(debounceTime(2000));
   }
 
   deleteRelationships(serviceConfig: ServiceConfig, id: number, relType: string, data: any): Observable<any> {
     return this.http
-      .delete<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {body: data})
+      .delete<number>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
+        body: data
+      })
       .pipe(debounceTime(2000));
   }
 
   /**
    * Update agent information
+   * @param serviceConfig the serviceconfig of the API endpoint
    * @param id - agent id
-   * @param arr - fields to be updated
    * @returns Object
    **/
   archive(serviceConfig: ServiceConfig, id: number): Observable<any> {
@@ -227,7 +242,17 @@ export class GlobalService {
   }
 
   /**
+   * Helper get function
+   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param option        Method used, i.e. getUserPermission
+   */
+  ghelper(serviceConfig: ServiceConfig, option: string): Observable<any> {
+    return this.http.get(this.cs.getEndpoint() + serviceConfig.URL + '/' + option);
+  }
+
+  /**
    * Helper Create function
+   * @param serviceConfig the serviceconfig of the API endpoint
    * @param option - method used. ie. /abort /reset /importFile
    * @param arr - fields to be updated
    * @returns Object
@@ -238,6 +263,7 @@ export class GlobalService {
 
   /**
    * Helper Update function
+   * @param serviceConfig the serviceconfig of the API endpoint
    * @param option - method used. ie. /abort /reset /importFile
    * @param arr - fields to be updated
    * @returns Object

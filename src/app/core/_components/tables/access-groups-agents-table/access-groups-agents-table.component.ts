@@ -1,22 +1,24 @@
 import { catchError } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+
+import { AccessGroupsAgentContextMenuService } from '@services/context-menu/users/access-groups-agent-menu.service';
+
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 
 import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ExportMenuAction } from '@src/app/core/_components/menus/export-menu/export-menu.constants';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsAgentsTableCol,
   AccessGroupsAgentsTableColumnLabel
 } from '@src/app/core/_components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
+import { HTTableColumn } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { AccessGroupsExpandDataSource } from '@src/app/core/_datasources/access-groups-expand.datasource';
 import { JAgent } from '@src/app/core/_models/agent.model';
-import { SERV } from '@src/app/core/_services/main.config';
+import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
 
 @Component({
   selector: 'app-access-groups-agents-table',
@@ -25,6 +27,7 @@ import { SERV } from '@src/app/core/_services/main.config';
 })
 export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() accessgroupId = 0;
+  @Output() agentsRemoved = new EventEmitter<void>(); // Event to notify parent about removed agent(s)
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsExpandDataSource;
@@ -33,12 +36,13 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsAgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accessgroupId) {
       this.dataSource.setAccessGroupId(this.accessgroupId);
       this.dataSource.setAccessGroupExpand(this.include);
     }
+    this.contextMenuService = new AccessGroupsAgentContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
 
@@ -80,143 +84,88 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     this.subscriptions.push(
       dialogRef.afterClosed().subscribe((result) => {
         if (result && result.action) {
-          switch (result.action) {
-            case RowActionMenuAction.DELETE:
-              this.rowActionDelete(result.data);
-              break;
-            case BulkActionMenuAction.DELETE:
-              this.bulkActionUnassign(result.data);
-              break;
-          }
+          this.bulkActionUnassign(result.data);
         }
       })
     );
   }
 
   // --- Action functions ---
-
   exportActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JAgent>(
-          'hashtopolis-access-groups-agents',
-          this.tableColumns,
-          event.data,
-          AccessGroupsAgentsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JAgent>(
-          'hashtopolis-access-groups-agents',
-          this.tableColumns,
-          event.data,
-          AccessGroupsAgentsTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JAgent>(this.tableColumns, event.data, AccessGroupsAgentsTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
-  }
-
-  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
-    switch (event.menuItem.action) {
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
-      case RowActionMenuAction.DELETE:
-        this.openDialog({
-          rows: [event.data],
-          title: `Deleting Agent Access Group ${event.data.agentName} ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete it? Note that this action cannot be undone.`,
-          warn: true,
-          action: event.menuItem.action
-        });
-        break;
-    }
+    this.exportService.handleExportAction<JAgent>(
+      event,
+      this.tableColumns,
+      AccessGroupsAgentsTableColumnLabel,
+      'hashtopolis-access-groups-agents'
+    );
   }
 
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    switch (event.menuItem.action) {
-      case BulkActionMenuAction.DELETE:
-        this.openDialog({
-          rows: event.data,
-          title: `Deleting ${event.data.length} access group agent ...`,
-          icon: 'warning',
-          body: `Are you sure you want to delete the above pretasks? Note that this action cannot be undone.`,
-          warn: true,
-          listAttribute: 'agentName',
-          action: event.menuItem.action
-        });
-        break;
+    // Prepare dialog data
+    const dialogData: DialogData<JAgent> = {
+      rows: event.data,
+      title: `Remove ${event.data.length} access group agent${event.data.length > 1 ? 's' : ''} ...`,
+      icon: 'warning',
+      body: `Are you sure you want to remove the above agent${event.data.length > 1 ? 's' : ''} from the access group?`,
+      warn: true,
+      listAttribute: 'agentName',
+      action: BulkActionMenuAction.DELETE
+    };
+
+    // Open confirmation dialog
+    this.openDialog(dialogData);
+  }
+
+  rowActionClicked(event: ActionMenuEvent<JAgent>): void {
+    if (event.menuItem.action === RowActionMenuAction.DELETE) {
+      this.openDialog({
+        rows: [event.data],
+        title: `Remove agent from access group`,
+        icon: 'warning',
+        body: `Are you sure you want to remove "${event.data.agentName}" from this access group?`,
+        warn: true,
+        action: event.menuItem.action
+      });
     }
   }
 
   /**
-   * Unasssign Users
+   * Remove agents from access group
    */
   private bulkActionUnassign(agents: JAgent[]): void {
     //Get the IDs of agents
     const agentIdsToDelete = agents.map((agents) => agents.id);
-    //Remove the selected agents from the list
-    const updatedPretasks = this.dataSource.getData().filter((agents) => !agentIdsToDelete.includes(agents.id));
-    //Update the supertask with the modified list of pretasks
+
     const payload = {
-      userMembers: updatedPretasks.map((agents) => agents.id)
+      data: agentIdsToDelete.map((id) => {
+        return { type: RelationshipType.AGENTMEMBER, id: id };
+      })
     };
-    //Update the supertask with the new list of pretasks
-    const updateRequest = this.gs.update(SERV.ACCESS_GROUPS, this.accessgroupId, payload);
+
+    // Remove the agents from the access group
+    const removeRequest = this.gs.deleteRelationships(
+      SERV.ACCESS_GROUPS,
+      this.accessgroupId,
+      RelationshipType.AGENTMEMBER,
+      payload
+    );
     this.subscriptions.push(
-      updateRequest
+      removeRequest
         .pipe(
           catchError((error) => {
-            console.error('Error during deletion:', error);
+            const msg = 'Error while removing agents from access group';
+            console.error(`${msg}: `, error);
+            this.alertService.showErrorMessage(msg);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(`Successfully unassigned ${agents.length} users!`, 'Close');
+          this.agentsRemoved.emit();
+          this.alertService.showSuccessMessage(
+            `Successfully removed ${agents.length} agent${agents.length > 1 ? 's' : ''} from this group`
+          );
           this.reload();
         })
     );
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionDelete(agents: JAgent[]): void {
-    //Get the IDs of agents to be deleted
-    const agentIdsToDelete = agents.map((agents) => agents.id);
-    //Remove the selected agents from access groups
-    const updatedAccessGroups = this.dataSource
-      .getData()
-      .filter((accessGroup) => !agentIdsToDelete.includes(accessGroup.id));
-    //Update the accessGroup with the updated list of agents
-    const payload = { agents: updatedAccessGroups.map((accessGroup) => accessGroup.id) };
-    this.subscriptions.push(
-      this.gs
-        .update(SERV.ACCESS_GROUPS, this.accessgroupId, payload)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.snackBar.open('Successfully unassigned agents!', 'Close');
-          this.reload();
-        })
-    );
-  }
-
-  private rowActionEdit(agent: JAgent): void {
-    this.renderUserLinkFromAgent(agent).subscribe((links: HTTableRouterLink[]) => {
-      this.router.navigate(links[0].routerLink).then(() => {});
-    });
   }
 }

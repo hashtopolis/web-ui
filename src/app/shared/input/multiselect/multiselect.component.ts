@@ -93,9 +93,21 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
    */
   onChangeValue(value): void {
     if (!this.multiselectEnabled) {
-      this.value = Array.isArray(value) ? extractIds(value, 'id')[0] : extractIds(value, 'id')[0];
+      if (Array.isArray(value)) {
+        this.value = extractIds(value, 'id')[0];
+      } else if (value) {
+        this.value = extractIds([value], 'id')[0]; // wrap in array
+      } else {
+        this.value = null; // or handle empty case
+      }
     } else {
-      this.value = Array.isArray(value) ? extractIds(value, 'id') : extractIds(value, 'id');
+      if (Array.isArray(value)) {
+        this.value = extractIds(value, 'id');
+      } else if (value) {
+        this.value = extractIds([value], 'id');
+      } else {
+        this.value = [];
+      }
     }
 
     this.onChange(this.value);
@@ -201,6 +213,17 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
   }
 
   /**
+   * Utility to escape HTML entities
+   * @param text
+   * @returns sanitized Text
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
+  }
+
+  /**
    * Updates the provided string by highlighting the matching term.
    *
    * @param {string} value - The original string to be highlighted.
@@ -209,21 +232,15 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
    */
   public updateHighlightedValue(value: string, term: string): SafeHtml {
     if (typeof term === 'string' && typeof value === 'string') {
-      const lowerValue = value.toLowerCase();
-      const lowerTerm = term.toLowerCase();
+      const escapedValue = this.escapeHtml(value);
+      const escapedTerm = this.escapeHtml(term);
 
-      const index = lowerValue.indexOf(lowerTerm);
+      const regex = new RegExp(`(${escapedTerm})`, 'ig');
+      const highlighted = escapedValue.replace(regex, '<span class="highlight-text">$1</span>');
 
-      if (index >= 0) {
-        const highlightedValue =
-          value.substring(0, index) +
-          `<span class="highlight-text">${value.substring(index, term.length)}</span>` +
-          value.substring(index + term.length);
-
-        return this.sanitizer.bypassSecurityTrustHtml(highlightedValue);
-      }
+      return this.sanitizer.bypassSecurityTrustHtml(highlighted);
     }
 
-    return this.sanitizer.bypassSecurityTrustHtml(value);
+    return this.sanitizer.bypassSecurityTrustHtml(this.escapeHtml(value));
   }
 }

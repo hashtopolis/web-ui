@@ -8,7 +8,6 @@ import { UserPermissions } from '@models/global-permission-group.model';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import {
   APGUTableEditableAction,
   AccessPermissionGroupsUserTableCol,
@@ -35,7 +34,7 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUserTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
@@ -120,31 +119,12 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<UserPermissions[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        void this.exportService.toExcel<UserPermissions>(
-          'hashtopolis-access-permission-groups-user',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUserTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        void this.exportService.toCsv<UserPermissions>(
-          'hashtopolis-access-permission-groups-user',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUserTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<UserPermissions>(this.tableColumns, event.data, AccessPermissionGroupsUserTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<UserPermissions>(
+      event,
+      this.tableColumns,
+      AccessPermissionGroupsUserTableColumnLabel,
+      'hashtopolis-access-permission-groups-user'
+    );
   }
 
   /**
@@ -176,15 +156,14 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       request$
         .pipe(
           catchError((error) => {
-            this.snackBar.open(`Failed to update permission!`, 'Close');
+            this.alertService.showErrorMessage(`Failed to update permission!`);
             console.error('Failed to update permission:', error);
             return [];
           })
         )
         .subscribe(() => {
-          this.snackBar.open(
-            `Changed permistion in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`,
-            'Close'
+          this.alertService.showSuccessMessage(
+            `Changed permistion in ${capitalizedPerm} on Permission Group #${this.accesspermgroupId}!`
           );
           this.reload();
         })

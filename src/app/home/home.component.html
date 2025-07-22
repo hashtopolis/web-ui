@@ -16,7 +16,12 @@
             <mat-icon>dns</mat-icon>
           </div>
           <h3>Agents</h3>
-          <span class="value">{{ activeAgents.toLocaleString() }} / {{ totalAgents.toLocaleString() }}</span>
+          <span *ngIf="canReadAgents; else noPermAgents" class="value">
+            {{ activeAgents.toLocaleString() }} / {{ totalAgents.toLocaleString() }}
+          </span>
+          <ng-template #noPermAgents>
+            <span class="no-permission">No permission</span>
+          </ng-template>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Active / Total Agents
@@ -24,6 +29,7 @@
         </mat-card-content>
       </mat-card>
     </div>
+
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
@@ -31,7 +37,12 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Tasks</h3>
-          <span class="value">{{ completedTasks.toLocaleString() }} / {{ totalTasks.toLocaleString() }} </span>
+          <span *ngIf="canReadTasks; else noPermTasks" class="value">
+            {{ completedTasks.toLocaleString() }} / {{ totalTasks.toLocaleString() }}
+          </span>
+          <ng-template #noPermTasks>
+            <span class="no-permission">No permission</span>
+          </ng-template>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Tasks
@@ -39,6 +50,7 @@
         </mat-card-content>
       </mat-card>
     </div>
+
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
@@ -46,7 +58,12 @@
             <mat-icon>checklist</mat-icon>
           </div>
           <h3>Supertasks</h3>
-          <span class="value">{{ completedSupertasks.toLocaleString() }} /  {{ totalSupertasks.toLocaleString() }}</span>
+          <span *ngIf="canReadTasks; else noPermSupertasks" class="value">
+            {{ completedSupertasks.toLocaleString() }} / {{ totalSupertasks.toLocaleString() }}
+          </span>
+          <ng-template #noPermSupertasks>
+            <span class="no-permission">No permission</span>
+          </ng-template>
           <span class="label">
             <mat-icon>check_circle</mat-icon>
             Completed / Total Supertasks
@@ -54,6 +71,7 @@
         </mat-card-content>
       </mat-card>
     </div>
+
     <div class="co co-25">
       <mat-card class="mat-card-box">
         <mat-card-content>
@@ -61,7 +79,12 @@
             <mat-icon>lock_open</mat-icon>
           </div>
           <h3>Cracks</h3>
-          <span class="value">{{ totalCracks.toLocaleString() }}</span>
+          <span *ngIf="canReadCracks; else noPermCracks" class="value">
+            {{ totalCracks.toLocaleString() }}
+          </span>
+          <ng-template #noPermCracks>
+            <span class="no-permission">No permission</span>
+          </ng-template>
           <span class="label">
             <mat-icon>event_available</mat-icon>
             Last 7 days
@@ -70,6 +93,7 @@
       </mat-card>
     </div>
   </div>
+
   <div
     [ngClass]="{
       'ro-2': true,
@@ -81,25 +105,28 @@
     }"
   >
     <div class="co co-100">
-      <div id="pcard" class="app-echarts" style="height: 250px"></div>
+      <div class="app-echarts" style="height: 250px;">
+        <ng-container *ngIf="canReadCracks; else noPermChart">
+          <app-heatmap-chart
+            *ngIf="heatmapData?.length"
+            [data]="heatmapData"
+            [isDarkMode]="isDarkMode"
+          ></app-heatmap-chart>
 
+        </ng-container>
+        <ng-template #noPermChart>
+          <span class="no-permission">No permission to view chart data</span>
+        </ng-template>
+      </div>
       <div class="chart-controls">
         <span *ngIf="lastUpdated">Last updated: {{ lastUpdated }}</span>
         <ng-container *ngIf="!refreshPage">
-          <button
-            mat-button
-            (click)="setAutoreload(true)"
-            matTooltip="Enable Auto Reload"
-          >
+          <button mat-button (click)="setAutoreload(true)" matTooltip="Enable Auto Reload">
             <mat-icon>refresh</mat-icon>
           </button>
         </ng-container>
         <ng-container *ngIf="refreshPage">
-          <button
-            mat-button
-            (click)="setAutoreload(false)"
-            matTooltip="Pause Auto Reload"
-          >
+          <button mat-button (click)="setAutoreload(false)" matTooltip="Pause Auto Reload">
             <mat-icon>pause_circle_outline</mat-icon>
           </button>
         </ng-container>
@@ -121,24 +148,11 @@
       <mat-card class="project-info">
         <mat-card-content>
           Hashtopolis is available on
-          <a
-            href="https://github.com/hashtopolis"
-            target="_blank"
-            rel="noopener"
-            >Github</a
+          <a href="https://github.com/hashtopolis" target="_blank" rel="noopener">Github</a
           >. To get information about how to use it, please visit the
-          <a
-            href="https://github.com/hashtopolis/server/wiki"
-            target="_blank"
-            rel="noopener"
-            >Wiki</a
-          >
+          <a href="https://github.com/hashtopolis/server/wiki" target="_blank" rel="noopener">Wiki</a>
           or
-          <a
-            href="https://discord.com/invite/S2NTxbz"
-            target="_blank"
-            rel="noopener"
-            >Discord</a
+          <a href="https://discord.com/invite/S2NTxbz" target="_blank" rel="noopener">Discord</a
           >.
         </mat-card-content>
       </mat-card>

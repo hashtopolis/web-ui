@@ -5,7 +5,6 @@ import { JPretask } from '@models/pretask.model';
 import { JUser } from '@models/user.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { ExportMenuAction } from '@components/menus/export-menu/export-menu.constants';
 import {
   AccessPermissionGroupsUsersTableCol,
   AccessPermissionGroupsUsersTableColumnLabel
@@ -33,7 +32,7 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
   ngOnInit(): void {
     this.setColumnLabels(AccessPermissionGroupsUsersTableColumnLabel);
     this.tableColumns = this.getColumns();
-    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.cdr, this.gs, this.uiService);
+    this.dataSource = new AccessPermissionGroupsExpandDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.accesspermgroupId) {
       this.dataSource.setAccessPermGroupId(this.accesspermgroupId);
@@ -90,30 +89,11 @@ export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponen
 
   // --- Action functions ---
   exportActionClicked(event: ActionMenuEvent<JUser[]>): void {
-    switch (event.menuItem.action) {
-      case ExportMenuAction.EXCEL:
-        this.exportService.toExcel<JUser>(
-          'hashtopolis-access-permission-groups-users',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUsersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.CSV:
-        this.exportService.toCsv<JUser>(
-          'hashtopolis-access-permission-groups-users',
-          this.tableColumns,
-          event.data,
-          AccessPermissionGroupsUsersTableColumnLabel
-        );
-        break;
-      case ExportMenuAction.COPY:
-        this.exportService
-          .toClipboard<JUser>(this.tableColumns, event.data, AccessPermissionGroupsUsersTableColumnLabel)
-          .then(() => {
-            this.snackBar.open('The selected rows are copied to the clipboard', 'Close');
-          });
-        break;
-    }
+    this.exportService.handleExportAction<JUser>(
+      event,
+      this.tableColumns,
+      AccessPermissionGroupsUsersTableColumnLabel,
+      'hashtopolis-access-permission-groups-users'
+    );
   }
 }

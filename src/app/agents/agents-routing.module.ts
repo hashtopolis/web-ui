@@ -7,6 +7,7 @@ import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.
 import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
 import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
 import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckPerm } from '@src/app/core/_guards/permission.guard';
 
@@ -21,7 +22,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'agent-status',
           breadcrumb: 'Agent Status',
-          permission: 'Agent' //ToDo this one has Agent read and Agent Stats read
+          permission: Perm.AgentStat.READ
         },
         canActivate: [CheckPerm]
       },
@@ -31,7 +32,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'new-agent',
           breadcrumb: 'New Agent',
-          permission: 'Agent'
+          permission: Perm.Agent.CREATE
         },
         canActivate: [CheckPerm]
       },
@@ -41,7 +42,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'show-agents',
           breadcrumb: 'Show Agent',
-          permission: 'Agent'
+          permission: Perm.Agent.READ
         },
         canActivate: [CheckPerm]
       },
@@ -51,7 +52,7 @@ const routes: MyRoute[] = [
         data: {
           kind: 'edit-agent',
           breadcrumb: 'Edit Agent',
-          permission: 'Agent'
+          permission: Perm.Agent.READ
         },
         canActivate: [CheckPerm]
       }
