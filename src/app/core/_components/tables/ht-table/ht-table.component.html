@@ -151,10 +151,17 @@
     </ng-container>
 
     <!-- action column -->
-    <ng-container *ngIf="contextMenuService && contextMenuService.getHasContextMenu()" matColumnDef="{{ colRowAction }}">
+    <ng-container
+      *ngIf="contextMenuService && contextMenuService.getHasContextMenu()"
+      matColumnDef="{{ colRowAction }}"
+    >
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element" [class.text-right]="true">
-        <row-action-menu [data]="element" [contextMenuService]="contextMenuService" (menuItemClicked)="rowAction($event)"></row-action-menu>
+        <row-action-menu
+          [data]="element"
+          [contextMenuService]="contextMenuService"
+          (menuItemClicked)="rowAction($event)"
+        ></row-action-menu>
       </td>
     </ng-container>
 
@@ -198,29 +205,28 @@
             <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
           </ng-container>
           <span class="icon-actions">
-          @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
-                <button
-                  mat-icon-button
-                  color="primary"
-                  aria-label="Show full hash"
-                  (click)="showFullHashModalEmit(element)"
-                >
-                  <mat-icon>visibility</mat-icon>
-                </button>
-          }
-          @if (tableColumn.isCopy) {
-                <button
-                  (click)="copyRowDataEmit(element)"
-                  mat-icon-button
-                  color="primary"
-                  aria-label="Copy button"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-          }
+            @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
+              <button
+                mat-icon-button
+                color="primary"
+                aria-label="Show full hash"
+                (click)="showFullHashModalEmit(element)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+            }
+            @if (tableColumn.isCopy) {
+              <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            }
           </span>
           <ng-container *ngIf="!tableColumn.truncate">
-            <app-ht-table-link (linkClicked)="onLinkClicked();" [tableColumn]="tableColumn" [element]="element"></app-ht-table-link>
+            <app-ht-table-link
+              (linkClicked)="onLinkClicked()"
+              [tableColumn]="tableColumn"
+              [element]="element"
+            ></app-ht-table-link>
             <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable
               [tableColumn]="tableColumn"
@@ -243,16 +249,14 @@
               >{{ icon.name }}</mat-icon
             >
             <ng-template #iconTmpl>
-              <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{
-                icon.name
-              }}</mat-icon>
+              <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
             </ng-template>
           </ng-container>
         </div>
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="toggleSelect(row)"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     <tr class="mat-row" *matNoDataRow>
       <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
         <div *ngIf="dataSource.loading$ | async; else noData" class="spinner-table">
