@@ -271,6 +271,7 @@
       [pageSize]="dataSource.pageSize"
       [pageSizeOptions]="paginationSizes"
       [pageIndex]="dataSource.index"
+      [disabled]="dataSource.loading$ | async"
       (page)="onPageChange($event)"
     ></mat-paginator>
   </ng-container>
