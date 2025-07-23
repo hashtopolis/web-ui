@@ -1,3 +1,4 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
@@ -8,7 +9,8 @@ describe('NewCrackerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NewCrackerComponent]
+      imports: [NewCrackerComponent],
+      providers: [provideHttpClient()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(NewCrackerComponent);
