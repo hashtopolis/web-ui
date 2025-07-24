@@ -23,6 +23,7 @@
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit
+          data-testid="submit-button"
           appLoadingButton
           [loading]="loading"
           [name]="loading ? 'Processing...' : 'Create'"
