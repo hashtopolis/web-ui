@@ -27,9 +27,17 @@ describe('NewUserComponent', () => {
     data: [
       {
         id: '1',
-        type: 'globalPermissionGroup',
+        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
         attributes: {
-          name: 'Admin',
+          name: 'Default Group',
+          permissions: {}
+        }
+      },
+      {
+        id: '2',
+        type: SERV.ACCESS_PERMISSIONS_GROUPS.RESOURCE,
+        attributes: {
+          name: 'Custom Group',
           permissions: {}
         }
       }
@@ -73,7 +81,7 @@ describe('NewUserComponent', () => {
     tick();
 
     expect(mockGlobalService.getAll).toHaveBeenCalled();
-    expect(component.selectGlobalPermissionGroups.length).toBeGreaterThan(0);
+    expect(component.selectGlobalPermissionGroups.length).toBe(2);
     expect(component.loadingPermissionGroups).toBeFalse();
   }));
 
