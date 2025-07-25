@@ -46,7 +46,7 @@ export class UiSettingsComponent implements OnInit {
     });
   }
 
-  private updateForm(): void {
+  updateForm(): void {
     this.form.patchValue({
       timefmt: this.util.uiConfig.timefmt,
       layout: this.util.uiConfig.layout,
