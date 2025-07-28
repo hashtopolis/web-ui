@@ -222,9 +222,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
     this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
     this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
-    this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
-    this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
-    this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
 
     if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
@@ -253,22 +250,24 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     // Configure paginator and sorting
-    this.dataSource.paginator = this.matPaginator;
-    // Get saved Pagesize from local storage, otherwise use default value
-    // Get saved Pagesize from local storage, otherwise use default value
-    this.dataSource.pageSize = this.defaultPageSize;
-    // Get saved start page
-    this.dataSource.pageAfter = this.defaultStartPage;
-    // Get saved before page
-    this.dataSource.pageBefore = this.defaultBeforePage;
-    this.dataSource.index = this.defaultIndex;
-    this.dataSource.totalItems = this.defaultTotalItems;
+    if (this.isPageable) {
+      this.dataSource.paginator = this.matPaginator;
+      // Get saved Pagesize from local storage, otherwise use default value
+      // Get saved Pagesize from local storage, otherwise use default value
+      this.dataSource.pageSize = this.defaultPageSize;
+      // Get saved start page
+      this.dataSource.pageAfter = this.defaultStartPage;
+      // Get saved before page
+      this.dataSource.pageBefore = this.defaultBeforePage;
+      this.dataSource.index = this.defaultIndex;
+      this.dataSource.totalItems = this.defaultTotalItems;
 
-    this.dataSource.pageAfter = this.defaultStartPage;
-    // Get saved before page
-    this.dataSource.pageBefore = this.defaultBeforePage;
-    this.dataSource.index = this.defaultIndex;
-    this.dataSource.totalItems = this.defaultTotalItems;
+      this.dataSource.pageAfter = this.defaultStartPage;
+      // Get saved before page
+      this.dataSource.pageBefore = this.defaultBeforePage;
+      this.dataSource.index = this.defaultIndex;
+      this.dataSource.totalItems = this.defaultTotalItems;
+    }
 
     // Search item
     this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
