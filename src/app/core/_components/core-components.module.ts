@@ -65,6 +65,7 @@ import { SuperTasksPretasksTableComponent } from '@components/tables/supertasks-
 import { SuperTasksTableComponent } from '@components/tables/supertasks-table/supertasks-table.component';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { TableTruncateComponent } from '@components/tables/table-truncate/table-truncate.component';
+import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 import { TasksSupertasksTableComponent } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.component';
 import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.component';
@@ -118,6 +119,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksAgentsTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,
@@ -194,6 +196,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksAgentsTableComponent,
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,

@@ -6,6 +6,7 @@ import { AccessPermissionGroupsUsersTableCol } from '@components/tables/access-p
 import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
+import { TasksAgentsTableCol } from  '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
@@ -225,18 +226,18 @@ export const uiConfigDefault: UIConfig = {
       start: undefined,
       page: 25,
       columns: [
-        AgentsTableCol.ID,
-        AgentsTableCol.NAME,
-        AgentsTableCol.STATUS,
-        AgentsTableCol.TASK_SPEED,
-        AgentsTableCol.LAST_ACTIVITY,
-        AgentsTableCol.TIME_SPENT,
-        AgentsTableCol.BENCHMARK,
-        AgentsTableCol.CRACKED,
-        AgentsTableCol.SEARCHED
+        TasksAgentsTableCol.ID,
+        TasksAgentsTableCol.NAME,
+        TasksAgentsTableCol.STATUS,
+        TasksAgentsTableCol.TASK_SPEED,
+        TasksAgentsTableCol.LAST_ACTIVITY,
+        TasksAgentsTableCol.TIME_SPENT,
+        TasksAgentsTableCol.BENCHMARK,
+        TasksAgentsTableCol.CRACKED,
+        TasksAgentsTableCol.SEARCHED
       ],
       order: {
-        id: AgentsTableCol.ID,
+        id: TasksAgentsTableCol.ID,
         dataKey: '',
         isSortable: true,
         direction: 'asc'
