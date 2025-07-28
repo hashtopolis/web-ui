@@ -24,17 +24,12 @@
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
           <input-check title="Small Tasks" formControlName="isSmall"></input-check>
           <input-check title="CPU" formControlName="isCpuTask"></input-check>
-          <button
-            mat-icon-button
-            matTooltip="For every file selected in the iteration column it will create a subtask with having 'FILE' replaced with the actual file"
-            type="button"
-          >
-            <mat-icon color="primary">warning</mat-icon>
-          </button>
         </div>
         <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
         <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
-
+        <fixed-alert
+          message="For every file selected in the iteration column it will create a subtask with having 'FILE' replaced with the actual file"
+        ></fixed-alert>
         <grid-buttons>
           <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
           <button-submit [name]="'Create'"></button-submit>
@@ -42,7 +37,6 @@
             <mat-spinner diameter="24" color="accent"></mat-spinner>
           </div>
         </grid-buttons>
-        <fixed-alert message="For every file selected in the iteration column it will create a subtask with having 'FILE' replaced with the actual file"></fixed-alert>
       </form>
     </grid-main>
   </div>
