@@ -81,23 +81,6 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const serializer = new JsonAPISerializer();
             const responseData = { data: response.data, included: response.included };
             const tasks = serializer.deserialize<JTask>(responseData);
-            const length = response.meta.page.total_elements;
-
-            if (!this.editType) {
-
-              const nextLink = response.links.next;
-              const prevLink = response.links.prev;
-              const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-              const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
-
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                after,
-                before,
-                this.index
-              );
-            }
 
             this.setData(tasks.files);
           } else if (this.editType === 1) {
@@ -126,12 +109,18 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             const responseData = { data: response.data, included: response.included };
             const files = serializer.deserialize<JFile[]>(responseData);
 
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                this.pageAfter,
-                this.pageBefore,
-                this.index
+            const nextLink = response.links.next;
+            const prevLink = response.links.prev;
+            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+            const length = response.meta.page.total_elements;
+
+            this.setPaginationConfig(
+              this.pageSize,
+              length,
+              after,
+              before,
+              this.index
               );
             this.setData(files);
           }
