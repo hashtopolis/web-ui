@@ -106,12 +106,16 @@ export class HashesDataSource extends BaseDataSource<JHash> {
             });
 
             const length = response.meta.page.total_elements;
+            const nextLink = response.links.next;
+            const prevLink = response.links.prev;
+            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
 
             this.setPaginationConfig(
               this.pageSize,
               length,
-              this.pageAfter,
-              this.pageBefore,
+              after,
+              before,
               this.index
             );
             this.setData(hashes);
