@@ -159,7 +159,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         this.gs.update(SERV.USERS, this.gs.userId, this.form.value).subscribe(() => {
           this.alert.showSuccessMessage('User saved');
           this.isUpdatingLoading = false;
-          void this.router.navigate(['users/all-users']);
         })
       );
     }
