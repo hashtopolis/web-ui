@@ -20,7 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { Params, Router } from '@angular/router';
+import { Params } from '@angular/router';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -30,7 +30,6 @@ describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
-  let routerSpy: jasmine.SpyObj<Router>;
   let alertSpy: jasmine.SpyObj<AlertService>;
 
   const userResponse = {
@@ -53,7 +52,7 @@ describe('AccountSettingsComponent', () => {
     }
   };
 
-  // Your existing mockService
+  // Mock GlobalService
   const mockService: Partial<GlobalService> = {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     get(_serviceConfig, _id: number, _routerParams?: Params): Observable<any> {
@@ -78,7 +77,6 @@ describe('AccountSettingsComponent', () => {
   };
 
   beforeEach(() => {
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
     TestBed.configureTestingModule({
@@ -104,10 +102,6 @@ describe('AccountSettingsComponent', () => {
         {
           provide: GlobalService,
           useValue: mockService
-        },
-        {
-          provide: Router,
-          useValue: routerSpy
         },
         {
           provide: AlertService,
@@ -188,7 +182,6 @@ describe('AccountSettingsComponent', () => {
 
       expect(component['gs'].update).toHaveBeenCalledWith(SERV.USERS, component['gs'].userId, component.form.value);
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
-      expect(routerSpy.navigate).toHaveBeenCalledOnceWith(['users/all-users']);
     });
 
     it('does not submit form with invalid email', () => {
@@ -204,7 +197,6 @@ describe('AccountSettingsComponent', () => {
       expect(component.form.valid).toBeFalse();
       expect(updateSpy).not.toHaveBeenCalled();
       expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
-      expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
   });
 
@@ -283,6 +275,7 @@ describe('AccountSettingsComponent', () => {
         confirmNewPassword: 'P4ssw0rd1234'
       });
       component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
       expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(true);
 
       // Set matching passwords
@@ -291,6 +284,7 @@ describe('AccountSettingsComponent', () => {
         confirmNewPassword: 'password1234'
       });
       component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
       expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(false);
     });
 
