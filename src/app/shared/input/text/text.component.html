@@ -1,35 +1,44 @@
-<mat-form-field [ngStyle]="{width: width}">
-  <mat-label>{{ title }}
+<mat-form-field [ngStyle]="{ width: width }" appearance="outline">
+  <mat-label>
+    {{ title }}
     <mat-icon
+      *ngIf="tooltip"
       matTooltip="{{ tooltip }}"
       matTooltipPosition="below"
       matTooltipClass="tooltip-custom-style"
-      container="body"
       aria-hidden="true"
-      *ngIf="tooltip"
     >
       info
     </mat-icon>
   </mat-label>
+
   <mat-icon matPrefix *ngIf="icon">{{ icon }}</mat-icon>
+
+  <!-- important: #inputField="ngModel" is required for validation -->
   <input
-    #inputField
     matInput
-    [disabled]="disabled"
-    [class.is-invalid]="error"
-    [id]="inputId"
     [(ngModel)]="value"
-    (ngModelChange)="onChange(value)"
-    [pattern]="pattern"
-    [type]="inputType"
+    #inputField="ngModel"
+    [type]="resolvedInputType"
+    [email]="inputType === 'email' ? true : null"
     [required]="isRequired"
+    [pattern]="pattern"
+    [disabled]="disabled"
+    [minlength]="minLength"
+    [maxlength]="maxLength"
+    [id]="inputId"
+    (blur)="onTouched()"
+    (ngModelChange)="onChange($event)"
   />
+
+  <!-- Show password toggle if enabled -->
   @if (showPasswordToggle) {
     <button
       mat-icon-button
       matSuffix
+      type="button"
       (click)="emitShowPassword()"
-      [attr.aria-label]="'Hide password'"
+      [attr.aria-label]="passwordIsVisible ? 'Hide password' : 'Show password'"
       [attr.aria-pressed]="passwordIsVisible"
     >
       <mat-icon>{{ passwordIsVisible ? 'visibility' : 'visibility_off' }}</mat-icon>
@@ -37,5 +46,18 @@
   }
 
   <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
-  <mat-error>{{ title }} is required</mat-error>
+
+  <!-- Error display based on native ngModel validation -->
+  <mat-error *ngIf="inputField.errors && (inputField.dirty || inputField.touched)">
+    <span *ngIf="inputField.errors.required">{{ title }} is required</span>
+    <span *ngIf="inputField.errors.email">Please enter a valid {{ title?.toLowerCase() }}</span>
+    <span *ngIf="inputField.errors.minlength">
+    Minimum length is {{ inputField.errors.minlength.requiredLength }}
+  </span>
+    <span *ngIf="inputField.errors.maxlength">
+    Maximum length is {{ inputField.errors.maxlength.requiredLength }}
+  </span>
+    <span *ngIf="inputField.errors?.passwordMismatch">Passwords do not match</span>
+  </mat-error>
+
 </mat-form-field>
