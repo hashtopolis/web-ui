@@ -61,6 +61,7 @@ import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from '@components/menus/row-action-menu/row-action-menu.component';
 import { SearchHashTableComponent } from '@components/tables/search-hash-table/search-hash-table.component';
 import { SuperHashlistsTableComponent } from '@components/tables/super-hashlists-table/super-hashlists-table.component';
+import { SuperHashlistsHashlistsTableComponent } from '@components/tables/super-hashlist-hashlist-table/super-hashlist-hashlist-table.component';
 import { SuperTasksPretasksTableComponent } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 import { SuperTasksTableComponent } from '@components/tables/supertasks-table/supertasks-table.component';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
@@ -95,6 +96,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
+    SuperHashlistsHashlistsTableComponent,
     HashesTableComponent,
     SuperHashlistsTableComponent,
     FilesAttackTableComponent,
@@ -182,6 +184,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     PretasksTableComponent,
     SuperTasksTableComponent,
     SuperTasksPretasksTableComponent,
+    SuperHashlistsHashlistsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     HealthCheckAgentsTableComponent,
