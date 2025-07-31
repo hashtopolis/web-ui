@@ -1,14 +1,15 @@
-import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
-import { FormControl, Validators } from '@angular/forms';
-import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
-
-import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { GlobalService } from '@services/main.service';
 import { Injectable } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
+
 import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
 import { TooltipService } from '@services/shared/tooltip.service';
-import { environment } from '@src/environments/environment';
+
 import { fileFormat } from '@src/app/core/_constants/files.config';
+import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
+import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -350,8 +351,8 @@ export class MetadataService {
   //This variable defines the fields and properties required when creating/editing an Agent Binary.
   agentbinary = [
     {
-      name: 'type',
-      label: 'Type',
+      name: 'binaryType',
+      label: 'Binary Type',
       type: 'text',
       requiredasterisk: true,
       tooltip: false,
