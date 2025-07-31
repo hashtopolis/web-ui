@@ -135,7 +135,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         id: HashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSearchable: true,
-        isSortable: true,
+        isSortable: false,
         render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
         export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
       });

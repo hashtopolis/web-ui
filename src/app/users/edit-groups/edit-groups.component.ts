@@ -142,7 +142,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     // Only include filter, if there are userMembers
     const requestParamBuilder = new RequestParamBuilder();
     if (ids.length > 0) {
-      requestParamBuilder.addFilter({ field: '_id', operator: FilterType.NOTIN, value: ids });
+      requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
     }
     const requestParams = requestParamBuilder.create();
 
@@ -170,7 +170,7 @@ export class EditGroupsComponent implements OnInit, OnDestroy {
     // Only include filter, if there are agentMembers
     const requestParamBuilder = new RequestParamBuilder();
     if (ids.length > 0) {
-      requestParamBuilder.addFilter({ field: '_id', operator: FilterType.NOTIN, value: ids });
+      requestParamBuilder.addFilter({ field: 'id', operator: FilterType.NOTIN, value: ids });
     }
     const requestParams = requestParamBuilder.create();
     try {

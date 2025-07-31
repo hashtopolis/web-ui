@@ -104,14 +104,14 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
-        isSortable: true,
+        isSortable: false,
         isSearchable: true
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true,
+        isSortable: false,
         isSearchable: true
       },
       {
@@ -130,7 +130,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TIME_SPENT,
         dataKey: 'timeSpent',
         render: (chunk: JChunk) => this.renderTimeSpent(chunk),
-        isSortable: true
+        isSortable: false
       },
       {
         id: ChunksTableCol.STATE,

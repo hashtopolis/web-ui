@@ -85,7 +85,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
       {
         id: HealthChecksTableCol.CREATED,
         dataKey: 'created',
-        isSortable: true,
+        isSortable: false,
         render: (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateFormat),
         export: async (healthCheck: JHealthCheck) => formatUnixTimestamp(healthCheck.time, this.dateFormat)
       },
@@ -94,7 +94,7 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         dataKey: 'hashtypeDescription',
         render: (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
-        isSortable: true,
+        isSortable: false,
         isSearchable: true,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''

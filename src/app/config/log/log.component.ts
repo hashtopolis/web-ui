@@ -45,7 +45,7 @@ export class LogComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.loadLogs(this.geStartPage());
+    // this.loadLogs(this.geStartPage());
 
   }
 
@@ -193,9 +193,9 @@ export class LogComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    this.dtTrigger.unsubscribe();
-    const currentPage = { start: 0 };
-    localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
+    // this.dtTrigger.unsubscribe();
+    // const currentPage = { start: 0 };
+    // localStorage.setItem(this.localStablepage, JSON.stringify(currentPage));
   }
 
   rerender(): void {
