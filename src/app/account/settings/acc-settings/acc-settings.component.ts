@@ -14,6 +14,7 @@ import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JUser } from '@src/app/core/_models/user.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -30,6 +31,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   static readonly PWD_MIN = 4;
   static readonly PWD_MAX = 12;
 
+  pwdMin = AccountSettingsComponent.PWD_MIN;
+  pwdMax = AccountSettingsComponent.PWD_MAX;
+
   pageTitle = 'Account Settings';
   pageSubtitlePassword = 'Password Update';
 
@@ -40,7 +44,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   /** On form update show a spinner loading */
   isUpdatingLoading = false;
   isUpdatingPassLoading = false;
-  /*
+
+  /**
    * Toggles for showing/hiding password fields in the form.
    * These are used to toggle visibility of the old, new, and confirm new password fields.
    * Hides the password input by default.
@@ -49,10 +54,18 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   showOldPassword: boolean = false;
   showNewPassword: boolean = false;
   showConfirmNewPassword: boolean = false;
-  strongPassword = false;
+
+  /**
+   * Array to hold subscriptions for cleanup on component destruction.
+   * This prevents memory leaks by unsubscribing from observables when the component is destroyed.
+   */
   subscriptions: Subscription[] = [];
 
-  emailControl: FormControl;
+  /**
+   * FormControl reference for easier access to form controls.
+   * This is used to access form controls in the template without needing to reference the entire form group.
+   */
+  protected readonly FormControl = FormControl;
 
   constructor(
     private titleService: AutoTitleService,
@@ -87,7 +100,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * @param {string} registeredSince - Account registration date.
    * @param {string} email - The user's email.
    */
-  createForm(name = '', registeredSince = '', email = ''): void {
+  createForm(name: string = '', registeredSince: string = '', email: string = ''): void {
     this.form = new FormGroup({
       name: new FormControl({
         value: name,
@@ -99,24 +112,27 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       }),
       email: new FormControl(email, [Validators.required, Validators.email])
     });
-    //this.emailControl = this.form.get('email') as FormControl;
   }
 
   createUpdatePassForm() {
-    this.changepasswordFormGroup = new FormGroup({
-      oldPassword: new FormControl('', Validators.required),
-      newPassword: new FormControl('', [
-        Validators.required,
-        Validators.minLength(AccountSettingsComponent.PWD_MIN),
-        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-      ]),
-      confirmNewPassword: new FormControl('', [
-        Validators.required,
-        Validators.minLength(AccountSettingsComponent.PWD_MIN),
-        Validators.maxLength(AccountSettingsComponent.PWD_MAX)
-      ])
-    });
+    this.changepasswordFormGroup = new FormGroup(
+      {
+        oldPassword: new FormControl('', Validators.required),
+        newPassword: new FormControl('', [
+          Validators.required,
+          Validators.minLength(AccountSettingsComponent.PWD_MIN),
+          Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+        ]),
+        confirmNewPassword: new FormControl('', [
+          Validators.required,
+          Validators.minLength(AccountSettingsComponent.PWD_MIN),
+          Validators.maxLength(AccountSettingsComponent.PWD_MAX)
+        ])
+      },
+      { validators: passwordMatchValidator() }
+    );
   }
+
   get oldPasswordValueFromForm() {
     return this.changepasswordFormGroup.get('oldPassword').value;
   }
@@ -143,7 +159,6 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
         this.gs.update(SERV.USERS, this.gs.userId, this.form.value).subscribe(() => {
           this.alert.showSuccessMessage('User saved');
           this.isUpdatingLoading = false;
-          this.router.navigate(['users/all-users']);
         })
       );
     }
@@ -153,6 +168,9 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    * Handles password submission
    */
   onSubmitPass() {
+    if (this.changepasswordFormGroup.invalid || this.changepasswordFormGroup.pending) {
+      return;
+    }
     this.isUpdatingPassLoading = true;
     const payload: UpdateUserPassword = {
       oldPassword: this.oldPasswordValueFromForm,
@@ -185,6 +203,4 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       })
     );
   }
-
-  protected readonly FormControl = FormControl;
 }
