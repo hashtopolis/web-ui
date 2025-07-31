@@ -11,7 +11,7 @@ export class LogsDataSource extends BaseDataSource<JLog> {
     this.loading = true;
 
     //ToDo: Reactivate sorting
-    this.sortingColumn.isSortable = false;
+    // this.sortingColumn.isSortable = false;
 
     const params = new RequestParamBuilder().addInitial(this).create();
     const logs$ = this.service.getAll(SERV.LOGS, params);
