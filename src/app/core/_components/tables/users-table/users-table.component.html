@@ -1,19 +1,5 @@
-<ht-table
-  #table
-  name="usersTable"
-  dataType="users"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [contextMenuService]="contextMenuService"
-
-
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
-  [isPageable]="true"
-  (bulkActionClicked)="bulkActionClicked($event)"
-  (rowActionClicked)="rowActionClicked($event)"
-  (exportActionClicked)="exportActionClicked($event)"
-  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
-/>
+<ht-table #table name="usersTable" dataType="users" [columnLabels]="columnLabels" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [isSelectable]="true" [contextMenuService]="contextMenuService" [isFilterable]="true"
+  [filterFn]="filter.bind(this)" [isPageable]="true" (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)" (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event" />

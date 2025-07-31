@@ -1,3 +1,4 @@
+
 import { Observable, catchError, of } from 'rxjs';
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -13,9 +14,9 @@ import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-ac
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentTableEditableAction,
-  AgentsTableCol,
-  AgentsTableColumnLabel
-} from '@components/tables/agents-table/agents-table.constants';
+  TasksAgentsTableCol,
+  TasksAgentsTableColumnLabel
+} from '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   DataType,
@@ -34,11 +35,11 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'agents-table',
-  templateUrl: './agents-table.component.html',
+  selector: 'tasks-agents-table',
+  templateUrl: './tasks-agents-table.component.html',
   standalone: false
 })
-export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class TasksAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   private _taskId: number;
 
   @Input() datatype: DataType = 'agents';
@@ -70,7 +71,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   ngOnInit(): void {
-    this.setColumnLabels(AgentsTableColumnLabel);
+    this.setColumnLabels(TasksAgentsTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
@@ -127,7 +128,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
-        id: AgentsTableCol.ID,
+        id: TasksAgentsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
@@ -135,7 +136,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => agent.id + ''
       },
       {
-        id: AgentsTableCol.NAME,
+        id: TasksAgentsTableCol.NAME,
         dataKey: 'agentName',
         routerLink: (agent: JAgent) => this.renderAgentLink(agent),
         isSortable: true,
@@ -143,24 +144,24 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => agent.agentName
       },
       {
-        id: AgentsTableCol.STATUS,
+        id: TasksAgentsTableCol.STATUS,
         dataKey: 'status',
         icon: (agent: JAgent) => this.renderStatusIcon(agent),
         render: (agent: JAgent) => this.renderStatus(agent),
-        isSortable: false,
+        isSortable: true,
         export: async (agent: JAgent) => (agent.isActive ? 'Active' : 'Inactive')
       },
       {
-        id: AgentsTableCol.USER,
+        id: TasksAgentsTableCol.USER,
         dataKey: 'userId',
         render: (agent: JAgent) => this.renderOwner(agent),
         routerLink: (agent: JAgent) => this.renderUserLinkFromAgent(agent),
-        isSortable: false,
+        isSortable: true,
         isSearchable: true,
         export: async (agent: JAgent) => (agent.user ? agent.user.name : '')
       },
       {
-        id: AgentsTableCol.CLIENT,
+        id: TasksAgentsTableCol.CLIENT,
         dataKey: 'clientSignature',
         render: (agent: JAgent) => this.renderClient(agent),
         isSortable: true,
@@ -168,7 +169,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => (agent.clientSignature ? agent.clientSignature : '')
       },
       {
-        id: AgentsTableCol.TASK_SPEED,
+        id: TasksAgentsTableCol.TASK_SPEED,
         dataKey: 'taskId',
         icon: (agent: JAgent) => this.renderProgressIcon(agent),
         render: (agent: JAgent) => this.renderCurrentSpeed(agent),
@@ -176,14 +177,14 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => this.getChunkDataValue(agent, 'speed') + ''
       },
       {
-        id: AgentsTableCol.CURRENT_CHUNK,
+        id: TasksAgentsTableCol.CURRENT_CHUNK,
         dataKey: 'chunkId',
         routerLink: (agent: JAgent) => this.renderChunkLink(agent),
-        isSortable: false,
+        isSortable: true,
         export: async (agent: JAgent) => (agent.chunk ? agent.chunk.id + '' : '')
       },
       {
-        id: AgentsTableCol.GPUS_CPUS,
+        id: TasksAgentsTableCol.GPUS_CPUS,
         dataKey: 'devices',
         render: (agent: JAgent) => this.renderDevices(agent),
         isSortable: true,
@@ -191,27 +192,45 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => agent.devices
       },
       {
-        id: AgentsTableCol.LAST_ACTIVITY,
+        id: TasksAgentsTableCol.LAST_ACTIVITY,
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
         export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
       },
       {
-        id: AgentsTableCol.CURRENT_TASK,
-        dataKey: 'taskName',
-        routerLink: (agent: JAgent) => this.renderTaskLink(agent),
-        isSortable: false,
-        isSearchable: true,
-        export: async (agent: JAgent) => (agent.task ? agent.taskName : '')
+        id: TasksAgentsTableCol.CRACKED,
+        dataKey: 'cracked',
+        render: (agent: JAgent) => this.renderCracked(agent),
+        isSortable: true,
+        export: async (agent: JAgent) => this.renderCracked(agent) + ''
+      }, 
+      {
+        id: TasksAgentsTableCol.BENCHMARK,
+        dataKey: 'benchmark',
+        editable: (agent: JAgent) => {
+          return {
+            data: agent,
+            value: agent.benchmark,
+            action: AgentTableEditableAction.CHANGE_BENCHMARK
+          };
+        },
+        isSortable: true,
+        export: async (agent: JAgent) => agent.benchmark
       },
       {
-        id: AgentsTableCol.ACCESS_GROUP,
-        dataKey: 'accessGroupId',
-        routerLink: (agent: JAgent) => this.renderAccessGroupLinks(agent),
-        isSortable: false,
-        isSearchable: true,
-        export: async (agent: JAgent) => agent.accessGroup
+        id: TasksAgentsTableCol.TIME_SPENT,
+        dataKey: 'timeSpent',
+        render: (agent: JAgent) => this.renderTimeSpent(agent),
+        isSortable: true,
+        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'timeSpent') + ''
+      },
+      {
+        id: TasksAgentsTableCol.SEARCHED,
+        dataKey: 'searched',
+        render: (agent: JAgent) => this.renderSearched(agent),
+        isSortable: true,
+        export: async (agent: JAgent) => this.getChunkDataValue(agent, 'searched') + ''
       }
     ];
 
@@ -295,6 +314,40 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     return { name: '' };
   }
 
+  /**
+   * Render time spent the agent is working on a task
+   * @param agent - agent instance to render time for
+   * @return html code containing time spent on the taks
+   * @private
+   */
+  private renderTimeSpent(agent: JAgent): SafeHtml {
+    const timeSpent: number = this.getChunkDataValue(agent, 'timeSpent');
+    return this.sanitize(timeSpent ? `${formatSeconds(timeSpent)}` : '-');
+  }
+
+  /**
+   * Render searched keyspace
+   * @param agent - agent instance to render time for
+   * @return html code containing the amount of searched keyspace
+   * @private
+   */
+  private renderSearched(agent: JAgent): SafeHtml {
+    const searched = this.getChunkDataValue(agent, 'searched') * 100;
+    const percentSearched = `${(Math.round(searched * 100) / 100).toLocaleString()}%`;
+    return this.sanitize(searched ? `${percentSearched}` : '-');
+  }
+
+  /**
+   * Render amount of cracked hashes
+   * @param agent - agent instance to render time for
+   * @return html code containing the amount of cracked hashes
+   * @private
+   */
+  private renderCracked(agent: JAgent): SafeHtml {
+    const cracked = this.getChunkDataValue(agent, 'cracked');
+    return this.sanitize(cracked ? `<span>${cracked.toLocaleString()}</span>` : '-');
+  }
+
   renderStatus(agent: JAgent): SafeHtml {
     let html: string;
     if (agent.isActive) {
@@ -351,7 +404,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     this.exportService.handleExportAction<JAgent>(
       event,
       this.tableColumns,
-      AgentsTableColumnLabel,
+      TasksAgentsTableColumnLabel,
       'hashtopolis-agents'
     );
   }

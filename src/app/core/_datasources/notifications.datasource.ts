@@ -25,12 +25,16 @@ export class NotificationsDataSource extends BaseDataSource<JNotification> {
           const notifications = this.serializer.deserialize<JNotification[]>(responseData);
 
           const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
 
           this.setPaginationConfig(
             this.pageSize,
             length,
-            this.pageAfter,
-            this.pageBefore,
+            after,
+            before,
             this.index
           );
           this.setData(notifications);

@@ -98,14 +98,14 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
       {
         id: CracksTableCol.AGENT,
         dataKey: 'agentId',
-        isSortable: true,
+        isSortable: false,
         routerLink: (crack: JHash) => this.renderAgentLinkFromHash(crack),
         export: async (crack: JHash) => crack.chunk.agentId + ''
       },
       {
         id: CracksTableCol.TASK,
         dataKey: 'taskId',
-        isSortable: true,
+        isSortable: false,
         routerLink: (crack: JHash) => this.renderTaskLinkFromHash(crack),
         export: async (crack: JHash) => crack.chunk.taskId + ''
       },

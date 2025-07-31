@@ -88,7 +88,7 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       {
         id: SupertasksTableCol.PRETASKS,
         dataKey: 'pretasks',
-        isSortable: true,
+        isSortable: false,
         render: (supertask: JSuperTask) => supertask.pretasks.length,
         export: async (supertask: JSuperTask) => supertask.pretasks.length.toString()
       }

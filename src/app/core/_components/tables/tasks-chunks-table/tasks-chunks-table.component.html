@@ -1,18 +1,4 @@
-<ht-table
-  #table
-  name="tasksChunksTable"
-  [columnLabels]="columnLabels"
-  dataType="tasks-chunks"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-
-  [showExport]="false"
-  [contextMenuService]="contextMenuService"
-
-  [isPageable]="true"
-  [isSelectable]="true"
-  (rowActionClicked)="rowActionClicked($event)"
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
-  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
-/>
+<ht-table #table name="tasksChunksTable" [columnLabels]="columnLabels" dataType="tasks-chunks" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [showExport]="false" [contextMenuService]="contextMenuService" [isPageable]="true"
+  [isSelectable]="true" (rowActionClicked)="rowActionClicked($event)" [isFilterable]="true"
+  [filterFn]="filter.bind(this)" (selectedFilterColumnChanged)="selectedFilterColumn = $event" />
