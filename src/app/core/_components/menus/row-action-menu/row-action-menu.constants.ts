@@ -7,7 +7,6 @@ export const RowActionMenuLabel = {
   DEACTIVATE_AGENT: 'Deactivate Agent',
   DEACTIVATE_NOTIFICATION: 'Deactivate Notification',
   EDIT_AGENT: 'Edit Agent',
-  EDIT_NOTIFICATION: 'Edit Notification',
   EDIT_PRETASK: 'Edit Pretask',
   EDIT_TASK: 'Edit Task',
   EDIT_SUPERTASK: 'Edit Supertask',
