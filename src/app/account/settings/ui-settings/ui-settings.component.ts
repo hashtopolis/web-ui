@@ -6,6 +6,7 @@ import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 
+import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
 
 @Component({
@@ -28,7 +29,8 @@ export class UiSettingsComponent implements OnInit {
 
   constructor(
     private service: LocalStorageService<UIConfig>,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private reloadService: ReloadService
   ) {
     this.initForm();
   }
@@ -56,14 +58,13 @@ export class UiSettingsComponent implements OnInit {
 
   onSubmit(): void {
     this.isUpdatingLoading = true;
-    setTimeout(() => {
-      window.location.reload();
-    }, 800);
 
     const changedValues = this.util.updateSettings(this.form.value);
     const message = changedValues > 0 ? 'Reloading settings ...' : 'No changes were saved';
 
     this.alertService.showInfoMessage(message);
     this.isUpdatingLoading = false;
+
+    this.reloadService.reloadPage();
   }
 }
