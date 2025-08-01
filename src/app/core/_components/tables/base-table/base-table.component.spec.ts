@@ -51,4 +51,8 @@ describe('BaseTableComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  it('should call reload on the table', () => {});
+  it('should render status icon correctly for active model', () => {});
+  it('should render status icon correctly for inactive model', () => {});
+  it('should render supertask link', (done) => {});
 });
