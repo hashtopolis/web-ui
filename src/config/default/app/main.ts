@@ -29,7 +29,7 @@ export const DEFAULT_CONFIG: Config = {
       name: 'Discord'
     },
     footer_link_three: {
-      link: 'https://hashtopolis.org/',
+      link: 'https://hashtopolis.eu/',
       name: 'Hashtopolis'
     }
   },
