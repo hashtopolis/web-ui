@@ -26,8 +26,18 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
           const responseBody = { data: response.data, included: response.included };
           const hashtypes = this.serializer.deserialize<JHashtype[]>(responseBody);
           const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
 
-          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            after,
+            before,
+            this.index
+          );
           this.setData(hashtypes);
         })
     );

@@ -171,23 +171,12 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
     if (!this.sort || !this.sort.active || this.sort.direction === '') {
       return;
     }
-    const sortDirection = this.sort.direction;
-    const data = this.dataSubject.value.slice();
-    const columnMapping = this.columns.find((mapping) => mapping.id + '' === this.sort.active);
+    const columnMapping = this.columns.find((mapping) => mapping.id === Number(this.sort.active));
 
     if (!columnMapping) {
       console.error('Column mapping not found for label: ' + this.sort.active);
       return;
     }
-
-    const property = columnMapping.dataKey;
-    const isAsc = sortDirection === 'asc';
-
-    const sortedData = data.sort((a, b) => {
-      return this.compare(a[property], b[property], isAsc);
-    });
-
-    this.dataSubject.next(sortedData);
   }
 
   /**
@@ -272,13 +261,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param pageBefore - the pagination before parameter to retrieve data before this index.
    * @param index - the pagination index.
    */
-  setPaginationConfig(
-    pageSize: number,
-    totalItems: number,
-    pageAfter: number,
-    pageBefore: number,
-    index: number
-  ): void {
+  setPaginationConfig(pageSize: number, totalItems: number, pageAfter: number|string|null, pageBefore: number|string|null, index: number): void {
     this.pageSize = pageSize;
     this.totalItems = totalItems;
     this.pageAfter = pageAfter;

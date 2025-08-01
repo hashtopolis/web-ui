@@ -62,11 +62,14 @@ import { RouterModule } from '@angular/router';
 import { RowActionMenuComponent } from '@components/menus/row-action-menu/row-action-menu.component';
 import { SearchHashTableComponent } from '@components/tables/search-hash-table/search-hash-table.component';
 import { SuperHashlistsTableComponent } from '@components/tables/super-hashlists-table/super-hashlists-table.component';
+import { SuperHashlistsHashlistsTableComponent } from '@components/tables/super-hashlist-hashlist-table/super-hashlist-hashlist-table.component';
 import { SuperTasksPretasksTableComponent } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.component';
 import { SuperTasksTableComponent } from '@components/tables/supertasks-table/supertasks-table.component';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { TableTruncateComponent } from '@components/tables/table-truncate/table-truncate.component';
+import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
+import { TasksFilesTableComponent } from '@components/tables/tasks-files-table/tasks-files-table.component';
 import { TasksSupertasksTableComponent } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.component';
 import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.component';
 import { UsersTableComponent } from '@components/tables/users-table/users-table.component';
@@ -94,6 +97,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     ChunksTableComponent,
     HashtypesTableComponent,
     HashlistsTableComponent,
+    SuperHashlistsHashlistsTableComponent,
     HashesTableComponent,
     SuperHashlistsTableComponent,
     FilesAttackTableComponent,
@@ -119,7 +123,9 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksAgentsTableComponent,
     TasksChunksTableComponent,
+    TasksFilesTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,
     ConfirmDialogComponent
@@ -180,6 +186,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     PretasksTableComponent,
     SuperTasksTableComponent,
     SuperTasksPretasksTableComponent,
+    SuperHashlistsHashlistsTableComponent,
     AgentBinariesTableComponent,
     HealthChecksTableComponent,
     HealthCheckAgentsTableComponent,
@@ -196,7 +203,9 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
     VouchersTableComponent,
     SearchHashTableComponent,
     TasksTableComponent,
+    TasksAgentsTableComponent,
     TasksChunksTableComponent,
+    TasksFilesTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,
     ConfirmDialogComponent

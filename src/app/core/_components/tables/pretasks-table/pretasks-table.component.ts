@@ -130,7 +130,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       {
         id: PretasksTableCol.FILES_TOTAL,
         dataKey: 'filesTotal',
-        isSortable: true,
+        isSortable: false,
         icon: (pretask: JPretask) => this.renderSecretIcon(pretask),
         render: (pretask: JPretask) => pretask.pretaskFiles?.length,
         export: async (pretask: JPretask) => pretask.pretaskFiles?.length.toString()
@@ -138,7 +138,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       {
         id: PretasksTableCol.FILES_SIZE,
         dataKey: 'pretaskFiles',
-        isSortable: true,
+        isSortable: false,
         render: (pretask: JPretask) => {
           const totalFileSize = pretask.pretaskFiles?.reduce((sum, file) => {
             if (file && typeof file.size === 'number' && !isNaN(file.size)) {

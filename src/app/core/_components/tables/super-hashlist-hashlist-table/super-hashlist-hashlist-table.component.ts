@@ -1,37 +1,42 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import {
-  HashlistsTableCol,
-  HashlistsTableColumnLabel
-} from '@components/tables/hashlists-table/hashlists-table.constants';
+
 import { Observable, catchError, of } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
-import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { HashlistsDataSource } from '@datasources/hashlists.datasource';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
 import { JHashlist } from '@models/hashlist.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+
+import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
 import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import {
+  SuperHashlistHashlistTableCol,
+  SuperHashlistHashlistTableColumnLabel
+} from '@components/tables/super-hashlist-hashlist-table/super-hashlist-hashlist-table.constants';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { HashlistsDataSource } from '@datasources/hashlists.datasource';
+
+import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
-  selector: 'app-hashlists-table',
-  templateUrl: './hashlists-table.component.html',
+  selector: 'app-superhashlist-hashlist-table',
+  templateUrl: './super-hashlist-hashlist-table.component.html',
   standalone: false
 })
-export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string;
+  selectedFilterColumn: string = 'all';
 
   ngOnInit(): void {
-    this.setColumnLabels(HashlistsTableColumnLabel);
+    this.setColumnLabels(SuperHashlistHashlistTableColumnLabel);
     this.tableColumns = this.getColumns();
     this.dataSource = new HashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
@@ -48,29 +53,54 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       sub.unsubscribe();
     }
   }
-  
-  filter(input: string) {
+
+  filter(item: JHashlist, filterValue: string): boolean {
+    filterValue = filterValue.toLowerCase();
     const selectedColumn = this.selectedFilterColumn;
-    if (input && input.length > 0) {
-      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
-      return;
-    } else {
-      this.dataSource.loadAll(); // Reload all data if input is empty
+    // Filter based on selected column
+    switch (selectedColumn) {
+      case 'all': {
+        // Search across multiple relevant fields
+        return (
+          item.id.toString().includes(filterValue) ||
+          item.name?.toLowerCase().includes(filterValue) ||
+          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
+          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
+            filterValue
+          )
+        );
+      }
+      case 'id': {
+        return item.id?.toString().includes(filterValue);
+      }
+      case 'name': {
+        return item.name?.toLowerCase().includes(filterValue);
+      }
+      case 'hashTypeDescription': {
+        return (
+          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
+          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
+            filterValue
+          )
+        );
+      }
+      default:
+        // Default fallback to task name
+        return item.name?.toLowerCase().includes(filterValue);
     }
   }
 
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
-        id: HashlistsTableCol.ID,
-        dataKey: '_id',
+        id: SuperHashlistHashlistTableCol.ID,
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
-        render: (hashlist: JHashlist) => hashlist.id,
         export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
-        id: HashlistsTableCol.NAME,
+        id: SuperHashlistHashlistTableCol.NAME,
         dataKey: 'name',
         routerLink: (hashlist: JHashlist) => this.renderHashlistLink(hashlist),
         isSortable: true,
@@ -78,14 +108,14 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         export: async (hashlist: JHashlist) => hashlist.name
       },
       {
-        id: HashlistsTableCol.HASH_COUNT,
+        id: SuperHashlistHashlistTableCol.HASH_COUNT,
         dataKey: 'hashCount',
         isSortable: true,
         routerLink: (hashlist: JHashlist) => this.renderHashCountLink(hashlist),
         export: async (hashlist: JHashlist) => hashlist.hashCount + ''
       },
       {
-        id: HashlistsTableCol.CRACKED,
+        id: SuperHashlistHashlistTableCol.CRACKED,
         dataKey: 'cracked',
         icon: (hashlist: JHashlist) => this.renderCrackedStatusIcon(hashlist),
         render: (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, false),
@@ -93,7 +123,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         export: async (hashlist: JHashlist) => this.renderCrackedHashes(hashlist, true)
       },
       {
-        id: HashlistsTableCol.FORMAT,
+        id: SuperHashlistHashlistTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
         render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format]),
@@ -103,10 +133,10 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
     if (!this.shashlistId) {
       tableColumns.push({
-        id: HashlistsTableCol.HASHTYPE,
+        id: SuperHashlistHashlistTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
         isSearchable: true,
-        isSortable: false,
+        isSortable: true,
         render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
         export: async (hashlist: JHashlist) => hashlist.hashTypeDescription
       });
@@ -144,7 +174,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.exportService.handleExportAction<JHashlist>(
       event,
       this.tableColumns,
-      HashlistsTableColumnLabel,
+      SuperHashlistHashlistTableColumnLabel,
       'hashtopolis-hashlists'
     );
   }

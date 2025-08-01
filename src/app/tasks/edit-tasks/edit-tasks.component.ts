@@ -25,7 +25,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
-import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
+import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
@@ -55,7 +55,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   crackerinfo: JCrackerBinary;
   tkeyspace: number;
 
-  @ViewChild('agentsTable') agentsTable: AgentsTableComponent;
+  @ViewChild('tasksAgentsTable') agentsTable: TasksAgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 

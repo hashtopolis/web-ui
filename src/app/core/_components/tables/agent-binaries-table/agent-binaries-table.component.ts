@@ -72,8 +72,8 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'type',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.agentbinaryType,
-        export: async (agentBinary: JAgentBinary) => agentBinary.agentbinaryType
+        render: (agentBinary: JAgentBinary) => agentBinary.binaryType,
+        export: async (agentBinary: JAgentBinary) => agentBinary.binaryType
       },
       {
         id: AgentBinariesTableCol.OS,

@@ -71,7 +71,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
       {
         id: PermissionsTableCol.MEMBERS,
         dataKey: 'numUsers',
-        isSortable: true,
+        isSortable: false,
         render: (permission: JGlobalPermissionGroup) => permission.userMembers.length,
         export: async (permission: JGlobalPermissionGroup) => permission.userMembers.length + ''
       }

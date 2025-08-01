@@ -56,6 +56,12 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() openOnMouseEnter = false;
 
+  /**
+   * If true, enable hover-close behavior. Useful for cases
+   * where the menu should close when leaving mouse outside.
+   */
+  @Input() enableHoverClose = false;
+
   @Output() menuItemClicked: EventEmitter<ActionMenuEvent<unknown>> = new EventEmitter<ActionMenuEvent<unknown>>();
 
   openSubmenus: MatMenuTrigger[] = [];
@@ -122,7 +128,10 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.subscriptions.push(
       this.trigger.menuOpened.subscribe(() => {
-        this.addGlobalMouseListener();
+        // Slight delay to ensure the menu DOM is initialized before checking pointer
+        setTimeout(() => {
+          this.addGlobalMouseListener();
+        }, 50); // even 10–30ms might work; tune as needed
       })
     );
   }
@@ -267,6 +276,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param event MouseEvent used to check pointer position
    */
   startHoverTimeout(event: MouseEvent) {
+    if (!this.openOnMouseEnter || !this.enableHoverClose) return;
     this.hoverTimeout = setTimeout(() => {
       this.checkPointerOutside(event);
     }, 150);
@@ -334,6 +344,7 @@ export class ActionMenuComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param event MouseEvent containing pointer coordinates
    */
   checkPointerOutside(event: MouseEvent) {
+    if (!this.openOnMouseEnter || !this.enableHoverClose) return;
     if (this.isPointerOutside(event)) {
       this.trigger.closeMenu();
     }

@@ -73,7 +73,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
       {
         id: AccessGroupsTableCol.NUSERS,
         dataKey: 'nusers',
-        isSortable: true,
+        isSortable: false,
         render: (accessGroup: JAccessGroup) => {
           return accessGroup.userMembers.length.toString();
         },
@@ -82,7 +82,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
       {
         id: AccessGroupsTableCol.NAGENTS,
         dataKey: 'nagents',
-        isSortable: true,
+        isSortable: false,
         render: (accessGroup: JAccessGroup) => {
           return accessGroup.agentMembers.length.toString();
         },

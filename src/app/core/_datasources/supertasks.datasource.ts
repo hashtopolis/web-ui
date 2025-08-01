@@ -27,8 +27,18 @@ export class SuperTasksDataSource extends BaseDataSource<JSuperTask> {
           const responseBody = { data: response.data, included: response.included };
           const supertasks = this.serializer.deserialize<JSuperTask[]>(responseBody);
           const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
 
-          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            after,
+            before,
+            this.index
+          );
           this.setData(supertasks);
         })
     );
