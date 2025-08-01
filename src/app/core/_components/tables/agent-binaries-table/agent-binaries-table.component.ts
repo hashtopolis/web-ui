@@ -63,7 +63,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
           item.id.toString().includes(filterValue) ||
           item.filename?.toLowerCase().includes(filterValue) ||
           item.operatingSystems?.toLowerCase().includes(filterValue) ||
-          item.agentbinaryType?.toLowerCase().includes(filterValue) ||
+          item.binaryType?.toLowerCase().includes(filterValue) ||
           item.updateTrack?.toLowerCase().includes(filterValue) ||
           item.version?.toLowerCase().includes(filterValue)
         );
@@ -78,7 +78,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         return item.operatingSystems?.toLowerCase().includes(filterValue);
       }
       case 'type': {
-        return item.agentbinaryType?.toLowerCase().includes(filterValue);
+        return item.binaryType?.toLowerCase().includes(filterValue);
       }
       case 'updateTrack': {
         return item.updateTrack?.toLowerCase().includes(filterValue);
@@ -105,8 +105,8 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'type',
         isSortable: true,
         isSearchable: true,
-        render: (agentBinary: JAgentBinary) => agentBinary.agentbinaryType,
-        export: async (agentBinary: JAgentBinary) => agentBinary.agentbinaryType
+        render: (agentBinary: JAgentBinary) => agentBinary.binaryType,
+        export: async (agentBinary: JAgentBinary) => agentBinary.binaryType
       },
       {
         id: AgentBinariesTableCol.OS,

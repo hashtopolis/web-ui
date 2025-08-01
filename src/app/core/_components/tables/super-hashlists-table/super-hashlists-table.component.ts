@@ -108,7 +108,7 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
       {
         id: SuperHashlistsTableCol.HASHTYPE,
         dataKey: 'hashTypeDescription',
-        isSortable: true,
+        isSortable: false,
         isSearchable: true,
         render: (hashlist: JHashlist) => hashlist.hashTypeDescription,
         export: async (superHashlist: JHashlist) => superHashlist.hashTypeDescription

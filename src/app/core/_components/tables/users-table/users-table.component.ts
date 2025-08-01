@@ -139,7 +139,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
-        isSortable: true,
+        isSortable: false,
         isSearchable: true,
         render: (user: JUser) => user.globalPermissionGroup.name,
         export: async (user: JUser) => user.globalPermissionGroup.name

@@ -27,11 +27,11 @@ import { FilesDataSource } from '@datasources/files.datasource';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
-  selector: 'app-files-table',
-  templateUrl: './files-table.component.html',
+  selector: 'app-tasks-files-table',
+  templateUrl: './tasks-files-table.component.html',
   standalone: false
 })
-export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class TasksFilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   private _editIndex: number;
 
   @Input() fileType: FileType = 0;
@@ -167,7 +167,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       tableColumns.push({
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
-        isSortable: false,
+        isSortable: true,
         isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName

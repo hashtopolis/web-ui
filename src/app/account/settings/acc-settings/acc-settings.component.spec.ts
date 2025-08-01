@@ -10,18 +10,27 @@ import { PipesModule } from 'src/app/shared/pipes.module';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { Params, provideRouter } from '@angular/router';
+import { Params } from '@angular/router';
+
+import { AlertService } from '@services/shared/alert.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 
 describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
+
+  let alertSpy: jasmine.SpyObj<AlertService>;
 
   const userResponse = {
     type: 'user',
@@ -43,27 +52,33 @@ describe('AccountSettingsComponent', () => {
     }
   };
 
-  // Define a partial mock service to simulate service calls.
+  // Mock GlobalService
   const mockService: Partial<GlobalService> = {
-    // Simulate the 'get' method to return an empty observable.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     get(_serviceConfig, _id: number, _routerParams?: Params): Observable<any> {
       if (_serviceConfig.URL === SERV.USERS.URL) {
-        return of({
-          data: userResponse
-        });
+        return of({ data: userResponse });
       }
       return of([]);
     },
-    // Simulate the 'create' method to return an empty observable.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     create(serviceConfig, _object: any): Observable<any> {
       return of({});
     },
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    update(_serviceConfig, id, _object: any): Observable<any> {
+      return of({});
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    chelper(_serviceConfig, option: string, _payload: any): Observable<any> {
+      return of({});
+    },
     userId: 1
   };
+
   beforeEach(() => {
+    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+
     TestBed.configureTestingModule({
       declarations: [AccountSettingsComponent],
       imports: [
@@ -75,7 +90,12 @@ describe('AccountSettingsComponent', () => {
         ComponentsModule,
         PipesModule,
         NgbModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatIconModule,
+        MatButtonModule
       ],
       providers: [
         provideAnimations(),
@@ -83,8 +103,11 @@ describe('AccountSettingsComponent', () => {
           provide: GlobalService,
           useValue: mockService
         },
-        provideHttpClient(withInterceptorsFromDi()),
-        provideRouter([])
+        {
+          provide: AlertService,
+          useValue: alertSpy
+        },
+        provideHttpClient(withInterceptorsFromDi())
       ]
     }).compileComponents();
 
@@ -92,108 +115,240 @@ describe('AccountSettingsComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
-  // --- Test Methods ---
+
   it('creates the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('initializes the form with default values', () => {
-    const formValue = component.form.getRawValue();
-    expect(formValue.name).toBe(userResponse.attributes.name);
-    expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
-    expect(formValue.email).toBe(userResponse.attributes.email);
+  describe('Main form tests', () => {
+    it('initializes the form with default values', () => {
+      const formValue = component.form.getRawValue();
+      expect(formValue.name).toBe(userResponse.attributes.name);
+      expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
+      expect(formValue.email).toBe(userResponse.attributes.email);
+    });
 
-    const passFormValue = component.changepasswordFormGroup.getRawValue();
-    expect(passFormValue.oldPassword).toBe('');
-    expect(passFormValue.newPassword).toBe('');
-    expect(passFormValue.confirmNewPassword).toBe('');
+    it('validates email as required', async () => {
+      const emailControl = component.form.get('email');
+      emailControl?.patchValue(null);
+      component.form.updateValueAndValidity();
+      expect(emailControl?.hasError('required')).toBeTrue();
+    });
+
+    it('validates email format', () => {
+      const emailControl = component.form.get('email');
+
+      emailControl?.patchValue('invalid-email');
+      component.form.updateValueAndValidity();
+      expect(emailControl.hasError('email')).toBeTrue();
+
+      emailControl?.patchValue('test@example.com');
+      component.form.updateValueAndValidity();
+      expect(emailControl.hasError('email')).toBeFalse();
+    });
+
+    it('enables form submission when form is valid', () => {
+      component.form.patchValue({ email: 'test@example.com' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      expect(component.form.valid).toBe(true);
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      const nativeBtn = btn.nativeElement.querySelector('button');
+      expect(nativeBtn?.disabled).toBeFalse();
+    });
+
+    it('disables form submission when form is invalid', () => {
+      component.form.patchValue({ email: 'invalid-email' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      expect(component.form.valid).toBe(false);
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      const nativeBtn = btn.nativeElement.querySelector('button');
+      expect(nativeBtn?.disabled).toBeTrue();
+    });
+
+    it('submits form with valid email', () => {
+      spyOn(component['gs'], 'update').and.returnValue(of({}));
+
+      component.form.patchValue({ email: 'test@example.com' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      const btnDebugEl = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      btnDebugEl.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(component['gs'].update).toHaveBeenCalledWith(SERV.USERS, component['gs'].userId, component.form.value);
+      expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
+    });
+
+    it('does not submit form with invalid email', () => {
+      const updateSpy = spyOn(component['gs'], 'update');
+      component.form.patchValue({ email: 'invalid-email' });
+      component.form.updateValueAndValidity();
+      fixture.detectChanges();
+
+      const btnDebugEl = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
+      btnDebugEl.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(component.form.valid).toBeFalse();
+      expect(updateSpy).not.toHaveBeenCalled();
+      expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
+    });
   });
 
-  it('validates email as required', async () => {
-    const emailControl = component.form.get('email');
-    emailControl?.patchValue(null);
-    expect(emailControl?.hasError('required')).toBeTrue();
-  });
+  describe('Password change form tests', () => {
+    it('initializes the password form with empty default values', () => {
+      const formValue = component.changepasswordFormGroup.getRawValue();
+      expect(formValue.oldPassword).toBe('');
+      expect(formValue.newPassword).toBe('');
+      expect(formValue.confirmNewPassword).toBe('');
+    });
 
-  it('validates email format', () => {
-    const emailControl = component.form.get('email');
+    it('validates all password fields as required', () => {
+      const form = component.changepasswordFormGroup;
 
-    // Set an invalid email format
-    emailControl?.patchValue('invalid-email');
-    expect(emailControl.hasError('email')).toBeTrue();
+      // Clear all values
+      form.patchValue({
+        oldPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      });
 
-    // Set a valid email format
-    emailControl?.patchValue('test@example.com');
-    expect(emailControl.hasError('email')).toBeFalse();
-  });
+      form.markAllAsTouched();
+      form.updateValueAndValidity();
+      fixture.detectChanges();
 
-  it('validates password length', () => {
-    const newPasswordControl = component.form.get('newpassword');
-    const confirmPasswordControl = component.form.get('confirmpass');
+      const oldPasswordControl = form.get('oldPassword');
+      const newPasswordControl = form.get('newPassword');
+      const confirmPasswordControl = form.get('confirmNewPassword');
 
-    // Set a password with length less than PWD_MIN
-    newPasswordControl.patchValue('123');
-    confirmPasswordControl.patchValue('123');
-    expect(newPasswordControl.hasError('minlength')).toBe(true);
-    expect(confirmPasswordControl.hasError('minlength')).toBe(true);
+      expect(oldPasswordControl?.hasError('required')).toBeTrue();
+      expect(newPasswordControl?.hasError('required')).toBeTrue();
+      expect(confirmPasswordControl?.hasError('required')).toBeTrue();
+    });
 
-    // Set a password with length equal to PWD_MIN
-    newPasswordControl.patchValue('1234');
-    confirmPasswordControl.patchValue('1234');
-    expect(newPasswordControl.hasError('minlength')).toBe(false);
-    expect(confirmPasswordControl.hasError('minlength')).toBe(false);
+    it('validates password length', () => {
+      const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
+      const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
 
-    // Set a password with length greater than PWD_MAX
-    newPasswordControl.patchValue('1234567890123');
-    confirmPasswordControl.patchValue('1234567890123');
-    expect(newPasswordControl.hasError('maxlength')).toBe(true);
-    expect(confirmPasswordControl.hasError('maxlength')).toBe(true);
+      // Too short
+      newPasswordControl.patchValue('123');
+      confirmPasswordControl.patchValue('123');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-    // Set a password with length equal to PWD_MAX
-    newPasswordControl.patchValue('123456789012');
-    confirmPasswordControl.patchValue('123456789012');
-    expect(newPasswordControl.hasError('maxlength')).toBe(false);
-    expect(confirmPasswordControl.hasError('maxlength')).toBe(false);
-  });
+      expect(newPasswordControl.hasError('minlength')).toBeTrue();
+      expect(confirmPasswordControl.hasError('minlength')).toBeTrue();
 
-  it('validates password match', () => {
-    const newPasswordControl = component.changepasswordFormGroup.get('newPassword');
-    const confirmPasswordControl = component.changepasswordFormGroup.get('confirmNewPassword');
-    // Set different passwords
-    newPasswordControl.patchValue('password123');
-    confirmPasswordControl.patchValue('password1234');
-    expect(component.changepasswordFormGroup.hasError('mismatch')).toBe(true);
+      // Exactly min
+      newPasswordControl.patchValue('1234');
+      confirmPasswordControl.patchValue('1234');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-    // Set matching passwords
-    newPasswordControl.patchValue('password123');
-    confirmPasswordControl.patchValue('password123');
-    fixture.detectChanges();
-    expect(component.changepasswordFormGroup.hasError('mismatch')).toBe(false);
-  });
+      expect(newPasswordControl.hasError('minlength')).toBeFalse();
+      expect(confirmPasswordControl.hasError('minlength')).toBeFalse();
 
-  it('enables form submission when form is valid', () => {
-    const EmailControl = component.form.get('email');
-    EmailControl.patchValue('test@example.com');
-    // The form should now be valid, and the submit button should be enabled
-    expect(component.form.valid).toBe(true);
-    // Find all button-submit elements
-    const btns = fixture.debugElement.queryAll(By.css('[data-testid="button-submit"]'));
-    // Select the correct button (e.g., first for account update)
-    const btn = btns[0];
-    const disabledAttr = btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled');
-    expect(disabledAttr ? disabledAttr.value : null).toEqual('false');
-  });
+      // Too long
+      newPasswordControl.patchValue('VeryNiceLongPasswordButTooLongForHashtopolis');
+      confirmPasswordControl.patchValue('VeryNiceLongPasswordButTooLongForHashtopolis');
+      component.changepasswordFormGroup.updateValueAndValidity();
 
-  it('disables form submission when form is invalid', () => {
-    const EmailControl = component.form.get('email');
-    EmailControl.patchValue('invalid-email');
-    // The form should now be invalid, and the submit button should be disabled
-    expect(component.form.valid).toBe(false);
-    // Find all button-submit elements
-    const btns = fixture.debugElement.queryAll(By.css('[data-testid="button-submit"]'));
-    // Select the correct button (e.g., first for account update)
-    const btn = btns[0];
-    const disabledAttr = btn.nativeElement.attributes.getNamedItem('ng-reflect-disabled');
-    expect(disabledAttr ? disabledAttr.value : null).toEqual('true');
+      expect(newPasswordControl.hasError('maxlength')).toBeTrue();
+      expect(confirmPasswordControl.hasError('maxlength')).toBeTrue();
+
+      // Exactly max
+      newPasswordControl.patchValue('Password12!#');
+      confirmPasswordControl.patchValue('Password12!#');
+      component.changepasswordFormGroup.updateValueAndValidity();
+
+      expect(newPasswordControl.hasError('maxlength')).toBeFalse();
+      expect(confirmPasswordControl.hasError('maxlength')).toBeFalse();
+    });
+
+    it('validates password match', () => {
+      // Set different passwords
+      component.changepasswordFormGroup.patchValue({
+        newPassword: 'password1234',
+        confirmNewPassword: 'P4ssw0rd1234'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+      expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(true);
+
+      // Set matching passwords
+      component.changepasswordFormGroup.patchValue({
+        newPassword: 'password1234',
+        confirmNewPassword: 'password1234'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+      expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(false);
+    });
+
+    it('Submits password form and resets on success', fakeAsync(() => {
+      // Arrange
+      const chelperSpy = spyOn(component['gs'], 'chelper').and.returnValue(
+        of({ meta: { 'Change password': 'Password changed successfully' } })
+      );
+      const resetSpy = spyOn(component, 'resetPasswordForm');
+
+      // Fill valid form values
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'oldPass123',
+        newPassword: 'newPass456',
+        confirmNewPassword: 'newPass456'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+
+      // Click the submit button
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-password-submit"]'));
+      expect(btn).toBeTruthy();
+      btn.nativeElement.click();
+
+      tick(); // flush observable
+      fixture.detectChanges();
+
+      // Assert
+      expect(chelperSpy).toHaveBeenCalledOnceWith(SERV.HELPER, 'changeOwnPassword', {
+        oldPassword: 'oldPass123',
+        newPassword: 'newPass456',
+        confirmPassword: 'newPass456'
+      });
+      expect(component['alert'].showSuccessMessage).toHaveBeenCalledOnceWith('Password changed successfully');
+      expect(resetSpy).toHaveBeenCalled();
+      expect(component.isUpdatingPassLoading).toBeFalse();
+    }));
+
+    it('Does not submit password form if invalid', () => {
+      const chelperSpy = spyOn(component['gs'], 'chelper');
+      const resetSpy = spyOn(component, 'resetPasswordForm');
+
+      // Make the form invalid by patching passwords not matching
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'oldpassword',
+        newPassword: 'newpassword',
+        confirmNewPassword: 'NewPassword'
+      });
+      component.changepasswordFormGroup.updateValueAndValidity();
+      fixture.detectChanges();
+
+      // Click the submit button
+      const btn = fixture.debugElement.query(By.css('[data-testid="button-password-submit"]'));
+      expect(btn).toBeTruthy();
+      btn.nativeElement.click();
+
+      // Service should not be called
+      expect(chelperSpy).not.toHaveBeenCalled();
+      // Alert should not be called
+      expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
+      // Reset should not be called
+      expect(resetSpy).not.toHaveBeenCalled();
+      // isUpdatingPassLoading should remain false (no submission started)
+      expect(component.isUpdatingPassLoading).toBeFalse();
+    });
   });
 });

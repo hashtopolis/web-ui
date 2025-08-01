@@ -78,9 +78,19 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
           });
         }
-        const length = response.meta.page.total_elements;
+          const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
 
-        this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            after,
+            before,
+            this.index
+          );
         this.setData(agents);
       });
   }
@@ -88,8 +98,6 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   loadAssignments(): void {
     this.loading = true;
     const assignParams = new RequestParamBuilder()
-      .setPageSize(this.pageSize)
-      .setPageAfter(this.currentPage * this.pageSize)
       .addInclude('agent')
       .addInclude('task')
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this._taskId })
@@ -143,8 +151,18 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           });
 
           const length = response.meta.page.total_elements;
+          const nextLink = response.links.next;
+          const prevLink = response.links.prev;
+          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
 
-          this.setPaginationConfig(this.pageSize, length, this.pageAfter, this.pageBefore, this.index);
+          this.setPaginationConfig(
+            this.pageSize,
+            length,
+            after,
+            before,
+            this.index
+          );
           this.setData(agents);
         }
       });

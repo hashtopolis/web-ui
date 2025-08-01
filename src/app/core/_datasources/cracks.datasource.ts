@@ -20,8 +20,6 @@ export class CracksDataSource extends BaseDataSource<JHash> {
     this.loading = true;
     try {
       const crackedHashes = await this.loadCrackedHashes();
-
-      this.setPaginationConfig(this.pageSize, this.length, this.pageAfter, this.pageBefore, this.index);
       this.setData(crackedHashes);
     } catch (error) {
       console.error('Error loading data', error);
@@ -47,7 +45,19 @@ export class CracksDataSource extends BaseDataSource<JHash> {
       .create();
 
     const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.HASHES, params));
-    this.length = response.meta.page.total_elements;
+    const length = response.meta.page.total_elements;
+    const nextLink = response.links.next;
+    const prevLink = response.links.prev;
+    const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
+    const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+
+    this.setPaginationConfig(
+      this.pageSize,
+      length,
+      after,
+      before,
+      this.index
+    );
     const serializer = new JsonAPISerializer();
     return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
   }
