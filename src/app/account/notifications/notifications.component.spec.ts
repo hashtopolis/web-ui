@@ -11,6 +11,9 @@ import { NotificationsComponent } from '@src/app/account/notifications/notificat
   standalone: true
 })
 class MockTableComponent {}
+/* 
+  Mock component for app-page-title to avoid dependency on the actual implementation.
+*/
 @Component({
   selector: 'app-page-title',
   template: '',
@@ -22,17 +25,27 @@ class MockPageTitleComponent {
   @Input() buttonlink: string;
   @Input() subbutton: boolean;
 }
+
+@Component({
+  selector: 'app-notifications-table',
+  template: '<ng-content></ng-content>',
+  standalone: true
+})
+class MockNotificationsTableComponent {}
+
 describe('NotificationsComponent', () => {
   let component: NotificationsComponent;
   let fixture: ComponentFixture<NotificationsComponent>;
   let titleService: jasmine.SpyObj<AutoTitleService>;
+
   beforeEach(() => {
     const titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
     TestBed.configureTestingModule({
       declarations: [NotificationsComponent],
-      imports: [MockTableComponent, MockPageTitleComponent],
+      imports: [MockTableComponent, MockPageTitleComponent, MockNotificationsTableComponent],
       providers: [{ provide: AutoTitleService, useValue: titleServiceSpy }]
     });
+
     fixture = TestBed.createComponent(NotificationsComponent);
     component = fixture.componentInstance;
     titleService = TestBed.inject(AutoTitleService) as jasmine.SpyObj<AutoTitleService>;
@@ -61,5 +74,10 @@ describe('NotificationsComponent', () => {
     expect(pageTitleComponent.buttontitle).toBe('New Notification');
     expect(pageTitleComponent.buttonlink).toBe('/account/notifications/new-notification');
     expect(pageTitleComponent.subbutton).toBe(true);
+  });
+
+  it('should include app-notifications-table component', () => {
+    const tableElement = fixture.debugElement.query(By.directive(MockNotificationsTableComponent));
+    expect(tableElement).toBeTruthy();
   });
 });
