@@ -16,7 +16,7 @@ class MockTableComponent {}
 */
 @Component({
   selector: 'app-page-title',
-  template: '',
+  template: '<ng-content></ng-content>',
   standalone: true
 })
 class MockPageTitleComponent {
