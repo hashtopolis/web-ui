@@ -11,6 +11,7 @@ import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
 import { JTask } from '@src/app/core/_models/task.model';
+import { JUser } from '@src/app/core/_models/user.model';
 import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 // Create a test implementation of BaseTableComponent
@@ -159,6 +160,27 @@ describe('BaseTableComponent', () => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
       expect(links[0].label).toBe('Test Agent');
+      done();
+    });
+  });
+
+  it('should render user link', (done) => {
+    const user = { id: 1, name: 'Test User' } as JUser;
+    component.renderUserLink(user).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
+      expect(links[0].label).toBe('Test User');
+      done();
+    });
+  });
+
+  it('should render user link from agent', (done) => {
+    const user = { id: 1, name: 'Test User' } as JUser;
+    const agent = { id: 1, userId: 1, user: user } as JAgent;
+    component.renderUserLinkFromAgent(agent).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
+      expect(links[0].label).toBe('Test User');
       done();
     });
   });
