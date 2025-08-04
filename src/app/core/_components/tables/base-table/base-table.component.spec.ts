@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { BaseModel } from '@src/app/core/_models/base.model';
 import { BaseTableComponent } from './base-table.component';
 import { Component } from '@angular/core';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
@@ -218,5 +219,29 @@ describe('BaseTableComponent', () => {
     const icon = component.renderIsValidIcon(user);
     expect(icon.name).toBe('remove_circle');
     expect(icon.cls).toBe('text-critical');
+  });
+
+  it('should render secret icon for secret model', () => {
+    const model = { id: 1, type: '', isSecret: true } as BaseModel;
+    const icon = component.renderSecretIcon(model);
+    expect(icon.name).toBe('lock');
+    expect(icon.tooltip).toBe('Secret');
+  });
+
+  it('should format cracked hashes correctly', () => {
+    const hashlist = { cracked: 50, hashCount: 100 } as JHashlist;
+    const result = component.renderCrackedHashes(hashlist, false);
+    expect(result).toBe('50 (50%)');
+  });
+
+  it('should set column labels', () => {
+    const labels = { col1: 'Column 1', col2: 'Column 2' };
+    component.exposedSetColumnLabels(labels);
+    expect(component.getColumnLabels()).toEqual(labels);
+  });
+  it('should sanitize HTML', () => {
+    const html = '<div>Test</div>';
+    const result = component.exposedSanitize(html);
+    expect(result).toBeTruthy();
   });
 });
