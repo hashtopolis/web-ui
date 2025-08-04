@@ -76,6 +76,7 @@ describe('BaseTableComponent', () => {
     expect(icon.name).toBe('remove_circle');
     expect(icon.cls).toBe('text-critical');
   });
+
   it('should render supertask link', (done) => {
     const mockSuperTask = { id: 1, supertaskName: 'Test SuperTask' } as JSuperTask;
     component.renderSupertaskLink(mockSuperTask).subscribe((links) => {
@@ -85,6 +86,7 @@ describe('BaseTableComponent', () => {
       done();
     });
   });
+
   it('should render cracked link from chunk', (done) => {
     const mockChunk = { taskId: 1, cracked: 100 } as JChunk;
     component.renderCrackedLinkFromChunk(mockChunk).subscribe((links) => {
