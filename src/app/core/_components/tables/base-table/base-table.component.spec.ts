@@ -184,4 +184,39 @@ describe('BaseTableComponent', () => {
       done();
     });
   });
+
+  it('should render task link with task name', (done) => {
+    const model = { taskId: 1, task: { taskName: 'Test Task' } } as JChunk;
+
+    component.renderTaskLink(model).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+      expect(links[0].label).toBe('Test Task');
+      done();
+    });
+  });
+
+  it('should render task link with task id', (done) => {
+    const model = { taskId: 1, task: { taskName: 'Test Task' } } as JChunk;
+    component.renderTaskLink(model, true).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+      expect(links[0].label).toBe('1');
+      done();
+    });
+  });
+
+  it('should render valid icon for valid user', () => {
+    const user = { isValid: true } as JUser;
+    const icon = component.renderIsValidIcon(user);
+    expect(icon.name).toBe('check_circle');
+    expect(icon.cls).toBe('text-ok');
+  });
+
+  it('should render invalid icon for invalid user', () => {
+    const user = { isValid: false } as JUser;
+    const icon = component.renderIsValidIcon(user);
+    expect(icon.name).toBe('remove_circle');
+    expect(icon.cls).toBe('text-critical');
+  });
 });
