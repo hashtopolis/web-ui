@@ -7,7 +7,10 @@ import { GlobalService } from '@src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
+import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
+import { JTask } from '@src/app/core/_models/task.model';
+import { hasUncaughtExceptionCaptureCallback } from 'process';
 
 // Create a test implementation of BaseTableComponent
 @Component({
@@ -93,6 +96,27 @@ describe('BaseTableComponent', () => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
       expect(links[0].label).toBe('100');
+      done();
+    });
+  });
+  it('should render cracked link from task', (done) => {
+    const mockTask = { id: 1, chunkData: { cracked: 100 } } as JTask;
+    component.renderCrackedLinkFromTask(mockTask).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+      expect(links[0].label).toBe('100');
+      done();
+    });
+  });
+  
+  it('should render hashlist link', (done) => {
+    const mockHashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
+    component.renderHashlistLink(mockHashlist).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
+      expect(links[0].label).toBe('Test Hashlist');
+      expect(links[0].icon.tooltip).toBe('Secret hashlist');
+      expect(links[0].icon.faIcon.iconName).toBe('key');
       done();
     });
   });
