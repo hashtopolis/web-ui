@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
+import { JAgent } from '@src/app/core/_models/agent.model';
 
 // Create a test implementation of BaseTableComponent
 @Component({
@@ -54,13 +55,25 @@ describe('BaseTableComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
   it('should call reload on the table', () => {
     component.reload();
     expect(mockHTTable.reload).toHaveBeenCalled();
   });
 
-  /*   it('should render status icon correctly for active model', () => {});
-  it('should render status icon correctly for inactive model', () => {});
-  it('should render supertask link', (done) => {});
+  it('should render status icon correctly for active model', () => {
+    const activeModel = { isActive: true } as JAgent;
+    const icon = component.renderStatusIcon(activeModel);
+    expect(icon.name).toBe('check_circle');
+    expect(icon.cls).toBe('text-ok');
+  });
+
+  it('should render status icon correctly for inactive model', () => {
+    const inactiveModel = { isActive: false } as JAgent;
+    const icon = component.renderStatusIcon(inactiveModel);
+    expect(icon.name).toBe('remove_circle');
+    expect(icon.cls).toBe('text-critical');
+  });
+  /*it('should render supertask link', (done) => {});
   it('should render cracked link from chunk', (done) => {}); */
 });
