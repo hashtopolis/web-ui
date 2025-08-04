@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
+import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
@@ -108,7 +109,7 @@ describe('BaseTableComponent', () => {
       done();
     });
   });
-  
+
   it('should render hashlist link', (done) => {
     const mockHashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
     component.renderHashlistLink(mockHashlist).subscribe((links) => {
@@ -117,6 +118,47 @@ describe('BaseTableComponent', () => {
       expect(links[0].label).toBe('Test Hashlist');
       expect(links[0].icon.tooltip).toBe('Secret hashlist');
       expect(links[0].icon.faIcon.iconName).toBe('key');
+      done();
+    });
+  });
+  it('should render access group link', (done) => {
+    const accessGroup = { id: 1, groupName: 'Test Group' } as JAccessGroup;
+    component.renderAccessGroupLink(accessGroup).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
+      expect(links[0].label).toBe('Test Group');
+      done();
+    });
+  });
+
+  it('should render access group links', (done) => {
+    const accessGroup = [{ id: 1, groupName: 'Test Group' }] as JAccessGroup[];
+    const agent = { id: 1, accessGroups: accessGroup /* id: 1, groupName: 'Test Group'  */ } as JAgent;
+    component.renderAccessGroupLinks(agent).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
+      expect(links[0].label).toBe('Test Group');
+      done();
+    });
+  });
+
+  it('should render agent link', (done) => {
+    const agent = { id: 1, agentName: 'Test Agent', isTrusted: true } as JAgent;
+    component.renderAgentLink(agent).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
+      expect(links[0].label).toBe('Test Agent');
+      expect(links[0].icon.tooltip).toBe('Trusted Agent');
+      done();
+    });
+  });
+  it('should render agent link from chunck', (done) => {
+    const agent = { id: 1, agentName: 'Test Agent', isTrusted: true } as JAgent;
+    const chunk = { agentId: 1, agentName: 'Test Agent', agent: agent } as JChunk;
+    component.renderAgentLinkFromChunk(chunk).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
+      expect(links[0].label).toBe('Test Agent');
       done();
     });
   });
