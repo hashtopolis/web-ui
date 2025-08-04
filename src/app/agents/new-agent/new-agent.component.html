@@ -42,10 +42,11 @@
             matSuffix
             (click)="updateVoucher()"
             [attr.aria-label]="'Generate new Voucher'"
+            data-testid="generate-voucher-button"
           >
             <mat-icon>refresh</mat-icon>
           </button>
-          <button mat-icon-button matSuffix [disabled]="!isValid()">
+          <button mat-icon-button matSuffix [disabled]="!isValid()" type="submit" data-testid='add-voucher-button'>
             <mat-icon>add</mat-icon>
           </button>
         </mat-form-field>
@@ -59,7 +60,7 @@
       </div>
       <div>
         <button-submit mat-button (click)="stepper.previous()" name="Back" type="delete"></button-submit>
-        <button-submit mat-button (click)="done()" name="Finish"></button-submit>
+        <button-submit mat-button (click)="done()" name="Finish" data-testid="finish-button"></button-submit>
       </div>
     </mat-step>
   </mat-stepper>
