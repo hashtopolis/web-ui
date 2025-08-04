@@ -182,9 +182,6 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
           action: event.menuItem.action
         });
         break;
-      case RowActionMenuAction.EDIT:
-        this.rowActionEdit(event.data);
-        break;
       case RowActionMenuAction.ACTIVATE:
         this.bulkActionActivate([event.data], true);
         break;

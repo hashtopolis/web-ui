@@ -1,27 +1,28 @@
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { AccountComponent } from './account.component';
-import { AccountRoutingModule } from './account-routing.module';
-import { AccountSettingsComponent } from './settings/acc-settings/acc-settings.component';
-import { CommonModule } from '@angular/common';
-import { ComponentsModule } from '../shared/components.module';
-import { CoreComponentsModule } from '../core/_components/core-components.module';
-import { DataTablesModule } from 'angular-datatables';
-import { EditNotificationComponent } from './notifications/notification/edit-notification.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { DataTablesModule } from 'angular-datatables';
+
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { NewNotificationComponent } from './notifications/notification/new-notification.component';
-import { NgModule } from '@angular/core';
-import { NotificationsComponent } from './notifications/notifications.component';
-import { PipesModule } from '../shared/pipes.module';
 import { RouterModule } from '@angular/router';
-import { UiSettingsComponent } from './settings/ui-settings/ui-settings.component';
-import { CoreFormsModule } from '../shared/forms.module';
+
+import { CoreComponentsModule } from '@components/core-components.module';
+
+import { AccountRoutingModule } from '@src/app/account/account-routing.module';
+import { AccountComponent } from '@src/app/account/account.component';
+import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
+import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
+import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
+import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { CoreFormsModule } from '@src/app/shared/forms.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 @NgModule({
   declarations: [
@@ -29,8 +30,7 @@ import { CoreFormsModule } from '../shared/forms.module';
     AccountSettingsComponent,
     NotificationsComponent,
     UiSettingsComponent,
-    AccountComponent,
-    EditNotificationComponent
+    AccountComponent
   ],
   imports: [
     AccountRoutingModule,
