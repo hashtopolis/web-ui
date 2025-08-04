@@ -31,10 +31,13 @@ describe('BaseTableComponent', () => {
   let fixture: ComponentFixture<TestTableComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockConfigService: jasmine.SpyObj<ConfigService>;
+  let mockHTTable: jasmine.SpyObj<HTTableComponent>;
 
   beforeEach(() => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['foo']);
     mockConfigService = jasmine.createSpyObj('ConfigService', ['foo']);
+    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+
     TestBed.configureTestingModule({
       imports: [TestTableComponent],
       declarations: [],
@@ -45,14 +48,19 @@ describe('BaseTableComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(TestTableComponent);
     component = fixture.componentInstance;
-
     fixture.detectChanges();
+    component.table = mockHTTable;
   });
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-  it('should call reload on the table', () => {});
-  it('should render status icon correctly for active model', () => {});
+  it('should call reload on the table', () => {
+    component.reload();
+    expect(mockHTTable.reload).toHaveBeenCalled();
+  });
+
+  /*   it('should render status icon correctly for active model', () => {});
   it('should render status icon correctly for inactive model', () => {});
   it('should render supertask link', (done) => {});
+  it('should render cracked link from chunk', (done) => {}); */
 });
