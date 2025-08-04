@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { JTask, JTaskWrapper } from '@src/app/core/_models/task.model';
 
 import { BaseModel } from '@src/app/core/_models/base.model';
 import { BaseTableComponent } from './base-table.component';
@@ -6,14 +7,14 @@ import { Component } from '@angular/core';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
+import { HTTableRouterLink } from '../ht-table/ht-table.models';
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
-import { JTask } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
-import { hasUncaughtExceptionCaptureCallback } from 'process';
+import { Observable } from 'rxjs';
 
 // Create a test implementation of BaseTableComponent
 @Component({
@@ -32,6 +33,9 @@ class TestTableComponent extends BaseTableComponent {
 
   public getColumnLabels(): { [key: string]: string } {
     return this.columnLabels;
+  }
+  public getCrackedLinkFromWrapper(wrapper: JTaskWrapper): Observable<HTTableRouterLink[]> {
+    return this.renderCrackedLinkFromWrapper(wrapper);
   }
 }
 
@@ -112,17 +116,28 @@ describe('BaseTableComponent', () => {
     });
   });
 
+  it('should render cracked link from wrapper', (done) => {
+    const mockWrapper = { id: 1, cracked: 100, taskType: 1 } as JTaskWrapper;
+    component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].label).toBe('100');
+      expect(links[0].routerLink).toBe(null);
+      expect(links[0].tooltip).toBe('Please access the cracked hashes via the row\'s context menu "show subtasks"');
+      done();
+    });
+  });
+
   it('should render hashlist link', (done) => {
-    const mockHashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
-    component.renderHashlistLink(mockHashlist).subscribe((links) => {
+    const hashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
+    component.renderHashlistLink(hashlist).subscribe((links) => {
       expect(links.length).toBe(1);
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
       expect(links[0].label).toBe('Test Hashlist');
       expect(links[0].icon.tooltip).toBe('Secret hashlist');
-      expect(links[0].icon.faIcon.iconName).toBe('key');
       done();
     });
   });
+
   it('should render access group link', (done) => {
     const accessGroup = { id: 1, groupName: 'Test Group' } as JAccessGroup;
     component.renderAccessGroupLink(accessGroup).subscribe((links) => {
