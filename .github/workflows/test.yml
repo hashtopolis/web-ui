@@ -33,4 +33,4 @@ jobs:
         run: npm run build --if-present
 
       - name: Run tests with Karma using ChromeHeadless
-        run: npm test:ci
+        run: npm run test:ci
