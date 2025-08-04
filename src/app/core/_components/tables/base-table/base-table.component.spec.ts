@@ -80,6 +80,12 @@ describe('BaseTableComponent', () => {
     expect(icon.cls).toBe('text-ok');
   });
 
+  it('should not render status icon for undefined model', () => {
+    const activeModel = undefined as JAgent;
+    const icon = component.renderStatusIcon(activeModel);
+    expect(icon.name).toBe('');
+  });
+
   it('should render status icon correctly for inactive model', () => {
     const inactiveModel = { isActive: false } as JAgent;
     const icon = component.renderStatusIcon(inactiveModel);
@@ -137,7 +143,7 @@ describe('BaseTableComponent', () => {
       done();
     });
   });
-  
+
   it('should render hashlist link', (done) => {
     const hashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
     component.renderHashlistLink(hashlist).subscribe((links) => {
