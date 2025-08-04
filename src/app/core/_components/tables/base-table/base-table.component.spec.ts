@@ -116,7 +116,7 @@ describe('BaseTableComponent', () => {
     });
   });
 
-  it('should render cracked link from wrapper', (done) => {
+  it('should render cracked link from supertask wrapper', (done) => {
     const mockWrapper = { id: 1, cracked: 100, taskType: 1 } as JTaskWrapper;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
@@ -126,7 +126,18 @@ describe('BaseTableComponent', () => {
       done();
     });
   });
-
+  it('should render cracked link from wrapper', (done) => {
+    const mockTask = [{ id: 1, taskWrapperId: 1, taskName: 'Test Task' }] as JTask[];
+    const mockWrapper = { id: 1, cracked: 100, taskType: 0, tasks: mockTask } as JTaskWrapper;
+    component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].label).toBe('100');
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+      expect(links[0].tooltip).toBe(undefined);
+      done();
+    });
+  });
+  
   it('should render hashlist link', (done) => {
     const hashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
     component.renderHashlistLink(hashlist).subscribe((links) => {
