@@ -1,7 +1,4 @@
 import { Subscription } from 'rxjs';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -14,10 +11,13 @@ import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
 
-import { ACTION, ACTIONARRAY, NOTIFARRAY } from '../../../core/_constants/notifications.config';
-import { SERV } from '../../../core/_services/main.config';
-import { Filter } from '../notifications.component';
+import { Filter } from '@src/app/account/notifications/notifications.component';
+import { ACTION, ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
 
 @Component({
   selector: 'app-new-notification',
@@ -34,7 +34,6 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
   triggerAction: string;
   form: FormGroup;
   filters: Filter[];
-  editView = false;
   active = false;
   allowedActions = ACTIONARRAY.map((action) => ({
     id: action,
@@ -70,7 +69,7 @@ export class NewNotificationComponent implements OnInit, OnDestroy {
     private gs: GlobalService,
     private router: Router
   ) {
-    titleService.set(['New Notification']);
+    this.titleService.set(['New Notification']);
   }
 
   /**
