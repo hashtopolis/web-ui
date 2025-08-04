@@ -107,65 +107,6 @@ export class MetadataService {
   // Notifications
   // //
 
-  // This variable stores information about the edit notification page.
-  newnotifInfo = [
-    {
-      title: 'New Notification',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Notification created!',
-      submitokredirect: '/account/notifications'
-    }
-  ];
-
-  // This variable stores information about the edit notification page.
-  editnotifInfo = [
-    {
-      title: 'Edit Notification',
-      customform: false,
-      subtitle: false,
-      submitok: 'Saved!',
-      submitokredirect: '/account/notifications'
-    }
-  ];
-
-  //This variable defines the fields and properties required when creating a cracker Version.
-  newnotif = [
-    { name: 'action', type: 'seltextect', selectOptions: ACTIONARRAY },
-    { name: 'actionFilter', label: 'Value', type: 'text' },
-    {
-      name: 'notification',
-      label: 'Notification',
-      type: 'select',
-      selectOptions: NOTIFARRAY
-    },
-    { name: 'receiver', label: 'Receiver', type: 'text' },
-    {
-      name: 'isActive',
-      label: 'Receiver',
-      type: 'checkbox',
-      defaultValue: true
-    }
-  ];
-
-  //This variable defines the fields and properties required when editing a notification.
-  editnotif = [
-    { name: 'action', type: 'text', disabled: true },
-    {
-      name: 'notification',
-      label: 'Notification',
-      type: 'text',
-      disabled: true
-    },
-    { name: 'receiver', label: 'Receiver', type: 'text', disabled: true },
-    {
-      name: 'isActive',
-      label: 'Receiver',
-      type: 'checkbox',
-      validators: [Validators.required]
-    }
-  ];
-
   // // // // // // // //
   // TASKS SECTION     //
   // // // // // // // //
@@ -1137,16 +1078,6 @@ export class MetadataService {
     }
   ];
 
-  // This variable edit information about the user page.
-  editInfo = [
-    {
-      title: 'Edit User',
-      customform: false,
-      subtitle: false,
-      submitok: 'Saved!',
-      submitokredirect: 'users/all-users'
-    }
-  ];
 
   //This variable holds information about the fields required when creating a new user.
   newuser = [
@@ -1173,42 +1104,6 @@ export class MetadataService {
       selectOptions$: [],
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
-    }
-  ];
-
-  //This variable is similar to newuser but is used for editing an existing user.
-  edituser = [
-    { name: 'id', label: 'User ID', type: 'number', disabled: true },
-    { name: 'name', label: 'User Name', type: 'text', disabled: true },
-    { name: 'email', label: 'Email', type: 'email', disabled: true },
-    {
-      name: 'registered',
-      label: 'Creation date',
-      type: 'date',
-      disabled: true
-    },
-    { name: 'lastLogin', label: 'Last login', type: 'date', disabled: true },
-    { label: 'Update Settings', isTitle: true },
-    { label: 'Member of access groups', type: 'date', disabled: true },
-    {
-      name: 'globalPermissionGroupId',
-      label: 'Global Permission Group',
-      type: 'selectd',
-      requiredasterisk: true,
-      selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
-      fieldMapping: { id: 'id', name: 'name' },
-      validators: [Validators.required]
-    },
-    { name: 'password', type: 'password' },
-    {
-      name: 'isValid',
-      label: 'Valid',
-      type: 'checkbox',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: false
     }
   ];
 
@@ -1352,8 +1247,6 @@ export class MetadataService {
       return this.servergs;
     } else if (formName === 'newuser') {
       return this.newuser;
-    } else if (formName === 'editnotif') {
-      return this.editnotif;
     } else {
       return [];
     }
@@ -1411,8 +1304,6 @@ export class MetadataService {
       return this.servergsInfo;
     } else if (formName === 'newuserInfo') {
       return this.newuserInfo;
-    } else if (formName === 'editnotifInfo') {
-      return this.editnotifInfo;
     } else {
       return [];
     }

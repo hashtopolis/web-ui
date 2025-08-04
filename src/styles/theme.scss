@@ -33,6 +33,8 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
   )
 );
 
+@include mat.all-component-themes($hashtopolis-light-theme);
+
 .light-theme {
   --background-success: rgba(228, 248, 240, 0.75);
   --color-success: #1ea97c;
@@ -40,7 +42,6 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
   --color-error: #ff5757;
   --background-info: rgba(240, 246, 255, 0.75);
   --color-info: #2563eb;
-  @include mat.all-component-themes($hashtopolis-light-theme);
 }
 
 .dark-theme {
@@ -51,5 +52,5 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
   --background-info: rgba(28, 74, 182, 0.75);
   --color-info: #94949b;
   background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
-  @include mat.all-component-themes($hashtopolis-dark-theme);
+  @include mat.all-component-colors($hashtopolis-dark-theme);
 }
