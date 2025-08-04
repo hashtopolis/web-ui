@@ -6,6 +6,8 @@ import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { HTTableComponent } from '../ht-table/ht-table.component';
 import { JAgent } from '@src/app/core/_models/agent.model';
+import { JChunk } from '@src/app/core/_models/chunk.model';
+import { JSuperTask } from '@src/app/core/_models/supertask.model';
 
 // Create a test implementation of BaseTableComponent
 @Component({
@@ -74,6 +76,22 @@ describe('BaseTableComponent', () => {
     expect(icon.name).toBe('remove_circle');
     expect(icon.cls).toBe('text-critical');
   });
-  /*it('should render supertask link', (done) => {});
-  it('should render cracked link from chunk', (done) => {}); */
+  it('should render supertask link', (done) => {
+    const mockSuperTask = { id: 1, supertaskName: 'Test SuperTask' } as JSuperTask;
+    component.renderSupertaskLink(mockSuperTask).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks/', 1, 'edit']);
+      expect(links[0].label).toBe('Test SuperTask');
+      done();
+    });
+  });
+  it('should render cracked link from chunk', (done) => {
+    const mockChunk = { taskId: 1, cracked: 100 } as JChunk;
+    component.renderCrackedLinkFromChunk(mockChunk).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+      expect(links[0].label).toBe('100');
+      done();
+    });
+  });
 });
