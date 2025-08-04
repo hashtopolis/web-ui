@@ -13,18 +13,20 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
+import { UIConfig } from '@models/config-ui.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { of } from 'rxjs';
 
 describe('HTTableComponent', () => {
   let component: HTTableComponent;
   let fixture: ComponentFixture<HTTableComponent>;
-
+  let mockLocalStorageService: jasmine.SpyObj<LocalStorageService<UIConfig>>;
   beforeEach(async () => {
+    mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
     await TestBed.configureTestingModule({
       imports: [MatIconModule],
       declarations: [HTTableComponent],
-      providers: []
+      providers: [{ provide: LocalStorageService, useValue: mockLocalStorageService }]
     }).compileComponents();
   });
 
