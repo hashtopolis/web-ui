@@ -1,8 +1,6 @@
-name: Angular CI
+name: Run Tests and Build Angular application
 
 on:
-  push:
-    branches: [ "master", "ci-test" ]
   pull_request:
     branches: [ "master", "dev" ]
 
