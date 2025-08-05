@@ -6,7 +6,6 @@ import { MyRoute } from '@models/routes.model';
 import { SERV } from '@services/main.config';
 
 import { AccountComponent } from '@src/app/account/account.component';
-import { EditNotificationComponent } from '@src/app/account/notifications/notification/edit-notification.component';
 import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
 import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
@@ -52,17 +51,6 @@ const routes: MyRoute[] = [
         data: {
           kind: 'notifications',
           breadcrumb: 'Notifications'
-        },
-        canActivate: [IsAuth]
-      },
-      {
-        path: 'notifications/:id/edit',
-        component: EditNotificationComponent,
-        data: {
-          kind: 'editnotif',
-          type: 'edit',
-          serviceConfig: SERV.NOTIFICATIONS,
-          breadcrumb: 'Edit Notification'
         },
         canActivate: [IsAuth]
       },

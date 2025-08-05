@@ -7,7 +7,7 @@
     "build": "node git-version.js && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test --karma-config=karma.conf.js --include=src/app",
-    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "build:ci": "ng build --configuration production",
     "format": "npx prettier 'src/**/*.{js,jsx,ts,tsx,html,css,scss}' --write",
     "lint": "ng lint",
