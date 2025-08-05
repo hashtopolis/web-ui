@@ -1,4 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import {
   HashtypesTableCol,
@@ -9,7 +10,6 @@ import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 import { JHashtype } from '@models/hashtype.model';
@@ -86,7 +86,11 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    this.filter(event);
+    this.dataSource.test = filterQuery;
+  }
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,

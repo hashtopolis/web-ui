@@ -8,6 +8,7 @@ import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
+  test: Filter;
   loadAll(query?: Filter): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this);
@@ -28,23 +29,22 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(hashtypes);
         })
     );
   }
 
   reload(): void {
+    console.log('Reloading hashtypes data source', this.test);
     this.clearSelection();
+    if (this.test.value) {
+      this.loadAll(this.test);
+      return;
+    }
     this.loadAll();
   }
 }
