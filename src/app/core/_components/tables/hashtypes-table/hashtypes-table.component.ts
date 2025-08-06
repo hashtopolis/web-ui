@@ -89,7 +89,7 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   handleBackendSqlFilter(event: string) {
     let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
     this.filter(event);
-    this.dataSource.test = filterQuery;
+    this.dataSource.setFilterQuery(filterQuery);
   }
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {

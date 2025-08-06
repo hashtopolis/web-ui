@@ -8,7 +8,10 @@ import { ResponseWrapper } from '../_models/response.model';
 import { SERV } from '../_services/main.config';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-  test: Filter;
+  private filterQuery: Filter;
+  setFilterQuery(filter: Filter): void {
+    this.filterQuery = filter;
+  }
   loadAll(query?: Filter): void {
     this.loading = true;
     const params = new RequestParamBuilder().addInitial(this);
@@ -39,12 +42,11 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
   }
 
   reload(): void {
-    console.log('Reloading hashtypes data source', this.test);
     this.clearSelection();
-    if (this.test.value) {
-      this.loadAll(this.test);
-      return;
+    if (this.filterQuery.value) {
+      this.loadAll(this.filterQuery);
+    } else {
+      this.loadAll();
     }
-    this.loadAll();
   }
 }
