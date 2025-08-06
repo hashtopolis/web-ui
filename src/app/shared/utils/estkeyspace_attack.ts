@@ -12,7 +12,7 @@ declare let parser: any;
  * @param value - Object
  * @param name - files object to extract line count
  * @param cmd - Attack
- * @param attcktype - If true, returns attack type
+ * @param attacktype - If true, returns attack type
  * @returns number
  **/
 export function calculateKeyspace(
@@ -20,7 +20,7 @@ export function calculateKeyspace(
   name: string,
   cmd: any,
   attcktype?: boolean
-): number | number[] | string {
+): number | number[] | string | null {
   if (!cmd || !name) {
     return 'Wrong Command';
   }
