@@ -36,18 +36,16 @@ jobs:
             !**/*.spec.ts
 
       - name: Run ESLint on changed files
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.all_changed_files != ''
         run: |
-          FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ',' | sed 's/,$//')
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           echo "Linting files: $FILES"
-          npx ng lint --lint-file-patterns=$FILES
+          npx ng lint --lint-file-patterns="$(echo "$FILES" | tr ' ' ',')"
+
 
       - name: Run Prettier check on changed files
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          echo "${{ steps.changed-files.outputs.all_changed_files }}" \
-            | tr ' ' '\n' \
-            | xargs -r npx prettier --check
+        if: steps.changed-files.outputs.all_changed_files != ''
+        run: echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | xargs npx prettier --check
 
   build:
     name: Run Tests & Build
