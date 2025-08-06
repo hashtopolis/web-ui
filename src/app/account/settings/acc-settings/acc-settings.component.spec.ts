@@ -121,17 +121,12 @@ describe('AccountSettingsComponent', () => {
   });
 
   describe('Main form tests', () => {
-    it('initializes the form with default values', fakeAsync(() => {
-      fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
-
+    it('initializes the form with default values', () => {
       const formValue = component.form.getRawValue();
-
       expect(formValue.name).toBe(userResponse.attributes.name);
       expect(formValue.email).toBe(userResponse.attributes.email);
       expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
-    }));
+    });
 
     it('validates email as required', async () => {
       const emailControl = component.form.get('email');
