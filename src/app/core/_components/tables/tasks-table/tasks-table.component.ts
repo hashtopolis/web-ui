@@ -1,4 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import {
   HTTableColumn,
   HTTableEditable,
@@ -20,7 +21,6 @@ import { BaseTableComponent } from '@components/tables/base-table/base-table.com
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { ChunkData } from '@models/chunk.model';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JHashlist } from '@models/hashlist.model';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -81,7 +81,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    this.filter(event);
+    this.dataSource.setFilterQuery(filterQuery);
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
