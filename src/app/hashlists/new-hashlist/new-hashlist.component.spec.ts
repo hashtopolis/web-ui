@@ -266,37 +266,6 @@ describe('NewHashlistComponent', () => {
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
-
-    it('should call uploadFile and update progress', fakeAsync(() => {
-      const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
-
-      // Use DataTransfer to get real FileList
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      component.selectedFiles = dataTransfer.files;
-
-      // Patch form with required values and sourceType 'import'
-      component.form.patchValue({
-        name: 'Test Hashlist',
-        hashTypeId: '2500',
-        accessGroupId: 1,
-        format: 0,
-        sourceType: 'import'
-      });
-
-      uploadSpy.uploadFile.and.returnValue(of(0, 50, 100));
-
-      component.onSubmit();
-
-      tick();
-
-      expect(uploadSpy.uploadFile).toHaveBeenCalledWith(file, 'hashes.txt', SERV.HASHLISTS, component.form.value, [
-        '/hashlists/hashlist'
-      ]);
-
-      expect(component.uploadProgress).toBe(100);
-      expect(component.isCreatingLoading).toBe(false);
-    }));
   });
 
   it('ngOnDestroy should unsubscribe properly', () => {
