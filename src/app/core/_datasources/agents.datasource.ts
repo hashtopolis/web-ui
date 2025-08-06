@@ -20,7 +20,11 @@ import { SERV } from '@services/main.config';
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
+  private filterQuery: Filter;
 
+  setFilterQuery(filter: Filter): void {
+    this.filterQuery = filter;
+  }
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
@@ -77,19 +81,13 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
           });
         }
-          const length = response.meta.page.total_elements;
-          const nextLink = response.links.next;
-          const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+        const length = response.meta.page.total_elements;
+        const nextLink = response.links.next;
+        const prevLink = response.links.prev;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
         this.setData(agents);
       });
   }
@@ -152,16 +150,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(agents);
         }
       });
@@ -172,7 +164,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     if (this._taskId) {
       this.loadAssignments();
     } else {
-      this.loadAll();
+      if (this.filterQuery && this.filterQuery.value) {
+        this.loadAll(this.filterQuery);
+      } else {
+        this.loadAll();
+      }
     }
   }
 

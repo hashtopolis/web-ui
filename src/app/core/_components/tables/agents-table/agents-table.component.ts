@@ -11,6 +11,7 @@ import {
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { Observable, catchError, of } from 'rxjs';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -20,7 +21,6 @@ import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JAgent } from '@models/agent.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
@@ -84,6 +84,11 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
+  }
+  handleBackendSqlFilter(event: string) {
+    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    this.filter(event);
+    this.dataSource.setFilterQuery(filterQuery);
   }
 
   getColumns(): HTTableColumn[] {

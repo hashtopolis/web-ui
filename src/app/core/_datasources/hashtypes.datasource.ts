@@ -43,7 +43,7 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
 
   reload(): void {
     this.clearSelection();
-    if (this.filterQuery.value) {
+    if (this.filterQuery && this.filterQuery.value) {
       this.loadAll(this.filterQuery);
     } else {
       this.loadAll();
