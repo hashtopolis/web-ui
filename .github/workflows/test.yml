@@ -40,7 +40,7 @@ jobs:
         run: |
           FILES="${{ steps.changed-files.outputs.all_changed_files }}"
           echo "Linting files: $FILES"
-          npx ng lint --lint-file-patterns="$(echo "$FILES" | tr ' ' ',')"
+          npx eslint $FILES
 
 
       - name: Run Prettier check on changed files
