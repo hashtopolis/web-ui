@@ -10,7 +10,10 @@ import { firstValueFrom } from 'rxjs';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
-
+  private filterQuery: Filter;
+  setFilterQuery(filter: Filter): void {
+    this.filterQuery = filter;
+  }
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
   }
@@ -48,16 +51,10 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     const length = response.meta.page.total_elements;
     const nextLink = response.links.next;
     const prevLink = response.links.prev;
-    const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-    const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+    const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+    const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-    this.setPaginationConfig(
-      this.pageSize,
-      length,
-      after,
-      before,
-      this.index
-    );
+    this.setPaginationConfig(this.pageSize, length, after, before, this.index);
     const responseData = { data: response.data, included: response.included };
     return this.serializer.deserialize<JPretask[]>(responseData);
   }
@@ -85,6 +82,10 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
   reload(): void {
     this.clearSelection();
-    void this.loadAll();
+    if (this.filterQuery && this.filterQuery.value) {
+      this.loadAll(this.filterQuery);
+    } else {
+      this.loadAll();
+    }
   }
 }

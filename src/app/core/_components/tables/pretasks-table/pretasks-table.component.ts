@@ -30,7 +30,7 @@ import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource'
 
 import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
 import { formatFileSize } from '@src/app/shared/utils/util';
-import { FilterType } from '@src/app/core/_models/request-params.model';
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 
 export interface AttackOptions {
   attackType: number;
@@ -101,7 +101,11 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    this.filter(event);
+    this.dataSource.setFilterQuery(filterQuery);
+  }
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
