@@ -3,6 +3,7 @@ import {
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { catchError, forkJoin } from 'rxjs';
 
@@ -14,7 +15,6 @@ import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
 import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
 import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@src/app/core/_services/main.config';
@@ -64,7 +64,11 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    this.filter(event);
+    this.dataSource.setFilterQuery(filterQuery);
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
