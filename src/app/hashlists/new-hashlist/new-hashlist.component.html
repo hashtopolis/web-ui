@@ -95,12 +95,11 @@
 
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-        <button-submit [name]="'Create'"></button-submit>
+        <button-submit [name]="'Create'" [disabled]="!form.valid" data-testid="submit-button"></button-submit>
         <div *ngIf="isCreatingLoading">
           <mat-spinner diameter="24" color="accent"></mat-spinner>
         </div>
       </grid-buttons>
     </div>
-
   </form>
 </grid-main>

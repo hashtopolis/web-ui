@@ -10,7 +10,7 @@ import { PipesModule } from 'src/app/shared/pipes.module';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -122,12 +122,10 @@ describe('AccountSettingsComponent', () => {
 
   describe('Main form tests', () => {
     it('initializes the form with default values', fakeAsync(() => {
-      fixture.detectChanges();
-      tick();
+      tick(); // flush microtasks
       fixture.detectChanges();
 
       const formValue = component.form.getRawValue();
-
       expect(formValue.name).toBe(userResponse.attributes.name);
       expect(formValue.email).toBe(userResponse.attributes.email);
       expect(formValue.registeredSince).toBe('08/04/2025 6:25:56');
