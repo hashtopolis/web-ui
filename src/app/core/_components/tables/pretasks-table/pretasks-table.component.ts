@@ -369,7 +369,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
   renderEstimatedKeyspace(pretask: JPretask): SafeHtml {
     const keyspace = calculateKeyspace(pretask.pretaskFiles, 'lineCount', pretask.attackCmd, false);
     if (keyspace === null) {
-      return "";
+      return '';
     } else {
       return keyspace.toLocaleString();
     }
