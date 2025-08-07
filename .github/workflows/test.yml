@@ -1,12 +1,53 @@
-name: Run Tests and Build Angular application
+name: Angular CI
 
 on:
   pull_request:
-    branches: [ "master", "dev" ]
+    branches: [ "master", "dev" ]  # trigger build on PR to dev/master
 
 jobs:
-  build:
+  code-check:
+    name: Lint & Prettier Check
+    runs-on: ubuntu-22.04
 
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch base branch (if needed)
+        run: git fetch origin ${{ github.base_ref }} --depth=1 || true
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **/*.ts
+            **/*.js
+            !**/*.spec.ts
+
+      - name: Run ESLint on changed files
+        if: steps.changed-files.outputs.all_changed_files != ''
+        run: |
+          FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          echo "Linting files: $FILES"
+          npx ng lint --lint-file-patterns="$FILES"
+
+      - name: Run Prettier check on changed files
+        if: steps.changed-files.outputs.all_changed_files != ''
+        run: echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | xargs npx prettier --check
+
+  build:
+    name: Run Tests & Build
     runs-on: ubuntu-22.04
 
     strategy:
