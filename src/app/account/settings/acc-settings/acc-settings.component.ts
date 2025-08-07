@@ -95,22 +95,12 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   }
   /**
    * Creates and configures basic controls
-   *
-   * @param {string} name - Account type name.
-   * @param {string} registeredSince - Account registration date.
-   * @param {string} email - The user's email.
    */
-  createForm(name: string = '', registeredSince: string = '', email: string = ''): void {
+  createForm(): void {
     this.form = new FormGroup({
-      name: new FormControl({
-        value: name,
-        disabled: true
-      }),
-      registeredSince: new FormControl({
-        value: registeredSince,
-        disabled: true
-      }),
-      email: new FormControl(email, [Validators.required, Validators.email])
+      name: new FormControl({ value: '', disabled: true }),
+      registeredSince: new FormControl({ value: '', disabled: true }),
+      email: new FormControl('', [Validators.required, Validators.email])
     });
   }
 
@@ -198,8 +188,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     const params = new RequestParamBuilder().create();
     this.subscriptions.push(
       this.gs.get(SERV.USERS, this.gs.userId, params).subscribe((response: ResponseWrapper) => {
-        const user = new JsonAPISerializer().deserialize<JUser>({ data: response.data, included: response.included });
-        this.createForm(user.name, this.datePipe.transform(user.registeredSince), user.email);
+        const user = new JsonAPISerializer().deserialize<JUser>({
+          data: response.data,
+          included: response.included
+        });
+
+        this.form.patchValue({
+          name: user.name,
+          registeredSince: this.datePipe.transform(user.registeredSince),
+          email: user.email
+        });
       })
     );
   }
