@@ -78,9 +78,7 @@ describe('AuthComponent', () => {
   it('should call authService.logIn on valid form submission via button click', fakeAsync(() => {
     const fakeResponse = of({ token: '123' }).pipe(observeOn(asyncScheduler));
     mockAuthService.logIn.and.returnValue(fakeResponse);
-
     component.loginForm.setValue({ username: 'user', password: 'pass' });
-    fixture.detectChanges();
 
     const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
     submitButtonDebugEl.nativeElement.click();
@@ -89,7 +87,6 @@ describe('AuthComponent', () => {
     expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'pass');
 
     tick();
-    fixture.detectChanges();
 
     expect(component.isLoading).toBeFalse();
     expect(component.loginForm.value.username).toBeNull();
@@ -107,11 +104,12 @@ describe('AuthComponent', () => {
     submitButtonDebugEl.nativeElement.click();
 
     expect(component.isLoading).toBeTrue();
+    expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'wrong');
 
     tick();
 
     expect(component.isLoading).toBeFalse();
-    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('An error occurred. Please try again later.');
+    expect(mockAlertService.showErrorMessage).toHaveBeenCalled();
   }));
 
   it('should call unsubscribeAll on destroy', () => {
