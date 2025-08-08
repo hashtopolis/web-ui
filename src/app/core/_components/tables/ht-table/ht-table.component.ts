@@ -428,22 +428,21 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Applies a filter to the table based on user input.
    */
-  applyFilter() {
+/*   applyFilter() {
     if (this.filterFn) {
       this.dataSource.filterData(this.filterFn);
       this.uiSettings.updateTableSettings(this.name, {
         search: this.dataSource.filter
       });
     }
-  }
+  } */
   emitFilterValue(): void {
-    console.log(this.filterQueryFormGroup.get('textFilter').value);
     this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
   }
   /**
    * Clears a filter to the table based on user input.
    */
-  clearFilter() {
+/*   clearFilter() {
     // Reset the filter function to a default that passes all items
     const defaultFilterFn = (item: any, filterValue: '') => true;
     // Reapply the default filter function
@@ -452,7 +451,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.uiSettings.updateTableSettings(this.name, {
       search: ''
     });
-  }
+  } */
 
   /**
    * Checks if a row is selected.
@@ -547,8 +546,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onPageChange(event: PageEvent): void {
     console.log('Page change event:', event);
-    this.clearFilter();
-    let pageAfter = this.dataSource.pageAfter;
+/*     this.clearFilter();
+ */    let pageAfter = this.dataSource.pageAfter;
     let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
     if (index > this.dataSource.index) {
@@ -589,8 +588,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Update pagination configuration in the data source
     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-
+/*     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
+ */
     // Reload data with updated pagination settings
     this.dataSource.reload();
   }
