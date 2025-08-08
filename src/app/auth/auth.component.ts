@@ -15,8 +15,8 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { environment } from '@src/environments/environment';
 import { HeaderConfig } from '@src/config/default/app/config.model';
+import { environment } from '@src/environments/environment';
 
 @Component({
   selector: 'app-login',
