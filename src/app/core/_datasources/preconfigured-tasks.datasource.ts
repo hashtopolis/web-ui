@@ -1,4 +1,5 @@
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
+import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 import { JPretask } from '@models/pretask.model';
@@ -6,12 +7,22 @@ import { JSuperTask } from '@models/supertask.model';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { ResponseWrapper } from '@models/response.model';
 import { SERV } from '@services/main.config';
-import { firstValueFrom } from 'rxjs';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
   private filterQuery: Filter;
+  private isFirstSearch = true;
+
   setFilterQuery(filter: Filter): void {
+    // Detect filter changes that require pagination reset
+    const filterChanged = !this.filterQuery || filter?.value !== this.filterQuery?.value;
+
+    if (filterChanged && filter?.value) {
+      // Reset pagination when filter changes
+      console.log('Filter changed, resetting pagination');
+      this.setPaginationConfig(this.pageSize, null, null, null, 0);
+    }
+
     this.filterQuery = filter;
   }
   setSuperTaskId(superTaskId: number): void {
@@ -24,19 +35,39 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     try {
       if (this._superTaskId === 0) {
         const params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
-        if (query) {
+
+        // If this is a filter query
+        if (query?.value.toString().length > 0) {
+          // Always reset pagination when filter changes
+          if (this.filterQuery?.value !== query.value) {
+            console.log('2 Filter changed, resetting pagination');
+            this.setPaginationConfig(this.pageSize, null, null, null, 0);
+            params.setPageAfter(undefined);
+            params.setPageBefore(undefined);
+          }
+
           params.addFilter(query);
         }
+
         const pretasks = await this.loadPretasks(params.create());
         this.setData(pretasks);
       } else {
+        // Similar logic for supertasks
         const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
-        if (query) {
+
+        if (query?.value.toString().length > 0) {
+          // Always reset pagination when filter changes
+          if (this.filterQuery?.value !== query.value) {
+            this.setPaginationConfig(this.pageSize, null, null, null, 0);
+            params.setPageAfter(undefined);
+            params.setPageBefore(undefined);
+          }
+
           params.addFilter(query);
         }
+
         const supertask = await this.loadSupertask(this._superTaskId, params.create());
         const superTaskPreTaskIds = supertask.pretasks.map((p) => p.id);
-
         const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds);
         this.setData(pretaskFiles);
       }
@@ -82,6 +113,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
   reload(): void {
     this.clearSelection();
+    console.log('reloaded', this.filterQuery);
     if (this.filterQuery && this.filterQuery.value) {
       this.loadAll(this.filterQuery);
     } else {
