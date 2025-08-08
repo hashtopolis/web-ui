@@ -19,7 +19,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { hashSource, hashcatbrainFormat, hashlistFormat } from '@src/app/core/_constants/hashlist.config';
@@ -27,7 +26,7 @@ import { ACCESS_GROUP_FIELD_MAPPING, HASHTYPE_FIELD_MAPPING } from '@src/app/cor
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { NewHashlistForm, getNewHashlistForm } from '@src/app/hashlists/new-hashlist/new-hashlist.form';
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
-import { handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, handleEncode, removeFakePath, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-new-hashlist',
@@ -48,21 +47,21 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
   isCreatingLoading = false;
 
   // Lists of Selected inputs
-  selectAccessgroup: any[];
-  selectHashtypes: any[];
+  selectAccessgroup: SelectOption[];
+  selectHashtypes: SelectOption[];
   selectFormat = hashlistFormat;
   selectSource = hashSource;
 
   // Lists of Hashtypes
-  hashtypes: any[];
+  hashtypes: JHashtype[];
 
   //Hashcat Brain Mode
-  brainenabled: any;
+  brainenabled: number;
   selectFormatbrain = hashcatbrainFormat;
 
   // Upload Hashlists
   selectedFiles: FileList | null = null;
-  fileName: any;
+  fileName: string;
   uploadProgress = 0;
 
   // Unsubcribe
@@ -171,18 +170,16 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
       newForm.sourceData = removeFakePath(newForm.sourceData);
     }
 
-    for (let i = 0; i < files.length; i++) {
-      this.uploadService
-        .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
-        .pipe(takeUntil(this.fileUnsubscribe))
-        .subscribe((progress) => {
-          this.uploadProgress = progress;
-          this.changeDetectorRef.detectChanges();
-          if (this.uploadProgress === 100) {
-            this.isCreatingLoading = false;
-          }
-        });
-    }
+    this.uploadService
+      .uploadFile(files[0], files[0].name, SERV.HASHLISTS, newForm, ['/hashlists/hashlist'])
+      .pipe(takeUntil(this.fileUnsubscribe))
+      .subscribe((progress) => {
+        this.uploadProgress = progress;
+        this.changeDetectorRef.detectChanges();
+        if (this.uploadProgress === 100) {
+          this.isCreatingLoading = false;
+        }
+      });
   }
 
   /**
@@ -236,7 +233,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * @param hashTypeId - The new value of the hashTypeId form control.
    */
   handleSelectedItems(hashTypeId: number): void {
-    const filter = this.hashtypes.filter((u) => u._id === hashTypeId);
+    const filter = this.hashtypes.filter((hashtype) => hashtype.id === hashTypeId);
     const salted = filter.length > 0 ? filter[0]['isSalted'] : false;
 
     if (hashTypeId === 2500 || hashTypeId === 16800 || hashTypeId === 16801) {
