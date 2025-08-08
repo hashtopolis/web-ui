@@ -1,26 +1,23 @@
-import { BehaviorSubject, Observable, catchError, finalize, throwError } from 'rxjs';
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { Observable, catchError, finalize, throwError } from 'rxjs';
 
-import { AuthService } from '../_services/access/auth.service';
-import { ErrorModalComponent } from '../../shared/alert/error/error.component';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { LoadingService } from '../_services/shared/loading.service';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+
+import { AuthService } from '@services/access/auth.service';
+import { LoadingService } from '@services/shared/loading.service';
+
+import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component';
 
 @Injectable()
 export class HttpResInterceptor implements HttpInterceptor {
-  private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-
   constructor(
     private authService: AuthService,
     private dialog: MatDialog,
-    private loadingService: LoadingService,
-    private router: Router
+    private loadingService: LoadingService
   ) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     this.loadingService.handleRequest('plus');
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => this.handleError(req, error)),
@@ -36,7 +33,7 @@ export class HttpResInterceptor implements HttpInterceptor {
    * @param {HttpErrorResponse} error - The HTTP error response received.
    * @returns {Observable<never>} - An observable that errors out with the error message.
    */
-  private handleError(req: HttpRequest<any>, error: HttpErrorResponse): Observable<never> {
+  private handleError(req: HttpRequest<unknown>, error: HttpErrorResponse): Observable<never> {
     let errmsg = '';
     const status = error?.status || 0;
 
@@ -65,27 +62,25 @@ export class HttpResInterceptor implements HttpInterceptor {
    * @param {HttpRequest<any>} req - The HTTP request that resulted in an unauthorized error.
    * @returns {string} - A message indicating the action taken or needed.
    */
-  private handleUnauthorizedError(req: HttpRequest<any>): string {
+  private handleUnauthorizedError(req: HttpRequest<unknown>): string {
     if (!req.url.includes('/auth')) {
       const token = this.authService.token;
       const userData: { _expires: string } = JSON.parse(localStorage.getItem('userData') || '{}');
       if (token !== 'notoken' && new Date(userData._expires) < new Date(Date.now() - 60000)) {
-        this.refreshToken(req);
+        this.refreshToken();
         return 'Refreshing token...';
       } else {
         return `Check credentials.`;
       }
     } else {
-      return `Token expired. Please log in again.`;
+      return `Invalid credentials. Please try again.`;
     }
   }
 
   /**
    * Refresh token
-   *
-   * @param {any} request -token request
    */
-  private refreshToken(request: HttpRequest<any>): void {
+  private refreshToken(): void {
     console.log('Refreshing token...');
     this.authService.refreshToken();
     window.location.reload();
@@ -101,7 +96,7 @@ export class HttpResInterceptor implements HttpInterceptor {
     try {
       const urlObj = new URL(url);
       return `${urlObj.hostname}:${urlObj.port}`;
-    } catch (e) {
+    } catch {
       return 'unknown IP and port';
     }
   }
