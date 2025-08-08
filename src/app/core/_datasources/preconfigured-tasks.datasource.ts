@@ -21,6 +21,8 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       // Reset pagination when filter changes
       console.log('Filter changed, resetting pagination');
       this.setPaginationConfig(this.pageSize, null, null, null, 0);
+      this.pageAfter = undefined;
+      this.pageBefore = undefined;
     }
 
     this.filterQuery = filter;
