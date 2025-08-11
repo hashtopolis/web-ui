@@ -1,37 +1,35 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { FileType } from '@models/file.model';
-import { JHashlist } from '@models/hashlist.model';
-import { JPreprocessor } from '@models/preprocessor.model';
-import { JPretask } from '@models/pretask.model';
-import { Filter, FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
-
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { TooltipService } from '@services/shared/tooltip.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
-
 import {
   CRACKER_TYPE_FIELD_MAPPING,
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
-import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
-import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Filter, FilterType } from '@models/request-params.model';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { FileType } from '@models/file.model';
+import { FormGroup } from '@angular/forms';
+import { GlobalService } from '@services/main.service';
+import { JHashlist } from '@models/hashlist.model';
+import { JPreprocessor } from '@models/preprocessor.model';
+import { JPretask } from '@models/pretask.model';
+import { JTask } from '@models/task.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { MatDialog } from '@angular/material/dialog';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
+import { TooltipService } from '@services/shared/tooltip.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 import { environment } from '@src/environments/environment';
+import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -362,9 +360,12 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         : ['pretaskFiles'];
 
       const requestParamBuilder = new RequestParamBuilder();
-      for (const resource in includedResources) {
+      includedResources.forEach((resource) => {
         requestParamBuilder.addInclude(resource);
-      }
+      });
+/*       for (const resource in includedResources) {
+        requestParamBuilder.addInclude(resource);
+      } */
       const requestParams = requestParamBuilder.create();
 
       this.gs.get(endpoint, this.editedIndex, requestParams).subscribe((response: ResponseWrapper) => {
@@ -375,14 +376,14 @@ export class NewTasksComponent implements OnInit, OnDestroy {
 
         const arrFiles: Array<any> = [];
         const filesField = isTask ? 'files' : 'pretaskFiles';
-        this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist'][0]['id'];
+        this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist']['id'];
         if (task[filesField]) {
           for (let i = 0; i < task[filesField].length; i++) {
             arrFiles.push(task[filesField][i]['fileId']);
           }
           this.copyFiles = arrFiles;
         }
-
+        console.log(task)
         this.form.setValue({
           taskName: task['taskName'] + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
           notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
@@ -397,14 +398,15 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           isSmall: task['isSmall'],
           useNewBench: task['useNewBench'],
           skipKeyspace: isTask ? task['skipKeyspace'] : 0,
-          crackerBinaryId: isTask ? task['crackerBinary']['crackerBinaryId'] : 1,
+          crackerBinaryId: isTask ? task['crackerBinaryId'] : 1,
           isArchived: false,
           staticChunks: isTask ? task['staticChunks'] : 0,
           chunkSize: isTask ? task['chunkSize'] : this.chunkSize,
           forcePipe: isTask ? task['forcePipe'] : false,
           preprocessorId: isTask ? task['preprocessorId'] : 0,
           preprocessorCommand: isTask ? task['preprocessorCommand'] : '',
-          files: arrFiles
+          files: arrFiles,
+          statusTimer: task['statusTimer']
         });
       });
     }
