@@ -28,9 +28,9 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource';
 
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
 import { formatFileSize } from '@src/app/shared/utils/util';
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 
 export interface AttackOptions {
   attackType: number;
@@ -102,7 +102,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
   handleBackendSqlFilter(event: string) {
-    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }
