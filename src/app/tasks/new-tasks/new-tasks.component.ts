@@ -181,23 +181,23 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.form = getNewTaskForm(this.uiService);
-
+    console.log(this.form.get('preprocessorId').value, this.form.get('preprocessorId').value);
     //subscribe to changes to handle select cracker binary
-    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+/*     this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
-    });
+    }); */
 
     /**
      * If no Preprocessor was selected ('disabled'),
      * the value '0' must be used instead of 'null' for further processing
      */
-    this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
+    /*     this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
       if (newvalue === 'null') {
         this.form.get('preprocessorId').patchValue(0);
       } else {
         this.form.get('preprocessorId').patchValue(newvalue);
       }
-    });
+    }); */
   }
 
   /**
@@ -363,7 +363,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       includedResources.forEach((resource) => {
         requestParamBuilder.addInclude(resource);
       });
-/*       for (const resource in includedResources) {
+      /*       for (const resource in includedResources) {
         requestParamBuilder.addInclude(resource);
       } */
       const requestParams = requestParamBuilder.create();
@@ -383,7 +383,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           }
           this.copyFiles = arrFiles;
         }
-        console.log(task)
+        console.log(task);
         this.form.setValue({
           taskName: task['taskName'] + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
           notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
