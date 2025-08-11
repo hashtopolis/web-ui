@@ -59,6 +59,13 @@
                       [formControlName]="field.name"
                     />
                   </ng-container>
+                  <ng-container *ngSwitchCase="'url'">
+                    <input
+                      matInput
+                      [type]="field.type"
+                      [formControlName]="field.name"
+                    />
+                  </ng-container>
                   <ng-container *ngSwitchCase="'select'">
                     <mat-select [formControlName]="field.name">
                       <mat-option
@@ -79,6 +86,13 @@
                     <mat-spinner *ngIf="isLoadingSelect" diameter="16"></mat-spinner>
                   </ng-container>
                 </ng-container>
+                <mat-error *ngIf="form.get(field.name).hasError('required')">
+                  {{ field.label }} is required
+                </mat-error>
+                <mat-error *ngIf="field.type === 'url' && form.get(field.name).hasError('pattern')">
+                  Invalid URL format
+                </mat-error>
+
               </mat-form-field>
             </div>
             <div *ngIf="field.type === 'checkbox'">

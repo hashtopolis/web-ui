@@ -31,7 +31,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 })
 export class InputTextComponent extends AbstractInputComponent<string> {
   @Input() pattern: string | RegExp;
-  @Input() inputType: 'text' | 'password' | 'email' = 'text';
+  @Input() inputType: 'text' | 'password' | 'email' | 'url' = 'text';
   @Input() icon: string;
   @Input() width: string = '';
   @Input() minLength?: number;

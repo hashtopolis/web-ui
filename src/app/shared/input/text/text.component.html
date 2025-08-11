@@ -51,6 +51,7 @@
   <mat-error *ngIf="inputField.errors && (inputField.dirty || inputField.touched)">
     <span *ngIf="inputField.errors.required">{{ title }} is required</span>
     <span *ngIf="inputField.errors.email">Please enter a valid {{ title?.toLowerCase() }}</span>
+    <span *ngIf="inputField.errors.url">Please enter a valid {{ title?.toLowerCase() }}</span>
     <span *ngIf="inputField.errors.minlength">
     Minimum length is {{ inputField.errors.minlength.requiredLength }}
   </span>

@@ -2,11 +2,9 @@ import { Injectable } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 
 import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
 import { TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
-import { ACTIONARRAY, NOTIFARRAY } from '@src/app/core/_constants/notifications.config';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
 import { environment } from '@src/environments/environment';
@@ -15,12 +13,11 @@ import { environment } from '@src/environments/environment';
   providedIn: 'root'
 })
 export class MetadataService {
-  tooltip: any;
+  tooltip: unknown;
 
-  constructor(
-    private tooltipService: TooltipService,
-    private gs: GlobalService
-  ) {
+  URL_PATTERN = '[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)';
+
+  constructor(private tooltipService: TooltipService) {
     this.tooltip = this.tooltipService.getConfigTooltips();
   }
 
@@ -388,10 +385,10 @@ export class MetadataService {
     {
       name: 'downloadUrl',
       label: 'Download URL',
-      type: 'text',
+      type: 'url',
       requiredasterisk: true,
       tooltip: 'Link where the client can download a 7zip with the binary',
-      validators: [Validators.required]
+      validators: [Validators.required, Validators.pattern(this.URL_PATTERN)]
     },
     {
       name: 'crackerBinaryTypeId',
@@ -425,10 +422,10 @@ export class MetadataService {
     {
       name: 'downloadUrl',
       label: 'Download URL',
-      type: 'text',
+      type: 'url',
       requiredasterisk: true,
       tooltip: 'Link where the client can download a 7zip with the binary',
-      validators: [Validators.required]
+      validators: [Validators.required, Validators.pattern(this.URL_PATTERN)]
     }
   ];
 
@@ -483,10 +480,10 @@ export class MetadataService {
     {
       name: 'url',
       label: 'Download URL',
-      type: 'text',
+      type: 'url',
       requiredasterisk: true,
       tooltip: false,
-      validators: [Validators.required]
+      validators: [Validators.required, Validators.pattern(this.URL_PATTERN)]
     },
     { label: 'Commands (set to empty if not available)', isTitle: true },
     {
@@ -1077,7 +1074,6 @@ export class MetadataService {
       submitokredirect: 'users/all-users'
     }
   ];
-
 
   //This variable holds information about the fields required when creating a new user.
   newuser = [
