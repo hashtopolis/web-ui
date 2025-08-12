@@ -1,19 +1,20 @@
 import { Subscription } from 'rxjs';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { MetadataService } from 'src/app/core/_services/metadata.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
+import { BaseModel } from '@models/base.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { ServiceConfig } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { MetadataService } from '@services/metadata.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
 
 @Component({
   selector: 'app-form',
@@ -25,7 +26,8 @@ import { ServiceConfig } from '@services/main.config';
  */
 export class FormComponent implements OnInit, OnDestroy {
   // Metadata Text, titles, subtitles, forms, and API path
-  globalMetadata: any[] = [];
+  globalMetadata: ReturnType<MetadataService['getInfoMetadata']>[0];
+
   serviceConfig: ServiceConfig;
 
   /**
@@ -78,16 +80,14 @@ export class FormComponent implements OnInit, OnDestroy {
   /**
    * An array of form field metadata that describes the form structure.
    * Each item in the array represents a form field, including its type, label, and other properties.
-   * @type {any[]}
    */
-  formMetadata: any[] = [];
+  formMetadata: ReturnType<MetadataService['getFormMetadata']> = [];
 
   /**
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
-   * @type {any[]}
    */
-  formValues: any[] = [];
+  formValues: (BaseModel & Record<string, unknown>)[] = [];
 
   // Subscription for managing asynchronous data retrieval
   private subscriptionService: Subscription;
@@ -128,7 +128,7 @@ export class FormComponent implements OnInit, OnDestroy {
         this.formMetadata = this.metadataService.getFormMetadata(formKind);
         this.title = this.globalMetadata['title'];
         this.customform = this.globalMetadata['customform'];
-        titleService.set([this.title]);
+        this.titleService.set([this.title]);
         // Load metadata and form information
         if (this.type === 'edit') {
           this.getIndex();
@@ -199,7 +199,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * Handles the submission of the form.
    * @param formValues - The values submitted from the form.
    */
-  onFormSubmit(formValues: any) {
+  onFormSubmit(formValues: (BaseModel & Record<string, unknown>)[]) {
     if (this.customform) {
       this.modifyFormValues(formValues);
     }
@@ -226,7 +226,7 @@ export class FormComponent implements OnInit, OnDestroy {
    * @param formValues - The form values to be modified.
    * @returns The modified form values.
    */
-  modifyFormValues(formValues: any) {
+  modifyFormValues(formValues: (BaseModel | Record<string, unknown>)[]) {
     // Check the formMetadata for fields with 'replacevalue' property
     this.getIndex();
     for (const field of this.formMetadata) {
