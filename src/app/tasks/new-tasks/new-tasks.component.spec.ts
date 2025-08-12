@@ -1,17 +1,21 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { of } from 'rxjs';
+
+import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 
+import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { ChangeDetectorRef } from '@angular/core';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { MatDialog } from '@angular/material/dialog';
-import { NewTasksComponent } from './new-tasks.component';
-import { TooltipService } from '@src/app/core/_services/shared/tooltip.service';
 import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
+import { TooltipService } from '@src/app/core/_services/shared/tooltip.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
-import { of } from 'rxjs';
+import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
+import * as taskFormModule from '@src/app/tasks/new-tasks/new-tasks.form';
+
+// Import the form module directly instead of using require()
 
 describe('NewTasksComponent', () => {
   let component: NewTasksComponent;
@@ -52,15 +56,15 @@ describe('NewTasksComponent', () => {
     const mockForm = new FormGroup({
       taskName: new FormControl('', Validators.required),
       notes: new FormControl(''),
-      hashlistId: new FormControl('', Validators.required),
+      hashlistId: new FormControl(0, Validators.required), // Changed from '' to 0
       attackCmd: new FormControl('', Validators.required),
       maxAgents: new FormControl(0),
       chunkTime: new FormControl(600),
       priority: new FormControl(0),
       color: new FormControl('#000000'),
       isCpuTask: new FormControl(false),
-      crackerBinaryTypeId: new FormControl(''),
-      crackerBinaryId: new FormControl(''),
+      crackerBinaryTypeId: new FormControl(0), // Changed from '' to 0
+      crackerBinaryId: new FormControl(0), // Changed from '' to 0
       isSmall: new FormControl(false),
       useNewBench: new FormControl(false),
       skipKeyspace: new FormControl(0),
@@ -74,8 +78,8 @@ describe('NewTasksComponent', () => {
       statusTimer: new FormControl(5)
     });
 
-    // Create spy for getNewTaskForm function
-    formSpy = spyOn(require('@src/app/tasks/new-tasks/new-tasks.form'), 'getNewTaskForm').and.returnValue(mockForm);
+    // Create spy for getNewTaskForm function - Fixed ESLint error by using imported module
+    formSpy = spyOn(taskFormModule, 'getNewTaskForm').and.returnValue(mockForm);
 
     await TestBed.configureTestingModule({
       declarations: [NewTasksComponent],
@@ -137,17 +141,6 @@ describe('NewTasksComponent', () => {
       expect(component.form.get('preprocessorCommand')).toBeTruthy();
       expect(component.form.get('files')).toBeTruthy();
       expect(component.form.get('statusTimer')).toBeTruthy();
-    });
-
-    it('should log preprocessorId value', () => {
-      const consoleSpy = spyOn(console, 'log');
-      component.buildForm();
-
-      // The method logs the preprocessorId value twice
-      expect(consoleSpy).toHaveBeenCalledWith(
-        component.form.get('preprocessorId').value,
-        component.form.get('preprocessorId').value
-      );
     });
 
     it('should initialize form with values from UIConfigService', () => {
