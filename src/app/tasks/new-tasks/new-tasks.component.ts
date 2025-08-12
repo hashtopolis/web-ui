@@ -1,19 +1,5 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import {
-  CRACKER_TYPE_FIELD_MAPPING,
-  CRACKER_VERSION_FIELD_MAPPING,
-  DEFAULT_FIELD_MAPPING
-} from '@src/app/core/_constants/select.config';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Filter, FilterType } from '@models/request-params.model';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { FileType } from '@models/file.model';
 import { FormGroup } from '@angular/forms';
 import { GlobalService } from '@services/main.service';
 import { JHashlist } from '@models/hashlist.model';
@@ -22,14 +8,30 @@ import { JPretask } from '@models/pretask.model';
 import { JTask } from '@models/task.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { MatDialog } from '@angular/material/dialog';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { FileType } from '@models/file.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+
 import { SERV } from '@services/main.config';
-import { TooltipService } from '@services/shared/tooltip.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { TooltipService } from '@services/shared/tooltip.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-import { environment } from '@src/environments/environment';
+
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { environment } from '@src/environments/environment';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -181,23 +183,31 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.form = getNewTaskForm(this.uiService);
-    console.log(this.form.get('preprocessorId').value, this.form.get('preprocessorId').value);
-    //subscribe to changes to handle select cracker binary
-/*     this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+
+    // Subscribe to cracker binary changes and add to unsubscribe service
+    const crackerBinarySubscription = this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
-    }); */
+    });
+    this.unsubscribeService.add(crackerBinarySubscription);
 
     /**
-     * If no Preprocessor was selected ('disabled'),
-     * the value '0' must be used instead of 'null' for further processing
+     * Handle preprocessor ID changes
+     * - If 'null' is selected, use 0 for further processing
+     * - Only update value when necessary to avoid recursive calls
      */
-    /*     this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
+    const preprocessorSubscription = this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
       if (newvalue === 'null') {
-        this.form.get('preprocessorId').patchValue(0);
-      } else {
-        this.form.get('preprocessorId').patchValue(newvalue);
+        // Only update if the value isn't already 0
+        if (this.form.get('preprocessorId').value !== 0) {
+          this.form.get('preprocessorId').setValue(0, { emitEvent: false });
+        }
+      } else if (newvalue !== this.form.get('preprocessorId').value) {
+        // Only update if the value has actually changed
+        // Use setValue with emitEvent: false to prevent recursive calls
+        this.form.get('preprocessorId').setValue(newvalue, { emitEvent: false });
       }
-    }); */
+    });
+    this.unsubscribeService.add(preprocessorSubscription);
   }
 
   /**
