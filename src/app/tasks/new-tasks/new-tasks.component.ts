@@ -1,19 +1,5 @@
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import {
-  CRACKER_TYPE_FIELD_MAPPING,
-  CRACKER_VERSION_FIELD_MAPPING,
-  DEFAULT_FIELD_MAPPING
-} from '@src/app/core/_constants/select.config';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Filter, FilterType } from '@models/request-params.model';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { FileType } from '@models/file.model';
 import { FormGroup } from '@angular/forms';
 import { GlobalService } from '@services/main.service';
 import { JHashlist } from '@models/hashlist.model';
@@ -22,14 +8,30 @@ import { JPretask } from '@models/pretask.model';
 import { JTask } from '@models/task.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { MatDialog } from '@angular/material/dialog';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { FileType } from '@models/file.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+
 import { SERV } from '@services/main.config';
-import { TooltipService } from '@services/shared/tooltip.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { TooltipService } from '@services/shared/tooltip.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-import { environment } from '@src/environments/environment';
+
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
+import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+import { environment } from '@src/environments/environment';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -371,9 +373,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       includedResources.forEach((resource) => {
         requestParamBuilder.addInclude(resource);
       });
-      /*       for (const resource in includedResources) {
-        requestParamBuilder.addInclude(resource);
-      } */
       const requestParams = requestParamBuilder.create();
 
       this.gs.get(endpoint, this.editedIndex, requestParams).subscribe((response: ResponseWrapper) => {
