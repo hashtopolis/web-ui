@@ -106,7 +106,7 @@ describe('NewHashlistComponent', () => {
   beforeEach(async () => {
     gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
+    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
     unsubSpy = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -266,6 +266,38 @@ describe('NewHashlistComponent', () => {
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New HashList created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
+  });
+
+  it('should NOT submit if sourceType is import and no file selected', () => {
+    component.form.patchValue({
+      name: 'Test Hashlist',
+      hashTypeId: '2500',
+      accessGroupId: 1,
+      format: 0,
+      sourceType: 'import'
+    });
+    component.selectedFiles = null; // No files selected
+
+    component.onSubmit();
+
+    expect(uploadSpy.uploadFile).not.toHaveBeenCalled();
+    expect(alertSpy.showErrorMessage).toHaveBeenCalled();
+  });
+
+  it('should NOT submit if sourceType is paste and sourceData is empty', () => {
+    component.form.patchValue({
+      name: 'Test Hashlist',
+      hashTypeId: '2500',
+      accessGroupId: 1,
+      format: 0,
+      sourceType: 'paste',
+      sourceData: ''
+    });
+
+    component.onSubmit();
+
+    expect(gsSpy.create).not.toHaveBeenCalled();
+    expect(alertSpy.showErrorMessage).toHaveBeenCalled();
   });
 
   it('ngOnDestroy should unsubscribe properly', () => {

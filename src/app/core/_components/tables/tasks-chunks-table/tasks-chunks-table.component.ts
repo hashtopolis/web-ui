@@ -1,12 +1,10 @@
-import { catchError } from 'rxjs';
-
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
 
+import { ChunkActionsService } from '@services/actions/chunk-actions.service';
 import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
-import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
@@ -41,6 +39,8 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
 
   // Track initialization
   private isInitialized = false;
+
+  private readonly chunkActions = inject(ChunkActionsService);
 
   ngOnInit(): void {
     this.setColumnLabels(TasksChunksTableColumnLabel);
@@ -221,36 +221,16 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return this.sanitize(`${chunk.solveTime}`);
   }
 
-  // --- Action functions ---
   rowActionClicked(event: ActionMenuEvent<JChunk>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.RESET:
-        this.rowActionReset(event.data);
+        this.subscriptions.push(
+          this.chunkActions.resetChunk(event.data).subscribe(() => {
+            this.alertService.showSuccessMessage('Successfully reseted chunk!');
+            this.reload();
+          })
+        );
         break;
     }
-  }
-
-  /**
-   * @todo Implement error handling.
-   */
-  private rowActionReset(chunks: JChunk): void {
-    const path = chunks.state === 2 ? 'abortChunk' : 'resetChunk';
-    const payload = { chunkId: chunks.id };
-    this.subscriptions.push(
-      this.gs
-        .chelper(SERV.HELPER, path, payload)
-        .pipe(
-          catchError((error) => {
-            const errorMessage = 'Error during resetting';
-            console.error(errorMessage, error);
-            this.alertService.showErrorMessage(errorMessage);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully reseted chunk!');
-          this.reload();
-        })
-    );
   }
 }
