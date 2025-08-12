@@ -1,68 +1,84 @@
+import { Observable, of } from 'rxjs';
+
 import { Injectable } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, ValidatorFn, Validators } from '@angular/forms';
 
 import { SERV } from '@services/main.config';
-import { TooltipService } from '@services/shared/tooltip.service';
+import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
-import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
-import { environment } from '@src/environments/environment';
+import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
+import { Option, Setting, dateFormats, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
+import { urlValidator } from '@src/app/core/_validators/url.validator';
+
+/**
+ * Metadata information for the form page.
+ *
+ * Properties:
+ * - title: Title for the form page
+ * - customform: Whether the form is custom or standard
+ * - subtitle: Whether the form has a subtitle
+ * - submitok: Message displayed upon successful submission
+ * - submitokredirect: Redirect URL upon successful submission
+ * - deltitle: Title for deletion confirmation dialog
+ * - delsubmitok: Message displayed upon successful deletion
+ * - delsubmitokredirect: Redirect URL upon successful deletion
+ * - delsubmitcancel: Message displayed when deletion is canceled
+ */
+export interface InfoMetadataForm {
+  title: string;
+  customform?: boolean;
+  subtitle?: boolean;
+  submitok?: string;
+  submitokredirect?: string;
+  deltitle?: string;
+  delsubmitok?: string;
+  delsubmitokredirect?: string;
+  delsubmitcancel?: string;
+}
+
+/**
+ * Metadata for each field in the form.
+ *
+ * Properties:
+ * - name: API name to be mapped with the formControl
+ * - label: Label name to be displayed
+ * - type: Type of the form field; e.g., select, text, checkbox
+ * - placeholder: Placeholder text for the input
+ * - selectOptions: Select options if the type is 'select'
+ * - selectOptions$: Select options observable if type is 'select' and used with selectEndpoint$
+ * - selectEndpoint$: API endpoint route, usually a constant like SERV
+ * - fieldMapping: Object with the dropdown options mapping, e.g., { id: '_id', name: 'groupName' }
+ * - requiredasterisk: Indicates if the field is required (shows asterisk)
+ * - tooltip: Tooltip information as string or more complex type
+ * - validators: Validation rules
+ * - isTitle: If true, will use only the label field as a title
+ */
+export interface MetadataFormField {
+  name?: string;
+  label?: string;
+  type?: string;
+  placeholder?: string;
+  selectOptions?: (Setting | Option)[];
+  selectOptions$?: Observable<{ label: string; value: number }[]>;
+  selectEndpoint$?: SERV;
+  fieldMapping?: Record<string, string> | FieldMapping;
+  requiredasterisk?: boolean;
+  tooltip?: string | boolean;
+  validators?: ValidatorFn[] | boolean;
+  isTitle?: boolean;
+  replacevalue?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetadataService {
-  tooltip: unknown;
-
-  URL_PATTERN = '[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)';
+  private tooltip: ConfigTooltipsLevel;
 
   constructor(private tooltipService: TooltipService) {
     this.tooltip = this.tooltipService.getConfigTooltips();
   }
-
-  private maxResults = environment.config.prodApiMaxResults;
-
-  // ToDo in validators, go to the database and add max lenght
-  //checboxes issues when value is false,
-
-  // //
-  // Metadata Structure
-  // //
-
-  // Info Metadata, it contains information about the page such as title, subtitles, and notifications configuration.
-  infoMetadataForm = {
-    title: 'Title for the form page',
-    customform: false,
-    subtitle: false,
-    submitok: 'Message displayed upon successful submission',
-    submitokredirect: 'Redirect URL upon successful submission',
-    deltitle: 'Title for deletion confirmation',
-    delsubmitok: 'Message displayed upon successful deletion',
-    delsubmitokredirect: 'Redirect URL upon successful deletion',
-    delsubmitcancel: 'Message displayed when deletion is canceled'
-  };
-
-  // Metadata form, it contains information about each field.
-  metadataFormField = [
-    {
-      name: 'API name to be map with the formControl',
-      label: 'Label name to be displayed',
-      type: 'Type of the form field; (e.g., select, text, checkbox)',
-      placeholder: 'Type option text, then add placeholder',
-      selectOptions: "Select options if the type is 'select'",
-      selectOptions$: "Select options if the type is 'selectd', used with selectEndpoint",
-      selectEndpoint$: 'API endpoint route, use SERV',
-      fieldMapping: 'Object with the dropdown options to be mapped, that is id and name. ie. id: _id, name:groupName',
-      requiredasterisk: 'Indicates if the field is required',
-      tooltip: 'Tooltip information as string or using ',
-      validators: 'Validation rules',
-      isTitle: 'boolean, if its true will use only the label field'
-    }
-  ];
-
-  // Examples
-  // Create title between fields. use  { label: 'More settings', isTitle: true }
 
   // // // // // // // //
   // AUTH SECTION      //
@@ -203,7 +219,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: ACCESS_GROUP_FIELD_MAPPING
     },
     { name: 'isSecret', label: 'Secret', type: 'checkbox' }
@@ -387,8 +403,8 @@ export class MetadataService {
       label: 'Download URL',
       type: 'url',
       requiredasterisk: true,
-      tooltip: 'Link where the client can download a 7zip with the binary',
-      validators: [Validators.required, Validators.pattern(this.URL_PATTERN)]
+      tooltip: 'Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z',
+      validators: [Validators.required, urlValidator()]
     },
     {
       name: 'crackerBinaryTypeId',
@@ -424,8 +440,8 @@ export class MetadataService {
       label: 'Download URL',
       type: 'url',
       requiredasterisk: true,
-      tooltip: 'Link where the client can download a 7zip with the binary',
-      validators: [Validators.required, Validators.pattern(this.URL_PATTERN)]
+      tooltip: 'Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z',
+      validators: [Validators.required, urlValidator()]
     }
   ];
 
@@ -482,8 +498,9 @@ export class MetadataService {
       label: 'Download URL',
       type: 'url',
       requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required, Validators.pattern(this.URL_PATTERN)]
+      tooltip:
+        'Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z',
+      validators: [Validators.required, urlValidator()]
     },
     { label: 'Commands (set to empty if not available)', isTitle: true },
     {
@@ -1040,7 +1057,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryTypeId', name: 'typeName' },
       validators: [Validators.required]
     },
@@ -1050,7 +1067,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: { id: 'crackerBinaryId', name: 'version' },
       validators: [Validators.required]
     }
@@ -1097,7 +1114,7 @@ export class MetadataService {
       type: 'selectd',
       requiredasterisk: true,
       selectEndpoint$: SERV.ACCESS_PERMISSIONS_GROUPS,
-      selectOptions$: [],
+      selectOptions$: of([]),
       fieldMapping: { id: 'id', name: 'name' },
       validators: [Validators.required]
     }
@@ -1206,7 +1223,7 @@ export class MetadataService {
    * @param formName - The name of the form for which metadata is requested.
    * @returns An array of form metadata.editnotifInfo
    */
-  getFormMetadata(formName: string): any[] {
+  getFormMetadata(formName: string): MetadataFormField[] {
     if (formName === 'authforgot') {
       return this.authforgot;
     } else if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {
@@ -1253,7 +1270,7 @@ export class MetadataService {
    * @param formName - The name of the info metadata for which information is requested.
    * @returns An array of info metadata.
    */
-  getInfoMetadata(formName: string): any[] {
+  getInfoMetadata(formName: string): InfoMetadataForm[] {
     if (formName === 'authforgotInfo') {
       return this.authforgotInfo;
     } else if (formName === 'editwordlistInfo') {

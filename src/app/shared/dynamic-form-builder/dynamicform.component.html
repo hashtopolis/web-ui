@@ -89,7 +89,7 @@
                 <mat-error *ngIf="form.get(field.name).hasError('required')">
                   {{ field.label }} is required
                 </mat-error>
-                <mat-error *ngIf="field.type === 'url' && form.get(field.name).hasError('pattern')">
+                <mat-error *ngIf="form.get(field.name).hasError('invalidUrl')">
                   Invalid URL format
                 </mat-error>
 
