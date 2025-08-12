@@ -122,7 +122,13 @@ describe('AccountSettingsComponent', () => {
 
   describe('Main form tests', () => {
     it('initializes the form with default values', async () => {
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      // Wait for async observable subscription and form patching to complete
       await fixture.whenStable();
+
+      // Trigger change detection after async updates
       fixture.detectChanges();
 
       const formValue = component.form.getRawValue();
