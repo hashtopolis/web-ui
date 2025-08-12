@@ -1,5 +1,19 @@
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import {
+  CRACKER_TYPE_FIELD_MAPPING,
+  CRACKER_VERSION_FIELD_MAPPING,
+  DEFAULT_FIELD_MAPPING
+} from '@src/app/core/_constants/select.config';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FileType, JFile } from '@models/file.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { FormGroup } from '@angular/forms';
 import { GlobalService } from '@services/main.service';
 import { JHashlist } from '@models/hashlist.model';
@@ -8,30 +22,21 @@ import { JPretask } from '@models/pretask.model';
 import { JTask } from '@models/task.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { FileType } from '@models/file.model';
-import { Filter, FilterType } from '@models/request-params.model';
-import { ResponseWrapper } from '@models/response.model';
-
-import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
+import { ResponseWrapper } from '@models/response.model';
+import { SERV } from '@services/main.config';
 import { TooltipService } from '@services/shared/tooltip.service';
+import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
-
-import {
-  CRACKER_TYPE_FIELD_MAPPING,
-  CRACKER_VERSION_FIELD_MAPPING,
-  DEFAULT_FIELD_MAPPING
-} from '@src/app/core/_constants/select.config';
-import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
-import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { environment } from '@src/environments/environment';
+import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
+
+interface NewTaskForm {
+  attackCmd: string;
+  files: number[];
+  otherFiles: number[];
+  type: string;
+}
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -64,7 +69,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
 
   // Copy Task or PreTask configuration
   copyMode = false;
-  copyFiles: any;
+  copyFiles: JFile[];
   editedIndex: number;
   whichView: string;
   copyType: number; //0 copy from task and 1 copy from pretask
@@ -117,6 +122,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       this.editedIndex = +params['id'];
       this.copyMode = params['id'] != null;
     });
+    console.log(this.tooltipService.getTaskTooltips());
     this.tasktip = this.tooltipService.getTaskTooltips();
   }
 
@@ -307,7 +313,8 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event: any): void {
+  onUpdateForm(event: NewTaskForm): void {
+    console.log(event);
     if (event.type === 'CMD') {
       this.form.patchValue({
         attackCmd: event.attackCmd,
@@ -381,7 +388,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           included: response.included
         });
 
-        const arrFiles: Array<any> = [];
+        const arrFiles: Array<JFile> = [];
         const filesField = isTask ? 'files' : 'pretaskFiles';
         this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist']['id'];
         if (task[filesField]) {
