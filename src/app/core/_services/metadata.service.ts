@@ -171,35 +171,57 @@ export class MetadataService {
   // //
 
   // This variable stores information about the edit wordlist file page.
+  // Edit wordlist file page
   editwordlistInfo = [
     {
       title: 'Edit Wordlist File',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
-      submitokredirect: '/files/wordlist'
+      submitokredirect: '/files/wordlist',
+      deltitle: 'Wordlist File',
+      delsubmitok: 'Wordlist deleted successfully!',
+      delsubmitokredirect: '/files/wordlist',
+      delsubmitcancel: 'Wordlist deletion cancelled',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmIcon: 'warning'
     }
   ];
 
-  // This variable stores information about the edit rule file page.
+  // Edit rule file page
   editruleInfo = [
     {
       title: 'Edit Rule File',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
-      submitokredirect: '/files/rules'
+      submitokredirect: '/files/rules',
+      deltitle: 'Rule File',
+      delsubmitok: 'Rule deleted successfully!',
+      delsubmitokredirect: '/files/rules',
+      delsubmitcancel: 'Rule deletion cancelled',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmIcon: 'warning'
     }
   ];
 
-  // This variable stores information about the edit other file page.
+  // Edit other file page
   editotherInfo = [
     {
       title: 'Edit Other File',
       customform: false,
       subtitle: false,
       submitok: 'Saved!',
-      submitokredirect: '/files/other'
+      submitokredirect: '/files/other',
+      deltitle: 'Other File',
+      delsubmitok: 'File deleted successfully!',
+      delsubmitokredirect: '/files/other',
+      delsubmitcancel: 'File deletion cancelled',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmIcon: 'warning'
     }
   ];
 

@@ -250,18 +250,20 @@ export class FormComponent implements OnInit, OnDestroy {
     if (this.globalMetadata['deltitle']) {
       this.getIndex();
     }
-    this.confirmDialog.confirmDeletion(this.globalMetadata['deltitle'], '').subscribe((confirmed) => {
-      if (confirmed) {
-        // Deletion
-        const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
-          this.router
-            .navigate([this.globalMetadata['delsubmitokredirect']])
-            .then(() => this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']));
-        });
-        this.unsubscribeService.add(deleteSubscription);
-      } else {
-        this.alert.showInfoMessage(this.globalMetadata['delsubmitcancel']);
-      }
-    });
+    this.confirmDialog
+      .confirmDeletion(this.globalMetadata['deltitle'], `${this.editedIndex}`)
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          // Deletion
+          const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
+            this.router
+              .navigate([this.globalMetadata['delsubmitokredirect']])
+              .then(() => this.alert.showSuccessMessage(this.globalMetadata['delsubmitok']));
+          });
+          this.unsubscribeService.add(deleteSubscription);
+        } else {
+          this.alert.showInfoMessage(this.globalMetadata['delsubmitcancel']);
+        }
+      });
   }
 }
