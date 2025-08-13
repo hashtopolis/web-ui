@@ -183,7 +183,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.form = getNewTaskForm(this.uiService);
-    console.log('Form initialized:', this.form);
 
     // Subscribe to cracker binary changes and add to unsubscribe service
     const crackerBinarySubscription = this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
@@ -309,7 +308,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * @param event - The event data containing attack command and files.
    */
   onUpdateForm(event: TaskSelectFile): void {
-    console.log(event);
     if (event.type === 'CMD') {
       this.form.patchValue({
         attackCmd: event.attackCmd,
