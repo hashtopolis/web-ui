@@ -1,42 +1,37 @@
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+import { FileType, JFile, TaskSelectFile } from '@models/file.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JPreprocessor } from '@models/preprocessor.model';
+import { JPretask } from '@models/pretask.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
+import { UnsubscribeService } from '@services/unsubscribe.service';
+
 import {
   CRACKER_TYPE_FIELD_MAPPING,
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FileType, JFile } from '@models/file.model';
-import { Filter, FilterType } from '@models/request-params.model';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
-
-import { AlertService } from '@services/shared/alert.service';
-import { AutoTitleService } from '@services/shared/autotitle.service';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
-import { FormGroup } from '@angular/forms';
-import { GlobalService } from '@services/main.service';
-import { JHashlist } from '@models/hashlist.model';
-import { JPreprocessor } from '@models/preprocessor.model';
-import { JPretask } from '@models/pretask.model';
-import { JTask } from '@models/task.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { MatDialog } from '@angular/material/dialog';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { ResponseWrapper } from '@models/response.model';
-import { SERV } from '@services/main.config';
-import { TooltipService } from '@services/shared/tooltip.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
-import { environment } from '@src/environments/environment';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
-
-interface NewTaskForm {
-  attackCmd: string;
-  files: number[];
-  otherFiles: number[];
-  type: string;
-}
+import { environment } from '@src/environments/environment';
 
 /**
  * Represents the NewTasksComponent responsible for creating a new Tasks.
@@ -76,7 +71,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   isCopyHashlistId = null;
 
   // Tooltips
-  tasktip: any = [];
+  tasktip: TaskTooltipsLevel;
 
   // Tables File Types
   fileTypeWordlist: FileType = 0;
@@ -122,7 +117,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
       this.editedIndex = +params['id'];
       this.copyMode = params['id'] != null;
     });
-    console.log(this.tooltipService.getTaskTooltips());
     this.tasktip = this.tooltipService.getTaskTooltips();
   }
 
@@ -189,6 +183,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    */
   buildForm(): void {
     this.form = getNewTaskForm(this.uiService);
+    console.log('Form initialized:', this.form);
 
     // Subscribe to cracker binary changes and add to unsubscribe service
     const crackerBinarySubscription = this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
@@ -313,7 +308,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event: NewTaskForm): void {
+  onUpdateForm(event: TaskSelectFile): void {
     console.log(event);
     if (event.type === 'CMD') {
       this.form.patchValue({

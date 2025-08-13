@@ -27,3 +27,9 @@ export interface JFile extends BaseModel {
   lineCount: number;
   accessGroup?: JAccessGroup;
 }
+export interface TaskSelectFile {
+  attackCmd: string;
+  files: number[];
+  otherFiles: number[];
+  type: string;
+}
