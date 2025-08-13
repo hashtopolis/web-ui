@@ -144,7 +144,7 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
           });
 
           const filesArray: number[] = (result[isPretask ? 'pretaskFiles' : 'files'] || []).map(
-            (file: JFile) => file['fileId']
+            (file: JFile) => file['id']
           );
 
           this.createForm.setValue({

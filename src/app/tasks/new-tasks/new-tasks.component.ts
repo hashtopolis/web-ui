@@ -386,7 +386,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist']['id'];
         if (task[filesField]) {
           for (let i = 0; i < task[filesField].length; i++) {
-            arrFiles.push(task[filesField][i]['fileId']);
+            arrFiles.push(task[filesField][i]['id']);
           }
           this.copyFiles = arrFiles;
         }
