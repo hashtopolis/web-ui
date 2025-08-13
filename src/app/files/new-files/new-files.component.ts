@@ -51,7 +51,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
 
   // Upload files
   selectedFiles: FileList | null = null;
-  fileName: any;
+  fileName: string;
   uploadProgress = 0;
 
   // Unsubcribe files
@@ -273,6 +273,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {FileList | null} files - List of files to be uploaded.
    */
   onuploadFile(files: FileList | null): void {
+    if (!files || files.length === 0) {
+      this.alert.showErrorMessage('Please select a file to upload.');
+      return;
+    }
     const form = this.onBeforeSubmit(this.form.value, false);
     this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {
