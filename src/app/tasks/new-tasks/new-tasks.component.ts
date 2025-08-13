@@ -10,7 +10,7 @@ import { JPreprocessor } from '@models/preprocessor.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
-import { JTask } from '@models/task.model';
+import { JTask, TaskType } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
@@ -354,7 +354,16 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     const exists = this.selectHashlists.some((hashlist) => hashlist.id === this.isCopyHashlistId);
 
     if (!exists) {
-      this.alert.showErrorMessage('Hashlist ID not found!');
+      switch (this.copyType) {
+        case 0:
+          this.alert.showErrorMessage('Hashlist ID not found!');
+          break;
+        case 1:
+          this.alert.showErrorMessage('Please select a hashlist before submitting');
+          break;
+        default:
+          break;
+      }
     }
   }
 
