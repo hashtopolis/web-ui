@@ -164,6 +164,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the form submission for creating a new file.
    * Checks form validity and submits the form data to create a new file.
    * Navigates to the appropriate route upon successful creation.
@@ -226,6 +227,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the change of file upload type.
    * Updates the view mode and resets form values based on the selected type.
    *

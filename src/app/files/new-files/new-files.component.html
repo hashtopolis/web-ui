@@ -1,11 +1,14 @@
 <grid-main>
   <app-page-subtitle [subtitle]="title"></app-page-subtitle>
-    <div class="tab-slider--nav">
-      <ul class="tab-slider--tabs">
-        <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')" matTooltip="Upload using local file">upload_file</mat-icon>
-        <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="onChangeType('inline', 'tab2')" matTooltip="Upload using link">insert_link</mat-icon>
+  <!-- TODO Deactivated until API provides the functionality to download from URL
+<div class="tab-slider--nav">
+    <ul class="tab-slider--tabs">
+
+      <mat-icon class="files-theme" [class.active]="viewMode === 'tab1'" rel="tab1" (click)="onChangeType('import', 'tab1')" matTooltip="Upload using local file">upload_file</mat-icon>
+      <mat-icon class="files-theme" [class.active]="viewMode === 'tab2'" rel="tab2" (click)="onChangeType('inline', 'tab2')" matTooltip="Upload using link">insert_link</mat-icon>
       </ul>
     </div>
+    -->
     <div class="tab-slider--container" [ngSwitch]="viewMode">
       <div id="tab1" class="tab-slider--body" *ngSwitchCase="'tab1'">
         <h4>Upload from your computer</h4>
@@ -42,6 +45,7 @@
         </form>
         <fixed-alert message="Do not refresh the page while uploading"></fixed-alert>
       </div>
+      <!-- TODO Deactivated until API provides the functionality to download from URL
       <div id="tab2" class="tab-slider--body" *ngSwitchCase="'tab2'">
         <h4>Upload to the server using a public/private link</h4>
         <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column">
@@ -64,5 +68,6 @@
 
         </form>
       </div>
+      -->
     </div>
 </grid-main>
