@@ -1,20 +1,21 @@
-import { ActivatedRoute, Router } from '@angular/router';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { of } from 'rxjs';
 
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
-import { GlobalService } from '@src/app/core/_services/main.service';
 import { InjectionToken } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
-import { TooltipService } from '@src/app/core/_services/shared/tooltip.service';
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
+import { TooltipService } from '@src/app/core/_services/shared/tooltip.service';
 import { UnsubscribeService } from '@src/app/core/_services/unsubscribe.service';
+import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
 import { getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
-import { of } from 'rxjs';
 
 // Create a token for the form factory function
 export const GET_TASK_FORM = new InjectionToken<typeof getNewTaskForm>('getTaskForm');
@@ -152,31 +153,5 @@ describe('NewTasksComponent', () => {
       expect(component.form.get('files')).toBeTruthy();
       expect(component.form.get('statusTimer')).toBeTruthy();
     });
-    /*     it('should initialize form with values from UIConfigService', () => {
-      // Reset the form spy to use the actual implementation
-      (taskFormModule.getNewTaskForm as jasmine.Spy).and.callThrough();
-
-      // Configure UI service to return specific values
-      uiServiceMock.getUIsettings.and.callFake((setting) => {
-        const settings = {
-          'tasks.priority': { value: 100 },
-          'tasks.maxAgents': { value: 5 },
-          'tasks.chunkTime': { value: 300 },
-          'tasks.statusTimer': { value: 10 },
-          'tasks.benchmarkType': { value: 1 },
-          'tasks.color': { value: '#FF0000' } 
-        };
-        return settings[setting] || null;
-      });
-
-      component.buildForm();
-
-      // Verify the form was initialized with values from the UI service
-      expect(component.form.get('priority').value).toBe(100);
-      expect(component.form.get('maxAgents').value).toBe(5);
-      expect(component.form.get('chunkTime').value).toBe(300);
-      expect(component.form.get('statusTimer').value).toBe(10);
-      expect(component.form.get('color').value).toBe('#FF0000');
-    }); */
   });
 });
