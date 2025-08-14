@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JCrackerBinaryType } from '@models/cracker-binary.model';
-import { JFile } from '@models/file.model';
+import { JFile, TaskSelectFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
@@ -122,7 +122,8 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
     };
   }
 
-  onUpdateForm(event: any): void {
+  onUpdateForm(event: TaskSelectFile): void {
+    console.log('onUpdateForm', event);
     this.createForm.patchValue({
       attackCmd: event.attackCmd,
       files: event.files
