@@ -8,7 +8,6 @@ import { EventEmitter, Injectable, Injector, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthData, AuthUser } from '@models/auth-user.model';
-import { Permission } from '@models/global-permission-group.model';
 
 import { LoginRedirectService } from '@services/access/login-redirect.service';
 import { PermissionService } from '@services/permission/permission.service';
