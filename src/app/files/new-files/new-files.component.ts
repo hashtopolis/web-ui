@@ -51,7 +51,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
 
   // Upload files
   selectedFiles: FileList | null = null;
-  fileName: any;
+  fileName: string;
   uploadProgress = 0;
 
   // Unsubcribe files
@@ -164,6 +164,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the form submission for creating a new file.
    * Checks form validity and submits the form data to create a new file.
    * Navigates to the appropriate route upon successful creation.
@@ -226,6 +227,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * TODO: Unused until the API has a way to handle file uploads via URL
    * Handles the change of file upload type.
    * Updates the view mode and resets form values based on the selected type.
    *
@@ -273,6 +275,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {FileList | null} files - List of files to be uploaded.
    */
   onuploadFile(files: FileList | null): void {
+    if (!files || files.length === 0) {
+      this.alert.showErrorMessage('Please select a file to upload.');
+      return;
+    }
     const form = this.onBeforeSubmit(this.form.value, false);
     this.isCreatingLoading = true;
     for (let i = 0; i < files.length; i++) {

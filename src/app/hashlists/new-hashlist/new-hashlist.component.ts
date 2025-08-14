@@ -195,26 +195,48 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
    * Create Hashlist in case without file upload
    */
   async onSubmit() {
-    if (this.form.valid) {
-      if (this.form.get('sourceType').value === 'paste') {
-        // Encode Paste hashes
-        this.form.patchValue({
-          sourceData: handleEncode(this.form.get('sourceData').value)
-        });
-        this.isCreatingLoading = true;
+    if (!this.form.valid) {
+      return; // form invalid, stop early
+    }
 
-        try {
-          await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
-          this.alert.showSuccessMessage('New HashList created');
-          this.router.navigate(['/hashlists/hashlist']);
-        } catch (error) {
-          console.error('Error creating Hashlist', error);
-        } finally {
-          this.isCreatingLoading = false;
-        }
-      } else {
-        this.onuploadFile(this.selectedFiles);
+    const sourceType = this.form.get('sourceType').value;
+
+    // Validate required input based on sourceType
+    if (sourceType === 'import') {
+      if (!this.selectedFiles || this.selectedFiles.length === 0) {
+        this.alert.showErrorMessage('Please select a hash file to upload.');
+        return; // stop submission
       }
+    } else if (sourceType === 'paste') {
+      const sourceData = this.form.get('sourceData').value;
+      if (!sourceData || sourceData.trim() === '') {
+        this.alert.showErrorMessage('Please paste your hashes.');
+        return; // stop submission
+      }
+    } else {
+      this.alert.showErrorMessage('Unknown source type selected.');
+      return; // stop submission
+    }
+
+    // Proceed with existing logic now that input is validated
+    if (sourceType === 'paste') {
+      this.form.patchValue({
+        sourceData: handleEncode(this.form.get('sourceData').value)
+      });
+      this.isCreatingLoading = true;
+
+      try {
+        await firstValueFrom(this.gs.create(SERV.HASHLISTS, this.form.value));
+        this.alert.showSuccessMessage('New HashList created');
+        this.router.navigate(['/hashlists/hashlist']);
+      } catch (error) {
+        console.error('Error creating Hashlist', error);
+        this.alert.showErrorMessage('Failed to create hashlist.');
+      } finally {
+        this.isCreatingLoading = false;
+      }
+    } else {
+      this.onuploadFile(this.selectedFiles);
     }
   }
 

@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
 
+import { ChunkActionsService } from '@services/actions/chunk-actions.service';
 import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
@@ -29,6 +32,8 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: ChunksDataSource;
   selectedFilterColumn: string;
+
+  private readonly chunkActions = inject(ChunkActionsService);
 
   ngOnInit(): void {
     this.setColumnLabels(ChunksTableColumnLabel);
@@ -180,5 +185,18 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
     }
 
     return this.sanitize(`${chunk.solveTime}`);
+  }
+
+  rowActionClicked(event: ActionMenuEvent<JChunk>): void {
+    switch (event.menuItem.action) {
+      case RowActionMenuAction.RESET:
+        this.subscriptions.push(
+          this.chunkActions.resetChunk(event.data).subscribe(() => {
+            this.alertService.showSuccessMessage('Successfully reseted chunk!');
+            this.reload();
+          })
+        );
+        break;
+    }
   }
 }

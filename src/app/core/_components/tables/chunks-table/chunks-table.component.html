@@ -7,6 +7,7 @@
   [tableColumns]="tableColumns"
   [contextMenuService]="contextMenuService"
   [isFilterable]="isFilterable"
+  (rowActionClicked)="rowActionClicked($event)"
   [isPageable]="true"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
   (backendSqlFilter)="filter($event)"

@@ -6,6 +6,14 @@ export interface Setting {
   description: string;
 }
 
+/**
+ * Options for select inputs, used in various settings
+ */
+export interface Option {
+  label: string;
+  value: number | string | boolean;
+}
+
 export const dateFormats: Setting[] = [
   { value: 'd/M/yy', description: 'd/M/yy (ie. 6/7/23 )' },
   {

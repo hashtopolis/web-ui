@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
-import { FileType } from '@models/file.model';
+import { FileType, JFile, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JPreprocessor } from '@models/preprocessor.model';
 import { JPretask } from '@models/pretask.model';
@@ -19,7 +19,7 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { TooltipService } from '@services/shared/tooltip.service';
+import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import {
@@ -64,14 +64,14 @@ export class NewTasksComponent implements OnInit, OnDestroy {
 
   // Copy Task or PreTask configuration
   copyMode = false;
-  copyFiles: any;
+  copyFiles: JFile[];
   editedIndex: number;
   whichView: string;
   copyType: number; //0 copy from task and 1 copy from pretask
   isCopyHashlistId = null;
 
   // Tooltips
-  tasktip: any = [];
+  tasktip: TaskTooltipsLevel;
 
   // Tables File Types
   fileTypeWordlist: FileType = 0;
@@ -184,22 +184,30 @@ export class NewTasksComponent implements OnInit, OnDestroy {
   buildForm(): void {
     this.form = getNewTaskForm(this.uiService);
 
-    //subscribe to changes to handle select cracker binary
-    this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
+    // Subscribe to cracker binary changes and add to unsubscribe service
+    const crackerBinarySubscription = this.form.get('crackerBinaryId').valueChanges.subscribe((newvalue) => {
       this.handleChangeBinary(newvalue);
     });
+    this.unsubscribeService.add(crackerBinarySubscription);
 
     /**
-     * If no Preprocessor was selected ('disabled'),
-     * the value '0' must be used instead of 'null' for further processing
+     * Handle preprocessor ID changes
+     * - If 'null' is selected, use 0 for further processing
+     * - Only update value when necessary to avoid recursive calls
      */
-    this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
+    const preprocessorSubscription = this.form.get('preprocessorId').valueChanges.subscribe((newvalue) => {
       if (newvalue === 'null') {
-        this.form.get('preprocessorId').patchValue(0);
-      } else {
-        this.form.get('preprocessorId').patchValue(newvalue);
+        // Only update if the value isn't already 0
+        if (this.form.get('preprocessorId').value !== 0) {
+          this.form.get('preprocessorId').setValue(0, { emitEvent: false });
+        }
+      } else if (newvalue !== this.form.get('preprocessorId').value) {
+        // Only update if the value has actually changed
+        // Use setValue with emitEvent: false to prevent recursive calls
+        this.form.get('preprocessorId').setValue(newvalue, { emitEvent: false });
       }
     });
+    this.unsubscribeService.add(preprocessorSubscription);
   }
 
   /**
@@ -299,7 +307,7 @@ export class NewTasksComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event: any): void {
+  onUpdateForm(event: TaskSelectFile): void {
     if (event.type === 'CMD') {
       this.form.patchValue({
         attackCmd: event.attackCmd,
@@ -346,7 +354,16 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     const exists = this.selectHashlists.some((hashlist) => hashlist.id === this.isCopyHashlistId);
 
     if (!exists) {
-      this.alert.showErrorMessage('Hashlist ID not found!');
+      switch (this.copyType) {
+        case 0:
+          this.alert.showErrorMessage('Hashlist ID not found!');
+          break;
+        case 1:
+          this.alert.showErrorMessage('Please select a hashlist before submitting');
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -362,9 +379,9 @@ export class NewTasksComponent implements OnInit, OnDestroy {
         : ['pretaskFiles'];
 
       const requestParamBuilder = new RequestParamBuilder();
-      for (const resource in includedResources) {
+      includedResources.forEach((resource) => {
         requestParamBuilder.addInclude(resource);
-      }
+      });
       const requestParams = requestParamBuilder.create();
 
       this.gs.get(endpoint, this.editedIndex, requestParams).subscribe((response: ResponseWrapper) => {
@@ -373,16 +390,15 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           included: response.included
         });
 
-        const arrFiles: Array<any> = [];
+        const arrFiles: Array<JFile> = [];
         const filesField = isTask ? 'files' : 'pretaskFiles';
-        this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist'][0]['id'];
+        this.isCopyHashlistId = this.copyType === 1 ? 999999 : task['hashlist']['id'];
         if (task[filesField]) {
           for (let i = 0; i < task[filesField].length; i++) {
-            arrFiles.push(task[filesField][i]['fileId']);
+            arrFiles.push(task[filesField][i]['id']);
           }
           this.copyFiles = arrFiles;
         }
-
         this.form.setValue({
           taskName: task['taskName'] + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
           notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
@@ -397,14 +413,15 @@ export class NewTasksComponent implements OnInit, OnDestroy {
           isSmall: task['isSmall'],
           useNewBench: task['useNewBench'],
           skipKeyspace: isTask ? task['skipKeyspace'] : 0,
-          crackerBinaryId: isTask ? task['crackerBinary']['crackerBinaryId'] : 1,
+          crackerBinaryId: isTask ? task['crackerBinaryId'] : 1,
           isArchived: false,
           staticChunks: isTask ? task['staticChunks'] : 0,
           chunkSize: isTask ? task['chunkSize'] : this.chunkSize,
           forcePipe: isTask ? task['forcePipe'] : false,
           preprocessorId: isTask ? task['preprocessorId'] : 0,
           preprocessorCommand: isTask ? task['preprocessorCommand'] : '',
-          files: arrFiles
+          files: arrFiles,
+          statusTimer: task['statusTimer']
         });
       });
     }

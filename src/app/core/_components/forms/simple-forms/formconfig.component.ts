@@ -4,17 +4,21 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
+import { JConfig } from '@models/configs.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { MetadataService } from '@services/metadata.service';
+import { InfoMetadataForm, MetadataFormField, MetadataService } from '@services/metadata.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { UnsubscribeService } from '@services/unsubscribe.service';
+
+type ConfigValues = Record<string, string | boolean>;
+type ConfigIds = Record<string, number>;
 
 @Component({
   selector: 'app-form',
@@ -26,7 +30,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
  */
 export class FormConfigComponent implements OnInit, OnDestroy {
   // Metadata Text, titles, subtitles, forms, and API path
-  globalMetadata: any[] = [];
+  globalMetadata: InfoMetadataForm;
   serviceConfig: ServiceConfig;
 
   /**
@@ -51,23 +55,21 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   /**
    * An array of form field metadata that describes the form structure.
    * Each item in the array represents a form field, including its type, label, and other properties.
-   * @type {any[]}
    */
-  formMetadata: any[] = [];
+  formMetadata: MetadataFormField[] = [];
 
   /**
    * Initial values for form fields (optional).
    * If provided, these values are used to initialize form controls in the dynamic form.
-   * @type {any[]}
+
    */
-  formValues: any[] = [];
+  formValues: object;
 
   /**
    * An array of objects containing IDs and corresponding item names.
    * This information is used to map form field names to their associated IDs.
-   * @type {any[]}
    */
-  formIds: any[] = [];
+  formIds: ConfigIds = {};
 
   // Subscription for managing asynchronous data retrieval
   private mySubscription: Subscription;
@@ -135,19 +137,22 @@ export class FormConfigComponent implements OnInit, OnDestroy {
       .getAll(this.serviceConfig, { page: { size: 500 } })
       .subscribe((response: ResponseWrapper) => {
         const responseBody = { data: response.data, included: response.included };
-        const configValues = this.serializer.deserialize(responseBody) as any[];
+        const config = this.serializer.deserialize<JConfig[]>(responseBody);
 
-        this.formValues = configValues.reduce((configValues, item) => {
+        this.formValues = config.reduce<ConfigValues>((configValues, item) => {
+          let value: string | boolean = item.value;
+
           if (item.value === '1') {
-            item.value = true;
+            value = true;
           } else if (item.value === '0') {
-            item.value = false;
+            value = false;
           }
-          configValues[item.item] = item.value;
+
+          configValues[item.item] = value;
           return configValues;
         }, {});
         // Maps the item with the id, so can be used for update
-        this.formIds = configValues.reduce((result, item) => {
+        this.formIds = config.reduce<ConfigIds>((result, item) => {
           result[item.item] = item.id;
           return result;
         }, {});
@@ -168,10 +173,10 @@ export class FormConfigComponent implements OnInit, OnDestroy {
    * Handles the submission of the form.
    * @param form - The form object containing the updated values.
    */
-  onFormSubmit(form: any) {
+  onFormSubmit(form: FormGroup) {
     const currentFormValues = form;
     const initialFormValues = this.formValues;
-    const changedFields: Record<string, any> = {};
+    const changedFields: Record<string, unknown> = {};
 
     for (const key in currentFormValues) {
       if (Object.prototype.hasOwnProperty.call(currentFormValues, key)) {
