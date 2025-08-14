@@ -92,7 +92,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     this.isLoading = true; // Show spinner
 
-    const authObs: Observable<AuthResponseData> = this.authService.logIn(username, password);
+    const authObs = this.authService.logIn(username, password);
 
     const authSubscription$ = authObs.subscribe({
       next: () => {

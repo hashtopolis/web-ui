@@ -146,7 +146,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
       this.subscriptions.push(
-        this.gs.update(SERV.USERS, this.gs.userId, this.form.value).subscribe(() => {
+        this.gs.update(SERV.USERS, Number(this.gs.userId), this.form.value).subscribe(() => {
           this.alert.showSuccessMessage('User saved');
           this.isUpdatingLoading = false;
         })
@@ -187,7 +187,7 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
   private loadUserSettings() {
     const params = new RequestParamBuilder().create();
     this.subscriptions.push(
-      this.gs.get(SERV.USERS, this.gs.userId, params).subscribe((response: ResponseWrapper) => {
+      this.gs.get(SERV.USERS, Number(this.gs.userId), params).subscribe((response: ResponseWrapper) => {
         const user = new JsonAPISerializer().deserialize<JUser>({
           data: response.data,
           included: response.included
