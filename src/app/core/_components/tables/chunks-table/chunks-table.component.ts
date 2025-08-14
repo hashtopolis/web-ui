@@ -1,15 +1,19 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JChunk } from '@models/chunk.model';
+
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
-import { ChunksDataSource } from '@datasources/chunks.datasource';
-import { FilterType } from '@src/app/core/_models/request-params.model';
+import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JChunk } from '@models/chunk.model';
-import { SafeHtml } from '@angular/platform-browser';
+
+import { ChunksDataSource } from '@datasources/chunks.datasource';
+
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
