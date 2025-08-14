@@ -354,7 +354,16 @@ export class NewTasksComponent implements OnInit, OnDestroy {
     const exists = this.selectHashlists.some((hashlist) => hashlist.id === this.isCopyHashlistId);
 
     if (!exists) {
-      this.alert.showErrorMessage('Hashlist ID not found!');
+      switch (this.copyType) {
+        case 0:
+          this.alert.showErrorMessage('Hashlist ID not found!');
+          break;
+        case 1:
+          this.alert.showErrorMessage('Please select a hashlist before submitting');
+          break;
+        default:
+          break;
+      }
     }
   }
 
