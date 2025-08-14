@@ -1,22 +1,27 @@
+import { catchError } from 'rxjs';
+
 import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JChunk } from '@models/chunk.model';
+
+import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import {
   TasksChunksTableCol,
   TasksChunksTableColumnLabel
 } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JChunk } from '@models/chunk.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
 import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
-import { catchError } from 'rxjs';
+
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
 @Component({
