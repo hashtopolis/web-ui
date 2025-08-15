@@ -26,6 +26,14 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   private filterQuery: Filter;
 
   setFilterQuery(filter: Filter): void {
+    const filterChanged = !this.filterQuery || filter?.value !== this.filterQuery?.value;
+    if (filterChanged && filter?.value) {
+      // Reset pagination when filter changes
+      console.log('Filter changed, resetting pagination');
+      this.setPaginationConfig(this.pageSize, null, null, null, 0);
+      this.pageAfter = undefined;
+      this.pageBefore = undefined;
+    }
     this.filterQuery = filter;
   }
   setTaskId(taskId: number): void {
@@ -41,6 +49,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('assignments')
       .addInclude('agentStats');
     if (query) {
+      console.log('Loading agents with filter:', query);
       agentParams.addFilter(query);
     }
 
