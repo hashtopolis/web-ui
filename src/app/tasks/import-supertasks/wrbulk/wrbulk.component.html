@@ -28,7 +28,7 @@
         <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
         <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
         <fixed-alert
-          message="For every file selected in the iteration column it will create a subtask with having 'FILE' replaced with the actual file"
+          message="IMPORTANT: You must include the 'FILE' placeholder in your Base Command. When you mark files as 'Iterate' in the panels on the right, the system will create a separate subtask for EACH selected file, replacing 'FILE' with the actual file path. This allows for sequential execution of different wordlists or rule files in your attack strategy."
         ></fixed-alert>
         <grid-buttons>
           <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
