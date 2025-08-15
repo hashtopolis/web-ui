@@ -1,12 +1,14 @@
+import { firstValueFrom } from 'rxjs';
+
+import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
-import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { ResponseWrapper } from '@models/response.model';
+import { JSuperTask } from '@models/supertask.model';
+
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-import { JPretask } from '@models/pretask.model';
-import { JSuperTask } from '@models/supertask.model';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { ResponseWrapper } from '@models/response.model';
-import { SERV } from '@services/main.config';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
