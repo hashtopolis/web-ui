@@ -12,7 +12,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
-  private filterQuery: Filter;
+  private _currentFilter: Filter = null;
 
   private resetPagination(): void {
     this.setPaginationConfig(this.pageSize, null, null, null, 0);
@@ -20,55 +20,36 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     this.pageBefore = undefined;
   }
 
-  setFilterQuery(filter: Filter): void {
-    const filterChanged = !this.filterQuery || filter?.value !== this.filterQuery?.value;
-
-    if (filterChanged && filter?.value) {
-      this.resetPagination();
-    }
-
-    this.filterQuery = filter;
-
-    // Apply the filter immediately
-    if (filter?.value) {
-      this.applyFilter(filter);
-    } else {
-      this.loadAll();
-    }
-  }
-
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
   }
 
-  // New method to apply filter without clearing selection
-  async applyFilter(filter: Filter): Promise<void> {
-    if (!filter?.value) {
-      await this.loadAll();
-      return;
-    }
-
-    await this.loadAll(filter);
-  }
-
   async loadAll(query?: Filter): Promise<void> {
     this.loading = true;
+
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
 
     try {
       if (this._superTaskId === 0) {
         const params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
 
         // If this is a filter query
-        if (query?.value.toString().length > 0) {
-          // Always reset pagination when filter changes
-          if (this.filterQuery?.value !== query.value) {
-            console.log('2 Filter changed, resetting pagination');
+        if (activeFilter?.value && activeFilter.value.toString().length > 0) {
+          // Reset pagination only when filter changes (not during pagination)
+          if (query && query.value) {
+            console.log('Filter changed, resetting pagination');
             this.setPaginationConfig(this.pageSize, null, null, null, 0);
             params.setPageAfter(undefined);
             params.setPageBefore(undefined);
           }
 
-          params.addFilter(query);
+          params.addFilter(activeFilter);
         }
 
         const pretasks = await this.loadPretasks(params.create());
@@ -77,15 +58,15 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         // Similar logic for supertasks
         const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
 
-        if (query?.value.toString().length > 0) {
-          // Always reset pagination when filter changes
-          if (this.filterQuery?.value !== query.value) {
+        if (activeFilter?.value && activeFilter.value.toString().length > 0) {
+          // Reset pagination only when filter changes (not during pagination)
+          if (query && query.value) {
             this.setPaginationConfig(this.pageSize, null, null, null, 0);
             params.setPageAfter(undefined);
             params.setPageBefore(undefined);
           }
 
-          params.addFilter(query);
+          params.addFilter(activeFilter);
         }
 
         const supertask = await this.loadSupertask(this._superTaskId, params.create());
@@ -135,11 +116,11 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
   reload(): void {
     this.clearSelection();
-    console.log('reloaded', this.filterQuery);
-    if (this.filterQuery && this.filterQuery.value) {
-      this.applyFilter(this.filterQuery);
-    } else {
-      this.loadAll();
-    }
+    this.loadAll(); // This will use the stored filter
+  }
+
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.reload();
   }
 }

@@ -28,7 +28,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { PreTasksDataSource } from '@datasources/preconfigured-tasks.datasource';
 
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { calculateKeyspace } from '@src/app/shared/utils/estkeyspace_attack';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
@@ -102,14 +102,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
   handleBackendSqlFilter(event: string) {
-    const filterQuery: Filter = {
-      value: event,
-      field: this.selectedFilterColumn,
-      operator: FilterType.ICONTAINS
-    };
-
-    // Set filter query in the datasource (will apply the filter automatically)
-    this.dataSource.setFilterQuery(filterQuery);
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
   }
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
