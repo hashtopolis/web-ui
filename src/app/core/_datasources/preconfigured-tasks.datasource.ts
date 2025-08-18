@@ -13,7 +13,6 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
   private filterQuery: Filter;
-  private isFirstSearch = true;
 
   setFilterQuery(filter: Filter): void {
     // Detect filter changes that require pagination reset
@@ -28,9 +27,27 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     }
 
     this.filterQuery = filter;
+
+    // Apply the filter immediately
+    if (filter?.value) {
+      this.applyFilter(filter);
+    } else {
+      this.loadAll();
+    }
   }
+
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
+  }
+
+  // New method to apply filter without clearing selection
+  async applyFilter(filter: Filter): Promise<void> {
+    if (!filter?.value) {
+      await this.loadAll();
+      return;
+    }
+
+    await this.loadAll(filter);
   }
 
   async loadAll(query?: Filter): Promise<void> {
@@ -119,7 +136,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     this.clearSelection();
     console.log('reloaded', this.filterQuery);
     if (this.filterQuery && this.filterQuery.value) {
-      this.loadAll(this.filterQuery);
+      this.applyFilter(this.filterQuery);
     } else {
       this.loadAll();
     }

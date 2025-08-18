@@ -102,8 +102,13 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
   }
   handleBackendSqlFilter(event: string) {
-    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
-    this.filter(event);
+    const filterQuery: Filter = {
+      value: event,
+      field: this.selectedFilterColumn,
+      operator: FilterType.ICONTAINS
+    };
+
+    // Set filter query in the datasource (will apply the filter automatically)
     this.dataSource.setFilterQuery(filterQuery);
   }
   getColumns(): HTTableColumn[] {

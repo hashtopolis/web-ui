@@ -261,7 +261,13 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    * @param pageBefore - the pagination before parameter to retrieve data before this index.
    * @param index - the pagination index.
    */
-  setPaginationConfig(pageSize: number, totalItems: number, pageAfter: number|string|null, pageBefore: number|string|null, index: number): void {
+  setPaginationConfig(
+    pageSize: number,
+    totalItems: number,
+    pageAfter: number | string | null,
+    pageBefore: number | string | null,
+    index: number
+  ): void {
     this.pageSize = pageSize;
     this.totalItems = totalItems;
     this.pageAfter = pageAfter;
