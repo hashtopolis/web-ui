@@ -9,14 +9,14 @@ import { Router } from '@angular/router';
 
 import { AuthData, AuthUser } from '@models/auth-user.model';
 
+import { LoginRedirectService } from '@services/access/login-redirect.service';
 import { PermissionService } from '@services/permission/permission.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-import { LoginRedirectService } from '@services/access/login-redirect.service';
 
 export interface AuthResponseData {
   token: string;
-  expires: string;
+  expires: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,7 +24,7 @@ export class AuthService {
   static readonly STORAGE_KEY = 'userData';
 
   user = new BehaviorSubject<AuthData>(null);
-  userId!: any;
+  userId!: string;
 
   @Output() authChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
   isAuthenticated = false;
@@ -32,7 +32,7 @@ export class AuthService {
   isLogged = this.logged.asObservable();
   redirectUrl = '';
   private userLoggedIn = new Subject<boolean>();
-  private tokenExpiration: any;
+  private tokenExpiration: NodeJS.Timeout | null;
   private endpoint = '/auth';
 
   constructor(
@@ -75,7 +75,7 @@ export class AuthService {
     }
   }
 
-  logIn(username: string, password: string): Observable<any> {
+  logIn(username: string, password: string) {
     return this.http
       .post<AuthResponseData>(
         this.cs.getEndpoint() + this.endpoint + '/token',
@@ -109,7 +109,7 @@ export class AuthService {
     return userData ? userData._token : 'notoken';
   }
 
-  private getUserId(token: any) {
+  private getUserId(token: string) {
     if (token == 'notoken') {
       return false;
     } else {
@@ -143,7 +143,7 @@ export class AuthService {
           })
         })
         .pipe(
-          tap((response: any) => {
+          tap((response: AuthResponseData) => {
             if (response && response.token) {
               userData._token = response.token;
               userData._expires = new Date(response.expires * 1000);
@@ -157,27 +157,34 @@ export class AuthService {
     }, expirationDuration);
   }
 
-  refreshToken(): Observable<any> {
+  refreshToken() {
     const userData: AuthData = this.storage.getItem(AuthService.STORAGE_KEY);
+
     return this.http
-      .post<any>(this.cs.getEndpoint() + this.endpoint + '/refresh', {
-        headers: new HttpHeaders({ Authorization: `Bearer ${userData._token}` })
+      .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${userData._token}`
+        })
       })
       .pipe(
-        tap((response: any) => {
+        tap((response: AuthResponseData) => {
           if (response && response.token) {
-            userData._token = response.token;
-            userData._expires = new Date(response.expires * 1000);
+            const updatedUser: AuthData = {
+              _token: response.token,
+              _expires: new Date(response.expires * 1000),
+              _username: userData._username
+            };
 
-            this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
+            // Update BOTH in-memory and local storage
+            this.user.next(updatedUser);
+            this.storage.setItem(AuthService.STORAGE_KEY, updatedUser, 0);
           } else {
             this.logOut();
           }
         }),
         catchError((error) => {
-          // Handle the error here
           console.error('An error occurred:', error);
-          return throwError(error); // Rethrow the error for further handling if needed
+          return throwError(() => error);
         })
       );
   }

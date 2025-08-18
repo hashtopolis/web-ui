@@ -10,7 +10,7 @@ import { PipesModule } from 'src/app/shared/pipes.module';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, flush, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -73,7 +73,7 @@ describe('AccountSettingsComponent', () => {
     chelper(_serviceConfig, option: string, _payload: any): Observable<any> {
       return of({});
     },
-    userId: 1
+    userId: '1'
   };
 
   beforeEach(() => {
@@ -180,7 +180,11 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component['gs'].update).toHaveBeenCalledWith(SERV.USERS, component['gs'].userId, component.form.value);
+      expect(component['gs'].update).toHaveBeenCalledWith(
+        SERV.USERS,
+        Number(component['gs'].userId),
+        component.form.value
+      );
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
     });
 
