@@ -14,12 +14,6 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
   private _currentFilter: Filter = null;
 
-  private resetPagination(): void {
-    this.setPaginationConfig(this.pageSize, null, null, null, 0);
-    this.pageAfter = undefined;
-    this.pageBefore = undefined;
-  }
-
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
   }
@@ -44,7 +38,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
           // Reset pagination only when filter changes (not during pagination)
           if (query && query.value) {
             console.log('Filter changed, resetting pagination');
-            this.setPaginationConfig(this.pageSize, null, null, null, 0);
+            this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
             params.setPageAfter(undefined);
             params.setPageBefore(undefined);
           }
@@ -61,7 +55,7 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         if (activeFilter?.value && activeFilter.value.toString().length > 0) {
           // Reset pagination only when filter changes (not during pagination)
           if (query && query.value) {
-            this.setPaginationConfig(this.pageSize, null, null, null, 0);
+            this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
             params.setPageAfter(undefined);
             params.setPageBefore(undefined);
           }
