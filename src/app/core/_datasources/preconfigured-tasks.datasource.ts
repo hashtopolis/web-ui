@@ -14,16 +14,17 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
   private filterQuery: Filter;
 
+  private resetPagination(): void {
+    this.setPaginationConfig(this.pageSize, null, null, null, 0);
+    this.pageAfter = undefined;
+    this.pageBefore = undefined;
+  }
+
   setFilterQuery(filter: Filter): void {
-    // Detect filter changes that require pagination reset
     const filterChanged = !this.filterQuery || filter?.value !== this.filterQuery?.value;
 
     if (filterChanged && filter?.value) {
-      // Reset pagination when filter changes
-      console.log('Filter changed, resetting pagination');
-      this.setPaginationConfig(this.pageSize, null, null, null, 0);
-      this.pageAfter = undefined;
-      this.pageBefore = undefined;
+      this.resetPagination();
     }
 
     this.filterQuery = filter;
