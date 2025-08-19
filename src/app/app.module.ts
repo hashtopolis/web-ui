@@ -7,7 +7,7 @@ import { MomentModule } from 'ngx-moment';
 
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { APP_INITIALIZER, inject, Injector, NgModule, provideAppInitializer } from '@angular/core';
+import { Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import { AppInitService } from '@services/app-init.service';
 import { ConfigService } from '@services/shared/config.service';
 import { ThemeService } from '@services/shared/theme.service';
 
@@ -43,7 +44,6 @@ import { ComponentsModule } from '@src/app/shared/components.module';
 import { DirectivesModule } from '@src/app/shared/directives.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { ScrollYTopComponent } from '@src/app/shared/scrollytop/scrollytop.component';
-import { AppInitService } from '@services/app-init.service';
 
 @NgModule({
   declarations: [
