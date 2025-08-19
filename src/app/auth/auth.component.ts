@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-
 import { Component, OnInit } from '@angular/core';
 import { OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -8,7 +6,7 @@ import { Validators } from '@angular/forms';
 
 import { UIConfig } from '@models/config-ui.model';
 
-import { AuthResponseData, AuthService } from '@services/access/auth.service';
+import { AuthService } from '@services/access/auth.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -92,7 +90,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     this.isLoading = true; // Show spinner
 
-    const authObs: Observable<AuthResponseData> = this.authService.logIn(username, password);
+    const authObs = this.authService.logIn(username, password);
 
     const authSubscription$ = authObs.subscribe({
       next: () => {

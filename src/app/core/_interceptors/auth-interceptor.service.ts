@@ -1,56 +1,46 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
-import { Observable, catchError, switchMap, take, throwError } from 'rxjs';
+import { Observable, switchMap, take } from 'rxjs';
 
-import { AuthService } from '../_services/access/auth.service';
-import { AuthUser } from '../_models/auth-user.model';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
+import { AuthUser } from '@models/auth-user.model';
+
+import { AuthService } from '@services/access/auth.service';
+import { CheckTokenService } from '@services/access/checktoken.service';
 
 @Injectable()
 export class AuthInterceptorService implements HttpInterceptor {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private checkTokenService: CheckTokenService
+  ) {}
 
   /**
    * Intercepts HTTP requests and adds authentication token to the request headers.
-   * If the token is expired, it triggers a token refresh before proceeding with the request.
+   * If the token is expired, logs out immediately.
+   * If the token is about to expire, attempts a refresh (if implemented) before sending the request.
    *
-   * @param {HttpRequest<any>} req - The outgoing HTTP request.
-   * @param {HttpHandler} next - The HTTP handler to forward the request to.
-   * @returns {Observable<HttpEvent<any>>} - An observable of the HTTP event stream.
+   * @param req - The outgoing HTTP request.
+   * @param next - The HTTP handler to forward the request to.
+   * @returns Observable of the HTTP event stream.
    */
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.includes('/auth/refresh')) {
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    // Skip token checks for auth requests to avoid loops
+    if (req.url.includes('/auth')) {
       return next.handle(req);
     }
+
+    // Check token validity before doing anything else (logs out if expired)
+    this.checkTokenService.checkTokenValidity();
+
     return this.authService.user.pipe(
       take(1),
       switchMap((user: AuthUser) => {
         if (!user) {
-          // If no user is logged in, just forward the request as is.
+          // No logged-in user, forward request without auth
           return next.handle(req);
-        }
-
-        const now = new Date().getTime();
-        const exp = new Date(user._expires).getTime();
-        if (now >= exp) {
-          // If the token is expired, refresh it before proceeding with the request.
-          return this.authService.refreshToken().pipe(
-            switchMap(() => {
-              // After refreshing the token, clone the request with the updated token.
-              const updatedReq = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${this.authService.token}`
-                }
-              });
-              return next.handle(updatedReq);
-            }),
-            catchError((error) => {
-              // If refresh fails, log out the user
-              this.authService.logOut();
-              return throwError(() => error);
-            })
-          );
         } else {
-          // If the token is still valid, just include it in the request headers.
+          // Token is valid → just forward request with token
           const modifiedReq = req.clone({
             setHeaders: {
               Authorization: `Bearer ${user._token}`
