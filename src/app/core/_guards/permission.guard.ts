@@ -1,3 +1,5 @@
+import { Observable, catchError, map, of } from 'rxjs';
+
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn } from '@angular/router';
 
@@ -36,21 +38,27 @@ export class PermissionGuard {
     return perm;
   }
 
-  canActivate(route: ActivatedRouteSnapshot): boolean {
+  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
     const requiredPermission = route.data['permission'] as PermissionValues;
+    return this.permissionService.hasPermission(requiredPermission).pipe(
+      map((has) => {
+        if (has) {
+          return true;
+        }
 
-    if (this.permissionService.hasPermissionSync(requiredPermission)) {
-      return true;
-    }
-
-    const formattedPermission = this.formatPermissionName(requiredPermission);
-    const message = `You are not allowed to ${formattedPermission.toLowerCase()}`;
-
-    this.alert.showErrorMessage(`Access denied: ${message}. Please contact your Administrator.`);
-    return false;
+        const formattedPermission = this.formatPermissionName(requiredPermission);
+        const message = `You are not allowed to ${formattedPermission.toLowerCase()}`;
+        this.alert.showErrorMessage(`Access denied: ${message}. Please contact your Administrator.`);
+        return false;
+      }),
+      catchError(() => {
+        this.alert.showErrorMessage(`Access denied: Unexpected error while checking permissions.`);
+        return of(false);
+      })
+    );
   }
 }
 
-export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): boolean => {
+export const CheckPerm: CanActivateFn = (route: ActivatedRouteSnapshot): Observable<boolean> => {
   return inject(PermissionGuard).canActivate(route);
 };
