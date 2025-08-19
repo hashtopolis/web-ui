@@ -1,15 +1,16 @@
-import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
 import { Keepalive } from '@ng-idle/keepalive';
 import { filter } from 'rxjs';
 
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { UIConfig } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
+import { CheckTokenService } from '@services/access/checktoken.service';
 import { BreakpointService } from '@services/shared/breakpoint.service';
 import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     private elementRef: ElementRef,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
+    inject(CheckTokenService);
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e: NavigationEnd) => {
       this.currentUrl = e.url;
       this.findCurrentStep(this.currentUrl);
@@ -154,7 +156,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private findCurrentStep(currentRoute) {
+  private findCurrentStep(currentRoute: string) {
     const currRouteFragments = currentRoute.split('/');
     const length = currRouteFragments.length;
     this.currentStep = currentRoute.split('/')[length - 1];
@@ -214,27 +216,5 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.showingModal = false;
     this.modalService.dismissAll();
     this.ngOnInit();
-  }
-
-  closeResult = '';
-  open(content) {
-    this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' }).result.then(
-      (result) => {
-        this.closeResult = `Closed with: ${result}`;
-      },
-      (reason) => {
-        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-      }
-    );
-  }
-
-  private getDismissReason(reason: ModalDismissReasons | string): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
-    }
   }
 }

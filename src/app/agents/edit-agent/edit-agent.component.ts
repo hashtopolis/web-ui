@@ -27,7 +27,7 @@ import {
   getEditAgentForm,
   getUpdateAssignmentForm
 } from '@src/app/agents/edit-agent/edit-agent.form';
-import { ASC, ignoreErrors } from '@src/app/core/_constants/agentsc.config';
+import { ASC, IGNORE_ERROR_CHOICES } from '@src/app/core/_constants/agentsc.config';
 import {
   ACCESS_GROUP_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING,
@@ -53,7 +53,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectUsers: SelectOption[] = [];
-  selectIgnorerrors = ignoreErrors;
+  selectIgnorerrors = IGNORE_ERROR_CHOICES;
   selectUserAgps: SelectOption[];
 
   /** Assign Tasks */
