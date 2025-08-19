@@ -24,6 +24,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
   private filterQuery: Filter;
+  private _currentFilter: Filter = null;
 
   setFilterQuery(filter: Filter): void {
     const filterChanged = !this.filterQuery || filter?.value !== this.filterQuery?.value;
@@ -42,15 +43,30 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
   loadAll(query?: Filter): void {
     this.loading = true;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
     const agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
       .addInclude('agentStats');
-    if (query) {
-      console.log('Loading agents with filter:', query);
-      agentParams.addFilter(query);
+    // If this is a filter query
+    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
+      // Reset pagination only when filter changes (not during pagination)
+      if (query && query.value) {
+        console.log('Filter changed, resetting pagination');
+        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+        agentParams.setPageAfter(undefined);
+        agentParams.setPageBefore(undefined);
+      }
+
+      agentParams.addFilter(activeFilter);
     }
 
     this.service
@@ -176,14 +192,13 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
     if (this._taskId) {
       this.loadAssignments();
     } else {
-      if (this.filterQuery && this.filterQuery.value) {
-        this.loadAll(this.filterQuery);
-      } else {
-        this.loadAll();
-      }
+      this.loadAll();
     }
   }
-
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.reload();
+  }
   /**
    * Load related running chunks for all agents and convert them to ChunkData objects
    * @param requestParams
