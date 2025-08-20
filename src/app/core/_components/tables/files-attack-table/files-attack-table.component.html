@@ -15,5 +15,5 @@
   [showExport]="false"
   (checkboxChanged)="onCheckboxChanged($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
-  (backendSqlFilter)="filter($event)"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
 />

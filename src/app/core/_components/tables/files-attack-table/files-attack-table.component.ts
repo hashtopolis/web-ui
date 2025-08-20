@@ -1,13 +1,16 @@
-import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+
 import { FileType, JFile } from '@models/file.model';
+
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
 } from '@components/tables/files-attack-table/files-attack-table.constants';
+import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { FilesDataSource } from '@datasources/files.datasource';
+
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
@@ -58,6 +61,14 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -90,6 +101,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   onCheckboxChanged(event: CheckboxChangeEvent): void {
     // Handle the checkbox change event
     this.cdr.detectChanges();
+    console.log(this.formData);
     const transformed = this.onPrepareAttack(this.formData, event);
     // Pass the event data to another component
     this.updateFormEvent.emit(transformed);
