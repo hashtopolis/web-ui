@@ -23,20 +23,8 @@ import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config'
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
-  private filterQuery: Filter;
   private _currentFilter: Filter = null;
 
-  setFilterQuery(filter: Filter): void {
-    const filterChanged = !this.filterQuery || filter?.value !== this.filterQuery?.value;
-    if (filterChanged && filter?.value) {
-      // Reset pagination when filter changes
-      console.log('Filter changed, resetting pagination');
-      this.setPaginationConfig(this.pageSize, null, null, null, 0);
-      this.pageAfter = undefined;
-      this.pageBefore = undefined;
-    }
-    this.filterQuery = filter;
-  }
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
