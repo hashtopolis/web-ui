@@ -40,7 +40,19 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
+  private applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
+    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
+      // Reset pagination only when filter changes (not during pagination)
+      if (query && query.value) {
+        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+        params.setPageAfter(undefined);
+        params.setPageBefore(undefined);
+      }
 
+      params.addFilter(activeFilter);
+    }
+    return params;
+  }
   loadAll(query?: Filter): void {
     this.loading = true;
     // Store the current filter if provided
@@ -57,17 +69,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       .addInclude('assignments')
       .addInclude('agentStats');
     // If this is a filter query
-    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
-      // Reset pagination only when filter changes (not during pagination)
-      if (query && query.value) {
-        console.log('Filter changed, resetting pagination');
-        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
-        agentParams.setPageAfter(undefined);
-        agentParams.setPageBefore(undefined);
-      }
-
-      agentParams.addFilter(activeFilter);
-    }
+    this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 
     this.service
       .getAll(SERV.AGENTS, agentParams.create())
