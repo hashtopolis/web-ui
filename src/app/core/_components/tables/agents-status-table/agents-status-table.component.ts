@@ -1,27 +1,30 @@
+import { catchError, forkJoin } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
+
+import { AgentsDataSource } from '@datasources/agents.datasource';
+
+import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentsStatusTableCol,
   AgentsStatusTableColumnLabel
 } from '@src/app/core/_components/tables/agents-status-table/agents-status-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
-import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
-import { catchError, forkJoin } from 'rxjs';
-
-import { ASC } from '@src/app/core/_constants/agentsc.config';
-import { ActionMenuEvent } from '@src/app/core/_components/menus/action-menu/action-menu.model';
-import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
-import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
-import { AgentsDataSource } from '@datasources/agents.datasource';
 import { BaseTableComponent } from '@src/app/core/_components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@src/app/core/_components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { RowActionMenuAction } from '@src/app/core/_components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@src/app/core/_services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
+import { HTTableColumn, HTTableRouterLink } from '@src/app/core/_components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@src/app/core/_components/tables/table-dialog/table-dialog.component';
-import { convertCrackingSpeed } from '@src/app/shared/utils/util';
+import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
+import { ASC } from '@src/app/core/_constants/agentsc.config';
+import { JAgent } from '@src/app/core/_models/agent.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { SERV } from '@src/app/core/_services/main.config';
+import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 /**
  * Provides static constants for different types of statistical calculations.
@@ -65,9 +68,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     }
   }
   handleBackendSqlFilter(event: string) {
-    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
-    this.filter(event);
-    this.dataSource.setFilterQuery(filterQuery);
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
   }
   getColumns(): HTTableColumn[] {
     return [

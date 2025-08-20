@@ -199,6 +199,7 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   }
   clearFilter(): void {
     this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
     this.reload();
   }
   /**
