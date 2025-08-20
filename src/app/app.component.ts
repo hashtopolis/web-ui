@@ -108,7 +108,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.authService.autoLogin();
     this.authService.isLogged.subscribe((status) => {
       this.isLogged = status;
       if (status) {
