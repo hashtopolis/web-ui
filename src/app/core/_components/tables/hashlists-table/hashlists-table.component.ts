@@ -1,23 +1,28 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { JHashlist } from '@models/hashlist.model';
+
+import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HashlistsTableCol,
   HashlistsTableColumnLabel
 } from '@components/tables/hashlists-table/hashlists-table.constants';
-import { Observable, catchError, of } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { HashListContextMenuService } from '@services/context-menu/hashlists/hashlist-menu.service';
-import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
-import { HashlistsDataSource } from '@datasources/hashlists.datasource';
-import { JHashlist } from '@models/hashlist.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { HashlistsDataSource } from '@datasources/hashlists.datasource';
+
+import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -48,7 +53,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       sub.unsubscribe();
     }
   }
-  
+
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
@@ -58,12 +63,20 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
 
   getColumns(): HTTableColumn[] {
     const tableColumns: HTTableColumn[] = [
       {
         id: HashlistsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (hashlist: JHashlist) => hashlist.id,
@@ -104,7 +117,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (!this.shashlistId) {
       tableColumns.push({
         id: HashlistsTableCol.HASHTYPE,
-        dataKey: 'hashTypeDescription',
+        dataKey: 'hashTypeId',
         isSearchable: true,
         isSortable: false,
         render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,
