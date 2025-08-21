@@ -100,15 +100,13 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
         id: ChunksTableCol.TASK,
         dataKey: 'taskName',
         routerLink: (chunk: JChunk) => this.renderTaskLink(chunk),
-        isSortable: false,
-        isSearchable: true
+        isSortable: false
       },
       {
         id: ChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: false,
-        isSearchable: true
+        isSortable: false
       },
       {
         id: ChunksTableCol.DISPATCH_TIME,
