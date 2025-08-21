@@ -98,5 +98,7 @@ export const ui = {
   /**
    * Error message shown when the required fields validation fails.
    */
-  formError: 'Please fill in at least one of the fields names, special attributes, or special date.'
+  formError: 'Please fill in at least one of the fields names, special attributes, or special date.',
+
+  submitError: 'Error generating wordlist.'
 };

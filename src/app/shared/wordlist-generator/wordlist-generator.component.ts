@@ -142,9 +142,8 @@ export class WordlistGeneratorComponent implements OnInit {
       try {
         generateCandidates(names, specialdates, sparetext, options);
       } catch (error) {
-        const msg = 'Error generating candidates.';
-        console.error(msg, error);
-        this.alert.showErrorMessage(msg);
+        console.error(ui.submitError, error);
+        this.alert.showErrorMessage(ui.submitError);
       } finally {
         this.submitted = false;
       }
