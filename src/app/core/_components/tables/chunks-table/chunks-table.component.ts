@@ -55,7 +55,14 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit {
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {

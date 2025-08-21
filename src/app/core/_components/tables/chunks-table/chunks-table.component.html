@@ -10,5 +10,5 @@
   (rowActionClicked)="rowActionClicked($event)"
   [isPageable]="true"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
-  (backendSqlFilter)="filter($event)"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
 />
