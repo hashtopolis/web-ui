@@ -1,22 +1,27 @@
+import { catchError } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAgentBinary } from '@models/agent-binary.model';
+
+import { AgentBinariesMenuServiceContextMenuService } from '@services/context-menu/crackers/agent-binaries-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentBinariesTableCol,
   AgentBinariesTableColumnLabel
 } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
-import { AgentBinariesMenuServiceContextMenuService } from '@services/context-menu/crackers/agent-binaries-menu.service';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JAgentBinary } from '@models/agent-binary.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { catchError } from 'rxjs';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -56,12 +61,20 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AgentBinariesTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.id,
@@ -69,7 +82,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
       },
       {
         id: AgentBinariesTableCol.TYPE,
-        dataKey: 'type',
+        dataKey: 'binaryType',
         isSortable: true,
         isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.binaryType,
