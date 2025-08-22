@@ -1,17 +1,21 @@
+import { Observable, of } from 'rxjs';
+
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+
+import { SearchHashModel } from '@models/hash.model';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 /* eslint-disable @angular-eslint/component-selector */
-import { Observable, of } from 'rxjs';
 import {
   SearchHashTableCol,
   SearchHashTableColumnLabel
 } from '@components/tables/search-hash-table/search-hash-table.constants';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { SearchHashDataSource } from '@datasources/search-hash.datasource';
-import { SearchHashModel } from '@models/hash.model';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'search-hash-table',
@@ -65,7 +69,6 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        isSearchable: true,
         render: (hash: SearchHashModel) => hash.plaintext,
         export: async (hash: SearchHashModel) => hash.plaintext + ''
       },
