@@ -6,7 +6,6 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -22,20 +21,6 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
 
   setSuperHashListID(superHashListID: number): void {
     this.superHashListID = superHashListID;
-  }
-  private applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
-    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
-      // Reset pagination only when filter changes (not during pagination)
-      if (query && query.value) {
-        console.log('Filter changed, resetting pagination');
-        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
-        params.setPageAfter(undefined);
-        params.setPageBefore(undefined);
-      }
-
-      params.addFilter(activeFilter);
-    }
-    return params;
   }
   loadAll(query?: Filter): void {
     this.loading = true;

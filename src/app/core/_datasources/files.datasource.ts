@@ -12,7 +12,6 @@ import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
-import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -47,20 +46,6 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   setEditValues(index: number, editType: number): void {
     this.editIndex = index;
     this.editType = editType;
-  }
-  private applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
-    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
-      // Reset pagination only when filter changes (not during pagination)
-      if (query && query.value) {
-        console.log('Filter changed, resetting pagination');
-        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
-        params.setPageAfter(undefined);
-        params.setPageBefore(undefined);
-      }
-
-      params.addFilter(activeFilter);
-    }
-    return params;
   }
   /**
    * Load all files from server

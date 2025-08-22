@@ -18,20 +18,6 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
   }
-  private applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
-    if (activeFilter?.value && activeFilter.value.toString().length > 0) {
-      // Reset pagination only when filter changes (not during pagination)
-      if (query && query.value) {
-        console.log('Filter changed, resetting pagination');
-        this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
-        params.setPageAfter(undefined);
-        params.setPageBefore(undefined);
-      }
-
-      params.addFilter(activeFilter);
-    }
-    return params;
-  }
   async loadAll(query?: Filter): Promise<void> {
     this.loading = true;
 
@@ -47,34 +33,11 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       if (this._superTaskId === 0) {
         let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
         params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-        // If this is a filter query
-        /*         if (activeFilter?.value && activeFilter.value.toString().length > 0) {
-          // Reset pagination only when filter changes (not during pagination)
-          if (query && query.value) {
-            console.log('Filter changed, resetting pagination');
-            this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
-            params.setPageAfter(undefined);
-            params.setPageBefore(undefined);
-          }
-
-          params.addFilter(activeFilter);
-        } */
-
         const pretasks = await this.loadPretasks(params.create());
         this.setData(pretasks);
       } else {
         let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
         params = this.applyFilterWithPaginationReset(params, activeFilter, query);
-        /*         if (activeFilter?.value && activeFilter.value.toString().length > 0) {
-          // Reset pagination only when filter changes (not during pagination)
-          if (query && query.value) {
-            this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
-            params.setPageAfter(undefined);
-            params.setPageBefore(undefined);
-          }
-
-          params.addFilter(activeFilter);
-        } */
 
         const supertask = await this.loadSupertask(this._superTaskId, params.create());
         const superTaskPreTaskIds = supertask.pretasks.map((p) => p.id);
