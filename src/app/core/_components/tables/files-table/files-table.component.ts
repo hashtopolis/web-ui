@@ -1,20 +1,25 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FileType, JFile } from '@models/file.model';
-import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+
+import { FileType, JFile } from '@models/file.model';
+
 import { FilesContextMenuService } from '@services/context-menu/files-menu.service';
-import { FilesDataSource } from '@datasources/files.datasource';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { FilesTableCol, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { faKey } from '@fortawesome/free-solid-svg-icons';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { FilesDataSource } from '@datasources/files.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 /**
@@ -96,6 +101,14 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   /**
    * Get all table columns
    * @returns List of table columns
@@ -104,7 +117,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     const tableColumns: HTTableColumn[] = [
       {
         id: FilesTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (file: JFile) => file.id,
@@ -139,7 +152,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: false,
-        isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
       });
