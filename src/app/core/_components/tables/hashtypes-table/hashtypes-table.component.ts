@@ -1,22 +1,27 @@
+import { catchError } from 'rxjs';
+
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
-import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
+
+import { JHashtype } from '@models/hashtype.model';
+
+import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HashtypesTableCol,
   HashtypesTableColumnLabel
 } from '@components/tables/hashtypes-table/hashtypes-table.constants';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
-import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
-import { JHashtype } from '@models/hashtype.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { HTTableColumn, HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { catchError } from 'rxjs';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
+
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-hashtypes-table',
@@ -87,9 +92,12 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     }
   }
   handleBackendSqlFilter(event: string) {
-    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
-    this.filter(event);
-    this.dataSource.setFilterQuery(filterQuery);
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
   }
   openDialog(data: DialogData<JHashtype>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {

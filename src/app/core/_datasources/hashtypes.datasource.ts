@@ -1,24 +1,30 @@
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { JHashtype } from '../_models/hashtype.model';
+import { JHashtype } from '@models/hashtype.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { Filter } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { ResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
 
 export class HashtypesDataSource extends BaseDataSource<JHashtype> {
-  private filterQuery: Filter;
-  setFilterQuery(filter: Filter): void {
-    this.filterQuery = filter;
-  }
+  private _currentFilter: Filter = null;
+
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this);
+    // Store the current filter if provided
     if (query) {
-      params.addFilter(query);
-      console.log('add search');
+      this._currentFilter = query;
     }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this);
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
+
     const hashtypes$ = this.service.getAll(SERV.HASHTYPES, params.create());
     this.subscriptions.push(
       hashtypes$
@@ -43,10 +49,12 @@ export class HashtypesDataSource extends BaseDataSource<JHashtype> {
 
   reload(): void {
     this.clearSelection();
-    if (this.filterQuery && this.filterQuery.value) {
-      this.loadAll(this.filterQuery);
-    } else {
-      this.loadAll();
-    }
+    this.loadAll(); // This will use the stored filter
+  }
+
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }
