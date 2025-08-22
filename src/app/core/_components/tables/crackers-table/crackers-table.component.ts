@@ -1,19 +1,24 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 import { Observable, catchError, of } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
+
 import { CrackersContextMenuService } from '@services/context-menu/crackers/crackers-menu.service';
-import { CrackersDataSource } from '@datasources/crackers.datasource';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { CrackersTableCol, CrackersTableColumnLabel } from '@components/tables/crackers-table/crackers-table.constants';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { CrackersDataSource } from '@datasources/crackers.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-crackers-table',
@@ -46,6 +51,14 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 
