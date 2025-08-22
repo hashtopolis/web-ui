@@ -7,7 +7,7 @@
   [columnLabels]="columnLabels"
   [contextMenuService]="contextMenuService"
   [dataSource]="dataSource"
-  (backendSqlFilter)="filter($event)"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
   [isArchived]="isArchived"
   [isFilterable]="isFilterable"
   [isPageable]="true"
