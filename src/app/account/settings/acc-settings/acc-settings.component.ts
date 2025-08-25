@@ -67,6 +67,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
    */
   protected readonly FormControl = FormControl;
 
+  showPasswordForm: boolean = true;
+
   constructor(
     private titleService: AutoTitleService,
     private datePipe: uiDatePipe,
@@ -133,12 +135,16 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
     return this.changepasswordFormGroup.get('confirmNewPassword').value;
   }
 
+  /**
+   * Resets the password form to its initial state.
+   * This method clears all input fields and resets any validation errors.
+   */
   resetPasswordForm() {
     this.changepasswordFormGroup.reset();
-    this.changepasswordFormGroup.markAsPristine();
-    this.changepasswordFormGroup.markAsUntouched();
-    this.changepasswordFormGroup.updateValueAndValidity();
+    this.showPasswordForm = false;
+    setTimeout(() => (this.showPasswordForm = true));
   }
+
   /**
    * Handles form basic form submission
    */
@@ -171,8 +177,8 @@ export class AccountSettingsComponent implements OnInit, OnDestroy {
       this.gs.chelper(SERV.HELPER, 'changeOwnPassword', payload).subscribe({
         next: (val) => {
           this.alert.showSuccessMessage(val.meta['Change password']);
-          this.resetPasswordForm();
           this.isUpdatingPassLoading = false;
+          this.resetPasswordForm();
         },
         error: () => {
           this.isUpdatingPassLoading = false;
