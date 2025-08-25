@@ -31,11 +31,11 @@ import { ReportsModule } from '@src/app/shared/report-builder/reports.module';
 import { SwitchThemeModule } from '@src/app/shared/switch-theme/switch-theme.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
 import { HexconvertorComponent } from '@src/app/shared/utils/hexconvertor/hexconvertor.component';
-import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
+import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 
 @NgModule({
   declarations: [
-    WordlisGeneratorComponent,
+    WordlistGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
@@ -70,7 +70,7 @@ import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wo
     NgbModule
   ],
   exports: [
-    WordlisGeneratorComponent,
+    WordlistGeneratorComponent,
     HashtypeDetectorComponent,
     LoadingSpinnerComponent,
     TimeoutDialogComponent,
