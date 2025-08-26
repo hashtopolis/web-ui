@@ -1,22 +1,27 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { Observable, catchError, of } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
+
+import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   PermissionsTableCol,
   PermissionsTableColumnLabel
 } from '@components/tables/permissions-table/permissions-table.constants';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
-import { PermissionsContextMenuService } from '@services/context-menu/users/permissions-menu.service';
-import { PermissionsDataSource } from '@datasources/permissions.datasource';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { PermissionsDataSource } from '@datasources/permissions.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-permissions-table',
@@ -49,6 +54,14 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   getColumns(): HTTableColumn[] {
