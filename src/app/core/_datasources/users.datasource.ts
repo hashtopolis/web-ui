@@ -1,19 +1,30 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
 import { Filter } from '@models/request-params.model';
-import { JUser } from '../_models/user.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JUser } from '@models/user.model';
+
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { ResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
 
 export class UsersDataSource extends BaseDataSource<JUser> {
+  private _currentFilter: Filter = null;
+
   loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addInclude('globalPermissionGroup');
+    // Store the current filter if provided
     if (query) {
-      params.addFilter(query);
+      this._currentFilter = query;
     }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('globalPermissionGroup');
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+
     const users$ = this.service.getAll(SERV.USERS, params.create());
 
     this.subscriptions.push(
@@ -30,16 +41,10 @@ export class UsersDataSource extends BaseDataSource<JUser> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(users);
         })
     );
@@ -48,5 +53,10 @@ export class UsersDataSource extends BaseDataSource<JUser> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

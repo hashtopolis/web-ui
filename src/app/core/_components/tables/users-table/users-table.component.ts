@@ -1,23 +1,28 @@
+import { catchError } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JUser } from '@models/user.model';
+
+import { UsersContextMenuService } from '@services/context-menu/users/users-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   UsersTableCol,
   UsersTableColumnLabel,
   UsersTableStatus
 } from '@components/tables/users-table/users-table.constants';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JUser } from '@models/user.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { UsersContextMenuService } from '@services/context-menu/users/users-menu.service';
 import { UsersDataSource } from '@datasources/users.datasource';
-import { catchError } from 'rxjs';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -54,11 +59,19 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: UsersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (user: JUser) => user.id,
@@ -115,7 +128,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: false,
-        isSearchable: true,
         render: (user: JUser) => user.globalPermissionGroup.name,
         export: async (user: JUser) => user.globalPermissionGroup.name
       }
