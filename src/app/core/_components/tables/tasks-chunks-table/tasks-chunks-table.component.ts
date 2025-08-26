@@ -74,7 +74,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     return [
       {
         id: TasksChunksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (chunk: JChunk) => chunk.id
@@ -147,6 +147,14 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 

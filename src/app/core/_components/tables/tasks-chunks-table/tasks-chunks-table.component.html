@@ -1,3 +1,4 @@
+<h1>HELLO</h1>
 <ht-table
   #table
   name="tasksChunksTable"
@@ -12,5 +13,5 @@
   (rowActionClicked)="rowActionClicked($event)"
   [isFilterable]="isFilterable"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
-  (backendSqlFilter)="filter($event)"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
 />
