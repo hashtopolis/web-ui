@@ -1,16 +1,16 @@
-import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { Subscription } from 'rxjs';
 
 @Directive({
-  selector: '[debounce][formControlName]',
+  selector: '[appDebounce][formControlName]',
   standalone: true
 })
 export class DebounceDirective implements OnInit, OnDestroy {
   @Input() debounceTime = 500;
-  @Output() debounceInput = new EventEmitter<any>();
+  @Output() debounceInput = new EventEmitter<string>();
 
   private subscription: Subscription;
 

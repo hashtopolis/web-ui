@@ -79,7 +79,7 @@
             <mat-form-field style="min-width: 200px">
               <input
                 matInput
-                debounce
+                appDebounce
                 formControlName="textFilter"
                 [debounceTime]="500"
                 (debounceInput)="emitFilterValue()"
