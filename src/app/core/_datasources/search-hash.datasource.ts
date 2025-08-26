@@ -1,11 +1,14 @@
-import { Filter, FilterType } from '@models/request-params.model';
-import { JHash, SearchHashModel } from '@models/hash.model';
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from '@datasources/base.datasource';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { JHash, SearchHashModel } from '@models/hash.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 export class SearchHashDataSource extends BaseDataSource<SearchHashModel> {

@@ -1,13 +1,15 @@
-import { Filter, FilterType } from '@models/request-params.model';
-import { JTask, JTaskWrapper } from '@models/task.model';
 import { catchError, of } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+
+import { JChunk } from '@models/chunk.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask, JTaskWrapper } from '@models/task.model';
+
+import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-import { JChunk } from '@models/chunk.model';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-import { ResponseWrapper } from '@models/response.model';
-import { SERV } from '@services/main.config';
-import { finalize } from 'rxjs/operators';
 
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;

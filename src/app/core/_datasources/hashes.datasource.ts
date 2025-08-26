@@ -1,13 +1,15 @@
-import { Filter, FilterType } from '@models/request-params.model';
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from '@datasources/base.datasource';
 import { JHash } from '@models/hash.model';
-import { JTask } from '@models/task.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class HashesDataSource extends BaseDataSource<JHash> {
   private _id = 0;
