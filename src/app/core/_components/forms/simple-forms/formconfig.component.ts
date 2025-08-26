@@ -1,4 +1,4 @@
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -170,49 +170,59 @@ export class FormConfigComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles the submission of the form.
-   * @param form - The form object containing the updated values.
+   * Handles the submission of the form using parallel requests for all changed fields.
+   * Shows a single success message when all updates complete.
+   * @param formValues - The current form values emitted from the dynamic form.
    */
-  onFormSubmit(form: FormGroup) {
-    const currentFormValues = form;
-    const initialFormValues = this.formValues;
-    const changedFields: Record<string, unknown> = {};
+  onFormSubmit(formValues: Record<string, unknown>) {
+    if (!formValues) return;
 
-    for (const key in currentFormValues) {
-      if (Object.prototype.hasOwnProperty.call(currentFormValues, key)) {
-        const currentValue = currentFormValues[key];
-        const initialValue = initialFormValues[key];
+    const changedFields = this.getChangedFields(formValues);
 
-        if (currentValue !== initialValue) {
-          // Convert boolean values to 1 (true) or 0 (false)
-          changedFields[key] = typeof currentValue === 'boolean' ? (currentValue ? 1 : 0) : currentValue;
-        }
+    if (Object.keys(changedFields).length === 0) return;
+
+    // Prepare all update observables
+    const updateRequests = Object.keys(changedFields).map((key) => {
+      const id = this.formIds[key];
+      const value = changedFields[key];
+      return this.gs.update(SERV.CONFIGS, id, { item: key, value: String(value) });
+    });
+
+    // Execute all updates in parallel
+    this.mySubscription = forkJoin(updateRequests).subscribe({
+      next: () => {
+        // Mark all fields as updated
+        Object.keys(changedFields).forEach((key) => this.uicService.onUpdatingCheck(key));
+
+        // Show a single success message
+        this.alert.showSuccessMessage(`Saved ${this.title}`);
+      },
+      error: (err) => {
+        console.error(`Error updating ${this.title}`, err);
+        this.alert.showErrorMessage(`Failed to save ${this.title}`);
       }
-    }
+    });
+  }
 
-    const fieldKeys = Object.keys(changedFields);
-    let index = 0;
+  /**
+   * Collects all fields that have changed compared to the initial form values.
+   * Converts boolean values to 1 (true) or 0 (false) for backend compatibility.
+   *
+   * @param currentValues The current values from the form.
+   * @returns An object where keys are the changed field names and values are the updated values.
+   */
+  private getChangedFields(currentValues: Record<string, unknown>): Record<string, unknown> {
+    const initialValues = this.formValues;
 
-    const showAlertsSequentially = () => {
-      if (index < fieldKeys.length) {
-        const key = fieldKeys[index];
-        const id = this.formIds[key];
-        const valueUpdate = changedFields[key];
-        const arr = { item: key, value: String(valueUpdate) };
+    return Object.keys(currentValues).reduce<Record<string, unknown>>((changedFields, key) => {
+      const initialValue = initialValues[key];
+      const currentValue = currentValues[key];
 
-        this.mySubscription = this.gs.update(SERV.CONFIGS, id, arr).subscribe(() => {
-          this.uicService.onUpdatingCheck(key);
-          this.alert.showSuccessMessage(`Saved ${key}`);
-
-          // Delay showing the next alert by 2000 milliseconds (2 seconds)
-          setTimeout(() => {
-            index++;
-            showAlertsSequentially();
-          }, 2000);
-        });
+      if (currentValue !== initialValue) {
+        changedFields[key] = typeof currentValue === 'boolean' ? (currentValue ? 1 : 0) : currentValue;
       }
-    };
 
-    showAlertsSequentially();
+      return changedFields;
+    }, {});
   }
 }

@@ -21,7 +21,7 @@
 
   <br />
   <app-page-subtitle [subtitle]="pageSubtitlePassword"></app-page-subtitle>
-  <form [formGroup]="changepasswordFormGroup" style="display: flex; flex-direction: column; gap: 0.625rem">
+  <form *ngIf="showPasswordForm" [formGroup]="changepasswordFormGroup" style="display: flex; flex-direction: column; gap: 0.625rem">
     <input-text
       title="Old Password"
       formControlName="oldPassword"

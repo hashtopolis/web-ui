@@ -19,7 +19,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
 import { SelectOption, handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
-import { WordlisGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generatorcomponent';
+import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
@@ -261,8 +261,8 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   }
 
   showHelp(): void {
-    const dialogRef = this.dialog.open(WordlisGeneratorComponent, {
-      width: '90%',
+    const dialogRef = this.dialog.open(WordlistGeneratorComponent, {
+      width: 'auto',
       maxWidth: '100vw'
     });
     dialogRef.afterClosed().subscribe();
