@@ -1,3 +1,5 @@
+import { Subscription, take, timer } from 'rxjs';
+
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -10,6 +12,22 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+
+import { BaseModel } from '@models/base.model';
+import { UIConfig } from '@models/config-ui.model';
+import { JHash } from '@models/hash.model';
+
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
+import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import {
   COL_ROW_ACTION,
   COL_SELECT,
@@ -19,22 +37,9 @@ import {
   HTTableColumn,
   HTTableEditable
 } from '@components/tables/ht-table/ht-table.models';
-import { FormControl, FormGroup } from '@angular/forms';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { Subscription, take, timer } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseDataSource } from '@datasources/base.datasource';
-import { BaseModel } from '@models/base.model';
-import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
-import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
-import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
-import { JHash } from '@models/hash.model';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatDialog } from '@angular/material/dialog';
-import { MatSort } from '@angular/material/sort';
-import { UIConfig } from '@models/config-ui.model';
+
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
@@ -165,7 +170,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
-  
+
   /** Default total items index */
   @Input() defaultTotalItems = 0;
 
@@ -292,7 +297,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Update pagination configuration in the data source
-      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, undefined, undefined, 0);
+      this.dataSource.setPaginationConfig(
+        this.dataSource.pageSize,
+        this.dataSource.totalItems,
+        undefined,
+        undefined,
+        0
+      );
     });
   }
 
@@ -428,7 +439,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Applies a filter to the table based on user input.
    */
-/*   applyFilter() {
+  /*   applyFilter() {
     if (this.filterFn) {
       this.dataSource.filterData(this.filterFn);
       this.uiSettings.updateTableSettings(this.name, {
@@ -442,7 +453,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Clears a filter to the table based on user input.
    */
-/*   clearFilter() {
+  /*   clearFilter() {
     // Reset the filter function to a default that passes all items
     const defaultFilterFn = (item: any, filterValue: '') => true;
     // Reapply the default filter function
@@ -538,7 +549,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.filterQueryFormGroup.get('textFilter').setValue('');
   }
-
+  clearSearchBox(): void {
+    this.filterQueryFormGroup.get('textFilter').setValue('');
+  }
   /**
    * Handles the page change event, including changes in page size and page index.
    *
@@ -546,8 +559,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   onPageChange(event: PageEvent): void {
     console.log('Page change event:', event);
-/*     this.clearFilter();
- */    let pageAfter = this.dataSource.pageAfter;
+    /*     this.clearFilter();
+     */ let pageAfter = this.dataSource.pageAfter;
     let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
     if (index > this.dataSource.index) {
@@ -563,9 +576,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       index = 0;
       pageAfter = undefined;
       pageBefore = undefined;
-
-    }
-    else if (event.pageIndex !== 0) {
+    } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
       // if (event.pageIndex > event.previousPageIndex) {
@@ -573,7 +584,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // } else {
       //   pageBefore = Math.min(...ids);
       // }
-      
     }
 
     this.uiSettings.updateTableSettings(this.name, {
@@ -588,8 +598,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Update pagination configuration in the data source
     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-/*     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
- */
+    /*     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
+     */
     // Reload data with updated pagination settings
     this.dataSource.reload();
   }
