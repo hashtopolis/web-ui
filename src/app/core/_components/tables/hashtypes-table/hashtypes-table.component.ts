@@ -21,7 +21,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-hashtypes-table',

@@ -1,34 +1,39 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { ChunkData } from '@models/chunk.model';
+import { JHashlist } from '@models/hashlist.model';
+import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
+
+import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HTTableColumn,
   HTTableEditable,
   HTTableIcon,
   HTTableRouterLink
 } from '@components/tables/ht-table/ht-table.models';
-import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
-import { Observable, catchError, of } from 'rxjs';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import {
   TaskStatus,
   TaskTableCol,
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
-import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { ChunkData } from '@models/chunk.model';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { JHashlist } from '@models/hashlist.model';
-import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { TasksDataSource } from '@datasources/tasks.datasource';
+
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
+import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
 @Component({
   selector: 'app-tasks-table',
@@ -82,7 +87,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
   handleBackendSqlFilter(event: string) {
-    let filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
     this.filter(event);
     this.dataSource.setFilterQuery(filterQuery);
   }

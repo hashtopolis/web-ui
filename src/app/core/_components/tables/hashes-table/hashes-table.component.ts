@@ -1,16 +1,19 @@
 /* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseModel } from '@models/base.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { HashesDataSource } from '@datasources/hashes.datasource';
 import { JHash } from '@models/hash.model';
 import { JHashlist } from '@models/hashlist.model';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
+import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+
+import { HashesDataSource } from '@datasources/hashes.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
