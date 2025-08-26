@@ -1,14 +1,16 @@
+import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
+import { JLog } from 'src/app/core/_models/log.model';
+import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JLog } from 'src/app/core/_models/log.model';
+import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 /* eslint-disable @angular-eslint/component-selector */
-import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
 @Component({
   selector: 'logs-table',
@@ -42,12 +44,20 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: LogsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (log: JLog) => log.id,
