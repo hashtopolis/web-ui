@@ -1,17 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AuthService } from '@services/access/auth.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
 import { AuthUser } from '@models/auth-user.model';
-import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { MainMenuItem } from '@src/app/layout/header/header.model';
-import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { UIConfig } from '@models/config-ui.model';
+
+import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
 import { ThemeService } from '@services/shared/theme.service';
-import { UIConfig } from '@models/config-ui.model';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+
+import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
+import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
+import { MainMenuItem } from '@src/app/layout/header/header.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
 

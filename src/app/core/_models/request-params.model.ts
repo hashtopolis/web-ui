@@ -15,7 +15,7 @@ export enum FilterType {
   GREATER = 'gt',
   IN = 'in',
   NOTIN = 'nin',
-  CONTAINS = 'contains', 
+  CONTAINS = 'contains',
   ICONTAINS = 'icontains'
 }
 

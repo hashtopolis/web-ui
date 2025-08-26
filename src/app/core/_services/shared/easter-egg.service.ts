@@ -1,12 +1,12 @@
-import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, Subscription, fromEvent } from 'rxjs';
-
 import { takeUntil } from 'rxjs/operators';
+
+import { Injectable, OnDestroy } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
-export class EasterEggService {
+export class EasterEggService implements OnDestroy {
   private konamiCode: string[] = [
     'ArrowUp',
     'ArrowUp',
