@@ -1,23 +1,28 @@
+import { catchError } from 'rxjs';
+
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
+
+import { JAgentErrors } from '@models/agent-errors.model';
+
+import { AgentErrorContextMenuService } from '@services/context-menu/agents/agent-error-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AgentErrorTableCol,
   AgentErrorTableColumnLabel
 } from '@components/tables/agent-error-table/agent-error-table.constants';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { AgentErrorContextMenuService } from '@services/context-menu/agents/agent-error-menu.service';
-import { AgentErrorDatasource } from '@datasources/agent-error.datasource';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { JAgentErrors } from '@models/agent-errors.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { SafeHtml } from '@angular/platform-browser';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { catchError } from 'rxjs';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AgentErrorDatasource } from '@datasources/agent-error.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -49,7 +54,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
     return [
       {
         id: AgentErrorTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSearchable: true,
         render: (agentError: JAgentErrors) => agentError.id.toString(),
         export: async (agentError: JAgentErrors) => agentError.id.toString()
@@ -69,7 +74,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       {
         id: AgentErrorTableCol.TASK,
         dataKey: 'taskName',
-        isSearchable: true,
         routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError),
         export: async (agentError: JAgentErrors) => agentError.task.taskName || 'N/A'
       },
@@ -104,6 +108,14 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       return;
     } else {
       this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   openDialog(data: DialogData<JAgentErrors>) {

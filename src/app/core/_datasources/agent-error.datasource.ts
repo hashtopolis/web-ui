@@ -1,38 +1,41 @@
-import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config';
-import { Filter, FilterType } from '@models/request-params.model';
 /**
  * Contains data source for agents resource
  * @module
  */
-import { catchError, finalize, firstValueFrom, of } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { IParamBuilder } from '@services/params/builder-types.service';
-import { JAgent } from '../_models/agent.model';
-import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentErrors } from '../_models/agent-errors.model';
-import { JChunk } from '@models/chunk.model';
-import { JUser } from '@models/user.model';
-import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { JAgentErrors } from '@models/agent-errors.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+
+import { BaseDataSource } from '@datasources/base.datasource';
 
 export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
   private _agentId = 0;
+  private _currentFilter: Filter = null;
 
   setAgentId(agentId: number): void {
     this._agentId = agentId;
   }
   loadAll(query?: Filter): void {
     this.loading = true;
-    const agentParams = new RequestParamBuilder().addInitial(this).addInclude('task');
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let agentParams = new RequestParamBuilder().addInitial(this).addInclude('task');
     if (this._agentId) {
       agentParams.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
-    if (query) {
-      agentParams.addFilter(query);
-    }
+    agentParams = this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
+
     this.service
       .getAll(SERV.AGENT_ERRORS, agentParams.create())
       .pipe(
@@ -50,21 +53,20 @@ export class AgentErrorDatasource extends BaseDataSource<JAgentErrors> {
         const length = response.meta.page.total_elements;
         const nextLink = response.links.next;
         const prevLink = response.links.prev;
-        const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-        const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-        this.setPaginationConfig(
-          this.pageSize,
-          length,
-          after,
-          before,
-          this.index
-        );
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
         this.setData(agents);
       });
   }
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }
