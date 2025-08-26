@@ -1,24 +1,28 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
+import { JHealthCheck } from '@models/health-check.model';
+
+import { HealthCheckContextMenuService } from '@services/context-menu/config/health-check-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   HealthChecksTableCol,
   HealthChecksTableColumnLabel,
   HealthChecksTableStatusLabel
 } from '@components/tables/health-checks-table/health-checks-table.constants';
-/* eslint-disable @angular-eslint/component-selector */
-import { Observable, catchError, of } from 'rxjs';
-
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { HealthCheckContextMenuService } from '@services/context-menu/config/health-check-menu.service';
-import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
-import { JHealthCheck } from '@models/health-check.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -55,11 +59,19 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: HealthChecksTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         routerLink: (healthCheck: JHealthCheck) => this.renderHealthCheckLink(healthCheck),
         isSortable: true,
         isSearchable: true,
@@ -78,7 +90,6 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         render: (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
         isSortable: false,
-        isSearchable: true,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''
       },
