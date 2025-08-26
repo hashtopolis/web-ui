@@ -1,23 +1,28 @@
+import { Observable, catchError, of } from 'rxjs';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JNotification } from '@models/notification.model';
+
+import { NotificationsContextMenuService } from '@services/context-menu/notifications-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import {
   NotificationsTableCol,
   NotificationsTableColumnLabel
 } from '@components/tables/notifications-table/notifications-table.constants';
-import { Observable, catchError, of } from 'rxjs';
+import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { NotificationsDataSource } from '@datasources/notifications.datasource';
 
 import { ACTION } from '@src/app/core/_constants/notifications.config';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JNotification } from '@models/notification.model';
-import { NotificationsContextMenuService } from '@services/context-menu/notifications-menu.service';
-import { NotificationsDataSource } from '@datasources/notifications.datasource';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
-import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 
 @Component({
   selector: 'app-notifications-table',
@@ -53,12 +58,20 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: NotificationsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (notification: JNotification) => notification.id,
