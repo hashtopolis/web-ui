@@ -1,22 +1,27 @@
+import { catchError } from 'rxjs';
+
+import { Component, OnDestroy, OnInit } from '@angular/core';
+
+import { JAccessGroup } from '@models/access-group.model';
+
+import { AccessGroupsContextMenuService } from '@services/context-menu/users/access-groups-menu.service';
+import { SERV } from '@services/main.config';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
+import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   AccessGroupsTableCol,
   AccessGroupsTableColumnLabel
 } from '@components/tables/access-groups-table/access-groups-table.constants';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
-
-import { AccessGroupsContextMenuService } from '@services/context-menu/users/access-groups-menu.service';
-import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
-import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
-import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JAccessGroup } from '@models/access-group.model';
-import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import { SERV } from '@services/main.config';
+import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
-import { catchError } from 'rxjs';
+import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+
+import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-access-groups-table',
@@ -52,11 +57,19 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
       this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AccessGroupsTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'id',
         isSortable: true,
         isSearchable: true,
         render: (accessGroup: JAccessGroup) => accessGroup.id,

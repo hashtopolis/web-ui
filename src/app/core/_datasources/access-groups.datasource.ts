@@ -1,20 +1,29 @@
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
+import { JAccessGroup } from '@models/access-group.model';
 import { Filter } from '@models/request-params.model';
-import { JAccessGroup } from '../_models/access-group.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { ResponseWrapper } from '../_models/response.model';
-import { SERV } from '../_services/main.config';
 
 export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
+  private _currentFilter: Filter = null;
+
   loadAll(query?: Filter): void {
     this.loading = true;
-
-    const params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers');
+    // Store the current filter if provided
     if (query) {
-      params.addFilter(query);
+      this._currentFilter = query;
     }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('userMembers').addInclude('agentMembers');
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     const accessGroups$ = this.service.getAll(SERV.ACCESS_GROUPS, params.create());
 
@@ -32,16 +41,10 @@ export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(accessgroups);
         })
     );
@@ -50,5 +53,10 @@ export class AccessGroupsDataSource extends BaseDataSource<JAccessGroup> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }
