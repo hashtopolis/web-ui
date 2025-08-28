@@ -14,6 +14,7 @@ export interface NewFilesForm {
   accessGroupId: FormControl<number>;
   sourceType: FormControl<string>;
   sourceData: FormControl<string>;
+  url: FormControl<string>;
 }
 
 /**
@@ -34,6 +35,7 @@ export const getNewFilesForm = () => {
     fileType: new FormControl(null),
     accessGroupId: new FormControl(1),
     sourceType: new FormControl('import'),
-    sourceData: new FormControl('')
+    sourceData: new FormControl(''),
+    url: new FormControl('')
   });
 };
