@@ -8,6 +8,7 @@
         title="Chunking Available"
         formControlName="isChunkingAvailable"
         tooltip="Does the cracker type support chunking?"
+        data-testid="input-select-chunkingAvailable"
         [isRequired]="true"
         [items]="[
         { id: true, name: 'Yes' },
@@ -19,8 +20,12 @@
 
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit [name]="'Create'" [disabled]="!newCrackerForm.valid"></button-submit>
+      <button-submit data-testid="submit-button-newCracker" [name]="'Create'" [disabled]="!newCrackerForm.valid"
+      ></button-submit>
     </grid-buttons>
+
+    <span *ngIf="newCrackerForm.invalid && newCrackerForm.touched" class="help-block"
+    >Please complete all required fields!</span>
   </form>
 
 </grid-main>
