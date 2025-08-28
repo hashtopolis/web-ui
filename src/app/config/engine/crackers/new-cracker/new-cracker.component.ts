@@ -1,5 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
+import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -17,7 +18,16 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 
 @Component({
   selector: 'app-new-cracker',
-  imports: [ButtonsModule, FlexModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
+  imports: [
+    ButtonsModule,
+    FlexModule,
+    FormsModule,
+    GridModule,
+    InputModule,
+    PageTitleModule,
+    ReactiveFormsModule,
+    NgIf
+  ],
   templateUrl: './new-cracker.component.html'
 })
 export class NewCrackerComponent {
@@ -52,7 +62,7 @@ export class NewCrackerComponent {
     } catch (err) {
       const msg = 'Error creating cracker type';
       console.error(msg, err);
-      this.alert.showSuccessMessage(msg);
+      this.alert.showErrorMessage(msg);
     } finally {
       this.loading = false;
     }
