@@ -36,7 +36,7 @@
 
           <grid-buttons fxLayout="row" fxLayoutAlign="space-between" fxLayoutGap="10px">
             <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-            <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);"></button-submit>
+            <button-submit [name]="'Create'" (click)="onuploadFile(selectedFiles);" data-testid="button-submit-upload"></button-submit>
             <div *ngIf="isCreatingLoading">
               <mat-spinner diameter="24" color="accent"></mat-spinner>
             </div>
