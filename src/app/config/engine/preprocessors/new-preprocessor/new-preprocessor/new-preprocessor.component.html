@@ -1,0 +1,27 @@
+<grid-main>
+  <app-page-subtitle [subtitle]="'New Preprocessor'"></app-page-subtitle>
+
+  <form [formGroup]="newPreprocessorForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
+    <div fxLayout="column" fxLayoutGap="16px">
+      <input-text width="500px" title="Name" formControlName="name" [isRequired]="true"></input-text>
+      <input-text width="500px" title="Binary Basename" formControlName="binaryName" [isRequired]="true"></input-text>
+      <input-text width="500px" title="Download URL" formControlName="url" [isRequired]="true" tooltip="Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z"></input-text>
+    </div>
+    <h4>Commands (set to empty if not available)</h4>
+    <div fxLayout="column" fxLayoutGap="16px">
+      <input-text width="500px" title="Keyspace Command" formControlName="keyspaceCommand"></input-text>
+      <input-text width="500px" title="Skip Command" formControlName="skipCommand" data-testid="input_skipCommand"></input-text>
+      <input-text width="500px" title="Limit Command" formControlName="limitCommand" data-testid="input_limitCommand" tooltip="Link where the client can download a 7zip with the preprocessor, e.g. https://example.com/preprocessor-1.0.0.7z"></input-text>
+    </div>
+
+    <grid-buttons>
+      <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+      <button-submit data-testid="submit-button-newPreprocessor" [name]="'Create'" [disabled]="!newPreprocessorForm.valid"
+      ></button-submit>
+    </grid-buttons>
+
+    <span *ngIf="newPreprocessorForm.invalid && newPreprocessorForm.touched" class="help-block"
+    >Please complete all required fields!</span>
+  </form>
+
+</grid-main>
