@@ -68,7 +68,7 @@ export class NewPreprocessorComponent {
       this.alert.showSuccessMessage('Preprocessor created!');
       void this.router.navigate(['config/engine/preprocessors']);
     } catch (err) {
-      const msg = 'Error creating preprocessor';
+      const msg = 'Error creating preprocessor!';
       console.error(msg, err);
       this.alert.showErrorMessage(msg);
     } finally {

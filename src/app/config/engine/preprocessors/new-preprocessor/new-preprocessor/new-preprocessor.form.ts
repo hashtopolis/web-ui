@@ -14,7 +14,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
  */
 export interface NewPreprocessorForm {
   name: FormControl<string>;
-  binaryName: FormControl<boolean>;
+  binaryName: FormControl<string>;
   url: FormControl<string>;
   keyspaceCommand: FormControl<string>;
   skipCommand: FormControl<string>;
@@ -28,7 +28,7 @@ export interface NewPreprocessorForm {
 export const getNewPreprocessorForm = () => {
   return new FormGroup<NewPreprocessorForm>({
     name: new FormControl('', [Validators.required]),
-    binaryName: new FormControl(undefined, [Validators.required]),
+    binaryName: new FormControl('', [Validators.required]),
     url: new FormControl('', [Validators.required]),
     keyspaceCommand: new FormControl('--keyspace'),
     skipCommand: new FormControl('--skip'),
