@@ -52,6 +52,7 @@ export class SERV {
   public static TASKS = { URL: '/ui/tasks', RESOURCE: 'Tasks' };
   public static TASKS_WRAPPER = { URL: '/ui/taskwrappers', RESOURCE: 'TaskWrappers' };
   public static TASKS_WRAPPER_COUNT = { URL: '/ui/taskwrappers/count', RESOURCE: 'TaskWrappersCount' };
+  public static TASK_DETAILS = { URL: '/helper/taskExtraDetails', RESOURCE: 'Tasks'}
   // USERS
   public static NOTIFICATIONS = { URL: '/ui/notifications', RESOURCE: 'Notifications' };
   public static USERS = { URL: '/ui/users', RESOURCE: 'Users' };

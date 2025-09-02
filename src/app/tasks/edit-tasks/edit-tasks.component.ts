@@ -1,4 +1,4 @@
-import { Subscription, finalize } from 'rxjs';
+import { Subscription, finalize, take } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -29,6 +29,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
+import { map } from 'jquery';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -62,6 +63,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   //Time calculation
   cprogress: number; // Keyspace searched
   ctimespent: number; // Time Spent
+  estimatedTime: number; // Estimated time till task is finished
+  searched: string;
 
   // Chunk View
   chunkview: number;
@@ -176,6 +179,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         const task = this.serializer.deserialize<JTask>(responseBody);
 
         this.originalValue = task;
+        this.searched = task.searched;
         this.color = task.color;
         this.crackerinfo = task.crackerBinary;
         this.taskWrapperId = task.taskWrapperId;
@@ -308,47 +312,13 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       }
     });
 
-    //TODO. It is repeting code to get the speed
-    const paramsChunks = new RequestParamBuilder()
-      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex })
-      .create();
 
-    this.gs.getAll(SERV.CHUNKS, paramsChunks).subscribe((response: ResponseWrapper) => {
-      const responseChunks = { data: response.data, included: response.included };
-      const chunks = this.serializer.deserialize<JChunk[]>(responseChunks);
-      this.timeCalc(chunks);
-
-      const paramsAgents = new RequestParamBuilder().create();
-
-      this.gs.getAll(SERV.AGENTS, paramsAgents).subscribe((respAgents: ResponseWrapper) => {
-        const responseAgents = { data: respAgents.data, included: respAgents.included };
-        const agents = this.serializer.deserialize<JAgent[]>(responseAgents);
-
-        const getchunks = chunks.map((mainObject) => {
-          const matchObject = agents.find((element) => element.id === mainObject.agentId);
-          return { ...mainObject, ...matchObject };
-        });
-
-        if (this.chunkview == 0) {
-          const chunktime = this.uiService.getUIsettings('chunktime').value;
-          const resultArray = [];
-          const cspeed = [];
-          for (let i = 0; i < getchunks.length; i++) {
-            if (
-              Date.now() / 1000 - Math.max(getchunks[i].solveTime, getchunks[i].dispatchTime) < chunktime &&
-              getchunks[i].progress < 10000
-            ) {
-              this.isactive = 1;
-              cspeed.push(getchunks[i].speed);
-              resultArray.push(getchunks[i]);
-            }
-          }
-          if (cspeed.length > 0) {
-            this.currenspeed = cspeed.reduce((a, i) => a + i);
-          }
-        }
-      });
-    });
+    this.gs.ghelper(SERV.HELPER, 'taskExtraDetails?task=' + this.editedTaskIndex).subscribe((result: ResponseWrapper) => {
+      const taskDetailData = result.meta;
+      this.ctimespent = taskDetailData["timeSpent"];
+      this.currenspeed = taskDetailData["currentSpeed"];
+      this.estimatedTime = taskDetailData["estimatedTime"];
+  });
   }
 
   onChunkViewChange(event: MatButtonToggleChange): void {
