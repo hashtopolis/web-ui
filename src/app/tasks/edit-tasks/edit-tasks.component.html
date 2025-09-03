@@ -55,7 +55,7 @@
         <input-text title="Keyspace dispatched" formControlName="keyspaceProgress"></input-text>
 
         <simulate-form-field *ngIf=" tkeyspace > 0 || (tusepreprocessor && cprogress > 0); else templatekeysearch"
-          label="Keyspace Searched" message="{{ cprogress / tkeyspace | percent: '1.2-2' }}"></simulate-form-field>
+          label="Keyspace Searched" message="{{ searched }}"></simulate-form-field>
         <ng-template #templatekeysearch>
           <simulate-form-field label="Keyspace Searched" message="N/A"></simulate-form-field>
         </ng-template>
@@ -68,14 +68,14 @@
           <simulate-form-field label="Time spent" message="---"></simulate-form-field>
         </ng-template>
 
-        <simulate-form-field *ngIf=" tkeyspace !== 0 && cprogress / tkeyspace !== 0; else templatet" label="E.T."
-          message="{{ctimespent / (cprogress / tkeyspace) - ctimespent | sectotime }}"></simulate-form-field>
+        <simulate-form-field *ngIf=" estimatedTime !== 0; else templatet" label="E.T."
+          message="{{ estimatedTime }}"></simulate-form-field>
         <ng-template #templatet>
           <simulate-form-field label="E.T." message="---"></simulate-form-field>
         </ng-template>
 
 
-        <simulate-form-field *ngIf="currenspeed; else templatespeed" label="Speed"
+        <simulate-form-field *ngIf="currenspeed !== 0; else templatespeed" label="Speed"
           message="{{ currenspeed | fileSize: false }}H/s"></simulate-form-field>
         <ng-template #templatespeed>
           <simulate-form-field label="Speed" message="---"></simulate-form-field>
