@@ -312,12 +312,13 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
 
     this.gs
-      .ghelper(SERV.HELPER, 'taskExtraDetails?task=' + this.editedTaskIndex).subscribe((result: ResponseWrapper) => {
+      .ghelper(SERV.HELPER, 'taskExtraDetails?task=' + this.editedTaskIndex)
+      .subscribe((result: ResponseWrapper) => {
         const taskDetailData = result.meta;
         this.ctimespent = taskDetailData['timeSpent'];
         this.currenspeed = taskDetailData['currentSpeed'];
         this.estimatedTime = taskDetailData['estimatedTime'];
-  });
+      });
   }
 
   onChunkViewChange(event: MatButtonToggleChange): void {
