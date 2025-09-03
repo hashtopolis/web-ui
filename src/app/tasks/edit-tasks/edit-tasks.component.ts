@@ -1,4 +1,4 @@
-import { Subscription, finalize, take } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
@@ -29,7 +29,6 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
-import { map } from 'jquery';
 
 @Component({
   selector: 'app-edit-tasks',
@@ -315,9 +314,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
     this.gs.ghelper(SERV.HELPER, 'taskExtraDetails?task=' + this.editedTaskIndex).subscribe((result: ResponseWrapper) => {
       const taskDetailData = result.meta;
-      this.ctimespent = taskDetailData["timeSpent"];
-      this.currenspeed = taskDetailData["currentSpeed"];
-      this.estimatedTime = taskDetailData["estimatedTime"];
+      this.ctimespent = taskDetailData['timeSpent'];
+      this.currenspeed = taskDetailData['currentSpeed'];
+      this.estimatedTime = taskDetailData['estimatedTime'];
   });
   }
 
