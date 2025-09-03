@@ -10,28 +10,32 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
-import { NewCrackerForm, getNewCrackerForm } from '@src/app/config/engine/crackers/new-cracker/new-cracker.form';
+import {
+  NewPreprocessorForm,
+  getNewPreprocessorForm
+} from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor/new-preprocessor.form';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 
 @Component({
-  selector: 'app-new-cracker',
+  selector: 'app-new-preprocessor',
   imports: [
     ButtonsModule,
     FlexModule,
     FormsModule,
     GridModule,
     InputModule,
+    NgIf,
     PageTitleModule,
-    ReactiveFormsModule,
-    NgIf
+    ReactiveFormsModule
   ],
-  templateUrl: './new-cracker.component.html'
+  templateUrl: './new-preprocessor.component.html'
 })
-export class NewCrackerComponent {
-  newCrackerForm: FormGroup<NewCrackerForm>;
+export class NewPreprocessorComponent {
+  newPreprocessorForm: FormGroup<NewPreprocessorForm>;
+
   loading: boolean;
 
   constructor(
@@ -39,28 +43,32 @@ export class NewCrackerComponent {
     private router: Router,
     private alert: AlertService
   ) {
-    this.newCrackerForm = getNewCrackerForm();
+    this.newPreprocessorForm = getNewPreprocessorForm();
     this.loading = false;
   }
 
   /**
-   * Create new cracker upon form submission and redirect to cracker type table page on success
+   * Create new preprocessor upon form submission and redirect to preprocessor page on success
    */
   async onSubmit() {
-    if (this.newCrackerForm.invalid) return;
+    if (this.newPreprocessorForm.invalid) return;
     this.loading = true;
 
     try {
       const payload = {
-        typeName: this.newCrackerForm.value.typeName,
-        isChunkingAvailable: this.newCrackerForm.value.isChunkingAvailable
+        name: this.newPreprocessorForm.value.name,
+        binaryName: this.newPreprocessorForm.value.binaryName,
+        url: this.newPreprocessorForm.value.url,
+        keyspaceCommand: this.newPreprocessorForm.value.keyspaceCommand,
+        limitCommand: this.newPreprocessorForm.value.limitCommand,
+        skipCommand: this.newPreprocessorForm.value.skipCommand
       };
 
-      await firstValueFrom(this.gs.create(SERV.CRACKERS_TYPES, payload));
-      this.alert.showSuccessMessage('Cracker type created!');
-      void this.router.navigate(['config/engine/crackers']);
+      await firstValueFrom(this.gs.create(SERV.PREPROCESSORS, payload));
+      this.alert.showSuccessMessage('Preprocessor created!');
+      void this.router.navigate(['config/engine/preprocessors']);
     } catch (err) {
-      const msg = 'Error creating cracker type';
+      const msg = 'Error creating preprocessor!';
       console.error(msg, err);
       this.alert.showErrorMessage(msg);
     } finally {

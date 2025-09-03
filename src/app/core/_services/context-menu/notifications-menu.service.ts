@@ -23,7 +23,7 @@ export class NotificationsContextMenuService extends ContextMenuService {
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_NOTIFICATION, permDelete);
 
     this.addBulkActivateItem(BulkActionMenuLabel.ACTIVATE_NOTIFICATION, permUpdate);
-    this.addBulkDeactivateItem(BulkActionMenuLabel.ACTIVATE_NOTIFICATION, permUpdate);
+    this.addBulkDeactivateItem(BulkActionMenuLabel.DEACTIVATE_NOTIFICATIONS, permUpdate);
     this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_NOTIFICATIONS, permDelete);
 
     return this;

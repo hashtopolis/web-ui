@@ -1260,7 +1260,7 @@ export class MetadataService {
       return this.newcrackerversion;
     } else if (formName === 'editcrackerversion') {
       return this.editcrackerversion;
-    } else if (formName === 'newpreprocessor' || formName === 'editpreprocessor') {
+    } else if (formName === 'editpreprocessor') {
       return this.preprocessor;
     } else if (formName === 'newhashtype') {
       return this.newhashtype;
