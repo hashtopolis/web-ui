@@ -20,7 +20,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loading = true;
 
     const hashList$ = this.service.get(SERV.HASHLISTS, this._hashlistId, {
-      include: ['accessGroup', 'tasks', 'hashes', 'hashType', 'hashlists']
+      include: ['accessGroup', 'tasks', 'hashType', 'hashlists']
     });
 
     this.subscriptions.push(
