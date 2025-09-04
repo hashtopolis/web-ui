@@ -3,6 +3,8 @@
  */
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { ValidationPatterns } from '@services/main.config';
+
 /**
  * Interface definition for NewPreprocessorForm
  * @prop name                 Name of preprocessor
@@ -29,7 +31,7 @@ export const getNewPreprocessorForm = () => {
   return new FormGroup<NewPreprocessorForm>({
     name: new FormControl('', [Validators.required]),
     binaryName: new FormControl('', [Validators.required]),
-    url: new FormControl('', [Validators.required]),
+    url: new FormControl('', [Validators.required, Validators.pattern(ValidationPatterns.URL)]),
     keyspaceCommand: new FormControl('--keyspace'),
     skipCommand: new FormControl('--skip'),
     limitCommand: new FormControl('--limit')
