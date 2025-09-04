@@ -7,7 +7,7 @@ import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
-import { ReportBaseDataSource } from './base.datasource';
+import { ReportBaseDataSource } from '/app/src/app/shared/report-builder/datasources/base.datasource';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;
@@ -43,7 +43,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loadAll();
   }
 
-  getReport(data: any) {
+  getReport(data: JHashlist) {
     let sum = 0;
     const workflow = [];
     let preCommand;
