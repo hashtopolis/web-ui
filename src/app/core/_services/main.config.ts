@@ -93,3 +93,10 @@ export enum RelationshipType {
   USER = 'user',
   USERMEMBERS = 'userMembers'
 }
+
+/**
+ * Validation patterns for form validation
+ */
+export class ValidationPatterns {
+  public static URL = "^(https?:\\/\\/)([\\w\\-]+\\.)+[\\w\\-]+(:\\d{1,5})?(\\/[\\w\\-._~:/?#[\\]@!$&'()*+,;=]*)?$";
+}

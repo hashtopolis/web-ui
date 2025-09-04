@@ -6,14 +6,14 @@ import { FlexModule } from '@angular/flex-layout';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { SERV } from '@services/main.config';
+import { SERV, ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import {
   NewPreprocessorForm,
   getNewPreprocessorForm
-} from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor/new-preprocessor.form';
+} from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor.form';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { InputModule } from '@src/app/shared/input/input.module';
@@ -34,6 +34,8 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
   templateUrl: './new-preprocessor.component.html'
 })
 export class NewPreprocessorComponent {
+  urlPattern = ValidationPatterns.URL;
+
   newPreprocessorForm: FormGroup<NewPreprocessorForm>;
 
   loading: boolean;

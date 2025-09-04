@@ -11,7 +11,7 @@ import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.c
 import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
 import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
-import { NewPreprocessorComponent } from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor/new-preprocessor.component';
+import { NewPreprocessorComponent } from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor.component';
 import { PreprocessorsComponent } from '@src/app/config/engine/preprocessors/preprocessors.component';
 import { HashtypesComponent } from '@src/app/config/hashtypes/hashtypes.component';
 import { HealthChecksComponent } from '@src/app/config/health-checks/health-checks.component';
