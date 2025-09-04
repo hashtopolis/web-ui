@@ -1,13 +1,13 @@
 import { catchError, finalize, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { Hashlist } from 'src/app/hashlists/hashlist.model';
+import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
-import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;
