@@ -8,7 +8,6 @@ import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
-
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;
 
