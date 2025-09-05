@@ -42,7 +42,7 @@
         Columns
       </button>
     </div>
-    <!-- temrature information -->
+    <!-- temperature information -->
     @if (hasTemperatureInformation) {
     <div class="table-action-wrapper">
       <button mat-button (click)="temperatureInformationEmit()">
@@ -86,14 +86,14 @@
       <th mat-header-cell *matHeaderCellDef>
         <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
         <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
-          <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{
+          <p>{{
             isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
-            }}</span>
+            }}</p>
         </ng-container>
         <!-- Check if only isCmdTask is true -->
         <ng-template #checkCmdAttack>
           <ng-container *ngIf="isCmdTask; else defaultHeader">
-            <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">Task</span>
+           <p>Task</p>
           </ng-container>
         </ng-template>
         <ng-template #defaultHeader>
@@ -234,6 +234,7 @@
       [pageIndex]="dataSource.index"
       [disabled]="dataSource.loading$ | async"
       (page)="onPageChange($event)"
+      [showFirstLastButtons]="true"
     ></mat-paginator>
   </ng-container>
 </ng-container>
