@@ -82,7 +82,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         export: async (cracker: JCrackerBinaryType) => cracker.id + ''
       },
       {
-        id: CrackersTableCol.NAME,
+        id: CrackersTableCol.TYPE,
         dataKey: 'typeName',
         isSortable: true,
         isSearchable: true,
