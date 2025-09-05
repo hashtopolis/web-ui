@@ -115,6 +115,26 @@
     <app-page-subtitle [subtitle]="'Visual Graph'"></app-page-subtitle>
     <task-visual [view]="'task'" [tkeyspace]="tkeyspace" [cprogress]="cprogress" [taskid]="editedTaskIndex"
       [taskWrapperId]="taskWrapperId" [tusepreprocessor]="tusepreprocessor"></task-visual>
+
+    <mat-card style="margin-top: 20px">
+      <mat-card-content class="info-message justify-content-center">
+        <h4 style="margin-top: 0;">Description</h4>
+        <table>
+          <tr>
+            <td style="background-color: #00ff00; width: 20px"></td>
+            <td style="padding-left: 10px;">At least one password was retrieved in the chunk</td>
+          </tr>
+          <tr>
+            <td style="background-color: #ffff00;"></td>
+            <td style="padding-left: 10px;">No password retrieval in the chunk</td>
+          </tr>
+          <tr>
+            <td style="border: 2px solid #ff0000; background: transparent; color: #ff0000; width: 20px"></td>
+            <td style="padding-left: 10px;">Red outline: An error occured in the chunk</td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>
 <!-- Assigned Agents -->
