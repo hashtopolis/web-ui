@@ -4,9 +4,9 @@ import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-user
 import { AccessPermissionGroupsUserTableCol } from '@components/tables/access-permission-groups-user-table/access-permission-groups-user-table.constants';
 import { AccessPermissionGroupsUsersTableCol } from '@components/tables/access-permission-groups-users-table/access-permission-groups-users-table.constants';
 import { AgentBinariesTableCol } from '@components/tables/agent-binaries-table/agent-binaries-table.constants';
+import { AgentErrorTableCol } from '@components/tables/agent-error-table/agent-error-table.constants';
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
-import { TasksAgentsTableCol } from  '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
@@ -26,13 +26,12 @@ import { SearchHashTableCol } from '@components/tables/search-hash-table/search-
 import { SuperHashlistsTableCol } from '@components/tables/super-hashlists-table/super-hashlists-table.constants';
 import { SupertasksPretasksTableCol } from '@components/tables/supertasks-pretasks-table/supertasks-pretasks-table.constants';
 import { SupertasksTableCol } from '@components/tables/supertasks-table/supertasks-table.constants';
+import { TasksAgentsTableCol } from '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 import { TasksSupertasksDataSourceTableCol } from '@components/tables/tasks-supertasks-table/tasks-supertasks-table.constants';
 import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constants';
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
-
-import { AgentErrorTableCol } from '../_components/tables/agent-error-table/agent-error-table.constants';
 
 export type Layout = 'full' | 'fixed';
 export type Theme = 'light' | 'dark';
@@ -383,7 +382,7 @@ export const uiConfigDefault: UIConfig = {
     crackersTable: {
       start: undefined,
       page: 25,
-      columns: [CrackersTableCol.ID, CrackersTableCol.NAME, CrackersTableCol.VERSIONS],
+      columns: [CrackersTableCol.ID, CrackersTableCol.TYPE, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
         dataKey: '',
