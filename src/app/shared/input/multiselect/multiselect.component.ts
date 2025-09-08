@@ -29,19 +29,19 @@ import { SelectOption, extractIds } from '@src/app/shared/utils/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class InputMultiSelectComponent extends AbstractInputComponent<any> implements AfterViewInit {
+export class InputMultiSelectComponent extends AbstractInputComponent<number | number[]> implements AfterViewInit {
   @Input() label = 'Select or search:';
   @Input() placeholder = 'Select or search';
   @Input() isLoading = false;
   @Input() items: SelectOption[] = [];
   @Input() multiselectEnabled = true;
   @Input() mergeIdAndName = false;
-  @Input() initialHashlistId: any;
+  @Input() initialHashlistId: string | number;
 
   @ViewChild('selectInput', { read: MatInput }) selectInput: MatInput;
 
   private searchInputSubject = new Subject<string>();
-  filteredItems: Observable<any[]>;
+  filteredItems: Observable<SelectOption[]>;
   searchTerm = '';
 
   // Visual chips
@@ -143,16 +143,16 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
   /**
    * Handles the change in the input value and triggers the corresponding change events.
    *
-   * @param {any} value - The new value of the input.
+   * @param value - The new value of the input.
    * @returns {void}
    */
   /**
    * Handles the change in the input value and triggers the corresponding change events.
    *
-   * @param {any} value - The new value of the input.
+   * @param value - The new value of the input.
    * @returns {void}
    */
-  onChangeValue(value): void {
+  onChangeValue(value: SelectOption | SelectOption[]): void {
     if (!this.multiselectEnabled) {
       if (Array.isArray(value)) {
         this.value = extractIds(value, 'id')[0];
