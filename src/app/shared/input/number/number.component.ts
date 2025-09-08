@@ -1,6 +1,7 @@
-import { AbstractInputComponent } from '../abstract-input';
 import { Component, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 
 /**
  * Custom Input Number Component.
@@ -15,16 +16,16 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
  * ```
  */
 @Component({
-    selector: 'input-number',
-    templateUrl: './number.component.html',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => InputNumberComponent),
-            multi: true
-        }
-    ],
-    standalone: false
+  selector: 'input-number',
+  templateUrl: './number.component.html',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputNumberComponent),
+      multi: true
+    }
+  ],
+  standalone: false
 })
 export class InputNumberComponent extends AbstractInputComponent<boolean> {
   constructor() {

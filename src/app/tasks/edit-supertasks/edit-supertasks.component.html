@@ -15,8 +15,8 @@
   <h5>Add Pretasks</h5>
   <form [formGroup]="updateForm">
     <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isLoading; else loadingTemplate">
-      <input-multiselect [isLoading]="isLoading" [placeholder]="'Pretasks...'" [items]="selectPretasks"
-        [label]="'Select or search Pretasks *'" [mergeIdAndName]="true" formControlName="pretasks"
+      <input-multiselect [isLoading]="isLoading" [placeholder]="'Pretasks...'" [items]="selectPretasks" [isRequired]="true"
+        [label]="'Select or search Pretasks'" [mergeIdAndName]="true" formControlName="pretasks"
         style="flex: 1;"></input-multiselect>
       <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
         <button-submit [name]="'Add'" (click)="onSubmit()"></button-submit>

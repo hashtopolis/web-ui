@@ -5,6 +5,7 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { AfterViewInit, ChangeDetectionStrategy, Component, Input, ViewChild, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { MatInput } from '@angular/material/input';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
@@ -41,8 +42,13 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
 
   private searchInputSubject = new Subject<string>();
   filteredItems: Observable<any[]>;
-  selectedItems: SelectOption[] = [];
   searchTerm = '';
+
+  // Visual chips
+  selectedItems: SelectOption[] = [];
+
+  // Validation model (dummy, never displayed)
+  chipGridValidation: SelectOption[] = [];
 
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
@@ -77,6 +83,61 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
         }
       }
     }
+  }
+
+  public addChip(item: SelectOption): void {
+    if (!this.selectedItems.find((i) => i.id === item.id)) {
+      // Update visual array
+      if (this.multiselectEnabled) {
+        this.selectedItems.push(item);
+      } else {
+        this.selectedItems = [item];
+      }
+
+      // Update validation array
+      this.chipGridValidation = [...this.selectedItems];
+
+      // Remove item from available list
+      const index = this.items.findIndex((i) => i.id === item.id);
+      if (index !== -1) this.items.splice(index, 1);
+
+      // Update filtered items
+      this.searchInputSubject.next(this.searchTerm);
+
+      // Notify Angular forms
+      this.onChangeValue(this.selectedItems);
+    }
+  }
+
+  public remove(item: SelectOption): void {
+    const index = this.selectedItems.findIndex((i) => i.id === item.id);
+    if (index >= 0) {
+      this.selectedItems.splice(index, 1);
+      this.chipGridValidation = [...this.selectedItems];
+
+      // Put back to available items
+      this.items.push(item);
+      this.searchInputSubject.next(this.searchTerm);
+
+      this.onChangeValue(this.selectedItems);
+    }
+  }
+
+  // When typing a separator key (ENTER, COMMA)
+  onInputChipAdd(event: MatChipInputEvent) {
+    const value = event.value?.trim();
+    if (!value) return;
+
+    this.addChip({ id: value, name: value });
+    event.chipInput.clear();
+    this.searchTerm = '';
+  }
+
+  // When selecting from autocomplete
+  onAutocompleteSelect(selected: SelectOption) {
+    this.addChip(selected);
+    this.searchTerm = '';
+    this.searchInputSubject.next(this.searchTerm);
   }
 
   /**
@@ -123,40 +184,17 @@ export class InputMultiSelectComponent extends AbstractInputComponent<any> imple
   }
 
   /**
-   * Removes the specified item from the selected items.
-   *
-   * @param {SelectOption} item - The item to be removed.
-   * @returns {void}
-   */
-  public remove(item: SelectOption): void {
-    const index = this.selectedItems.indexOf(item);
-
-    if (index >= 0) {
-      // Add the removed item back to the unselected items
-      this.items.push(item);
-
-      this.items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-
-      // Remove the item from the selected items
-      this.selectedItems.splice(index, 1);
-
-      // Update the filteredItems observable
-      this.searchInputSubject.next(this.searchTerm);
-
-      // Notify about the change
-      this.onChangeValue(this.selectedItems);
-      // this.onTouched();
-    }
-  }
-
-  /**
    * Filters the items based on the provided search value.
    *
    * @param {string} value - The search value to filter the items.
    * @returns {SelectOption[]} - The filtered array of items.
    */
-  private _filter(value: string): SelectOption[] {
-    const filterValue = value.toLowerCase();
+  private _filter(value: string | SelectOption): SelectOption[] {
+    // If a SelectOption is passed by accident, convert to string
+    const searchString = typeof value === 'string' ? value : (value.name ?? '');
+
+    const filterValue = searchString.toLowerCase();
+
     return this.items.filter((item: SelectOption) => {
       const nameToSearch = this.mergeIdAndName ? `${item.id} ${item.name}`.toLowerCase() : item.name.toLowerCase();
       return nameToSearch.includes(filterValue);

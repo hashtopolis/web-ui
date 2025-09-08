@@ -13,11 +13,12 @@
               [isLoading]="isLoading"
               [placeholder]="'Hashlist...'"
               [items]="selectHashlists"
-              [label]="'Select or search Hashlist *'"
+              [label]="'Select or search Hashlist'"
               [mergeIdAndName]="true"
               [multiselectEnabled]="false"
               formControlName="hashlistId"
               [initialHashlistId]="isCopyHashlistId"
+              [isRequired]="true"
             ></input-multiselect>
           </ng-container>
         </div>
@@ -29,7 +30,7 @@
         </ng-template>
 
         <div>
-          <input-text-area title="Attack command" formControlName="attackCmd"></input-text-area>
+          <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true"></input-text-area>
           <button type="button" mat-icon-button matTooltip="Help" (click)="openHelpDialog()">
             <mat-icon>help</mat-icon>
           </button>
@@ -39,7 +40,7 @@
         <input-text-area title="Notes" formControlName="notes"></input-text-area>
 
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-number title="Priority" formControlName="priority"></input-number>
+          <input-number title="Priority" formControlName="priority" [isRequired]="true"></input-number>
           <input-number title="Max agents" formControlName="maxAgents"></input-number>
         </div>
 

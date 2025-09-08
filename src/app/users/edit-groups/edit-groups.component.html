@@ -17,8 +17,10 @@
   <form [formGroup]="addUsersForm">
     <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isUsersLoading; else loadingUsersTemplate">
       <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Users...'" [items]="selectUsers"
-                         [label]="'Select or search Users *'" [mergeIdAndName]="true" formControlName="userIds"
-                         style="flex: 1;"></input-multiselect>
+                         [label]="'Select or search Users'" [isRequired]="true"
+                         [mergeIdAndName]="true" formControlName="userIds" style="flex: 1;">
+
+      </input-multiselect>
       <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
         <button-submit [name]="'Add'" (click)="onAddUsers()"></button-submit>
       </div>
@@ -34,8 +36,10 @@
   <form [formGroup]="addAgentsForm">
     <div fxLayout="column" fxLayoutAlign="start start" *ngIf="!isAgentsLoading; else loadingAgentsTemplate">
       <input-multiselect [isLoading]="isUsersLoading" [placeholder]="'Agents...'" [items]="selectAgents"
-                         [label]="'Select or search Agents *'" [mergeIdAndName]="true" formControlName="agentIds"
-                         style="flex: 1;"></input-multiselect>
+                         [label]="'Select or search Agents'" [mergeIdAndName]="true" formControlName="agentIds"
+                         [isRequired]="true" style="flex: 1;">
+
+      </input-multiselect>
       <div fxLayout="row" fxLayoutAlign="start center" style="margin-top: 10px;">
         <button-submit [name]="'Add'" (click)="onAddAgents()"></button-submit>
       </div>
