@@ -25,6 +25,6 @@ export const hashcatbrainFormat = [
 ];
 
 export const hashSource = [
-  { id: 'paste', name: 'Expand Text Area' },
+  { id: 'paste', name: 'Paste Hash(es)' },
   { id: 'import', name: 'Upload Input' }
 ];
