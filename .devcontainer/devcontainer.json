@@ -33,7 +33,8 @@
   // "remoteUser": "root"
 
   "remoteEnv": {
-    "NODE_OPTIONS": "--use-openssl-ca"
+    "NODE_OPTIONS": "--use-openssl-ca",
+    "HASHTOPOLIS_BACKEND_URL": "http://localhost:8080"
   },
   "overrideCommand": false,
   "remoteUser": "node"
