@@ -4,15 +4,18 @@
  */
 
 import { catchError, finalize, of } from 'rxjs';
-import { FileType, JFile } from '../_models/file.model';
-import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JTask } from '@models/task.model';
+
 import { JPretask } from '@models/pretask.model';
+import { JTask } from '@models/task.model';
+
+import { BaseDataSource } from '/app/src/app/core/_datasources/base.datasource';
+import { FileType, JFile } from '/app/src/app/core/_models/file.model';
+import { ResponseWrapper } from '/app/src/app/core/_models/response.model';
+import { JsonAPISerializer } from '/app/src/app/core/_services/api/serializer-service';
+import { SERV } from '/app/src/app/core/_services/main.config';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 /**
  * Data source class definition for files
@@ -91,16 +94,10 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             if (!this.editType) {
               const nextLink = response.links.next;
               const prevLink = response.links.prev;
-              const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-              const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+              const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+              const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                after,
-                before,
-                this.index
-              );
+              this.setPaginationConfig(this.pageSize, length, after, before, this.index);
             }
 
             this.setData(pretask.pretaskFiles);
@@ -111,17 +108,11 @@ export class FilesDataSource extends BaseDataSource<JFile> {
 
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
-            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
             const length = response.meta.page.total_elements;
 
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              after,
-              before,
-              this.index
-              );
+            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
             this.setData(files);
           }
         })
