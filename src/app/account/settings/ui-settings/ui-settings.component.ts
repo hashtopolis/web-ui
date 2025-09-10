@@ -4,10 +4,12 @@ import { LocalStorageService } from 'src/app/core/_services/storage/local-storag
 import { UISettingsUtilityClass } from 'src/app/shared/utils/config';
 
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
+
+import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-settings.form';
 
 @Component({
   selector: 'app-ui-settings',
@@ -32,30 +34,31 @@ export class UiSettingsComponent implements OnInit {
     private alertService: AlertService,
     private reloadService: ReloadService
   ) {
-    this.initForm();
+    this.form = new UiSettingsFormGroup();
   }
 
   ngOnInit(): void {
     this.util = new UISettingsUtilityClass(this.service);
-    this.updateForm();
+    this.loadSettings();
   }
 
-  private initForm(): void {
-    this.form = new FormGroup({
-      timefmt: new FormControl(''),
-      layout: new FormControl(''),
-      theme: new FormControl('')
-    });
-  }
-
-  updateForm(): void {
+  /**
+   * Patch the form with the current UI settings from the utility class.
+   */
+  loadSettings(): void {
     this.form.patchValue({
       timefmt: this.util.uiConfig.timefmt,
       layout: this.util.uiConfig.layout,
-      theme: this.util.uiConfig.theme
+      theme: this.util.uiConfig.theme,
+      refreshPage: this.util.uiConfig.refreshPage,
+      refreshInterval: this.util.uiConfig.refreshInterval
     });
   }
 
+  /**
+   * Handles form submission to update UI settings.
+   * Updates the settings using the utility class and shows an alert message.
+   */
   onSubmit(): void {
     this.isUpdatingLoading = true;
 
@@ -67,4 +70,6 @@ export class UiSettingsComponent implements OnInit {
 
     this.reloadService.reloadPage();
   }
+
+  protected readonly UiSettingsFormGroup = UiSettingsFormGroup;
 }

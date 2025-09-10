@@ -5,6 +5,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -86,6 +87,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
+  styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
@@ -169,7 +171,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
-  
+
   /** Default total items index */
   @Input() defaultTotalItems = 0;
 
@@ -177,6 +179,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() hasTemperatureInformation = false;
 
   @Input() contextMenuService: ContextMenuService;
+
+  /** Flag to enable auto refresh control, default: false */
+  @Input() supportsAutoRefresh = false;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
@@ -207,6 +212,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
+  @ViewChild('htTable', { static: false }) tableEl: ElementRef;
 
   constructor(
     public dialog: MatDialog,
@@ -291,7 +297,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Update pagination configuration in the data source
-      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, undefined, undefined, 0);
+      this.dataSource.setPaginationConfig(
+        this.dataSource.pageSize,
+        this.dataSource.totalItems,
+        undefined,
+        undefined,
+        0
+      );
     });
   }
 
@@ -530,6 +542,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   reload(): void {
     this.dataSource.reset(true);
     this.dataSource.reload();
+    this.flashTable();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
@@ -558,9 +571,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       index = 0;
       pageAfter = undefined;
       pageBefore = undefined;
-
-    }
-    else if (event.pageIndex !== 0) {
+    } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
       // if (event.pageIndex > event.previousPageIndex) {
@@ -568,7 +579,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // } else {
       //   pageBefore = Math.min(...ids);
       // }
-      
     }
 
     this.uiSettings.updateTableSettings(this.name, {
@@ -595,5 +605,15 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   editableCheckboxSaved(editable: any): void {
     this.editableCheckbox.emit(editable);
+  }
+
+  private flashTable(): void {
+    if (!this.tableEl) return;
+    const rows = this.tableEl.nativeElement.querySelectorAll('tr');
+    rows.forEach((row: HTMLElement) => {
+      row.classList.remove('flash');
+      void row.offsetWidth; // force reflow
+      row.classList.add('flash');
+    });
   }
 }

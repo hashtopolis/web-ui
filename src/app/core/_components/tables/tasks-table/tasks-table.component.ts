@@ -70,6 +70,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
+    if (refresh) {
+      this.dataSource.setAutoreload(true);
+    } else {
+      this.dataSource.setAutoreload(false);
+    }
   }
 
   ngOnDestroy(): void {
