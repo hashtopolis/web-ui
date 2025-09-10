@@ -57,7 +57,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
     if (this.editIndex !== undefined) {
       if (this.editType === 0) {
         files$ = this.service.get(SERV.TASKS, this.editIndex, paramsBuilder.addInclude('files').create());
-      } else {
+      } else if (this.editType === 1) {
         files$ = this.service.get(SERV.PRETASKS, this.editIndex, paramsBuilder.addInclude('pretaskFiles').create());
       }
     } else {
