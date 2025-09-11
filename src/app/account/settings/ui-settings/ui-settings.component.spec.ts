@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { UIConfig } from '@models/config-ui.model';
 
@@ -44,6 +45,7 @@ describe('UiSettingsComponent', () => {
         TableModule,
         MatSelectModule,
         MatIconModule,
+        MatTooltipModule,
         ButtonsModule,
         InputModule
       ],
