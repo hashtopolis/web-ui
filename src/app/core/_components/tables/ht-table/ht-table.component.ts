@@ -86,6 +86,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
+  styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
@@ -169,7 +170,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
-  
+
   /** Default total items index */
   @Input() defaultTotalItems = 0;
 
@@ -177,6 +178,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() hasTemperatureInformation = false;
 
   @Input() contextMenuService: ContextMenuService;
+
+  /** Flag to enable auto refresh control, default: false */
+  @Input() supportsAutoRefresh = false;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
@@ -291,7 +295,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Update pagination configuration in the data source
-      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, undefined, undefined, 0);
+      this.dataSource.setPaginationConfig(
+        this.dataSource.pageSize,
+        this.dataSource.totalItems,
+        undefined,
+        undefined,
+        0
+      );
     });
   }
 
@@ -362,7 +372,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const filteredObject: { [key: string]: string } = {};
 
     for (const attribute of include) {
-      if (original.hasOwnProperty(attribute)) {
+      if (Object.prototype.hasOwnProperty.call(original, attribute)) {
         filteredObject[attribute] = original[attribute];
       }
     }
@@ -441,7 +451,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   clearFilter() {
     // Reset the filter function to a default that passes all items
-    const defaultFilterFn = (item: any, filterValue: '') => true;
+    const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
+
     // Reapply the default filter function
     this.dataSource.filterData(defaultFilterFn);
     this.dataSource.filter = '';
@@ -558,9 +569,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       index = 0;
       pageAfter = undefined;
       pageBefore = undefined;
-
-    }
-    else if (event.pageIndex !== 0) {
+    } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
       // if (event.pageIndex > event.previousPageIndex) {
@@ -568,7 +577,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // } else {
       //   pageBefore = Math.min(...ids);
       // }
-      
     }
 
     this.uiSettings.updateTableSettings(this.name, {
