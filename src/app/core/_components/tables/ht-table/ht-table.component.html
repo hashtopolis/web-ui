@@ -1,75 +1,85 @@
 <ng-container>
   <!-- table actions -->
   <div class="table-actions">
+    <!-- Auto-refresh control -->
+    <div class="table-footer-actions"
+         style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+      <button (click)="dataSource.setAutoreload(!dataSource.autoRefreshEnabled)" *ngIf="supportsAutoRefresh" mat-button>
+        <mat-icon>{{ dataSource.autoRefreshEnabled ? 'pause_circle_outline' : 'autorenew' }}</mat-icon>
+        {{ dataSource.autoRefreshEnabled ? 'Pause Auto Reload' : 'Enable Auto Reload' }}
+      </button>
+
+    </div>
     <!-- refresh -->
     <div class="table-action-wrapper">
-      <button mat-button (click)="reload()">
+      <button (click)="reload()" mat-button>
         <mat-icon>refresh</mat-icon>
         Reload
       </button>
     </div>
     <!-- bulk actions -->
-    <div class="table-action-wrapper" *ngIf="isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()">
+    <div *ngIf="isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()" class="table-action-wrapper">
       <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
-        <button mat-button [disabled]="true">
+        <button [disabled]="true" mat-button>
           <mat-icon>adjust</mat-icon>
           Bulk Actions
         </button>
       </ng-container>
       <ng-template #bulkActionMenu>
-        <bulk-action-menu #bulkMenu [dataType]="dataType" [isArchived]="isArchived"
-          [data]="dataSource.selection.selected" [disabled]="!hasSelected()" [contextMenuService]="contextMenuService"
-          (menuItemClicked)="bulkAction($event)" />
+        <bulk-action-menu #bulkMenu (menuItemClicked)="bulkAction($event)" [contextMenuService]="contextMenuService"
+                          [dataType]="dataType" [data]="dataSource.selection.selected"
+                          [disabled]="!hasSelected()"
+                          [isArchived]="isArchived" />
       </ng-template>
     </div>
     <!-- export -->
-    <div class="table-action-wrapper" *ngIf="isSelectable && showExport">
+    <div *ngIf="isSelectable && showExport" class="table-action-wrapper">
       <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
-        <button mat-button [disabled]="true">
+        <button [disabled]="true" mat-button>
           <mat-icon>file_download</mat-icon>
           Export
         </button>
       </ng-container>
       <ng-template #exportMenu>
-        <export-menu [data]="dataSource.selection.selected" [disabled]="!hasSelected()"
-          (menuItemClicked)="exportAction($event)" />
+        <export-menu (menuItemClicked)="exportAction($event)" [data]="dataSource.selection.selected"
+                     [disabled]="!hasSelected()" />
       </ng-template>
     </div>
     <!-- columns -->
     <div class="table-action-wrapper">
-      <button mat-button (click)="openColumnSelectionDialog()">
+      <button (click)="openColumnSelectionDialog()" mat-button>
         <mat-icon>view_week</mat-icon>
         Columns
       </button>
     </div>
     <!-- temrature information -->
     @if (hasTemperatureInformation) {
-    <div class="table-action-wrapper">
-      <button mat-button (click)="temperatureInformationEmit()">
-        <mat-icon>info</mat-icon>
-        Temperature Information
-      </button>
-    </div>
+      <div class="table-action-wrapper">
+        <button mat-button (click)="temperatureInformationEmit()">
+          <mat-icon>info</mat-icon>
+          Temperature Information
+        </button>
+      </div>
     }
 
     <!-- Filter section -->
-    <div class="table-action-wrapper right-aligned" *ngIf="isFilterable">
+    <div *ngIf="isFilterable" class="table-action-wrapper right-aligned">
       <div class="filter-container">
         <!-- Column selector dropdown -->
         <mat-form-field>
           <mat-label>Filter by column</mat-label>
-          <mat-select [(ngModel)]="selectedFilterColumn" (selectionChange)="onFilterColumnChange()">
+          <mat-select (selectionChange)="onFilterColumnChange()" [(ngModel)]="selectedFilterColumn">
             <mat-option value="all">All filterable columns</mat-option>
             @for (column of filterableColumns; track column) {
-            <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
+              <mat-option [value]="column.dataKey">{{ columnLabels[column.id] }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <!-- Filter input -->
         <mat-form-field style="min-width: 200px">
-          <input matInput (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" placeholder="Filter data" />
-          <button mat-icon-button matSuffix (click)="clearFilter()">
+          <input (keyup)="applyFilter()" [(ngModel)]="dataSource.filter" matInput placeholder="Filter data" />
+          <button (click)="clearFilter()" mat-icon-button matSuffix>
             <mat-icon>clear</mat-icon>
           </button>
         </mat-form-field>
@@ -77,51 +87,51 @@
     </div>
   </div>
   <!-- Table -->
-  <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
-    <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+  <table [dataSource]="dataSource" class="hashtopolis-table" mat-table matSort>
+    <div *ngIf="dataSource.loading$ | async" class="spinner-container">
       <mat-spinner></mat-spinner>
     </div>
     <!-- select column -->
     <ng-container *ngIf="isSelectable" matColumnDef="{{ colSelect }}">
-      <th mat-header-cell *matHeaderCellDef>
+      <th *matHeaderCellDef mat-header-cell>
         <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
         <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
-          <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{
-            isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
-            }}</span>
+          <p>{{
+              isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
+            }}</p>
         </ng-container>
         <!-- Check if only isCmdTask is true -->
         <ng-template #checkCmdAttack>
           <ng-container *ngIf="isCmdTask; else defaultHeader">
-            <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">Task</span>
+            <p>Task</p>
           </ng-container>
         </ng-template>
         <ng-template #defaultHeader>
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()" [checked]="isAllSelected()"
-            [indeterminate]="indeterminate()" />
+          <mat-checkbox (change)="toggleAll()" (click)="$event.stopPropagation()" [checked]="isAllSelected()"
+                        [indeterminate]="indeterminate()" />
         </ng-template>
       </th>
-      <td mat-cell *matCellDef="let row" [ngStyle]="{
+      <td *matCellDef="let row" [ngStyle]="{
           'border-left':
             (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || (row && row.color)
               ? '8px solid ' + (row.tasks && row.tasks.length > 0 ? row.tasks[0].color : row.color)
               : '',
           'padding-left': (row.tasks && row.tasks.length > 0 && row.tasks[0].color) || row.color ? '8px' : '16px'
-        }">
+        }" mat-cell>
         <ng-container *ngIf="!isCmdTask; else defaultCell">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleSelect(row)" [checked]="isSelected(row)" />
+          <mat-checkbox (change)="toggleSelect(row)" (click)="$event.stopPropagation()" [checked]="isSelected(row)" />
         </ng-container>
         <ng-template #defaultCell>
           <!-- CMD Task -->
           <ng-container>
-            <mat-checkbox *ngIf="isCmdTask" (click)="$event.stopPropagation()"
-              (change)="toggleAttack($event, row, 'CMD')" [checked]="isSelected(row)" />
+            <mat-checkbox (change)="toggleAttack($event, row, 'CMD')" (click)="$event.stopPropagation()"
+                          *ngIf="isCmdTask" [checked]="isSelected(row)" />
           </ng-container>
         </ng-template>
         <ng-container>
           <!-- CMD Preprocessor -->
-          <mat-checkbox *ngIf="isCmdPreproAttack" (click)="$event.stopPropagation()"
-            (change)="toggleAttack($event, row, 'CMD_PREPRO')" />
+          <mat-checkbox (change)="toggleAttack($event, row, 'CMD_PREPRO')" (click)="$event.stopPropagation()"
+                        *ngIf="isCmdPreproAttack" />
         </ng-container>
       </td>
     </ng-container>
@@ -131,12 +141,12 @@
       *ngIf="contextMenuService && contextMenuService.getHasContextMenu()"
       matColumnDef="{{ colRowAction }}"
     >
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element" [class.text-right]="true">
+      <th *matHeaderCellDef mat-header-cell></th>
+      <td *matCellDef="let element" [class.text-right]="true" mat-cell>
         <row-action-menu
-          [data]="element"
-          [contextMenuService]="contextMenuService"
           (menuItemClicked)="rowAction($event)"
+          [contextMenuService]="contextMenuService"
+          [data]="element"
         ></row-action-menu>
       </td>
     </ng-container>
@@ -144,19 +154,19 @@
     <ng-container *ngFor="let tableColumn of tableColumns; let first = first" [matColumnDef]="tableColumn.id + ''">
       <!-- if sortable column header -->
       <ng-container *ngIf="tableColumn.isSortable; else notSortable">
-        <th mat-header-cell *matHeaderCellDef [mat-sort-header]="tableColumn.id + ''"
-          (click)="onColumnHeaderClick(tableColumn)">
+        <th (click)="onColumnHeaderClick(tableColumn)" *matHeaderCellDef [mat-sort-header]="tableColumn.id + ''"
+            mat-header-cell>
           {{ columnLabels[tableColumn.id] }}
         </th>
       </ng-container>
       <!-- else not sortable -->
       <ng-template #notSortable>
-        <th mat-header-cell *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'">
+        <th *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'" mat-header-cell>
           {{ columnLabels[tableColumn.id] }}
         </th>
       </ng-template>
       <!-- column data -->
-      <td mat-cell *matCellDef="let element" [ngStyle]="{
+      <td *matCellDef="let element" [class.text-right]="tableColumn.position === 'right'" [ngStyle]="{
           color: tableColumn.customCellColor
             ? (tableColumn.customCellColor.value(element)
               | asColor
@@ -166,10 +176,10 @@
                 : tableColumn.customCellColor.isActive(element)
                 : tableColumn.customCellColor.lastTime(element))
             : ''
-        }" [class.text-right]="tableColumn.position === 'right'">
-        <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
+        }" mat-cell>
+        <div [class.icons]="tableColumn.icon" [class.links]="tableColumn.routerLink" class="flex-container">
           <ng-container *ngIf="tableColumn.truncate">
-            <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
+            <table-truncate [path]="tableColumn.dataKey" [text]="element"></table-truncate>
           </ng-container>
           <span class="icon-actions">
             @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
@@ -191,20 +201,21 @@
           <ng-container *ngIf="!tableColumn.truncate">
             <app-ht-table-link
               (linkClicked)="onLinkClicked()"
-              [tableColumn]="tableColumn"
               [element]="element"
+              [tableColumn]="tableColumn"
             ></app-ht-table-link>
-            <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
-            <ht-table-editable [tableColumn]="tableColumn" [element]="element"
-              (editableInputSaved)="editableInputSaved($event)"></ht-table-editable>
-            <ht-table-editable-checkbox [tableColumn]="tableColumn" [element]="element"
-              (editableCheckboxSaved)="editableCheckboxSaved($event)"></ht-table-editable-checkbox>
+            <ht-table-default [element]="element" [tableColumn]="tableColumn"></ht-table-default>
+            <ht-table-editable (editableInputSaved)="editableInputSaved($event)" [element]="element"
+                               [tableColumn]="tableColumn"></ht-table-editable>
+            <ht-table-editable-checkbox (editableCheckboxSaved)="editableCheckboxSaved($event)" [element]="element"
+                                        [tableColumn]="tableColumn"></ht-table-editable-checkbox>
           </ng-container>
 
           <!-- Check if icon function is defined -->
           <ng-container *ngIf="tableColumn.icon && tableColumn.icon(element) as icon">
             <mat-icon *ngIf="icon.tooltip; else iconTmpl" [matTooltip]="icon.tooltip"
-              [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+                      [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}
+            </mat-icon>
             <ng-template #iconTmpl>
               <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
             </ng-template>
@@ -212,14 +223,14 @@
         </div>
       </td>
     </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+    <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
+    <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td [attr.colspan]="displayedColumns.length" class="mat-cell no-data">
         <div *ngIf="dataSource.loading$ | async; else noData" class="spinner-table">
-          <mat-spinner diameter="30" color="accent"></mat-spinner>
+          <mat-spinner color="accent" diameter="30"></mat-spinner>
         </div>
-        <ng-template #noData> No data available </ng-template>
+        <ng-template #noData> No data available</ng-template>
       </td>
     </tr>
   </table>
@@ -227,13 +238,29 @@
   <!-- Pagination -->
   <ng-container *ngIf="isPageable">
     <hr />
-    <mat-paginator
-      [length]="dataSource.totalItems"
-      [pageSize]="dataSource.pageSize"
-      [pageSizeOptions]="paginationSizes"
-      [pageIndex]="dataSource.index"
-      [disabled]="dataSource.loading$ | async"
-      (page)="onPageChange($event)"
-    ></mat-paginator>
+    <div class="paginator-footer">
+      <div class="last-updated" style="display: flex; align-items: center; gap: 4px;">
+      <span *ngIf="dataSource.getLastUpdated()">
+        Last updated: {{ dataSource.getLastUpdated() }}
+      </span>
+        <mat-spinner
+          *ngIf="(dataSource.loading$ | async) && dataSource.getLastUpdated()"
+          diameter="12"
+          strokeWidth="2"
+        ></mat-spinner>
+      </div>
+
+
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [disabled]="dataSource.loading$ | async"
+        [length]="dataSource.totalItems"
+        [pageIndex]="dataSource.index"
+        [pageSizeOptions]="paginationSizes"
+        [pageSize]="dataSource.pageSize"
+      ></mat-paginator>
+    </div>
   </ng-container>
+
+
 </ng-container>
