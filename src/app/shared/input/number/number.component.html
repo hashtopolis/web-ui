@@ -1,8 +1,22 @@
 <mat-form-field>
   <mat-label>{{ title }}</mat-label>
   <div [class.is-invalid]="error">
-    <input matInput type="number" [id]="inputId" [(ngModel)]="value" (change)="onChange(value)" [class.is-invalid]="error">
+    <input
+      #inputField="ngModel"
+      matInput type="number"
+      [min]="min"
+      [max]="max"
+      [id]="inputId"
+      [(ngModel)]="value"
+      (change)="onChange(value)"
+      [required]="isRequired"
+      [class.is-invalid]="error"
+      [disabled]="disabled"
+    >
   </div>
-  <div *ngIf="error">{{ error }}</div>
-  <mat-hint *ngIf="hint">{{ hint }}</mat-hint>
+  <mat-error *ngIf="inputField.errors && (inputField.dirty || inputField.touched)">
+    <span *ngIf="inputField.errors.required">{{ title }} is required</span>
+    <span *ngIf="inputField.errors.min">Value cannot be less than {{ min }}</span>
+    <span *ngIf="inputField.errors.max">Value cannot be greater than {{ max }}</span>
+  </mat-error>
 </mat-form-field>

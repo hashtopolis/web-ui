@@ -87,6 +87,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
+  styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
@@ -178,6 +179,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() hasTemperatureInformation = false;
 
   @Input() contextMenuService: ContextMenuService;
+
+  /** Flag to enable auto refresh control, default: false */
+  @Input() supportsAutoRefresh = false;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
@@ -374,7 +378,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const filteredObject: { [key: string]: string } = {};
 
     for (const attribute of include) {
-      if (original.hasOwnProperty(attribute)) {
+      if (Object.prototype.hasOwnProperty.call(original, attribute)) {
         filteredObject[attribute] = original[attribute];
       }
     }
@@ -455,7 +459,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   /*   clearFilter() {
     // Reset the filter function to a default that passes all items
-    const defaultFilterFn = (item: any, filterValue: '') => true;
+    const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
+
     // Reapply the default filter function
     this.dataSource.filterData(defaultFilterFn);
     this.dataSource.filter = '';

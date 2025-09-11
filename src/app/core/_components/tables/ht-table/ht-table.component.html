@@ -1,17 +1,26 @@
 <ng-container>
   <!-- table actions -->
   <div class="table-actions">
+    <!-- Auto-refresh control -->
+    <div class="table-footer-actions"
+         style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+      <button (click)="dataSource.setAutoreload(!dataSource.autoRefreshEnabled)" *ngIf="supportsAutoRefresh" mat-button>
+        <mat-icon>{{ dataSource.autoRefreshEnabled ? 'pause_circle_outline' : 'autorenew' }}</mat-icon>
+        {{ dataSource.autoRefreshEnabled ? 'Pause Auto Reload' : 'Enable Auto Reload' }}
+      </button>
+
+    </div>
     <!-- refresh -->
     <div class="table-action-wrapper">
-      <button mat-button (click)="reload()">
+      <button (click)="reload()" mat-button>
         <mat-icon>refresh</mat-icon>
         Reload
       </button>
     </div>
     <!-- bulk actions -->
-    <div class="table-action-wrapper" *ngIf="isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()">
+    <div *ngIf="isSelectable && contextMenuService && contextMenuService.getHasBulkMenu()" class="table-action-wrapper">
       <ng-container *ngIf="dataSource.loading$ | async; else bulkActionMenu">
-        <button mat-button [disabled]="true">
+        <button [disabled]="true" mat-button>
           <mat-icon>adjust</mat-icon>
           Bulk Actions
         </button>
@@ -29,9 +38,9 @@
       </ng-template>
     </div>
     <!-- export -->
-    <div class="table-action-wrapper" *ngIf="isSelectable && showExport">
+    <div *ngIf="isSelectable && showExport" class="table-action-wrapper">
       <ng-container *ngIf="dataSource.loading$ | async; else exportMenu">
-        <button mat-button [disabled]="true">
+        <button [disabled]="true" mat-button>
           <mat-icon>file_download</mat-icon>
           Export
         </button>
@@ -46,7 +55,7 @@
     </div>
     <!-- columns -->
     <div class="table-action-wrapper">
-      <button mat-button (click)="openColumnSelectionDialog()">
+      <button (click)="openColumnSelectionDialog()" mat-button>
         <mat-icon>view_week</mat-icon>
         Columns
       </button>
@@ -97,23 +106,23 @@
     <!-- Filter section BACKEND END-->
   </div>
   <!-- Table -->
-  <table mat-table [dataSource]="dataSource" matSort class="hashtopolis-table">
-    <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+  <table [dataSource]="dataSource" class="hashtopolis-table" mat-table matSort>
+    <div *ngIf="dataSource.loading$ | async" class="spinner-container">
       <mat-spinner></mat-spinner>
     </div>
     <!-- select column -->
     <ng-container *ngIf="isSelectable" matColumnDef="{{ colSelect }}">
-      <th mat-header-cell *matHeaderCellDef>
+      <th *matHeaderCellDef mat-header-cell>
         <!-- Check if both isCmdTask and isCmdPreproAttack are true -->
         <ng-container *ngIf="isCmdTask && isCmdPreproAttack; else checkCmdAttack">
-          <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">{{
-            isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
-          }}</span>
+          <p>{{
+              isCmdLabel ? isCmdLabel : 'Task | Preprocessor'
+            }}</p>
         </ng-container>
         <!-- Check if only isCmdTask is true -->
         <ng-template #checkCmdAttack>
           <ng-container *ngIf="isCmdTask; else defaultHeader">
-            <span mat-checkbox (click)="$event.stopPropagation()" (change)="toggleAll()">Task</span>
+            <p>Task</p>
           </ng-container>
         </ng-template>
         <ng-template #defaultHeader>
@@ -137,7 +146,7 @@
         }"
       >
         <ng-container *ngIf="!isCmdTask; else defaultCell">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleSelect(row)" [checked]="isSelected(row)" />
+          <mat-checkbox (change)="toggleSelect(row)" (click)="$event.stopPropagation()" [checked]="isSelected(row)" />
         </ng-container>
         <ng-template #defaultCell>
           <!-- CMD Task -->
@@ -166,18 +175,19 @@
       *ngIf="contextMenuService && contextMenuService.getHasContextMenu()"
       matColumnDef="{{ colRowAction }}"
     >
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let element" [class.text-right]="true">
+      <th *matHeaderCellDef mat-header-cell></th>
+      <td *matCellDef="let element" [class.text-right]="true" mat-cell>
         <row-action-menu
-          [data]="element"
-          [contextMenuService]="contextMenuService"
           (menuItemClicked)="rowAction($event)"
+          [contextMenuService]="contextMenuService"
+          [data]="element"
         ></row-action-menu>
       </td>
     </ng-container>
 
-    <ng-container *ngFor="let tableColumn of tableColumns; let first = first" [matColumnDef]="tableColumn.id + ''">
-      <!-- if sortable column header -->
+    <ng-container *ngFor="let tableColumn of tableColumns" [matColumnDef]="tableColumn.id + ''">
+
+    <!-- if sortable column header -->
       <ng-container *ngIf="tableColumn.isSortable; else notSortable">
         <th
           mat-header-cell
@@ -190,7 +200,7 @@
       </ng-container>
       <!-- else not sortable -->
       <ng-template #notSortable>
-        <th mat-header-cell *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'">
+        <th *matHeaderCellDef [class.text-right]="tableColumn.position === 'right'" mat-header-cell>
           {{ columnLabels[tableColumn.id] }}
         </th>
       </ng-template>
@@ -213,7 +223,7 @@
       >
         <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
           <ng-container *ngIf="tableColumn.truncate">
-            <table-truncate [text]="element" [path]="tableColumn.dataKey"></table-truncate>
+            <table-truncate [path]="tableColumn.dataKey" [text]="element"></table-truncate>
           </ng-container>
           <span class="icon-actions">
             @if (typeof tableColumn.truncate === 'function' ? tableColumn.truncate(element) : tableColumn.truncate) {
@@ -235,8 +245,8 @@
           <ng-container *ngIf="!tableColumn.truncate">
             <app-ht-table-link
               (linkClicked)="onLinkClicked()"
-              [tableColumn]="tableColumn"
               [element]="element"
+              [tableColumn]="tableColumn"
             ></app-ht-table-link>
             <ht-table-default [tableColumn]="tableColumn" [element]="element"></ht-table-default>
             <ht-table-editable
@@ -266,14 +276,15 @@
         </div>
       </td>
     </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+    <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
+    <!-- noinspection JSUnusedLocalSymbols -->
+    <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
+    <tr *matNoDataRow class="mat-row">
+      <td [attr.colspan]="displayedColumns.length" class="mat-cell no-data">
         <div *ngIf="dataSource.loading$ | async; else noData" class="spinner-table">
-          <mat-spinner diameter="30" color="accent"></mat-spinner>
+          <mat-spinner color="accent" diameter="30"></mat-spinner>
         </div>
-        <ng-template #noData> No data available </ng-template>
+        <ng-template #noData> No data available</ng-template>
       </td>
     </tr>
   </table>
@@ -281,13 +292,29 @@
   <!-- Pagination -->
   <ng-container *ngIf="isPageable">
     <hr />
-    <mat-paginator
-      [length]="dataSource.totalItems"
-      [pageSize]="dataSource.pageSize"
-      [pageSizeOptions]="paginationSizes"
-      [pageIndex]="dataSource.index"
-      [disabled]="dataSource.loading$ | async"
-      (page)="onPageChange($event)"
-    ></mat-paginator>
+    <div class="paginator-footer">
+      <div class="last-updated" style="display: flex; align-items: center; gap: 4px;">
+      <span *ngIf="dataSource.getLastUpdated()">
+        Last updated: {{ dataSource.getLastUpdated() }}
+      </span>
+        <mat-spinner
+          *ngIf="(dataSource.loading$ | async) && dataSource.getLastUpdated()"
+          diameter="12"
+          strokeWidth="2"
+        ></mat-spinner>
+      </div>
+
+
+      <mat-paginator
+        (page)="onPageChange($event)"
+        [disabled]="dataSource.loading$ | async"
+        [length]="dataSource.totalItems"
+        [pageIndex]="dataSource.index"
+        [pageSizeOptions]="paginationSizes"
+        [pageSize]="dataSource.pageSize"
+      ></mat-paginator>
+    </div>
   </ng-container>
+
+
 </ng-container>

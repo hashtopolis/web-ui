@@ -54,10 +54,13 @@
     <span *ngIf="inputField.errors.url">Please enter a valid {{ title?.toLowerCase() }}</span>
     <span *ngIf="inputField.errors.minlength">
     Minimum length is {{ inputField.errors.minlength.requiredLength }}
-  </span>
+    </span>
+    <span *ngIf="inputField.errors.pattern">
+      Please enter a valid {{ title }}
+    </span>
     <span *ngIf="inputField.errors.maxlength">
     Maximum length is {{ inputField.errors.maxlength.requiredLength }}
-  </span>
+    </span>
     <span *ngIf="inputField.errors?.passwordMismatch">Passwords do not match</span>
   </mat-error>
 

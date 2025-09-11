@@ -57,6 +57,12 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
+    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
+    if (refresh) {
+      this.dataSource.setAutoreload(true);
+    } else {
+      this.dataSource.setAutoreload(false);
+    }
   }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;

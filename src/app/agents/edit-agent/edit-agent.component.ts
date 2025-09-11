@@ -272,7 +272,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    */
   onSubmit() {
     if (this.updateForm.valid) {
-      if (this.updateAssignForm.valid) {
+      if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
         this.onUpdateAssign(this.updateAssignForm.value.taskId);
       }
       this.isUpdatingLoading = true;

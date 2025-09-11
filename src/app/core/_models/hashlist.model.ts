@@ -1,5 +1,6 @@
 import { BaseModel } from '@models/base.model';
 import { JHashtype } from '@models/hashtype.model';
+import { JTask } from '@models/task.model';
 
 /**
  * Interface definition for a Hashlist
@@ -26,4 +27,5 @@ export interface JHashlist extends BaseModel {
   sourceType: string;
   sourceData: string;
   hashlists?: JHashlist[];
+  tasks?: JTask[];
 }

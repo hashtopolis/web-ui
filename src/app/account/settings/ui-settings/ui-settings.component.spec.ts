@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { UIConfig } from '@models/config-ui.model';
 
@@ -9,6 +11,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
+import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
+import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
@@ -23,7 +27,9 @@ describe('UiSettingsComponent', () => {
   const mockModifiedUIConfig = {
     layout: 'full',
     theme: 'dark',
-    timefmt: 'dd/MM/yyyy h:mm:ss'
+    timefmt: 'dd/MM/yyyy h:mm:ss',
+    refreshPage: true,
+    refreshInterval: 10
   } as UIConfig;
 
   beforeEach(async () => {
@@ -32,7 +38,17 @@ describe('UiSettingsComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [UiSettingsComponent],
-      imports: [MatSelectModule, ReactiveFormsModule, PageTitleModule, TableModule, MatSelectModule],
+      imports: [
+        MatSelectModule,
+        ReactiveFormsModule,
+        PageTitleModule,
+        TableModule,
+        MatSelectModule,
+        MatIconModule,
+        MatTooltipModule,
+        ButtonsModule,
+        InputModule
+      ],
       providers: [
         { provide: ReloadService, useValue: mockReloadService },
         { provide: LocalStorageService, useValue: mockLocalStorageService }
@@ -53,6 +69,8 @@ describe('UiSettingsComponent', () => {
     expect(component.form.get('timefmt')).toBeDefined();
     expect(component.form.get('layout')).toBeDefined();
     expect(component.form.get('theme')).toBeDefined();
+    expect(component.form.get('refreshPage')).toBeDefined();
+    expect(component.form.get('refreshInterval')).toBeDefined();
   });
 
   it('should call updateForm and patch form values', () => {
@@ -60,7 +78,7 @@ describe('UiSettingsComponent', () => {
       uiConfig: { timefmt: 'dd/MM/yyyy h:mm:ss', layout: 'fixed', theme: 'dark' }
     } as UISettingsUtilityClass;
 
-    component.updateForm();
+    component.loadSettings();
 
     expect(component.form.get('timefmt').value).toBe('dd/MM/yyyy h:mm:ss');
     expect(component.form.get('layout').value).toBe('fixed');
@@ -71,10 +89,12 @@ describe('UiSettingsComponent', () => {
     component.form.get('timefmt').patchValue(mockModifiedUIConfig.timefmt);
     component.form.get('layout').patchValue(mockModifiedUIConfig.layout);
     component.form.get('theme').patchValue(mockModifiedUIConfig.theme);
+    component.form.get('refreshPage').patchValue(mockModifiedUIConfig.refreshPage);
+    component.form.get('refreshInterval').patchValue(mockModifiedUIConfig.refreshInterval);
 
     spyOn(alertService, 'showInfoMessage');
 
-    const button = fixture.nativeElement.querySelector('[data-testid="button-submit"]');
+    const button = fixture.nativeElement.querySelector('[data-testid="button-submit"]').querySelector('button');
     button.click();
 
     expect(mockLocalStorageService.setItem).toHaveBeenCalledWith(
@@ -90,7 +110,7 @@ describe('UiSettingsComponent', () => {
     spyOn(component.util, 'updateSettings').and.returnValue(0);
     spyOn(alertService, 'showInfoMessage');
 
-    const button = fixture.nativeElement.querySelector('[data-testid="button-submit"]');
+    const button = fixture.nativeElement.querySelector('[data-testid="button-submit"]').querySelector('button');
     button.click();
 
     expect(component.util.updateSettings).toHaveBeenCalledWith(component.form.value);

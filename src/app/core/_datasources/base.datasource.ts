@@ -6,16 +6,21 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { ChunkData, JChunk } from '@models/chunk.model';
+import { UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
 import { IParamBuilder } from '@services/params/builder-types.service';
 import { PermissionService } from '@services/permission/permission.service';
+import { AlertService } from '@services/shared/alert.service';
 import { UIConfigService } from '@services/shared/storage.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { formatDate } from '@src/app/shared/utils/datetime';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -79,21 +84,33 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
 
   private readonly chunkTime: number = 600;
 
+  public autoRefreshEnabled = false;
+  private lastUpdated: string;
+
   protected cdr: ChangeDetectorRef;
   protected service: GlobalService;
   protected uiService: UIConfigService;
   protected permissionService: PermissionService;
+  private alertService: AlertService;
+  private autoRefreshTimeout?: ReturnType<typeof setTimeout>;
+  public util: UISettingsUtilityClass;
 
   constructor(protected injector: Injector) {
     this.cdr = injector.get(ChangeDetectorRef);
     this.service = injector.get(GlobalService);
     this.uiService = injector.get(UIConfigService);
     this.permissionService = injector.get(PermissionService);
+    this.alertService = injector.get(AlertService);
     this.serializer = new JsonAPISerializer();
+
     const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
     if (chunktimeSetting) {
       this.chunkTime = Number(chunktimeSetting);
     }
+
+    // Create util manually instead of injector.get
+    const localStorageService = injector.get(LocalStorageService<UIConfig>);
+    this.util = new UISettingsUtilityClass(localStorageService);
   }
 
   /**
@@ -139,6 +156,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_collectionViewer: CollectionViewer): void {
+    this.disableAutoRefresh();
+
     this.dataSubject.complete();
     this.loadingSubject.complete();
 
@@ -155,6 +174,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   setData(data: T[]): void {
     this.originalData = data;
     this.dataSubject.next(data);
+    this.lastUpdated = this.getCurrentTime();
   }
 
   /**
@@ -164,21 +184,6 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   setColumns(columns: HTTableColumn[]): void {
     this.columns = columns;
-  }
-
-  /**
-   * Sorts the data based on the sort configuration.
-   */
-  sortData(): void {
-    if (!this.sort || !this.sort.active || this.sort.direction === '') {
-      return;
-    }
-    const columnMapping = this.columns.find((mapping) => mapping.id === Number(this.sort.active));
-
-    if (!columnMapping) {
-      console.error('Column mapping not found for label: ' + this.sort.active);
-      return;
-    }
   }
 
   /**
@@ -364,10 +369,65 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
 
   /**
-   * Compare function used for sorting.
+   * Get the current time as a formatted string.
+   * @returns The current time in 'HH:MM:SS AM/PM' format
    */
-  private compare(a: number | string, b: number | string, isAsc: boolean): number {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+  getCurrentTime(): string {
+    return formatDate(new Date(), this.util.getSetting('timefmt'));
+  }
+
+  setAutoreload(flag: boolean): void {
+    this.autoRefreshEnabled = flag; // Keep the flag in sync
+
+    const updatedSettings = this.util.updateSettings({ refreshPage: flag });
+    if (updatedSettings) {
+      const message = flag ? 'Autoreload enabled' : 'Autoreload paused';
+      this.alertService.showSuccessMessage(message);
+    }
+
+    if (flag) {
+      this.enableAutoRefresh();
+    } else {
+      this.disableAutoRefresh();
+    }
+  }
+
+  private enableAutoRefresh(): void {
+    if (!this.autoRefreshEnabled) return;
+
+    // Don't start a new refresh if loading is still in progress
+    if (this.loadingSubject.value) {
+      // Schedule next attempt after the same interval
+      const intervalMs = this.util.getSetting<number>('refreshInterval') * 1000;
+      this.autoRefreshTimeout = setTimeout(() => this.enableAutoRefresh(), intervalMs);
+      return;
+    }
+
+    const intervalMs = this.util.getSetting<number>('refreshInterval') * 1000;
+
+    // Immediately reload once
+    this.reload();
+
+    // Schedule next reload recursively
+    this.autoRefreshTimeout = setTimeout(() => this.enableAutoRefresh(), intervalMs);
+  }
+
+  /**
+   * Disables the auto-refresh functionality and clears any existing timeouts.
+   * @private
+   */
+  private disableAutoRefresh(): void {
+    if (this.autoRefreshTimeout) {
+      clearTimeout(this.autoRefreshTimeout);
+      this.autoRefreshTimeout = undefined;
+    }
+    this.autoRefreshEnabled = false; // sync flag
+  }
+  /**
+   * Gets the timestamp of the last data refresh.
+   */
+  getLastUpdated(): string {
+    return this.lastUpdated;
   }
   applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {

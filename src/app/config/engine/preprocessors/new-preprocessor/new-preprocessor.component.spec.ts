@@ -5,11 +5,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
-import { SERV } from '@services/main.config';
+import { SERV, ValidationPatterns } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
-import { NewPreprocessorComponent } from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor/new-preprocessor.component';
+import { NewPreprocessorComponent } from '@src/app/config/engine/preprocessors/new-preprocessor/new-preprocessor.component';
 
 describe('NewPreprocessorComponent', () => {
   let component: NewPreprocessorComponent;
@@ -175,5 +175,41 @@ describe('NewPreprocessorComponent', () => {
     expect(buttonDebugEl).toBeTruthy();
     const buttonInstance = buttonDebugEl.componentInstance;
     expect(buttonInstance.disabled).toBeFalse();
+  });
+
+  it('should call the urlValidator and return an error, if the url is invalid', () => {
+    component.newPreprocessorForm.patchValue({
+      name: 'Test Preprocessor',
+      binaryName: 'Test Preprocessor',
+      url: 'ThisIsAnInvalidURL',
+      keyspaceCommand: '--keyspace',
+      skipCommand: '--skip',
+      limitCommand: '--limit'
+    });
+    component.newPreprocessorForm.markAllAsTouched();
+    fixture.detectChanges();
+
+    const errors = component.newPreprocessorForm.get('url').errors;
+    expect(errors).toBeTruthy();
+    expect(errors['pattern']).toEqual({
+      requiredPattern: ValidationPatterns.URL,
+      actualValue: 'ThisIsAnInvalidURL'
+    });
+  });
+
+  it('should call the urlValidator and return an null, if the url is valid', () => {
+    component.newPreprocessorForm.patchValue({
+      name: 'Test Preprocessor',
+      binaryName: 'Test Preprocessor',
+      url: 'https://example.com/preprocessor-1.0.0.7z',
+      keyspaceCommand: '--keyspace',
+      skipCommand: '--skip',
+      limitCommand: '--limit'
+    });
+    component.newPreprocessorForm.markAllAsTouched();
+    fixture.detectChanges();
+
+    const errors = component.newPreprocessorForm.get('url').errors;
+    expect(errors).toBeNull();
   });
 });

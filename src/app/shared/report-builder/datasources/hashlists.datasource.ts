@@ -1,13 +1,12 @@
 import { catchError, finalize, of } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { Hashlist } from 'src/app/hashlists/hashlist.model';
+import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-
-import { ReportBaseDataSource } from './base.datasource';
 
 export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
   private _hashlistId = 0;
@@ -20,7 +19,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loading = true;
 
     const hashList$ = this.service.get(SERV.HASHLISTS, this._hashlistId, {
-      include: ['accessGroup', 'tasks', 'hashes', 'hashType', 'hashlists']
+      include: ['accessGroup', 'tasks', 'hashType', 'hashlists']
     });
 
     this.subscriptions.push(
@@ -43,7 +42,7 @@ export class HashlistReportDataSource extends ReportBaseDataSource<Hashlist> {
     this.loadAll();
   }
 
-  getReport(data: any) {
+  getReport(data: JHashlist) {
     let sum = 0;
     const workflow = [];
     let preCommand;

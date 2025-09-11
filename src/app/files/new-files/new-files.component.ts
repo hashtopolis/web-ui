@@ -18,7 +18,7 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
-import { SelectOption, handleEncode, transformSelectOptions } from '@src/app/shared/utils/forms';
+import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 
 /**
@@ -208,9 +208,9 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   onBeforeSubmit(form: FormGroup<NewFilesForm>['value'], status: boolean): PreparedFormData {
     const sourceType = form.sourceType || 'import';
-    const isInline = sourceType === 'inline';
-    const fileName = isInline ? form.filename : this.fileName;
-    const sourceData = isInline ? handleEncode(form.sourceData) : this.fileName;
+    const isUrl = sourceType === 'url';
+    const fileName = isUrl ? form.filename : this.fileName;
+    const sourceData = isUrl ? form.url : this.fileName;
 
     // Prepared form data for submission
     return {
