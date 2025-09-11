@@ -29,7 +29,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
@@ -78,6 +78,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       this.dataSource.setTaskId(this.taskId);
     }
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    this.dataSource.setAgentStatsRequired(false);
     this.dataSource.reload();
   }
 
@@ -125,7 +126,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns: HTTableColumn[] = [
+    return [
       {
         id: AgentsTableCol.ID,
         dataKey: 'id',
@@ -214,8 +215,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => agent.accessGroup
       }
     ];
-
-    return tableColumns;
   }
 
   editableSaved(editable: HTTableEditable<JAgent>): void {

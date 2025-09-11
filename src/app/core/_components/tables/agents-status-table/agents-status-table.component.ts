@@ -55,6 +55,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+    this.dataSource.setAgentStatsRequired(true);
     this.dataSource.reload();
     const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
     if (refresh) {

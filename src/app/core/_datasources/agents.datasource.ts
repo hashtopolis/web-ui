@@ -5,6 +5,7 @@
 import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
+import { JAgentStat } from '@models/agent-stats.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
 import { FilterType } from '@models/request-params.model';
@@ -23,23 +24,26 @@ import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config'
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
+  private agentStatsRequired: boolean = false;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
 
+  setAgentStatsRequired(agentStatsRequired: boolean): void {
+    this.agentStatsRequired = agentStatsRequired;
+  }
+
   loadAll(): void {
     this.loading = true;
-    const agentParams = new RequestParamBuilder()
+    const agentParamsBuilder = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
       .addInclude('tasks')
-      .addInclude('assignments')
-      .addInclude('agentStats')
-      .create();
+      .addInclude('assignments');
 
     this.service
-      .getAll(SERV.AGENTS, agentParams)
+      .getAll(SERV.AGENTS, agentParamsBuilder.create())
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
@@ -53,11 +57,12 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
         });
 
         if (agents && agents.length > 0) {
+          const agentIds = agents.map((agent) => agent.id);
           const chunkParams = new RequestParamBuilder()
             .addFilter({
               field: 'agentId',
               operator: FilterType.IN,
-              value: agents.map((agent) => agent.id)
+              value: agentIds
             })
             .addFilter({
               field: 'state',
@@ -77,20 +82,32 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
               this.setChunkParams(agent, chunks, agent.assignments);
             }
           });
-        }
-          const length = response.meta.page.total_elements;
-          const nextLink = response.links.next;
-          const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          if (this.agentStatsRequired) {
+            const agentStatParams = new RequestParamBuilder()
+              .addFilter({
+                field: 'agentId',
+                operator: FilterType.IN,
+                value: agentIds
+              })
+              .addFilter({
+                field: 'time',
+                operator: FilterType.GREATER,
+                value: Math.floor((Date.now() - 3600000 * 24) / 1000)
+              });
+            const agentStats = await Promise.resolve(this.loadAgentStats(agentStatParams));
+            agents.forEach((agent: JAgent) => {
+              agent.agentStats = agentStats.filter((entry) => entry.agentId === agent.id);
+            });
+          }
+        }
+        const length = response.meta.page.total_elements;
+        const nextLink = response.links.next;
+        const prevLink = response.links.prev;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
+
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
         this.setData(agents);
       });
   }
@@ -153,16 +170,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(agents);
         }
       });
@@ -189,7 +200,20 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
   }
 
   /**
-   * Set agent chunk parameters and convert to ch8unkdata
+   * Load related agent statistics for the last 24h
+   * @param requestParams
+   * @private
+   */
+  private async loadAgentStats(requestParams: IParamBuilder): Promise<JAgentStat[]> {
+    const response: ResponseWrapper = await firstValueFrom(
+      this.service.getAll(SERV.AGENTS_STATS, requestParams.create())
+    );
+    const responseBody = { data: response.data, included: response.included };
+    return this.serializer.deserialize<JAgentStat[]>(responseBody);
+  }
+
+  /**
+   * Set agent chunk parameters and convert to chunkdata
    * @param agent - current agent instance
    * @param chunks - current chunk collectioz
    * @param assignments - current agent assignments
