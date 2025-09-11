@@ -12,6 +12,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -93,7 +94,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '_id';
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
@@ -208,10 +209,14 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() linkClicked = new EventEmitter();
 
   /** Fetches user customizations */
+  @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
+
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
-
+  filterQueryFormGroup = new FormGroup({
+    textFilter: new FormControl('')
+  });
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
@@ -240,16 +245,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loading = false;
       });
     this.initFilterableColumns();
+    this.onFilterColumnChange();
   }
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
+    if (this.filterableColumns.length > 0) {
+      this.selectedFilterColumn = this.filterableColumns[0]?.dataKey;
+    }
   }
   // Handle filter column change
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
-    if (this.dataSource.filter) {
-      this.applyFilter();
-    }
   }
 
   ngAfterViewInit(): void {
@@ -437,19 +443,21 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Applies a filter to the table based on user input.
    */
-  applyFilter() {
+  /*   applyFilter() {
     if (this.filterFn) {
       this.dataSource.filterData(this.filterFn);
       this.uiSettings.updateTableSettings(this.name, {
         search: this.dataSource.filter
       });
     }
+  } */
+  emitFilterValue(): void {
+    this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
   }
-
   /**
    * Clears a filter to the table based on user input.
    */
-  clearFilter() {
+  /*   clearFilter() {
     // Reset the filter function to a default that passes all items
     const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
 
@@ -459,7 +467,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.uiSettings.updateTableSettings(this.name, {
       search: ''
     });
-  }
+  } */
 
   /**
    * Checks if a row is selected.
@@ -544,16 +552,20 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
+    this.filterQueryFormGroup.get('textFilter').setValue('');
   }
-
+  clearSearchBox(): void {
+    this.filterQueryFormGroup.get('textFilter').setValue('');
+  }
   /**
    * Handles the page change event, including changes in page size and page index.
    *
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
-    this.clearFilter();
-    let pageAfter = this.dataSource.pageAfter;
+    console.log('Page change event:', event);
+    /*     this.clearFilter();
+     */ let pageAfter = this.dataSource.pageAfter;
     let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
     if (index > this.dataSource.index) {
@@ -591,8 +603,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Update pagination configuration in the data source
     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-
+    /*     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
+     */
     // Reload data with updated pagination settings
     this.dataSource.reload();
   }

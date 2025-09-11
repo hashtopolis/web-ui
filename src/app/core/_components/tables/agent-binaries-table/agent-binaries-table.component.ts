@@ -21,6 +21,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AgentBinariesDataSource } from '@datasources/agent-binaries.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -31,7 +32,7 @@ import { environment } from '@src/environments/environment';
 export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   agentdownloadURL: string;
 
   ngOnInit(): void {
@@ -51,46 +52,24 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
       sub.unsubscribe();
     }
   }
-
-  filter(item: JAgentBinary, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.filename?.toLowerCase().includes(filterValue) ||
-          item.operatingSystems?.toLowerCase().includes(filterValue) ||
-          item.binaryType?.toLowerCase().includes(filterValue) ||
-          item.updateTrack?.toLowerCase().includes(filterValue) ||
-          item.version?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'filename': {
-        return item.filename?.toLowerCase().includes(filterValue);
-      }
-      case 'operatingSystems': {
-        return item.operatingSystems?.toLowerCase().includes(filterValue);
-      }
-      case 'type': {
-        return item.binaryType?.toLowerCase().includes(filterValue);
-      }
-      case 'updateTrack': {
-        return item.updateTrack?.toLowerCase().includes(filterValue);
-      }
-      case 'version': {
-        return item.version?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.filename?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
+
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -98,11 +77,12 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (agentBinary: JAgentBinary) => agentBinary.id,
         export: async (agentBinary: JAgentBinary) => agentBinary.id + ''
       },
       {
         id: AgentBinariesTableCol.TYPE,
-        dataKey: 'type',
+        dataKey: 'binaryType',
         isSortable: true,
         isSearchable: true,
         render: (agentBinary: JAgentBinary) => agentBinary.binaryType,

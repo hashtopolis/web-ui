@@ -6,14 +6,12 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-
-
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="!isFilterable"
   [isPageable]="true"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
   (emitCopyRowData)="receiveCopyData($event)"
   (emitFullHashModal)="showTruncatedData($event)"
+  (backendSqlFilter)="filter($event)"
 />

@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Observable, catchError, of } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -23,6 +22,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -33,7 +33,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class HealthChecksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: HealthChecksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(HealthChecksTableColumnLabel);
@@ -50,26 +50,21 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     }
   }
 
-  filter(item: JHealthCheck, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) || item.hashTypeDescription?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'hashtypeDescription': {
-        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.hashTypeDescription?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   getColumns(): HTTableColumn[] {
@@ -95,7 +90,6 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
         render: (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : '',
         isSortable: false,
-        isSearchable: true,
         export: async (healthCheck: JHealthCheck) =>
           healthCheck.hashType ? `Brute Force (${healthCheck.hashType.description})` : ''
       },

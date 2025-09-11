@@ -1,7 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -13,6 +13,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   private _taskId = 0;
   private _isChunksLive = 0;
+  private _currentFilter: Filter = null;
 
   setTaskId(taskId: number) {
     this._taskId = taskId;
@@ -22,23 +23,25 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
     this._isChunksLive = number;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     const chunktime = this.uiService.getUIsettings('chunktime').value;
     this.loading = true;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
 
-    const chunkParams = new RequestParamBuilder()
-      .addInitial(this)
-      .addInclude('task')
-      .addInclude('agent')
-      .addFilter({
-        field: 'taskId',
-        operator: FilterType.EQUAL,
-        value: this._taskId
-      })
-      .create();
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let chunkParams = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent').addFilter({
+      field: 'taskId',
+      operator: FilterType.EQUAL,
+      value: this._taskId
+    });
+    chunkParams = this.applyFilterWithPaginationReset(chunkParams, activeFilter, query);
 
     this.service
-      .getAll(SERV.CHUNKS, chunkParams)
+      .getAll(SERV.CHUNKS, chunkParams.create())
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
@@ -71,16 +74,10 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
         const length = response.meta.page.total_elements;
         const nextLink = response.links.next;
         const prevLink = response.links.prev;
-        const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-        const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-        this.setPaginationConfig(
-          this.pageSize,
-          length,
-          after,
-          before,
-          this.index
-        );
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
         this.setData(chunksToShow);
       });
   }
@@ -88,5 +85,10 @@ export class TasksChunksDataSource extends BaseDataSource<JChunk> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

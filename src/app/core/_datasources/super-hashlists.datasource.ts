@@ -1,30 +1,41 @@
+import { HashListFormat } from '@constants/hashlist.config';
 import { catchError, finalize, of } from 'rxjs';
 
-import { BaseDataSource } from './base.datasource';
-import { HashListFormat } from '../_constants/hashlist.config';
-import { JHashlist } from '../_models/hashlist.model';
-import { ResponseWrapper } from '../_models/response.model';
-import { FilterType } from '../_models/request-params.model';
-import { SERV } from '../_services/main.config';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
+import { JHashlist } from '@models/hashlist.model';
+import { Filter, FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
-
+  private _currentFilter: Filter = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
   }
-
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
-    const params = new RequestParamBuilder().addInitial(this).addInclude('hashType').addInclude('hashlists').addFilter({
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+
+    let params = new RequestParamBuilder().addInitial(this).addInclude('hashType').addInclude('hashlists').addFilter({
       field: 'format',
       operator: FilterType.EQUAL,
       value: HashListFormat.SUPERHASHLIST
-    }).create();
+    });
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params);
+    const hashLists$ = this.service.getAll(SERV.HASHLISTS, params.create());
 
     this.subscriptions.push(
       hashLists$
@@ -47,16 +58,10 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(rows);
         })
     );
@@ -65,5 +70,10 @@ export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

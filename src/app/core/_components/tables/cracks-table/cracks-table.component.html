@@ -6,10 +6,7 @@
   [dataSource]="dataSource"
   [tableColumns]="tableColumns"
   [isSelectable]="true"
-
-
-  [isFilterable]="true"
-  [filterFn]="filter.bind(this)"
+  [isFilterable]="isFilterable"
   [isPageable]="true"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
@@ -17,4 +14,5 @@
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
   (emitCopyRowData)="receiveCopyData($event)"
   (emitFullHashModal)="showTruncatedData($event)"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
 />

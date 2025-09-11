@@ -4,15 +4,19 @@
  */
 
 import { catchError, finalize, of } from 'rxjs';
-import { FileType, JFile } from '../_models/file.model';
-import { BaseDataSource } from './base.datasource';
-import { ResponseWrapper } from '../_models/response.model';
-import { JsonAPISerializer } from '../_services/api/serializer-service';
-import { SERV } from '../_services/main.config';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { JTask } from '@models/task.model';
+
+import { FileType, JFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+
+import { BaseDataSource } from '@datasources/base.datasource';
+
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 /**
  * Data source class definition for files
@@ -21,7 +25,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   private fileType: FileType = 0;
   private editIndex?: number;
   private editType?: number;
-
+  private _currentFilter: Filter = null;
   /**
    * Set file type
    * @param fileType
@@ -43,11 +47,10 @@ export class FilesDataSource extends BaseDataSource<JFile> {
     this.editIndex = index;
     this.editType = editType;
   }
-
   /**
    * Load all files from server
    */
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     let files$;
@@ -61,13 +64,18 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         files$ = this.service.get(SERV.PRETASKS, this.editIndex, paramsBuilder.addInclude('pretaskFiles').create());
       }
     } else {
-      const params = paramsBuilder
+      let params = paramsBuilder
         .addInitial(this)
         .addInclude('accessGroup')
-        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType })
-        .create();
+        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType });
+      if (query) {
+        this._currentFilter = query;
+      }
 
-      files$ = this.service.getAll(SERV.FILES, params);
+      // Use stored filter if no new filter is provided
+      const activeFilter = query || this._currentFilter;
+      params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+      files$ = this.service.getAll(SERV.FILES, params.create());
     }
 
     this.subscriptions.push(
@@ -91,16 +99,10 @@ export class FilesDataSource extends BaseDataSource<JFile> {
             if (!this.editType) {
               const nextLink = response.links.next;
               const prevLink = response.links.prev;
-              const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-              const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+              const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+              const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-              this.setPaginationConfig(
-                this.pageSize,
-                length,
-                after,
-                before,
-                this.index
-              );
+              this.setPaginationConfig(this.pageSize, length, after, before, this.index);
             }
 
             this.setData(pretask.pretaskFiles);
@@ -111,17 +113,11 @@ export class FilesDataSource extends BaseDataSource<JFile> {
 
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
-            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
             const length = response.meta.page.total_elements;
 
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              after,
-              before,
-              this.index
-              );
+            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
             this.setData(files);
           }
         })
@@ -131,5 +127,10 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

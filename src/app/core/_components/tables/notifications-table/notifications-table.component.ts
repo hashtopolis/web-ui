@@ -22,6 +22,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { NotificationsDataSource } from '@datasources/notifications.datasource';
 
 import { ACTION } from '@src/app/core/_constants/notifications.config';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-notifications-table',
@@ -31,7 +32,7 @@ import { ACTION } from '@src/app/core/_constants/notifications.config';
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: NotificationsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(NotificationsTableColumnLabel);
@@ -48,35 +49,21 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
     }
   }
 
-  filter(item: JNotification, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.notification?.toLowerCase().includes(filterValue) ||
-          item.action?.toLowerCase().includes(filterValue) ||
-          item.receiver?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'action': {
-        return item.action?.toLowerCase().includes(filterValue);
-      }
-      case 'receiver': {
-        return item.receiver?.toLowerCase().includes(filterValue);
-      }
-      case 'notification': {
-        return item.notification?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.notification?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 
@@ -87,6 +74,7 @@ export class NotificationsTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (notification: JNotification) => notification.id,
         export: async (notification: JNotification) => notification.id + ''
       },
       {

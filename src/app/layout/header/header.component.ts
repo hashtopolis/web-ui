@@ -1,4 +1,4 @@
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 
@@ -13,6 +13,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 
 import { Perm } from '@src/app/core/_constants/userpermissions.config';
+import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
 import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
 import { MainMenuItem } from '@src/app/layout/header/header.model';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
@@ -39,12 +40,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   headerConfig = environment.config.header;
   mainMenu: MainMenuItem[] = [];
-
+  private destroy$ = new Subject<void>();
   constructor(
     private authService: AuthService,
     private storage: LocalStorageService<UIConfig>,
     private themes: ThemeService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private easterEggService: EasterEggService
   ) {
     this.isAuth();
     this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
@@ -73,6 +75,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.themeSub = this.themes.theme$.subscribe((theme) => {
       this.isDarkMode = theme === 'dark';
     });
+    // Listen for Konami code
+    this.easterEggService
+      .onKonamiCodeDetected()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.activateSecretFeature();
+      });
   }
 
   ngOnDestroy(): void {
@@ -83,6 +92,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.themeSub) {
       this.themeSub.unsubscribe();
     }
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  easterEggFlag: boolean = false;
+  private activateSecretFeature(): void {
+    // Add your secret feature here
+    if (this.easterEggFlag) {
+      alert('Blue eyes activated! #️⃣2️⃣💅');
+    } else {
+      alert('Red eyes activated! #️⃣2️⃣😻');
+    }
+    // Example: Enable a hidden feature, change theme, etc.
+    this.easterEggFlag = !this.easterEggFlag;
   }
 
   toggleTheme() {
@@ -91,7 +113,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
-  menuItemClicked(event: ActionMenuEvent<any>): void {
+  menuItemClicked(event: ActionMenuEvent<unknown>): void {
     if (event.menuItem.action === HeaderMenuAction.LOGOUT) {
       this.authService.logOut();
       this.rebuildMenu();

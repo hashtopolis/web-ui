@@ -1,37 +1,46 @@
 import { firstValueFrom } from 'rxjs';
 
 import { JPretask } from '@models/pretask.model';
-import { FilterType, RequestParams } from '@models/request-params.model';
+import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { IParamBuilder } from '@services/params/builder-types.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
 export class PreTasksDataSource extends BaseDataSource<JPretask> {
   private _superTaskId = 0;
+  private _currentFilter: Filter = null;
 
   setSuperTaskId(superTaskId: number): void {
     this._superTaskId = superTaskId;
   }
-
-  async loadAll(): Promise<void> {
+  async loadAll(query?: Filter): Promise<void> {
     this.loading = true;
+
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
 
     try {
       if (this._superTaskId === 0) {
-        const params = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles').create();
-
-        const pretasks = await this.loadPretasks(params);
+        let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretaskFiles');
+        params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+        const pretasks = await this.loadPretasks(params.create());
         this.setData(pretasks);
       } else {
-        const params = new RequestParamBuilder().addInitial(this).addInclude('pretasks').create();
+        let params: IParamBuilder = new RequestParamBuilder().addInitial(this).addInclude('pretasks');
+        params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
-        const supertask = await this.loadSupertask(this._superTaskId, params);
+        const supertask = await this.loadSupertask(this._superTaskId, params.create());
         const superTaskPreTaskIds = supertask.pretasks.map((p) => p.id);
-
         const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds);
         this.setData(pretaskFiles);
       }
@@ -46,16 +55,10 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
     const length = response.meta.page.total_elements;
     const nextLink = response.links.next;
     const prevLink = response.links.prev;
-    const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-    const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+    const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+    const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-    this.setPaginationConfig(
-      this.pageSize,
-      length,
-      after,
-      before,
-      this.index
-    );
+    this.setPaginationConfig(this.pageSize, length, after, before, this.index);
     const responseData = { data: response.data, included: response.included };
     return this.serializer.deserialize<JPretask[]>(responseData);
   }
@@ -74,7 +77,6 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
         .addInclude('pretaskFiles')
         .addFilter({ field: 'pretaskId', operator: FilterType.IN, value: pretaskIds })
         .create();
-
       const response = await firstValueFrom<ResponseWrapper>(this.service.getAll(SERV.PRETASKS, paramsPretaskFiles));
       const responseData = { data: response.data, included: response.included };
       return this.serializer.deserialize<JPretask[]>(responseData);
@@ -84,6 +86,12 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
   reload(): void {
     this.clearSelection();
-    void this.loadAll();
+    this.loadAll(); // This will use the stored filter
+  }
+
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

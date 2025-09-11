@@ -1,7 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHashlist } from '@models/hashlist.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { SERV } from '@services/main.config';
@@ -14,7 +14,7 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private superHashListID = 0;
-
+  private _currentFilter: Filter = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
   }
@@ -22,15 +22,21 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   setSuperHashListID(superHashListID: number): void {
     this.superHashListID = superHashListID;
   }
-
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
 
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
     if (this.superHashListID) {
-      const params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType').create();
+      let params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType');
+      params = this.applyFilterWithPaginationReset(params, activeFilter, query);
       this.subscriptions.push(
         this.service
-          .get(SERV.HASHLISTS, this.superHashListID, params)
+          .get(SERV.HASHLISTS, this.superHashListID, params.create())
           .pipe(
             catchError(() => of([])),
             finalize(() => (this.loading = false))
@@ -45,16 +51,10 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
-            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              after,
-              before,
-              this.index
-            );
+            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           })
       );
     } else {
@@ -67,12 +67,14 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
           operator: FilterType.EQUAL,
           value: this.isArchived
         })
-        .addFilter({ field: 'format', operator: FilterType.NOTIN, value: [HashListFormat.SUPERHASHLIST] })
-        .create();
+        .addFilter({ field: 'format', operator: FilterType.NOTIN, value: [HashListFormat.SUPERHASHLIST] });
+      if (query) {
+        params.addFilter(query);
+      }
 
       this.subscriptions.push(
         this.service
-          .getAll(SERV.HASHLISTS, params)
+          .getAll(SERV.HASHLISTS, params.create())
           .pipe(
             catchError(() => of([])),
             finalize(() => (this.loading = false))
@@ -88,16 +90,10 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             const length = response.meta.page.total_elements;
             const nextLink = response.links.next;
             const prevLink = response.links.prev;
-            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+            const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+            const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              after,
-              before,
-              this.index
-            );
+            this.setPaginationConfig(this.pageSize, length, after, before, this.index);
             this.setData(hashlists);
           })
       );
@@ -107,5 +103,10 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

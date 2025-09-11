@@ -7,7 +7,7 @@ import { catchError, finalize, firstValueFrom, of } from 'rxjs';
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
 import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JUser } from '@models/user.model';
 
@@ -23,23 +23,31 @@ import { ChunkState, chunkStates } from '@src/app/core/_constants/chunks.config'
 export class AgentsDataSource extends BaseDataSource<JAgent> {
   private chunktime = this.uiService.getUIsettings('chunktime').value;
   private _taskId = 0;
+  private _currentFilter: Filter = null;
 
   setTaskId(taskId: number): void {
     this._taskId = taskId;
   }
-
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
+
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
     const agentParams = new RequestParamBuilder()
       .addInitial(this)
       .addInclude('accessGroups')
       .addInclude('tasks')
       .addInclude('assignments')
-      .addInclude('agentStats')
-      .create();
+      .addInclude('agentStats');
+    // If this is a filter query
+    this.applyFilterWithPaginationReset(agentParams, activeFilter, query);
 
     this.service
-      .getAll(SERV.AGENTS, agentParams)
+      .getAll(SERV.AGENTS, agentParams.create())
       .pipe(
         catchError(() => of([])),
         finalize(() => (this.loading = false))
@@ -78,19 +86,13 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
             }
           });
         }
-          const length = response.meta.page.total_elements;
-          const nextLink = response.links.next;
-          const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+        const length = response.meta.page.total_elements;
+        const nextLink = response.links.next;
+        const prevLink = response.links.prev;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
         this.setData(agents);
       });
   }
@@ -153,16 +155,10 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(agents);
         }
       });
@@ -176,7 +172,11 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
       this.loadAll();
     }
   }
-
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
+  }
   /**
    * Load related running chunks for all agents and convert them to ChunkData objects
    * @param requestParams

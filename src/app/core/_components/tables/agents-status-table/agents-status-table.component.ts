@@ -20,6 +20,7 @@ import { TableDialogComponent } from '@src/app/core/_components/tables/table-dia
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { JAgent } from '@src/app/core/_models/agent.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
@@ -41,7 +42,7 @@ export class STATCALCULATION {
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -63,39 +64,28 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       this.dataSource.setAutoreload(false);
     }
   }
-
-  filter(item: JAgent, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id?.toString().includes(filterValue) ||
-          item.agentName?.toLowerCase().includes(filterValue) ||
-          item.taskName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id?.toString().toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-      case 'taskName': {
-        return item.taskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.agentName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AgentsStatusTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'agentId',
         isSortable: true,
         isSearchable: true,
         render: (agent: JAgent) => agent.id,

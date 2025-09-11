@@ -7,11 +7,9 @@
   [columnLabels]="columnLabels"
   [contextMenuService]="contextMenuService"
   [dataSource]="dataSource"
-  [filterFn]="filter.bind(this)"
-
-
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
   [isArchived]="isArchived"
-  [isFilterable]="true"
+  [isFilterable]="isFilterable"
   [isPageable]="true"
   [isSelectable]="true"
   [tableColumns]="tableColumns"
