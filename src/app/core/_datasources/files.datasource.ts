@@ -5,17 +5,17 @@
 
 import { catchError, finalize, of } from 'rxjs';
 
+import { FileType, JFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
+import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
-import { BaseDataSource } from '@datasources/base.datasource';
-import { FileType, JFile } from '@models/file.model';
-import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
-import { FilterType } from '@src/app/core/_models/request-params.model';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { BaseDataSource } from '@datasources/base.datasource';
 
 /**
  * Data source class definition for files
