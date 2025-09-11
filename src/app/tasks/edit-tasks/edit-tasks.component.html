@@ -76,7 +76,7 @@
 
 
         <simulate-form-field *ngIf="currenspeed !== 0; else templatespeed" label="Speed"
-          message="{{ currenspeed | fileSize: false }}H/s"></simulate-form-field>
+          message="{{ currenspeed | hashRate }}"></simulate-form-field>
         <ng-template #templatespeed>
           <simulate-form-field label="Speed" message="---"></simulate-form-field>
         </ng-template>
