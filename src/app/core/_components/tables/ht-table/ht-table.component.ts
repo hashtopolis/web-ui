@@ -5,7 +5,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
@@ -212,7 +211,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
-  @ViewChild('htTable', { static: false }) tableEl: ElementRef;
 
   constructor(
     public dialog: MatDialog,

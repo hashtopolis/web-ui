@@ -1,7 +1,7 @@
-import { BehaviorSubject, Observable, Subscription, interval } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 
 import { CollectionViewer, DataSource, SelectionModel } from '@angular/cdk/collections';
-import { ChangeDetectorRef, Injectable, Injector, inject } from '@angular/core';
+import { ChangeDetectorRef, Injectable, Injector } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
@@ -18,8 +18,8 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { environment } from '@src/environments/environment';
 import { formatDate } from '@src/app/shared/utils/datetime';
+import { environment } from '@src/environments/environment';
 
 /**
  * BaseDataSource is an abstract class for implementing data sources

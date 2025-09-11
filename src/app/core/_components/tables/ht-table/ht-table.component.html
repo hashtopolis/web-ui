@@ -151,8 +151,9 @@
       </td>
     </ng-container>
 
-    <ng-container *ngFor="let tableColumn of tableColumns; let first = first" [matColumnDef]="tableColumn.id + ''">
-      <!-- if sortable column header -->
+    <ng-container *ngFor="let tableColumn of tableColumns" [matColumnDef]="tableColumn.id + ''">
+
+    <!-- if sortable column header -->
       <ng-container *ngIf="tableColumn.isSortable; else notSortable">
         <th (click)="onColumnHeaderClick(tableColumn)" *matHeaderCellDef [mat-sort-header]="tableColumn.id + ''"
             mat-header-cell>
@@ -224,6 +225,7 @@
       </td>
     </ng-container>
     <tr *matHeaderRowDef="displayedColumns; sticky: true" mat-header-row></tr>
+    <!-- noinspection JSUnusedLocalSymbols -->
     <tr *matRowDef="let row; columns: displayedColumns" mat-row></tr>
     <tr *matNoDataRow class="mat-row">
       <td [attr.colspan]="displayedColumns.length" class="mat-cell no-data">
