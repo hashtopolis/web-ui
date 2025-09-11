@@ -48,7 +48,8 @@ export class HashesDataSource extends BaseDataSource<JHash> {
             const paramsHashlist = new RequestParamBuilder()
               .addInitial(this)
               .addInclude('hashlist')
-              .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId });
+              .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId })
+              .addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: true });
 
             const hashlistService = this.service.getAll(SERV.HASHES, paramsHashlist.create());
 
