@@ -8,11 +8,11 @@ import { catchError, finalize, of } from 'rxjs';
 import { JPretask } from '@models/pretask.model';
 import { JTask } from '@models/task.model';
 
-import { BaseDataSource } from '/app/src/app/core/_datasources/base.datasource';
-import { FileType, JFile } from '/app/src/app/core/_models/file.model';
-import { ResponseWrapper } from '/app/src/app/core/_models/response.model';
-import { JsonAPISerializer } from '/app/src/app/core/_services/api/serializer-service';
-import { SERV } from '/app/src/app/core/_services/main.config';
+import { BaseDataSource } from '@datasources/base.datasource';
+import { FileType, JFile } from '@models/file.model';
+import { ResponseWrapper } from '@models/response.model';
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
