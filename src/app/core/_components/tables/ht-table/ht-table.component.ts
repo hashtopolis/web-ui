@@ -374,7 +374,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const filteredObject: { [key: string]: string } = {};
 
     for (const attribute of include) {
-      if (original.hasOwnProperty(attribute)) {
+      if (Object.prototype.hasOwnProperty.call(original, attribute)) {
         filteredObject[attribute] = original[attribute];
       }
     }
@@ -453,7 +453,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   clearFilter() {
     // Reset the filter function to a default that passes all items
-    const defaultFilterFn = (item: any, filterValue: '') => true;
+    const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
+
     // Reapply the default filter function
     this.dataSource.filterData(defaultFilterFn);
     this.dataSource.filter = '';
@@ -542,7 +543,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   reload(): void {
     this.dataSource.reset(true);
     this.dataSource.reload();
-    this.flashTable();
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
@@ -605,15 +605,5 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   editableCheckboxSaved(editable: any): void {
     this.editableCheckbox.emit(editable);
-  }
-
-  private flashTable(): void {
-    if (!this.tableEl) return;
-    const rows = this.tableEl.nativeElement.querySelectorAll('tr');
-    rows.forEach((row: HTMLElement) => {
-      row.classList.remove('flash');
-      void row.offsetWidth; // force reflow
-      row.classList.add('flash');
-    });
   }
 }
