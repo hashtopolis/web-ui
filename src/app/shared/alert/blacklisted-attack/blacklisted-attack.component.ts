@@ -8,7 +8,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
   standalone: false
 })
 export class BlacklistAttackComponent implements OnChanges {
-  @Input() value: any;
+  @Input() value: string;
 
   hasErrors = false;
   blacklistedChars: string[] = [];
