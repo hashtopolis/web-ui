@@ -453,11 +453,6 @@ export class NewTasksComponent implements OnInit, OnDestroy {
 
   // Modal Information
   openHelpDialog(): void {
-    const dialogRef = this.dialog.open(CheatsheetComponent, {
-      width: '100%'
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog closed with result:', result);
-    });
+    this.dialog.open(CheatsheetComponent, { width: '100%' });
   }
 }

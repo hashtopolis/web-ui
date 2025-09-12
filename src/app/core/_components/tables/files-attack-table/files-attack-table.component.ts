@@ -101,7 +101,6 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   onCheckboxChanged(event: CheckboxChangeEvent): void {
     // Handle the checkbox change event
     this.cdr.detectChanges();
-    console.log(this.formData);
     const transformed = this.onPrepareAttack(this.formData, event);
     // Pass the event data to another component
     this.updateFormEvent.emit(transformed);

@@ -44,7 +44,6 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-    console.log(this.dataSource);
   }
 
   getColumns(): HTTableColumn[] {
