@@ -14,7 +14,7 @@ import { ValidationPatterns } from '@services/main.config';
  * @prop skipCommand          Flag for skip options
  * @prop limitCommand         Flag for limit options
  */
-export interface NewPreprocessorForm {
+export interface NewEditPreprocessorForm {
   name: FormControl<string>;
   binaryName: FormControl<string>;
   url: FormControl<string>;
@@ -27,8 +27,8 @@ export interface NewPreprocessorForm {
  * Get empty instance of NewPreprocessorForm
  * @return Form group of NewPreprocessorForm
  */
-export const getNewPreprocessorForm = () => {
-  return new FormGroup<NewPreprocessorForm>({
+export const getNewEditPreprocessorForm = () => {
+  return new FormGroup<NewEditPreprocessorForm>({
     name: new FormControl('', [Validators.required]),
     binaryName: new FormControl('', [Validators.required]),
     url: new FormControl('', [Validators.required, Validators.pattern(ValidationPatterns.URL)]),

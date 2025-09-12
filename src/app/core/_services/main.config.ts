@@ -98,5 +98,5 @@ export enum RelationshipType {
  * Validation patterns for form validation
  */
 export class ValidationPatterns {
-  public static URL = "^(https?:\\/\\/)([\\w\\-]+\\.)+[\\w\\-]+(:\\d{1,5})?(\\/[\\w\\-._~:/?#[\\]@!$&'()*+,;=]*)?$";
+  public static URL = '^https?://.+$';
 }
