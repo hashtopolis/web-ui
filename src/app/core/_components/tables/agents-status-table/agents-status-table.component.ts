@@ -1,5 +1,8 @@
+import { cursorTo } from 'node:readline';
+
 import { catchError, forkJoin } from 'rxjs';
 
+import { formatCurrency } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -445,13 +448,9 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:
-          return Math.round(
-            stat.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / stat.length
-          );
+          return Math.round(stat.map((element) => element.value[0]).reduce((a, b) => a + b) / stat.length);
         case 2:
-          return Math.round(stat.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]);
-        default:
-          return 0; // Provide a default value for unhandled cases
+          return Math.round(stat.map((element) => element.value[0]).reduce((a, b) => Math.max(a, b)));
       }
     }
     return 0;
