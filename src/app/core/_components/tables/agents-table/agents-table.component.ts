@@ -282,7 +282,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderOwner(agent: JAgent): SafeHtml {
-    console.log(agent);
     if (agent.user) {
       return this.sanitize(agent.user.name);
     }

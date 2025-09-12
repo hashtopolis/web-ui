@@ -266,7 +266,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    console.log('bulk CLICK');
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
