@@ -1,8 +1,5 @@
-import { cursorTo } from 'node:readline';
-
 import { catchError, forkJoin } from 'rxjs';
 
-import { formatCurrency } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
