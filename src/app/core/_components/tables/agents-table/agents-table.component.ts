@@ -75,6 +75,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.dataSource.setAgentStatsRequired(false);
+
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
@@ -100,7 +102,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns: HTTableColumn[] = [
+    return [
       {
         id: AgentsTableCol.ID,
         dataKey: 'agentId',
@@ -189,8 +191,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => agent.accessGroup
       }
     ];
-
-    return tableColumns;
   }
 
   editableSaved(editable: HTTableEditable<JAgent>): void {
@@ -282,7 +282,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderOwner(agent: JAgent): SafeHtml {
-    console.log(agent);
     if (agent.user) {
       return this.sanitize(agent.user.name);
     }

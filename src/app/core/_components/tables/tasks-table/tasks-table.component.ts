@@ -108,7 +108,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
         },
         render: (wrapper: JTaskWrapper) => {
-          console.log('Rendering task wrapper ID:', wrapper);
           return wrapper.taskType === TaskType.TASK ? wrapper.tasks[0]?.id + '' : '';
         }
       },

@@ -9,8 +9,6 @@ import { AuthService } from '@services/access/auth.service';
   providedIn: 'root'
 })
 class AuthGuard {
-  isAuthenticated: boolean;
-
   constructor(
     private authService: AuthService,
     private router: Router
@@ -20,7 +18,6 @@ class AuthGuard {
     return this.authService.user.pipe(
       take(1),
       map((user) => {
-        console.log(user);
         const isAuth = !!user;
         if (isAuth) {
           return true;

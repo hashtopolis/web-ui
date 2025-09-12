@@ -55,6 +55,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
     const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
@@ -265,7 +266,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    console.log('bulk CLICK');
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -440,18 +440,13 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(data);
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
-    const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
-    const stat = tempDateFilter.filter((u) => u.statType == statType);
+    const stat = agent.agentStats.filter((u) => u.statType == statType);
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:
-          return Math.round(
-            stat.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / stat.length
-          );
+          return Math.round(stat.map((element) => element.value[0]).reduce((a, b) => a + b) / stat.length);
         case 2:
-          return Math.round(stat.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]);
-        default:
-          return 0; // Provide a default value for unhandled cases
+          return Math.round(stat.map((element) => element.value[0]).reduce((a, b) => Math.max(a, b)));
       }
     }
     return 0;
