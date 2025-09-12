@@ -55,6 +55,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
     const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
@@ -440,8 +441,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(data);
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
-    const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
-    const stat = tempDateFilter.filter((u) => u.statType == statType);
+    const stat = agent.agentStats.filter((u) => u.statType == statType);
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:
