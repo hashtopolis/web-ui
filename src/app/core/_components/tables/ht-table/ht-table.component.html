@@ -222,6 +222,11 @@
         [class.text-right]="tableColumn.position === 'right'"
       >
         <div class="flex-container" [class.links]="tableColumn.routerLink" [class.icons]="tableColumn.icon">
+          @if (tableColumn.isCopy) {
+            <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          }
           <ng-container *ngIf="tableColumn.truncate">
             <table-truncate [path]="tableColumn.dataKey" [text]="element"></table-truncate>
           </ng-container>
@@ -236,11 +241,7 @@
                 <mat-icon>visibility</mat-icon>
               </button>
             }
-            @if (tableColumn.isCopy) {
-              <button (click)="copyRowDataEmit(element)" mat-icon-button color="primary" aria-label="Copy button">
-                <mat-icon>content_copy</mat-icon>
-              </button>
-            }
+
           </span>
           <ng-container *ngIf="!tableColumn.truncate">
             <app-ht-table-link
