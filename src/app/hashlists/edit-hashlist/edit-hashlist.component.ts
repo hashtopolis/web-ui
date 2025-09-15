@@ -289,12 +289,8 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
     const hasUnsavedChanges = this.updateForm.dirty;
 
     if (hasUnsavedChanges) {
-      console.log('EditTasksComponent - Setting unsaved changes to true');
       this.unsavedChangesService.setUnsavedChanges(true);
-    } else {
-      console.log('EditTasksComponent - No unsaved changes');
     }
-
     return !hasUnsavedChanges;
   }
 }

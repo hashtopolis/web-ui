@@ -1,13 +1,14 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { UIConfigService } from 'src/app/core/_services/shared/storage.service';
 
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+
 @Component({
-    selector: 'blacklist-attack',
-    templateUrl: './blacklisted-attack.component.html',
-    standalone: false
+  selector: 'blacklist-attack',
+  templateUrl: './blacklisted-attack.component.html',
+  standalone: false
 })
 export class BlacklistAttackComponent implements OnChanges {
-  @Input() value: any;
+  @Input() value: string;
 
   hasErrors = false;
   blacklistedChars: string[] = [];
@@ -26,10 +27,7 @@ export class BlacklistAttackComponent implements OnChanges {
    * @returns {RegExp} A regular expression for matching blacklisted characters.
    */
   getBanChars() {
-    const chars = this.uiService
-      .getUIsettings('blacklistChars')
-      .value.replace(']', '\\]')
-      .replace('[', '\\[');
+    const chars = this.uiService.getUIsettings('blacklistChars').value.replace(']', '\\]').replace('[', '\\[');
     return new RegExp('[' + chars + '/]', 'g');
   }
 
@@ -53,7 +51,6 @@ export class BlacklistAttackComponent implements OnChanges {
       const matches = inputValue.match(banCharsRegex) as string[];
       if (matches) {
         this.blacklistedChars = [...new Set(matches)]; // Remove duplicates
-        console.log('Blacklisted characters:', this.blacklistedChars);
       }
     } else {
       // No ban characters

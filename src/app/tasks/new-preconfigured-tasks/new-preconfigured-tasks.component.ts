@@ -123,7 +123,6 @@ export class NewPreconfiguredTasksComponent implements OnInit, OnDestroy {
   }
 
   onUpdateForm(event: TaskSelectFile): void {
-    console.log('onUpdateForm', event);
     this.createForm.patchValue({
       attackCmd: event.attackCmd,
       files: event.files

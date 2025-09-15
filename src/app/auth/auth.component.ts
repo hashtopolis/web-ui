@@ -115,7 +115,6 @@ export class AuthComponent implements OnInit, OnDestroy {
    */
   private handleError(errorMessage: string): void {
     this.errorRes = errorMessage;
-    console.log(this.errorRes);
     this.alertService.showErrorMessage(errorMessage);
   }
 }

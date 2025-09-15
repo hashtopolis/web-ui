@@ -390,7 +390,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     try {
       val = parseInt(priority);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
 
     if (!val || pretask.priority == val) {
@@ -422,7 +422,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     try {
       val = parseInt(max);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
 
     if (!val || pretask.maxAgents == val) {

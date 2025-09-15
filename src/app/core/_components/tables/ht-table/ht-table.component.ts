@@ -563,7 +563,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
-    console.log('Page change event:', event);
     /*     this.clearFilter();
      */ let pageAfter = this.dataSource.pageAfter;
     let pageBefore = this.dataSource.pageBefore;
