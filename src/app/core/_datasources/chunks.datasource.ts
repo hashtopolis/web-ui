@@ -1,7 +1,7 @@
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { SERV } from '@services/main.config';
@@ -11,19 +11,29 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
+  private _currentFilter: Filter = null;
 
   setAgentId(agentId: number): void {
     this._agentId = agentId;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
+    // Store the current filter if provided
+    if (query) {
+      this._currentFilter = query;
+    }
 
-    const params = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent');
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('task').addInclude('agent');
     if (this._agentId) {
       params.addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: this._agentId });
     }
-
+    /*     if (query) {
+      params.addFilter(query);
+    } */
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
     const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());
 
     forkJoin([chunks$])
@@ -47,16 +57,10 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
         const length = response.meta.page.total_elements;
         const nextLink = response.links.next;
         const prevLink = response.links.prev;
-        const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-        const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
+        const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+        const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-        this.setPaginationConfig(
-          this.pageSize,
-          length,
-          after,
-          before,
-          this.index
-        );
+        this.setPaginationConfig(this.pageSize, length, after, before, this.index);
         this.setData(assignedChunks);
       });
   }
@@ -64,5 +68,10 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

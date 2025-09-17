@@ -21,6 +21,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+
 @Component({
   selector: 'app-preprocessors-table',
   templateUrl: './preprocessors-table.component.html',
@@ -29,7 +31,7 @@ import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PreprocessorsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(PreprocessorsTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -45,26 +47,24 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
     }
   }
 
-  filter(item: JPreprocessor, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
+
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -72,6 +72,7 @@ export class PreprocessorsTableComponent extends BaseTableComponent implements O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (preprocessor: JPreprocessor) => preprocessor.id,
         export: async (preprocessor: JPreprocessor) => preprocessor.id + ''
       },
       {

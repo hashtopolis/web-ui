@@ -21,6 +21,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+
 @Component({
   selector: 'app-access-groups-table',
   templateUrl: './access-groups-table.component.html',
@@ -29,7 +31,7 @@ import { AccessGroupsDataSource } from '@datasources/access-groups.datasource';
 export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(AccessGroupsTableColumnLabel);
@@ -46,24 +48,21 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
     }
   }
 
-  filter(item: JAccessGroup, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.groupName?.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'groupName': {
-        return item.groupName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.groupName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   getColumns(): HTTableColumn[] {
@@ -73,6 +72,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (accessGroup: JAccessGroup) => accessGroup.id,
         export: async (accessGroup: JAccessGroup) => accessGroup.id + ''
       },
       {

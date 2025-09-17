@@ -22,6 +22,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
 import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'app-hashlists-table',
@@ -32,7 +33,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
@@ -53,39 +54,21 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     }
   }
 
-  filter(item: JHashlist, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.name?.toLowerCase().includes(filterValue) ||
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'hashTypeDescription': {
-        return (
-          item.hashTypeDescription.toLowerCase().includes(filterValue) ||
-          (item.hashTypeId.toString().toLowerCase() + '-' + item.hashTypeDescription.toString().toLowerCase()).includes(
-            filterValue
-          )
-        );
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 
@@ -96,6 +79,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (hashlist: JHashlist) => hashlist.id,
         export: async (hashlist: JHashlist) => hashlist.id + ''
       },
       {
@@ -133,7 +117,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (!this.shashlistId) {
       tableColumns.push({
         id: HashlistsTableCol.HASHTYPE,
-        dataKey: 'hashTypeDescription',
+        dataKey: 'hashTypeId',
         isSearchable: true,
         isSortable: false,
         render: (hashlist: JHashlist) => hashlist.hashTypeId + ' - ' + hashlist.hashTypeDescription,

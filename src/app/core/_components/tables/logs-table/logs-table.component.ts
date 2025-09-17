@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
@@ -10,6 +9,9 @@ import { BaseTableComponent } from '@components/tables/base-table/base-table.com
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+/* eslint-disable @angular-eslint/component-selector */
+
 @Component({
   selector: 'logs-table',
   templateUrl: './logs-table.component.html',
@@ -18,7 +20,7 @@ import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-tabl
 export class LogsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: LogsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(LogsTableColumnLabel);
@@ -33,42 +35,21 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
       sub.unsubscribe();
     }
   }
-
-  filter(item: JLog, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.issuer.toLowerCase().includes(filterValue) ||
-          item.issuerId.toString().includes(filterValue) ||
-          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue) ||
-          item.level.toLowerCase().includes(filterValue) ||
-          item.message.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'issuer': {
-        return (
-          item.issuer.toLowerCase().includes(filterValue) ||
-          item.issuerId.toString().includes(filterValue) ||
-          (item.issuer + '-ID-' + item.issuerId.toString()).toLowerCase().includes(filterValue)
-        );
-      }
-      case 'level': {
-        return item.level.toLowerCase().includes(filterValue);
-      }
-      case 'message': {
-        return item.message.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.message?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 
@@ -79,6 +60,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (log: JLog) => log.id,
         export: async (log: JLog) => log.id + ''
       },
       {
@@ -98,7 +80,7 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
       },
       {
         id: LogsTableCol.ISSUER,
-        dataKey: 'issuer',
+        dataKey: 'issuerId',
         isSortable: true,
         isSearchable: true,
         render: (log: JLog) => `${log.issuer}-ID-${log.issuerId}`,

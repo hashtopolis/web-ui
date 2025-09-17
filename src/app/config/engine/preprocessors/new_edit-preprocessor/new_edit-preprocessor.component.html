@@ -1,7 +1,7 @@
 <grid-main>
-  <app-page-subtitle [subtitle]="'New Preprocessor'"></app-page-subtitle>
+  <app-page-subtitle [subtitle]="pageTitle"></app-page-subtitle>
 
-  <form [formGroup]="newPreprocessorForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
+  <form [formGroup]="newEditPreprocessorForm" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
     <div fxLayout="column" fxLayoutGap="16px">
       <input-text width="500px" title="Name" formControlName="name" [isRequired]="true"></input-text>
       <input-text width="500px" title="Binary Basename" formControlName="binaryName" [isRequired]="true"></input-text>
@@ -16,11 +16,11 @@
 
     <grid-buttons>
       <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
-      <button-submit data-testid="submit-button-newPreprocessor" [name]="'Create'" [disabled]="!newPreprocessorForm.valid"
+      <button-submit data-testid="submit-button-newPreprocessor" [name]="submitButtonText" [disabled]="!newEditPreprocessorForm.valid"
       ></button-submit>
     </grid-buttons>
 
-    <span *ngIf="newPreprocessorForm.invalid && newPreprocessorForm.touched" class="help-block"
+    <span *ngIf="newEditPreprocessorForm.invalid && newEditPreprocessorForm.touched" class="help-block"
     >Please complete all required fields!</span>
   </form>
 

@@ -21,6 +21,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 
 @Component({
@@ -31,7 +32,7 @@ import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks
 export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: SuperTasksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
@@ -47,34 +48,31 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       sub.unsubscribe();
     }
   }
-
-  filter(item: JSuperTask, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.supertaskName.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'supertaskName': {
-        return item.supertaskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.supertaskName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: SupertasksTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'supertaskId',
         isSortable: true,
         isSearchable: true,
+        render: (supertask: JSuperTask) => supertask.id,
         export: async (supertask: JSuperTask) => supertask.id + ''
       },
       {

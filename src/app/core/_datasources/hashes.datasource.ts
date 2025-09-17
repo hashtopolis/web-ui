@@ -1,7 +1,7 @@
 import { catchError, finalize, of } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
@@ -23,12 +23,14 @@ export class HashesDataSource extends BaseDataSource<JHash> {
     this._dataType = type;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     if (this._dataType === 'tasks') {
       const paramsTasks = new RequestParamBuilder().addInitial(this).addInclude('hashlist');
-
+      if (query) {
+        paramsTasks.addFilter(query);
+      }
       const taskService = this.service.get(SERV.TASKS, this._id, paramsTasks.create());
 
       this.subscriptions.push(
@@ -48,8 +50,12 @@ export class HashesDataSource extends BaseDataSource<JHash> {
             const paramsHashlist = new RequestParamBuilder()
               .addInitial(this)
               .addInclude('hashlist')
+              .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId })
+              .addFilter({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
               .addFilter({ field: 'hashlistId', operator: FilterType.EQUAL, value: hashlistId });
-
+            if (query) {
+              paramsHashlist.addFilter(query);
+            }
             const hashlistService = this.service.getAll(SERV.HASHES, paramsHashlist.create());
 
             this.subscriptions.push(
@@ -78,7 +84,9 @@ export class HashesDataSource extends BaseDataSource<JHash> {
       );
     } else {
       const params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk');
-
+      if (query) {
+        params.addFilter(query);
+      }
       if (this._dataType === 'chunks') {
         params.addFilter({ field: 'chunkId', operator: FilterType.EQUAL, value: this._id });
       } else if (this._dataType === 'hashlists') {

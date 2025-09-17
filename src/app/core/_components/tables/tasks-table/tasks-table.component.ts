@@ -31,6 +31,7 @@ import {
 
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
+import { Filter, FilterType } from '@src/app/core/_models/request-params.model';
 import { convertCrackingSpeed, convertToLocale } from '@src/app/shared/utils/util';
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 
@@ -59,8 +60,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksDataSource;
   isArchived = false;
-  selectedFilterColumn: string = 'all';
-
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -70,6 +70,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
+    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
+    if (refresh) {
+      this.dataSource.setAutoreload(true);
+    } else {
+      this.dataSource.setAutoreload(false);
+    }
   }
 
   ngOnDestroy(): void {
@@ -77,69 +83,25 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       sub.unsubscribe();
     }
   }
-  filter(item: JTaskWrapper, filterValue: string): boolean {
-    // Get lowercase filter value for case-insensitive comparison
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all':
-        // Search across multiple relevant fields
-        return (
-          item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue)) ||
-          item.id?.toString().toLowerCase().includes(filterValue) ||
-          item.accessGroup?.groupName?.toLowerCase().includes(filterValue) ||
-          (item.hashType &&
-            (item.hashType.id?.toString().includes(filterValue) ||
-              item.hashType.description?.toLowerCase().includes(filterValue) ||
-              (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
-                filterValue
-              ))) ||
-          item.hashlist?.name?.toLowerCase().includes(filterValue)
-        );
-
-      case 'id':
-        return item.tasks?.some((task: JTask) => task.id?.toString().toLowerCase().includes(filterValue));
-      case 'taskName':
-        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
-
-      case 'taskType': {
-        const typeText = item.taskType === TaskType.TASK ? 'task' : 'supertask';
-        return typeText.includes(filterValue);
-      }
-
-      case 'hashtype':
-        if (item.hashType) {
-          return (
-            item.hashType.description?.toLowerCase().includes(filterValue) ||
-            item.hashType.id?.toString().toLowerCase().includes(filterValue) ||
-            (item.hashType.id?.toString().toLowerCase() + '-' + item.hashType.description?.toLowerCase()).includes(
-              filterValue
-            )
-          );
-        }
-        return false;
-      case 'hashlistId': {
-        return (
-          item.hashlist?.name?.toLowerCase().includes(filterValue) ||
-          item.hashlistId?.toString().toLowerCase().includes(filterValue)
-        );
-      }
-      case 'accessGroupName': {
-        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
-      }
-
-      default:
-        return item.tasks?.some((task: JTask) => task.taskName?.toLowerCase().includes(filterValue));
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
-
+  handleBackendSqlFilter(event: string) {
+    const filterQuery: Filter = { value: event, field: this.selectedFilterColumn, operator: FilterType.ICONTAINS };
+    this.filter(event);
+    this.dataSource.setFilterQuery(filterQuery);
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: TaskTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'taskWrapperId',
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapper) => {
@@ -159,7 +121,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.NAME,
         dataKey: 'taskName',
         routerLink: (wrapper: JTaskWrapper) => this.renderTaskWrapperLink(wrapper),
-        isSearchable: true,
         isSortable: false,
         export: async (wrapper: JTaskWrapper) => wrapper.tasks[0]?.taskName
       },
@@ -187,7 +148,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         id: TaskTableCol.HASHTYPE,
         dataKey: 'hashtype',
         isSortable: false,
-        isSearchable: true,
         render: (wrapper: JTaskWrapper) => {
           const hashType = wrapper.hashType;
           return hashType ? `${hashType.id} - ${hashType.description}` : 'No HashType';
@@ -203,7 +163,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         routerLink: (wrapper: JTaskWrapper) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapper) => this.renderHashlistIcon(wrapper.hashlist),
         isSortable: false,
-        isSearchable: true,
         export: async (wrapper: JTaskWrapper) => wrapper.hashlist.name + ''
       },
       {
@@ -232,7 +191,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'accessGroupName',
         routerLink: (wrapper: JTaskWrapper) => this.renderAccessGroupLink(wrapper.accessGroup),
         isSortable: false,
-        isSearchable: true,
 
         export: async (wrapper: JTaskWrapper) => wrapper.accessGroup.groupName
       },

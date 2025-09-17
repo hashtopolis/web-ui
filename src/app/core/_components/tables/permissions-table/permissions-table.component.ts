@@ -21,6 +21,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { PermissionsDataSource } from '@datasources/permissions.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+
 @Component({
   selector: 'app-permissions-table',
   templateUrl: './permissions-table.component.html',
@@ -29,7 +31,7 @@ import { PermissionsDataSource } from '@datasources/permissions.datasource';
 export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(PermissionsTableColumnLabel);
@@ -45,25 +47,21 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
       sub.unsubscribe();
     }
   }
-
-  filter(item: JGlobalPermissionGroup, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.name?.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.name?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   getColumns(): HTTableColumn[] {

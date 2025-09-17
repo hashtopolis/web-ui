@@ -18,6 +18,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { CrackersDataSource } from '@datasources/crackers.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+
 @Component({
   selector: 'app-crackers-table',
   templateUrl: './crackers-table.component.html',
@@ -26,7 +28,7 @@ import { CrackersDataSource } from '@datasources/crackers.datasource';
 export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
@@ -42,43 +44,32 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
       sub.unsubscribe();
     }
   }
-
-  filter(item: JCrackerBinaryType, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.typeName.toLowerCase().includes(filterValue) ||
-          item.crackerVersions.some((version: JCrackerBinary) => version.version.toLowerCase().includes(filterValue))
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'typeName': {
-        return item.typeName?.toLowerCase().includes(filterValue);
-      }
-      case 'crackerVersions': {
-        return item.crackerVersions.some((version: JCrackerBinary) =>
-          version.version.toLowerCase().includes(filterValue)
-        );
-      }
-      default:
-        // Default fallback to task name
-        return item.typeName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
+
   getColumns(): HTTableColumn[] {
     return [
       {
         id: CrackersTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSortable: true,
         isSearchable: true,
+        render: (cracker: JCrackerBinaryType) => cracker.id,
         export: async (cracker: JCrackerBinaryType) => cracker.id + ''
       },
       {
@@ -94,7 +85,6 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         dataKey: 'crackerVersions',
         routerLink: (cracker: JCrackerBinaryType) => this.renderVersions(cracker),
         isSortable: false,
-        isSearchable: true,
         export: async (cracker: JCrackerBinaryType) =>
           cracker.crackerVersions.map((bin: JCrackerBinary) => bin.version).join(', ')
       }

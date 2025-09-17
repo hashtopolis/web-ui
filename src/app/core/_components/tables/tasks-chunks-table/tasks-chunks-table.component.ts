@@ -18,6 +18,7 @@ import {
 import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
 
 import { chunkStates } from '@src/app/core/_constants/chunks.config';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
@@ -35,7 +36,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksChunksDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   // Track initialization
   private isInitialized = false;
@@ -75,7 +76,8 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        isSearchable: true
+        isSearchable: true,
+        render: (chunk: JChunk) => chunk.id
       },
       {
         id: TasksChunksTableCol.START,
@@ -103,8 +105,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
         id: TasksChunksTableCol.AGENT,
         dataKey: 'agentName',
         routerLink: (chunk: JChunk) => this.renderAgentLinkFromChunk(chunk),
-        isSortable: true,
-        isSearchable: true
+        isSortable: true
       },
       {
         id: TasksChunksTableCol.DISPATCH_TIME,
@@ -139,33 +140,21 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
     ];
   }
 
-  /**
-   * Filter function for chunks
-   * @param item Chunk object
-   * @param filterValue String value to filter filename
-   * @returns True, if filename contains filterValue
-   *          False, if not
-   */
-  filter(item: JChunk, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-
-    switch (selectedColumn) {
-      case 'all': {
-        return (
-          item.id?.toString().toLowerCase().includes(filterValue) || item.agentName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id?.toString().toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-
-      default: {
-        return item.id?.toString().toLowerCase().includes(filterValue);
-      }
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 

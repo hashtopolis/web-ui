@@ -29,7 +29,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
-import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
 @Component({
@@ -61,7 +62,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -74,61 +75,37 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.dataSource.setAgentStatsRequired(false);
+
     if (this.taskId) {
       this.dataSource.setTaskId(this.taskId);
     }
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
   }
-
-  filter(item: JAgent, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.agentName?.toLowerCase().includes(filterValue) ||
-          item.user.name?.toLowerCase().includes(filterValue) ||
-          item.clientSignature?.toLowerCase().includes(filterValue) ||
-          item.devices?.toLowerCase().includes(filterValue) ||
-          item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue)) ||
-          item.task?.taskName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return String(item.id).toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-      case 'userId': {
-        return item.user?.name?.toLowerCase().includes(filterValue);
-      }
-      case 'clientSignature': {
-        return item.clientSignature?.toLowerCase().includes(filterValue);
-      }
-      case 'devices': {
-        return item.devices?.toLowerCase().includes(filterValue);
-      }
-      case 'accessGroupId': {
-        return item.accessGroups?.some((group) => group.groupName.toLowerCase().includes(filterValue));
-      }
-      case 'taskName': {
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
 
   getColumns(): HTTableColumn[] {
-    const tableColumns: HTTableColumn[] = [
+    return [
       {
         id: AgentsTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'agentId',
         isSortable: true,
         isSearchable: true,
         render: (agent: JAgent) => agent.id,
@@ -214,8 +191,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         export: async (agent: JAgent) => agent.accessGroup
       }
     ];
-
-    return tableColumns;
   }
 
   editableSaved(editable: HTTableEditable<JAgent>): void {

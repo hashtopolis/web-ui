@@ -22,6 +22,7 @@ import {
 
 import { UsersDataSource } from '@datasources/users.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -32,7 +33,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class UsersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: UsersDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(UsersTableColumnLabel);
@@ -49,35 +50,21 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
-  filter(item: JUser, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.name.toLowerCase().includes(filterValue) ||
-          item.email.toLowerCase().includes(filterValue) ||
-          item.globalPermissionGroup.name.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'name': {
-        return item.name.toLowerCase().includes(filterValue);
-      }
-      case 'email': {
-        return item.email.toLowerCase().includes(filterValue);
-      }
-      case 'globalPermissionGroupName': {
-        return item.globalPermissionGroup.name.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.name.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   getColumns(): HTTableColumn[] {
@@ -87,6 +74,7 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (user: JUser) => user.id,
         export: async (user: JUser) => user.id + ''
       },
       {
@@ -140,7 +128,6 @@ export class UsersTableComponent extends BaseTableComponent implements OnInit, O
         id: UsersTableCol.PERM_GROUP,
         dataKey: 'globalPermissionGroupName',
         isSortable: false,
-        isSearchable: true,
         render: (user: JUser) => user.globalPermissionGroup.name,
         export: async (user: JUser) => user.globalPermissionGroup.name
       }

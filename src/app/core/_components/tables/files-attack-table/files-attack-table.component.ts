@@ -1,13 +1,17 @@
-import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+
 import { FileType, JFile } from '@models/file.model';
+
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
 } from '@components/tables/files-attack-table/files-attack-table.constants';
+import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { FilesDataSource } from '@datasources/files.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
@@ -32,7 +36,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   @Output() updateFormEvent = new EventEmitter<any>();
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(FilesAttackTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -48,33 +52,31 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     }
   }
 
-  filter(item: JFile, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return item.id.toString().includes(filterValue) || item.filename?.toLowerCase().includes(filterValue);
-      }
-      case 'id': {
-        return item.id.toString().includes(filterValue);
-      }
-      case 'filename': {
-        return item.filename?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.filename?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: FilesAttackTableCol.ID,
-        dataKey: 'id',
+        dataKey: '_id',
         isSearchable: true,
         isSortable: true,
+        render: (file: JFile) => file.id,
         export: async (file: JFile) => file.id + ''
       },
       {

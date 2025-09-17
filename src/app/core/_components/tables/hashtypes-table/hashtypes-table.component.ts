@@ -21,6 +21,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+
 @Component({
   selector: 'app-hashtypes-table',
   templateUrl: './hashtypes-table.component.html',
@@ -30,7 +32,7 @@ import { HashtypesDataSource } from '@datasources/hashtypes.datasource';
 export class HashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashtypesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(HashtypesTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -79,26 +81,21 @@ export class HashtypesTableComponent extends BaseTableComponent implements OnIni
     ];
   }
 
-  filter(item: JHashtype, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().toLowerCase().includes(filterValue) || item.description.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'hashTypeId': {
-        return item.id.toString().toLowerCase().includes(filterValue);
-      }
-      case 'description': {
-        return item.description.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.id.toString().toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   openDialog(data: DialogData<JHashtype>) {

@@ -19,12 +19,13 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { FilesDataSource } from '@datasources/files.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatFileSize } from '@src/app/shared/utils/util';
+
 /**
  * Contains table component for files
  * @module
  */
-
-import { formatFileSize } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-files-table',
@@ -56,7 +57,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   tableColumns: HTTableColumn[] = [];
   dataSource: FilesDataSource;
   editPath = '';
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   showAccessGroups: boolean = true;
 
   ngOnInit(): void {
@@ -91,39 +92,21 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       sub.unsubscribe();
     }
   }
-
-  /**
-   * Filter function for files
-   * @param item File object
-   * @param filterValue String value to filter filename
-   * @returns True, if filename contains filterValue
-   *          False, if not
-   */
-  filter(item: JFile, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.filename?.toLowerCase().includes(filterValue) ||
-          item.accessGroup?.groupName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id?.toString().includes(filterValue);
-      }
-      case 'filename': {
-        return item.filename?.toLowerCase().includes(filterValue);
-      }
-      case 'accessGroupName': {
-        return item.accessGroup?.groupName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.filename?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   /**
@@ -137,6 +120,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'id',
         isSortable: true,
         isSearchable: true,
+        render: (file: JFile) => file.id,
         export: async (file: JFile) => file.id + ''
       },
       {
@@ -168,7 +152,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
         id: FilesTableCol.ACCESS_GROUP,
         dataKey: 'accessGroupName',
         isSortable: false,
-        isSearchable: true,
         render: (file: JFile) => (file.accessGroup?.groupName ? file.accessGroup.groupName : file.id),
         export: async (file: JFile) => file.accessGroup?.groupName
       });

@@ -7,14 +7,13 @@ import { catchError, finalize, of } from 'rxjs';
 
 import { FileType, JFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
-
 import { BaseDataSource } from '@datasources/base.datasource';
 
 /**
@@ -24,7 +23,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   private fileType: FileType = 0;
   private editIndex?: number;
   private editType?: number;
-
+  private _currentFilter: Filter = null;
   /**
    * Set file type
    * @param fileType
@@ -46,11 +45,10 @@ export class FilesDataSource extends BaseDataSource<JFile> {
     this.editIndex = index;
     this.editType = editType;
   }
-
   /**
    * Load all files from server
    */
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
 
     let files$;
@@ -64,13 +62,18 @@ export class FilesDataSource extends BaseDataSource<JFile> {
         files$ = this.service.get(SERV.PRETASKS, this.editIndex, paramsBuilder.addInclude('pretaskFiles').create());
       }
     } else {
-      const params = paramsBuilder
+      let params = paramsBuilder
         .addInitial(this)
         .addInclude('accessGroup')
-        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType })
-        .create();
+        .addFilter({ field: 'fileType', operator: FilterType.EQUAL, value: this.fileType });
+      if (query) {
+        this._currentFilter = query;
+      }
 
-      files$ = this.service.getAll(SERV.FILES, params);
+      // Use stored filter if no new filter is provided
+      const activeFilter = query || this._currentFilter;
+      params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+      files$ = this.service.getAll(SERV.FILES, params.create());
     }
 
     this.subscriptions.push(
@@ -122,5 +125,10 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   reload(): void {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Observable, of } from 'rxjs';
 
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
@@ -8,12 +7,15 @@ import { SearchHashModel } from '@models/hash.model';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+/* eslint-disable @angular-eslint/component-selector */
 import {
   SearchHashTableCol,
   SearchHashTableColumnLabel
 } from '@components/tables/search-hash-table/search-hash-table.constants';
 
 import { SearchHashDataSource } from '@datasources/search-hash.datasource';
+
+import { FilterType } from '@src/app/core/_models/request-params.model';
 
 @Component({
   selector: 'search-hash-table',
@@ -24,7 +26,7 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
   @Input() search: string[];
   tableColumns: HTTableColumn[] = [];
   dataSource: SearchHashDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   private initDone: boolean = false;
   ngOnInit(): void {
     this.setColumnLabels(SearchHashTableColumnLabel);
@@ -45,31 +47,13 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
     }
   }
 
-  filter(item: SearchHashModel, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.hash.toString().includes(filterValue) ||
-          item.plaintext.toLowerCase().includes(filterValue) ||
-          item.hashInfo.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'hash': {
-        return item.hash?.toLowerCase().includes(filterValue);
-      }
-      case 'plaintext': {
-        return item.plaintext?.toLowerCase().includes(filterValue);
-      }
-      case 'hashinfo': {
-        return item.hashInfo.toLowerCase().includes(filterValue);
-      }
-      default:
-        // Default fallback to task name
-        return item.hash?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
   getColumns(): HTTableColumn[] {
@@ -78,7 +62,6 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
-        isSearchable: true,
         render: (hash: SearchHashModel) => hash.hash,
         export: async (hash: SearchHashModel) => hash.hash + ''
       },
@@ -86,7 +69,6 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.PLAINTEXT,
         dataKey: 'plaintext',
         isSortable: true,
-        isSearchable: true,
         render: (hash: SearchHashModel) => hash.plaintext,
         export: async (hash: SearchHashModel) => hash.plaintext + ''
       },
@@ -100,7 +82,6 @@ export class SearchHashTableComponent extends BaseTableComponent implements OnIn
         id: SearchHashTableCol.INFO,
         dataKey: 'hashinfo',
         isSortable: true,
-        isSearchable: true,
         render: (hash: SearchHashModel) => hash.hashInfo,
         export: async (hash: SearchHashModel) => hash.hashInfo
       }

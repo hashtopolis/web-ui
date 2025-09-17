@@ -8,14 +8,13 @@
   [isSelectable]="isSelectable"
   [isFilterable]="isFilterable"
   [contextMenuService]="contextMenuService"
-
-
+  [supportsAutoRefresh]="true"
   [hasTemperatureInformation]="hasTemperatureInformation"
   [isPageable]="true"
-  [filterFn]="filter.bind(this)"
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
   (temperatureInformationClicked)="openStatDialog()"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
 />

@@ -1,4 +1,3 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
@@ -13,6 +12,7 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { HashesDataSource } from '@datasources/hashes.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
@@ -27,7 +27,7 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HashesDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnInit(): void {
     this.setColumnLabels(HashesTableColColumnLabel);
@@ -47,38 +47,13 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
     }
   }
 
-  /**
-   * Filter Hash
-   * @param item
-   * @param filterValue
-   * @returns true:   Hash contains filterValue
-   *          false:  else
-   */
-  filter(item: JHash, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.hash.toLowerCase().includes(filterValue) ||
-          item.plaintext?.toLowerCase().includes(filterValue) ||
-          item.isCracked?.toString().includes(filterValue)
-        );
-      }
-      case 'hash': {
-        return item.hash.toString().includes(filterValue);
-      }
-      case 'plaintext': {
-        return item.plaintext?.toLowerCase().includes(filterValue);
-      }
-      case 'isCracked': {
-        return item.isCracked?.toString().includes(filterValue);
-      }
-      default:
-        // Default fallback to hash
-        return item.hash?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
     }
   }
 
@@ -117,7 +92,6 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.ISCRACKED,
         dataKey: 'isCracked',
         isSortable: true,
-        isSearchable: true,
         export: async (hash: JHash) => hash.isCracked + ''
       },
       {

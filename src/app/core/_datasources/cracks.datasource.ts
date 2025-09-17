@@ -1,7 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 
 import { JHash } from '@models/hash.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
@@ -13,13 +13,15 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 export class CracksDataSource extends BaseDataSource<JHash> {
   public length = 0;
+  private _currentFilter: Filter = null;
+
   /**
    * Set table rows loaded from server
    */
-  async loadAll() {
+  async loadAll(query?: Filter) {
     this.loading = true;
     try {
-      const crackedHashes = await this.loadCrackedHashes();
+      const crackedHashes = await this.loadCrackedHashes(query);
       this.setData(crackedHashes);
     } catch (error) {
       console.error('Error loading data', error);
@@ -32,32 +34,28 @@ export class CracksDataSource extends BaseDataSource<JHash> {
    * Load cracked hashes from server
    * @return Promise of cracked hashes
    */
-  async loadCrackedHashes() {
-    const params = new RequestParamBuilder()
-      .addInitial(this)
-      .addInclude('hashlist')
-      .addInclude('chunk')
-      .addFilter({
-        field: 'isCracked',
-        operator: FilterType.EQUAL,
-        value: true
-      })
-      .create();
+  async loadCrackedHashes(query?: Filter) {
+    if (query) {
+      this._currentFilter = query;
+    }
 
-    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.HASHES, params));
+    // Use stored filter if no new filter is provided
+    const activeFilter = query || this._currentFilter;
+    let params = new RequestParamBuilder().addInitial(this).addInclude('hashlist').addInclude('chunk').addFilter({
+      field: 'isCracked',
+      operator: FilterType.EQUAL,
+      value: true
+    });
+    params = this.applyFilterWithPaginationReset(params, activeFilter, query);
+
+    const response: ResponseWrapper = await firstValueFrom(this.service.getAll(SERV.HASHES, params.create()));
     const length = response.meta.page.total_elements;
     const nextLink = response.links.next;
     const prevLink = response.links.prev;
-    const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-    const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+    const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+    const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-    this.setPaginationConfig(
-      this.pageSize,
-      length,
-      after,
-      before,
-      this.index
-    );
+    this.setPaginationConfig(this.pageSize, length, after, before, this.index);
     const serializer = new JsonAPISerializer();
     return serializer.deserialize<JHash[]>({ data: response.data, included: response.included });
   }
@@ -75,5 +73,10 @@ export class CracksDataSource extends BaseDataSource<JHash> {
   reload() {
     this.clearSelection();
     this.loadAll();
+  }
+  clearFilter(): void {
+    this._currentFilter = null;
+    this.setPaginationConfig(this.pageSize, undefined, undefined, undefined, 0);
+    this.reload();
   }
 }

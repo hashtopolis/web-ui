@@ -18,6 +18,7 @@ import {
   VouchersTableColumnLabel
 } from '@src/app/core/_components/tables/vouchers-table/vouchers-table.constants';
 import { VouchersDataSource } from '@src/app/core/_datasources/vouchers.datasource';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JVoucher } from '@src/app/core/_models/voucher.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
@@ -30,7 +31,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class VouchersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: VouchersDataSource;
-
+  selectedFilterColumn: string;
   ngOnInit(): void {
     this.setColumnLabels(VouchersTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -52,22 +53,31 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
    * @param filterValue
    * @returns true, if voucher contains filterValue, else false
    */
-  filter(item: JVoucher, filterValue: string): boolean {
-    return item.voucher.toLowerCase().includes(filterValue);
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
   }
 
   getColumns(): HTTableColumn[] {
     return [
       {
         id: VouchersTableCol.ID,
-        dataKey: 'id',
-        isSortable: true
+        dataKey: '_id',
+        render: (voucher: JVoucher) => voucher.id,
+        isSortable: true,
+        isSearchable: true
       },
       {
         id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,
         isCopy: true,
+        isSearchable: true,
         export: async (voucher: JVoucher) => voucher.voucher
       },
       {

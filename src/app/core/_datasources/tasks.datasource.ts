@@ -2,7 +2,7 @@ import { catchError, of } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import { JChunk } from '@models/chunk.model';
-import { FilterType } from '@models/request-params.model';
+import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask, JTaskWrapper } from '@models/task.model';
 
@@ -14,7 +14,10 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
   private _isArchived = false;
   private _hashlistID = 0;
-
+  private filterQuery: Filter;
+  setFilterQuery(filter: Filter): void {
+    this.filterQuery = filter;
+  }
   setIsArchived(isArchived: boolean): void {
     this._isArchived = isArchived;
   }
@@ -23,7 +26,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
     this._hashlistID = hashlistID;
   }
 
-  loadAll(): void {
+  loadAll(query?: Filter): void {
     this.loading = true;
     const params = new RequestParamBuilder()
       .addInitial(this)
@@ -36,6 +39,9 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
         operator: FilterType.EQUAL,
         value: this._isArchived
       });
+    if (query) {
+      params.addFilter(query);
+    }
 
     if (this._hashlistID && this._hashlistID > 0) {
       params.addFilter({
@@ -61,23 +67,16 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           if (taskWrappers.length > 0) {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',
               operator: FilterType.IN,
               value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
             });
-
             this.subscriptions.push(
               this.service
                 .getAll(SERV.CHUNKS, chunkParams.create())
@@ -102,6 +101,10 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
 
   reload(): void {
     this.clearSelection();
-    this.loadAll();
+    if (this.filterQuery && this.filterQuery.value) {
+      this.loadAll(this.filterQuery);
+    } else {
+      this.loadAll();
+    }
   }
 }

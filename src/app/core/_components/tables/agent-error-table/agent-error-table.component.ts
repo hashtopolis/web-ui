@@ -22,6 +22,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { AgentErrorDatasource } from '@datasources/agent-error.datasource';
 
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -33,7 +34,7 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
   @Input() agentId: number;
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentErrorDatasource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
   ngOnDestroy(): void {
     this.subscriptions.forEach((subscription) => subscription.unsubscribe());
   }
@@ -73,7 +74,6 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       {
         id: AgentErrorTableCol.TASK,
         dataKey: 'taskName',
-        isSearchable: true,
         routerLink: (agentError: JAgentErrors) => this.renderTaskLink(agentError),
         export: async (agentError: JAgentErrors) => agentError.task.taskName || 'N/A'
       },
@@ -101,30 +101,21 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       }
     ];
   }
-  filter(item: JAgentErrors, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
+  filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id.toString().includes(filterValue) ||
-          item.error.toString().toLocaleLowerCase().includes(filterValue) ||
-          item.task?.taskName?.toLowerCase().includes(filterValue) ||
-          item.taskId.toString().includes(filterValue)
-        );
-      }
-      case 'id':
-        return item.id.toString().includes(filterValue);
-      case 'error':
-        return item.error?.toLowerCase().includes(filterValue);
-      case 'taskName':
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
-      case 'taskId':
-        return item.taskId.toString().includes(filterValue);
-      default:
-        return item.task?.taskName?.toLowerCase().includes(filterValue);
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
     }
   }
   openDialog(data: DialogData<JAgentErrors>) {

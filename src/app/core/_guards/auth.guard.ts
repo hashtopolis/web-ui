@@ -9,8 +9,6 @@ import { AuthService } from '@services/access/auth.service';
   providedIn: 'root'
 })
 class AuthGuard {
-  isAuthenticated: boolean;
-
   constructor(
     private authService: AuthService,
     private router: Router

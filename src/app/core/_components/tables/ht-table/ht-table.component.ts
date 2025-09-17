@@ -12,6 +12,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -86,13 +87,14 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 @Component({
   selector: 'ht-table',
   templateUrl: './ht-table.component.html',
+  styleUrls: ['./ht-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
 export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** The list of column names to be displayed in the table. */
   displayedColumns: string[] = [];
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string = '_id';
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
@@ -169,7 +171,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Default pagination index */
   @Input() defaultIndex = 0;
-  
+
   /** Default total items index */
   @Input() defaultTotalItems = 0;
 
@@ -177,6 +179,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() hasTemperatureInformation = false;
 
   @Input() contextMenuService: ContextMenuService;
+
+  /** Flag to enable auto refresh control, default: false */
+  @Input() supportsAutoRefresh = false;
 
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
@@ -204,10 +209,14 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() linkClicked = new EventEmitter();
 
   /** Fetches user customizations */
+  @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
+
   private uiSettings: UISettingsUtilityClass;
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
-
+  filterQueryFormGroup = new FormGroup({
+    textFilter: new FormControl('')
+  });
   constructor(
     public dialog: MatDialog,
     private cd: ChangeDetectorRef,
@@ -236,16 +245,17 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loading = false;
       });
     this.initFilterableColumns();
+    this.onFilterColumnChange();
   }
   initFilterableColumns(): void {
     this.filterableColumns = this.tableColumns.filter((column) => column.dataKey && column.isSearchable);
+    if (this.filterableColumns.length > 0) {
+      this.selectedFilterColumn = this.filterableColumns[0]?.dataKey;
+    }
   }
   // Handle filter column change
   onFilterColumnChange(): void {
     this.selectedFilterColumnChanged.emit(this.selectedFilterColumn);
-    if (this.dataSource.filter) {
-      this.applyFilter();
-    }
   }
 
   ngAfterViewInit(): void {
@@ -291,7 +301,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Update pagination configuration in the data source
-      this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, undefined, undefined, 0);
+      this.dataSource.setPaginationConfig(
+        this.dataSource.pageSize,
+        this.dataSource.totalItems,
+        undefined,
+        undefined,
+        0
+      );
     });
   }
 
@@ -362,7 +378,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const filteredObject: { [key: string]: string } = {};
 
     for (const attribute of include) {
-      if (original.hasOwnProperty(attribute)) {
+      if (Object.prototype.hasOwnProperty.call(original, attribute)) {
         filteredObject[attribute] = original[attribute];
       }
     }
@@ -427,28 +443,31 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Applies a filter to the table based on user input.
    */
-  applyFilter() {
+  /*   applyFilter() {
     if (this.filterFn) {
       this.dataSource.filterData(this.filterFn);
       this.uiSettings.updateTableSettings(this.name, {
         search: this.dataSource.filter
       });
     }
+  } */
+  emitFilterValue(): void {
+    this.backendSqlFilter.emit(this.filterQueryFormGroup.get('textFilter').value);
   }
-
   /**
    * Clears a filter to the table based on user input.
    */
-  clearFilter() {
+  /*   clearFilter() {
     // Reset the filter function to a default that passes all items
-    const defaultFilterFn = (item: any, filterValue: '') => true;
+    const defaultFilterFn: (item: BaseModel, filterValue: string) => boolean = () => true;
+
     // Reapply the default filter function
     this.dataSource.filterData(defaultFilterFn);
     this.dataSource.filter = '';
     this.uiSettings.updateTableSettings(this.name, {
       search: ''
     });
-  }
+  } */
 
   /**
    * Checks if a row is selected.
@@ -533,16 +552,19 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.bulkMenu) {
       this.bulkMenu.reload();
     }
+    this.filterQueryFormGroup.get('textFilter').setValue('');
   }
-
+  clearSearchBox(): void {
+    this.filterQueryFormGroup.get('textFilter').setValue('');
+  }
   /**
    * Handles the page change event, including changes in page size and page index.
    *
    * @param event - The `PageEvent` object containing information about the new page configuration.
    */
   onPageChange(event: PageEvent): void {
-    this.clearFilter();
-    let pageAfter = this.dataSource.pageAfter;
+    /*     this.clearFilter();
+     */ let pageAfter = this.dataSource.pageAfter;
     let pageBefore = this.dataSource.pageBefore;
     let index = event.pageIndex;
     if (index > this.dataSource.index) {
@@ -558,9 +580,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       index = 0;
       pageAfter = undefined;
       pageBefore = undefined;
-
-    }
-    else if (event.pageIndex !== 0) {
+    } else if (event.pageIndex !== 0) {
       // const originalData = this.dataSource.getOriginalData();
       // const ids = originalData.map(items => items.id);
       // if (event.pageIndex > event.previousPageIndex) {
@@ -568,7 +588,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // } else {
       //   pageBefore = Math.min(...ids);
       // }
-      
     }
 
     this.uiSettings.updateTableSettings(this.name, {
@@ -583,8 +602,8 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Update pagination configuration in the data source
     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-    this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
-
+    /*     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);
+     */
     // Reload data with updated pagination settings
     this.dataSource.reload();
   }

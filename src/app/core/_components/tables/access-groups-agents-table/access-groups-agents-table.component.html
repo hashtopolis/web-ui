@@ -7,9 +7,7 @@
   [tableColumns]="tableColumns"
   [isSelectable]="true"
   [contextMenuService]="contextMenuService"
-
-
-  [isFilterable]="true"
+  [isFilterable]="isFilterable"
   [filterFn]="filter"
   [isPageable]="true"
   (exportActionClicked)="exportActionClicked($event)"

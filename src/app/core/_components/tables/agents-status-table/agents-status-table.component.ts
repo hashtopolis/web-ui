@@ -20,6 +20,7 @@ import { TableDialogComponent } from '@src/app/core/_components/tables/table-dia
 import { DialogData } from '@src/app/core/_components/tables/table-dialog/table-dialog.model';
 import { ASC } from '@src/app/core/_constants/agentsc.config';
 import { JAgent } from '@src/app/core/_models/agent.model';
+import { FilterType } from '@src/app/core/_models/request-params.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { AgentTemperatureInformationDialogComponent } from '@src/app/shared/dialog/agent-temperature-information-dialog/agent-temperature-information-dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
@@ -41,7 +42,7 @@ export class STATCALCULATION {
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
-  selectedFilterColumn: string = 'all';
+  selectedFilterColumn: string;
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {
@@ -54,42 +55,38 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.tableColumns = this.getColumns();
     this.dataSource = new AgentsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+    this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
-  }
-
-  filter(item: JAgent, filterValue: string): boolean {
-    filterValue = filterValue.toLowerCase();
-    const selectedColumn = this.selectedFilterColumn;
-    // Filter based on selected column
-    switch (selectedColumn) {
-      case 'all': {
-        // Search across multiple relevant fields
-        return (
-          item.id?.toString().includes(filterValue) ||
-          item.agentName?.toLowerCase().includes(filterValue) ||
-          item.taskName?.toLowerCase().includes(filterValue)
-        );
-      }
-      case 'id': {
-        return item.id?.toString().toLowerCase().includes(filterValue);
-      }
-      case 'agentName': {
-        return item.agentName?.toLowerCase().includes(filterValue);
-      }
-      case 'taskName': {
-        return item.taskName?.toLowerCase().includes(filterValue);
-      }
-      default:
-        return item.agentName?.toLowerCase().includes(filterValue);
+    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
+    if (refresh) {
+      this.dataSource.setAutoreload(true);
+    } else {
+      this.dataSource.setAutoreload(false);
     }
   }
-
+  filter(input: string) {
+    const selectedColumn = this.selectedFilterColumn;
+    if (input && input.length > 0) {
+      this.dataSource.loadAll({ value: input, field: selectedColumn, operator: FilterType.ICONTAINS });
+      return;
+    } else {
+      this.dataSource.loadAll(); // Reload all data if input is empty
+    }
+  }
+  handleBackendSqlFilter(event: string) {
+    if (event && event.trim().length > 0) {
+      this.filter(event);
+    } else {
+      // Clear the filter when search box is cleared
+      this.dataSource.clearFilter();
+    }
+  }
   getColumns(): HTTableColumn[] {
     return [
       {
         id: AgentsStatusTableCol.ID,
-        dataKey: 'id',
+        dataKey: 'agentId',
         isSortable: true,
         isSearchable: true,
         render: (agent: JAgent) => agent.id,
@@ -269,7 +266,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   bulkActionClicked(event: ActionMenuEvent<JAgent[]>): void {
-    console.log('bulk CLICK');
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ACTIVATE:
         this.openDialog({
@@ -444,18 +440,13 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     return this.sanitize(data);
   }
   private getMaxOrAvgValue(agent: JAgent, statType: ASC, avgOrMax: STATCALCULATION) {
-    const tempDateFilter = agent.agentStats.filter((u) => u.time > 10000000);
-    const stat = tempDateFilter.filter((u) => u.statType == statType);
+    const stat = agent.agentStats.filter((u) => u.statType == statType);
     if (stat && stat.length > 0) {
       switch (avgOrMax) {
         case 1:
-          return Math.round(
-            stat.reduce((sum, current) => sum + current.value.reduce((a, b) => a + b, 0), 0) / stat.length
-          );
+          return Math.round(stat.map((element) => element.value[0]).reduce((a, b) => a + b) / stat.length);
         case 2:
-          return Math.round(stat.reduce((prev, current) => (prev.value > current.value ? prev : current)).value[0]);
-        default:
-          return 0; // Provide a default value for unhandled cases
+          return Math.round(stat.map((element) => element.value[0]).reduce((a, b) => Math.max(a, b)));
       }
     }
     return 0;

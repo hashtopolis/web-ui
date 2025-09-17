@@ -242,12 +242,7 @@ export class NewHashlistComponent implements OnInit, OnDestroy {
 
   // Open Modal Hashtype Detector
   openHelpDialog(): void {
-    const dialogRef = this.dialog.open(HashtypeDetectorComponent, {
-      width: '100%'
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialog closed with result:', result);
-    });
+    this.dialog.open(HashtypeDetectorComponent, { width: '100%' });
   }
 
   /**

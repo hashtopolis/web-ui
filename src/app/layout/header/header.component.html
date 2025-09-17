@@ -2,9 +2,7 @@
   <div class="logo-container">
     <a routerLink="/"
       ><img
-        [src]="
-          isDarkMode ? headerConfig.brand.logored : headerConfig.brand.logo
-        "
+        [src]="isDarkMode || easterEggFlag ? headerConfig.brand.logored : headerConfig.brand.logo"
         [alt]="headerConfig.brand.name"
         [width]="headerConfig.brand.width"
         [height]="headerConfig.brand.height"
@@ -25,13 +23,13 @@
       (menuItemClicked)="menuItemClicked($event)"
     ></action-menu>
   </ng-container>
-<button
-  mat-icon-button
-  (click)="toggleTheme()"
-  [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
->
-  <mat-icon>
-    {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
-  </mat-icon>
-</button>
+  <button
+    mat-icon-button
+    (click)="toggleTheme()"
+    [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+  >
+    <mat-icon>
+      {{ isDarkMode ? 'light_mode' : 'dark_mode' }}
+    </mat-icon>
+  </button>
 </mat-toolbar>
