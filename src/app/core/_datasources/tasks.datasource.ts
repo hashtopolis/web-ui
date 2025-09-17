@@ -79,7 +79,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',
               operator: FilterType.IN,
-              value: taskWrappers.filter((x): x is JTaskWrapper => x.tasks[0] != null).map((wrapper) => wrapper.tasks[0].id)
+              value: taskWrappers.filter((x) => x?.tasks[0] != null).map((wrapper) => wrapper.tasks[0].id)
             });
 
             this.subscriptions.push(
