@@ -54,3 +54,13 @@ $hashtopolis-dark-theme: mat.m2-define-dark-theme(
   background-color: map.get(map.get($hashtopolis-dark-theme, 'background'), 'app-bar'); // Move this above
   @include mat.all-component-colors($hashtopolis-dark-theme);
 }
+
+//Styles for ht-table.component
+body[data-theme="light"] .row-cracked {
+  background-color: #d4edda !important;
+}
+
+body[data-theme="dark"] .row-cracked {
+  background-color: #22543c !important;
+}
+

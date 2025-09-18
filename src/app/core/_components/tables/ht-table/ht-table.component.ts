@@ -183,6 +183,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable auto refresh control, default: false */
   @Input() supportsAutoRefresh = false;
 
+  /** Flag to color a table row */
+  @Input() rowClass: (row: any) => string;
+
   /** Event emitter for when the user triggers a row action */
   @Output() rowActionClicked: EventEmitter<ActionMenuEvent<any>> = new EventEmitter<ActionMenuEvent<any>>();
 

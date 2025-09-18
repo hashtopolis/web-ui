@@ -177,7 +177,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'cracked',
         routerLink: (wrapper: JTaskWrapper) => this.renderCrackedLinkFromWrapper(wrapper),
         isSortable: true,
-        export: async (wrapper: JTaskWrapper) => wrapper.cracked + ''
+        export: async (wrapper: JTaskWrapper) =>
+          wrapper.cracked + '/' + wrapper.hashlist.hashCount.toLocaleString() + ''
       },
       {
         id: TaskTableCol.AGENTS,
@@ -247,6 +248,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       }
     ];
   }
+
+  //Evaluate which row class should be set
+  getRowClass = (row: JTaskWrapper) => (this.isCrackedRow(row) ? 'row-cracked' : '');
 
   rowActionClicked(event: ActionMenuEvent<JTaskWrapper>): void {
     switch (event.menuItem.action) {
@@ -747,5 +751,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       };
     }
     return undefined;
+  }
+
+  /**
+   * Checks whether the TaskWrapper contains cracked elements
+   * @param wrapper TaskWrapper object
+   * @private
+   */
+  private isCrackedRow(wrapper: JTaskWrapper): boolean {
+    return wrapper.cracked > 0;
   }
 }
