@@ -387,7 +387,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   getDispatchedSearchedString(wrapper: JTaskWrapper): string {
     if (wrapper.taskType === TaskType.TASK) {
       const task: JTask = wrapper.tasks[0];
-      if (task.keyspace > 0) {
+      if (task != null && task.keyspace > 0) {
         return `${convertToLocale(Number(task.dispatched))}% / ${convertToLocale(Number(task.searched))}%`;
       }
     }

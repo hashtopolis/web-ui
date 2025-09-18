@@ -19,6 +19,10 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
     this.filterQuery = filter;
   }
   setIsArchived(isArchived: boolean): void {
+    this.reset(true);
+    this.pageAfter = null;
+    this.pageBefore = null;
+    this.index = 0;
     this._isArchived = isArchived;
   }
 
@@ -75,7 +79,7 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
             const chunkParams = new RequestParamBuilder().addFilter({
               field: 'taskId',
               operator: FilterType.IN,
-              value: taskWrappers.map((wrapper) => wrapper.tasks[0].id)
+              value: taskWrappers.filter((x) => x?.tasks[0] != null).map((wrapper) => wrapper.tasks[0].id)
             });
             this.subscriptions.push(
               this.service
@@ -88,7 +92,9 @@ export class TasksDataSource extends BaseDataSource<JTaskWrapper> {
                   });
                   taskWrappers.forEach((taskWrapper) => {
                     const task: JTask = taskWrapper.tasks[0];
-                    taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                    if (task != null) {
+                      taskWrapper.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                    }
                   });
                 })
             );
