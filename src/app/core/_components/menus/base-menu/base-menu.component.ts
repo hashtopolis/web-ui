@@ -44,7 +44,7 @@ export class BaseMenuComponent {
   }
 
   protected addActionMenuItem(index: number, item: ActionMenuItem): void {
-    if (this.actionMenuItems.length <= index) {
+    if (this.actionMenuItems.length <= index || this.actionMenuItems[index] == undefined) {
       this.actionMenuItems[index] = [item];
     } else {
       this.actionMenuItems[index].push(item);

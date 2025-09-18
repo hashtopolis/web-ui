@@ -18,6 +18,7 @@ export class HashListContextMenuService extends ContextMenuService {
     const permHashListDelete: Array<PermissionValues> = [Perm.Hashlist.DELETE];
 
     const isArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: false };
+    const isUnArchiveCondition: ContextMenuCondition = { key: 'isArchived', value: true };
 
     this.addCtxEditItem(
       RowActionMenuLabel.EDIT_HASHLIST,
@@ -28,6 +29,8 @@ export class HashListContextMenuService extends ContextMenuService {
     this.addCtxImportItem(RowActionMenuLabel.IMPORT_HASHLIST, permHashListCreate, isArchiveCondition);
     this.addCtxExportItem(RowActionMenuLabel.EXPORT_HASHLIST, permHashListRead, isArchiveCondition);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_HASHLIST, permHashListDelete);
+    this.addCtxArchiveItem(RowActionMenuLabel.ARCHIVE_HASHLIST, permHashListUpdate, isArchiveCondition);
+    this.addCtxUnArchiveItem(RowActionMenuLabel.UNARCHIVE_HASHLIST, permHashListUpdate, isUnArchiveCondition);
 
     this.addBulkArchiveItem(BulkActionMenuLabel.ARCHIVE_HASHLISTS, permHashListUpdate, isArchiveCondition);
     this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_HASHLISTS, permHashListDelete);

@@ -175,6 +175,12 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
       case RowActionMenuAction.IMPORT:
         this.rowActionImport(event.data);
         break;
+      case RowActionMenuAction.ARCHIVE:
+        this.rowActionArchive(event.data);
+        break;
+      case RowActionMenuAction.UNARCHIVE:
+        this.rowActionUnarchive(event.data);
+        break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
@@ -324,6 +330,24 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   private rowActionImport(hashlist: JHashlist): void {
     this.router.navigate(['/hashlists/hashlist/' + hashlist.id + '/import-cracked-hashes']);
+  }
+
+  private rowActionArchive(hashlist: JHashlist): void {
+    this.updateIsArchived(hashlist.id, true);
+  }
+
+  private rowActionUnarchive(hashlist: JHashlist): void {
+    this.updateIsArchived(hashlist.id, false);
+  }
+
+  private updateIsArchived(hashlistId: number, isArchived: boolean): void {
+    const strArchived = isArchived ? 'archived' : 'unarchived';
+    this.subscriptions.push(
+      this.gs.update(SERV.HASHLISTS, hashlistId, { isArchived: isArchived }).subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully ${strArchived} hashlist!`);
+        this.reload();
+      })
+    );
   }
 
   /**

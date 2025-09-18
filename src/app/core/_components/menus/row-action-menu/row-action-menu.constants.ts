@@ -3,6 +3,8 @@ export const RowActionMenuLabel = {
   ACTIVATE_AGENT: 'Activate Agent',
   ACTIVATE_NOTIFICATION: 'Activate Notification',
   APPLY_HASHLIST: 'Apply Hashlist',
+  ARCHIVE_HASHLIST: 'Archive Hashlist',
+  UNARCHIVE_HASHLIST: 'Unarchive Hashlist',
   DEACTIVATE_USER: 'Deactivate User',
   DEACTIVATE_AGENT: 'Deactivate Agent',
   DEACTIVATE_NOTIFICATION: 'Deactivate Notification',
@@ -79,7 +81,7 @@ export const RowActionMenuAction = {
   ACTIVATE: 'activate',
   DEACTIVATE: 'deactivate',
   DOWNLOAD: 'download',
-  UNARCHIVE: 'unrachive',
+  UNARCHIVE: 'unarchive',
   RESET: 'reset',
   VIEW: 'view'
 };
