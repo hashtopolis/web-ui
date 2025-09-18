@@ -231,8 +231,12 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    *
    **/
   assingAgentInit() {
-    const paramsAgentAssign = new RequestParamBuilder().create();
-    this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign).subscribe((responseAssignments: ResponseWrapper) => {
+    // TODO possibly we could turn this in a single helper request to the backend if we create a helper endpoint
+    // That retrieves available agents. Or even better, we might be able to use the agents, in the datasource of
+    // the assigned agents table. And use those IDs to filter for available agents.
+    const paramsAgentAssign = new RequestParamBuilder();
+    paramsAgentAssign.addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex });
+    this.gs.getAll(SERV.AGENT_ASSIGN, paramsAgentAssign.create()).subscribe((responseAssignments: ResponseWrapper) => {
       const responseBodyAssignments = { data: responseAssignments.data, included: responseAssignments.included };
       const agentAssignments = this.serializer.deserialize<JAgentAssignment[]>(responseBodyAssignments);
 
