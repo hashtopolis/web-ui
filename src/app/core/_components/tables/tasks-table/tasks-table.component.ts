@@ -287,7 +287,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   getRowDeleteLabel(data: JTaskWrapper): JTaskWrapper {
     return {
       ...data,
-      taskName: data.taskType === TaskType.SUPERTASK || data.tasks.length === 0 ? data.taskWrapperName : data.tasks[0].taskName
+      taskName:
+        data.taskType === TaskType.SUPERTASK || data.tasks.length === 0 ? data.taskWrapperName : data.tasks[0].taskName
     };
   }
 
@@ -631,12 +632,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   // This state should not happen but since there are no database constraints this can't be enforced.
   private checkValidTask(wrapper: JTaskWrapper): boolean {
     if (wrapper.tasks.length === 0) {
-      this.alertService.showErrorMessage("Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper");
-      return false
+      this.alertService.showErrorMessage(
+        "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
+      );
+      return false;
     } else {
-      return true
+      return true;
     }
-
   }
 
   private changePriority(wrapper: JTaskWrapper, priority: string): void {
