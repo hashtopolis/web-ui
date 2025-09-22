@@ -1,7 +1,7 @@
+import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashtype } from '@models/hashtype.model';
-import { JAgent } from '@models/agent.model';
 
 /**
  * Different health check types

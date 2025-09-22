@@ -56,7 +56,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         dataKey: 'healthCheckAgentId',
         isSortable: true,
         export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id + '',
-        render: (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id,
+        render: (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id
       },
       {
         id: HealthCheckAgentsTableCol.AGENT_NAME,
