@@ -1,6 +1,7 @@
 import { BaseModel } from '@models/base.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashtype } from '@models/hashtype.model';
+import { JAgent } from '@models/agent.model';
 
 /**
  * Different health check types
@@ -46,7 +47,6 @@ export interface JHealthCheck extends BaseModel {
  * @extends BaseModel
  */
 export interface JHealthCheckAgent extends BaseModel {
-  healthCheckAgentId: number;
   healthCheckId: number;
   agentId: number;
   status: number;
@@ -55,5 +55,5 @@ export interface JHealthCheckAgent extends BaseModel {
   start: number;
   end: number;
   errors: string;
-  agentName?: string;
+  agent?: JAgent;
 }

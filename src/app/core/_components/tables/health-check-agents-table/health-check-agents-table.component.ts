@@ -46,7 +46,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
   }
 
   filter(item: JHealthCheckAgent, filterValue: string): boolean {
-    return item.agentName.toLowerCase().includes(filterValue) || item.status.toString().includes(filterValue);
+    return item.agent.agentName.toLowerCase().includes(filterValue) || item.status.toString().includes(filterValue);
   }
 
   getColumns(): HTTableColumn[] {
@@ -55,14 +55,15 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
         id: HealthCheckAgentsTableCol.AGENT_ID,
         dataKey: 'healthCheckAgentId',
         isSortable: true,
-        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.healthCheckAgentId + ''
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id + '',
+        render: (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.id,
       },
       {
         id: HealthCheckAgentsTableCol.AGENT_NAME,
         dataKey: 'agentName',
         routerLink: (HealthCheckAgent: JHealthCheckAgent) => this.renderAgentLinkFromHealthCheck(HealthCheckAgent),
-        isSortable: true,
-        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.agentName + ''
+        isSortable: false,
+        export: async (HealthCheckAgent: JHealthCheckAgent) => HealthCheckAgent.agent.agentName + ''
       },
       {
         id: HealthCheckAgentsTableCol.STATUS,
@@ -115,7 +116,7 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
     if (healthCheck) {
       links.push({
         routerLink: ['/agents', 'show-agents', healthCheck.agentId, 'edit'],
-        label: healthCheck.agentName
+        label: healthCheck.agent.agentName
       });
     }
     return of(links);
