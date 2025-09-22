@@ -66,7 +66,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
     return [
       {
         id: CrackersTableCol.ID,
-        dataKey: '_id',
+        dataKey: 'crackerBinaryTypeId',
         isSortable: true,
         isSearchable: true,
         render: (cracker: JCrackerBinaryType) => cracker.id,
