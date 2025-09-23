@@ -1,4 +1,4 @@
-import { Subscription, take, timer } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import {
   AfterViewInit,

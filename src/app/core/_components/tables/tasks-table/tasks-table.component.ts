@@ -9,7 +9,6 @@ import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { SERV } from '@services/main.config';
-import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';

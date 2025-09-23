@@ -13,7 +13,6 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
 import { IParamBuilder } from '@services/params/builder-types.service';
 import { PermissionService } from '@services/permission/permission.service';
-import { AlertService } from '@services/shared/alert.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
