@@ -9,6 +9,7 @@ import { JTask, JTaskWrapper, TaskType } from '@models/task.model';
 
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { SERV } from '@services/main.config';
+import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -61,6 +62,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   dataSource: TasksDataSource;
   isArchived = false;
   selectedFilterColumn: string;
+
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -70,11 +72,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
-    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
-    if (refresh) {
-      this.dataSource.setAutoreload(true);
-    } else {
-      this.dataSource.setAutoreload(false);
+    if (this.dataSource.autoRefreshService.refreshPage) {
+      this.dataSource.startAutoRefresh();
     }
   }
 

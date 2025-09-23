@@ -4,7 +4,7 @@
     <!-- Auto-refresh control -->
     <div class="table-footer-actions"
          style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-      <button (click)="dataSource.setAutoreload(!dataSource.autoRefreshEnabled)" *ngIf="supportsAutoRefresh" mat-button>
+      <button (click)="dataSource.toggleAutoRefresh(!dataSource.autoRefreshEnabled)" *ngIf="supportsAutoRefresh" mat-button>
         <mat-icon>{{ dataSource.autoRefreshEnabled ? 'pause_circle_outline' : 'autorenew' }}</mat-icon>
         {{ dataSource.autoRefreshEnabled ? 'Pause Auto Reload' : 'Enable Auto Reload' }}
       </button>
@@ -294,18 +294,11 @@
   <ng-container *ngIf="isPageable">
     <hr />
     <div class="paginator-footer">
-      <div class="last-updated" style="display: flex; align-items: center; gap: 4px;">
-      <span *ngIf="dataSource.getLastUpdated()">
-        Last updated: {{ dataSource.getLastUpdated() }}
-      </span>
-        <mat-spinner
-          *ngIf="(dataSource.loading$ | async) && dataSource.getLastUpdated()"
-          diameter="12"
-          strokeWidth="2"
-        ></mat-spinner>
-      </div>
-
-
+      <last-updated
+        [lastUpdated]="dataSource.lastUpdated"
+        [nextRefreshTimestamp]="dataSource.autoRefreshService.nextRefreshTimestamp"
+        [refreshing]="dataSource.loading$ | async">
+      </last-updated>
       <mat-paginator
         (page)="onPageChange($event)"
         [disabled]="dataSource.loading$ | async"

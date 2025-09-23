@@ -76,6 +76,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
 
 import { DebounceDirective } from '@src/app/core/_directives/debounce.directive';
 import { PipesModule } from '@src/app/shared/pipes.module';
+import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
 
 @NgModule({
   declarations: [
@@ -157,7 +158,8 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     FormsModule,
     FontAwesomeModule,
     PipesModule,
-    DebounceDirective
+    DebounceDirective,
+    LastUpdatedComponent
   ],
   exports: [
     BaseTableComponent,

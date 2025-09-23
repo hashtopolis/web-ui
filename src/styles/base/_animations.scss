@@ -116,6 +116,24 @@ $AgentMAINinfobox-height: 4vmin;
   100% { transform: scale(1);}
 }
 
+// FLASH ANIMATION FOR TABLE REFRESH ―――――――――――――――――――――――――
+
+.refreshflash {
+  animation: flashAnimation 0.1s ease-in-out;
+}
+
+@keyframes flashAnimation {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(2); /* brightens the element temporarily */
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
 
 /*
   1- End
