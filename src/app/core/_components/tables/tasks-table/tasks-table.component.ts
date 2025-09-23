@@ -287,7 +287,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   getRowDeleteLabel(data: JTaskWrapper): JTaskWrapper {
     return {
       ...data,
-      taskName: data.taskType === TaskType.SUPERTASK ? data.taskWrapperName : data.tasks[0].taskName
+      taskName:
+        data.taskType === TaskType.SUPERTASK || data.tasks.length === 0 ? data.taskWrapperName : data.tasks[0].taskName
     };
   }
 
@@ -544,7 +545,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private rowActionEdit(task: JTaskWrapper): void {
-    this.router.navigate(['tasks', 'show-tasks', task.tasks[0].id, 'edit']);
+    if (this.checkValidTask(task)) {
+      this.router.navigate(['tasks', 'show-tasks', task.tasks[0].id, 'edit']);
+    }
   }
 
   /**
@@ -592,19 +595,27 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private rowActionCopyToTask(wrapper: JTaskWrapper): void {
-    this.router.navigate(['tasks', 'new-tasks', wrapper.tasks[0].id, 'copy']);
+    if (this.checkValidTask(wrapper)) {
+      this.router.navigate(['tasks', 'new-tasks', wrapper.tasks[0].id, 'copy']);
+    }
   }
 
   private rowActionCopyToPretask(wrapper: JTaskWrapper): void {
-    this.router.navigate(['tasks', 'preconfigured-tasks', wrapper.tasks[0].id, 'copytask']);
+    if (this.checkValidTask(wrapper)) {
+      this.router.navigate(['tasks', 'preconfigured-tasks', wrapper.tasks[0].id, 'copytask']);
+    }
   }
 
   private rowActionArchive(wrapper: JTaskWrapper): void {
-    this.updateIsArchived(wrapper.tasks[0].id, true);
+    if (this.checkValidTask(wrapper)) {
+      this.updateIsArchived(wrapper.tasks[0].id, true);
+    }
   }
 
   private rowActionUnarchive(wrapper: JTaskWrapper): void {
-    this.updateIsArchived(wrapper.tasks[0].id, false);
+    if (this.checkValidTask(wrapper)) {
+      this.updateIsArchived(wrapper.tasks[0].id, false);
+    }
   }
 
   private updateIsArchived(taskId: number, isArchived: boolean): void {
@@ -615,6 +626,19 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         this.reload();
       })
     );
+  }
+
+  // Function to check if a task is invalid, by checking if a taskwrapper has a task and show an error.
+  // This state should not happen but since there are no database constraints this can't be enforced.
+  private checkValidTask(wrapper: JTaskWrapper): boolean {
+    if (wrapper.tasks.length === 0) {
+      this.alertService.showErrorMessage(
+        "Invalid task, the taskwrapper doesn't have a task. It is probably best to delete this taskwrapper"
+      );
+      return false;
+    } else {
+      return true;
+    }
   }
 
   private changePriority(wrapper: JTaskWrapper, priority: string): void {

@@ -43,38 +43,33 @@ export class TasksSupertasksDataSource extends BaseDataSource<JTask> {
           const length = response.meta.page.total_elements;
           const nextLink = response.links.next;
           const prevLink = response.links.prev;
-          const after = nextLink ? new URL(response.links.next).searchParams.get("page[after]") : null;
-          const before = prevLink ? new URL(response.links.prev).searchParams.get("page[before]") : null;
+          const after = nextLink ? new URL(response.links.next).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(response.links.prev).searchParams.get('page[before]') : null;
 
-          this.setPaginationConfig(
-            this.pageSize,
-            length,
-            after,
-            before,
-            this.index
-          );
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           const subtasks = taskWrappers[0].tasks;
+          if (subtasks.length > 0) {
+            const chunkParams = new RequestParamBuilder().addFilter({
+              field: 'taskId',
+              operator: FilterType.IN,
+              value: subtasks.map((task) => task.id)
+            });
 
-          const chunkParams = new RequestParamBuilder().addFilter({
-            field: 'taskId',
-            operator: FilterType.IN,
-            value: subtasks.map((task) => task.id)
-          });
-
-          this.subscriptions.push(
-            this.service
-              .getAll(SERV.CHUNKS, chunkParams.create())
-              .pipe(finalize(() => this.setData(subtasks)))
-              .subscribe((chunkResponse: ResponseWrapper) => {
-                const chunks = this.serializer.deserialize<JChunk[]>({
-                  data: chunkResponse.data,
-                  included: chunkResponse.included
-                });
-                subtasks.forEach((task) => {
-                  task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
-                });
-              })
-          );
+            this.subscriptions.push(
+              this.service
+                .getAll(SERV.CHUNKS, chunkParams.create())
+                .pipe(finalize(() => this.setData(subtasks)))
+                .subscribe((chunkResponse: ResponseWrapper) => {
+                  const chunks = this.serializer.deserialize<JChunk[]>({
+                    data: chunkResponse.data,
+                    included: chunkResponse.included
+                  });
+                  subtasks.forEach((task) => {
+                    task.chunkData = this.convertChunks(task.id, chunks, false, task.keyspace);
+                  });
+                })
+            );
+          }
         })
     );
   }
