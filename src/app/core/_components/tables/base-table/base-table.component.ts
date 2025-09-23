@@ -153,7 +153,7 @@ export class BaseTableComponent {
     const isSupertask = wrapper.taskType === TaskType.SUPERTASK;
 
     const link: HTTableRouterLink = {
-      label: wrapper.cracked.toLocaleString(),
+      label: wrapper.cracked.toLocaleString() + '/' + wrapper.hashlist.hashCount.toLocaleString(),
       routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', wrapper.tasks[0].id],
       tooltip: isSupertask ? 'Please access the cracked hashes via the row\'s context menu "show subtasks"' : undefined
     };

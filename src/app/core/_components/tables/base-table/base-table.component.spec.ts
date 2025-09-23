@@ -1,20 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { JTask, JTaskWrapper } from '@src/app/core/_models/task.model';
+import { Observable } from 'rxjs';
 
-import { BaseModel } from '@src/app/core/_models/base.model';
-import { BaseTableComponent } from './base-table.component';
 import { Component } from '@angular/core';
-import { ConfigService } from '@src/app/core/_services/shared/config.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { HTTableComponent } from '../ht-table/ht-table.component';
-import { HTTableRouterLink } from '../ht-table/ht-table.models';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
+import { HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+
 import { JAccessGroup } from '@src/app/core/_models/access-group.model';
 import { JAgent } from '@src/app/core/_models/agent.model';
+import { BaseModel } from '@src/app/core/_models/base.model';
 import { JChunk } from '@src/app/core/_models/chunk.model';
 import { JHashlist } from '@src/app/core/_models/hashlist.model';
 import { JSuperTask } from '@src/app/core/_models/supertask.model';
+import { JTask, JTaskWrapper } from '@src/app/core/_models/task.model';
 import { JUser } from '@src/app/core/_models/user.model';
-import { Observable } from 'rxjs';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { ConfigService } from '@src/app/core/_services/shared/config.service';
 
 // Create a test implementation of BaseTableComponent
 @Component({
@@ -123,21 +125,28 @@ describe('BaseTableComponent', () => {
   });
 
   it('should render cracked link from supertask wrapper', (done) => {
-    const mockWrapper = { id: 1, cracked: 100, taskType: 1 } as JTaskWrapper;
+    const mockWrapper = { id: 1, cracked: 100, taskType: 1, hashlist: { hashCount: 100 } } as JTaskWrapper;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
-      expect(links[0].label).toBe('100');
+      expect(links[0].label).toBe('100/100');
       expect(links[0].routerLink).toBe(null);
       expect(links[0].tooltip).toBe('Please access the cracked hashes via the row\'s context menu "show subtasks"');
       done();
     });
   });
+
   it('should render cracked link from wrapper', (done) => {
     const mockTask = [{ id: 1, taskWrapperId: 1, taskName: 'Test Task' }] as JTask[];
-    const mockWrapper = { id: 1, cracked: 100, taskType: 0, tasks: mockTask } as JTaskWrapper;
+    const mockWrapper = {
+      id: 1,
+      cracked: 100,
+      taskType: 0,
+      tasks: mockTask,
+      hashlist: { hashCount: 100 }
+    } as JTaskWrapper;
     component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
       expect(links.length).toBe(1);
-      expect(links[0].label).toBe('100');
+      expect(links[0].label).toBe('100/100');
       expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
       expect(links[0].tooltip).toBe(undefined);
       done();
