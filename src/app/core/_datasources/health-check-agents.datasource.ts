@@ -1,13 +1,12 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 
-import { FilterType } from '@models/request-params.model';
 import { JHealthCheckAgent } from '@models/health-check.model';
-import { JAgent } from '@models/agent.model';
+import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SERV } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -21,68 +20,37 @@ export class HealthCheckAgentsDataSource extends BaseDataSource<JHealthCheckAgen
   loadAll(): void {
     this.loading = true;
     const healthCheckParams = new RequestParamBuilder()
-      .setPageSize(this.pageSize)
+      .addInitial(this)
       .addFilter({
         field: 'healthCheckId',
         operator: FilterType.EQUAL,
         value: this._healthCheckId
       })
+      .addInclude('agent')
       .create();
 
-    const agentParams = new RequestParamBuilder().setPageSize(this.pageSize).create();
-
-    /**
-     * @todo Extend health checks api response with Agents
-     */
     const healthChecks$ = this.service.getAll(SERV.HEALTH_CHECKS_AGENTS, healthCheckParams);
-    const agents$ = this.service.getAll(SERV.AGENTS, agentParams);
 
     this.subscriptions.push(
-      forkJoin([healthChecks$, agents$])
+      healthChecks$
         .pipe(
           catchError(() => of([])),
           finalize(() => (this.loading = false))
         )
-        .subscribe(([healthCheckResponse, agentsResponse]: [ResponseWrapper, ResponseWrapper]) => {
+        .subscribe((healthCheckResponse: ResponseWrapper) => {
           const healthChecksAgent = new JsonAPISerializer().deserialize<JHealthCheckAgent[]>({
             data: healthCheckResponse.data,
             included: healthCheckResponse.included
           });
-          const agents = new JsonAPISerializer().deserialize<JAgent[]>({
-            data: agentsResponse.data,
-            included: agentsResponse.included
-          });
 
-          const joinedData: Array<{ [key: string]: any }> = healthChecksAgent
-            .map((healthCheckAgent: JHealthCheckAgent) => {
-              const matchedAgent = agents.find((agent: JAgent) => agent.id === healthCheckAgent.agentId);
+          const length = healthCheckResponse.meta.page.total_elements;
+          const nextLink = healthCheckResponse.links.next;
+          const prevLink = healthCheckResponse.links.prev;
+          const after = nextLink ? new URL(nextLink).searchParams.get('page[after]') : null;
+          const before = prevLink ? new URL(prevLink).searchParams.get('page[before]') : null;
 
-              if (matchedAgent) {
-                return {
-                  ...healthCheckAgent,
-                  agentName: matchedAgent.agentName
-                };
-              } else {
-                // Handle the case where no matching agent is found, ie. deleted agent
-                return null;
-              }
-            })
-            .filter((joinedObject: { [key: string]: any } | null) => joinedObject !== null);
-
-            const length = healthCheckResponse.meta.page.total_elements;
-            const nextLink = healthCheckResponse.links.next;
-            const prevLink = healthCheckResponse.links.prev;
-            const after = nextLink ? new URL(nextLink).searchParams.get("page[after]") : null;
-            const before = prevLink ? new URL(prevLink).searchParams.get("page[before]") : null;
-
-            this.setPaginationConfig(
-              this.pageSize,
-              length,
-              after,
-              before,
-              this.index
-            );
-          this.setData(joinedData as JHealthCheckAgent[]);
+          this.setPaginationConfig(this.pageSize, length, after, before, this.index);
+          this.setData(healthChecksAgent);
         })
     );
   }
