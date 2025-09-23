@@ -17,6 +17,10 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private _currentFilter: Filter = null;
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
+    this.reset(true);
+    this.pageAfter = null;
+    this.pageBefore = null;
+    this.index = 0;
   }
 
   setSuperHashListID(superHashListID: number): void {
