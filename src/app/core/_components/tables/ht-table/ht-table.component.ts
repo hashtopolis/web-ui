@@ -132,7 +132,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = false;
 
-  /**Flag to signal if its a detail page, since detail pages do not keep state. */
+  /**Flag to signal if it's a detail page, since detail pages do not keep state. */
   @Input() isDetailPage = false;
 
   /** Flag to enable or disable cmd task attack checkbox. */
