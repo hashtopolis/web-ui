@@ -1,4 +1,4 @@
-import { Subscription, take, timer } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import {
   AfterViewInit,
@@ -101,7 +101,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Flag to indicate if data is being loaded */
   loading = true;
-  loadingTimeoutSubscription: Subscription;
 
   /** Reference to MatPaginator for pagination support. */
   @ViewChild(MatPaginator, { static: false }) matPaginator: MatPaginator;
@@ -215,6 +214,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
   private uiSettings: UISettingsUtilityClass;
+  private subscriptions: Subscription = new Subscription();
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
   filterQueryFormGroup = new FormGroup({
@@ -241,12 +241,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // Handle the case when the retrieved value is neither an array nor a TableConfig
       console.error(`Unexpected table configuration for key: ${this.name}`);
     }
-    // ToDo. this should be done with the real data, only used as UI friendly
-    this.loadingTimeoutSubscription = timer(5000)
-      .pipe(take(1))
-      .subscribe(() => {
-        this.loading = false;
-      });
     this.initFilterableColumns();
     this.onFilterColumnChange();
   }
@@ -294,7 +288,7 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
     this.dataSource.sort = this.matSort;
-    this.matSort.sortChange.subscribe(() => {
+    const sortSubscription = this.matSort.sortChange.subscribe(() => {
       this.uiSettings.updateTableSettings(this.name, {
         start: undefined,
         before: undefined,
@@ -312,12 +306,13 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
         0
       );
     });
+    this.subscriptions.add(sortSubscription);
   }
 
+  /** Cleanup on component destruction */
   ngOnDestroy(): void {
-    if (this.loadingTimeoutSubscription) {
-      this.loadingTimeoutSubscription.unsubscribe();
-    }
+    // Unsubscribe from all subscriptions
+    this.subscriptions.unsubscribe();
   }
 
   onLinkClicked() {

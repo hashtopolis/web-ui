@@ -61,6 +61,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   dataSource: TasksDataSource;
   isArchived = false;
   selectedFilterColumn: string;
+
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -70,11 +71,8 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
-    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
-    if (refresh) {
-      this.dataSource.setAutoreload(true);
-    } else {
-      this.dataSource.setAutoreload(false);
+    if (this.dataSource.autoRefreshService.refreshPage) {
+      this.dataSource.startAutoRefresh();
     }
   }
 

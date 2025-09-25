@@ -1,25 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 
 import { ASC } from '@src/app/core/_constants/agentsc.config';
-import { AgentStatusModalComponent } from '@src/app/agents/agent-status/agent-status-modal/agent-status-modal.component';
-import { CookieService } from '@src/app/core/_services/shared/cookies.service';
-import { FilterService } from '@src/app/core/_services/shared/filter.service';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { JAgent } from '@src/app/core/_models/agent.model';
-import { JAgentStat } from '@src/app/core/_models/agent-stats.model';
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { MatDialog } from '@angular/material/dialog';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
-import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { JAgentStat } from '@src/app/core/_models/agent-stats.model';
+import { JAgent } from '@src/app/core/_models/agent.model';
 import { ResponseWrapper } from '@src/app/core/_models/response.model';
+import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { SERV } from '@src/app/core/_services/main.config';
-import { UIConfigService } from '@src/app/core/_services/shared/storage.service';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { CookieService } from '@src/app/core/_services/shared/cookies.service';
 import { environment } from '@src/environments/environment';
 
 @Component({
-    selector: 'app-agent-status',
-    templateUrl: './agent-status.component.html',
-    standalone: false
+  selector: 'app-agent-status',
+  templateUrl: './agent-status.component.html',
+  standalone: false
 })
 @PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {
@@ -29,7 +25,7 @@ export class AgentStatusComponent implements OnInit {
   pageSize = 20;
 
   // view menu
-  view: any;
+  view: string | number = 0;
 
   // Agents Stats
   statDevice: JAgentStat[] = [];
@@ -39,10 +35,7 @@ export class AgentStatusComponent implements OnInit {
   private maxResults = environment.config.prodApiMaxResults;
 
   constructor(
-    private filterService: FilterService,
     private cookieService: CookieService,
-    private uiService: UIConfigService,
-    private dialog: MatDialog,
     private gs: GlobalService,
     private serializer: JsonAPISerializer
   ) {}
@@ -115,58 +108,5 @@ export class AgentStatusComponent implements OnInit {
       this.statDevice = tempDateFilter.filter((u) => u.statType == ASC.GPU_UTIL); // Temp
       this.statCpu = tempDateFilter.filter((u) => u.statType == ASC.CPU_UTIL); // Temp
     });
-  }
-
-  /**
-   * Filter agents on filter changed
-   * @param filterValue Value to filter agents for
-   */
-  filterChanged(filterValue: string) {
-    if (filterValue && this.showagents) {
-      filterValue = filterValue.toUpperCase();
-      const props = ['agentName', 'id'];
-      this._filteresAgents = this.filterService.filter<any>(this.showagents, filterValue, props);
-    } else {
-      this._filteresAgents = this.showagents;
-    }
-  }
-
-  // Modal Agent utilisation and OffCanvas menu
-
-  getTemp1() {
-    // Temperature Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold1').value;
-  }
-
-  getTemp2() {
-    // Temperature 2 Config Setting
-    return this.uiService.getUIsettings('agentTempThreshold2').value;
-  }
-
-  getUtil1() {
-    // CPU Config Setting
-    return this.uiService.getUIsettings('agentUtilThreshold1').value;
-  }
-
-  getUtil2() {
-    // CPU 2 Config Setting
-    return this.uiService.getUIsettings('agentUtilThreshold2').value;
-  }
-
-  /**
-   * Opens modal containing agent stat legend.
-   * @param title Modal title
-   * @param icon Modal icon
-   * @param content Modal content
-   * @param thresholdType
-   * @param result
-   * @param form
-   */
-  openModal(title: string, icon: string, content: string, thresholdType: string, result: any, form: any): void {
-    const dialogRef = this.dialog.open(AgentStatusModalComponent, {
-      data: { title, icon, content, thresholdType, result, form }
-    });
-
-    dialogRef.afterClosed().subscribe();
   }
 }

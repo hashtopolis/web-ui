@@ -44,12 +44,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   dataSource: AgentsDataSource;
   selectedFilterColumn: string;
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
-
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -58,13 +52,17 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
     this.dataSource.reload();
-    const refresh = !!this.dataSource.util.getSetting<boolean>('refreshPage');
-    if (refresh) {
-      this.dataSource.setAutoreload(true);
-    } else {
-      this.dataSource.setAutoreload(false);
+    if (this.dataSource.autoRefreshService.refreshPage) {
+      this.dataSource.startAutoRefresh();
     }
   }
+
+  ngOnDestroy(): void {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+  }
+
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {

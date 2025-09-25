@@ -13,14 +13,13 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { GlobalService } from '@services/main.service';
 import { IParamBuilder } from '@services/params/builder-types.service';
 import { PermissionService } from '@services/permission/permission.service';
-import { AlertService } from '@services/shared/alert.service';
+import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatDate } from '@src/app/shared/utils/datetime';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -85,23 +84,23 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   private readonly chunkTime: number = 600;
 
   public autoRefreshEnabled = false;
-  private lastUpdated: string;
+  lastUpdated: Date;
 
   protected cdr: ChangeDetectorRef;
   protected service: GlobalService;
   protected uiService: UIConfigService;
   protected permissionService: PermissionService;
-  private alertService: AlertService;
-  private autoRefreshTimeout?: ReturnType<typeof setTimeout>;
   public util: UISettingsUtilityClass;
+  autoRefreshService: AutoRefreshService;
+  private autoRefreshSubscription: Subscription;
 
   constructor(protected injector: Injector) {
     this.cdr = injector.get(ChangeDetectorRef);
     this.service = injector.get(GlobalService);
     this.uiService = injector.get(UIConfigService);
     this.permissionService = injector.get(PermissionService);
-    this.alertService = injector.get(AlertService);
     this.serializer = new JsonAPISerializer();
+    this.autoRefreshService = injector.get(AutoRefreshService);
 
     const chunktimeSetting: string = this.uiService.getUIsettings('chunktime').value;
     if (chunktimeSetting) {
@@ -127,7 +126,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   set loading(value: boolean) {
     this.loadingSubject.next(value);
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   /**
@@ -156,11 +155,12 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disconnect(_collectionViewer: CollectionViewer): void {
-    this.disableAutoRefresh();
-
     this.dataSubject.complete();
     this.loadingSubject.complete();
 
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
@@ -174,7 +174,8 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   setData(data: T[]): void {
     this.originalData = data;
     this.dataSubject.next(data);
-    this.lastUpdated = this.getCurrentTime();
+    this.lastUpdated = new Date();
+    this.cdr.detectChanges();
   }
 
   /**
@@ -184,22 +185,6 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
    */
   setColumns(columns: HTTableColumn[]): void {
     this.columns = columns;
-  }
-
-  /**
-   * Filters the data based on a filter function.
-   *
-   * @param filterFn - A function to filter the data based on filterValue.
-   */
-  filterData(filterFn: (item: T, filterValue: string) => boolean): void {
-    const filterValue = this.filter.trim().toLowerCase();
-    if (!filterValue) {
-      this.dataSubject.next(this.originalData);
-    } else {
-      const filteredData = this.originalData.filter((item) => filterFn(item, filterValue));
-
-      this.dataSubject.next(filteredData);
-    }
   }
 
   /**
@@ -369,66 +354,35 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
 
   /**
-   * Get the current time as a formatted string.
-   * @returns The current time in 'HH:MM:SS AM/PM' format
+   * Enable or disable auto-refresh and subscribe to refresh events
+   * @param flag - true to enable auto-refresh, false to disable
    */
-  getCurrentTime(): string {
-    return formatDate(new Date(), this.util.getSetting('timefmt'));
-  }
-
-  setAutoreload(flag: boolean): void {
+  toggleAutoRefresh(flag: boolean): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
     this.autoRefreshEnabled = flag; // Keep the flag in sync
-
-    const updatedSettings = this.util.updateSettings({ refreshPage: flag });
-    if (updatedSettings) {
-      const message = flag ? 'Autoreload enabled' : 'Autoreload paused';
-      this.alertService.showSuccessMessage(message);
-    }
-
-    if (flag) {
-      this.enableAutoRefresh();
-    } else {
-      this.disableAutoRefresh();
-    }
-  }
-
-  private enableAutoRefresh(): void {
-    if (!this.autoRefreshEnabled) return;
-
-    // Don't start a new refresh if loading is still in progress
-    if (this.loadingSubject.value) {
-      // Schedule next attempt after the same interval
-      const intervalMs = this.util.getSetting<number>('refreshInterval') * 1000;
-      this.autoRefreshTimeout = setTimeout(() => this.enableAutoRefresh(), intervalMs);
-      return;
-    }
-
-    const intervalMs = this.util.getSetting<number>('refreshInterval') * 1000;
-
-    // Immediately reload once
-    this.reload();
-
-    // Schedule next reload recursively
-    this.autoRefreshTimeout = setTimeout(() => this.enableAutoRefresh(), intervalMs);
+    this.autoRefreshService.toggleAutoRefresh(flag, { immediate: true });
+    this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.reload();
+    });
   }
 
   /**
-   * Disables the auto-refresh functionality and clears any existing timeouts.
-   * @private
+   * Start auto-refresh without changing the current settings
+   * (used when component is initialized and auto-refresh is already enabled)
    */
-  private disableAutoRefresh(): void {
-    if (this.autoRefreshTimeout) {
-      clearTimeout(this.autoRefreshTimeout);
-      this.autoRefreshTimeout = undefined;
+  startAutoRefresh(): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
     }
-    this.autoRefreshEnabled = false; // sync flag
+    this.autoRefreshEnabled = true; // Keep the flag in sync
+    this.autoRefreshService.startAutoRefresh({ immediate: false });
+    this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => {
+      this.reload();
+    });
   }
-  /**
-   * Gets the timestamp of the last data refresh.
-   */
-  getLastUpdated(): string {
-    return this.lastUpdated;
-  }
+
   applyFilterWithPaginationReset(params: IParamBuilder, activeFilter: Filter, query?: Filter): IParamBuilder {
     if (activeFilter?.value && activeFilter.value.toString().length > 0) {
       // Reset pagination only when filter changes (not during pagination)

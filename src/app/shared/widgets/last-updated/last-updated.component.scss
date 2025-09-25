@@ -1,0 +1,11 @@
+
+:host {
+  font-size: 0.8em;
+  color: var(--color-grey-dark);
+}
+
+.next-refresh {           // class for the "(Next refresh in ...s)" text
+  display: inline-block;  // Display as inline-block to allow margin
+  min-width: 120px;       // Show a minimum width to avoid layout shift
+  text-align: left;       // Align text to the left
+}

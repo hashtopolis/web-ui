@@ -1,0 +1,13 @@
+<span *ngIf="lastUpdated">
+  Last updated: {{ lastUpdatedDisplay }}
+
+  <!-- Only render the right side if refreshing or nextRefreshTimestamp exists -->
+  <span class="next-refresh" *ngIf="refreshing || nextRefreshTimestamp">
+    <ng-container *ngIf="refreshing; else countdown">
+      <mat-spinner diameter="12" strokeWidth="2"></mat-spinner>
+    </ng-container>
+    <ng-template #countdown>
+      (Next reload in {{ nextUpdateDisplay }})
+    </ng-template>
+  </span>
+</span>
