@@ -3,15 +3,5 @@
   justify-content: space-between; // left + right
   align-items: center;
   margin-top: 4px;
-
-}
-
-@keyframes flash {
-  from { background-color: #fff3cd; } /* pale yellow */
-  to { background-color: transparent; }
-}
-
-tr.flash {
-  animation: flash 1s ease-out;
 }
 
