@@ -60,6 +60,6 @@ $btn-text-color: #ffffff;
 $btn-bg-color: #1986b1;
 $btn-border-color: #1986b1;
 
-forward "self;"
+@forward "colors";
 
 
