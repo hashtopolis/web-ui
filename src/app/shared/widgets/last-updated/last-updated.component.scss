@@ -1,8 +1,8 @@
-@use 'src/styles/base/colors';
+@use 'src/styles/tokens';
 
 :host {
   font-size: 0.8em;
-  color: colors.$color-grey-dark;
+  color: tokens.$color-grey-dark;
 }
 
 .next-refresh {           // class for the "(Next refresh in ...s)" text
