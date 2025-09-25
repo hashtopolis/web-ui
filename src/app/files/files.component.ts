@@ -12,6 +12,7 @@ import { FileType } from '../core/_models/file.model';
 export class FilesComponent implements OnInit {
   fileType: FileType = 0;
   FileType = FileType;
+  name = "filesTable";
 
   constructor(
     private route: ActivatedRoute,
@@ -22,6 +23,17 @@ export class FilesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFiles();
+    switch (this.fileType) {
+      case 0:
+        this.name = "filesWordlistTable";
+        break;
+      case 1:
+        this.name = "filesRuleTable";
+        break;
+      case 2:
+        this.name = "filesOtherTable";
+        break
+    }
   }
 
   loadFiles() {

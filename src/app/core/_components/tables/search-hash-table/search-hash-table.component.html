@@ -1,14 +1,4 @@
-<ht-table
-  #table
-  name="searchHashTable"
-  dataType="search-hash"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [isFilterable]="!isFilterable"
-  [isPageable]="false"
-  (exportActionClicked)="exportActionClicked($event)"
-  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
-  (backendSqlFilter)="filter($event)"
-/>
+<ht-table #table name="searchHashTable" dataType="search-hash" [columnLabels]="columnLabels" [dataSource]="dataSource"
+  [tableColumns]="tableColumns" [isSelectable]="true" [isFilterable]="!isFilterable" [isPageable]="false"
+  [isDetailPage]="true" (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event" (backendSqlFilter)="filter($event)" />
