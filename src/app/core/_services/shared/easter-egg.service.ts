@@ -48,7 +48,12 @@ export class EasterEggService implements OnDestroy {
 
   private handleKeypress(event: KeyboardEvent): void {
     // Add the key to the sequence
-    const key = event.key.toLowerCase();
+    let key = event.key;
+    if (key !== undefined) {
+      key = key.toLowerCase();
+    } else {
+      return;
+    }
 
     // Update the current sequence
     this.currentSequence.push(key);
