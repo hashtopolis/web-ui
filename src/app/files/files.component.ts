@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { FileType } from '@models/file.model';
+
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
