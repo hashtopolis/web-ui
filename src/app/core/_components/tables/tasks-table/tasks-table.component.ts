@@ -77,6 +77,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   ngOnDestroy(): void {
+    this.dataSource.stopAutoRefresh();
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }

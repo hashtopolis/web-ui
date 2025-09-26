@@ -58,6 +58,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   }
 
   ngOnDestroy(): void {
+    this.dataSource.stopAutoRefresh();
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
