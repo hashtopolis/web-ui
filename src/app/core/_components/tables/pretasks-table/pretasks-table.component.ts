@@ -200,13 +200,13 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         id: PretasksTableCol.ESTIMATED_KEYSPACE,
         dataKey: 'keyspaceSize',
         render: (pretask: JPretask) => this.renderEstimatedKeyspace(pretask),
-        isSortable: true,
+        isSortable: false,
         export: async (pretask: JPretask) => Promise.resolve(this.renderEstimatedKeyspace(pretask).toString())
       });
       tableColumns.push({
         id: PretasksTableCol.ATTACK_RUNTIME,
         dataKey: 'keyspaceTime',
-        isSortable: true,
+        isSortable: false,
         render: () => this.renderKeyspaceTime(this.benchmarkA0, this.benchmarkA3)
       });
     }
