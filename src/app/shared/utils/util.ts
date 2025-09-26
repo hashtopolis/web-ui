@@ -127,13 +127,13 @@ export const convertCrackingSpeed = (speed: number): string => {
 
   for (const unit of units) {
     if (hashSpeed < splitter) {
-      return `${convertToLocale(hashSpeed)} ${unit}`;
+      return `${convertToLocale(hashSpeed)}\u00A0${unit}`;
     }
     hashSpeed /= splitter;
   }
 
   hashSpeed *= splitter;
-  return `${convertToLocale(hashSpeed)} ${units[-1]}`;
+  return `${convertToLocale(hashSpeed)}\u00A0${units[-1]}`;
 };
 
 /**
