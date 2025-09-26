@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - dev
+      - ci-npm-audit
   schedule:
     - cron: '0 3 * * *'   # every day at 3am
 
