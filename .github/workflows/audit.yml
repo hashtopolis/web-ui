@@ -25,7 +25,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - uses: oke-py/npm-audit-action@v3
         with:
-          audit_level: low
+          audit_level: medium
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create_issues: 'false'
 
