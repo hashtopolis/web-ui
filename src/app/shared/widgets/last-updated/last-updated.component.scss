@@ -1,7 +1,11 @@
-
 :host {
   font-size: 0.8em;
-  color: var(--color-grey-dark);
+  color: var(--color-grey-dark); // default light mode color
+}
+
+/* dark mode override using body class */
+body.dark-theme :host {
+  color: var(--color-grey-light);
 }
 
 .next-refresh {           // class for the "(Next refresh in ...s)" text

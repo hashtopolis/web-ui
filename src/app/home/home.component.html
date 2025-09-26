@@ -188,26 +188,24 @@
           </ng-template>
         </ng-container>
       </div>
+    </div>
+    <div *ngIf="canReadCracks" class="chart-controls">
+      <last-updated
+        [lastUpdated]="lastUpdated"
+        [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
+        [refreshing]="refreshing">
+      </last-updated>
 
-
-      <div *ngIf="canReadCracks" class="chart-controls">
-        <last-updated
-          [lastUpdated]="lastUpdated"
-          [nextRefreshTimestamp]="autoRefreshService.nextRefreshTimestamp"
-          [refreshing]="refreshing">
-        </last-updated>
-
-        <ng-container *ngIf="!autoRefreshService.refreshPage">
-          <button mat-button (click)="setAutoRefresh(true)" data-testid="enable-auto-reload">
-            <mat-icon>autorenew</mat-icon>
-          </button>
-        </ng-container>
-        <ng-container *ngIf="autoRefreshService.refreshPage">
-          <button mat-button (click)="setAutoRefresh(false)" data-testid="pause-auto-reload">
-            <mat-icon>pause_circle_outline</mat-icon>
-          </button>
-        </ng-container>
-      </div>
+      <ng-container *ngIf="!autoRefreshService.refreshPage">
+        <button mat-button (click)="setAutoRefresh(true)" data-testid="enable-auto-reload">
+          <mat-icon>autorenew</mat-icon>
+        </button>
+      </ng-container>
+      <ng-container *ngIf="autoRefreshService.refreshPage">
+        <button mat-button (click)="setAutoRefresh(false)" data-testid="pause-auto-reload">
+          <mat-icon>pause_circle_outline</mat-icon>
+        </button>
+      </ng-container>
     </div>
   </div>
 
