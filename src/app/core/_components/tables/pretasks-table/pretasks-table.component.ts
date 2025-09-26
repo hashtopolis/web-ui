@@ -49,6 +49,7 @@ declare let defaultOptions: AttackOptions;
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   private _supertTaskId: number;
+  isDetail = false;
 
   // Input property to specify a supertask ID for filtering pretasks.
   @Input()
@@ -81,6 +82,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     this.dataSource = new PreTasksDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     if (this.supertTaskId) {
+      this.isDetail = true;
       this.dataSource.setSuperTaskId(this.supertTaskId);
     }
     this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();

@@ -1,13 +1,3 @@
-<ht-table
-  #table
-  name="healthCheckAgentsTable"
-  dataType="health-check-agents"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [isFilterable]="isFilterable"
-  [isPageable]="true"
-
-  (exportActionClicked)="exportActionClicked($event)"
-/>
+<ht-table #table name="healthCheckAgentsTable" dataType="health-check-agents" [isDetailPage]="true"
+  [columnLabels]="columnLabels" [dataSource]="dataSource" [tableColumns]="tableColumns" [isSelectable]="true"
+  [isFilterable]="isFilterable" [isPageable]="true" (exportActionClicked)="exportActionClicked($event)" />

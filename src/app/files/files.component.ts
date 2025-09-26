@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-
 import { ActivatedRoute } from '@angular/router';
-import { AutoTitleService } from '../core/_services/shared/autotitle.service';
-import { FileType } from '../core/_models/file.model';
+
+import { FileType } from '@models/file.model';
+
+import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
-    selector: 'app-files',
-    templateUrl: './files.component.html',
-    standalone: false
+  selector: 'app-files',
+  templateUrl: './files.component.html',
+  standalone: false
 })
 export class FilesComponent implements OnInit {
   fileType: FileType = 0;
   FileType = FileType;
+  name = 'filesTable';
 
   constructor(
     private route: ActivatedRoute,
@@ -22,6 +24,17 @@ export class FilesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFiles();
+    switch (this.fileType) {
+      case 0:
+        this.name = 'filesWordlistTable';
+        break;
+      case 1:
+        this.name = 'filesRuleTable';
+        break;
+      case 2:
+        this.name = 'filesOtherTable';
+        break;
+    }
   }
 
   loadFiles() {

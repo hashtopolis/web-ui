@@ -12,9 +12,11 @@ import { BaseDataSource } from '@datasources/base.datasource';
 export class ChunksDataSource extends BaseDataSource<JChunk> {
   private _agentId = 0;
   private _currentFilter: Filter = null;
+  isDetail = false;
 
   setAgentId(agentId: number): void {
     this._agentId = agentId;
+    this.isDetail = true;
   }
 
   loadAll(query?: Filter): void {

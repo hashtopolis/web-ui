@@ -25,6 +25,7 @@ export class FilesDataSource extends BaseDataSource<JFile> {
   private editIndex?: number;
   private editType?: number;
   private _currentFilter: Filter = null;
+  isDetail = false;
   /**
    * Set file type
    * @param fileType

@@ -1,13 +1,4 @@
-<ht-table
-  #table
-  name="accessPermissionGroupsUsersTable"
-  dataType="access-permission-groups-users"
-  [columnLabels]="columnLabels"
-  [dataSource]="dataSource"
-  [tableColumns]="tableColumns"
-  [isSelectable]="true"
-  [isFilterable]="isFilterable"
-  [filterFn]="filter"
-  [isPageable]="true"
-  (exportActionClicked)="exportActionClicked($event)"
-/>
+<ht-table #table name="accessPermissionGroupsUsersTable" dataType="access-permission-groups-users"
+  [columnLabels]="columnLabels" [dataSource]="dataSource" [tableColumns]="tableColumns" [isSelectable]="true"
+  [isFilterable]="isFilterable" [filterFn]="filter" [isDetailPage]="true" [isPageable]="true"
+  (exportActionClicked)="exportActionClicked($event)" />

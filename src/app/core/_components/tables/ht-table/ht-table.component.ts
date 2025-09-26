@@ -132,6 +132,9 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   /** Flag to enable or disable selectable rows. */
   @Input() isSelectable = false;
 
+  /**Flag to signal if it's a detail page, since detail pages do not keep state. */
+  @Input() isDetailPage = false;
+
   /** Flag to enable or disable cmd task attack checkbox. */
   @Input() isCmdTask = false;
 
@@ -229,11 +232,15 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
-    this.defaultPageSize = this.uiSettings['uiConfig']['tableSettings'][this.name]['page'];
-    this.defaultStartPage = this.uiSettings['uiConfig']['tableSettings'][this.name]['start'];
-    this.defaultBeforePage = this.uiSettings['uiConfig']['tableSettings'][this.name]['before'];
-    this.defaultIndex = this.uiSettings['uiConfig']['tableSettings'][this.name]['index'];
-    this.defaultTotalItems = this.uiSettings['uiConfig']['tableSettings'][this.name]['totalItems'];
+    const tableSettings = this.uiSettings['uiConfig']['tableSettings'][this.name];
+
+    if (!this.isDetailPage) {
+      this.defaultPageSize = tableSettings['page'];
+      this.defaultStartPage = tableSettings['start'];
+      this.defaultBeforePage = tableSettings['before'];
+      this.defaultIndex = tableSettings['index'];
+      this.defaultTotalItems = tableSettings['totalItems'];
+    }
 
     if (Array.isArray(displayedColumns)) {
       this.setDisplayedColumns(displayedColumns);
@@ -260,7 +267,6 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isPageable) {
       this.dataSource.paginator = this.matPaginator;
       // Get saved Pagesize from local storage, otherwise use default value
-      // Get saved Pagesize from local storage, otherwise use default value
       this.dataSource.pageSize = this.defaultPageSize;
       // Get saved start page
       this.dataSource.pageAfter = this.defaultStartPage;
@@ -276,10 +282,12 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.totalItems = this.defaultTotalItems;
     }
 
-    // Search item
-    this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
     // Sorted header arrow and sorting initialization
     this.dataSource.sortingColumn = this.uiSettings['uiConfig']['tableSettings'][this.name]['order'];
+    if (!this.isDetailPage) {
+      // Search item
+      this.dataSource.filter = this.uiSettings['uiConfig']['tableSettings'][this.name]['search'];
+    }
     if (this.dataSource.sortingColumn) {
       this.matSort.sort({
         id: this.dataSource.sortingColumn.id,
@@ -366,9 +374,11 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       direction: this.dataSource.sort['_direction']
     };
     this.dataSource.sortingColumn = sorting;
-    this.uiSettings.updateTableSettings(this.name, {
-      order: sorting
-    });
+    if (!this.isDetailPage) {
+      this.uiSettings.updateTableSettings(this.name, {
+        order: sorting
+      });
+    }
     this.dataSource.reload();
   }
 
@@ -588,15 +598,16 @@ export class HTTableComponent implements OnInit, AfterViewInit, OnDestroy {
       // }
     }
 
-    this.uiSettings.updateTableSettings(this.name, {
-      // start: pageAfter, // Store the new page index
-      // before: pageBefore, // Store the new page before
-      start: pageAfter,
-      before: pageBefore,
-      page: event.pageSize, // Store the new page size
-      index: index, //store the new table index
-      totalItems: this.dataSource.totalItems
-    });
+    // only store table settings in local storage when it is not a detail page
+    if (!this.isDetailPage) {
+      this.uiSettings.updateTableSettings(this.name, {
+        start: pageAfter,
+        before: pageBefore,
+        page: event.pageSize, // Store the new page size
+        index: index, //store the new table index
+        totalItems: this.dataSource.totalItems
+      });
+    }
 
     // Update pagination configuration in the data source
     this.dataSource.setPaginationConfig(event.pageSize, this.dataSource.totalItems, pageAfter, pageBefore, index);

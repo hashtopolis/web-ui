@@ -355,6 +355,60 @@ export const uiConfigDefault: UIConfig = {
       },
       search: ''
     },
+    filesWordlistTable: {
+      start: undefined,
+      page: 25,
+      columns: [
+        FilesTableCol.ID,
+        FilesTableCol.NAME,
+        FilesTableCol.SIZE,
+        FilesTableCol.LINE_COUNT,
+        FilesTableCol.ACCESS_GROUP
+      ],
+      order: {
+        id: FilesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    filesRuleTable: {
+      start: undefined,
+      page: 25,
+      columns: [
+        FilesTableCol.ID,
+        FilesTableCol.NAME,
+        FilesTableCol.SIZE,
+        FilesTableCol.LINE_COUNT,
+        FilesTableCol.ACCESS_GROUP
+      ],
+      order: {
+        id: FilesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
+    filesOtherTable: {
+      start: undefined,
+      page: 25,
+      columns: [
+        FilesTableCol.ID,
+        FilesTableCol.NAME,
+        FilesTableCol.SIZE,
+        FilesTableCol.LINE_COUNT,
+        FilesTableCol.ACCESS_GROUP
+      ],
+      order: {
+        id: FilesTableCol.ID,
+        dataKey: '',
+        isSortable: true,
+        direction: 'asc'
+      },
+      search: ''
+    },
     filesTableInPreTasks: {
       start: 0,
       page: 25,
