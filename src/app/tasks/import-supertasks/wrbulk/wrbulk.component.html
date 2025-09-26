@@ -5,21 +5,15 @@
     <grid-main>
       <app-page-subtitle [subtitle]="'Wordlist/Rule Bulk'"></app-page-subtitle>
       <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
-        <input-text title="Name" formControlName="name"></input-text>
+        <input-text title="Name" formControlName="name" [isRequired]="true"></input-text>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
           <input-number title="maxAgents" formControlName="maxAgents"></input-number>
         </div>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <input-select
-            title="Benchmark Type"
-            formControlName="useNewBench"
-            [items]="selectBenchmarktype"
-          ></input-select>
-          <input-select
-            title="Binary type to run task"
-            formControlName="crackerBinaryId"
-            [items]="selectCrackertype"
-          ></input-select>
+          <input-select title="Benchmark Type" formControlName="useNewBench"
+            [items]="selectBenchmarktype"></input-select>
+          <input-select title="Binary type to run task" formControlName="crackerBinaryId"
+            [items]="selectCrackertype"></input-select>
         </div>
         <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px">
           <input-check title="Small Tasks" formControlName="isSmall"></input-check>
@@ -28,8 +22,7 @@
         <input-text-area title="Base Command" formControlName="attackCmd"></input-text-area>
         <blacklist-attack [value]="createForm.get('attackCmd').value"></blacklist-attack>
         <fixed-alert
-          message="IMPORTANT: You must include the 'FILE' placeholder in your Base Command. When you mark files as 'Iterate' in the panels on the right, the system will create a separate subtask for EACH selected file, replacing 'FILE' with the actual file path. This allows for sequential execution of different wordlists or rule files in your attack strategy."
-        ></fixed-alert>
+          message="IMPORTANT: You must include the 'FILE' placeholder in your Base Command. When you mark files as 'Iterate' in the panels on the right, the system will create a separate subtask for EACH selected file, replacing 'FILE' with the actual file path. This allows for sequential execution of different wordlists or rule files in your attack strategy."></fixed-alert>
         <grid-buttons>
           <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
           <button-submit [name]="'Create'"></button-submit>
@@ -46,42 +39,27 @@
         <mat-expansion-panel-header>
           <span><b>Wordlists</b></span>
         </mat-expansion-panel-header>
-        <app-files-attack-table
-          [fileType]="0"
-          [bulkWordlistRule]="true"
-          [formData]="getFormData()"
-          (updateFormEvent)="onUpdateForm($event)"
-          [cmdPrepro]="true"
-          [customLabel]="customLabel"
-        ></app-files-attack-table>
+        <app-files-attack-table [fileType]="0" [bulkWordlistRule]="true" [formData]="getFormData()"
+          (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true"
+          [customLabel]="customLabel"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Rules</b></span>
         </mat-expansion-panel-header>
-        <app-files-attack-table
-          [fileType]="1"
-          [bulkWordlistRule]="true"
-          [formData]="getFormData()"
-          (updateFormEvent)="onUpdateForm($event)"
-          [cmdPrepro]="true"
-          [customLabel]="customLabel"
-        ></app-files-attack-table>
+        <app-files-attack-table [fileType]="1" [bulkWordlistRule]="true" [formData]="getFormData()"
+          (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true"
+          [customLabel]="customLabel"></app-files-attack-table>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <span><b>Other</b></span>
         </mat-expansion-panel-header>
-        <app-files-attack-table
-          [fileType]="2"
-          [bulkWordlistRule]="true"
-          [formData]="getFormData()"
-          (updateFormEvent)="onUpdateForm($event)"
-          [cmdPrepro]="true"
-          [customLabel]="customLabel"
-        ></app-files-attack-table>
+        <app-files-attack-table [fileType]="2" [bulkWordlistRule]="true" [formData]="getFormData()"
+          (updateFormEvent)="onUpdateForm($event)" [cmdPrepro]="true"
+          [customLabel]="customLabel"></app-files-attack-table>
       </mat-expansion-panel>
     </mat-accordion>
   </div>
