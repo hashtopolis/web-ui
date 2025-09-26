@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - dev
-  issue_comment:
+  push:
     branches:
       - ci-npm-audit
   schedule:
