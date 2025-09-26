@@ -1,0 +1,31 @@
+name: npm audit
+
+on:
+  pull_request:           # on every PR to master/dev
+    branches:
+      - master
+      - dev
+  schedule:
+    - cron: '0 3 * * *'   # every day at 3am
+
+
+jobs:
+  scan:
+    name: npm audit
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - uses: oke-py/npm-audit-action@v3
+        with:
+          audit_level: low
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_labels: ui
+          dedupe_issues: true
