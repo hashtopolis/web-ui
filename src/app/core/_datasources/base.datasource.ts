@@ -369,6 +369,17 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   }
 
   /**
+   * Stop auto-refresh and unsubscribe from refresh events
+   */
+  stopAutoRefresh(): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+    }
+    this.autoRefreshEnabled = false; // Keep the flag in sync
+    this.autoRefreshService.stopAutoRefresh();
+  }
+
+  /**
    * Start auto-refresh without changing the current settings
    * (used when component is initialized and auto-refresh is already enabled)
    */
