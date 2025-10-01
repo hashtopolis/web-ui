@@ -55,7 +55,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   crackerinfo: JCrackerBinary;
   tkeyspace: number;
 
-  @ViewChild('tasksAgentsTable') agentsTable: TasksAgentsTableComponent;
+  @ViewChild('assignedAgentsTable') agentsTable: TasksAgentsTableComponent;
   @ViewChild('slideToggle', { static: false }) slideToggle: MatSlideToggle;
   @ViewChild(TasksChunksTableComponent) chunkTable!: TasksChunksTableComponent;
 
@@ -105,6 +105,14 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
       this.ngOnInit();
     });
+  }
+
+  /**
+   * Reload data
+   */
+  refresh(): void {
+    this.onInitialize();
+    this.agentsTable.reload();
   }
 
   buildForm() {
