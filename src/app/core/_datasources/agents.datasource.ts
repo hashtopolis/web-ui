@@ -175,6 +175,9 @@ export class AgentsDataSource extends BaseDataSource<JAgent> {
 
           this.setPaginationConfig(this.pageSize, length, after, before, this.index);
           this.setData(agents);
+        } else {
+          const agents: JAgent[] = [];
+          this.setData(agents);
         }
       });
   }

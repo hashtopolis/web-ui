@@ -163,8 +163,8 @@
       </button>
     </mat-form-field>
   </form>
-  <tasks-agents-table #agentsTable name="assignedAgentsTable" datatype="agents-assign" [taskId]="editedTaskIndex"
-    [assignAgents]="true"></tasks-agents-table>
+  <tasks-agents-table #assignedAgentsTable name="assignedAgentsTable" datatype="agents-assign" [taskId]="editedTaskIndex"
+    [assignAgents]="true" (assignedAgentsChanged)="refresh()"></tasks-agents-table>
 </app-table>
 <!-- Task speed -->
 <app-table>

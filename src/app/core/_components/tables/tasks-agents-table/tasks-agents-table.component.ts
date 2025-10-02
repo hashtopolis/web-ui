@@ -1,7 +1,6 @@
-
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
@@ -12,11 +11,6 @@ import { SERV } from '@services/main.config';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
-import {
-  AgentTableEditableAction,
-  TasksAgentsTableCol,
-  TasksAgentsTableColumnLabel
-} from '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
   DataType,
@@ -27,6 +21,11 @@ import {
 } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
+import {
+  AgentTableEditableAction,
+  TasksAgentsTableCol,
+  TasksAgentsTableColumnLabel
+} from '@components/tables/tasks-agents-table/tasks-agents-table.constants';
 
 import { AgentsDataSource } from '@datasources/agents.datasource';
 
@@ -59,6 +58,8 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       return this._taskId;
     }
   }
+
+  @Output() assignedAgentsChanged = new EventEmitter<void>();
 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
@@ -204,7 +205,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         render: (agent: JAgent) => this.renderCracked(agent),
         isSortable: true,
         export: async (agent: JAgent) => this.renderCracked(agent) + ''
-      }, 
+      },
       {
         id: TasksAgentsTableCol.BENCHMARK,
         dataKey: 'benchmark',
@@ -527,6 +528,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         this.gs.delete(SERV.AGENT_ASSIGN, agent[0].assignmentId).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
+          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
         })
       );
     } else {
@@ -534,6 +536,7 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
         this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
+          this.assignedAgentsChanged.emit(); // Signals change that the Agents ComboBox is being updated
         })
       );
     }
