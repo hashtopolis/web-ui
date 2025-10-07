@@ -96,9 +96,10 @@ export class AuthComponent implements OnInit, OnDestroy {
       next: () => {
         this.loginForm.reset();
       },
-      error: () => {
+      error: (error) => {
         this.isLoading = false;
-        this.handleError('An error occurred. Please try again later.');
+        const errorMessage = error?.message || 'An error occurred. Please try again later.';
+        this.handleError(errorMessage);
       },
       complete: () => {
         this.isLoading = false; // Hide spinner after attempting to log in

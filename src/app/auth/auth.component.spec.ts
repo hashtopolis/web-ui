@@ -109,7 +109,25 @@ describe('AuthComponent', () => {
     tick();
 
     expect(component.isLoading).toBeFalse();
-    expect(mockAlertService.showErrorMessage).toHaveBeenCalled();
+    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Login failed');
+  }));
+
+  it('should show default error message when login fails without specific error message', fakeAsync(() => {
+    const errorResponse = throwError(() => ({})).pipe(observeOn(asyncScheduler));
+    mockAuthService.logIn.and.returnValue(errorResponse);
+
+    component.loginForm.setValue({ username: 'user', password: 'wrong' });
+
+    const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
+    submitButtonDebugEl.nativeElement.click();
+
+    expect(component.isLoading).toBeTrue();
+    expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'wrong');
+
+    tick();
+
+    expect(component.isLoading).toBeFalse();
+    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('An error occurred. Please try again later.');
   }));
 
   it('should call unsubscribeAll on destroy', () => {
