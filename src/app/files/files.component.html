@@ -1,7 +1,7 @@
 <app-table>
   <ng-container [ngSwitch]="fileType">
     <ng-container *ngSwitchCase="FileType.WORDLIST">
-      <app-page-title title="Wordlist Files" buttontitle="New WordList" buttonlink="/files/wordlist/new-wordlist"
+      <app-page-title title="Wordlist Files" buttontitle="New Wordlist" buttonlink="/files/wordlist/new-wordlist"
         [subbutton]="true"></app-page-title>
     </ng-container>
     <ng-container *ngSwitchCase="FileType.RULES">
