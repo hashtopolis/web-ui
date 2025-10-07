@@ -237,15 +237,6 @@ export class AuthService {
   }
 
   private handleError(errorRes: HttpErrorResponse) {
-    let errorMessage = 'An unknown error ocurred!';
-    if (!errorRes.error || !errorRes.error.error) {
-      return throwError(() => errorMessage);
-    }
-    switch (errorRes.error.error.message) {
-      case 'INVALID_PASSWORD': //We can add easily more common errors but for security better dont give more hints
-        errorMessage = 'Wrong username/password/OTP!';
-        break;
-    }
-    return throwError(() => errorMessage);
+    return throwError(() => errorRes.message);
   }
 }
