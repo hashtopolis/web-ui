@@ -219,13 +219,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
           hasError = true; // Set error flag
         }
 
-        // Check if at least one base file is selected
-        if (!baseFiles || baseFiles.length === 0) {
-          const warning = 'You need to select at least one base file!';
-          this.alert.showErrorMessage(warning);
-          hasError = true; // Set error flag
-        }
-
         // Check if at least one iter file is selected
         if (!iterFiles || iterFiles.length === 0) {
           const warning = 'You need to select at least one iteration file!';
