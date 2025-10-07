@@ -14,10 +14,10 @@ import { Router } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
 
-import { JCrackerBinaryType } from '../../../core/_models/cracker-binary.model';
-import { ResponseWrapper } from '../../../core/_models/response.model';
-import { SERV } from '../../../core/_services/main.config';
+import { SERV } from '@services/main.config';
 
+import { JCrackerBinaryType } from '@src/app/core/_models/cracker-binary.model';
+import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 
 /**
@@ -46,7 +46,7 @@ export class MasksComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: any;
+  selectCrackertype = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -78,7 +78,6 @@ export class MasksComponent implements OnInit, OnDestroy {
     private serializer: JsonAPISerializer
   ) {
     this.buildForm();
-    titleService.set(['Import SuperTask - Mask']);
   }
 
   /**
@@ -106,7 +105,7 @@ export class MasksComponent implements OnInit, OnDestroy {
       isSmall: new FormControl(false),
       isCpuTask: new FormControl(false),
       optFlag: new FormControl(false),
-      useNewBench: new FormControl(false),
+      useNewBench: new FormControl(true),
       crackerBinaryId: new FormControl(1),
       masks: new FormControl('')
     });

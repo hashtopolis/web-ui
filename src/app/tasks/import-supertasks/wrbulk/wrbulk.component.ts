@@ -20,7 +20,6 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
-import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
@@ -28,7 +27,6 @@ import { transformSelectOptions } from '@src/app/shared/utils/forms';
   templateUrl: './wrbulk.component.html',
   standalone: false
 })
-@PageTitle(['Import SuperTask - Wordlist/Rules Bulk'])
 export class WrbulkComponent implements OnInit, OnDestroy {
   /**
    * Horizontal menu and redirection links.
@@ -46,7 +44,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
   /** Select Options. */
   selectBenchmarktype = benchmarkType;
-  selectCrackertype: any;
+  selectCrackertype = undefined;
 
   /** Select Options Mapping */
   selectCrackertypeMap = {
@@ -95,7 +93,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       maxAgents: new FormControl(0),
       isSmall: new FormControl(false),
       isCpuTask: new FormControl(false),
-      useNewBench: new FormControl(false),
+      useNewBench: new FormControl(true),
       crackerBinaryId: new FormControl(1),
       attackCmd: new FormControl(this.uiService.getUIsettings('hashlistAlias').value, [Validators.required]),
       baseFiles: new FormControl([]),
@@ -192,8 +190,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
     if (this.createForm.valid) {
       const formValue = this.createForm.value;
       const attackCmd: string = formValue.attackCmd;
-      const crackerBinaryId: any = formValue.crackerBinaryId;
-      const baseFiles: [] = formValue.baseFiles;
+      const crackerBinaryId: number = formValue.crackerBinaryId;
       const iterFiles: [] = formValue.iterFiles;
 
       const attackAlias = this.uiService.getUIsettings('hashlistAlias').value;
@@ -217,13 +214,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
         // Check if attackCmd contains FILE placeholder
         if (!attackCmd.includes('FILE')) {
           const warning = 'No placeholder (FILE) for the iteration!';
-          this.alert.showErrorMessage(warning);
-          hasError = true; // Set error flag
-        }
-
-        // Check if at least one base file is selected
-        if (!baseFiles || baseFiles.length === 0) {
-          const warning = 'You need to select at least one base file!';
           this.alert.showErrorMessage(warning);
           hasError = true; // Set error flag
         }
@@ -286,7 +276,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * Updates the form based on the provided event data.
    * @param event - The event data containing attack command and files.
    */
-  onUpdateForm(event: any): void {
+  onUpdateForm(event): void {
     if (event.type === 'CMD') {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,
