@@ -1,4 +1,4 @@
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { catchError, finalize, forkJoin, of, throwError } from 'rxjs';
 
 import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -38,12 +38,41 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
     const chunks$ = this.service.getAll(SERV.CHUNKS, params.create());
 
+    // forkJoin([chunks$])
+    //   .pipe(
+    //     catchError((error) => {
+    //       if (error.Status === 403) {
+    //         this.hasPermission = false;
+    //       }
+    //       return throwError(() => error); // Rethrow other errors as well
+
+    //     }
+    //   ))
     forkJoin([chunks$])
-      .pipe(
-        catchError(() => of([])),
-        finalize(() => (this.loading = false))
-      )
+    .pipe(
+      catchError((error) => {
+        if (error.status === 403) {
+          // Handle 403 Forbidden specifically
+          console.error('Access denied: You do not have permission.');
+          this.hasPermission = false;
+          // You could also redirect, show a message, or log out the user here
+        } else {
+          // Handle other errors
+          console.error('An error occurred:', error);
+        }
+  
+        // Return fallback value to keep observable chain alive
+        return of([{
+          data: [],
+          included: []
+        } as ResponseWrapper]);
+      }),
+      finalize(() => (this.loading = false))
+    )
       .subscribe(([response]: [ResponseWrapper]) => {
+        if (this.hasPermission = false) {
+          return;
+        }
         const responseBody = { data: response.data, included: response.included };
         const assignedChunks = this.serializer.deserialize<JChunk[]>(responseBody);
 

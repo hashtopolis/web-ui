@@ -77,6 +77,7 @@ import { VouchersTableComponent } from '@components/tables/vouchers-table/vouche
 import { DebounceDirective } from '@src/app/core/_directives/debounce.directive';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
+import { TableErrorComponent } from "./tables/error-table.component.ts/table-error.component";
 
 @NgModule({
   declarations: [
@@ -159,8 +160,9 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     FontAwesomeModule,
     PipesModule,
     DebounceDirective,
-    LastUpdatedComponent
-  ],
+    LastUpdatedComponent,
+    TableErrorComponent
+],
   exports: [
     BaseTableComponent,
     TableTruncateComponent,
@@ -212,7 +214,8 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     TasksFilesTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    TableErrorComponent
   ],
   providers: [
     {

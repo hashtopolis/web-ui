@@ -11,6 +11,7 @@ import { RowActionMenuAction } from '@components/menus/row-action-menu/row-actio
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { ChunksTableCol, ChunksTableColumnLabel } from '@components/tables/chunks-table/chunks-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { TableErrorComponent } from '../error-table.component.ts/table-error.component';
 
 import { ChunksDataSource } from '@datasources/chunks.datasource';
 

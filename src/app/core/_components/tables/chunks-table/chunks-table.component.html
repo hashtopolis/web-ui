@@ -1,4 +1,11 @@
-<ht-table #table name="chunksTable" [columnLabels]="columnLabels" dataType="chunks" [dataSource]="dataSource"
-  [tableColumns]="tableColumns" [contextMenuService]="contextMenuService" [isFilterable]="isFilterable"
-  [isDetailPage]="dataSource.isDetail" (rowActionClicked)="rowActionClicked($event)" [isPageable]="true"
-  (selectedFilterColumnChanged)="selectedFilterColumn = $event" (backendSqlFilter)="handleBackendSqlFilter($event)" />
+<ng-container *ngIf="dataSource.hasPermission; else errorBlock">
+  <ht-table #table name="chunksTable" [columnLabels]="columnLabels" dataType="chunks" [dataSource]="dataSource"
+    [tableColumns]="tableColumns" [contextMenuService]="contextMenuService" [isFilterable]="isFilterable"
+    [isDetailPage]="dataSource.isDetail" (rowActionClicked)="rowActionClicked($event)" [isPageable]="true"
+    (selectedFilterColumnChanged)="selectedFilterColumn = $event" (backendSqlFilter)="handleBackendSqlFilter($event)" />
+
+</ng-container>
+<ng-template #errorBlock>
+  <!-- <app-table-error></app-table-error> -->
+  <h3>No permissions to view table!</h3>
+</ng-template>

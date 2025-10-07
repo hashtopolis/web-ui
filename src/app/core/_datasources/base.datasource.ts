@@ -93,6 +93,7 @@ export abstract class BaseDataSource<T, P extends MatPaginator = MatPaginator> i
   public util: UISettingsUtilityClass;
   autoRefreshService: AutoRefreshService;
   private autoRefreshSubscription: Subscription;
+  public hasPermission = true;
 
   constructor(protected injector: Injector) {
     this.cdr = injector.get(ChangeDetectorRef);
