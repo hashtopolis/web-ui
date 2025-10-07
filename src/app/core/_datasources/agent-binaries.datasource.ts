@@ -21,8 +21,6 @@ export class AgentBinariesDataSource extends BaseDataSource<JAgentBinary> {
 
     // Use stored filter if no new filter is provided
     const activeFilter = query || this._currentFilter;
-    //ToDo: Reactivate sorting
-    this.sortingColumn.isSortable = false;
 
     let params = new RequestParamBuilder().addInitial(this);
     params = this.applyFilterWithPaginationReset(params, activeFilter, query) as RequestParamBuilder;
