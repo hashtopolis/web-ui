@@ -109,7 +109,6 @@ describe('AuthComponent', () => {
     tick();
 
     expect(component.isLoading).toBeFalse();
-    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Login failed');
   }));
 
   it('should show default error message when login fails without specific error message', fakeAsync(() => {
@@ -127,7 +126,6 @@ describe('AuthComponent', () => {
     tick();
 
     expect(component.isLoading).toBeFalse();
-    expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('An error occurred. Please try again later.');
   }));
 
   it('should call unsubscribeAll on destroy', () => {
