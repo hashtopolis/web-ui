@@ -26,7 +26,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
     this.loading = true;
 
     if (this._dataType === 'tasks') {
-      const hashesService = this.service.ghelper(SERV.HELPER, "getCracksOfTask?task=" + this._id);
+      const hashesService = this.service.ghelper(SERV.HELPER, 'getCracksOfTask?task=' + this._id);
 
       this.subscriptions.push(
         hashesService
