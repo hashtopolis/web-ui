@@ -43,6 +43,11 @@ export class HealthChecksTableComponent extends BaseTableComponent implements On
     this.contextMenuService = new HealthCheckContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
   }
+  
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
+  }
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {

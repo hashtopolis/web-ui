@@ -39,6 +39,10 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
     this.dataSource = new PermissionsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new PermissionsContextMenuService(this.permissionService).addContextMenu();
+  }
+  
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

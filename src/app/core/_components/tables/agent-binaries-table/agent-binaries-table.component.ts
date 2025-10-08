@@ -41,10 +41,14 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     this.dataSource = new AgentBinariesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new AgentBinariesMenuServiceContextMenuService(this.permissionService).addContextMenu();
-    this.dataSource.loadAll();
 
     const path = this.cs.getEndpoint().replace('/api/v2', '');
     this.agentdownloadURL = path + environment.config.agentdownloadURL;
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {

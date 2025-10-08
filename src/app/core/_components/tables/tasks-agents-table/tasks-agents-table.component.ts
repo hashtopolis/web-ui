@@ -80,6 +80,10 @@ export class TasksAgentsTableComponent extends BaseTableComponent implements OnI
       this.dataSource.setTaskId(this.taskId);
     }
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
+  }
+  
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.reload();
   }
 

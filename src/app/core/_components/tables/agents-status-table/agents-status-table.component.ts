@@ -51,7 +51,11 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setAgentStatsRequired(true);
     this.contextMenuService = new AgentMenuService(this.permissionService).addContextMenu();
-    this.dataSource.reload();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
+    this.dataSource.loadAll();
     if (this.dataSource.autoRefreshService.refreshPage) {
       this.dataSource.startAutoRefresh();
     }

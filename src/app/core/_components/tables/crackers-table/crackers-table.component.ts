@@ -36,6 +36,10 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
     this.dataSource = new CrackersDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.contextMenuService = new CrackersContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

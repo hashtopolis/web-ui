@@ -27,6 +27,10 @@ export class LogsTableComponent extends BaseTableComponent implements OnInit, On
     this.tableColumns = this.getColumns();
     this.dataSource = new LogsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
+  }
+  
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

@@ -48,8 +48,13 @@ export class AgentErrorTableComponent extends BaseTableComponent implements OnIn
       this.dataSource.setAgentId(this.agentId);
     }
     this.contextMenuService = new AgentErrorContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
+
   getColumns(): HTTableColumn[] {
     return [
       {

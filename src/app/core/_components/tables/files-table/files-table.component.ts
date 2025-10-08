@@ -84,6 +84,10 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     if (this.editIndex) {
       this.dataSource.setEditValues(this.editIndex, this.editType);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

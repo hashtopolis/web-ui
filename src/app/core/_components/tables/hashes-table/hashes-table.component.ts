@@ -43,6 +43,10 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         this.dataSource.setFilterParam(this.filterParam);
       }
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

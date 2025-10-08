@@ -36,8 +36,14 @@ export class HealthCheckAgentsTableComponent extends BaseTableComponent implemen
       this.dataSource.setHealthCheckId(this.healthCheckId);
     }
     this.dataSource.setColumns(this.tableColumns);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
+
+
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {

@@ -41,6 +41,10 @@ export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent
       this.dataSource.setAccessPermGroupExpand(this.expand);
       this.dataSource.setPermissions(this.permissions);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

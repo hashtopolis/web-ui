@@ -47,6 +47,10 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       this.dataSource.setAccessGroupExpand(this.include);
     }
     this.contextMenuService = new AccessGroupsUserContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

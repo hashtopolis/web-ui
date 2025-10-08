@@ -70,6 +70,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.setIsArchived(this.isArchived);
     this.dataSource.setHashlistID(this.hashlistId);
     this.contextMenuService = new TaskContextMenuService(this.permissionService).addContextMenu();
+  }
+
+  ngAfterViewInit(): void {
     this.dataSource.loadAll();
     if (this.dataSource.autoRefreshService.refreshPage) {
       this.dataSource.startAutoRefresh();

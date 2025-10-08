@@ -86,6 +86,10 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       this.dataSource.setSuperTaskId(this.supertTaskId);
     }
     this.contextMenuService = new PreTaskContextMenuService(this.permissionService).addContextMenu();
+  }
+  
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 

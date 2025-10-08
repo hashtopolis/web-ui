@@ -46,8 +46,13 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
     }
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
+
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {

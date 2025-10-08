@@ -43,6 +43,10 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     this.dataSource = new FilesDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setFileType(this.fileType);
+  }
+
+  ngAfterViewInit(): void {
+    // Wait until paginator is defined
     this.dataSource.loadAll();
   }
 
