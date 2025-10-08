@@ -176,8 +176,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'cracked',
         routerLink: (wrapper: JTaskWrapper) => this.renderCrackedLinkFromWrapper(wrapper),
         isSortable: true,
-        export: async (wrapper: JTaskWrapper) =>
-          wrapper.cracked + '/' + wrapper.hashlist.hashCount.toLocaleString() + ''
+        export: async (wrapper: JTaskWrapper) => wrapper.cracked + ''
       },
       {
         id: TaskTableCol.AGENTS,

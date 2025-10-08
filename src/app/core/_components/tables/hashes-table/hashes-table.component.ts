@@ -24,6 +24,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
   @Input() id: number;
   @Input() dataType: string;
+  @Input() filterParam: string;
 
   tableColumns: HTTableColumn[] = [];
   dataSource: HashesDataSource;
@@ -37,6 +38,10 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
     if (this.id) {
       this.dataSource.setId(this.id);
       this.dataSource.setDataType(this.dataType);
+
+      if (this.filterParam) {
+        this.dataSource.setFilterParam(this.filterParam);
+      }
     }
     this.dataSource.loadAll();
   }
