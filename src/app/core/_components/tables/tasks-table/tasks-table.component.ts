@@ -251,6 +251,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   //Evaluate which row class should be set
   getRowClass = (row: JTaskWrapper) => (this.isCrackedRow(row) ? 'row-cracked' : '');
 
+  /**
+   * Handles row action events triggered from the action menu.
+   * It processes the selected task and performs actions based on the action type.
+   * @param event The action menu event containing the selected task and action.
+   */
   rowActionClicked(event: ActionMenuEvent<JTaskWrapper>): void {
     switch (event.menuItem.action) {
       case RowActionMenuAction.EDIT_TASKS:
@@ -287,6 +292,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
+  /**
+   * Prepares the task wrapper data for deletion by setting the appropriate task name.
+   * If the task type is SUPERTASK or there are no tasks, it uses the taskWrapperName.
+   * Otherwise, it uses the name of the first (and only) task in the tasks array.
+   * @param data The task wrapper data to be processed.
+   * @returns The modified task wrapper data with the correct task name for deletion.
+   */
   getRowDeleteLabel(data: JTaskWrapper): JTaskWrapper {
     return {
       ...data,
@@ -295,33 +307,47 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     };
   }
 
+  /**
+   * Handles bulk action events triggered from the action menu.
+   * It processes the selected tasks, counts supertasks and tasks,
+   * and opens a confirmation dialog based on the selected action (archive or delete).
+   * @param event The action menu event containing the selected tasks and action.
+   */
   bulkActionClicked(event: ActionMenuEvent<JTaskWrapper[]>): void {
     let superTasksCount = 0;
     let tasksCount = 0;
 
-    // Preprocess the data and count the occurrences of each type
     const updatedData: JTaskWrapper[] = event.data.map((taskWrapper: JTaskWrapper) => {
-      if (taskWrapper.taskType === TaskType.SUPERTASK) {
-        superTasksCount++;
-        return { ...taskWrapper, taskName: taskWrapper.taskWrapperName };
-      } else {
-        tasksCount++;
-        return taskWrapper;
+      let taskName: string;
+
+      // Determine if the task wrapper is a supertask or normal task and take the appropriate task name
+      switch (taskWrapper.taskType) {
+        case TaskType.SUPERTASK:
+          superTasksCount++;
+          taskName = taskWrapper.taskWrapperName;
+
+          break;
+        case TaskType.TASK:
+          tasksCount++;
+          taskName = taskWrapper.tasks[0]?.taskName ?? taskWrapper.taskWrapperName;
       }
+
+      return {
+        ...taskWrapper,
+        taskName
+      };
     });
 
-    // Construct the label with counts, also adding plural
+    // Build the label shown in the dialog title based on the counts of supertasks and tasks
     const superTasksLabel = superTasksCount === 1 ? 'supertask' : 'supertasks';
     const tasksLabel = tasksCount === 1 ? 'task' : 'tasks';
 
-    let label = '';
-    if (superTasksCount > 0 && tasksCount > 0) {
-      label = `${tasksCount} ${tasksLabel} and ${superTasksCount} ${superTasksLabel}`;
-    } else if (superTasksCount > 0) {
-      label = `${superTasksCount} ${superTasksLabel}`;
-    } else if (tasksCount > 0) {
-      label = `${tasksCount} ${tasksLabel}`;
-    }
+    const label =
+      superTasksCount > 0 && tasksCount > 0
+        ? `${tasksCount} ${tasksLabel} and ${superTasksCount} ${superTasksLabel}`
+        : superTasksCount > 0
+          ? `${superTasksCount} ${superTasksLabel}`
+          : `${tasksCount} ${tasksLabel}`;
 
     switch (event.menuItem.action) {
       case BulkActionMenuAction.ARCHIVE:
@@ -333,6 +359,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
           action: event.menuItem.action
         });
         break;
+
       case BulkActionMenuAction.DELETE:
         this.openDialog({
           rows: updatedData,
@@ -347,6 +374,12 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
+  /**
+   * Handles export action events triggered from the action menu.
+   * It utilizes the export service to process the selected tasks and export them
+   * based on the defined table columns and labels.
+   * @param event The action menu event containing the selected tasks for export.
+   */
   exportActionClicked(event: ActionMenuEvent<JTaskWrapper[]>): void {
     this.exportService.handleExportAction<JTaskWrapper>(
       event,
@@ -356,6 +389,11 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     );
   }
 
+  /**
+   * Opens a dialog with the provided data.
+   * After the dialog is closed, it processes the result and performs actions based on the user's choice.
+   * @param data The data to be passed to the dialog, including title, body, rows, and action.
+   */
   openDialog(data: DialogData<JTaskWrapper>) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
       data: data,
@@ -381,6 +419,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     );
   }
 
+  /**
+   * Sets the archived state of the tasks and reloads the data source accordingly.
+   * @param isArchived  A `boolean` indicating whether to `archive (true)` or `unarchive (false)` the tasks.
+   */
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
     this.dataSource.reset(true);
@@ -388,6 +430,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.loadAll();
   }
 
+  /**
+   * Generates a string representing the dispatched and searched percentages for a given task wrapper.
+   * If the task wrapper is of type TASK and has a valid keyspace, it returns a formatted string.
+   * Otherwise, it returns an empty string.
+   * @param wrapper The task wrapper object containing task details.
+   * @returns A string in the format "dispatched% / searched%" or an empty string if not applicable.
+   */
   getDispatchedSearchedString(wrapper: JTaskWrapper): string {
     if (wrapper.taskType === TaskType.TASK) {
       const task: JTask = wrapper.tasks[0];
