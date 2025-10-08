@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { ChunkData } from '@models/chunk.model';
@@ -40,7 +40,7 @@ import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks
   templateUrl: './tasks-table.component.html',
   standalone: false
 })
-export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _hashlistId: number;
 
   @Input()

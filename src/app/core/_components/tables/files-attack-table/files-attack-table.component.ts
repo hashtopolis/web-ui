@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -19,7 +19,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './files-attack-table.component.html',
   standalone: false
 })
-export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;

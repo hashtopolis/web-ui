@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JHashlist } from '@models/hashlist.model';
 
@@ -30,7 +30,7 @@ import { formatPercentage } from '@src/app/shared/utils/util';
   templateUrl: './hashlists-table.component.html',
   standalone: false
 })
-export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class HashlistsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: HashlistsDataSource;
   isArchived = false;
@@ -52,7 +52,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     // Wait until paginator is defined
     this.dataSource.loadAll();
   }
-
 
   ngOnDestroy(): void {
     for (const sub of this.subscriptions) {

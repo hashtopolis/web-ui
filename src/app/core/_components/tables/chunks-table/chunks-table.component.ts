@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JChunk } from '@models/chunk.model';
@@ -25,7 +25,7 @@ import { convertToLocale } from '@src/app/shared/utils/util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class ChunksTableComponent extends BaseTableComponent implements OnInit {
+export class ChunksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   // Input property to specify an agent ID for filtering chunks.
   @Input() agentId: number;
 

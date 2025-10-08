@@ -1,7 +1,7 @@
 import { catchError } from 'rxjs';
 
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
 
@@ -23,7 +23,10 @@ import { AccessPermissionGroupsExpandDataSource } from '@datasources/access-perm
   templateUrl: './access-permission-groups-user-table.component.html',
   standalone: false
 })
-export class AccessPermissionGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessPermissionGroupsUserTableComponent
+  extends BaseTableComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @Input() accesspermgroupId = 0;
 
   tableColumns: HTTableColumn[] = [];

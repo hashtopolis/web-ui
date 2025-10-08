@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 
@@ -25,7 +25,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './crackers-table.component.html',
   standalone: false
 })
-export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class CrackersTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
   selectedFilterColumn: string;

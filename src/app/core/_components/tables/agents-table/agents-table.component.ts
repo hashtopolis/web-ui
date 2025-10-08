@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
@@ -39,7 +39,7 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   templateUrl: './agents-table.component.html',
   standalone: false
 })
-export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _taskId: number;
 
   @Input() datatype: DataType = 'agents';

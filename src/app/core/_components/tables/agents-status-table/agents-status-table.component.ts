@@ -1,6 +1,6 @@
 import { catchError, forkJoin } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
@@ -39,7 +39,7 @@ export class STATCALCULATION {
   templateUrl: './agents-status-table.component.html',
   standalone: false
 })
-export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: string;

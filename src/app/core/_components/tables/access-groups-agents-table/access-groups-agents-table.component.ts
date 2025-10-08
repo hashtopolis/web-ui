@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { AccessGroupsAgentContextMenuService } from '@services/context-menu/users/access-groups-agent-menu.service';
 
@@ -25,7 +25,7 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
   templateUrl: './access-groups-agents-table.component.html',
   standalone: false
 })
-export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AccessGroupsAgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() accessgroupId = 0;
   @Output() agentsRemoved = new EventEmitter<void>(); // Event to notify parent about removed agent(s)
 
@@ -44,7 +44,6 @@ export class AccessGroupsAgentsTableComponent extends BaseTableComponent impleme
     }
     this.contextMenuService = new AccessGroupsAgentContextMenuService(this.permissionService).addContextMenu();
   }
-
 
   ngAfterViewInit(): void {
     // Wait until paginator is defined

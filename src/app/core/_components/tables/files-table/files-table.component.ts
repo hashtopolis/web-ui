@@ -1,7 +1,7 @@
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -32,7 +32,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './files-table.component.html',
   standalone: false
 })
-export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   private _editIndex: number;
 
   @Input() fileType: FileType = 0;

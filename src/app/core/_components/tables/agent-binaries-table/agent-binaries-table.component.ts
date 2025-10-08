@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 
 import { JAgentBinary } from '@models/agent-binary.model';
 
@@ -29,7 +29,7 @@ import { environment } from '@src/environments/environment';
   templateUrl: './agent-binaries-table.component.html',
   standalone: false
 })
-export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
   selectedFilterColumn: string;
